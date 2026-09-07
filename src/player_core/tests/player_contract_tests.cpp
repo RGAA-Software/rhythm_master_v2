@@ -188,6 +188,39 @@ int main() {
               "seek offset survives pause and surface replacement");
         session.Restart();
         Check(scalar(external_tick(500)) == 0, "explicit restart clears seek offset");
+        runtime::PlaybackSample music{4.25, 7, false, 16};
+        const auto music_tick = [&](double host_seconds) {
+            replacement.BeginFrame();
+            auto result =
+                    session.Tick(host_seconds, false, session.Canvas(), replacement, {}, music);
+            replacement.EndFrame();
+            return result;
+        };
+        Check(scalar(music_tick(501)) == 4.25 && session.Seconds() == 4.25,
+              "music consumption drives graph local and session fallback time");
+        music.paused_ = true;
+        const auto held = music_tick(502);
+        Check(session.Paused() && scalar(music_tick(600)) == 4.25,
+              "media pause holds the player without wall-time drift");
+        music.seconds_ = 9;
+        ++music.generation_;
+        const auto sought_music = music_tick(601);
+        Check(scalar(sought_music) == 9 && !replacement.IsValid(held.final_),
+              "paused media seek reevaluates graph and invalidates prior history");
+        music.seconds_ = 0;
+        music.paused_ = false;
+        ++music.generation_;
+        Check(scalar(music_tick(602)) == 0 && !session.Paused(), "whole-song loop resets graph");
+        session.Load(bytes);
+        music.seconds_ = 2;
+        ++music.generation_;
+        const auto history = music_tick(603);
+        music.paused_ = true;
+        music.seconds_ = 8;
+        ++music.generation_;
+        Check(replacement.IsValid(music_tick(604).final_) && !replacement.IsValid(history.final_) &&
+                      session.Seconds() == 8,
+              "interactive stateful seek starts fresh history instead of rejecting audio seek");
         std::cout << "player contracts passed\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

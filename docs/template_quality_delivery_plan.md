@@ -2,6 +2,16 @@
 
 ## Confirmed target and current evidence
 
+[Product scope](product_scope.md) governs this music visualization content library.
+Templates are editable examples and reusable starting points within a
+TiXL/TouchDesigner-class authoring product. Their quantity and visual quality do
+not replace acceptance of original graph creation, live node previews, parameter
+control and component reuse. Music-driven templates must expose usable music
+controls and demonstrate audible-input changes through visual response. Reusable static backgrounds and other building
+blocks may support a composition, but do not independently establish a complete
+music visualization template. Actual music playback acceptance is distinct from
+synthetic feature tests and silent screenshots.
+
 Latest user instruction: at least **50 Basic templates and 50 Advanced templates**.
 This replaces the earlier 24-template minimum. The independent requirements of
 40 semantic nodes and 120 visually distinct presets remain. Counts measure

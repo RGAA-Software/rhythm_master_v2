@@ -10,9 +10,17 @@
 > Catalog counts are runnable examples and preset records, not polished content
 > acceptance. See [quality correction](docs/validation/authoring_quality_correction_2026-09-07.md).
 >
+> Product scope, refined 2026-09-08: Rhythm Master targets a **real-time node-based
+> visual authoring product in the class of TiXL and TouchDesigner**, with music
+> visualization as its core use case. Desktop wallpaper hosting is outside its scope.
+> [Product scope and acceptance](docs/product_scope.md) governs the roadmap.
+>
 > Decision date: 2026-09-06
 
-This directory contains the new Rhythm Master design and initial implementation. The new
+This directory contains the Rhythm Master music visualization design and implementation.
+Its core workflow is open-ended visual node authoring, reusable components,
+audio/signal/parameter/time control and synchronized live node/final previews,
+windowed/fullscreen playback, media export and portable package publishing. The new
 application will not link Qt. Studio/node editing targets Windows and macOS;
 the shared Player targets Windows, macOS, Android and iOS. It will retain the
 proven portable rendering, graph, effect, audio-analysis and physics work from
@@ -25,7 +33,8 @@ Multi-platform architecture applies from the first shared module: Studio targets
 Windows/macOS and Player targets Windows/macOS/Android/iOS. Windows-first is the
 host delivery and product acceptance order. Shared contracts, package formats,
 toolchain probes and dependency evaluation cover all target platforms now;
-mobile application hosts remain deferred until Windows product acceptance.
+Android Player host development is now authorized and in progress; native
+validation and an assembled APK do not establish full application acceptance.
 Delivery order is Windows, then Android Player, then the final Apple platform
 stage (macOS Studio/Player and iOS Player). No Apple hardware is currently available;
 Apple toolchain, GPU and device validation move to that stage and do not block
@@ -51,12 +60,14 @@ performance and usability. Payment, activation and proprietary editions are not
 product assumptions. The project's exact outbound license has not yet been
 selected; see `docs/third_party_reuse_policy.md` for dependency reuse rules.
 
-The old repository remains the behavioral and migration reference until the
-new Windows application reaches feature parity. Source is not copied without a
-dependency and ownership audit.
+The old repository remains a read-only source and behavioral reference for relevant
+music visualization capabilities. Its full product scope is not a migration target.
+Source is not copied without a dependency and ownership audit.
 
 Documents:
 
+- [Product scope](docs/product_scope.md): music visualization workflows, scope boundaries
+  and acceptance criteria; supersedes conflicting historical product assumptions.
 - `docs/technology_stack_evaluation.md`: whole-product library evaluation,
   confirmed decisions versus candidates, boundaries and validation gates.
 - `docs/gammaray_common_reuse_plan.md`: inspected first-party foundations,

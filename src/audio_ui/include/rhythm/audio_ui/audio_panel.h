@@ -6,15 +6,23 @@
 #include <string>
 
 #include "rhythm/audio/capture.h"
+#include "rhythm/runtime/playback_clock.h"
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
 #include "rhythm/audio/playback.h"
 #endif
 
 namespace rhythm::audio_ui {
+struct AudioInputFrame {
+    std::optional<audio::Features> features_{};
+    std::optional<runtime::PlaybackSample> playback_{};
+};
 class AudioPanel final {
    public:
     void Draw(const std::map<std::string, std::string>& text);
     std::optional<audio::Features> Snapshot() const;
+    // Features and presentation time are taken from one worker snapshot.
+    AudioInputFrame Frame() const;
+    void ApplyPlayback(const runtime::PlaybackCommand& command);
     void SetSuspended(bool suspended);
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
     void LoadFile(const std::filesystem::path& path);
@@ -36,6 +44,8 @@ class AudioPanel final {
     bool resume_file_ = false;
     bool loop_ = false;
     std::filesystem::path demo_file_{};
+    std::filesystem::path loaded_file_{};
+    bool media_selected_ = false;
 #endif
 };
 }  // namespace rhythm::audio_ui

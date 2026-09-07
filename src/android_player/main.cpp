@@ -7,6 +7,9 @@
 #include "commands.h"
 #include "host.h"
 #include "package_imports.h"
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+#include "music_playback.h"
+#endif
 #include "rhythm/player/session.h"
 #include "rhythm/render/layout.h"
 
@@ -36,6 +39,9 @@ int main(int, char**) {
         platform::Host host;
         std::optional<render::Renderer> renderer;
         player::Session session;
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        android_host::MusicPlayback music(host.CacheDirectory());
+#endif
         auto render_quality = player::RenderQuality::kBalanced;
         session.Load(host.ReadAsset("signal_texture.rhythmpack"));
         const auto installed = host.DataDirectory() / "selected.rhythmpack";
@@ -53,6 +59,9 @@ int main(int, char**) {
         std::string error;
         while (host.Poll()) {
             const double seconds = SDL_GetTicksNS() / 1.0e9;
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+            if (host.Suspended()) music.SetSuspended(true);
+#endif
             if (renderer && surface_generation != host.SurfaceGeneration()) {
                 session.Tick(seconds, true, {}, *renderer);
                 session.ReleaseGraphics();
@@ -77,8 +86,24 @@ int main(int, char**) {
                         static_cast<unsigned long long>(devices));
             }
             const auto commands = android_host::TakeCommands();
-            if (commands.toggle_pause_) session.SetPaused(!session.Paused());
-            if (commands.restart_) session.Restart();
+            runtime::PlaybackCommand playback;
+            if (commands.toggle_pause_) playback.paused_ = !session.Paused();
+            if (commands.focus_pause_) playback.paused_ = true;
+            if (commands.restart_) playback.seek_ = 0;
+            if (commands.seek_seconds_) playback.seek_ = commands.seek_seconds_;
+            if (playback.paused_) session.SetPaused(*playback.paused_);
+            if (playback.seek_) session.Seek(*playback.seek_);
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+            if (!commands.music_path_.empty()) {
+                if (music.Open(commands.music_path_))
+                    error.clear();
+                else
+                    error = "audio_error";
+            }
+            music.Apply(playback);
+            music.SetSuspended(false);
+            if (commands.music_loop_) music.SetLoop(*commands.music_loop_);
+#endif
             if (commands.render_quality_) render_quality = *commands.render_quality_;
             if (!commands.package_path_.empty()) {
                 if (!imports.Request(commands.package_path_)) error = "package_error";
@@ -98,7 +123,17 @@ int main(int, char**) {
             }
             renderer->BeginFrame();
             const auto extent = player::PlaybackExtent(session.Canvas(), render_quality);
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+            const auto music_frame = music.Frame();
+            const auto output = session.Tick(seconds, false, extent, *renderer, music_frame.inputs_,
+                                             music_frame.playback_);
+            if (music_frame.failed_) error = "audio_error";
+            android_host::PublishPlayback(
+                    session.Seconds(),
+                    music_frame.playback_ ? music_frame.playback_->duration_ : std::nullopt);
+#else
             const auto output = session.Tick(seconds, false, extent, *renderer);
+#endif
             renderer->Submit({}, Present(output.final_, size, session.Canvas()), 0x111822ff);
             renderer->EndFrame();
             ++frames;
@@ -108,6 +143,10 @@ int main(int, char**) {
                        << " s | frames=" << frames << " devices=" << devices << " " << error;
                 if (imports.Busy()) status << " loading";
                 if (output.budget_) status << " render.resource_budget";
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+                if (music_frame.inputs_.audio_)
+                    status << " rms=" << music_frame.inputs_.audio_->rms_;
+#endif
                 android_host::PublishStatus(status.str());
             }
             if (frames % 300 == 0)

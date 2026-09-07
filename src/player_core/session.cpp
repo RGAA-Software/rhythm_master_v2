@@ -14,8 +14,7 @@ void Session::LoadPrepared(PreparedPackage package, double initial_seconds) {
         throw std::invalid_argument("player.unsupported_seek");
     auto resources = std::move(package.resources_);
     Commit(package.Take(), std::move(resources));
-    playback_offset_seconds_ = initial_seconds;
-    seconds_ = initial_seconds;
+    clock_.Seek(initial_seconds);
 }
 void Session::Open(const std::filesystem::path& path) {
     auto package = project::LoadPackage(path);
@@ -27,7 +26,7 @@ void Session::Commit(project::RuntimePackage package,
     package_ = std::move(package);
     resources_ = std::move(resources);
     videos_.Reset();
-    paused_ = false;
+    clock_.SetPaused(false);
     Restart();
 }
 const std::string& Session::Title() const {
@@ -39,9 +38,10 @@ render::Extent Session::Canvas() const {
     return {static_cast<std::uint16_t>(canvas.width_), static_cast<std::uint16_t>(canvas.height_)};
 }
 void Session::Restart() {
+    const bool paused = Paused();
     clock_ = {};
-    seconds_ = 0;
-    playback_offset_seconds_ = 0;
+    clock_.SetPaused(paused);
+    clock_generation_ = clock_.Generation();
     external_ = {};
     ReleaseGraphics();
 }
@@ -53,18 +53,30 @@ void Session::ReleaseGraphics() {
 }
 runtime::FrameResult Session::Tick(double monotonic_seconds, bool suspended, render::Extent extent,
                                    render::Renderer& renderer,
-                                   const runtime::ExternalInputs& inputs) {
+                                   const runtime::ExternalInputs& inputs,
+                                   const std::optional<runtime::PlaybackSample>& playback) {
     if (!runtime::ValidExternalInputs(inputs))
         throw std::invalid_argument("runtime.external_inputs");
-    seconds_ = playback_offset_seconds_ + clock_.Advance(monotonic_seconds, suspended || paused_);
+    const auto previous_seconds = Seconds();
+    clock_.Advance(monotonic_seconds, suspended, playback);
+    const bool media_position_changed = playback && Seconds() != previous_seconds;
+    const bool discontinuity = clock_generation_ != clock_.Generation();
+    if (discontinuity) {
+        clock_generation_ = clock_.Generation();
+        ++generation_;
+        frame_ = {};
+    }
     if (!package_ || suspended || !extent.width_ || !extent.height_) return {};
-    if (!paused_ || extent != extent_ || !renderer.IsValid(frame_.final_) ||
-        !resources_->videos_.empty()) {
-        runtime::FrameContext context{seconds_, generation_, extent, false};
+    if (!Paused() || media_position_changed || extent != extent_ ||
+        !renderer.IsValid(frame_.final_) || !resources_->videos_.empty()) {
+        runtime::FrameContext context{Seconds(), generation_, extent, false};
         context.resources_ = resources_->models_;
         context.images_ = resources_->images_;
-        context.videos_ = videos_.Update(package_->program_, *resources_, seconds_, generation_);
-        context.external_ = paused_ ? external_ : inputs;
+        context.videos_ = videos_.Update(package_->program_, *resources_, Seconds(), generation_);
+        context.external_ =
+                Paused() && !discontinuity && !media_position_changed ? external_ : inputs;
+        context.advance_state_ = !Paused() && (!playback || Seconds() != previous_seconds);
+        context.retained_textures_ = std::vector<graph::NodeId>{};
         frame_ = runtime_.EvaluateSafely(package_->program_, context, renderer);
         external_ = context.external_;
         extent_ = extent;

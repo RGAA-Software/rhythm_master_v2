@@ -82,7 +82,9 @@ class FilePlayback::Impl final {
     }
     PlaybackSnapshot Snapshot() const {
         std::lock_guard lock(mutex_);
-        return snapshot_;
+        auto result = snapshot_;
+        result.paused_ = request_.paused_;
+        return result;
     }
 
    private:
@@ -97,6 +99,8 @@ class FilePlayback::Impl final {
         ++request_.generation_;
         snapshot_ = {};
         snapshot_.generation_ = request_.generation_;
+        snapshot_.position_seconds_ =
+                static_cast<double>(request_.first_sample_) / media::kAudioSampleRate;
         snapshot_.state_ = request_.path_ ? PlaybackState::kLoading : PlaybackState::kStopped;
         Changed();
     }

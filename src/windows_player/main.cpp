@@ -45,6 +45,14 @@ int main(int argc, char* argv[]) {
         rhythm::player::Session session;
         rhythm::player::PackageLoader package_loader;
         rhythm::audio_ui::AudioPanel audio_panel;
+        const auto set_paused = [&](bool paused) {
+            audio_panel.ApplyPlayback({paused, {}});
+            session.SetPaused(paused);
+        };
+        const auto restart = [&] {
+            audio_panel.ApplyPlayback({{}, 0});
+            session.Restart();
+        };
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         if (smoke) audio_panel.SetVolume(0);
         if (requested_audio) audio_panel.LoadFile(*requested_audio);
@@ -84,8 +92,8 @@ int main(int argc, char* argv[]) {
                 }
             }
             if (!ImGui::GetIO().WantTextInput) {
-                if (ImGui::IsKeyPressed(ImGuiKey_Space)) session.SetPaused(!session.Paused());
-                if (ImGui::IsKeyPressed(ImGuiKey_R)) session.Restart();
+                if (ImGui::IsKeyPressed(ImGuiKey_Space)) set_paused(!session.Paused());
+                if (ImGui::IsKeyPressed(ImGuiKey_R)) restart();
             }
             ImGui::SetNextWindowPos({0, 0});
             ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
@@ -97,10 +105,9 @@ int main(int argc, char* argv[]) {
             if (ImGui::Button(chinese ? "English" : "简体中文")) chinese = !chinese;
             if (ImGui::Button(session.Paused() ? (chinese ? "继续##play" : "Resume##play")
                                                : (chinese ? "暂停##play" : "Pause##play")))
-                session.SetPaused(!session.Paused());
+                set_paused(!session.Paused());
             ImGui::SameLine();
-            if (ImGui::Button(chinese ? "重新播放##restart" : "Restart##restart"))
-                session.Restart();
+            if (ImGui::Button(chinese ? "重新播放##restart" : "Restart##restart")) restart();
             ImGui::SameLine();
             ImGui::Text("%.2f s", session.Seconds());
             audio_panel.Draw(catalogs.at(chinese ? "zh-CN" : "en-US"));
@@ -135,10 +142,12 @@ int main(int argc, char* argv[]) {
             const auto width = std::max(1.0f, available.x);
             const auto height = std::max(1.0f, available.y);
             rhythm::runtime::ExternalInputs inputs;
-            inputs.audio_ = audio_panel.Snapshot();
+            const auto audio_frame = audio_panel.Frame();
+            inputs.audio_ = audio_frame.features_;
             observed_audio |= inputs.audio_ && inputs.audio_->valid_ && inputs.audio_->rms_ > 0;
-            const auto output = session.Tick(smoke ? frames / 60.0 : elapsed, false,
-                                             session.Canvas(), renderer, inputs);
+            const auto output =
+                    session.Tick(smoke ? frames / 60.0 : elapsed, false, session.Canvas(), renderer,
+                                 inputs, audio_frame.playback_);
             host.ClearViewerTextures();
             if (output.budget_)
                 ImGui::TextWrapped("%s", catalogs.at(chinese ? "zh-CN" : "en-US")

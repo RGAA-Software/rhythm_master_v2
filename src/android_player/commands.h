@@ -11,10 +11,15 @@ struct Commands {
     bool toggle_pause_ = false;
     bool restart_ = false;
     std::string package_path_{};
+    std::string music_path_{};
+    std::optional<double> seek_seconds_{};
+    std::optional<bool> music_loop_{};
+    bool focus_pause_ = false;
     std::optional<player::RenderQuality> render_quality_{};
 };
 Commands TakeCommands();
 void PublishStatus(std::string status);
+void PublishPlayback(double seconds, std::optional<double> duration);
 struct Surface {
     std::uintptr_t window_ = 0;
     std::shared_ptr<void> owner_{};

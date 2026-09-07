@@ -29,8 +29,9 @@ void Report(std::string_view name, std::vector<double> values) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        if (argc != 4 && argc != 5)
-            throw std::invalid_argument("editor_benchmark resources template output [audio]");
+        if (argc < 4 || argc > 6 || (argc == 6 && std::string_view(argv[5]) != "--retain-textures"))
+            throw std::invalid_argument(
+                    "editor_benchmark resources template output [audio [--retain-textures]]");
         const std::filesystem::path resources(argv[1]), source(argv[2]), output(argv[3]);
         if (std::filesystem::exists(output))
             throw std::invalid_argument("editor_benchmark.output_must_be_new");
@@ -41,12 +42,14 @@ int main(int argc, char* argv[]) {
         auto renderer = host.CreateRenderer();
         auto font = host.CreateFontTexture(renderer);
         studio::Studio studio(resources, output);
-        if (argc == 5) studio.LoadAudioFile(argv[4], 0);
+        if (argc == 6) studio.SetTextureReuse(false);
+        if (argc >= 5) studio.LoadAudioFile(argv[4], 0);
         std::vector<double> total_times, editor_times, submit_times;
         bool observed_previews = false;
         float peak_rms = 0;
         std::size_t peak_previews = 0, peak_visible = 0, pan_frames = 0;
         std::uint64_t peak_texture_bytes = 0;
+        std::uint32_t peak_recycled = 0;
         for (int frame = 0; frame < 720; ++frame) {
             const auto start = Clock::now();
             if (!host.Poll()) throw std::runtime_error("editor_benchmark.closed");
@@ -70,6 +73,7 @@ int main(int argc, char* argv[]) {
                 total_times.push_back(Milliseconds(start, end));
                 editor_times.push_back(Milliseconds(editor_start, submit_start));
                 submit_times.push_back(Milliseconds(submit_start, end));
+                peak_recycled = std::max(peak_recycled, studio.Status().recycled_textures_);
                 observed_previews |= studio.Status().inline_previews_ != 0;
                 peak_rms = std::max(peak_rms, studio.Status().audio_rms_);
                 peak_previews = std::max(peak_previews, studio.Status().inline_previews_);
@@ -81,17 +85,18 @@ int main(int argc, char* argv[]) {
         }
         if (!studio.HasValidPlan() || !observed_previews)
             throw std::runtime_error("editor_benchmark.missing_graph_or_previews");
-        if (argc == 5 && peak_rms < 0.01f)
+        if (argc >= 5 && peak_rms < 0.01f)
             throw std::runtime_error("editor_benchmark.missing_decoded_audio");
         if (!pan_frames) throw std::runtime_error("editor_benchmark.pan_not_exercised");
         std::cout << "measured_frames=600 window=1920x1080 synthetic_time_hz=60 audio="
-                  << (argc == 5 ? "decoded_file_muted_device" : "silent") << '\n';
+                  << (argc >= 5 ? "decoded_file_muted_device" : "silent") << '\n';
         Report("host", total_times);
         Report("editor_and_graph", editor_times);
         Report("ui_submit_and_present", submit_times);
         std::cout << "authored_nodes=" << studio.Status().authored_nodes_
                   << " peak_visible=" << peak_visible << " peak_inline_previews=" << peak_previews
                   << " peak_audio_rms=" << peak_rms << " pan_hand_frames=" << pan_frames
+                  << " peak_recycled_targets=" << peak_recycled
                   << " peak_texture_bytes=" << peak_texture_bytes << '\n';
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

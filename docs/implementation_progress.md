@@ -10,6 +10,34 @@ cluster plans; an installed demonstration APK alone is not Android completion.
 Pending dependencies are validated per module before adoption. Outstanding
 feature and platform checks remain explicit, including Windows risk checks.
 
+## 2026-09-08: music authoring scope, performance and common playback time
+
+The user confirms TiXL/TouchDesigner-class node-based visual authoring as the
+product target, with music visualization as its core use case. Wallpaper hosting
+is excluded. The latest instruction authorizes continuing all five work streams
+through Android acceptance: complex-graph performance, parameter/time control,
+reusable components, complete authoring-to-playback examples and quality content.
+Communication remains paused and Apple is the final platform stage.
+
+Dynamic intermediate texture lifetimes, optional node CPU profiling and paused
+frame reuse are implemented and tested on Windows and Android. Resonance Gate
+reduces texture memory substantially; stable 60 fps is not established on Android.
+See `validation/texture_lifetimes_2026-09-08.md`.
+
+Music and graph time now share the actual audio-consumption estimate in Studio
+and Player, including pause, seek, loop and temporal-history reset. Windows
+audio/graph integration and Android native contracts pass; see
+`validation/music_transport_2026-09-08.md`. The Android music APK now includes
+vcpkg FFmpeg and local music controls with a tested companion relink bundle;
+see `validation/android_music_application_2026-09-08.md`. Phone installation,
+app lifecycle/audio and long-run acceptance remain distinct pending checks.
+The five-stream program and 50 Basic + 50 Advanced content target are unfinished.
+
+The cross-project user component library now saves nested definitions, exposed
+controls, layout and referenced assets, and inserts them with collision isolation
+and undo. English/Chinese ImGui interaction tests and Windows/Android core
+round-trips pass. See `validation/user_component_library_2026-09-08.md`.
+
 ## 2026-09-07: complex music-driven scene and large-canvas verification
 
 Resonance Gate adds a fully connected 164-node / 269-edge Advanced audio template,
@@ -145,7 +173,9 @@ Superseding user instruction: STOP communication development and testing now,
 including the unfinished drain-close regression. Preserve its current code and
 evidence without adoption. Communication is the final overall stage, after Apple.
 
-The user explicitly authorized continuous implementation of these seven steps:
+The user explicitly authorized continuous implementation of these seven steps.
+The 2026-09-07 product-scope correction removes wallpaper hosting from step 6;
+[product_scope.md](product_scope.md) defines the music visualization acceptance path:
 
 1. Local music-driven visuals: canonical audio analysis, music playback/capture,
    frequency/loudness/onset inputs and visual parameter connections.
@@ -154,8 +184,9 @@ The user explicitly authorized continuous implementation of these seven steps:
 4. Advanced visual domains: particles, physics, 3D scenes, materials and lighting.
 5. Content library: at least 40 semantic nodes, 120 presets, 50 Basic templates
    and 50 Advanced templates under the latest user target.
-6. Windows product closure: project library, settings, ordinary wallpaper hosting,
-   publish/playback, performance and stability acceptance.
+6. Windows music visualization product closure: project library, settings,
+   synchronized audio/visual controls, windowed/fullscreen playback, export/publishing,
+   performance and stability acceptance.
 7. Android local Player: shared capabilities, lifecycle, touch, audio, imports,
    orientation, GPU/memory budgets and actual APK/device acceptance.
 
@@ -531,3 +562,15 @@ The 164-node musical Resonance Gate also runs in the Android native GLES probe;
 720p/540p/360p p95 are 45.95/34.07/17.43 ms. This is synthesized feature input,
 not Android APK real-music acceptance or a 60 fps claim. Full content/product
 milestones remain open; communications remain deferred.
+
+
+## Product benchmark clarification — 2026-09-08
+
+The user confirmed TiXL and TouchDesigner as the target class of software.
+[Product scope](product_scope.md) now makes original node-based authoring,
+live intermediate previews, composable audio/signal/parameter/time inputs,
+complex visual domains, reusable components and complete output workflows
+explicit acceptance dimensions. Music visualization remains the core use case;
+wallpaper hosting remains excluded. Template counts and standalone playback do
+not establish completion of Studio authoring. Existing performance, media,
+platform and deferred-communication priorities continue under these criteria.

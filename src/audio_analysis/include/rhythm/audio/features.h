@@ -27,6 +27,7 @@ struct Features {
     float spectrum_gain_ = 1;
     float onset_strength_ = 0;
     bool valid_ = false;
+    bool operator==(const Features&) const = default;
 };
 inline bool ValidFeatures(const Features& frame) {
     for (const auto& bands : {frame.mono_bands_, frame.left_bands_, frame.right_bands_})

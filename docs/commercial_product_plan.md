@@ -6,7 +6,12 @@
 
 ## 1. Purpose
 
-Rhythm Master is an open-source project. Commercial-grade describes its quality:
+Rhythm Master is an open-source real-time node-based visual authoring product,
+benchmarked against TiXL and TouchDesigner, with music visualization as its core
+use case. Studio enables original compositions and reusable components; Player
+executes the resulting published works.
+[Product scope](product_scope.md) governs its workflows and acceptance; desktop
+wallpaper hosting is excluded on every platform. Commercial-grade describes its quality:
 reliable operation, responsive editing, reproducible builds, maintainable code
 and complete user workflows. This plan defines delivery, recovery, release and
 support requirements. Paid editions, activation and proprietary licensing are
@@ -23,8 +28,9 @@ Product scope is split deliberately:
 - **platform hosts**: lifecycle, windows/surfaces, input, audio devices, safe
   storage, signing, store services and platform-specific presentation.
 
-The Android and iOS products are not mobile editors. Desktop wallpaper,
-transparent-topmost and WorkerW behavior are also not promised on mobile.
+Android and iOS provide music visualization Players. Their acceptance covers
+real music input, audio-driven output, playback controls and application lifecycle.
+Native transparent-window features retain their separate tentative/deferred status.
 
 Local cluster playback is now in scope: desktop Host, native Player QR join,
 shared scene/time/audio inputs and optional group roles. It is not cloud graph
@@ -38,7 +44,7 @@ participation follows the Windows acceptance gate.
 The following decisions affect persisted formats, module boundaries and release
 infrastructure and therefore must be made before broad implementation:
 
-1. first-release user profiles and the three primary end-to-end workflows;
+1. first-release user profiles and delivery details for the music input → authoring/preview → playback/export/publishing workflows in `product_scope.md`;
 2. exact Studio publishing and offline export formats;
 3. project outbound license and compatibility of distributed dependencies;
 4. local/offline workflows, with accounts optional for any future hosted service;

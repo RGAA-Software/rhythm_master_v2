@@ -11,6 +11,16 @@
 #include "rhythm/studio/studio.h"
 
 namespace {
+void ActivateProfile() {
+    // Synchronous borrowed ImGui window; never stored by project code.
+    for (auto* window : ImGui::GetCurrentContext()->Windows)
+        if (std::string_view(window->Name).find("###inspector") != std::string_view::npos) {
+            ImGui::SetScrollY(window, window->ScrollMax.y);
+            ImGui::ActivateItemByID(window->GetID("###profile"));
+            return;
+        }
+    throw std::runtime_error("profile.inspector_missing");
+}
 void ActivateReopen() {
     // ImGui's borrowed window is inspected only within this synchronous adapter.
     for (auto* window : ImGui::GetCurrentContext()->Windows)
@@ -37,23 +47,30 @@ int main(int argc, char* argv[]) {
         host.Resize({1280, 720});
         auto renderer = host.CreateRenderer();
         auto font = host.CreateFontTexture(renderer);
+        // Dynamic intermediates now fit by themselves. Simulate concurrent GPU
+        // consumers so this remains an admission/recovery test as reuse improves.
+        auto pressure =
+                renderer.CreateTexture({4096, 4096}, {}, render::TexturePrecision::kFloat16);
         {
             studio::Studio studio(resources, project);
-            std::size_t limited = 0, recovered = 0;
+            std::size_t limited = 0, recovered = 0, profiled = 0;
             for (int frame = 0; frame < 240; ++frame) {
                 if (!host.Poll()) throw std::runtime_error("budget.window_closed");
                 if (frame == 120) {
                     if (limited < 60) throw std::runtime_error("budget.not_exercised");
+                    pressure = {};
                     prepared.snapshot_.document_.canvas_ = {640, 360};
                     ++prepared.snapshot_.document_.revision_;
                     project::Save(project, prepared.snapshot_);
                     ActivateReopen();
                 }
+                if (frame == 160) ActivateProfile();
                 host.BeginUi();
                 renderer.BeginFrame();
                 studio.Frame(host, renderer, frame / 60.0);
                 const auto status = studio.Status();
                 limited += status.budget_limited_;
+                if (frame > 165 && status.profiled_nodes_ == 164) ++profiled;
                 if (frame > 150 && !status.budget_limited_ &&
                     renderer.Stats().texture_bytes_ > 40ULL * 1024 * 1024 &&
                     renderer.Stats().texture_bytes_ < 100ULL * 1024 * 1024)
@@ -61,9 +78,10 @@ int main(int argc, char* argv[]) {
                 renderer.Submit({}, host.EndUi());
                 renderer.EndFrame();
             }
+            if (profiled < 60) throw std::runtime_error("profile.no_node_measurements");
             if (recovered < 60) throw std::runtime_error("budget.editor_did_not_recover");
             std::cout << "editor_frames=240 limited=" << limited << " recovered=" << recovered
-                      << '\n';
+                      << " profiled=" << profiled << '\n';
         }
         // Tiny targets exercise the backend handle pool independently of byte limits.
         graph::Registry registry;

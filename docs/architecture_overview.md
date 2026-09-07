@@ -14,8 +14,19 @@ that feature. Existing platform boundaries remain applicable if it is implemente
 
 ## 1. Product objective
 
-Rhythm Master is a real-time visual authoring and playback system. Its primary
-workflow is closer to TouchDesigner, TiXL and a game-engine editor than to a
+User scope correction, 2026-09-07: [product_scope.md](product_scope.md) governs
+this architecture. Desktop wallpaper hosting and desktop embedding are outside
+scope and have been removed from session, platform and delivery requirements.
+
+The 2026-09-08 target is a real-time node-based visual authoring product in the
+class of TiXL and TouchDesigner, with music visualization as the core use case.
+Studio must support original compositions from primitive nodes, inspectable
+live results and reusable components; templates and Player serve this authoring
+workflow. Audio, time and parameter inputs remain composable rather than making
+every graph require an audio source. Its main
+path is music file/live audio input, feature analysis, audio-driven visual graphs,
+synchronized node/final previews, windowed/fullscreen playback, export and publishing.
+Its primary workflow is closer to TouchDesigner, TiXL and a game-engine editor than to a
 traditional form-based desktop application. The new application therefore uses
 one GPU-oriented UI and rendering composition model instead of combining Qt
 Widgets, QGraphicsView, QRhi, native transparent overlay windows and bgfx.
@@ -219,9 +230,10 @@ registry maps stable UI texture IDs to project `TextureHandle` values. An
 ImGui draw-data translator uploads vertices/indices and emits scissored UI draw
 commands through RhythmRender.
 
-The process owns one renderer device and one frame boundary. Wallpaper,
-transparent-topmost and independent preview windows are additional surfaces,
-not additional renderer instances.
+The process owns one renderer device and one frame boundary. Independent music
+visualization preview and fullscreen playback windows are additional surfaces
+sharing that device and frame boundary. Tentative native transparency follows
+the separate deferred feature decision; it does not imply desktop embedding.
 
 ## 6. Application and session model
 
@@ -230,14 +242,13 @@ One executable supports explicit launch modes:
 ```text
 rhythm_master studio
 rhythm_master player
-rhythm_master wallpaper <project>
 rhythm_master preview <project>
 rhythm_master render-test <project>
 rhythm_master cluster-host <published-package>
 ```
 
 The application composes focused sessions such as `StudioSession`,
-`PlayerSession`, `WallpaperSession` and `CaptureSession`. A single executable
+`PlayerSession` and `CaptureSession`. A single executable
 does not require every task to share one OS process forever. Process isolation
 may remain an operational policy, while code, commands, persistence and runtime
 stay unified.
@@ -249,8 +260,7 @@ windowing, menu, signing and platform integration remain separate adapters.
 The mobile product is a Player host, not a reduced copy of Studio. Android and
 iOS consume validated published runtime packages and expose playback controls,
 surface lifecycle, audio input/playback and product settings. They do not link
-editor panels, graph mutation commands, compiler UI, desktop file dialogs or
-desktop wallpaper integration.
+editor panels, graph mutation commands, compiler UI or desktop file dialogs.
 
 Cluster Host composes room, clock, input replication and asset services; Studio
 only adds a control panel. Participants run Player, with mobile QR/deep-link
@@ -274,8 +284,9 @@ global platform class:
 
 SDL calls remain in the SDL implementation. Win32/Cocoa/UIKit/Android native
 types remain in their narrow platform adapters. Custom title-bar hit testing,
-DWM shadow/snap support, transparent click-through and WorkerW integration are
-Windows adapter responsibilities.
+DWM shadow/snap support are Windows adapter responsibilities. Native transparency
+and click-through remain tentative end-of-roadmap capabilities in that adapter;
+desktop embedding is outside the product scope.
 
 ### 7.1 Supported product matrix
 
@@ -288,7 +299,6 @@ Windows adapter responsibilities.
 | Project authoring/import | Yes | Yes | No | No |
 | Offline render/export | Yes | Yes | No initially | No initially |
 | Windowed/fullscreen preview | Yes | Yes | Fullscreen/app surface | Fullscreen/app surface |
-| Desktop wallpaper/transparent topmost | Yes | Platform-specific follow-up | No | No |
 
 All four Player implementations use the same portable graph runtime, effect
 runtime, package validation, asset model and RhythmRender public API. Platform
@@ -382,19 +392,19 @@ Windows results alone cannot close multi-platform architecture validation.
 7. project save/recovery/export and current-project importer;
 8. profiler for UI, graph evaluation, render passes and GPU memory.
 
-### Phase C: application parity
+### Phase C: music visualization product workflows
 
 1. installed/made project library;
-2. music player and audio capture;
+2. music playback/capture, audio-driven visuals and synchronized animation transport;
 3. settings, themes and localization;
-4. preview and wallpaper surfaces; transparent-topmost remains a tentative end-of-roadmap feature;
+4. node/final previews, windowed/fullscreen music visualization playback and audio-synchronized export;
 5. single-instance command routing, tray, Steam and network services.
 6. desktop cluster Host/Player and simulated-peer tests (cluster C1-C3);
    these do not establish mobile or venue-capacity acceptance.
 
 ### Phase D: Windows cutover
 
-1. run current projects and screenshot/behavior comparisons;
+1. run relevant music visualization projects and compare audio response, synchronized playback and visual output;
 2. switch Windows distribution to the new executable;
 3. remove Qt, QtNodes, QWindowKit and obsolete UI build targets;
 4. stop for Windows acceptance before implementing mobile frontends.

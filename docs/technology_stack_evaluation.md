@@ -5,6 +5,10 @@
 
 ## 1. 状态与决策规则
 
+产品定位以 [product_scope.md](product_scope.md) 为准：音乐可视化创作与播放。
+依赖评估围绕音频分析、同步控制、节点编辑、动态效果、展示/导出与跨平台 Player，
+不以壁纸宿主或桌面嵌入为选型目标。透明原生窗口仍是此前后置的独立待定功能。
+
 视觉效果增量：从既有 TiXL 源码快照聚焦复用高斯模糊、降采样和 Perlin 噪声，
 改编为私有 bgfx shader，不引入 TiXL 宿主。逐文件出处、MIT 许可和改动记录在
 `provenance/tixl_effects.json`，验证记录见 `validation/visual_effects_2026-09-07.md`。
@@ -275,3 +279,10 @@ Android uses a separate isolated manifest installation and API-26 overlay triple
 its decoder probe passes on the connected device, including PNG/embedded bytes.
 This is not APK audio/image acceptance. See
 `validation/media_application_2026-09-07.md` for evidence and remaining limits.
+
+2026-09-08 follow-up: the same isolated Android vcpkg installation is now linked
+into the music Player APK. Python packaging retains exact source/build materials
+and a verified object/archive relink bundle for the static LGPL combination.
+Media-enabled native decoder/GLES tests pass on the device; Java/SDL application
+audio and lifecycle acceptance remain separate. No outbound project license is
+selected. See `validation/android_music_application_2026-09-08.md`.

@@ -29,16 +29,37 @@ void AudioPanel::SetSuspended(bool suspended) {
         capture_.Start();
     }
 }
-std::optional<audio::Features> AudioPanel::Snapshot() const {
+std::optional<audio::Features> AudioPanel::Snapshot() const { return Frame().features_; }
+AudioInputFrame AudioPanel::Frame() const {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
-    const auto file = file_.Snapshot();
-    if (file.state_ == audio::PlaybackState::kPlaying ||
-        file.state_ == audio::PlaybackState::kPaused)
-        return file.features_;
+    if (media_selected_) {
+        const auto file = file_.Snapshot();
+        runtime::PlaybackSample playback{
+                file.position_seconds_, file.generation_,
+                file.paused_ || file.state_ != audio::PlaybackState::kPlaying,
+                file.duration_seconds_};
+        if (playback.duration_ && *playback.duration_ <= 0) playback.duration_.reset();
+        return {file.features_, playback};
+    }
 #endif
     const auto snapshot = capture_.Snapshot();
     if (snapshot.state_ != audio::CaptureState::kRunning || !snapshot.features_.valid_) return {};
-    return snapshot.features_;
+    return {snapshot.features_, {}};
+}
+void AudioPanel::ApplyPlayback(const runtime::PlaybackCommand& command) {
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+    if (!media_selected_) return;
+    const auto state = file_.Snapshot().state_;
+    if ((state == audio::PlaybackState::kStopped || state == audio::PlaybackState::kEnded) &&
+        (command.seek_ || command.paused_ == false)) {
+        file_.Load(loaded_file_);
+        file_.Pause(command.paused_.value_or(true));
+    }
+    if (command.seek_) file_.Seek(*command.seek_);
+    if (command.paused_) file_.Pause(*command.paused_);
+#else
+    (void)command;
+#endif
 }
 void AudioPanel::Draw(const std::map<std::string, std::string>& text) {
     if (!ImGui::CollapsingHeader((text.at("audio.input") + "###audio.input").c_str(),
@@ -55,6 +76,7 @@ void AudioPanel::Draw(const std::map<std::string, std::string>& text) {
         else {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
             file_.Stop();
+            media_selected_ = false;
 #endif
             capture_.Start();
         }
@@ -81,6 +103,8 @@ void AudioPanel::Draw(const std::map<std::string, std::string>& text) {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
 void AudioPanel::LoadFile(const std::filesystem::path& path) {
     capture_.Stop();
+    loaded_file_ = path;
+    media_selected_ = true;
     const auto utf8 = path.u8string();
     if (utf8.size() < file_path_.size()) {
         file_path_.fill('\0');

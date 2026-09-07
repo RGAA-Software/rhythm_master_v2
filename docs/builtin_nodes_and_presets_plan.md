@@ -9,6 +9,12 @@
 
 ## 1. Product rule
 
+[Product scope](product_scope.md) defines a TiXL/TouchDesigner-class real-time
+node authoring product with music visualization as its core use case. Users must
+be able to build original graphs from primitives and open or modify reusable
+components; curated templates support this freedom. Output nodes serve preview, windowed/fullscreen playback, media
+export and runtime-package publishing; template acceptance includes audio response.
+
 Rhythm Master must be easier to start than a general visual programming tool.
 An empty graph and hundreds of atomic operators are not an acceptable default
 experience. Users should be able to choose a template, replace media, change
@@ -132,7 +138,7 @@ through typed modes when those modes share execution semantics.
 | Point/particle | 20 | generators, attributes, emitters, forces, fields and renderers |
 | 2D scene/simulation | 15 | sprites, paths, lights, occluders, bodies, joints, rope and cloth |
 | 3D/material | 25 | geometry/model, camera, lights, PBR/unlit, scene render and post |
-| Output/layout | 8 | canvas/profile, safe area, display, wallpaper, capture and publish |
+| Output/layout | 8 | canvas/profile, safe area, preview, fullscreen playback, capture and publish |
 
 These targets intentionally overlap at interfaces but not as duplicate fixed
 effects. Catalog reviews measure coverage, composability, documentation and

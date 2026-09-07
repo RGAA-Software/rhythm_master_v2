@@ -1,10 +1,18 @@
 add_library(studio_ui STATIC studio.cpp node_palette.cpp semantic_palette.cpp graph_canvas.cpp node_visual.cpp curve_editor.cpp expression_editor.cpp binding_editor.cpp component_panel.cpp component_workbench.cpp component_interface.cpp property_inspector.cpp asset_panel.cpp canvas_settings.cpp input_preview.cpp timeline_panel.cpp)
 target_include_directories(studio_ui PUBLIC include)
-target_sources(studio_ui PRIVATE template_browser.cpp)
+target_sources(studio_ui PRIVATE template_browser.cpp performance_panel.cpp component_library_panel.cpp)
 target_link_libraries(studio_ui PUBLIC platform_sdl PRIVATE graph_runtime editor_application project_io
     cyber_ui asset_store prepared_assets content_catalog semantic_catalog audio_ui player_core spike_imgui spike_node_editor nlohmann_json::nlohmann_json)
 rhythm_project_target(studio_ui)
 if(BUILD_TESTING)
+    add_executable(component_library_interaction_tests tests/component_library_interaction_tests.cpp)
+    target_include_directories(component_library_interaction_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_link_libraries(component_library_interaction_tests PRIVATE studio_ui spike_imgui semantic_catalog nlohmann_json::nlohmann_json)
+    rhythm_project_target(component_library_interaction_tests)
+    add_test(NAME component_library_interactions COMMAND component_library_interaction_tests
+        "${PROJECT_BINARY_DIR}/component-library-ui" "${PROJECT_SOURCE_DIR}/locales/en-US/studio.json")
+    set_tests_properties(component_library_interactions PROPERTIES TIMEOUT 30 ENVIRONMENT_MODIFICATION
+        "PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/bin;PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/debug/bin;PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_IO_SDK}/debug/bin")
     add_executable(component_interaction_tests tests/component_interaction_tests.cpp)
     target_include_directories(component_interaction_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
     target_link_libraries(component_interaction_tests PRIVATE studio_ui spike_imgui editor_application content_catalog)

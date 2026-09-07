@@ -25,6 +25,12 @@ struct FrameContext {
     std::shared_ptr<const scene::Resources> resources_{};
     std::shared_ptr<const assets::Images> images_{};
     std::vector<VideoInput> videos_{};
+    // nullopt preserves every node texture (inspection/compatibility mode).
+    // A list enables dynamic intermediate reuse: only final, static/history and
+    // listed node textures survive evaluation. Other outputs have empty handles.
+    std::optional<std::vector<graph::NodeId>> retained_textures_{};
+    bool profile_nodes_ = false;
+    bool operator==(const FrameContext&) const = default;
 };
 struct NodeOutput {
     graph::NodeId node_ = 0;
@@ -39,6 +45,13 @@ struct NodeOutput {
     std::optional<scene::Material> material_{};
     std::optional<scene::Camera> camera_{};
 };
+// Optional host-thread CPU/submission measurements, not GPU timestamp timings.
+struct NodeProfile {
+    graph::NodeId node_ = 0;
+    double cpu_ms_ = 0;
+    std::uint32_t passes_ = 0;
+    std::int64_t texture_delta_bytes_ = 0;
+};
 struct FrameResult {
     std::vector<NodeOutput> outputs_{};
     render::TextureHandle final_{};
@@ -46,6 +59,8 @@ struct FrameResult {
     render::Extent extent_{640, 360};
     // No output handles are returned after a resource admission failure.
     std::optional<render::Budget> budget_{};
+    std::uint32_t recycled_textures_ = 0;
+    std::vector<NodeProfile> profiles_{};
 };
 // Evaluation and resource ownership are host-thread confined. The immutable plan
 // may be compiled elsewhere; no UI or platform objects are retained here.

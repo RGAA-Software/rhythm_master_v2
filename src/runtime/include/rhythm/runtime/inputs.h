@@ -27,6 +27,7 @@ struct ExternalInputs {
     std::optional<double> session_seconds_{};
     ParticipantInputs participant_{};
     std::optional<audio::Features> audio_{};
+    bool operator==(const ExternalInputs&) const = default;
 };
 inline bool ValidExternalInputs(const ExternalInputs& inputs) {
     return ValidInputs(inputs.participant_) &&

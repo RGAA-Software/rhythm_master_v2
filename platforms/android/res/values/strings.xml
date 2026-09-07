@@ -10,4 +10,8 @@
     <string name="quality_original">Original</string>
     <string name="quality_balanced">Balanced (recommended)</string>
     <string name="quality_economy">Economy</string>
+    <string name="open_music">Open music</string>
+    <string name="demo_music">Demo music</string>
+    <string name="loop_music">Loop</string>
+    <string name="audio_error">Cannot play this audio file.</string>
 </resources>

@@ -11,6 +11,8 @@ struct FrameStatus {
     std::size_t inline_previews_ = 0;
     float audio_rms_ = 0;
     bool budget_limited_ = false;
+    std::uint32_t recycled_textures_ = 0;
+    std::size_t profiled_nodes_ = 0;
 };
 class Studio final {
    public:
@@ -20,6 +22,7 @@ class Studio final {
     Studio& operator=(const Studio&) = delete;
     void Frame(platform::Host& host, render::Renderer& renderer, double seconds);
     void SetSuspended(bool suspended);
+    void SetTextureReuse(bool enabled);
     void LoadAudioFile(const std::filesystem::path& path, float volume = 1);
     bool HasValidPlan() const;
     FrameStatus Status() const;

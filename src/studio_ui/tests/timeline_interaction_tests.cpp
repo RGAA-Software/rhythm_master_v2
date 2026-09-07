@@ -32,6 +32,7 @@ int main() {
                                                       {"timeline.beats", "Beats"},
                                                       {"timeline.duration", "Duration"},
                                                       {"timeline.stateful", "Stateful"},
+                                                      {"timeline.media_clock", "Music clock"},
                                                       {"timeline.no_tracks", "No tracks"},
                                                       {"timeline.track", "Track"},
                                                       {"timeline.curve_help", "Curve seconds"},
@@ -90,6 +91,7 @@ int main() {
         Check(panel.Advance(0, true) == 0 && panel.Advance(1, true) == 1);
         click(pause_center);
         Check(panel.Paused() && panel.Advance(5, true) == 1);
+        Check(panel.TakePlaybackCommand().paused_ == true);
         click(pause_center);
         Check(!panel.Paused() && panel.Advance(6, true) == 1 && panel.Advance(7, true) == 2);
         click(loop_center);
@@ -105,6 +107,22 @@ int main() {
                       history.Current().document_.nodes_[0].properties_.at("curve"))
                               .Keys()
                               .size() == 2);
+        panel.TakePlaybackCommand();
+        runtime::PlaybackSample music{3, 1, false, 16};
+        Check(panel.Advance(16, false, music) == 3);
+        frame();
+        click(pause_center);
+        Check(panel.TakePlaybackCommand().paused_ == true);
+        music.paused_ = true;
+        Check(panel.Advance(20, false, music) == 3 && panel.Paused());
+        panel.Restart();
+        Check(panel.TakePlaybackCommand().seek_ == 0);
+        music.seconds_ = 0;
+        ++music.generation_;
+        Check(panel.Advance(21, false, music) == 0);
+        const auto generation = panel.Generation();
+        Check(panel.Advance(30, false, music) == 0 && panel.Generation() == generation);
+        Check(!panel.TakePlaybackCommand().seek_);
         std::cout << "Timeline UI passed: pause/resume, continuous loop and one-command curve "
                      "edit/undo\n";
     } catch (const std::exception& error) {

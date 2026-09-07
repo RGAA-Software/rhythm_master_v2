@@ -12,11 +12,13 @@
 
 #include "asset_panel.h"
 #include "canvas_settings.h"
+#include "component_library_panel.h"
 #include "component_panel.h"
 #include "component_workbench.h"
 #include "graph_canvas.h"
 #include "input_preview.h"
 #include "node_palette.h"
+#include "performance_panel.h"
 #include "property_inspector.h"
 #include "rhythm/audio_ui/audio_panel.h"
 #include "rhythm/content/presets.h"
@@ -214,6 +216,12 @@ class Studio::Impl final {
         }
     }
     void Inspector() {
+        if (const auto request = component_library_.Draw(
+                    history_->Current().document_, canvas_.Selections(), catalogs_.at(locale_))) {
+            CommitEdits();
+            component_library_.Start(*request, history_->Current(), project_ / "assets",
+                                     canvas_.InsertionPoint());
+        }
         if (const auto action = component_panel_.Draw(
                     history_->Current().document_, canvas_.Selections(), catalogs_.at(locale_))) {
             CommitEdits();
@@ -243,6 +251,7 @@ class Studio::Impl final {
             QueueCompile();
     }
     void Frame(platform::Host& host, render::Renderer& renderer, double seconds) {
+        component_library_.Initialize(host.DataDirectory() / "Components");
         if (const auto completed = store_.Take()) {
             if (!completed->error_.empty()) {
                 std::cerr << completed->error_ << '\n';
@@ -286,6 +295,26 @@ class Studio::Impl final {
                 status_ = Text("published") + " " + std::string(path.begin(), path.end());
             } else
                 status_ = Text("saved") + " " + std::to_string(completed->saved_revision_);
+        }
+        if (const auto insertion = component_library_.Take()) {
+            const auto& result = insertion->result_;
+            if (history_->Current().document_.id_ != result.expected_document_ ||
+                history_->Current().document_.revision_ != result.expected_revision_ ||
+                inspector_.Preview() || timeline_.Preview() ||
+                std::string(title_.data()) != history_->Current().title_) {
+                status_ = Text("load_conflict");
+            } else {
+                const auto id = history_->ReserveNodeId();
+                auto edit = content::InsertComponent(history_->Current(), *result.component_,
+                                                     registry_, insertion->position_, id);
+                if (std::holds_alternative<editor::Snapshot>(edit)) {
+                    Apply(std::get<editor::Snapshot>(std::move(edit)));
+                    canvas_.RestoreLayout();
+                    canvas_.Select(id);
+                } else {
+                    status_ = Text(std::get<graph::Diagnostic>(edit).code_);
+                }
+            }
         }
         if (const auto completed = compiler_.Take();
             completed && completed->generation_ == generation_) {
@@ -346,8 +375,11 @@ class Studio::Impl final {
                                                 graph::Operation::kParticleEmitter ||
                                         instruction.operation_ == graph::Operation::kPointPhysics;
                              });
-        const auto playback_seconds = timeline_.Advance(seconds, seekable);
-        if (timeline_generation_ != timeline_.Generation()) {
+        audio_panel_.ApplyPlayback(timeline_.TakePlaybackCommand());
+        const auto audio_frame = audio_panel_.Frame();
+        const auto playback_seconds = timeline_.Advance(seconds, seekable, audio_frame.playback_);
+        const bool transport_changed = timeline_generation_ != timeline_.Generation();
+        if (transport_changed) {
             timeline_generation_ = timeline_.Generation();
             ++reset_;
         }
@@ -363,15 +395,22 @@ class Studio::Impl final {
             frame.images_ = prepared_resources_->images_;
             frame.videos_ = videos_.Update(*plan_, *prepared_resources_, playback_seconds, reset_);
             if (!videos_.Error().empty()) status_ = Text("video.playback_failed");
-            if (!timeline_.Paused()) {
+            if (!timeline_.Paused() || transport_changed || audio_frame.playback_) {
                 preview_inputs_ = input_preview_.Snapshot(playback_seconds);
-                preview_inputs_.audio_ = audio_panel_.Snapshot();
+                preview_inputs_.audio_ = audio_frame.features_;
             }
             frame.external_ = preview_inputs_;
-            frame.advance_state_ = !timeline_.Paused();
+            if (reuse_textures_) frame.retained_textures_ = viewer_nodes_;
+            frame.profile_nodes_ = profiling_;
+            frame.advance_state_ =
+                    !timeline_.Paused() && (!audio_frame.playback_ || transport_changed ||
+                                            evaluated_seconds_ != playback_seconds);
             output = runtime_.EvaluateSafely(*plan_, frame, renderer);
+            evaluated_seconds_ = playback_seconds;
         }
         evaluated_ = output.evaluated_;
+        recycled_textures_ = output.recycled_textures_;
+        profiled_nodes_ = output.profiles_.size();
         budget_limited_ = output.budget_.has_value();
         if (output.budget_) viewers_.BeginFrame(seconds, false, reset_);
         try {
@@ -436,6 +475,8 @@ class Studio::Impl final {
         ImGui::Text("%s: %llu", Text("revision").c_str(),
                     static_cast<unsigned long long>(history_->Current().document_.revision_));
         ImGui::Text("%s: %u", Text("evaluated").c_str(), evaluated_);
+        profiling_ = DrawPerformancePanel(output, renderer.Stats(), canvas_.Selection(),
+                                          reuse_textures_, catalogs_.at(locale_));
         for (const auto& diagnostic : diagnostics_)
             ImGui::TextWrapped("%s [%llu]", Text(diagnostic.code_).c_str(),
                                static_cast<unsigned long long>(diagnostic.node_));
@@ -513,17 +554,23 @@ class Studio::Impl final {
     std::array<char, 4097> title_{};
     PropertyInspector inspector_{};
     ComponentPanel component_panel_{};
+    ComponentLibraryPanel component_library_{};
     ComponentWorkbench component_workbench_{};
     InputPreview input_preview_{};
     audio_ui::AudioPanel audio_panel_{};
     TimelinePanel timeline_{};
     runtime::ExternalInputs preview_inputs_{};
+    std::optional<double> evaluated_seconds_{};
     std::uint64_t timeline_generation_ = 0;
     std::uint64_t generation_ = 0;
     std::uint64_t reset_ = 0;
     std::uint64_t load_revision_ = 0;
     bool show_viewers_ = true;
     bool budget_limited_ = false;
+    bool profiling_ = false;
+    bool reuse_textures_ = true;
+    std::uint32_t recycled_textures_ = 0;
+    std::size_t profiled_nodes_ = 0;
     bool show_timeline_ = false;
     bool layout_created_ = false;
 };
@@ -534,6 +581,7 @@ void Studio::Frame(platform::Host& host, render::Renderer& renderer, double seco
     impl_->Frame(host, renderer, seconds);
 }
 bool Studio::HasValidPlan() const { return impl_->plan_.has_value(); }
+void Studio::SetTextureReuse(bool enabled) { impl_->reuse_textures_ = enabled; }
 void Studio::SetSuspended(bool suspended) { impl_->audio_panel_.SetSuspended(suspended); }
 FrameStatus Studio::Status() const {
     return {impl_->history_->Current().document_.nodes_.size(),
@@ -541,7 +589,9 @@ FrameStatus Studio::Status() const {
             impl_->viewers_.Outputs().size(),
             impl_->canvas_.DrawnPreviews(),
             impl_->preview_inputs_.audio_ ? impl_->preview_inputs_.audio_->rms_ : 0,
-            impl_->budget_limited_};
+            impl_->budget_limited_,
+            impl_->recycled_textures_,
+            impl_->profiled_nodes_};
 }
 void Studio::LoadAudioFile(const std::filesystem::path& path, float volume) {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA

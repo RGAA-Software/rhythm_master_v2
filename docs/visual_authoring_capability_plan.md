@@ -13,10 +13,16 @@ Rhythm Master is not migrating the old fixed-effect editor into a new UI. It is
 building a new typed visual-programming system using the old renderer, audio,
 physics and effect code only as audited implementation material.
 
+The user confirmed on 2026-09-08 that TouchDesigner and TiXL are product-level
+benchmarks: authoring freedom, node interaction, live feedback, parameter/time
+control, component reuse and complete output workflows all matter. This is a
+capability target, not a claim of current parity or adoption of every upstream feature.
+
 The target is the rendering freedom of TouchDesigner and TiXL in a product that
-is easier to learn for music visualization, motion graphics and live wallpaper
-creation. Hardware protocols, general application scripting and arbitrary UI
-application construction are not initial parity goals.
+is easier to learn for music visualization and audio-driven motion graphics
+authoring and playback. [Product scope](product_scope.md) governs these capabilities;
+desktop wallpaper hosting is excluded. Hardware protocols, general application
+scripting and arbitrary UI application construction are not initial parity goals.
 
 Success requires all of the following, not merely a large node count:
 
@@ -164,7 +170,7 @@ the cross-domain power needed for visual work.
 | Material | surface/shader program plus typed bindings | reusable appearance independent of geometry |
 | Scene | Scene2D, Scene3D, camera/light collections | hierarchical renderable composition |
 | Resource | image, video, font, model, shader and package asset IDs | immutable asset references |
-| Output | display, wallpaper, capture, published target | demand roots and product output |
+| Output | preview, fullscreen playback, capture, published target | demand roots and music visualization output |
 
 Ports do not use an unrestricted `Any` type. Conversions are registered,
 costed and visible. Lossless conversions may be inserted automatically; lossy,

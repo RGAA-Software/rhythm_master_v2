@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--configuration", choices=("Debug", "Release"), default="Debug")
+    parser.add_argument("--configuration", choices=("Debug", "Release"), default="Release")
     parser.add_argument("--ndk", type=Path, default=Path("D:/android/sdk/ndk/29.0.14206865"))
     parser.add_argument("--sdk", type=Path, default=Path("C:/source/vcpkg/installed/arm64-android"))
     parser.add_argument("--build", type=Path)
@@ -23,6 +23,9 @@ def main():
                "-DANDROID_ABI=arm64-v8a", "-DANDROID_PLATFORM=android-26",
                "-DCMAKE_BUILD_TYPE=" + args.configuration, "-DRHYTHM_BUILD_PROJECT_IO=ON",
                "-DRHYTHM_BUILD_ANDROID_PLAYER=ON", "-DRHYTHM_IO_SDK=" + args.sdk.as_posix(),
+               "-DRHYTHM_BUILD_MEDIA=ON",
+               "-DRHYTHM_MEDIA_SDK=" + (ROOT / "out/vcpkg-media-android/arm64-android").as_posix(),
+               "-DRHYTHM_PLAYER_PACKAGE=" + (ROOT / "out/windows-release/content/packages/resonance_gate.rhythmpack").as_posix(),
                "-DCMAKE_FIND_ROOT_PATH=" + args.sdk.as_posix(),
                "-DRHYTHM_PROTOC=C:/source/vcpkg/installed/x64-windows/tools/protobuf/protoc.exe"]
     # Reuse only the previously validated shader tool path, not compiler flags or

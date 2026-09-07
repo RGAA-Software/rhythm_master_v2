@@ -1,0 +1,35 @@
+{
+    "source_url": "https://github.com/FFmpeg/FFmpeg/tree/n6.1.1",
+    "revision": "n6.1.1",
+    "port_revision": "15b90b33b76e69c2d9b876b32c4c9b47c97846ed",
+    "license": "LGPL-2.1-or-later",
+    "configuration": "--prefix=/c/source/rhythm_master/out/vcpkg-media-android-packages/ffmpeg_arm64-android --enable-pic --disable-doc --enable-debug --enable-runtime-cpudetect --disable-autodetect --pkg-config='C:/source/rhythm_master/out/vcpkg-media-android/x64-windows/tools/pkgconf/pkgconf.exe' --target-os=android --enable-jni --enable-mediacodec --cc=clang.exe --cxx=clang++.exe --nm=llvm-nm.exe --ar=llvm-ar.exe --ranlib=llvm-ranlib.exe --strip=llvm-strip.exe --disable-ffmpeg --disable-ffplay --disable-ffprobe --enable-avcodec --disable-avdevice --enable-avformat --disable-avfilter --disable-postproc --enable-swresample --enable-swscale --disable-alsa --disable-amf --disable-libaom --disable-libass --disable-avisynth --disable-bzlib --disable-libdav1d --disable-libfdk-aac --disable-libfontconfig --disable-libfreetype --disable-libfribidi --disable-iconv --disable-libilbc --disable-lzma --disable-libmp3lame --disable-libmodplug --disable-cuda --disable-nvenc --disable-nvdec --disable-cuvid --disable-ffnvcodec --disable-opencl --disable-opengl --disable-libopenh264 --disable-libopenjpeg --disable-libopenmpt --disable-openssl --disable-libopus --disable-sdl2 --disable-libsnappy --disable-libsoxr --disable-libspeex --disable-libssh --disable-libtensorflow --disable-libtesseract --disable-libtheora --disable-libvorbis --disable-libvpx --disable-libwebp --disable-libx264 --disable-libx265 --disable-libxml2 --enable-zlib --disable-libsrt --disable-libmfx --enable-cross-compile --extra-libs=-lm --pkg-config='C:/source/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f/mingw64/bin/pkg-config.exe' --pkg-config-flags=--static --enable-optimizations --extra-ldflags='-LC:/source/rhythm_master/out/vcpkg-media-android/arm64-android/lib' --arch=arm64 --disable-asm --disable-x86asm",
+    "linkage": "static libraries in libmain.so; companion relink bundle provided",
+    "project_outbound_license": "not selected; local acceptance build",
+    "sdk_archives": {
+        "libavcodec.a": "69f41f976ba8f655fc0e8403dcffd678038ccdc93b39d58c4a16804586654975",
+        "libavformat.a": "42bd2dcc387db09f900eb9a2d64e3a1542b9fbeace59778aa5699c763dcfd23d",
+        "libavutil.a": "53187acd5ba10dd5b6d74d0d6dc528b59446cca7b10266d917e4f970150b87ea",
+        "libswresample.a": "f78612507abacf09368377e15fe59e2fb7acc85e8e15eec464b9242a6d3d2cb3",
+        "libswscale.a": "c247a8d0e322772767b849bd90c4bef14cd9c5986168484ea603700a18ff6759",
+        "libz.a": "e0ec89c87772cfe2145ff4ac730921e7211641e1a9452ceafce57aa2138e4d5d"
+    },
+    "status": "Media-enabled native contracts and APK archive/relink checks passed; application device acceptance pending",
+    "source_imports": [],
+    "manifest": "probes/media/vcpkg.json",
+    "triplet": "probes/media/triplets/arm64-android.cmake",
+    "target_modules": [
+        "src/media",
+        "src/audio_playback",
+        "src/android_player"
+    ],
+    "modifications": "No project patch to FFmpeg; retained vcpkg recipe patches only. Application adapters reuse existing media/playback contracts.",
+    "source_archive_sha256": "49e7bfca24bc50c59204cb42d79f7639680fe72cadcbbcc7993882d1914cde53",
+    "evidence": [
+        "out/android-music-media-tests.log",
+        "out/android-music-host-tests.log",
+        "out/android-arm64-release/apk/verification.json",
+        "out/android-arm64-release/apk/relink/verification.json"
+    ],
+    "distribution_materials": "Local APK carries notices/profile; matching source and replaceable relink objects/archives accompany it in rhythm-player-release-relink.zip."
+}

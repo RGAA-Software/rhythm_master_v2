@@ -4,6 +4,22 @@ These rules apply to all project-owned source code, tests, build scripts and
 tools in this repository. Imported third-party code is excluded unless its
 ownership is explicitly transferred to the project.
 
+## Product scope
+
+- Rhythm Master targets a real-time node-based visual authoring product in the
+  class of TiXL and TouchDesigner, with music visualization as its core use case.
+  Follow `docs/product_scope.md` for features, architecture and acceptance.
+- Preserve open-ended composition from primitive nodes, live node previews,
+  signal/parameter/time control and reusable components. Studio authoring is the
+  primary product; templates are editable starting points and Player runs its
+  published works. Template counts and playback alone do not establish parity.
+- Do not design desktop wallpaper hosting, WorkerW/Progman embedding, wallpaper
+  sessions or wallpaper launch modes. These are outside the product scope, not
+  deferred milestones. Historical repository names do not define this product.
+- Prioritize actual audio-driven visuals, synchronized music/animation controls,
+  node editing and previews, windowed/fullscreen playback, export and portable
+  Player delivery. Preserve the existing platform and communication priorities.
+
 ## Open-source identity and third-party reuse
 
 - Rhythm Master is an open-source project with commercial-grade quality goals.

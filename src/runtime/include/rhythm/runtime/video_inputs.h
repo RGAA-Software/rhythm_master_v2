@@ -12,5 +12,6 @@ struct VideoInput {
     std::shared_ptr<const media::VideoFrame> frame_{};
     std::uint64_t revision_ = 0;
     std::uint64_t generation_ = 0;
+    bool operator==(const VideoInput&) const = default;
 };
 }  // namespace rhythm::runtime

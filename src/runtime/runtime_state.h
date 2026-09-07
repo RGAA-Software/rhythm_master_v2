@@ -5,6 +5,7 @@
 #include "point_ops.h"
 #include "point_physics.h"
 #include "scene_pass.h"
+#include "texture_lifetimes.h"
 #include "trail_pass.h"
 #include "video_pass.h"
 
@@ -24,9 +25,19 @@ class Runtime::Impl final {
         std::uint64_t reset_generation_ = 0;
         std::shared_ptr<const scene::Resources> resources_{};
         std::shared_ptr<const assets::Images> images_{};
+        std::optional<std::vector<graph::NodeId>> retained_{};
         render::Budget budget_ = render::Budget::kTextureBytes;
     };
     std::optional<Failure> failure_{};
+    detail::TextureLifetimes lifetimes_{};
+    detail::TexturePool targets_{};
+    struct PausedFrame {
+        FrameContext frame_{};
+        FrameResult result_{};
+        std::uint64_t plan_generation_ = 0;
+        std::uint64_t presentation_generation_ = 0;
+    };
+    std::optional<PausedFrame> paused_frame_{};
     struct State {
         std::optional<graph::Node> node_{};
         std::vector<std::uint64_t> input_versions_{};
@@ -34,6 +45,7 @@ class Runtime::Impl final {
         render::Texture target_{};
         render::Texture history_{};
         render::Extent extent_{};
+        bool target_retired_ = false;
         std::unique_ptr<detail::PointState> points_{};
         std::unique_ptr<detail::PointPhysics> physics_{};
         std::unique_ptr<detail::ScenePass> scene_{};

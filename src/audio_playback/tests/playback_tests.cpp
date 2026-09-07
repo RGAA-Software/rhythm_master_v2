@@ -41,12 +41,15 @@ void Run(const std::filesystem::path& directory) {
             "playback features and queue budget");
     Require(playing.features_->generation_ == playing.generation_, "playback feature generation");
     playback.Pause(true);
+    Require(playback.Snapshot().paused_, "pause intent is visible before worker acknowledgment");
     const auto paused = Wait(
             playback, [](const auto& value) { return value.state_ == PlaybackState::kPaused; });
     std::this_thread::sleep_for(100ms);
     Require(playback.Snapshot().position_seconds_ == paused.position_seconds_,
             "pause freezes media clock");
     playback.Seek(0.4);
+    Require(playback.Snapshot().position_seconds_ == 0.4 && playback.Snapshot().paused_,
+            "loading seek publishes requested time without briefly jumping to zero");
     const auto sought = Wait(playback, [&](const auto& value) {
         return value.generation_ > paused.generation_ && value.state_ == PlaybackState::kPaused;
     });

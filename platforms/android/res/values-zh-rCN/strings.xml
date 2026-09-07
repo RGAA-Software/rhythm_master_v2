@@ -10,4 +10,8 @@
     <string name="quality_original">原始画质</string>
     <string name="quality_balanced">均衡（推荐）</string>
     <string name="quality_economy">省电</string>
+    <string name="open_music">打开音乐</string>
+    <string name="demo_music">演示音乐</string>
+    <string name="loop_music">循环</string>
+    <string name="audio_error">无法播放此音频文件。</string>
 </resources>

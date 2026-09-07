@@ -14,6 +14,7 @@ namespace rhythm::validation {
 void VerifyPointPixels(render::Renderer& renderer);
 void VerifyEffectPixels(render::Renderer& renderer);
 void VerifyVideoUploadPixels(render::Renderer& renderer);
+void VerifyTextureReusePixels(render::Renderer& renderer);
 void MeasureTemplate(render::Renderer& renderer, const std::filesystem::path& path,
                      player::RenderQuality quality);
 }  // namespace rhythm::validation
@@ -355,6 +356,7 @@ int main(int argc, char* argv[]) {
             rhythm::validation::VerifyVideoUploadPixels(renderer);
             rhythm::validation::VerifyEffectPixels(renderer);
             rhythm::validation::VerifyPointPixels(renderer);
+            rhythm::validation::VerifyTextureReusePixels(renderer);
             VerifyAlpha(renderer);
             VerifyAffine(renderer);
             VerifyMask(renderer);

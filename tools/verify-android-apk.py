@@ -69,10 +69,17 @@ def verify(apk):
             runtime_manifest = json.loads(runtime_archive.read("manifest.json"))
         if not any(name.startswith("assets/notices/miniz/") for name in names):
             raise ValueError("Missing ZIP dependency notice")
+        if "assets/resonance_demo.wav" not in names or "assets/notices/ffmpeg/profile.json" not in names:
+            raise ValueError("Missing music fixture or FFmpeg provenance")
+        media = json.loads(archive.read("assets/notices/ffmpeg/profile.json"))
+        if media["license"] != "LGPL-2.1-or-later" or media["application_sha256"] != hashlib.sha256(
+                archive.read(libraries["libmain.so"])).hexdigest():
+            raise ValueError("FFmpeg profile does not match the packaged application")
     return {"apk": str(apk), "sha256": hashlib.sha256(apk.read_bytes()).hexdigest(),
             "package_sha256": hashlib.sha256(package).hexdigest(), "native_dependencies": dependencies,
             "native_alignment": 16384, "profile": "arm64-v8a GLES3", "runtime_profile": runtime_manifest["profile"],
             "runtime_abi": runtime_manifest["program_abi"],
+            "media_license": media["license"],
             "device_acceptance": "Not established by archive verification"}
 
 

@@ -15,6 +15,8 @@ struct PlaybackSnapshot {
     std::optional<double> duration_seconds_{};
     std::optional<Features> features_{};
     std::uint32_t queued_frames_ = 0;
+    // Latest pause intent; state_ separately acknowledges the worker/device.
+    bool paused_ = false;
 };
 
 // UI-thread commands publish desired values; a single worker owns file I/O,

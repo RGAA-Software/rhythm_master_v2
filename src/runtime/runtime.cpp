@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <chrono>
 #include <cmath>
 #include <set>
 #include <stdexcept>
@@ -17,6 +18,9 @@
 namespace rhythm::runtime {
 void Runtime::Impl::Reset() {
     failure_.reset();
+    lifetimes_ = {};
+    targets_ = {};
+    paused_frame_.reset();
     states_.clear();
     white_ = {};
     point_sprite_ = {};
@@ -66,28 +70,49 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
     presentation_generation_ = presentation_generation;
     result.extent_ = frame.extent_;
     result.outputs_.resize(plan.instructions_.size());
-    // Include feedback writes in the output closure: pausing a viewer must not
-    // pause history which contributes to the final image.
-    std::vector<bool> primary(plan.instructions_.size(), false);
-    std::vector<std::size_t> pending{plan.output_};
-    while (!pending.empty()) {
-        const auto index = pending.back();
-        pending.pop_back();
-        if (primary.at(index)) continue;
-        primary[index] = true;
-        for (const auto input : plan.instructions_[index].inputs_)
-            if (input) pending.push_back(*input);
+    if (frame.profile_nodes_) result.profiles_.resize(plan.instructions_.size());
+    lifetimes_.Prepare(plan, frame.retained_textures_);
+    if (!frame.advance_state_ && paused_frame_ && paused_frame_->frame_ == frame &&
+        paused_frame_->plan_generation_ == lifetimes_.Generation() &&
+        paused_frame_->presentation_generation_ == presentation_generation) {
+        auto cached = paused_frame_->result_;
+        cached.evaluated_ = 0;
+        cached.recycled_textures_ = 0;
+        for (auto& profile : cached.profiles_) profile = {profile.node_};
+        return cached;
     }
+    paused_frame_.reset();
+    targets_.BeginFrame();
+    const auto retire = [&](std::size_t index) {
+        for (const auto retired : lifetimes_.RetireAfter(index)) {
+            auto& state = states_.at(plan.instructions_[retired].node_.id_);
+            if (!state.target_.Handle().device_) continue;
+            targets_.Recycle(std::move(state.target_), state.extent_);
+            state.target_retired_ = true;
+            state.output_.texture_ = {};
+            result.outputs_[retired].texture_ = {};
+            ++result.recycled_textures_;
+        }
+    };
+    const auto acquire = [&](render::Extent extent) {
+        return lifetimes_.Enabled() ? targets_.Acquire(extent, renderer)
+                                    : renderer.CreateTexture(extent);
+    };
     for (std::size_t index = 0; index < plan.instructions_.size(); ++index) {
         const auto& instruction = plan.instructions_[index];
         const auto& node = instruction.node_;
+        using Clock = std::chrono::steady_clock;
+        const auto profile_start = frame.profile_nodes_ ? Clock::now() : Clock::time_point{};
+        const auto before = frame.profile_nodes_ ? renderer.Stats() : render::FrameStats{};
+        if (frame.profile_nodes_) result.profiles_[index].node_ = node.id_;
         auto& state = states_[node.id_];
-        if (!primary[index] && !frame.evaluate_viewers_) {
+        if (!lifetimes_.Primary(index) && !frame.evaluate_viewers_) {
             result.outputs_[index] = state.output_;
+            retire(index);
             continue;
         }
         auto extent = frame.extent_;
-        if (!primary[index]) {
+        if (!lifetimes_.Primary(index)) {
             const auto fitted =
                     render::AspectFit(frame.extent_, {0, 0, float(frame.viewer_extent_.width_),
                                                       float(frame.viewer_extent_.height_)});
@@ -103,9 +128,10 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
             return result.outputs_.at(instruction.inputs_.at(port).value());
         };
         std::vector<std::uint64_t> versions;
+        const NodeOutput empty_input;
         if (operation != graph::Operation::kFeedback)
             for (const auto source : instruction.inputs_) {
-                const auto value = source ? result.outputs_.at(*source) : NodeOutput{};
+                const auto& value = source ? result.outputs_.at(*source) : empty_input;
                 versions.insert(versions.end(),
                                 {value.node_, value.version_, value.texture_.device_,
                                  value.texture_.slot_, value.texture_.generation_});
@@ -127,7 +153,8 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                 versions.push_back(std::bit_cast<std::uint32_t>(band));
         const bool dirty = redraw || !state.node_ || *state.node_ != node ||
                            state.input_versions_ != versions ||
-                           (operation == graph::Operation::kFeedback && frame.advance_state_);
+                           (operation == graph::Operation::kFeedback && frame.advance_state_) ||
+                           state.target_retired_;
         if (dirty) {
             ++result.evaluated_;
             state.output_.node_ = node.id_;
@@ -236,8 +263,7 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                 }
                 case graph::Operation::kPointRender: {
                     if (!input(0).points_) throw std::invalid_argument("runtime.points");
-                    if (!state.target_.Handle().device_)
-                        state.target_ = renderer.CreateTexture(extent);
+                    if (!state.target_.Handle().device_) state.target_ = acquire(extent);
                     auto sprite = white_.Handle();
                     if (instruction.inputs_[1])
                         sprite = input(1).texture_;
@@ -290,8 +316,7 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                     state.output_.texture_ = state.history_.Handle();
                     break;
                 default:
-                    if (!state.target_.Handle().device_)
-                        state.target_ = renderer.CreateTexture(extent);
+                    if (!state.target_.Handle().device_) state.target_ = acquire(extent);
                     const auto clear = detail::DrawTexture(instruction, result.outputs_,
                                                            frame.external_, white_.Handle(), list);
                     renderer.Submit(state.target_.Handle(), list, clear);
@@ -300,15 +325,27 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
             }
             state.node_ = node;
             state.input_versions_ = std::move(versions);
+            state.target_retired_ = false;
         }
         result.outputs_[index] = state.output_;
+        if (frame.profile_nodes_) {
+            const auto after = renderer.Stats();
+            result.profiles_[index] = {
+                    node.id_,
+                    std::chrono::duration<double, std::milli>(Clock::now() - profile_start).count(),
+                    after.passes_ - before.passes_,
+                    static_cast<std::int64_t>(after.texture_bytes_) -
+                            static_cast<std::int64_t>(before.texture_bytes_)};
+        }
+        retire(index);
     }
     // Feedback reads have finished. Write into the other texture, then swap for next frame.
     for (std::size_t index = 0; index < plan.instructions_.size(); ++index) {
         const auto& instruction = plan.instructions_[index];
-        if (!primary[index] && !frame.evaluate_viewers_) continue;
+        if (!lifetimes_.Primary(index) && !frame.evaluate_viewers_) continue;
         if (instruction.operation_ != graph::Operation::kFeedback) continue;
         if (!frame.advance_state_) continue;
+        const auto profile_start = std::chrono::steady_clock::now();
         auto& state = states_.at(instruction.node_.id_);
         const auto source = result.outputs_.at(instruction.inputs_.at(0).value()).texture_;
         render::DrawList list;
@@ -317,8 +354,20 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
         detail::AppendTextureQuad(list, source, 0xffffffff, 0xffffffff);
         renderer.Submit(state.target_.Handle(), list, 0x000000ff);
         std::swap(state.target_, state.history_);
+        if (frame.profile_nodes_) {
+            ++result.profiles_[index].passes_;
+            result.profiles_[index].cpu_ms_ +=
+                    std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() -
+                                                              profile_start)
+                            .count();
+        }
     }
+    retire(plan.instructions_.size());
+    targets_.EndFrame();
     result.final_ = result.outputs_.at(plan.output_).texture_;
+    if (!frame.advance_state_)
+        paused_frame_ =
+                PausedFrame{frame, result, lifetimes_.Generation(), presentation_generation};
     return result;
 }
 }  // namespace rhythm::runtime
