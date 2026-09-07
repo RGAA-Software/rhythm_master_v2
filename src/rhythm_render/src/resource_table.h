@@ -17,6 +17,7 @@ class ResourceTable final {
     void Invalidate();
     void CheckReady() const;
     Extent Size(TextureHandle handle) const;
+    TexturePrecision Precision(TextureHandle handle) const;
     void ValidateUpload(TextureHandle handle, std::span<const std::uint8_t> rgba) const;
     void BeginFrame();
     void RecordSamples(const DrawList& list);

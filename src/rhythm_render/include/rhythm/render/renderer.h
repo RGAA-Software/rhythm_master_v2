@@ -172,6 +172,33 @@ class Texture final {
     TextureHandle handle_{};
 };
 
+struct ReadbackImage {
+    Extent extent_{};
+    // Tightly packed top-left RGBA8, premultiplied alpha (SDR over black).
+    std::vector<std::uint8_t> rgba_{};
+};
+
+// Host-thread ticket. Poll never waits; EndFrame advances completion. Destruction
+// cancels delivery while the backend retains native buffers until GPU completion.
+// A completed image is an owned value that may be moved to an encoding worker.
+class Readback final {
+   public:
+    Readback() = default;
+    ~Readback();
+    Readback(Readback&& other) noexcept;
+    Readback& operator=(Readback&& other) noexcept;
+    Readback(const Readback&) = delete;
+    Readback& operator=(const Readback&) = delete;
+    std::optional<ReadbackImage> Poll();
+
+   private:
+    friend class Renderer;
+    Readback(std::shared_ptr<detail::Backend> backend, std::uint64_t ticket);
+    void Reset() noexcept;
+    std::shared_ptr<detail::Backend> backend_{};
+    std::uint64_t ticket_ = 0;
+};
+
 class Mesh final {
    public:
     Mesh() = default;
@@ -209,6 +236,12 @@ class Renderer final {
     Mesh CreateMesh(std::span<const MeshVertex> vertices, std::span<const std::uint32_t> indices);
     [[nodiscard]] bool IsValid(MeshHandle handle) const;
     [[nodiscard]] bool SupportsScenes() const;
+    [[nodiscard]] bool SupportsReadback() const;
+    // Inside an open frame, after source rendering. RGBA8 render targets only.
+    // Three outstanding
+    // images maximum, each <= 1080p pixels; staging counts toward texture budgets.
+    // Float targets require an explicit SDR conversion pass before requesting.
+    Readback RequestReadback(TextureHandle texture);
     void BeginFrame();
     // Default target means the host surface; texture targets are explicit resources.
     void Submit(TextureHandle target, const DrawList& list, std::uint32_t clear_rgba = 0);

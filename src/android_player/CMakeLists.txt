@@ -22,6 +22,7 @@ add_custom_command(TARGET rhythm_android POST_BUILD COMMAND ${android_package_co
 add_custom_target(android_player_apk ALL COMMAND ${android_package_command} DEPENDS rhythm_android VERBATIM)
 if(BUILD_TESTING)
     add_executable(android_gpu_contract_tests tests/gpu_contract_tests.cpp tests/point_gpu.cpp tests/effect_gpu.cpp tests/template_gpu.cpp tests/video_upload_gpu.cpp tests/texture_reuse_gpu.cpp)
+    target_sources(android_gpu_contract_tests PRIVATE ../rhythm_render/tests/readback_gpu_contracts.cpp)
     target_include_directories(android_gpu_contract_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/runtime")
     target_include_directories(android_gpu_contract_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/runtime/tests")
     target_include_directories(android_gpu_contract_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src")

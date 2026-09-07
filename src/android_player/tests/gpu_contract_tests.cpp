@@ -15,6 +15,7 @@ void VerifyPointPixels(render::Renderer& renderer);
 void VerifyEffectPixels(render::Renderer& renderer);
 void VerifyVideoUploadPixels(render::Renderer& renderer);
 void VerifyTextureReusePixels(render::Renderer& renderer);
+void VerifyReadbackPixels(render::Renderer& renderer);
 void MeasureTemplate(render::Renderer& renderer, const std::filesystem::path& path,
                      player::RenderQuality quality);
 }  // namespace rhythm::validation
@@ -336,6 +337,16 @@ int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
         std::cout << std::unitbuf;
+        if (argc == 2 && std::string_view(argv[1]) == "--readback") {
+            auto renderer = platform::Host::CreateRenderer();
+            if (renderer.SupportsReadback()) {
+                rhythm::validation::VerifyReadbackPixels(renderer);
+            } else {
+                std::cout
+                        << "readback: backend reports unsupported; no software fallback enabled\n";
+            }
+            return 0;
+        }
         if (argc == 3 && (std::string_view(argv[2]) == "--benchmark" ||
                           std::string_view(argv[2]) == "--benchmark-compact" ||
                           std::string_view(argv[2]) == "--benchmark-balanced")) {

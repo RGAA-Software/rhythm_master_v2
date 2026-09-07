@@ -599,3 +599,8 @@ platform and deferred-communication priorities continue under these criteria.
 Windows MPEG-4/AAC、H264/MF 与 Android 原生 MPEG-4/AAC 回读通过；
 准确处理 MP4 movie timescale 和 AAC 末帧填充。导出 UI/GPU 队列仍在实施，
 见 [验证记录](validation/media_encoding_2026-09-08.md)。
+
+## 2026-09-08 有界异步读回
+
+Windows D3D11 与 USB Android/GLES 的三帧异步读回、像素顺序、透明度和取消通过。
+Viewer 无 CPU 读回；离线导出任务继续接入。见 [验证记录](validation/async_readback_2026-09-08.md)。

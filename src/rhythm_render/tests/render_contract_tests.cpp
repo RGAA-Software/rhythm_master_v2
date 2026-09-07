@@ -31,6 +31,10 @@ int main() {
         Check(square.x_ == 66 && square.y_ == 20 && square.width_ == 144 && square.height_ == 144);
         Reject([] { AspectFit({}, {0, 0, 100, 100}); });
         auto renderer = Renderer::CreateNull();
+        Check(!renderer.SupportsReadback());
+        Reject([&] { renderer.RequestReadback({}); });
+        Readback absent;
+        Reject([&] { absent.Poll(); });
         auto second = Renderer::CreateNull();
         {
             const std::array<std::uint8_t, 4> pixel{120, 40, 200, 64};

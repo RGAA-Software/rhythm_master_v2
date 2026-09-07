@@ -26,7 +26,8 @@ foreach(target spike_bx spike_bimg spike_bgfx)
     target_compile_features(${target} PRIVATE cxx_std_20)
     target_compile_definitions(${target} PRIVATE BX_CONFIG_DEBUG=0)
 endforeach()
-add_library(render_bgfx STATIC "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_backend.cpp")
+add_library(render_bgfx STATIC "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_backend.cpp"
+    "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_readbacks.cpp")
 target_include_directories(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src"
     "${rhythm_deps}/bgfx/examples/common/imgui")
 target_link_libraries(render_bgfx PRIVATE Rhythm::Render spike_bgfx spike_bx)

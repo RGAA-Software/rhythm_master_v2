@@ -12,6 +12,7 @@
 #include <stdexcept>
 
 #include "bgfx_handles.h"
+#include "bgfx_readbacks.h"
 #include "bgfx_scene.h"
 #include "bgfx_texture_programs.h"
 #include "resource_table.h"
@@ -154,6 +155,32 @@ class BgfxBackend final : public Backend {
         resources_.Release(handle);
     }
     bool IsValid(TextureHandle handle) const override { return resources_.IsValid(handle); }
+    bool SupportsReadback() const override {
+        resources_.CheckReady();
+        return BgfxReadbacks::Supported();
+    }
+    std::uint64_t RequestReadback(TextureHandle handle) override {
+        resources_.CheckReady();
+        if (!in_frame_) throw std::logic_error("render.frame_not_open");
+        if (!SupportsReadback()) throw std::logic_error("render.readback_unsupported");
+        if (resources_.Precision(handle) != TexturePrecision::kUnorm8)
+            throw std::invalid_argument("render.readback_precision");
+        if (!resources_.IsRenderTarget(handle))
+            throw std::invalid_argument("render.readback_target");
+        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        const auto ticket = readbacks_.Request(textures_.at(handle.slot_).texture_.Get(),
+                                               resources_.Size(handle),
+                                               static_cast<bgfx::ViewId>(passes_), resources_);
+        ++passes_;
+        return ticket;
+    }
+    std::optional<ReadbackImage> PollReadback(std::uint64_t ticket) override {
+        resources_.CheckReady();
+        return readbacks_.Poll(ticket, resources_);
+    }
+    void CancelReadback(std::uint64_t ticket) noexcept override {
+        readbacks_.Cancel(ticket, resources_);
+    }
     bool SupportsScenes() const override {
         resources_.CheckReady();
         return scenes_supported_;
@@ -304,7 +331,8 @@ class BgfxBackend final : public Backend {
     void EndFrame() override {
         resources_.CheckThread();
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
-        bgfx::frame();
+        const auto completed = bgfx::frame();
+        readbacks_.Advance(completed, resources_);
         in_frame_ = false;
         ++frame_;
     }
@@ -319,6 +347,7 @@ class BgfxBackend final : public Backend {
     }
     void Invalidate() override {
         if (in_frame_) throw std::logic_error("render.frame_still_open");
+        readbacks_.Invalidate(resources_);
         resources_.Invalidate();
         if (scene_) scene_->Invalidate();
     }
@@ -328,9 +357,13 @@ class BgfxBackend final : public Backend {
         GpuHandle<bgfx::TextureHandle> texture_{};
         GpuHandle<bgfx::FrameBufferHandle> framebuffer_{};
     };
+    // Destruction order: staging GPU handles, then bgfx shutdown, then pixels.
+    // Pending read destinations therefore survive cancellation and device loss.
+    std::shared_ptr<ReadbackMemory> readback_memory_ = std::make_shared<ReadbackMemory>();
     std::optional<DeviceLifetime> lifetime_{};
     Extent size_{};
     ResourceTable resources_{};
+    BgfxReadbacks readbacks_{readback_memory_};
     std::vector<Entry> textures_{};
     std::unique_ptr<BgfxScene> scene_{};
     bgfx::VertexLayout layout_{};

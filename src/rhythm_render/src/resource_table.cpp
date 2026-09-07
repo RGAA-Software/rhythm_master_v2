@@ -76,6 +76,10 @@ Extent ResourceTable::Size(TextureHandle handle) const {
 bool ResourceTable::IsRenderTarget(TextureHandle handle) const {
     return IsValid(handle) && slots_[handle.slot_].render_target_;
 }
+TexturePrecision ResourceTable::Precision(TextureHandle handle) const {
+    if (!IsValid(handle)) throw std::invalid_argument("render.stale_texture");
+    return slots_[handle.slot_].precision_;
+}
 void ResourceTable::ValidateUpload(TextureHandle handle, std::span<const std::uint8_t> rgba) const {
     CheckReady();
     const auto extent = Size(handle);

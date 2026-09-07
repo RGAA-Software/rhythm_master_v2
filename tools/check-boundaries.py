@@ -16,6 +16,7 @@ FORBIDDEN = re.compile(
 RENDER_ADAPTERS = {
     "src/rhythm_render/src/" + name for name in (
         "bgfx_backend.h", "bgfx_backend.cpp", "bgfx_handles.h",
+        "bgfx_readbacks.h", "bgfx_readbacks.cpp",
         "bgfx_scene.h", "bgfx_scene.cpp",
         "bgfx_texture_programs.h", "bgfx_texture_programs.cpp")
 }

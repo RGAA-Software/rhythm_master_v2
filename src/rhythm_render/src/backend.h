@@ -14,6 +14,14 @@ class Backend {
     virtual void Update(TextureHandle handle, std::span<const std::uint8_t> rgba) = 0;
     virtual bool IsValid(TextureHandle handle) const = 0;
     virtual bool SupportsScenes() const { return false; }
+    virtual bool SupportsReadback() const { return false; }
+    virtual std::uint64_t RequestReadback(TextureHandle) {
+        throw std::logic_error("render.readback_unsupported");
+    }
+    virtual std::optional<ReadbackImage> PollReadback(std::uint64_t) {
+        throw std::logic_error("render.readback_unsupported");
+    }
+    virtual void CancelReadback(std::uint64_t) noexcept {}
     virtual MeshHandle CreateMesh(std::span<const MeshVertex>, std::span<const std::uint32_t>) {
         throw std::logic_error("render.scene_unsupported");
     }
