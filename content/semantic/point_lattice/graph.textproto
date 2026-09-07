@@ -1,0 +1,108 @@
+schema_version: 4
+id: "semantic-point_lattice"
+canvas { width: 640 height: 360 }
+output: 2
+nodes { id: 1 type_key: "component.official.point_lattice" schema_version: 1 }
+nodes { id: 2 type_key: "output.texture" schema_version: 1 }
+edges { id: 1 from: 1 to: 2 input: "source" }
+components {
+    type_key: "component.official.point_lattice"
+    schema_version: 1
+    output: 3
+    nodes {
+      id: 1
+      type_key: "point.grid"
+      schema_version: 1
+    }
+    nodes {
+      id: 2
+      type_key: "point.transform"
+      schema_version: 1
+    }
+    nodes {
+      id: 3
+      type_key: "point.render"
+      schema_version: 1
+    }
+    nodes {
+      id: 5
+      type_key: "core.time"
+      schema_version: 1
+    }
+    nodes {
+      id: 6
+      type_key: "time.local"
+      schema_version: 1
+      properties {
+        key: "duration"
+        value {
+          scalar: 360
+        }
+      }
+      properties {
+        key: "speed"
+        value {
+          scalar: 12
+        }
+      }
+      properties {
+        key: "time_mode"
+        value {
+          scalar: 1
+        }
+      }
+    }
+    nodes {
+      id: 7
+      type_key: "scalar.expression"
+      schema_version: 1
+      properties {
+        key: "expression"
+        value {
+          expression: "0.8 + sin(time * tau * 0.2) * 0.15"
+        }
+      }
+    }
+    edges {
+      id: 1
+      from: 1
+      to: 2
+      input: "points"
+    }
+    edges {
+      id: 2
+      from: 2
+      to: 3
+      input: "points"
+    }
+    edges {
+      id: 4
+      from: 5
+      to: 6
+      input: "time"
+    }
+    edges {
+      id: 5
+      from: 6
+      to: 2
+      input: "rotation"
+    }
+    edges {
+      id: 6
+      from: 5
+      to: 7
+      input: "time"
+    }
+    edges {
+      id: 7
+      from: 7
+      to: 2
+      input: "scale"
+    }
+    parameters { key: "columns" node: 1 property: "columns" group: "component.motion" }
+    parameters { key: "rows" node: 1 property: "rows" group: "component.motion" }
+    parameters { key: "point_size" node: 1 property: "point_size" group: "component.palette" }
+    parameters { key: "color_a" node: 1 property: "color_a" group: "component.palette" }
+    parameters { key: "rotation_speed" node: 6 property: "speed" group: "component.motion" }
+}
+

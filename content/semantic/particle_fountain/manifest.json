@@ -1,0 +1,25 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.particle_fountain",
+    "content_version": "0.1.0",
+    "project_id": "semantic-particle_fountain",
+    "graph_revision": 0,
+    "title": "粒子喷泉 / Particle fountain",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "粒子喷泉",
+        "en-US": "Particle fountain"
+    },
+    "maturity": "experimental",
+    "author": "Rhythm Master",
+    "license_status": "first-party; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "default": false,
+    "semantic": true
+}

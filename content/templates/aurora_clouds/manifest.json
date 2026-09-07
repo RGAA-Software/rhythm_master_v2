@@ -1,0 +1,24 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.aurora_clouds",
+    "content_version": "0.1.0",
+    "project_id": "official-aurora-clouds",
+    "graph_revision": 0,
+    "title": "流光云海 / Aurora clouds",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "流光云海",
+        "en-US": "Aurora clouds"
+    },
+    "category": "procedural",
+    "tier": "basic",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "first-party graph; TiXL-derived renderer shaders under MIT; outbound license pending",
+    "compatible_players": [
+        "windows"
+    ],
+    "external_assets": []
+}

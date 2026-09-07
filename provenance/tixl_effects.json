@@ -1,0 +1,48 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "license": "MIT",
+    "license_file": "third_party/notices/tixl-effects/LICENSE.txt",
+    "files": [
+        {
+            "upstream_file": "Operators/Lib/Assets/shaders/img/blur/Bloom-SeparableBlurPS.hlsl",
+            "imported_file": "third_party/sources/tixl-effects/Bloom-SeparableBlurPS.hlsl",
+            "sha256": "20aefc0c3942277b0162e96dc091670d016ee6405081520efb1df42fb9c4482d"
+        },
+        {
+            "upstream_file": "Operators/Lib/Assets/shaders/img/blur/Bloom-DownsamplePS.hlsl",
+            "imported_file": "third_party/sources/tixl-effects/Bloom-DownsamplePS.hlsl",
+            "sha256": "ec3a04fef160c25cd4f2990c6802c4b7fcb92642465f4df509b9ded2b9317ef7"
+        },
+        {
+            "upstream_file": "Operators/Lib/Assets/shaders/img/generate/PerlinNoise2d.hlsl",
+            "imported_file": "third_party/sources/tixl-effects/PerlinNoise2d.hlsl",
+            "sha256": "bb97579c111381266283b2ec3f9d0c2d1dee7395c2742c9612c7753d43f1bb77"
+        },
+        {
+            "upstream_file": "Operators/Lib/Assets/shaders/img/fx/PolarCoordinates.hlsl",
+            "imported_file": "third_party/sources/tixl-effects/PolarCoordinates.hlsl",
+            "sha256": "0464f9df8b89ccc94e99a33ff64fb856e61d1a169ec04742a2e91e8abec84817"
+        }
+    ],
+    "target": "src/rhythm_render/shaders/texture_filter.sc",
+    "modifications": [
+        "Adapt HLSL texture and cbuffer bindings to bgfx shader language.",
+        "Combine separable Gaussian and four-tap downsample with explicit mode.",
+        "Filter premultiplied RGBA; apply vertex tint after convolution.",
+        "Retain normalized five-sample weights and offsets."
+    ],
+    "noise_target": "src/rhythm_render/shaders/texture_noise.sc",
+    "noise_modifications": [
+        "Translate gradient-noise functions from HLSL to bgfx shader language.",
+        "Use fixed four-octave bounded fractal; omit upstream bias and dynamic iteration controls.",
+        "Use aspect-correct coordinates, bounded seed/phase and premultiplied palette interpolation.",
+        "Guard gradient normalization against zero length."
+    ],
+    "mapping_target": "src/rhythm_render/shaders/texture_mapping.sc",
+    "mapping_modifications": [
+        "Adapt forward polar coordinate mapping, radial power, travel and twist to bgfx.",
+        "Bound center radius, support negative radial power for tunnel perspective, mirror edge coordinates explicitly.",
+        "Omit inverse mode and external API types; preserve premultiplied RGBA."
+    ]
+}

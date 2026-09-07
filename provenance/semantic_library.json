@@ -1,0 +1,101 @@
+{
+    "references": [
+        {
+            "repository": "C:/source/rh_reference/cables",
+            "revision": "75d9960b75545cbd40037d4b48ccf52ac8c75b63",
+            "file": "src/corelibs/subpatchop/subpatchop.js",
+            "sha256": "7710535522774d46564f07e475cab7daf36a954c41d0a54c130b764810e3022e",
+            "use": "source study only; no code or content imported"
+        },
+        {
+            "repository": "C:/source/rh_reference/material_maker",
+            "revision": "ad19fcf0ee34a7caf74df709dc4de7112f0d467d",
+            "file": "material_maker/tools/library_manager/library.gd",
+            "sha256": "46ce2ad2c70a6cb232539bcb70d02493a9c2df2f18238eed4a93860b4c0f129c",
+            "use": "source study only; no code or content imported"
+        }
+    ],
+    "implementation": "Reuse existing first-party project/graph/component/history/preset services; focused catalog and UI adapters. No external framework code copied.",
+    "first_party_extractions": [
+        {
+            "entry": "gradient_medallion",
+            "source_template": "content/templates/gradient_medallion",
+            "files": {
+                "content\\semantic\\gradient_medallion\\editor.json": "77f025a6bc36f0a16560cf8709a225d9a65dc6da02ac22d2b20dea22c54570fe",
+                "content\\semantic\\gradient_medallion\\graph.textproto": "dff820d7b4417419fad8806b05d00b814e6b0e99a68dc1d4cc6b291182b882ff",
+                "content\\semantic\\gradient_medallion\\manifest.json": "8e81b2ab91622b9d2c2084c83eb0aee31fa0eec0a904138993759b94540aff6b",
+                "content\\semantic\\gradient_medallion\\presets.json": "78177df55f5cbcbc5fd02cd2b3faf23c87fc965ae745262f18d825f768fea3a8"
+            }
+        },
+        {
+            "entry": "lit_ellipsoid_duet",
+            "source_template": "content/templates/lit_ellipsoid_duet",
+            "files": {
+                "content\\semantic\\lit_ellipsoid_duet\\editor.json": "ec8d30cb1869fc4f1131abfa8c028a80a706febee5649cbfef9b5a0a38fb9cba",
+                "content\\semantic\\lit_ellipsoid_duet\\graph.textproto": "6c8d3b5ebf9fd3d0409a9333da19470f0dc10ca7c76cf39961ce02771f80b10f",
+                "content\\semantic\\lit_ellipsoid_duet\\manifest.json": "9b8f6830af63ef31b3a746b80ea0a8d296124561049dacfc3dc2a2f7b60791d0",
+                "content\\semantic\\lit_ellipsoid_duet\\presets.json": "6d279308af909546ef6a2c82d936478f08ba2da1c845ab49438d00bda4ca4b67"
+            }
+        },
+        {
+            "entry": "particle_fountain",
+            "source_template": "content/templates/particle_fountain",
+            "files": {
+                "content\\semantic\\particle_fountain\\editor.json": "76d052763df7b34c6f79202c78959277d79a641935da6b6658b9ccb03ba49475",
+                "content\\semantic\\particle_fountain\\graph.textproto": "0a148284dc14e5c0cfb37b0b3702ec11cbfbacbd82f9132c13b67b983fe5f137",
+                "content\\semantic\\particle_fountain\\manifest.json": "d8d9f016f25cae2c867e02756fa97053f451a6c4069433934e1d33ebd0842efb",
+                "content\\semantic\\particle_fountain\\presets.json": "4e9736e1f3431e29b22f9c459c00d15283d2afe4e3130349dd5791b896685141"
+            }
+        },
+        {
+            "entry": "physics_pile",
+            "source_template": "content/templates/physics_pile",
+            "files": {
+                "content\\semantic\\physics_pile\\editor.json": "168d4ad747b36c37261dbaea4a5b5a322b940c603d3b4bc79268807c24e0df93",
+                "content\\semantic\\physics_pile\\graph.textproto": "c0da339ccb70dbe3fc748b6d44d53c8501c6e7addb9481f94c54dea59448f2ff",
+                "content\\semantic\\physics_pile\\manifest.json": "2019e9277cc344d3d99356abef49b756dabec909f4b49798341a5ed1f76e0d2c",
+                "content\\semantic\\physics_pile\\presets.json": "5cfd4e7633235b3caa4cad854a902d69928ead056b93017ab1eb324defdb0f80"
+            }
+        },
+        {
+            "entry": "physics_rain",
+            "source_template": "content/templates/physics_rain",
+            "files": {
+                "content\\semantic\\physics_rain\\editor.json": "4e724db2853baa9592564c7453e5beac5dbd58d835b4a4bccc07237f45798bcd",
+                "content\\semantic\\physics_rain\\graph.textproto": "f70190cdafb2508970e09fdf3b7f2b8806f305900c4a12ff2e66299816bce882",
+                "content\\semantic\\physics_rain\\manifest.json": "a6185b95e47e64a3031e986ceb0476217fe2af7f04ed2e2cb5804524576b075b",
+                "content\\semantic\\physics_rain\\presets.json": "bfa7d841c1e59511db6551383fb28cd18d69b01ed28965ac89e4d8926c5157c2"
+            }
+        },
+        {
+            "entry": "point_lattice",
+            "source_template": "content/templates/point_lattice",
+            "files": {
+                "content\\semantic\\point_lattice\\editor.json": "388000f1d2104142489bfbe6f754ba57b25d6b5e56be50cee814dfce658170d0",
+                "content\\semantic\\point_lattice\\graph.textproto": "c505e7b1564c742fd3bcff213fa4c88510019ca6bfe1da7da82b5c65187cf882",
+                "content\\semantic\\point_lattice\\manifest.json": "7babc7d207ce2c14aef643c0b996e39d480b8e66f1132ac615ed908914fbb246",
+                "content\\semantic\\point_lattice\\presets.json": "ca79c05deff39f59bc34b206191c21cdd55b073700271b23b7c825204d6b91d8"
+            }
+        },
+        {
+            "entry": "pulse_component",
+            "source_template": "content/templates/pulse_component",
+            "files": {
+                "content\\semantic\\pulse_component\\editor.json": "f9cc4fb9cd150d7f137f8cf5cba4bd35afca720dbbc8a02a804ae9e445e0cf20",
+                "content\\semantic\\pulse_component\\graph.textproto": "e6fc5c471a4310c7ee2973b9776d62e4df7f850f263c7b273159d6e9e77fc2c8",
+                "content\\semantic\\pulse_component\\manifest.json": "f6fbbdb179ed88559ec845fb18c5d2c805c701b300815ae1a52ee08b586297df",
+                "content\\semantic\\pulse_component\\presets.json": "ec18ea55f33f9d20dfd8ac6cd653490c9dbe22e916652ce909ed28e5fa1b0b6e"
+            }
+        },
+        {
+            "entry": "rotating_cube",
+            "source_template": "content/templates/rotating_cube",
+            "files": {
+                "content\\semantic\\rotating_cube\\editor.json": "f2b876f7e6e66176eb88753023903eeaa5431e10fbd2501efbae3e6bb0f4cf78",
+                "content\\semantic\\rotating_cube\\graph.textproto": "55848e2806a8600aa4828ed2d807b864bddb1edb1d306c44c156e16c50a64726",
+                "content\\semantic\\rotating_cube\\manifest.json": "c10d05417cab8fe448a42cd088edd405f94eb714d1888de97cfa0350089f9e61",
+                "content\\semantic\\rotating_cube\\presets.json": "51adbb672cfd58d839113cbf205d0cb59e2abe987d4bd158cbe8b3969d49aac2"
+            }
+        }
+    ]
+}

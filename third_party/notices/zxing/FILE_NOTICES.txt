@@ -1,0 +1,1891 @@
+core/src/Barcode.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Barcode.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BarcodeFormat.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BarcodeFormat.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BinaryBitmap.cpp
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BinaryBitmap.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2021 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BitArray.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BitArray.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2017 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BitHacks.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2017 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BitMatrix.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BitMatrix.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BitMatrixCursor.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BitMatrixIO.cpp
+/*
+* Copyright 2017 Huy Cuong Nguyen
+* Copyright 2017 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BitMatrixIO.h
+/*
+* Copyright 2017 Huy Cuong Nguyen
+* Copyright 2017 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BitSource.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/BitSource.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ByteArray.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ByteMatrix.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/CharacterSet.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/CharacterSet.h
+/*
+* Copyright 2016 Nu-book Inc.
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ConcentricFinder.cpp
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ConcentricFinder.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Content.cpp
+/*
+ * Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Content.h
+/*
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/DecodeHints.cpp
+/*
+* Copyright 2023 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/DecodeHints.h
+/*
+* Copyright 2023 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/DecoderResult.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/DetectorResult.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ECI.cpp
+/*
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ECI.h
+/*
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Error.cpp
+/*
+ * Copyright 2022 Axel Waggershauser
+ */
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Error.h
+/*
+ * Copyright 2022 Axel Waggershauser
+ */
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Flags.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/GTIN.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/GTIN.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Generator.h
+/*
+ * Copyright 2022 Axel Waggershauser
+ */
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/GenericGF.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/GenericGF.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/GenericGFPoly.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2017 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/GenericGFPoly.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/GlobalHistogramBinarizer.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/GlobalHistogramBinarizer.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/GridSampler.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/GridSampler.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/HRI.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/HRI.h
+/*
+ * Copyright 2022 Axel Waggershauser
+ */
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/HybridBinarizer.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/HybridBinarizer.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ImageView.h
+/*
+* Copyright 2019 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/LogMatrix.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Matrix.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/MultiFormatReader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/MultiFormatReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/MultiFormatWriter.cpp
+/*
+* Copyright 2017 Huy Cuong Nguyen
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/MultiFormatWriter.h
+/*
+* Copyright 2017 Huy Cuong Nguyen
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Pattern.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/PerspectiveTransform.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/PerspectiveTransform.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Point.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Quadrilateral.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Range.h
+/*
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ReadBarcode.cpp
+/*
+* Copyright 2019 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ReadBarcode.h
+/*
+* Copyright 2019 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Reader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ReaderOptions.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ReedSolomonDecoder.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2017 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ReedSolomonDecoder.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ReedSolomonEncoder.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ReedSolomonEncoder.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/RegressionLine.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Result.h
+/*
+* Copyright 2024 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ResultPoint.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ResultPoint.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Scope.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/StructuredAppend.h
+/*
+* Copyright 2021 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/TextDecoder.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2022 gitlost
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/TextDecoder.h
+/*
+* Copyright 2016 Nu-book Inc.
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/TextEncoder.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/TextEncoder.h
+/*
+* Copyright 2016 Nu-book Inc.
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/TextUtfEncoding.cpp
+/*
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/TextUtfEncoding.h
+/*
+* Copyright 2016 Nu-book Inc.
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ThresholdBinarizer.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/TritMatrix.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Utf.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2021 gitlost
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/Utf.h
+/*
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/WhiteRectDetector.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/WhiteRectDetector.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/WriteBarcode.cpp
+/*
+* Copyright 2024 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/WriteBarcode.h
+/*
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ZXAlgorithms.h
+/*
+* Copyright 2017 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ZXConfig.h
+/*
+* Copyright 2018 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ZXVersion.h
+/*
+* Copyright 2024 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ZXingC.cpp
+/*
+* Copyright 2023 siiky
+* Copyright 2023 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ZXingC.h
+/*
+* Copyright 2023 siiky
+* Copyright 2023 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ZXingCpp.cpp
+/*
+* Copyright 2024 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/ZXingCpp.h
+/*
+* Copyright 2024 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZDecoder.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZDecoder.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZDetector.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZDetector.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZDetectorResult.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZEncoder.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZEncoder.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZEncodingState.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZHighLevelEncoder.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZHighLevelEncoder.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZReader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZToken.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZToken.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZWriter.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/aztec/AZWriter.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMBitLayout.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2006 Jeremias Maerki
+* Copyright 2020 Axel Waggersauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMBitLayout.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMDataBlock.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2023 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMDataBlock.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMDecoder.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMDecoder.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMDetector.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2017 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMDetector.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMECEncoder.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2006 Jeremias Maerki.
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMECEncoder.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2006 Jeremias Maerki.
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMEncoderContext.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2006-2007 Jeremias Maerki.
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMHighLevelEncoder.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMHighLevelEncoder.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2006-2007 Jeremias Maerki.
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMReader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMSymbolInfo.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMSymbolInfo.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMSymbolShape.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMVersion.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMVersion.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMWriter.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/datamatrix/DMWriter.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/libzint/stubs.c
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+core/src/libzueci/zueci.c
+/*  zueci.c - UTF-8 to/from Extended Channel Interpretations */
+/*
+    libzueci - an open source UTF-8 ECI library adapted from libzint
+    Copyright (C) 2022 gitlost
+ */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+core/src/libzueci/zueci.h
+/* zueci.h - UTF-8 to/from Extended Channel Interpretations */
+/*
+    libzueci - an open source UTF-8 ECI library adapted from libzint
+    Copyright (C) 2022 gitlost
+ */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+core/src/libzueci/zueci_big5.h
+/*  big5.h - tables for Unicode to/from ECI 28 Big5, generated by "tools/gen_zueci_mb_h.php" from
+    "https://unicode.org/Public/MAPPINGS/OBSOLETE/EASTASIA/OTHER/BIG5.TXT" */
+/*
+    libzueci - an open source UTF-8 ECI library adapted from libzint
+    Copyright (C) 2022 gitlost
+ */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+core/src/libzueci/zueci_common.h
+/*  zueci_common.h - shared defines */
+/*
+    libzueci - an open source UTF-8 ECI library adapted from libzint
+    Copyright (C) 2022 gitlost
+ */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+core/src/libzueci/zueci_gb18030.h
+/*  gb18030.h - tables for Unicode to/from ECI 32 GB 18030-2005, generated by "tools/gen_zueci_mb_h.php" from
+    "jdk-1.4.2/GB18030.TXT"
+    (see https://haible.de/bruno/charsets/conversion-tables/GB18030.tar.bz2) */
+/*
+    libzueci - an open source UTF-8 ECI library adapted from libzint
+    Copyright (C) 2022 gitlost
+ */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+core/src/libzueci/zueci_gb2312.h
+/*  gb2312.h - tables for Unicode to/from ECI 29 GB 2312-1980 (EUC-CN), generated by "tools/gen_zueci_mb_h.php" from
+    "unicode.org-mappings/EASTASIA/GB/GB2312.TXT"
+    (see https://haible.de/bruno/charsets/conversion-tables/GB2312.tar.bz2) */
+/*
+    libzueci - an open source UTF-8 ECI library adapted from libzint
+    Copyright (C) 2022 gitlost
+ */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+core/src/libzueci/zueci_gbk.h
+/*  gbk.h - tables for Unicode to/from ECI 31 GBK (excl. GB 2312), generated by "tools/gen_zueci_mb_h.php" from
+    "https://unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP936.TXT" */
+/*
+    libzueci - an open source UTF-8 ECI library adapted from libzint
+    Copyright (C) 2022 gitlost
+ */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+core/src/libzueci/zueci_ksx1001.h
+/*  ksx1001.h - tables for Unicode to/from ECI 30 EUC-KR (KS X 1001), generated by "tools/gen_zueci_mb_h.php" from
+    "https://unicode.org/Public/MAPPINGS/OBSOLETE/EASTASIA/KSC/KSX1001.TXT" */
+/*
+    libzueci - an open source UTF-8 ECI library adapted from libzint
+    Copyright (C) 2022 gitlost
+ */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+core/src/libzueci/zueci_sb.h
+/*  zueci_sb.h - Extended Channel Interpretations single-byte, generated by "tools/gen_zueci_sb_h.php" from
+    "https://unicode.org/Public/MAPPINGS/VENDORS/MICSFT/PC/CP437.TXT" and
+    "https://unicode.org/Public/MAPPINGS/ISO8859/8859-*.TXT" and
+    "https://unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP125*.TXT" */
+/*
+    libzueci - an open source UTF-8 ECI library adapted from libzint
+    Copyright (C) 2022 gitlost
+ */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+core/src/libzueci/zueci_sjis.h
+/*  sjis.h - tables for Unicode to/from ECI 20 Shift JIS, generated by "tools/gen_zueci_mb_h.php" from
+    "https://unicode.org/Public/MAPPINGS/OBSOLETE/EASTASIA/JIS/SHIFTJIS.TXT" */
+/*
+    libzueci - an open source UTF-8 ECI library adapted from libzint
+    Copyright (C) 2022 gitlost
+ */
+/* SPDX-License-Identifier: BSD-3-Clause */
+
+core/src/maxicode/MCBitMatrixParser.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/maxicode/MCBitMatrixParser.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/maxicode/MCDecoder.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/maxicode/MCDecoder.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/maxicode/MCReader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/maxicode/MCReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCodabarReader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCodabarReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCodabarWriter.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCodabarWriter.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode128Patterns.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode128Patterns.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode128Reader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode128Reader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode128Writer.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode128Writer.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode39Reader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode39Reader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode39Writer.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode39Writer.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode93Reader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode93Reader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode93Writer.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODCode93Writer.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODDXFilmEdgeReader.cpp
+/*
+ * Copyright 2023 Antoine Mérino
+ * Copyright 2023 Axel Waggershauser
+ */
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODDXFilmEdgeReader.h
+/*
+ * Copyright 2023 Antoine Mérino
+ */
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODDataBarCommon.cpp
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODDataBarCommon.h
+/*
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODDataBarExpandedBitDecoder.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODDataBarExpandedBitDecoder.h
+/*
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODDataBarExpandedReader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODDataBarExpandedReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODDataBarLimitedReader.cpp
+/*
+* Copyright 2024 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODDataBarLimitedReader.h
+/*
+* Copyright 2024 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODDataBarReader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODDataBarReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODEAN13Writer.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODEAN13Writer.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODEAN8Writer.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODEAN8Writer.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODITFReader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODITFReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODITFWriter.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODITFWriter.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODMultiUPCEANReader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODMultiUPCEANReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODReader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODRowReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODUPCAWriter.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODUPCAWriter.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODUPCEANCommon.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODUPCEANCommon.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODUPCEWriter.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODUPCEWriter.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODWriterHelper.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/oned/ODWriterHelper.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/CustomData.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFBarcodeMetadata.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFBarcodeValue.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFBarcodeValue.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFBoundingBox.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFBoundingBox.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFCodeword.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFCodewordDecoder.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFCodewordDecoder.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFCompaction.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFDecoder.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFDecoder.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFDecoderResultExtra.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFDetectionResult.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFDetectionResult.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFDetectionResultColumn.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFDetectionResultColumn.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFDetector.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFDetector.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFEncoder.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+* Copyright 2006 Jeremias Maerki
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFEncoder.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFHighLevelEncoder.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+* Copyright 2006 Jeremias Maerki in part, and ZXing Authors in part
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFHighLevelEncoder.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+* Copyright 2006 Jeremias Maerki
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFModulusGF.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFModulusGF.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFModulusPoly.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFModulusPoly.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFReader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFScanningDecoder.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFScanningDecoder.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFWriter.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/PDFWriter.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/ZXBigInteger.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/ZXBigInteger.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/pdf417/ZXNullable.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRBitMatrixParser.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2023 gitlost
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRBitMatrixParser.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRCodecMode.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2023 gitlost
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRCodecMode.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRDataBlock.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRDataBlock.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRDataMask.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRDecoder.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRDecoder.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRDetector.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2020 Axel Waggershauser
+* Copyright 2023 gitlost
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRDetector.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2021 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRECB.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QREncodeResult.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QREncoder.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QREncoder.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRErrorCorrectionLevel.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRErrorCorrectionLevel.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRFormatInformation.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2023 Axel Waggershauser
+* Copyright 2023 gitlost
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRFormatInformation.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2023 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRMaskUtil.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRMaskUtil.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRMatrixUtil.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRMatrixUtil.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRReader.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2022 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRReader.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRVersion.cpp
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2023 Axel Waggershauser
+* Copyright 2023 gitlost
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRVersion.h
+/*
+* Copyright 2016 Nu-book Inc.
+* Copyright 2016 ZXing authors
+* Copyright 2023 Axel Waggershauser
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRWriter.cpp
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/qrcode/QRWriter.h
+/*
+* Copyright 2016 Huy Cuong Nguyen
+* Copyright 2016 ZXing authors
+*/
+// SPDX-License-Identifier: Apache-2.0
+
+core/src/libzueci/zueci.c embedded UTF-8 decoder
+/*
+        Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
+
+        Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+        documentation files (the "Software"), to deal in the Software without restriction, including without
+        limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+        Software, and to permit persons to whom the Software is furnished to do so, subject to the following
+        conditions:
+
+        The above copyright notice and this permission notice shall be included in all copies or substantial portions
+        of the Software.
+
+        See https://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.
+     */

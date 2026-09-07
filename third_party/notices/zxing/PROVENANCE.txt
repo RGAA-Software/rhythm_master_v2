@@ -1,0 +1,7 @@
+ZXing-C++ v2.3.0, https://github.com/zxing-cpp/zxing-cpp.git, commit d6068bcebeb8fd9f0d35a99b00d202be86a14dbe.
+Reader-only candidate; libzint writer backend is disabled.
+libzueci: https://sourceforge.net/projects/libzueci/, embedded version 1.0.1;
+BSD-3-Clause text expands its explicit SPDX identifier; copyright retained from source.
+Canonical terms: https://spdx.org/licenses/BSD-3-Clause.html
+Embedded UTF-8 decoder: https://bjoern.hoehrmann.de/utf-8/decoder/dfa/;
+the exact embedded permission/copyright notice is included in FILE_NOTICES.txt.

@@ -1,0 +1,165 @@
+Start testing: Sep 06 23:43 China Standard Time
+----------------------------------------------------------
+1/10 Testing: source_boundaries
+1/10 Test: source_boundaries
+Command: "C:/Users/chess/AppData/Local/Programs/Python/Python313/python.exe" "C:/source/rhythm_master/tools/check-boundaries.py"
+Directory: C:/source/rhythm_master/out/windows
+"source_boundaries" start time: Sep 06 23:43 China Standard Time
+Output:
+----------------------------------------------------------
+Portable boundary checks passed for 27 files; public APIs and locale parity passed
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"source_boundaries" end time: Sep 06 23:43 China Standard Time
+"source_boundaries" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/10 Testing: render_contracts
+2/10 Test: render_contracts
+Command: "C:/source/rhythm_master/out/windows/src/rhythm_render/render_contract_tests.exe"
+Directory: C:/source/rhythm_master/out/windows/src/rhythm_render
+"render_contracts" start time: Sep 06 23:43 China Standard Time
+Output:
+----------------------------------------------------------
+render contracts passed
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"render_contracts" end time: Sep 06 23:43 China Standard Time
+"render_contracts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/10 Testing: graph_contracts
+3/10 Test: graph_contracts
+Command: "C:/source/rhythm_master/out/windows/src/graph/graph_contract_tests.exe"
+Directory: C:/source/rhythm_master/out/windows/src/graph
+"graph_contracts" start time: Sep 06 23:43 China Standard Time
+Output:
+----------------------------------------------------------
+graph contracts passed
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"graph_contracts" end time: Sep 06 23:43 China Standard Time
+"graph_contracts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/10 Testing: runtime_contracts
+4/10 Test: runtime_contracts
+Command: "C:/source/rhythm_master/out/windows/src/runtime/runtime_contract_tests.exe"
+Directory: C:/source/rhythm_master/out/windows/src/runtime
+"runtime_contracts" start time: Sep 06 23:43 China Standard Time
+Output:
+----------------------------------------------------------
+runtime contracts passed
+<end of output>
+Test time =   0.06 sec
+----------------------------------------------------------
+Test Passed.
+"runtime_contracts" end time: Sep 06 23:43 China Standard Time
+"runtime_contracts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/10 Testing: editor_contracts
+5/10 Test: editor_contracts
+Command: "C:/source/rhythm_master/out/windows/src/editor_application/editor_contract_tests.exe"
+Directory: C:/source/rhythm_master/out/windows/src/editor_application
+"editor_contracts" start time: Sep 06 23:43 China Standard Time
+Output:
+----------------------------------------------------------
+editor contracts passed
+<end of output>
+Test time =   0.06 sec
+----------------------------------------------------------
+Test Passed.
+"editor_contracts" end time: Sep 06 23:43 China Standard Time
+"editor_contracts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/10 Testing: persistence_contracts
+6/10 Test: persistence_contracts
+Command: "C:/source/rhythm_master/out/windows/src/project_io/persistence_contract_tests.exe" "C:/source/rhythm_master/out/windows/content/templates/signal_texture" "C:/source/rhythm_master/out/windows/test-projects"
+Directory: C:/source/rhythm_master/out/windows/src/project_io
+"persistence_contracts" start time: Sep 06 23:43 China Standard Time
+Output:
+----------------------------------------------------------
+persistence contracts passed
+<end of output>
+Test time =   0.50 sec
+----------------------------------------------------------
+Test Passed.
+"persistence_contracts" end time: Sep 06 23:43 China Standard Time
+"persistence_contracts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/10 Testing: shader_compiler_contracts
+7/10 Test: shader_compiler_contracts
+Command: "C:/Users/chess/AppData/Local/Programs/Python/Python313/python.exe" "C:/source/rhythm_master/tools/test-shader-compiler.py" "C:/source/shark_dynamics_wallpaper/cmake-build-qt6/generated/bgfx_tools/bin/shaderc.exe"
+Directory: C:/source/rhythm_master/out/windows/src/windows_spike
+"shader_compiler_contracts" start time: Sep 06 23:43 China Standard Time
+Output:
+----------------------------------------------------------
+Shader contracts passed: reproducible bytes; failed/stale compiles preserve valid artifact
+<end of output>
+Test time =   0.32 sec
+----------------------------------------------------------
+Test Passed.
+"shader_compiler_contracts" end time: Sep 06 23:43 China Standard Time
+"shader_compiler_contracts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/10 Testing: windows_compute_probe
+8/10 Test: windows_compute_probe
+Command: "C:/source/rhythm_master/out/windows/src/windows_spike/gpu_probe.exe" "C:/source/rhythm_master/out/windows/src/windows_spike/probes/compute.bin"
+Directory: C:/source/rhythm_master/out/windows/src/windows_spike
+"windows_compute_probe" start time: Sep 06 23:43 China Standard Time
+Output:
+----------------------------------------------------------
+capabilities: swap_chain=1 transparent_backbuffer=0
+D3D11 Compute + blit + asynchronous readback: 256 RGBA pixels matched
+<end of output>
+Test time =   0.60 sec
+----------------------------------------------------------
+Test Passed.
+"windows_compute_probe" end time: Sep 06 23:43 China Standard Time
+"windows_compute_probe" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/10 Testing: windows_host_contracts
+9/10 Test: windows_host_contracts
+Command: "C:/source/rhythm_master/out/windows/src/windows_spike/host_contract_tests.exe"
+Directory: C:/source/rhythm_master/out/windows/src/windows_spike
+"windows_host_contracts" start time: Sep 06 23:43 China Standard Time
+Output:
+----------------------------------------------------------
+host contracts passed: 3 lifetimes, 18 resizes, 3 injected device rebuilds, retained GPU resource
+<end of output>
+Test time =   4.76 sec
+----------------------------------------------------------
+Test Passed.
+"windows_host_contracts" end time: Sep 06 23:43 China Standard Time
+"windows_host_contracts" time elapsed: 00:00:04
+----------------------------------------------------------
+
+10/10 Testing: windows_gpu_smoke
+10/10 Test: windows_gpu_smoke
+Command: "C:/source/rhythm_master/out/windows/src/windows_spike/rhythm_master.exe" "--smoke"
+Directory: C:/source/rhythm_master/out/windows/src/windows_spike
+"windows_gpu_smoke" start time: Sep 06 23:43 China Standard Time
+Output:
+----------------------------------------------------------
+visible_nodes=8/8 viewers=3
+gpu_frames=30
+<end of output>
+Test time =   1.92 sec
+----------------------------------------------------------
+Test Passed.
+"windows_gpu_smoke" end time: Sep 06 23:43 China Standard Time
+"windows_gpu_smoke" time elapsed: 00:00:01
+----------------------------------------------------------
+
+End testing: Sep 06 23:43 China Standard Time

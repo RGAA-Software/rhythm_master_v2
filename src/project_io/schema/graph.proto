@@ -1,0 +1,109 @@
+syntax = "proto3";
+package rhythm.schema;
+
+message Color {
+  double r = 1;
+  double g = 2;
+  double b = 3;
+  double a = 4;
+}
+message Canvas {
+  uint32 width = 1;
+  uint32 height = 2;
+}
+message Property {
+  oneof value {
+    double scalar = 1;
+    Color color = 2;
+    Curve curve = 3;
+    string expression = 4; // Bounded pure arithmetic; compiled and validated on load.
+    string asset_sha256 = 5; // Typed content address; empty means unassigned in the editor.
+  }
+}
+message Curve {
+  enum Interpolation {
+    INTERPOLATION_UNSPECIFIED = 0;
+    INTERPOLATION_STEP = 1;
+    INTERPOLATION_LINEAR = 2;
+    INTERPOLATION_SMOOTH = 3;
+  }
+  message Keyframe {
+    double seconds = 1;
+    double value = 2;
+    Interpolation interpolation = 3;
+  }
+  repeated Keyframe keys = 1;
+}
+message Node {
+  uint64 id = 1;
+  string type_key = 2;
+  uint32 schema_version = 3;
+  map<string, Property> properties = 4;
+}
+message Edge {
+  uint64 id = 1;
+  uint64 from = 2;
+  uint64 to = 3;
+  string input = 4;
+}
+message NamedSignal {
+  string name = 1;
+  uint64 source = 2;
+}
+message SignalBinding {
+  uint64 node = 1;
+  string input = 2;
+  string signal = 3;
+}
+message GraphProject {
+  uint32 schema_version = 1;
+  string id = 2;
+  uint64 revision = 3;
+  repeated Node nodes = 4;
+  repeated Edge edges = 5;
+  uint64 output = 6;
+  Canvas canvas = 7; // Required in authoring schema 2; schema 1 means 640x360.
+  repeated NamedSignal signals = 8; // Authoring schema 3. Resolved before compilation.
+  repeated SignalBinding bindings = 9;
+  repeated Component components = 10; // Authoring schema 4: embedded project library.
+}
+message ComponentInput {
+  string key = 1;
+  uint64 node = 2;
+  string input = 3;
+}
+message ComponentParameter {
+  string key = 1;
+  uint64 node = 2;
+  string property = 3;
+  string group = 4;
+  optional double minimum = 5;
+  optional double maximum = 6;
+}
+message Component {
+  string type_key = 1;
+  uint32 schema_version = 2;
+  repeated Node nodes = 3;
+  repeated Edge edges = 4;
+  uint64 output = 5;
+  repeated NamedSignal signals = 6;
+  repeated SignalBinding bindings = 7;
+  repeated ComponentInput inputs = 8;
+  repeated ComponentParameter parameters = 9;
+  string title = 10;
+}
+// Runtime ABI 2 adds a required canvas. ABI 1 means 640x360. Indices are plan slots.
+message CompiledProgram {
+  uint32 abi_version = 1;
+  repeated Instruction instructions = 2;
+  uint64 output_slot = 3;
+  string document_id = 4;
+  uint64 revision = 5;
+  Canvas canvas = 6;
+}
+message Instruction {
+  string operator_type = 1;
+  uint64 source_node = 2;
+  repeated uint64 input_slots = 3; // 0 = unbound; otherwise zero-based slot + 1.
+  Node configuration = 4;
+}

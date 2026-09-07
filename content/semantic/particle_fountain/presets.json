@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.particle_fountain",
+            "reset": true,
+            "id": "official.semantic.particle_fountain.default",
+            "titles": {
+                "zh-CN": "默认参数",
+                "en-US": "Default"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.particle_fountain",
+            "reset": true,
+            "id": "official.semantic.particle_fountain.variant",
+            "titles": {
+                "zh-CN": "柔和喷泉",
+                "en-US": "Gentle fountain"
+            },
+            "properties": {
+                "emission_rate": 35,
+                "lifetime": 6,
+                "particle_speed": 0.12,
+                "gravity_y": 0.03,
+                "point_size": 0.025
+            }
+        }
+    ]
+}

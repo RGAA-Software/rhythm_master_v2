@@ -1,0 +1,73 @@
+{
+    "source_url": "https://github.com/RGAA-Software/rhythm_master",
+    "revision": "118dbc811718836ffb4ca62eec7384605df5be32",
+    "files": [
+        {
+            "source": "src/audio/feature/sk_band_map.h",
+            "source_sha256": "c5d889fb93d42fba50cb0139e6f908d6ed69df89695c244713244d34ecbef3f8",
+            "target": "src/audio_analysis/detail/band_map.h"
+        },
+        {
+            "source": "src/audio/feature/sk_band_map.cpp",
+            "source_sha256": "36cb6e0312898b38e63dc9426561f344428a54dbbffc90efcf0afddab766d23a",
+            "target": "src/audio_analysis/detail/band_map.cpp"
+        },
+        {
+            "source": "src/audio/feature/sk_feat_fft.h",
+            "source_sha256": "3bffac0ba8dea718824edb22a4597c85a22835a131496510faa4ee6a9c4218b1",
+            "target": "src/audio_analysis/detail/fft.h"
+        },
+        {
+            "source": "src/audio/feature/sk_feat_fft.cpp",
+            "source_sha256": "b1b40e290e09d329620330e0a9bb25d26e43b0370e9a11c7abc94ffaac03de9d",
+            "target": "src/audio_analysis/detail/fft.cpp"
+        },
+        {
+            "source": "src/audio/feature/sk_onset.h",
+            "source_sha256": "855c0eba5289fadcda95deec5b6e6204edfb8e4c17f3d084448475d4edefdf97",
+            "target": "src/audio_analysis/detail/onset.h"
+        },
+        {
+            "source": "src/audio/feature/sk_onset.cpp",
+            "source_sha256": "b3d4414498623bc923e3a37bcbd57b88b239b3f8a8ed2b8d0359542d31c093a7",
+            "target": "src/audio_analysis/detail/onset.cpp"
+        },
+        {
+            "source": "src/audio/feature/sk_bpm.h",
+            "source_sha256": "21cb233b51872430e4dc51c5a519c9c15ae14a62a8b5aa645ffdb98bc600735e",
+            "target": "src/audio_analysis/detail/tempo.h"
+        },
+        {
+            "source": "src/audio/feature/sk_bpm.cpp",
+            "source_sha256": "0247a7b291594982979d27ff5a3deed4c77e68d79fe5540f58197eecd6808783",
+            "target": "src/audio_analysis/detail/tempo.cpp"
+        },
+        {
+            "source": "src/audio/feature/sk_feat_anal.cpp",
+            "source_sha256": "aa1377ff3e780c38610cb25a8c42dbea03013ffbe061df1f391b7ca3c234e554",
+            "target": "src/audio_analysis/analyzer.cpp",
+            "scope": "canonical spectrum gain, stereo RMS and centroid; sample-driven scheduling rewritten; excludes imported envelope and waveform aligner"
+        }
+    ],
+    "ownership": "First-party extraction; no project outbound license selected",
+    "modifications": [
+        "Google naming and four-space format",
+        "Private implementation APIs use spans",
+        "Bounded input validation and reuse of FFT scratch storage added after extraction",
+        "Onset local peak indexing corrected against synthetic impulses"
+    ],
+    "embedded_reference": {
+        "source_url": "https://github.com/projectM-visualizer/projectm",
+        "revision": "359bf7801e20b87712d6a89c8862f770c84ecdeb",
+        "files": [
+            "src/libprojectM/Audio/MilkdropFFT.cpp",
+            "src/libprojectM/Audio/MilkdropFFT.hpp"
+        ],
+        "license": "BSD-3-Clause, Copyright 2005-2013 Nullsoft, Inc.",
+        "notice": "third_party/notices/audio_fft/LICENSE.txt"
+    },
+    "excluded": [
+        "projectM-derived envelope and waveform alignment pending separate license integration review",
+        "VLC/Qt hosts, legacy smoothing and non-audio effects"
+    ]
+}

@@ -1,0 +1,6 @@
+* text=auto
+
+# Imported files retain the exact upstream bytes recorded in provenance.
+third_party/** -text
+dependencies/vcpkg/ports/**/*.patch -text
+dependencies/vcpkg/ports/**/*.diff -text

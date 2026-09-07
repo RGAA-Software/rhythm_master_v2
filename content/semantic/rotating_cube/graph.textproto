@@ -1,0 +1,152 @@
+schema_version: 4
+id: "semantic-rotating_cube"
+canvas { width: 640 height: 360 }
+output: 2
+nodes { id: 1 type_key: "component.official.rotating_cube" schema_version: 1 }
+nodes { id: 2 type_key: "output.texture" schema_version: 1 }
+edges { id: 1 from: 1 to: 2 input: "source" }
+components {
+    type_key: "component.official.rotating_cube"
+    schema_version: 1
+    output: 8
+    nodes {
+      id: 1
+      type_key: "core.time"
+      schema_version: 1
+    }
+    nodes {
+      id: 2
+      type_key: "time.local"
+      schema_version: 1
+      properties {
+        key: "duration"
+        value {
+          scalar: 360
+        }
+      }
+      properties {
+        key: "speed"
+        value {
+          scalar: 16
+        }
+      }
+      properties {
+        key: "time_mode"
+        value {
+          scalar: 1
+        }
+      }
+    }
+    nodes {
+      id: 3
+      type_key: "geometry.cube"
+      schema_version: 1
+    }
+    nodes {
+      id: 4
+      type_key: "material.unlit"
+      schema_version: 1
+      properties {
+        key: "color_a"
+        value {
+          color {
+            r: 0.05
+            g: 0.75
+            b: 1
+            a: 1
+          }
+        }
+      }
+    }
+    nodes {
+      id: 5
+      type_key: "scene.instance"
+      schema_version: 1
+    }
+    nodes {
+      id: 6
+      type_key: "scene.transform"
+      schema_version: 1
+      properties {
+        key: "rotation_x"
+        value {
+          scalar: 25
+        }
+      }
+      properties {
+        key: "translate_y"
+        value {
+          scalar: 0
+        }
+      }
+    }
+    nodes {
+      id: 7
+      type_key: "scene.camera"
+      schema_version: 1
+      properties {
+        key: "eye_z"
+        value {
+          scalar: 4
+        }
+      }
+      properties {
+        key: "field_of_view"
+        value {
+          scalar: 45
+        }
+      }
+    }
+    nodes {
+      id: 8
+      type_key: "scene.render"
+      schema_version: 1
+    }
+    edges {
+      id: 1
+      from: 1
+      to: 2
+      input: "time"
+    }
+    edges {
+      id: 2
+      from: 3
+      to: 5
+      input: "geometry"
+    }
+    edges {
+      id: 3
+      from: 4
+      to: 5
+      input: "material"
+    }
+    edges {
+      id: 4
+      from: 5
+      to: 6
+      input: "scene"
+    }
+    edges {
+      id: 5
+      from: 2
+      to: 6
+      input: "rotation_y"
+    }
+    edges {
+      id: 6
+      from: 7
+      to: 8
+      input: "camera"
+    }
+    edges {
+      id: 10
+      from: 6
+      to: 8
+      input: "scene"
+    }
+    parameters { key: "rotation_speed" node: 2 property: "speed" group: "component.motion" }
+    parameters { key: "color_a" node: 4 property: "color_a" group: "component.palette" }
+    parameters { key: "scale" node: 6 property: "scale" group: "component.motion" }
+    parameters { key: "rotation_x" node: 6 property: "rotation_x" group: "component.motion" }
+}
+

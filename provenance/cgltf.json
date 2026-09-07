@@ -1,0 +1,22 @@
+{
+    "source_url": "https://github.com/jkuhlmann/cgltf",
+    "revision": "v1.15",
+    "license": "MIT",
+    "vcpkg_revision": "b216ddff25a1f432870e6c340ce79357049ef86e",
+    "port": "cgltf 1.15",
+    "source_sha512": "9474b2ae79ac34015b21e4a20813bfc14ad037636304a28ce91011989202a11568b7f7201bca745701163e2c1077425065782a2aa265d53fe6edeb2e7d0e0b0a",
+    "files": [
+        {
+            "path": "cgltf.h",
+            "sha256": "e378a21c084bf1f288bb799de827bb26906efb024255f1ecf1705ea13f11c6ec"
+        }
+    ],
+    "triplets": [
+        "x64-windows",
+        "arm64-android"
+    ],
+    "modifications": [],
+    "target": "src/model_import/cgltf_impl.c (upstream implementation translation unit) and private model_import adapters",
+    "notice": "third_party/notices/cgltf/LICENSE.txt",
+    "profile": "Initial self-contained static GLB triangles; bounded parser arena and accessor preflight; URI/texture/animation/compression/unknown-required-extension rejection. Candidate, application integration pending."
+}

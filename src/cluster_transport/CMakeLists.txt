@@ -1,0 +1,8 @@
+add_library(cluster_transport_candidate STATIC transport.cpp native_configuration.cpp native_peer.cpp native_sender.cpp)
+target_include_directories(cluster_transport_candidate PUBLIC include PRIVATE ../security)
+target_include_directories(cluster_transport_candidate SYSTEM PRIVATE "${MSQUIC_SOURCE}/src/inc")
+target_link_libraries(cluster_transport_candidate PUBLIC cluster_auth cluster_send_queue PRIVATE "${MSQUIC_LIBRARY}")
+if(WIN32)
+    target_link_libraries(cluster_transport_candidate PRIVATE ntdll ws2_32)
+endif()
+rhythm_project_target(cluster_transport_candidate)

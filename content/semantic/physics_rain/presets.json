@@ -1,0 +1,32 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.physics_rain",
+            "reset": true,
+            "id": "official.semantic.physics_rain.default",
+            "titles": {
+                "zh-CN": "默认参数",
+                "en-US": "Default"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.physics_rain",
+            "reset": true,
+            "id": "official.semantic.physics_rain.variant",
+            "titles": {
+                "zh-CN": "慢落雨滴",
+                "en-US": "Slow rainfall"
+            },
+            "properties": {
+                "gravity_y": 0.1,
+                "particle_speed": 0.08,
+                "emission_rate": 20,
+                "point_size": 0.02
+            }
+        }
+    ]
+}

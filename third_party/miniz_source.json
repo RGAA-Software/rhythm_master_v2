@@ -1,0 +1,21 @@
+{
+    "source": "https://github.com/richgel999/miniz",
+    "revision": "d10b03cc73475af673df40f06e5cefd1d5f940d9",
+    "version": "3.1.1",
+    "license": "MIT",
+    "modifications": "None; project-owned static CMake target and bounded in-memory adapter.",
+    "target": "runtime_package",
+    "status": "Adopted for bounded texture-signal-v1 runtime packages after Windows and Android arm64 native contracts; Apple pending",
+    "files": {
+        "LICENSE": "0115478d567121238cf6cc1c0c361926cf07a49d9e4c9e66da97fac6a01646b3",
+        "miniz.c": "f23204efee2bfaffb72a974d2e28c64c3c1d9787144b5c5890f129c465e467bd",
+        "miniz.h": "672280c799fff9d703f0ecd586de2a53349d0f4e50b13928f78529c1ddf3d75c",
+        "miniz_common.h": "f1ba29821c8caef83585b328196aa346c5da7c82890a70a3d10d77c6cec0ed39",
+        "miniz_tdef.c": "30aa8bf68ebcd6d15f03e1db3c7e72d70a038d4a44e74e69193185ea9187ecd0",
+        "miniz_tdef.h": "d62da02953c3834dfcbde4db026c6d9345013ef9b0e53185131016a3a4e48c33",
+        "miniz_tinfl.c": "ff9cc5426df23a78070b5b8fa2dcb7aea68faac466169a883b4ffb8727532350",
+        "miniz_tinfl.h": "da4850920fdf09f8877d9affabe1ebba1852ce4b1ebbd121f2ba7a7ea8e57e5d",
+        "miniz_zip.c": "3c1f90797c02ddc9d6bfcdf7079f5ea6f6212f257ed8745f2334dd021d697669",
+        "miniz_zip.h": "b062a5def545445c73fd1d664e35a89165dfb0d996ab848f507244e819cfcf04"
+    }
+}

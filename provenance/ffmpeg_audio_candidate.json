@@ -1,0 +1,16 @@
+{
+    "status": "custom build route stopped by user direction; superseded by installed vcpkg packages; not adopted",
+    "source_url": "https://ffmpeg.org/releases/ffmpeg-8.1.2.tar.xz",
+    "repository": "https://github.com/FFmpeg/FFmpeg",
+    "revision": "38b88335f99e76ed89ff3c93f877fdefce736c13",
+    "tag": "n8.1.2",
+    "archive_sha256": "464beb5e7bf0c311e68b45ae2f04e9cc2af88851abb4082231742a74d97b524c",
+    "imported_files": "complete release archive, preserved under third_party/source_archives; extracted unmodified to third_party/sources/ffmpeg-8.1.2",
+    "license": "upstream archive contains LGPL and optional GPL components; existing custom build artifacts are not validated for adoption or distribution",
+    "notices": ["LICENSE.md", "COPYING.LGPLv2.1"],
+    "modifications": [],
+    "targets": [],
+    "retained_artifacts": "unused source archive and extraction; existing build/install directories under out/media-sdk; no application linking",
+    "project_outbound_license": "pending; not selected by this candidate validation",
+    "distribution": "not distributed; use C:/source/vcpkg for future FFmpeg validation"
+}

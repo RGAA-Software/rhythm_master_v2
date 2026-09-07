@@ -1,0 +1,46 @@
+schema_version: 2
+id: "official-rotating_cube"
+output: 11
+canvas { width: 1024 height: 1024 }
+nodes { id: 1 type_key: "core.time" schema_version: 1
+}
+nodes { id: 2 type_key: "time.local" schema_version: 1
+    properties { key: "speed" value { scalar: 16 } }
+    properties { key: "duration" value { scalar: 360 } }
+    properties { key: "time_mode" value { scalar: 1 } }
+}
+nodes { id: 3 type_key: "geometry.cube" schema_version: 1
+}
+nodes { id: 4 type_key: "material.unlit" schema_version: 1
+    properties { key: "color_a" value { color { r: 0.05 g: 0.75 b: 1 a: 1 } } }
+}
+nodes { id: 5 type_key: "scene.instance" schema_version: 1
+}
+nodes { id: 6 type_key: "scene.transform" schema_version: 1
+    properties { key: "rotation_x" value { scalar: 25 } }
+    properties { key: "translate_y" value { scalar: 0 } }
+}
+nodes { id: 7 type_key: "scene.camera" schema_version: 1
+    properties { key: "eye_z" value { scalar: 4 } }
+    properties { key: "field_of_view" value { scalar: 45 } }
+}
+nodes { id: 8 type_key: "scene.render" schema_version: 1
+}
+nodes { id: 9 type_key: "texture.gradient" schema_version: 1
+    properties { key: "color_a" value { color { r: 0.006 g: 0.012 b: 0.04 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.09 g: 0.01 b: 0.12 a: 1 } } }
+}
+nodes { id: 10 type_key: "texture.composite" schema_version: 1
+}
+nodes { id: 11 type_key: "output.texture" schema_version: 1
+}
+edges { id: 1 from: 1 to: 2 input: "time" }
+edges { id: 2 from: 3 to: 5 input: "geometry" }
+edges { id: 3 from: 4 to: 5 input: "material" }
+edges { id: 4 from: 5 to: 6 input: "scene" }
+edges { id: 5 from: 2 to: 6 input: "rotation_y" }
+edges { id: 6 from: 7 to: 8 input: "camera" }
+edges { id: 7 from: 9 to: 10 input: "a" }
+edges { id: 8 from: 8 to: 10 input: "b" }
+edges { id: 9 from: 10 to: 11 input: "source" }
+edges { id: 10 from: 6 to: 8 input: "scene" }

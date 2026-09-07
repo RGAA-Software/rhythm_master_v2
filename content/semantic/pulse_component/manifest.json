@@ -1,0 +1,25 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.pulse_component",
+    "content_version": "0.1.0",
+    "project_id": "semantic-pulse_component",
+    "graph_revision": 0,
+    "title": "呼吸卡片组件 / Pulse card component",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "呼吸卡片组件",
+        "en-US": "Pulse card component"
+    },
+    "maturity": "experimental",
+    "author": "Rhythm Master",
+    "license_status": "first-party; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "default": false,
+    "semantic": true
+}

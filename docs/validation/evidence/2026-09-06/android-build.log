@@ -1,0 +1,26 @@
+-- Configuring done (0.9s)
+-- Generating done (0.1s)
+-- Build files have been written to: C:/source/rhythm_master/out/android-arm64
+[1/23] Building CXX object src/runtime/CMakeFiles/graph_runtime.dir/frame_clock.cpp.o
+[2/23] Building CXX object src/rhythm_render/CMakeFiles/rhythm_render.dir/src/renderer.cpp.o
+[3/23] Building CXX object src/rhythm_render/CMakeFiles/rhythm_render.dir/src/resource_table.cpp.o
+[4/23] Building CXX object src/rhythm_render/CMakeFiles/rhythm_render.dir/src/null_backend.cpp.o
+[5/23] Linking CXX static library src\rhythm_render\librhythm_render.a
+[6/23] Building CXX object src/rhythm_render/CMakeFiles/render_contract_tests.dir/tests/render_contract_tests.cpp.o
+[7/23] Building CXX object src/runtime/CMakeFiles/graph_runtime.dir/viewers.cpp.o
+[8/23] Building CXX object src/editor_application/CMakeFiles/editor_application.dir/history.cpp.o
+[9/23] Linking CXX executable src\rhythm_render\render_contract_tests
+[10/23] Building CXX object src/editor_application/CMakeFiles/editor_application.dir/commands.cpp.o
+[11/23] Building CXX object src/runtime/CMakeFiles/graph_runtime.dir/runtime.cpp.o
+[12/23] Linking CXX static library src\editor_application\libeditor_application.a
+[13/23] Linking CXX static library src\runtime\libgraph_runtime.a
+[14/23] Building CXX object src/project_io/CMakeFiles/project_io.dir/async_store.cpp.o
+[15/23] Building CXX object src/runtime/CMakeFiles/runtime_contract_tests.dir/tests/runtime_contract_tests.cpp.o
+[16/23] Building CXX object src/editor_application/CMakeFiles/editor_contract_tests.dir/tests/editor_contract_tests.cpp.o
+[17/23] Linking CXX executable src\runtime\runtime_contract_tests
+[18/23] Linking CXX executable src\editor_application\editor_contract_tests
+[19/23] Building CXX object src/project_io/CMakeFiles/persistence_contract_tests.dir/tests/persistence_contract_tests.cpp.o
+[20/23] Building CXX object src/project_io/CMakeFiles/project_io.dir/codec.cpp.o
+[21/23] Building CXX object src/project_io/CMakeFiles/project_io.dir/project_store.cpp.o
+[22/23] Linking CXX static library src\project_io\libproject_io.a
+[23/23] Linking CXX executable src\project_io\persistence_contract_tests

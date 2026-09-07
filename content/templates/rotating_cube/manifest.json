@@ -1,0 +1,23 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.rotating_cube",
+    "content_version": "0.1.0",
+    "project_id": "official-rotating_cube",
+    "graph_revision": 0,
+    "title": "旋转立方体 / Rotating cube",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "旋转立方体",
+        "en-US": "Rotating cube"
+    },
+    "maturity": "experimental",
+    "author": "Rhythm Master",
+    "license_status": "first-party graph; Godot/GLM notices supplied with runtime; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": []
+}

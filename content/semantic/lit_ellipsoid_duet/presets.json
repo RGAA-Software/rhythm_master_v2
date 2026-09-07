@@ -1,0 +1,43 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.lit_ellipsoid_duet",
+            "reset": true,
+            "id": "official.semantic.lit_ellipsoid_duet.default",
+            "titles": {
+                "zh-CN": "默认参数",
+                "en-US": "Default"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.lit_ellipsoid_duet",
+            "reset": true,
+            "id": "official.semantic.lit_ellipsoid_duet.variant",
+            "titles": {
+                "zh-CN": "柔光双星",
+                "en-US": "Soft twin sculpture"
+            },
+            "properties": {
+                "color_a": [
+                    0.6,
+                    0.8,
+                    1,
+                    1
+                ],
+                "color_b": [
+                    1,
+                    0.6,
+                    0.8,
+                    1
+                ],
+                "roughness": 0.9,
+                "rotation_speed": 8,
+                "light_energy": 1
+            }
+        }
+    ]
+}

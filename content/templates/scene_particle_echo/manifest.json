@@ -1,0 +1,23 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.scene_particle_echo",
+    "content_version": "0.1.0",
+    "project_id": "official-scene_particle_echo",
+    "graph_revision": 0,
+    "title": "光雕粒子回响 / Sculpture particle echo",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "光雕粒子回响",
+        "en-US": "Sculpture particle echo"
+    },
+    "maturity": "experimental",
+    "author": "Rhythm Master",
+    "license_status": "first-party graph; Godot/GLM notices supplied with runtime; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": []
+}

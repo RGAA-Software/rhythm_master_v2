@@ -1,0 +1,42 @@
+[
+  {
+    "sha256": "6532ae0e3528a4e7519dd42cb6a15f0715be6e67b8e504e90d23a86e8392a0f4",
+    "file": "android-build.log"
+  },
+  {
+    "sha256": "099c096ad58f55d5b5dd3a73b47226e54815ade3353b269b0b03d561fce92a29",
+    "file": "android-device.log"
+  },
+  {
+    "sha256": "2e8c7417fd9b089150d02988867659d20ed2ff2134fcb91f3ae86c3517474ca7",
+    "file": "compute.json"
+  },
+  {
+    "sha256": "009f6456b99799287e6ced14f1738e3d36d81fa2cb507cebdffabc08f500c026",
+    "file": "core-tests.log"
+  },
+  {
+    "sha256": "5caeff109dd439d9a52a9f3d1a1118383b908c0afa9e4631ace8e5000cb66c85",
+    "file": "environment.json"
+  },
+  {
+    "sha256": "1d6805129d7feb6b7ddf1ba44c953f816531b742d15346da5e65239e6aec6e03",
+    "file": "source_snapshot.json"
+  },
+  {
+    "sha256": "dcdaf20b2714dd9ee34f818878b16a13d6330c1b454ee7e65df1cc5944f42191",
+    "file": "standalone-render-tests.log"
+  },
+  {
+    "sha256": "880b34b47292b9946c2f587b3b39bc906a61f41f27dfdef03c3b731c72a6606c",
+    "file": "studio-loaded-modules.txt"
+  },
+  {
+    "sha256": "05a05139a38e20642c7c6dbab59c985679bc99d5ffff98835f32cf6b5c19ff69",
+    "file": "studio-window.png"
+  },
+  {
+    "sha256": "4aa389fa6792d1c1635e4531c110ec027c5cac4b43ebd9270db8b4033231b026",
+    "file": "windows-tests.log"
+  }
+]

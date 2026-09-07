@@ -1,0 +1,10 @@
+add_library(audio_output STATIC output.cpp)
+target_include_directories(audio_output PUBLIC include)
+target_link_libraries(audio_output PRIVATE SDL3::SDL3)
+rhythm_project_target(audio_output)
+if(BUILD_TESTING)
+    add_executable(audio_output_tests tests/output_tests.cpp)
+    target_link_libraries(audio_output_tests PRIVATE audio_output)
+    rhythm_project_target(audio_output_tests)
+    # Explicit device acceptance; no requirement for an endpoint on headless CI.
+endif()

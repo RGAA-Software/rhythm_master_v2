@@ -1,0 +1,17 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.audio_spectrum",
+    "content_version": "0.1.0",
+    "project_id": "official-audio-spectrum",
+    "graph_revision": 0,
+    "title": "霓虹频谱环 / Neon spectrum ring",
+    "default_locale": "zh-CN",
+    "titles": {"zh-CN": "霓虹频谱环", "en-US": "Neon spectrum ring"},
+    "maturity": "experimental",
+    "author": "Rhythm Master",
+    "license_status": "first-party; outbound license pending",
+    "compatible_players": ["windows"],
+    "external_assets": []
+}

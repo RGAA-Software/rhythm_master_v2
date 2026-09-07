@@ -1,0 +1,38 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.point_lattice",
+            "reset": true,
+            "id": "official.semantic.point_lattice.default",
+            "titles": {
+                "zh-CN": "默认参数",
+                "en-US": "Default"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.point_lattice",
+            "reset": true,
+            "id": "official.semantic.point_lattice.variant",
+            "titles": {
+                "zh-CN": "稀疏光点",
+                "en-US": "Sparse lights"
+            },
+            "properties": {
+                "columns": 7,
+                "rows": 5,
+                "point_size": 0.04,
+                "color_a": [
+                    1,
+                    0.7,
+                    0.2,
+                    1
+                ],
+                "rotation_speed": 4
+            }
+        }
+    ]
+}

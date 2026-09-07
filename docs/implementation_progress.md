@@ -1,0 +1,454 @@
+# Continuous implementation through Android Player
+
+User direction, 2026-09-07: continue implementation without stopping at each
+module delivery, through completion and validation of Android Player. The USB
+device is available for testing. Apple is the final platform stage.
+
+The accepted Windows build remains the integration baseline. Work proceeds
+incrementally through the existing capability, media, content, persistence and
+cluster plans; an installed demonstration APK alone is not Android completion.
+Pending dependencies are validated per module before adoption. Outstanding
+feature and platform checks remain explicit, including Windows risk checks.
+
+## 2026-09-07: template title encoding corrected
+
+The prismatic-lotus label was incorrectly GBK-decoded in authored metadata; changing
+fonts did not repair it. The manifest/generator and saved review-project title are
+corrected, and package/GPU checks now assert the actual expected text. Microsoft
+YaHei is restored at the user's request. Both applications and matching review
+packages are redeployed. See `validation/template_title_encoding_2026-09-07.md`.
+
+## 2026-09-07: complex visual reference
+
+Prismatic lotus adds an editable Advanced reference using two counter-rotating
+procedural fields, polar depth, mirrored sectors, antialiased luminance contours,
+soft aperture, star dust and two glow scales. Actual Player motion captures were
+inspected and iterated for readable highlights and lower central noise. New
+mapping/contour nodes have categorized palette entries, localized controls and
+six presets. Render-thread shader resources now have a focused lifetime owner.
+See `validation/prismatic_lotus_2026-09-07.md` for build, pixel and artifact evidence.
+This is not completion of 50 Basic / 50 Advanced or the seven-step product scope.
+
+## Product acceptance correction
+
+The user's latest review rejects the unclassified node list and the visual
+quality of the current templates. The product is not complete. Previous Windows
+acceptance covered an earlier interaction/deployment slice, not final authoring
+usability or the content library. Passing contract, pixel and playback tests
+establishes specific behavior; it does not establish artistic quality.
+
+Catalog inventory is eight semantic components, 111 preset records and 25 runnable
+example projects. These are not counts of visually accepted deliverables toward
+the content product targets. In particular, the 25 examples must not be reported
+as 25 polished complete templates. Final visual acceptance remains outstanding.
+See `validation/authoring_quality_correction_2026-09-07.md` for the immediate fix
+and the remaining acceptance requirements.
+
+Latest user target: at least 50 Basic templates and 50 Advanced templates,
+counted separately, superseding the former 24-template minimum. The 40 semantic
+nodes and 120 presets remain required. Next work prioritizes reusable visual
+effects and a representative polished content batch before volume expansion;
+see `template_quality_delivery_plan.md`.
+
+## Execution priority correction
+
+Source-reuse correction, 2026-09-07: the user requires direct use, extraction or
+adaptation of suitable mature open-source implementations before writing equivalent
+functionality ourselves. This applies throughout steps 1–7. Inspect the relevant
+reference first, keep necessary project adapters focused, and record concrete gaps
+when a new implementation is needed. Follow `third_party_reuse_policy.md` for
+provenance and actual-license handling; prefer vcpkg for dependencies. This rule
+does not change the paused communication work or the Apple-last platform order.
+
+Dependency sourcing correction, 2026-09-07: prefer `C:/source/vcpkg` for all
+third-party libraries and build tools. The custom FFmpeg 8.1.2 build processes
+were stopped and the project-owned builder was removed. Existing build/install
+artifacts under out/media-sdk are unused and must not be adopted.
+Use installed Windows 6.1.1 / Android 6.1 packages for media validation.
+Existing source/fork gaps are recorded in `validation/vcpkg_dependencies_2026-09-07.md`;
+this correction does not mean all existing dependencies have been migrated.
+
+The user questioned why communication was being developed before the main
+features were complete. The core product is still incomplete. Initial transport
+validation was justified by the pending dependency and Android requirements,
+but expanding it into room-service integration before the authoring/audio/content
+work was complete displaced the product's main path.
+
+Superseding user instruction: STOP communication development and testing now,
+including the unfinished drain-close regression. Preserve its current code and
+evidence without adoption. Communication is the final overall stage, after Apple.
+
+The user explicitly authorized continuous implementation of these seven steps:
+
+1. Local music-driven visuals: canonical audio analysis, music playback/capture,
+   frequency/loudness/onset inputs and visual parameter connections.
+2. Common visual tools: image/video sources, transforms, masks, compositing and filters.
+3. Authoring workflow: parameter binding, safe expressions, timeline and reusable components.
+4. Advanced visual domains: particles, physics, 3D scenes, materials and lighting.
+5. Content library: at least 40 semantic nodes, 120 presets, 50 Basic templates
+   and 50 Advanced templates under the latest user target.
+6. Windows product closure: project library, settings, ordinary wallpaper hosting,
+   publish/playback, performance and stability acceptance.
+7. Android local Player: shared capabilities, lifecycle, touch, audio, imports,
+   orientation, GPU/memory budgets and actual APK/device acceptance.
+
+Each increment builds and validates its affected module before further expansion,
+then reaches the application so acceptance is based on usable behavior. The
+existing FFmpeg license-choice and USB APK-install prerequisites remain pending;
+they do not justify diverting independent work into communication again.
+
+Existing networking results are retained as candidate-module evidence. They do
+not imply completion of the main product or take priority merely because their
+next implementation steps are well defined.
+
+## Implemented increments
+
+Visual effects increment: focused TiXL shader reuse adds Gaussian blur and spatial
+fractal noise, including graph nodes, inspector presets and bounded GPU resources.
+The first two Basic template candidates are Layered neon audio orbit and Aurora
+clouds. They are data-authored graphs with editable components; visual acceptance
+is still pending. Inventory is now 24 runnable examples and 105 preset records
+(89 operator + 16 semantic presets), not 24 accepted polished templates. The
+50 Basic / 50 Advanced targets remain open. A surface-resize/cache defect exposed
+by actual preview capture was also fixed. See
+`validation/visual_effects_2026-09-07.md` for source records and exact evidence.
+
+Semantic library increment: the Studio effect-component palette loads eight
+editable semantic nodes, reusing existing graph/component/codec services and
+template data. Insertion preserves the current graph and is one undoable edit.
+Each component has Default and a curated variant; incompatible presets preserve
+current values. All eight initial default packages pass actual Windows playback.
+Current content: eight semantic nodes, 99 presets (83 operator + 16 component),
+22 runnable example projects; visual acceptance and the latest catalog targets
+remain outstanding. See
+`validation/semantic_library_2026-09-07.md` for source review, tests and limits.
+
+Static GLB integration: typed asset references, bounded background model preparation,
+Studio selection/previews, publish-time model validation and Player lifecycle now
+connect the cgltf importer to applications. Real Cesium Box passes Windows package,
+rollback/recreation and GPU tests; 25 scene pixel cases pass. Studio/Player smoke
+tests run the standalone GLB package and show inline previews. Android shared code,
+tests and APK cross-build, but the disconnected device still prevents new actual
+acceptance. Catalog: 83 presets / 22 templates. Details, provenance, limits and paths:
+`validation/glb_integration_2026-09-07.md`.
+
+Earlier 3D increment: Godot projection, UV sphere and focused GGX/Schlick BRDF source,
+private vcpkg GLM mathematics and bounded cgltf static GLB parsing are in place.
+Ten procedural scene/material/geometry/camera/light operators now reach Studio,
+inline previews, publishing and Player. Windows passes 38 selected integration
+suites and 22 real scene GPU cases. Five new templates complete actual Windows
+Player playback; content totals 82 presets / 22 templates. Android shared targets,
+GLES shaders and APK cross-build; the device is currently absent from ADB, so the
+new GPU cases have not run there. The later GLB integration above adds asset binding
+and background preparation. See `validation/scene_nodes_2026-09-07.md` for exact scope, reuse
+and limits. This does not complete all of step 4 or step 7.
+
+Installed-vcpkg media adapters now decode local WAV/FLAC into bounded canonical
+PCM on Windows and USB Android. A thin SDL output adapter and asynchronous file
+playback/analysis coordinator pass actual Windows device tests, including pause,
+seek generations, EOF, cancellation and recovery. Android builds the same output
+and playback code; actual audio requires APK/Java-host acceptance. The FFmpeg
+path remains isolated pending the application's license decision. See
+`validation/local_media_2026-09-07.md` for scope and remaining work; this is not
+completion of step 1 or Android step 7.
+
+Local audio now reaches the applications: Windows Studio and standalone Player
+offer explicit system-loopback input; the Studio inspector shows live levels and
+63 bands. Two audio scalar operators and a Music Gradient template use the same
+compiled graph/package path. The first audio increment passes 39 Windows suites,
+31 Android native suites and explicit Windows device open/restart/stop checks.
+See `validation/local_audio_2026-09-07.md` for provenance, exact scope and remaining
+music-file playback / mobile audio work. The subsequent spectrum increment adds
+linear/radial batched geometry, transparent compositing and a Neon Spectrum Ring
+template. It passes 40 Windows suites and 32 Android native suites, including
+actual GLES pixel checks for both layouts and silence reset. There are now
+24 presets and 5 templates. The following 2D-transform increment adds
+`texture.affine` with scalar-connected scale/rotation/translation/opacity,
+mirroring and pivots; rotating-card and music-pulse-card templates bring the
+library to 27 presets and 7 templates. Windows passes 41 suites; Android passes
+33 native suites, including exact affine output pixels. Internal premultiplied
+GPU storage fixes translucent coverage across repeated passes; upload, vertex
+tint and clear-color paths are checked on GLES. Legacy transform nodes/packages
+retain their original schema and input slots.
+
+Shapes, normal/inverse alpha masks, source-over/additive layer compositing and
+safe arithmetic expressions now reach Studio, portable runtime and publishing.
+Windows passes 43 suites and USB Android 35 native suites, with exact GLES
+compositing pixels and bounded expression parsing/evaluation. There are now
+37 presets and 10 templates. See `validation/local_authoring_2026-09-07.md`.
+The initial Timeline panel adds transport, seconds/frames/beats display,
+stateless seek/loop and undoable curve-track editing. Pausing freezes feedback
+and captured external inputs; feedback seek remains disabled until replay exists.
+Windows now passes 44 suites, Android 35 native suites. Full track editing,
+named bindings and reusable components are still outstanding.
+Color adjustment now runs as an owned D3D11/GLES shader with scalar-controlled
+exposure, contrast, saturation and inversion. Windows passes 45 suites, Android
+36 native suites, including filter pixels; both GPU hosts play the published
+Breathing Light template. The content library now has 41 presets and 11 templates.
+The development shaderc candidate is used read-only; reproducible release-tool
+provenance remains pending, as recorded in the authoring validation document.
+
+Graph-scope named signals and input bindings now reach the Inspector, canvas,
+history, template instantiation, authoring persistence and compiled publishing.
+Windows passes 46 suites; Android passes 37 native suites. The Shared Pulse
+template binds one signal to scale and gradient color, bringing the library to
+41 presets and 12 templates. Its published package passes actual Windows and
+Android GPU playback. Authoring schema 3 stores bindings; schema 1/2 reading and
+compiled ABI 2 remain supported. Nested components are still outstanding.
+See `validation/named_bindings_2026-09-07.md`.
+
+Embedded nested components now compile to primitive instructions, retain stable
+instance viewer IDs and expose grouped, bounded public controls. Studio supports
+selection wrapping, repeated instances and undoable project expansion. Authoring
+schema 4 retains the library; compiled ABI 2 stays unchanged. Windows passes 49
+suites and USB Android 40 native suites; the Pulse Card Component template brings
+the library to 41 presets / 13 templates. See `validation/components_2026-09-07.md`
+for exact scope and remaining component editing work.
+
+Component drafts now support nested canvas navigation, public interface editing,
+shared undo, revision conflict checks and independent deep copies of a selected
+instance. Internal layouts persist as editor schema 2 metadata. Windows passes
+51 suites; Android passes 41 native suites plus updated layout/edit contracts.
+User component presets, internal draft viewers, official version updates and
+the complete timeline workflow remain outstanding.
+
+The initial typed Point pipeline now includes grid, particle emitter, transform
+and texture rendering, with point-node inline previews. Portable fixed-step
+simulation reuses focused first-party algorithms and publishes immutable point
+snapshots. Shared compiler/package/runtime limits bound source and intermediate
+capacities. Two additional templates bring content to 54 presets / 15 templates.
+Windows contracts and actual Windows/Android GPU playback pass; exact evidence
+and remaining GPU simulation/physics/3D work are in `validation/points_2026-09-07.md`.
+
+The initial Box2D point-physics increment passes 55 Windows suites and seven
+affected Android native suites, including actual GLES floor-contact pixels and
+device recreation. Windows-published Bouncing Light Rain / Falling Block Pile
+packages play on both hosts. The source-generation contract prevents reused
+particle IDs from retaining stale bodies after a seed reset. The vcpkg 3.1.1
+overlay fixes a reproduced sensor distance defect; SDK configuration verifies
+the recorded patch hashes. Content now totals 58 presets / 17 templates. The
+Windows deploy folders and Android APK are rebuilt, while APK installation
+acceptance remains pending. See `validation/physics2d_2026-09-07.md` for precise
+scope; collision-event nodes, joint authoring and 3D remain unfinished.
+
+Room identity is now an isolated validated adapter, with generated P-256 identities,
+SHA-256 certificate pins, validity/purpose checks and Windows current-user DPAPI
+vaults. Windows and USB Android pass real MsQuic handshakes, wrong-pin rejection
+and cancellation using generated identities; Windows also reloads its encrypted
+vault before transport use. See `validation/room_identity_2026-09-07.md`.
+This does not imply room admission or integration into the application binaries.
+The isolated room authority now validates limited invitations, member capacity,
+connection binding, lock/kick, credential rotation/renewal and replay watermarks.
+Its strict 209-character invitation codec carries endpoint and certificate pin;
+Windows/Android contracts include three simulated hours of lease renewal.
+See `cluster_invitation_protocol.md`: real encrypted Join/Welcome/Refresh and rejection
+now pass on both platforms, while resource/scene transport and camera/App integration remain pending.
+Both platforms also pass the shared OpenSSL layout; Windows required an explicit
+application-directory/System32 dependency-load profile for the bundled TLS DLLs.
+The QR-reader candidate passes bounded luminance decoding and one-worker,
+five-per-second scanning with generation cancellation on Windows and Android.
+The isolated transport service now exposes project-owned connection/event values,
+bounded control/asset streams and realtime datagrams. Nine security/transport suites
+pass on Windows and USB Android; the public API also transfers 1 MiB of exact assets
+alongside control/datagrams in both actual LAN directions. See
+`validation/cluster_transport_2026-09-07.md`; application room/scene integration is
+deferred behind the main authoring and local playback work above.
+
+- Texture previews render inside all five texture-producing nodes in the initial
+  graph, including final output; dragging an image moves its node.
+- Visible preview demand, selected-node priority and an eight-texture ceiling
+  replace the fixed three-viewer experiment. Copies remain 256x144 at 15 Hz,
+  with no routine GPU-to-CPU readback. Hidden/tiny previews stop requesting work.
+- Windows 37 tests pass, including independent Player GPU playback, real GPU inline-preview assertions and clean
+  deployment startup. The added canvas tests cover preview visibility and drag.
+- Android API 34 / arm64-v8a USB device passes twenty-nine native suites,
+  including the expanded preview-resource budget. No Player APK acceptance yet.
+
+Compiled program ABI 2 (with ABI 1 reading) and bounded standard ZIP runtime packages are implemented.
+Studio publishes immutable snapshots asynchronously with atomic replacement;
+Windows Player independently loads a runtime package, pauses/resumes and restarts.
+Shared session tests cover feedback pause, bad-package retention, surface resource
+release/replacement, clock continuity and resize. New packages use texture-signal-v2; legacy texture-signal-v1 and
+texture-signal-assets-v1 packages remain readable. Media decoding, package signatures and cluster
+admission remain separate modules, not implied by these profiles.
+
+Android SDL/Java host, GLES native library and Python APK builder are implemented
+and compile. The APK includes native controls, document-picker import and the
+same compiled package. USB installation was attempted on e2b3b128 but rejected:
+`INSTALL_FAILED_USER_RESTRICTED: Install canceled by user`. The user has been
+asked to allow installation on the phone. No GPU/lifecycle acceptance is claimed.
+Development continues on independent work while that device prerequisite is pending.
+Player now accepts immutable runtime input values at each host frame, with local
+clock fallback. Pause and surface replacement retain the last evaluated snapshot;
+resume reads current inputs. Invalid values cannot advance the playback clock.
+Windows and Android session contracts cover these transitions. No network object
+or dependency is introduced into Player/runtime public contracts.
+An Android native EGL pbuffer probe already runs the actual bgfx/GLES backend on
+the Adreno 650. It exposed and verified a fix for inverted render-target sampling;
+device destruction/recreation also passes. This does not replace APK lifecycle tests.
+
+The content module now loads twenty bilingual parameter presets; Inspector applies
+resolved values through history, so undo/redo and saved snapshots remain independent
+of catalog files. Saving/publishing commits active parameter/title edits first.
+Three additional generic operators provide scalar constants, six math modes and
+local time with free/loop/ping-pong modes. Enumeration parameters reject fractional
+values and use localized menus. Runtime tests cover wrapping, reverse time,
+division by zero and unchanged-input caching.
+
+Typed keyframe curves add step/linear/smooth interpolation, endpoint holding,
+strict time/value/key-count validation and allocation-free evaluation. A curve
+operator composes with local time and scalar/texture inputs. Source projects and
+compiled packages serialize the same typed curve; existing key extension fields
+survive authoring round trips. Inspector offers a curve plot and clipped keyframe
+editor with add/remove, interpolation and live value editing. Headless input tests
+cover one-command addition and the 1,024-key limit/visible-row rendering. Parameter
+preview/commit ownership is extracted into PropertyInspector rather than growing
+the Studio coordinator. This is node-local curve editing, not the complete planned
+multi-track timeline or all parameter binding/expression modes.
+
+Media dependency audit: installed Windows FFmpeg 6.1.1 reports GPL version 2 or
+later and --enable-gpl/--enable-libx264. The user has been asked whether to select
+GPL-3.0-or-later for affected project artifacts or build an LGPL FFmpeg profile.
+No GPL FFmpeg integration or outbound-license choice has been made implicitly.
+
+The cluster realtime codec now has a bounded, allocation-free v1 layout for
+participant input and request/reply clock datagrams. Golden byte order, all
+65,536 quantized control codes, malformed/truncated/extended payloads and a
+20,000-packet deterministic mutation corpus pass on Windows and Android. See
+`cluster_datagram_protocol.md`; authentication/request matching remain separate.
+Isolated QUIC candidates and remaining TLS/transport gates are recorded in
+`validation/quic_candidates_2026-09-07.md`, without claiming a completed room.
+Clock request matching now retains eight requests with one-second expiry and
+locally stamped receive times. The application send queue bounds control/assets
+by count and bytes including in-flight payloads, retains only the latest pending
+realtime value, and keeps in-flight ownership through cancellation. A 1000-peer
+stalled Null queue model passes 120 updates without exceeding its per-peer budget;
+this is not a 1000-connection or Wi-Fi capacity test. Full regression: Windows 32,
+Android 24 for that increment. Ordered stream framing then adds fragmented/coalesced
+message decoding, pre-allocation size checks and receive backpressure. Full
+regression now passes Windows 33 / Android 25; device evidence
+`/data/local/tmp/rhythm-master-phase-a-20260906213056996`.
+The isolated MsQuic adapter now uses the actual shared send queue and stream decoder.
+Final callbacks can follow shutdown notification, so native stream/connection close
+quiesces callbacks before asserting that in-flight payloads drained. Windows and
+Android cancellation races plus both LAN directions pass with these components;
+device evidence `/data/local/tmp/rhythm-quic-lan-20260906213421`.
+
+Scene readiness/commit coordination now rejects stale generations/hashes/profiles,
+freezes initial membership by the preparation deadline, supports all-ready or
+ready-subset policy, and issues a separate future commit for late-ready peers.
+Peer and generation identities are bounded and never reused. These are host
+domain tests, not a completed authenticated room or measured display sync.
+
+Move-only PreparedPackage validates/digests off-thread and transfers exactly once
+into Session. PackageLoader reuses one bounded worker for file reads, validation
+and optional atomic install, with cancel/exit/error recovery. Windows Player open
+and Android private-cache import now use it while current playback continues.
+Android retains one active and one replaceable pending imported cache file;
+worker join precedes RAII deletion, and paths outside the private incoming-file
+namespace are rejected and retained. Both platform tests cover these boundaries.
+Full regression: Windows 36 / Android 28, device directory
+`/data/local/tmp/rhythm-master-phase-a-20260906215311581`. APK installation and
+actual Android foreground/background document-picker acceptance remain pending.
+
+RuntimePackage now retains its validated profile. PreparedPackage conservatively
+allows analytic time evaluation only for the known stateless operators; feedback
+and future unclassified operations cannot bypass history recovery. Session supports
+a validated initial offset that survives pause/surface replacement and clears on restart.
+`cluster_player::PlaybackSchedule` connects prepare/hash/profile validation with
+frame-boundary Session commits, rejects stale async completions and missed timing,
+and preserves the scene origin for analytic late join. It is a separate service,
+without transport types or dependencies in standalone runtime/render. Full
+regression: Windows 37 / Android 29, device directory
+`/data/local/tmp/rhythm-master-phase-a-20260906220528804`. Actual room UI, authenticated
+admission/transport wiring and multi-screen synchronization remain unimplemented.
+
+Isolated real QUIC connection bursts now pass Windows 10/100/1000 concurrent
+loopback connections and Android 10/100, including over-limit rejection and
+native-close buffer drain. Exact timings, process CPU/RSS accounting and artifact
+hashes are recorded in `validation/quic_candidates_2026-09-07.md` and
+`out/quic/stress-*.json`. These are same-process client/server transport bursts,
+not sustained full-room load, Wi-Fi capacity or mobile-host product support.
+
+Build paths:
+- Windows Studio: `out/windows/src/windows_spike/deploy/rhythm_master.exe`
+- Windows Player: `out/windows/src/windows_player/deploy/rhythm_player.exe`
+- Android local debug APK: `out/android-arm64/apk/rhythm-player-debug.apk`
+
+Next: complete Android real GPU/lifecycle/package tests when installation is
+allowed; continue remaining capability, media, assets and cluster plan modules.
+
+Evidence: `out/windows-build.log`, `out/android-build.log`,
+`out/android-device.log`, `out/android-apk-build.log`, `out/studio-nodes-full.png`.
+
+Asset increment: immutable SHA-256 blobs now import with streaming size limits,
+deduplication, durable staging, corruption checks and cancellation. Studio offers
+a background import/record removal panel with undo/redo. Snapshots and project
+revision manifests carry only IDs, sizes and media types; missing/corrupt assets
+prevent commit. Publishing through Studio or the CLI carries verified bytes in
+separate ZIP entries. The initial in-memory profile limits assets to 64 records
+and 8 MiB total, within the existing 16 MiB package cap; streaming large media
+packages and graph media consumers are still pending.
+
+Asset tests cover source deletion, stable deduplication, mid-copy cancellation,
+failed-save retention, missing/extra/corrupt ZIP entries and bounded expansion.
+An independent Python ZIP reader verified a CLI-published asset package. That
+Windows package then played 60 frames on the Android Adreno 650 using the actual
+GLES backend. Evidence: out/android-assets-gpu.log and out/windows/package-cli-test.rhythmpack.
+
+Signal/format increment: sixteen generic operators now include bounded range
+mapping, six comparisons with equality tolerance, conditional scalar selection
+and deterministic seeded step/linear/smooth noise. Seventeen bilingual presets
+include validated defaults. Fixed noise samples match on Windows and Android.
+Property editing uses double precision and integer seed controls.
+
+An allocation-free Protobuf preflight bounds repeated node/edge/property/keyframe
+fields, packed/unpacked slots, nesting, total field count (200,000) and total
+message count (100,000) before generated objects allocate memory. Wire tests
+cover duplicate singular messages, malformed varints and unknown groups.
+
+Canvas sizes now belong to graph/program values. Source schema 2 and program
+ABI 2 require the canvas; legacy schema/ABI 1 reads as 640x360. New packages use
+texture-signal-v2 and verify matching canvas metadata, with optional asset entries.
+Studio provides compact landscape, 720p landscape/portrait and square options
+through history. The current profile permits dimensions 16..4096 and at most
+2,073,600 pixels. Studio output, Windows/Android Player and node previews keep
+aspect ratio. A Windows-published 720x1280 package with an asset completed
+60 actual Android GLES frames (out/android-portrait-gpu.log).
+
+Template increment: the default landscape project and new Twilight Flow portrait /
+Square Pulse templates are data-authored, compiled and published automatically.
+Studio's bilingual template menu loads on a bounded worker, verifies/copies assets,
+rejects concurrent edit conflicts and replaces content as one undoable command
+with fresh node IDs. Localized default selection lives in template metadata.
+Windows 24 suites and Android 16 native suites pass; both additional Windows-built
+templates complete real Windows (30-frame) and Android (60-frame) GPU playback.
+Evidence: out/android-template-gpu.log. These three experimental examples do not
+meet the complete 24-template / 40-semantic-node content targets.
+
+Windows Studio accepts --project <directory> and Player --package <file>, including
+Unicode paths; --smoke can combine with either for isolated acceptance. Actual
+portrait Studio output and node-preview framing: out/studio-portrait.png.
+
+Cluster foundations now include a value-only clock estimator with bounded drift,
+slewed monotonic presentation time, epoch/replay rejection and one-hour synthetic
+drift tests. A fixed 32-frame participant input buffer interpolates controls,
+steps discrete roles, and expires stale data through hold/fade. Nineteen generic
+operators include session time, participant role and control channels. Studio's
+offline input panel exercises these contracts without pretending to join a room.
+Authenticated transport, invitations and actual multi-device display sync remain pending.
+
+GammaRay's first-party bounded executor and deferred thread joiner are extracted
+with exact source hashes in provenance/gammaray_common.json. No Asio was imported.
+Project save/publish/template load and asset import reuse bounded workers, publish
+value results, and drain or cooperatively cancel on destruction. Windows 28 suites
+and Android 20 native suites pass after integration, including reentrant capture
+cleanup, worker-owned shutdown, queue saturation, repeated imports and failed-job
+recovery. Android evidence: /data/local/tmp/rhythm-master-phase-a-20260906200008828.
+
+QR generation is extracted with separate first-party wrapper and MIT Nayuki
+provenance, bounded payload/pixels, quiet zone and integer scaling. Windows and
+Android images match; independent decoding passes 20 synthetic image cases.
+Complete builds now pass 29 Windows and 21 Android native suites. Camera scanning,
+invitation validation and authenticated join remain separate work; see
+validation/cluster_foundations_2026-09-07.md for exact evidence and limits.

@@ -1,0 +1,7 @@
+Material Maker angular replication from addons/material_maker/nodes/kaleidoscope2.mmg
+Source: https://github.com/RodZill4/material-maker
+Revision: ad19fcf0ee34a7caf74df709dc4de7112f0d467d
+MIT; Copyright (c) 2018-present Rodolphe Suescun and contributors. See LICENSE.md.
+Adapted to bgfx with aspect preservation, mirrored sectors, bounded coordinates
+and explicit mirrored edge sampling; variation output omitted.
+Exact imported hashes and files: PROVENANCE.json.

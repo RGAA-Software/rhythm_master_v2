@@ -1,0 +1,24 @@
+diff --git a/src/distance.c b/src/distance.c
+--- a/src/distance.c
++++ b/src/distance.c
+@@ -599,7 +599,6 @@
+ 	{
+ 		float radiusA = input->proxyA.radius;
+ 		float radiusB = input->proxyB.radius;
+-		output.distance = b2MaxFloat( 0.0f, output.distance - radiusA - radiusB );
+ 
+ 		// Keep closest points on perimeter even if overlapped, this way the points move smoothly.
+ 		output.pointA = b2MulAdd( output.pointA, radiusA, normal );
+@@ -607,6 +606,12 @@
+ 		output.pointB = b2MulSub( output.pointB, radiusB, normal );
+ 	}
+ 
++	// Radii affect separation even when the core distance is below linear slop.
++	if ( input->useRadii )
++	{
++		output.distance = b2MaxFloat( 0.0f, output.distance - input->proxyA.radius - input->proxyB.radius );
++	}
++
+ 	return output;
+ }
+ 

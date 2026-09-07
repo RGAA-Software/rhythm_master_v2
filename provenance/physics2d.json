@@ -1,0 +1,64 @@
+{
+    "dependency": {
+        "source_url": "https://github.com/erincatto/box2d",
+        "revision": "v3.1.1",
+        "license": "MIT",
+        "copyright": "Copyright (c) 2022 Erin Catto",
+        "vcpkg_revision": "b216ddff25a1f432870e6c340ce79357049ef86e",
+        "vcpkg_port": "box2d 3.1.1#1 project overlay",
+        "triplets": [
+            "x64-windows",
+            "arm64-android"
+        ],
+        "install_root": "out/vcpkg-physics",
+        "source_sha512": "7367640e7f2ff395b8ca48766c71f57c96e08c298627c996eba76899a149ee28b0e3ecacfa4a224fdb5d160c7e25c6069bb8414fd1575787727d796097aa347b",
+        "imported_files": "Box2D C library and public headers through the vcpkg port; no upstream C source embedded in src/",
+        "patches": [
+            "libm.diff (vcpkg original)",
+            "rounded-distance.patch (project authored; always subtract shape radii from separation, retain existing witness-point adjustment threshold)"
+        ],
+        "targets": [
+            "src/physics2d",
+            "Windows Studio/Player",
+            "Android Player"
+        ],
+        "notice": "third_party/notices/box2d/LICENSE.txt",
+        "maintenance": "Pinned 3.1.1 plus narrow overlay. Re-run direct distance, sensor, collision, joints and both platform tests before replacing."
+    },
+    "port_files": {
+        "source_url": "https://github.com/microsoft/vcpkg/tree/b216ddff25a1f432870e6c340ce79357049ef86e/ports/box2d",
+        "files": [
+            "portfile.cmake",
+            "vcpkg.json",
+            "libm.diff",
+            "usage"
+        ],
+        "license": "MIT",
+        "notice": "dependencies/vcpkg/ports/box2d/VCPKG-LICENSE.txt",
+        "modifications": "Add rounded-distance.patch and port-version 1."
+    },
+    "first_party_reference": {
+        "source_url": "https://github.com/RGAA-Software/rhythm_master",
+        "revision": "118dbc811718836ffb4ca62eec7384605df5be32",
+        "ownership": "first-party design reference; outbound license pending",
+        "files": [
+            {
+                "source": "src/rhythm_render/src/physics/2d/sk_physics_world2d.cpp",
+                "source_sha256": "670669b2901fa59539c719c23acfa57671777e2beb8ae5c064ee89adc0b4c15f"
+            },
+            {
+                "source": "src/rhythm_render/include/physics/2d/sk_physics_world2d.h",
+                "source_sha256": "84597dad9eb43449776826b12e622867a817fa46254e0842684df9154797b10c"
+            },
+            {
+                "source": "src/rhythm_render/include/physics/2d/sk_physics_types.h",
+                "source_sha256": "cb1953a3552d442b9ad444ef09f9e0de5944a53b618914e8bfba1c6576bc6f49"
+            },
+            {
+                "source": "src/rhythm_render/include/physics/2d/sk_physics_units.h",
+                "source_sha256": "beb7f1b3c64e79ac8be728f6d77b9f44fe6763f97d110926628d1c7ec768b318"
+            }
+        ],
+        "adaptation": "Focused redesign of world/body/joint operations and events using PImpl, move-only native owners and monotonic project handles; no Qt, renderer pointers, userdata pointers or textures copied."
+    }
+}

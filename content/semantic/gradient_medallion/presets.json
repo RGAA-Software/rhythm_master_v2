@@ -1,0 +1,42 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.gradient_medallion",
+            "reset": true,
+            "id": "official.semantic.gradient_medallion.default",
+            "titles": {
+                "zh-CN": "默认参数",
+                "en-US": "Default"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.gradient_medallion",
+            "reset": true,
+            "id": "official.semantic.gradient_medallion.variant",
+            "titles": {
+                "zh-CN": "极光圆环",
+                "en-US": "Aurora medallion"
+            },
+            "properties": {
+                "color_a": [
+                    0.05,
+                    1,
+                    0.5,
+                    1
+                ],
+                "color_b": [
+                    0.6,
+                    0.1,
+                    1,
+                    1
+                ],
+                "scale": 0.85,
+                "rotation_speed": -8
+            }
+        }
+    ]
+}

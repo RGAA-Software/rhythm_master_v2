@@ -1,0 +1,520 @@
+#include "rhythm/studio/studio.h"
+
+#include <imgui.h>
+#include <imgui_internal.h>
+
+#include <array>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <nlohmann/json.hpp>
+#include <optional>
+
+#include "asset_panel.h"
+#include "audio_panel.h"
+#include "canvas_settings.h"
+#include "component_panel.h"
+#include "component_workbench.h"
+#include "graph_canvas.h"
+#include "input_preview.h"
+#include "node_palette.h"
+#include "property_inspector.h"
+#include "rhythm/content/presets.h"
+#include "rhythm/cyber/theme.h"
+#include "rhythm/editor/commands.h"
+#include "rhythm/editor/compiler_worker.h"
+#include "rhythm/model_assets/loader.h"
+#include "rhythm/project/async_store.h"
+#include "rhythm/project/store.h"
+#include "rhythm/render/layout.h"
+#include "rhythm/runtime/runtime.h"
+#include "rhythm/runtime/viewers.h"
+#include "semantic_palette.h"
+#include "timeline_panel.h"
+
+namespace rhythm::studio {
+class Studio::Impl final {
+   public:
+    Impl(const std::filesystem::path& resources, const std::filesystem::path& project)
+        : project_(project) {
+        for (const auto& locale : {"zh-CN", "en-US"}) {
+            std::ifstream file(resources / "locales" / locale / "studio.json");
+            catalogs_[locale] =
+                    nlohmann::json::parse(file).get<std::map<std::string, std::string>>();
+        }
+        templates_ = project::ScanTemplates(resources / "content" / "templates");
+        if (templates_.empty()) throw std::runtime_error("content.empty_catalog");
+        const auto preferred = std::find_if(templates_.begin(), templates_.end(),
+                                            [](const auto& item) { return item.default_; });
+        const auto template_path =
+                (preferred == templates_.end() ? templates_.front() : *preferred).directory_;
+        const auto loaded = std::filesystem::exists(project_ / "CURRENT")
+                                    ? project::Load(project_)
+                                    : project::PrepareTemplate(template_path, project_ / "assets");
+        history_.emplace(loaded.snapshot_);
+        presets_ = content::LoadPresets(resources / "content/presets/catalog.json", registry_);
+        semantics_ = content::LoadSemantics(resources / "content/semantic", registry_);
+        for (const auto& entry : semantics_) {
+            presets_.insert(presets_.end(), entry.presets_.begin(), entry.presets_.end());
+            for (const auto& [locale, title] : entry.metadata_.titles_)
+                catalogs_[locale][entry.root_.type_] = title;
+        }
+        diagnostics_ = loaded.warnings_;
+        SyncTitle();
+        QueueCompile();
+        cyber::ApplyTheme();
+    }
+    std::string Text(const std::string& key) const {
+        const auto& catalog = catalogs_.at(locale_);
+        const auto found = catalog.find(key);
+        return found == catalog.end() ? key : found->second;
+    }
+    std::string Label(const std::string& key) const { return Text(key) + "###" + key; }
+    void MoveHistory(bool redo) {
+        const auto preview = inspector_.Preview().has_value() || timeline_.Preview().has_value();
+        auto before = history_->Current().document_;
+        const auto before_assets = history_->Current().assets_;
+        if (!(redo ? history_->Redo() : history_->Undo())) return;
+        auto after = history_->Current().document_;
+        before.revision_ = 0;
+        after.revision_ = 0;
+        SyncTitle();
+        canvas_.RestoreLayout();
+        if (before != after || before_assets != history_->Current().assets_ || preview)
+            QueueCompile();
+    }
+    void SyncTitle() {
+        title_.fill(0);
+        const auto& title = history_->Current().title_;
+        std::memcpy(title_.data(), title.data(), std::min(title.size(), title_.size() - 1));
+        inspector_.Reset();
+        timeline_.ResetEdit();
+    }
+    void QueueCompile() {
+        model_loader_.Cancel();
+        const auto& document = inspector_.Preview()  ? inspector_.Preview()->document_
+                               : timeline_.Preview() ? timeline_.Preview()->document_
+                                                     : history_->Current().document_;
+        generation_ = compiler_.Submit(document, viewer_nodes_);
+    }
+    void Apply(editor::Snapshot next) {
+        const auto assets_changed = next.assets_ != history_->Current().assets_;
+        auto before = history_->Current().document_;
+        auto after = next.document_;
+        before.revision_ = 0;
+        after.revision_ = 0;
+        const auto expected_revision = next.document_.revision_;
+        if (history_->Apply(std::move(next), expected_revision) &&
+            (before != after || assets_changed))
+            QueueCompile();
+    }
+    void Toolbar() {
+        ImGui::BeginDisabled(store_.Busy());
+        if (ImGui::Button(Label("save").c_str())) {
+            CommitEdits();
+            store_.SaveProject(project_, history_->Current());
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(Label("publish").c_str())) {
+            CommitEdits();
+            auto name = project_.filename();
+            name.replace_extension(".rhythmpack");
+            store_.PublishProject(project_.parent_path().parent_path() / "Published" / name,
+                                  history_->Current(), project_ / "assets");
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(Label("reopen").c_str())) {
+            load_revision_ = history_->Current().document_.revision_;
+            store_.LoadProject(project_);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(Label("templates").c_str())) ImGui::OpenPopup("templates.popup");
+        if (ImGui::BeginPopup("templates.popup")) {
+            ImGui::TextWrapped("%s", Text("templates.help").c_str());
+            for (const auto& entry : templates_)
+                if (ImGui::Selectable((entry.titles_.at(locale_) + "###" + entry.id_).c_str())) {
+                    CommitEdits();
+                    load_revision_ = history_->Current().document_.revision_;
+                    store_.LoadTemplate(entry.directory_, project_ / "assets");
+                }
+            ImGui::EndPopup();
+        }
+        ImGui::EndDisabled();
+        ImGui::SameLine();
+        const auto asset_edit = assets_.Draw(project_ / "assets", history_->Current().assets_,
+                                             catalogs_.at(locale_));
+        if (asset_edit.added_ || asset_edit.removed_) {
+            CommitEdits();
+            auto next = history_->Current();
+            if (asset_edit.removed_)
+                std::erase_if(next.assets_,
+                              [&](const auto& asset) { return asset.id_ == *asset_edit.removed_; });
+            if (asset_edit.added_ &&
+                std::none_of(next.assets_.begin(), next.assets_.end(), [&](const auto& asset) {
+                    return asset.id_ == asset_edit.added_->id_;
+                }))
+                next.assets_.push_back(*asset_edit.added_);
+            Apply(std::move(next));
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(Label("undo").c_str())) MoveHistory(false);
+        ImGui::SameLine();
+        if (ImGui::Button(Label("redo").c_str())) MoveHistory(true);
+        ImGui::SameLine();
+        if (ImGui::Button(locale_ == "zh-CN" ? "English###locale" : "简体中文###locale"))
+            locale_ = locale_ == "zh-CN" ? "en-US" : "zh-CN";
+        ImGui::Checkbox(Label("viewers").c_str(), &show_viewers_);
+        ImGui::SameLine();
+        ImGui::Checkbox(Label("timeline").c_str(), &show_timeline_);
+        ImGui::SameLine();
+        if (ImGui::Button(Label("reset").c_str())) timeline_.Restart();
+        ImGui::SameLine();
+        if (const auto selected =
+                    semantic_palette_.Draw(semantics_, locale_, catalogs_.at(locale_))) {
+            CommitEdits();
+            const auto id = history_->ReserveNodeId();
+            auto edit = content::AddSemantic(history_->Current(), semantics_.at(*selected),
+                                             registry_, canvas_.InsertionPoint(), id);
+            if (std::holds_alternative<editor::Snapshot>(edit)) {
+                Apply(std::get<editor::Snapshot>(std::move(edit)));
+                canvas_.RestoreLayout();
+                canvas_.Select(id);
+            } else
+                status_ = Text(std::get<graph::Diagnostic>(edit).code_);
+        }
+        ImGui::SameLine();
+        if (const auto type = node_palette_.Draw(registry_.Operators(), catalogs_.at(locale_),
+                                                 "node.palette")) {
+            CommitEdits();
+            const auto id = history_->ReserveNodeId();
+            auto result = editor::AddNode(history_->Current(), registry_, *type,
+                                          canvas_.InsertionPoint(), id);
+            if (std::holds_alternative<editor::Snapshot>(result)) {
+                Apply(std::get<editor::Snapshot>(std::move(result)));
+                canvas_.RestoreLayout();
+                canvas_.Select(id);
+            } else {
+                status_ = Text(std::get<graph::Diagnostic>(result).code_);
+            }
+        }
+        ImGui::InputText((Text("title") + "###title").c_str(), title_.data(), title_.size());
+        if (ImGui::IsItemDeactivatedAfterEdit()) {
+            auto next = history_->Current();
+            next.title_ = title_.data();
+            Apply(std::move(next));
+        }
+        if (!status_.empty()) ImGui::TextUnformatted(status_.c_str());
+        if (const auto canvas = DrawCanvasSettings(history_->Current().document_.canvas_,
+                                                   catalogs_.at(locale_))) {
+            CommitEdits();
+            auto next = history_->Current();
+            next.document_.canvas_ = *canvas;
+            Apply(std::move(next));
+        }
+    }
+    void Inspector() {
+        if (const auto action = component_panel_.Draw(
+                    history_->Current().document_, canvas_.Selections(), catalogs_.at(locale_))) {
+            CommitEdits();
+            if (action->kind_ == ComponentActionKind::kEdit) {
+                component_workbench_.Open(history_->Current(), action->value_);
+            } else {
+                const auto fresh_id = history_->ReserveNodeId();
+                auto edit = ExecuteComponentAction(*action, history_->Current(), registry_,
+                                                   canvas_.Selections(), fresh_id,
+                                                   canvas_.InsertionPoint());
+                if (std::holds_alternative<editor::Snapshot>(edit)) {
+                    Apply(std::get<editor::Snapshot>(std::move(edit)));
+                    canvas_.RestoreLayout();
+                    if (action->kind_ == ComponentActionKind::kCreate ||
+                        action->kind_ == ComponentActionKind::kAdd)
+                        canvas_.Select(fresh_id);
+                } else
+                    status_ = Text(std::get<graph::Diagnostic>(edit).code_);
+            }
+        }
+        auto result = inspector_.Draw(history_->Current(), canvas_.Selection(), registry_, presets_,
+                                      catalogs_.at(locale_), locale_);
+        if (result.diagnostic_) status_ = Text(result.diagnostic_->code_);
+        if (result.committed_)
+            Apply(std::move(*result.committed_));
+        else if (result.preview_changed_)
+            QueueCompile();
+    }
+    void Frame(platform::Host& host, render::Renderer& renderer, double seconds) {
+        if (const auto completed = store_.Take()) {
+            if (!completed->error_.empty()) {
+                std::cerr << completed->error_ << '\n';
+                status_ = Text(catalogs_.at(locale_).contains(completed->error_)
+                                       ? completed->error_
+                                       : "operation_failed");
+            } else if (completed->loaded_) {
+                if (history_->Current().document_.revision_ != load_revision_ ||
+                    inspector_.Preview() || timeline_.Preview() ||
+                    std::string(title_.data()) != history_->Current().title_)
+                    status_ = Text("load_conflict");
+                else if (completed->template_) {
+                    std::vector<graph::NodeId> ids;
+                    for (std::size_t index = 0;
+                         index < completed->loaded_->snapshot_.document_.nodes_.size(); ++index)
+                        ids.push_back(history_->ReserveNodeId());
+                    const auto result = editor::InstantiateTemplate(
+                            history_->Current(), completed->loaded_->snapshot_, ids);
+                    if (std::holds_alternative<editor::Snapshot>(result)) {
+                        viewer_nodes_.clear();
+                        Apply(std::get<editor::Snapshot>(result));
+                        SyncTitle();
+                        canvas_.RestoreLayout();
+                        ++reset_;
+                        timeline_.Restart();
+                        status_ = Text("templates.applied");
+                    } else
+                        status_ = Text(std::get<graph::Diagnostic>(result).code_);
+                } else {
+                    history_.emplace(completed->loaded_->snapshot_);
+                    diagnostics_ = completed->loaded_->warnings_;
+                    SyncTitle();
+                    canvas_.RestoreLayout();
+                    QueueCompile();
+                    ++reset_;
+                    timeline_.Restart();
+                    status_ = Text("reopened");
+                }
+            } else if (!completed->published_path_.empty()) {
+                const auto path = completed->published_path_.u8string();
+                status_ = Text("published") + " " + std::string(path.begin(), path.end());
+            } else
+                status_ = Text("saved") + " " + std::to_string(completed->saved_revision_);
+        }
+        if (const auto completed = compiler_.Take();
+            completed && completed->generation_ == generation_) {
+            if (std::holds_alternative<graph::ExecutionPlan>(completed->result_)) {
+                auto next = std::get<graph::ExecutionPlan>(completed->result_);
+                const auto& records = history_->Current().assets_;
+                const bool listed = std::all_of(
+                        next.instructions_.begin(), next.instructions_.end(),
+                        [&](const auto& instruction) {
+                            if (instruction.operation_ != graph::Operation::kGeometryGlb)
+                                return true;
+                            const auto& id = std::get<assets::AssetId>(
+                                    instruction.node_.properties_.at("asset"));
+                            return std::any_of(
+                                    records.begin(), records.end(),
+                                    [&](const auto& record) { return record.id_ == id; });
+                        });
+                if (listed && model_assets::Covers(next, *model_resources_)) {
+                    plan_ = std::move(next);
+                    diagnostics_.clear();
+                } else {
+                    try {
+                        model_loader_.Submit(
+                                {std::move(next), records, project_ / "assets", generation_});
+                        status_ = Text("model.loading");
+                    } catch (const std::exception& error) {
+                        std::cerr << error.what() << '\n';
+                        diagnostics_ = {{"model.invalid"}};
+                        status_ = Text("model.invalid");
+                    }
+                }
+            } else
+                diagnostics_ = std::get<std::vector<graph::Diagnostic>>(completed->result_);
+        }
+        if (auto completed = model_loader_.Take();
+            completed && completed->generation_ == generation_) {
+            if (completed->resources_) {
+                plan_ = std::move(completed->plan_);
+                model_resources_ = std::move(completed->resources_);
+                diagnostics_.clear();
+                status_.clear();
+            } else {
+                std::cerr << completed->error_ << '\n';
+                diagnostics_ = {{"model.invalid"}};
+                status_ = Text("model.invalid");
+            }
+        }
+        host.ClearViewerTextures();
+        const bool seekable =
+                plan_ &&
+                std::none_of(plan_->instructions_.begin(), plan_->instructions_.end(),
+                             [](const auto& instruction) {
+                                 return instruction.operation_ == graph::Operation::kFeedback ||
+                                        instruction.operation_ ==
+                                                graph::Operation::kParticleEmitter ||
+                                        instruction.operation_ == graph::Operation::kPointPhysics;
+                             });
+        const auto playback_seconds = timeline_.Advance(seconds, seekable);
+        if (timeline_generation_ != timeline_.Generation()) {
+            timeline_generation_ = timeline_.Generation();
+            ++reset_;
+        }
+        // Evaluate/capture before building UI draw lists. Preview owners remain
+        // alive through submission, even when this frame changes viewer demand.
+        const auto viewer_due = viewers_.BeginFrame(seconds, !viewer_nodes_.empty(), reset_);
+        runtime::FrameResult output;
+        if (plan_) {
+            const render::Extent extent{static_cast<std::uint16_t>(plan_->canvas_.width_),
+                                        static_cast<std::uint16_t>(plan_->canvas_.height_)};
+            runtime::FrameContext frame{playback_seconds, reset_, extent, viewer_due};
+            frame.resources_ = model_resources_;
+            if (!timeline_.Paused()) {
+                preview_inputs_ = input_preview_.Snapshot(playback_seconds);
+                preview_inputs_.audio_ = audio_panel_.Snapshot();
+            }
+            frame.external_ = preview_inputs_;
+            frame.advance_state_ = !timeline_.Paused();
+            output = runtime_.Evaluate(*plan_, frame, renderer);
+        }
+        evaluated_ = output.evaluated_;
+        viewers_.Capture(output, viewer_nodes_, renderer);
+        CanvasPreviews previews;
+        previews.enabled_ = show_viewers_;
+        for (const auto& value : viewers_.Outputs())
+            if (renderer.IsValid(value.texture_))
+                previews.textures_[value.node_] = host.RegisterTexture(value.texture_);
+        const auto dock = ImGui::DockSpaceOverViewport();
+        if (!layout_created_) {
+            ImGui::DockBuilderRemoveNode(dock);
+            ImGui::DockBuilderAddNode(dock, ImGuiDockNodeFlags_DockSpace);
+            ImGui::DockBuilderSetNodeSize(dock, ImGui::GetMainViewport()->Size);
+            auto center = dock;
+            const auto right =
+                    ImGui::DockBuilderSplitNode(center, ImGuiDir_Right, 0.30f, nullptr, &center);
+            auto sidebar = right;
+            const auto bottom =
+                    ImGui::DockBuilderSplitNode(sidebar, ImGuiDir_Down, 0.46f, nullptr, &sidebar);
+            ImGui::DockBuilderDockWindow("###graph", center);
+            ImGui::DockBuilderDockWindow("###inspector", sidebar);
+            ImGui::DockBuilderDockWindow("###output", bottom);
+            ImGui::DockBuilderFinish(dock);
+            layout_created_ = true;
+        }
+        const auto graph_visible = ImGui::Begin((Text("graph") + "###graph").c_str());
+        if (graph_visible) {
+            Toolbar();
+            previews.enabled_ = show_viewers_;
+            if (const auto edit = canvas_.Draw(history_->Current(), registry_,
+                                               catalogs_.at(locale_), previews))
+                Apply(*edit);
+        }
+        ImGui::End();
+        std::vector<graph::NodeId> demand;
+        if (graph_visible && show_viewers_) {
+            const auto visible = canvas_.PreviewNodes();
+            demand.assign(visible.begin(), visible.end());
+            if (const auto selected = std::find(demand.begin(), demand.end(), canvas_.Selection());
+                selected != demand.end())
+                std::rotate(demand.begin(), selected, selected + 1);
+            if (demand.size() > runtime::Viewers::kMaxPreviews)
+                demand.resize(runtime::Viewers::kMaxPreviews);
+        }
+        if (demand != viewer_nodes_) {
+            viewer_nodes_ = std::move(demand);
+            QueueCompile();
+        }
+        ImGui::Begin((Text("inspector") + "###inspector").c_str());
+        ImGui::BeginDisabled(timeline_.Preview().has_value());
+        Inspector();
+        ImGui::EndDisabled();
+        audio_panel_.Draw(catalogs_.at(locale_));
+        input_preview_.Draw(catalogs_.at(locale_));
+        ImGui::Separator();
+        ImGui::Text("%s: %llu", Text("revision").c_str(),
+                    static_cast<unsigned long long>(history_->Current().document_.revision_));
+        ImGui::Text("%s: %u", Text("evaluated").c_str(), evaluated_);
+        for (const auto& diagnostic : diagnostics_)
+            ImGui::TextWrapped("%s [%llu]", Text(diagnostic.code_).c_str(),
+                               static_cast<unsigned long long>(diagnostic.node_));
+        ImGui::End();
+        if (show_timeline_) {
+            ImGui::SetNextWindowSize({760, 530}, ImGuiCond_FirstUseEver);
+            if (ImGui::Begin((Text("timeline") + "###timeline").c_str(), &show_timeline_)) {
+                ImGui::BeginDisabled(inspector_.Preview().has_value());
+                auto edit = timeline_.Draw(history_->Current(), seekable, catalogs_.at(locale_));
+                ImGui::EndDisabled();
+                if (edit.committed_)
+                    Apply(std::move(*edit.committed_));
+                else if (edit.preview_changed_)
+                    QueueCompile();
+            }
+            ImGui::End();
+        }
+        if (!show_timeline_ && timeline_.Preview()) CommitEdits();
+        if (const auto edited = component_workbench_.Draw(history_->Current(), registry_,
+                                                          catalogs_.at(locale_), locale_)) {
+            inspector_.Reset();
+            Apply(*edited);
+            canvas_.RestoreLayout();
+        }
+        const auto output_visible = ImGui::Begin((Text("output") + "###output").c_str());
+        if (output_visible && output.final_.device_) {
+            const auto available = ImGui::GetContentRegionAvail();
+            const auto fit = render::AspectFit(output.extent_, {0, 0, std::max(1.0f, available.x),
+                                                                std::max(1.0f, available.y)});
+            const auto cursor = ImGui::GetCursorPos();
+            ImGui::SetCursorPos({cursor.x + fit.x_, cursor.y + fit.y_});
+            ImGui::Image(host.RegisterTexture(output.final_), {fit.width_, fit.height_});
+        }
+        ImGui::End();
+    }
+    void CommitEdits() {
+        auto next = inspector_.Preview()  ? *inspector_.Preview()
+                    : timeline_.Preview() ? *timeline_.Preview()
+                                          : history_->Current();
+        next.title_ = title_.data();
+        inspector_.Reset();
+        timeline_.ResetEdit();
+        Apply(std::move(next));
+    }
+    graph::Registry registry_{};
+    std::vector<content::Preset> presets_{};
+    std::vector<content::Semantic> semantics_{};
+    SemanticPalette semantic_palette_{};
+    NodePalette node_palette_{};
+    std::optional<editor::History> history_{};
+    editor::CompilerWorker compiler_{};
+    project::AsyncStore store_{};
+    model_assets::Loader model_loader_{};
+    std::shared_ptr<const scene::Resources> model_resources_ =
+            std::make_shared<const scene::Resources>();
+    AssetPanel assets_{};
+    std::optional<graph::ExecutionPlan> plan_{};
+    runtime::Runtime runtime_{};
+    runtime::Viewers viewers_{};
+    std::vector<graph::NodeId> viewer_nodes_{};
+    std::uint32_t evaluated_ = 0;
+    GraphCanvas canvas_{};
+    std::vector<graph::Diagnostic> diagnostics_{};
+    std::map<std::string, std::map<std::string, std::string>> catalogs_{};
+    std::filesystem::path project_{};
+    std::vector<project::ContentEntry> templates_{};
+    std::string locale_ = "zh-CN";
+    std::string status_{};
+    std::array<char, 4097> title_{};
+    PropertyInspector inspector_{};
+    ComponentPanel component_panel_{};
+    ComponentWorkbench component_workbench_{};
+    InputPreview input_preview_{};
+    AudioPanel audio_panel_{};
+    TimelinePanel timeline_{};
+    runtime::ExternalInputs preview_inputs_{};
+    std::uint64_t timeline_generation_ = 0;
+    std::uint64_t generation_ = 0;
+    std::uint64_t reset_ = 0;
+    std::uint64_t load_revision_ = 0;
+    bool show_viewers_ = true;
+    bool show_timeline_ = false;
+    bool layout_created_ = false;
+};
+Studio::Studio(const std::filesystem::path& resources, const std::filesystem::path& project)
+    : impl_(std::make_unique<Impl>(resources, project)) {}
+Studio::~Studio() = default;
+void Studio::Frame(platform::Host& host, render::Renderer& renderer, double seconds) {
+    impl_->Frame(host, renderer, seconds);
+}
+bool Studio::HasValidPlan() const { return impl_->plan_.has_value(); }
+void Studio::SetSuspended(bool suspended) { impl_->audio_panel_.SetSuspended(suspended); }
+FrameStatus Studio::Status() const {
+    return {impl_->history_->Current().document_.nodes_.size(), impl_->canvas_.VisibleNodes(),
+            impl_->viewers_.Outputs().size(), impl_->canvas_.DrawnPreviews()};
+}
+}  // namespace rhythm::studio

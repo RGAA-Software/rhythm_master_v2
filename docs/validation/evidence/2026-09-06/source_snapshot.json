@@ -1,0 +1,358 @@
+[
+  {
+    "sha256": "aaf03e8e03c7e6be3b60df2bdb7ea8a56de8e2a7aa11a54e6ba16221814dc122",
+    "file": ".clang-format"
+  },
+  {
+    "sha256": "ec498de53a3162660058c28e2ff5806c3aa2d18e4f3a81933d76b037913ca2cf",
+    "file": ".editorconfig"
+  },
+  {
+    "sha256": "55c6653de400e42784250bfa75bab6c7e2b21e7952eb0c4ab0c0fcce9540bb08",
+    "file": "AGENTS.md"
+  },
+  {
+    "sha256": "5544133323b5323784067dc4f793fca35a1c7a7cf4fd1abbee3467f5401dbd2d",
+    "file": "cmake/GraphicsProbes.cmake"
+  },
+  {
+    "sha256": "e54a47f51a70f49bb4130c3e164683ba2aa078d49f5c23f2c0f560915ed3b9ba",
+    "file": "cmake/ProjectIoDependencies.cmake"
+  },
+  {
+    "sha256": "73a78847f0e6806f7330f3143ec8fe959c117de340b1c59a56bc8424339a20b3",
+    "file": "cmake/ProjectOptions.cmake"
+  },
+  {
+    "sha256": "f98d64f90b40fd1dde81001ecdc0a963b8039555f932a28854df9368eecd70b8",
+    "file": "cmake/SpikeDependencies.cmake"
+  },
+  {
+    "sha256": "56c7e77989ead48428c1c40a533726648d8f3d07b7069eff4a962d778d79be68",
+    "file": "CMakeLists.txt"
+  },
+  {
+    "sha256": "43cc2e807fc56e4afe57b476270ec1309cf0cb6376a989997a7b7910d2689508",
+    "file": "CMakePresets.json"
+  },
+  {
+    "sha256": "1d65be3d4f49cb43696f2d828f4729f21825528eb214554529d324355358bfee",
+    "file": "content/templates/signal_texture/editor.json"
+  },
+  {
+    "sha256": "5f7a66a9eda62625f64ce9a9f86b3bf86d0692be912f04df02804f76622307dd",
+    "file": "content/templates/signal_texture/graph.textproto"
+  },
+  {
+    "sha256": "c140c14f1614220ed9c578e43f4c6edeb3ee83a484927c8674e2dd28e5c59d3a",
+    "file": "content/templates/signal_texture/manifest.json"
+  },
+  {
+    "sha256": "8c5d349adf14105f8570df633d1a6f2ef72545db56d764e915d1f21aafde3029",
+    "file": "locales/en-US/studio.json"
+  },
+  {
+    "sha256": "de01b744c8f08d75cf301bfa5a4f98ab436781756678561148983139d50fedbd",
+    "file": "locales/zh-CN/studio.json"
+  },
+  {
+    "sha256": "c753aef12f6ce2fb7ffbee866e95a131f0d3a602e1ca760ed92a8ea93d755de0",
+    "file": "src/cyber_ui/CMakeLists.txt"
+  },
+  {
+    "sha256": "200937acf6b9e64846c948b0bacd7e8989edc9f68992a9cd638a0d8a80b2ccf2",
+    "file": "src/cyber_ui/include/rhythm/cyber/theme.h"
+  },
+  {
+    "sha256": "8f14d7e91e96706204a373ce2a4663edc9a1708e703e669460672f9096d907c0",
+    "file": "src/cyber_ui/theme.cpp"
+  },
+  {
+    "sha256": "97e89f0b30c97828c7c8d8b424aba0bf0972a862dd9e255426f8cd0563f1bc6f",
+    "file": "src/editor_application/CMakeLists.txt"
+  },
+  {
+    "sha256": "e47c6abfffc27e2772d4b73cce0ad5d11392405549d6b3be446a28f71edf8be0",
+    "file": "src/editor_application/commands.cpp"
+  },
+  {
+    "sha256": "ca5545960ce18a2458d6a94a85286dce993c23ccf0400847f8636a5e92e17b1d",
+    "file": "src/editor_application/compiler_worker.cpp"
+  },
+  {
+    "sha256": "1ccd3c8388cd1627169a1ff81c4d09a01d3dc77948349514e25394465e7f6d9d",
+    "file": "src/editor_application/history.cpp"
+  },
+  {
+    "sha256": "783578c0ba1deb51353ecc2bb088a8ae955a37d32543f246b42eb9a273332579",
+    "file": "src/editor_application/include/rhythm/editor/commands.h"
+  },
+  {
+    "sha256": "30f31201ef65dbd31dcb32530ca06e71becf42d0e076fcc3e147a085486c81b1",
+    "file": "src/editor_application/include/rhythm/editor/compiler_worker.h"
+  },
+  {
+    "sha256": "5a3029eaa89781c439e09b651479311d87e1f39817ea414f01c899721ced3413",
+    "file": "src/editor_application/include/rhythm/editor/history.h"
+  },
+  {
+    "sha256": "1ba005742f561cec1c418a3daa888fea8895ca5ee28199ffc925ecb36f68ff91",
+    "file": "src/editor_application/tests/editor_contract_tests.cpp"
+  },
+  {
+    "sha256": "8eafb3ff4247654b4d2afcca80d8a694f4a64eb5b9475397cdfbe13df4c9ca3a",
+    "file": "src/graph/CMakeLists.txt"
+  },
+  {
+    "sha256": "7e4c990f904f4e336de31d4c5f070bb3fba330877fb2aec0b453355121ae4456",
+    "file": "src/graph/include/rhythm/graph/compiler.h"
+  },
+  {
+    "sha256": "b5c2b433d3cb03cbbb65c7e7a151385b332eec0349ed55087896ee16f5f3bf47",
+    "file": "src/graph/include/rhythm/graph/document.h"
+  },
+  {
+    "sha256": "e028848c7190b2e1f0286a22badcc4b9ed74d43dc85a683876654dc719a11038",
+    "file": "src/graph/include/rhythm/graph/registry.h"
+  },
+  {
+    "sha256": "f8c88ab791a8634c4fa5620398a3b490986c458ca55b50ad072f792388b25096",
+    "file": "src/graph/src/compiler.cpp"
+  },
+  {
+    "sha256": "0b9b3e9cfae0e7572819614ebde6bc086e2935d0e10307560e1015325fa76b94",
+    "file": "src/graph/src/registry.cpp"
+  },
+  {
+    "sha256": "d4e5521099c5e0c76d78e3a563650f9619bfd81975329acdb499c4c80fd4f7f1",
+    "file": "src/graph/tests/graph_contract_tests.cpp"
+  },
+  {
+    "sha256": "29bd2c871f2a8ccdf3b1300fbdd70a2eb5915cf7b3443d518d155ee8e43dd4e5",
+    "file": "src/project_io/async_store.cpp"
+  },
+  {
+    "sha256": "6a6479cd99e97adf888cef8daa294b4e524ec966183765c0951e3eeb52cb9bb2",
+    "file": "src/project_io/atomic_file.cpp"
+  },
+  {
+    "sha256": "5e41129a93ae655f1d94df4377fd9a7df2569eb084dd5549bf26fe0a6885b62e",
+    "file": "src/project_io/atomic_file.h"
+  },
+  {
+    "sha256": "c9adc0b331ab583b7c488c1436d6dd8b0b6cd8184e78d2cbe069d4c6828ce77f",
+    "file": "src/project_io/CMakeLists.txt"
+  },
+  {
+    "sha256": "9b53de5d53878a7eeee21b300ac78374cde4a24f9c32a29a54df99b970eacd9a",
+    "file": "src/project_io/codec.cpp"
+  },
+  {
+    "sha256": "f55bbe4247f0ce006df902c265b6b48f041e15b6520c5d6b0a43b185be445f7a",
+    "file": "src/project_io/include/rhythm/project/async_store.h"
+  },
+  {
+    "sha256": "1359d1eba91c70db5426ae4945778e2ef78e6031f27f6649a5b007a02319f5ed",
+    "file": "src/project_io/include/rhythm/project/store.h"
+  },
+  {
+    "sha256": "d6d2c4885b5edbd4f17df363a3a4c619ee9994f06e548eb90c89db40a48760c0",
+    "file": "src/project_io/project_store.cpp"
+  },
+  {
+    "sha256": "814d70b3c7bf17534d18f07b514fff942f4b8f5d187be50e0347746704c88872",
+    "file": "src/project_io/schema/graph.proto"
+  },
+  {
+    "sha256": "5c89fe147f40cad377c949c3c61eb39a7cc92ff424d51c0c9e67998f26555ea0",
+    "file": "src/project_io/tests/persistence_contract_tests.cpp"
+  },
+  {
+    "sha256": "ba178e746d3241d2f1808b4fb663b67762c3b3905cae19f86499e9df5524b8a2",
+    "file": "src/rhythm_render/CMakeLists.txt"
+  },
+  {
+    "sha256": "29d20a4ee4230cbb9587d552d27f4831e15f04e4a7110602edec7a1d6052de13",
+    "file": "src/rhythm_render/include/rhythm/render/renderer.h"
+  },
+  {
+    "sha256": "ac9696b0bf3e1e290a5ae0b4bfa5459660178c7ffad651e7e2afe42785f9ff17",
+    "file": "src/rhythm_render/src/backend.h"
+  },
+  {
+    "sha256": "e015f5773463a894c8302fe5df245ef6760766537d61e47cd99962d837615398",
+    "file": "src/rhythm_render/src/bgfx_backend.cpp"
+  },
+  {
+    "sha256": "384e670fcdf167d95ae43f77fbed92d503e778d02fa5caa6893cd42a50aac785",
+    "file": "src/rhythm_render/src/bgfx_backend.h"
+  },
+  {
+    "sha256": "49e88714c5e3b3002fa0bdb50d507df449d6001228ffd68b3879feac59a3e6da",
+    "file": "src/rhythm_render/src/bgfx_handles.h"
+  },
+  {
+    "sha256": "edda425ce1ecfc7dfadd45b5c7973a67b43ce173e3613ccfc5505c399e4d3303",
+    "file": "src/rhythm_render/src/null_backend.cpp"
+  },
+  {
+    "sha256": "3f2c406f3a2a76d8405c59342f105175fb409885c7e588097a661c81f39e1d44",
+    "file": "src/rhythm_render/src/renderer.cpp"
+  },
+  {
+    "sha256": "bfb18bb72cf49be0ed2d7950d8116998b06f9e3994c6816cee070a9bd2d341c1",
+    "file": "src/rhythm_render/src/resource_table.cpp"
+  },
+  {
+    "sha256": "f23c2a5dc3c463da8dd3f9f2537b2a076ae6f9a92d5431d42851bd74ac403b84",
+    "file": "src/rhythm_render/src/resource_table.h"
+  },
+  {
+    "sha256": "aa5237c22d19ed6ddda9a4bf3fd99d82ac620ea603e7faac5dc5a2b968313bc9",
+    "file": "src/rhythm_render/tests/render_contract_tests.cpp"
+  },
+  {
+    "sha256": "a5869b142befe06c657bccf68865c6d56bc854e601a6909543406bedb0c2f8b7",
+    "file": "src/runtime/CMakeLists.txt"
+  },
+  {
+    "sha256": "26710293a16e3edd6e71e587a11b6fa7230ac67f0d3211ab2a241247d0000950",
+    "file": "src/runtime/frame_clock.cpp"
+  },
+  {
+    "sha256": "c95409ccaf9ea60405e7ea731638e4ab9d799bbff81e15f4009dfa90dafdd74c",
+    "file": "src/runtime/include/rhythm/runtime/frame_clock.h"
+  },
+  {
+    "sha256": "096d95e895ce5078d0a9483def58a561197eaaa5dd711c2c10e6d6b71e185c1b",
+    "file": "src/runtime/include/rhythm/runtime/runtime.h"
+  },
+  {
+    "sha256": "e974ca267b37596bf70902e2f3b17d60833f63b86e75a1e18344aa96fcf52794",
+    "file": "src/runtime/include/rhythm/runtime/viewers.h"
+  },
+  {
+    "sha256": "f67622a16889ba0f2d42b3836f68c0e0ba3299cd2f19b938be2c49b59f306a6e",
+    "file": "src/runtime/runtime.cpp"
+  },
+  {
+    "sha256": "a8ad12ff2a768f7a14282d94bb09562e675ec523a224f634c60dba7539a91f0b",
+    "file": "src/runtime/tests/runtime_contract_tests.cpp"
+  },
+  {
+    "sha256": "fa76d04895cc6190914bccb89abb0e49c8f833e20b7cb315712a808cf5496436",
+    "file": "src/runtime/viewers.cpp"
+  },
+  {
+    "sha256": "2a6e8ac84f099785e9332f74ecf9950112afc62c50e23a1cb7b9e30c9bde335e",
+    "file": "src/studio_ui/CMakeLists.txt"
+  },
+  {
+    "sha256": "4c62d9c303c9967f33152178915bd230ae1bb3f7c61df9d2853bae1ed2a4e0a2",
+    "file": "src/studio_ui/graph_canvas.cpp"
+  },
+  {
+    "sha256": "3dafd8d3efe3aca9e53816c910bc1a44dd07feefa80f501f0eea49990b9009f0",
+    "file": "src/studio_ui/graph_canvas.h"
+  },
+  {
+    "sha256": "164cb8f8768221702bcfc81d6cbbbe104307d1cf07b901d430dc0563b783fdf0",
+    "file": "src/studio_ui/include/rhythm/studio/studio.h"
+  },
+  {
+    "sha256": "22fab9fdc5c154cc73c634599a11872a347e076f4ea3924155b8f3aae72dca35",
+    "file": "src/studio_ui/studio.cpp"
+  },
+  {
+    "sha256": "89fae4a0ec81bd79669c7472dfba1e70167ae2f682dfd0df2058324a4b2c3da0",
+    "file": "src/windows_spike/CMakeLists.txt"
+  },
+  {
+    "sha256": "5f1d641b47297b5b8dc18b96830bd3478930cef68c32be5a210e473367767f94",
+    "file": "src/windows_spike/host.cpp"
+  },
+  {
+    "sha256": "2890768b8c5037ffe320db6c41fe5b91fd2ceeda4762fac604e586d92c2d8df2",
+    "file": "src/windows_spike/include/rhythm/platform/host.h"
+  },
+  {
+    "sha256": "4c2442762a330b24e28cf1d82b51bdcf8f09d1952a3d071813b2ada48db89a63",
+    "file": "src/windows_spike/main.cpp"
+  },
+  {
+    "sha256": "ca9e31f7bc23a15b8ee3b98ad6dac17d9c947d9c15e5bd71527943219211f5b4",
+    "file": "src/windows_spike/tests/gpu_probe.cpp"
+  },
+  {
+    "sha256": "ce31036660a7de80f6b7beb6ee21f48bc430b1e21ae8be5d3e9942fb8ab8db7c",
+    "file": "src/windows_spike/tests/host_contract_tests.cpp"
+  },
+  {
+    "sha256": "0db2e5cfa71e83adbbb7035f0685c46a99d812538d70e394b776bb7585c96493",
+    "file": "src/windows_spike/tests/shaders/compute_probe.sc"
+  },
+  {
+    "sha256": "8778846ac566b54f776327061b779e34565fdc7aba6d62866236ba1915da89cd",
+    "file": "src/windows_spike/ui_bridge.cpp"
+  },
+  {
+    "sha256": "778fd721f76906d7d8d9e2169b267310c13d962024d54b254c71eb9178f4c043",
+    "file": "src/windows_spike/ui_bridge.h"
+  },
+  {
+    "sha256": "e8ddf7c9bf5a1a97f0d0b0e525eadf8c942d52c08d89a30af4b436571ce3bc4b",
+    "file": "third_party/sdk_inventory.json"
+  },
+  {
+    "sha256": "19657b6fefba1f193fbcc532e720d8ae0c46a1c80cfec0c10adcf136542adc90",
+    "file": "third_party/source_inventory.json"
+  },
+  {
+    "sha256": "0f0e51c1e0c677ef11404d33179b78e5cdc642d127b124887b9b63108622280d",
+    "file": "tools/build-android.ps1"
+  },
+  {
+    "sha256": "1bec50a2d9d41b567608ada3b880d48ebfa13ab5cbfbc8351cb380da8665bc83",
+    "file": "tools/build.ps1"
+  },
+  {
+    "sha256": "dfe84a939e1f4c5ca89e5b03d44a0eaac54cdc558ed8598f4f1a49c9db885bec",
+    "file": "tools/capture-studio.ps1"
+  },
+  {
+    "sha256": "6a1208254000fb5bc856caab97341a85793f2ffa05b52109b039f9190f4465fe",
+    "file": "tools/check-boundaries.py"
+  },
+  {
+    "sha256": "c9996b0b12f8bee755dc8b7e421a5dc3cc5e23f26f2734f81d913d0a8b724040",
+    "file": "tools/compile-content.py"
+  },
+  {
+    "sha256": "565c47e16cefee933241309196477fe80f45e3932c3400748350c355522edb7a",
+    "file": "tools/compile-shader.py"
+  },
+  {
+    "sha256": "e9703a3a0648ec9309f42a2589fd6aaa888f77131c595890e0e36204a7145508",
+    "file": "tools/prepare-dependencies.ps1"
+  },
+  {
+    "sha256": "a637c3e1ffe99f8ead241c51537fae5d44448b7454440ec7d66ace533fb725ab",
+    "file": "tools/record-dependencies.py"
+  },
+  {
+    "sha256": "1831e9c552970a2f47bb6b40f94c4d9629a51cca663adf10c2613e4251f869af",
+    "file": "tools/record-validation.ps1"
+  },
+  {
+    "sha256": "867928d9d1b7bf5a2961c44768f50ee64a680d41f65302804b532389546b19bd",
+    "file": "tools/run-studio.ps1"
+  },
+  {
+    "sha256": "855361a5073b418a9a1252293f0e747895f4ea2b6c5c817c3064c115f8156543",
+    "file": "tools/test-android.ps1"
+  },
+  {
+    "sha256": "2ad7721a0b0a814d689a4e2e152d5a4592a6f24095bf64a22eebd74bc8db8fcb",
+    "file": "tools/test-shader-compiler.py"
+  }
+]

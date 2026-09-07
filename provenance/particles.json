@@ -1,0 +1,47 @@
+{
+    "source_url": "https://github.com/RGAA-Software/rhythm_master",
+    "revision": "118dbc811718836ffb4ca62eec7384605df5be32",
+    "ownership": "first-party adaptation; outbound license pending",
+    "files": [
+        {
+            "source": "src/rhythm_render/src/particle_simulation2d.cpp",
+            "source_sha256": "114a348aa394bd7547e92dfd4220a0655e7c96f5cc14e4e9ae753c0b20a39ee7"
+        },
+        {
+            "source": "src/rhythm_render/src/particle_simulation2d.h",
+            "source_sha256": "b1e37bc0b09801a66d7d9c8e0e13b45372ed4d111296657feda4f49ad04dc4a6"
+        },
+        {
+            "source": "src/rhythm_render/include/rhythm/render/particle_system2d.h",
+            "source_sha256": "722198fd4c6183af5880c79256396c4154496b345f7d14ea67108fbe61c42b5c"
+        },
+        {
+            "source": "src/rhythm_render/src/particle_field2d.cpp",
+            "source_sha256": "5307d7e0dc7f1a1436b610e46106762192cf715a529012e66997837bea1d2a09"
+        }
+    ],
+    "targets": [
+        "src/particles"
+    ],
+    "adapted_algorithms": [
+        "xorshift64* 24-bit random sampling",
+        "rectangle/disk/ring emission",
+        "bounded fixed-step accumulation, birth scheduling and swap retirement",
+        "velocity-first integration and lifetime color interpolation"
+    ],
+    "changes": [
+        "renderer-independent normalized point snapshots",
+        "double precision simulation and exact 120 Hz timestep",
+        "capacity limited to 16384",
+        "transactional validation, reset on seed change and capacity shrink",
+        "retirement count includes non-physics particles",
+        "simple bounded lifetime fade envelope"
+    ],
+    "excluded": [
+        "native physics adapters",
+        "renderer ownership and GPU batches",
+        "lighting bridges",
+        "legacy texture/content assets"
+    ],
+    "embedded_third_parties": []
+}

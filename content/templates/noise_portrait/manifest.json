@@ -1,0 +1,23 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.noise_portrait",
+    "content_version": "0.1.0",
+    "project_id": "official-noise-portrait",
+    "graph_revision": 0,
+    "title": "暮色流光 / Twilight flow",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "暮色流光",
+        "en-US": "Twilight flow"
+    },
+    "maturity": "experimental",
+    "author": "Rhythm Master",
+    "license_status": "first-party; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": []
+}

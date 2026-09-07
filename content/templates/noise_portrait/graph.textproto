@@ -1,0 +1,25 @@
+schema_version: 2
+id: "official-noise-portrait"
+output: 6
+canvas { width: 720 height: 1280 }
+nodes { id: 1 type_key: "core.time" schema_version: 1 }
+nodes { id: 2 type_key: "signal.noise" schema_version: 1
+    properties { key: "frequency" value { scalar: 0.18 } }
+    properties { key: "seed" value { scalar: 7 } }
+    properties { key: "noise_mode" value { scalar: 2 } }
+}
+nodes { id: 3 type_key: "signal.sample" schema_version: 1 }
+nodes { id: 4 type_key: "scalar.map" schema_version: 1
+    properties { key: "output_min" value { scalar: 0.2 } }
+    properties { key: "output_max" value { scalar: 1 } }
+}
+nodes { id: 5 type_key: "texture.gradient" schema_version: 1
+    properties { key: "color_a" value { color { r: 0.95 g: 0.35 b: 0.1 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.12 g: 0.02 b: 0.25 a: 1 } } }
+}
+nodes { id: 6 type_key: "output.texture" schema_version: 1 }
+edges { id: 1 from: 1 to: 2 input: "time" }
+edges { id: 2 from: 2 to: 3 input: "signal" }
+edges { id: 3 from: 3 to: 4 input: "value" }
+edges { id: 4 from: 4 to: 5 input: "amount" }
+edges { id: 5 from: 5 to: 6 input: "source" }

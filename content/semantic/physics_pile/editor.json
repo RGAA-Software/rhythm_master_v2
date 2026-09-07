@@ -1,0 +1,37 @@
+{
+    "version": 2,
+    "positions": [
+        {
+            "id": 1,
+            "x": 50,
+            "y": 70
+        },
+        {
+            "id": 2,
+            "x": 420,
+            "y": 70
+        }
+    ],
+    "components": [
+        {
+            "type": "component.official.physics_pile",
+            "positions": [
+                {
+                    "id": 1,
+                    "x": 30,
+                    "y": 40
+                },
+                {
+                    "id": 2,
+                    "x": 370,
+                    "y": 40
+                },
+                {
+                    "id": 3,
+                    "x": 710,
+                    "y": 40
+                }
+            ]
+        }
+    ]
+}

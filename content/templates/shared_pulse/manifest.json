@@ -1,0 +1,23 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.shared_pulse",
+    "content_version": "0.1.0",
+    "project_id": "official-shared-pulse",
+    "graph_revision": 0,
+    "title": "同步呼吸 / Shared pulse",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "同步呼吸",
+        "en-US": "Shared pulse"
+    },
+    "maturity": "experimental",
+    "author": "Rhythm Master",
+    "license_status": "first-party; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": []
+}

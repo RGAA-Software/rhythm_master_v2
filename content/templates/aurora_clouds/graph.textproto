@@ -1,0 +1,72 @@
+schema_version: 4
+id: "official-aurora-clouds"
+output: 200
+canvas { width: 1280 height: 720 }
+nodes { id: 100 type_key: "component.official.aurora_clouds" schema_version: 1 }
+nodes { id: 200 type_key: "output.texture" schema_version: 1 }
+edges { id: 1 from: 100 to: 200 input: "source" }
+components { type_key: "component.official.aurora_clouds" schema_version: 1 title: "Aurora clouds" output: 10
+nodes { id: 1 type_key: "core.time" schema_version: 1
+}
+nodes { id: 2 type_key: "time.local" schema_version: 1
+    properties { key: "speed" value { scalar: 0.1 } }
+    properties { key: "duration" value { scalar: 256 } }
+    properties { key: "time_mode" value { scalar: 1 } }
+}
+nodes { id: 3 type_key: "texture.noise" schema_version: 1
+    properties { key: "noise_scale" value { scalar: 2.2 } }
+    properties { key: "contrast" value { scalar: 3.8 } }
+    properties { key: "seed" value { scalar: 17 } }
+    properties { key: "color_a" value { color { r: 0.003 g: 0.008 b: 0.022 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.06 g: 0.75 b: 0.46 a: 1 } } }
+}
+nodes { id: 4 type_key: "texture.color_adjust" schema_version: 1
+    properties { key: "contrast" value { scalar: 1.55 } }
+    properties { key: "exposure" value { scalar: -0.4 } }
+    properties { key: "saturation" value { scalar: 1.15 } }
+}
+nodes { id: 5 type_key: "time.local" schema_version: 1
+    properties { key: "speed" value { scalar: 0.06 } }
+    properties { key: "duration" value { scalar: 256 } }
+    properties { key: "time_mode" value { scalar: 1 } }
+}
+nodes { id: 6 type_key: "texture.noise" schema_version: 1
+    properties { key: "noise_scale" value { scalar: 6.5 } }
+    properties { key: "contrast" value { scalar: 3.2 } }
+    properties { key: "seed" value { scalar: 73 } }
+    properties { key: "color_a" value { color { r: 0.004 g: 0.003 b: 0.022 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.48 g: 0.08 b: 0.75 a: 1 } } }
+}
+nodes { id: 7 type_key: "texture.color_adjust" schema_version: 1
+    properties { key: "contrast" value { scalar: 1.6 } }
+    properties { key: "exposure" value { scalar: -0.9 } }
+}
+nodes { id: 8 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 0.6 } }
+}
+nodes { id: 9 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 12 } }
+}
+nodes { id: 10 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 0.22 } }
+}
+edges { id: 1 from: 1 to: 2 input: "time" }
+edges { id: 2 from: 2 to: 3 input: "phase" }
+edges { id: 3 from: 3 to: 4 input: "source" }
+edges { id: 4 from: 1 to: 5 input: "time" }
+edges { id: 5 from: 5 to: 6 input: "phase" }
+edges { id: 6 from: 6 to: 7 input: "source" }
+edges { id: 7 from: 4 to: 8 input: "a" }
+edges { id: 8 from: 7 to: 8 input: "b" }
+edges { id: 9 from: 8 to: 9 input: "source" }
+edges { id: 10 from: 8 to: 10 input: "a" }
+edges { id: 11 from: 9 to: 10 input: "b" }
+parameters { key: "noise_scale" node: 3 property: "noise_scale" group: "component.motion" }
+parameters { key: "motion_speed" node: 2 property: "speed" group: "component.motion" }
+parameters { key: "color_a" node: 3 property: "color_a" group: "component.palette" }
+parameters { key: "color_b" node: 3 property: "color_b" group: "component.palette" }
+parameters { key: "contrast" node: 3 property: "contrast" group: "component.palette" }
+parameters { key: "glow_amount" node: 10 property: "amount" group: "component.palette" }
+}

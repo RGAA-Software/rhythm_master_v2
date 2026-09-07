@@ -1,0 +1,1447 @@
+{
+    "schema_version": 1,
+    "author": "Rhythm Master",
+    "provenance": "Project-owned content; outbound license pending",
+    "presets": [
+        {
+            "id": "official.gradient.default",
+            "version": "1.0.0",
+            "operator": "texture.gradient",
+            "titles": {
+                "zh-CN": "默认 · 青紫",
+                "en-US": "Default · Cyan violet"
+            },
+            "properties": {
+                "color_a": [
+                    0.02,
+                    0.6,
+                    0.85,
+                    1
+                ],
+                "color_b": [
+                    0.6,
+                    0.02,
+                    0.4,
+                    1
+                ]
+            }
+        },
+        {
+            "id": "official.gradient.sunset",
+            "version": "1.0.0",
+            "operator": "texture.gradient",
+            "titles": {
+                "zh-CN": "落日余晖",
+                "en-US": "Sunset"
+            },
+            "properties": {
+                "color_a": [
+                    1,
+                    0.38,
+                    0.04,
+                    1
+                ],
+                "color_b": [
+                    0.14,
+                    0.01,
+                    0.28,
+                    1
+                ]
+            }
+        },
+        {
+            "id": "official.gradient.ocean",
+            "version": "1.0.0",
+            "operator": "texture.gradient",
+            "titles": {
+                "zh-CN": "深海",
+                "en-US": "Deep ocean"
+            },
+            "properties": {
+                "color_a": [
+                    0.02,
+                    0.85,
+                    0.65,
+                    1
+                ],
+                "color_b": [
+                    0.005,
+                    0.02,
+                    0.15,
+                    1
+                ]
+            }
+        },
+        {
+            "id": "official.gradient.paper",
+            "version": "1.0.0",
+            "operator": "texture.gradient",
+            "titles": {
+                "zh-CN": "暖纸",
+                "en-US": "Warm paper"
+            },
+            "properties": {
+                "color_a": [
+                    1,
+                    0.93,
+                    0.78,
+                    1
+                ],
+                "color_b": [
+                    0.5,
+                    0.35,
+                    0.23,
+                    1
+                ]
+            }
+        },
+        {
+            "id": "official.transform.default",
+            "version": "1.0.0",
+            "operator": "texture.transform",
+            "titles": {
+                "zh-CN": "默认 · 轻缩放",
+                "en-US": "Default · Gentle inset"
+            },
+            "properties": {
+                "scale": 0.95
+            }
+        },
+        {
+            "id": "official.transform.frame",
+            "version": "1.0.0",
+            "operator": "texture.transform",
+            "titles": {
+                "zh-CN": "留白画框",
+                "en-US": "Wide frame"
+            },
+            "properties": {
+                "scale": 0.72
+            }
+        },
+        {
+            "id": "official.blend.default",
+            "version": "1.0.0",
+            "operator": "texture.blend",
+            "titles": {
+                "zh-CN": "默认 · 轻混合",
+                "en-US": "Default · Soft blend"
+            },
+            "properties": {
+                "amount": 0.25
+            }
+        },
+        {
+            "id": "official.oscillator.default",
+            "version": "1.0.0",
+            "operator": "signal.oscillator",
+            "titles": {
+                "zh-CN": "默认 · 缓慢呼吸",
+                "en-US": "Default · Slow breath"
+            },
+            "properties": {
+                "frequency": 0.25
+            }
+        },
+        {
+            "id": "official.constant.default",
+            "version": "1.0.0",
+            "operator": "scalar.constant",
+            "titles": {
+                "zh-CN": "默认 · 单位值",
+                "en-US": "Default · Unit value"
+            },
+            "properties": {
+                "value": 1
+            }
+        },
+        {
+            "id": "official.math.default",
+            "version": "1.0.0",
+            "operator": "scalar.math",
+            "titles": {
+                "zh-CN": "默认 · 相加",
+                "en-US": "Default · Add"
+            },
+            "properties": {
+                "a": 0,
+                "b": 1,
+                "math_mode": 0
+            }
+        },
+        {
+            "id": "official.time.default",
+            "version": "1.0.0",
+            "operator": "time.local",
+            "titles": {
+                "zh-CN": "默认 · 实时",
+                "en-US": "Default · Real time"
+            },
+            "properties": {
+                "speed": 1,
+                "offset": 0,
+                "duration": 4,
+                "time_mode": 0
+            }
+        },
+        {
+            "id": "official.curve.default",
+            "version": "1.0.0",
+            "operator": "scalar.curve",
+            "titles": {
+                "zh-CN": "默认 · 线性上升",
+                "en-US": "Default · Linear rise"
+            },
+            "properties": {
+                "curve": {
+                    "curve": [
+                        {
+                            "seconds": 0,
+                            "value": 0,
+                            "interpolation": "linear"
+                        },
+                        {
+                            "seconds": 1,
+                            "value": 1,
+                            "interpolation": "linear"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "official.curve.pulse",
+            "version": "1.0.0",
+            "operator": "scalar.curve",
+            "titles": {
+                "zh-CN": "平滑脉冲",
+                "en-US": "Smooth pulse"
+            },
+            "properties": {
+                "curve": {
+                    "curve": [
+                        {
+                            "seconds": 0,
+                            "value": 0,
+                            "interpolation": "smooth"
+                        },
+                        {
+                            "seconds": 0.2,
+                            "value": 1,
+                            "interpolation": "smooth"
+                        },
+                        {
+                            "seconds": 1,
+                            "value": 0,
+                            "interpolation": "linear"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "official.map.default",
+            "version": "1.0.0",
+            "operator": "scalar.map",
+            "titles": {
+                "zh-CN": "默认 · 限幅映射",
+                "en-US": "Default · Clamped map"
+            },
+            "properties": {
+                "input_min": 0,
+                "input_max": 1,
+                "output_min": 0,
+                "output_max": 1,
+                "map_mode": 0
+            }
+        },
+        {
+            "id": "official.compare.default",
+            "version": "1.0.0",
+            "operator": "scalar.compare",
+            "titles": {
+                "zh-CN": "默认 · 大于阈值",
+                "en-US": "Default · Above threshold"
+            },
+            "properties": {
+                "a": 0,
+                "b": 0.5,
+                "epsilon": 1e-06,
+                "compare_mode": 0
+            }
+        },
+        {
+            "id": "official.select.default",
+            "version": "1.0.0",
+            "operator": "scalar.select",
+            "titles": {
+                "zh-CN": "默认 · 开关",
+                "en-US": "Default · Gate"
+            },
+            "properties": {
+                "a": 0,
+                "b": 1
+            }
+        },
+        {
+            "id": "official.noise.default",
+            "version": "1.0.0",
+            "operator": "signal.noise",
+            "titles": {
+                "zh-CN": "默认 · 平滑随机",
+                "en-US": "Default · Smooth random"
+            },
+            "properties": {
+                "frequency": 1,
+                "seed": 0,
+                "noise_mode": 2
+            }
+        },
+        {
+            "id": "official.session_time.default",
+            "version": "1.0.0",
+            "operator": "session.time",
+            "titles": {
+                "zh-CN": "默认 · 会话时间",
+                "en-US": "Default · Session time"
+            },
+            "properties": {
+                "session_value": 0
+            }
+        },
+        {
+            "id": "official.participant_role.default",
+            "version": "1.0.0",
+            "operator": "participant.role",
+            "titles": {
+                "zh-CN": "默认 · 成员序号",
+                "en-US": "Default · Participant index"
+            },
+            "properties": {
+                "role_value": 0
+            }
+        },
+        {
+            "id": "official.participant_control.default",
+            "version": "1.0.0",
+            "operator": "participant.control",
+            "titles": {
+                "zh-CN": "默认 · 通道零",
+                "en-US": "Default · Channel zero"
+            },
+            "properties": {
+                "channel": 0
+            }
+        },
+        {
+            "id": "official.audio_feature.default",
+            "version": "1.0.0",
+            "operator": "audio.feature",
+            "titles": {
+                "zh-CN": "默认 · 响度",
+                "en-US": "Default · Loudness"
+            },
+            "properties": {
+                "audio_feature": 1
+            }
+        },
+        {
+            "id": "official.audio_band.default",
+            "version": "1.0.0",
+            "operator": "audio.band",
+            "titles": {
+                "zh-CN": "默认 · 低中频",
+                "en-US": "Default · Low mid band"
+            },
+            "properties": {
+                "audio_band": 20,
+                "audio_channel": 0
+            }
+        },
+        {
+            "id": "official.spectrum.default",
+            "version": "1.0.0",
+            "operator": "texture.spectrum",
+            "titles": {
+                "zh-CN": "默认 · 青色频谱",
+                "en-US": "Default · Cyan spectrum"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.spectrum.ring",
+            "version": "1.0.0",
+            "operator": "texture.spectrum",
+            "titles": {
+                "zh-CN": "霓虹频谱环",
+                "en-US": "Neon spectrum ring"
+            },
+            "properties": {
+                "spectrum_layout": 1,
+                "bar_count": 96,
+                "color_a": [
+                    1,
+                    0.15,
+                    0.45,
+                    1
+                ],
+                "color_b": [
+                    0.25,
+                    0.1,
+                    1,
+                    1
+                ]
+            }
+        },
+        {
+            "id": "official.affine.default",
+            "version": "1.0.0",
+            "operator": "texture.affine",
+            "titles": {
+                "zh-CN": "默认 · 原始尺寸",
+                "en-US": "Default · Original size"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.affine.mirror",
+            "version": "1.0.0",
+            "operator": "texture.affine",
+            "titles": {
+                "zh-CN": "水平镜像",
+                "en-US": "Horizontal mirror"
+            },
+            "properties": {
+                "scale_x": -1
+            }
+        },
+        {
+            "id": "official.affine.postcard",
+            "version": "1.0.0",
+            "operator": "texture.affine",
+            "titles": {
+                "zh-CN": "倾斜卡片",
+                "en-US": "Tilted postcard"
+            },
+            "properties": {
+                "scale": 0.65,
+                "rotation": -12
+            }
+        },
+        {
+            "id": "official.shape.default",
+            "version": "1.0.0",
+            "operator": "texture.shape",
+            "titles": {
+                "zh-CN": "默认 · 椭圆",
+                "en-US": "Default · Ellipse"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.shape.ring",
+            "version": "1.0.0",
+            "operator": "texture.shape",
+            "titles": {
+                "zh-CN": "圆环",
+                "en-US": "Ring"
+            },
+            "properties": {
+                "shape_type": 2
+            }
+        },
+        {
+            "id": "official.shape.hexagon",
+            "version": "1.0.0",
+            "operator": "texture.shape",
+            "titles": {
+                "zh-CN": "六边形",
+                "en-US": "Hexagon"
+            },
+            "properties": {
+                "shape_type": 3,
+                "sides": 6
+            }
+        },
+        {
+            "id": "official.mask.default",
+            "version": "1.0.0",
+            "operator": "texture.mask",
+            "titles": {
+                "zh-CN": "默认 · 透明度遮罩",
+                "en-US": "Default · Alpha mask"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.mask.inverse",
+            "version": "1.0.0",
+            "operator": "texture.mask",
+            "titles": {
+                "zh-CN": "反向遮罩",
+                "en-US": "Inverse mask"
+            },
+            "properties": {
+                "mask_mode": 1
+            }
+        },
+        {
+            "id": "official.composite.default",
+            "version": "1.0.0",
+            "operator": "texture.composite",
+            "titles": {
+                "zh-CN": "默认 · 正常叠加",
+                "en-US": "Default · Source over"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.composite.additive",
+            "version": "1.0.0",
+            "operator": "texture.composite",
+            "titles": {
+                "zh-CN": "加色叠加",
+                "en-US": "Additive"
+            },
+            "properties": {
+                "composite_mode": 1
+            }
+        },
+        {
+            "id": "official.expression.default",
+            "version": "1.0.0",
+            "operator": "scalar.expression",
+            "titles": {
+                "zh-CN": "默认 · 直通 A",
+                "en-US": "Default · Pass A"
+            },
+            "properties": {
+                "expression": {
+                    "expression": "a"
+                }
+            }
+        },
+        {
+            "id": "official.expression.pulse",
+            "version": "1.0.0",
+            "operator": "scalar.expression",
+            "titles": {
+                "zh-CN": "正弦脉冲",
+                "en-US": "Sine pulse"
+            },
+            "properties": {
+                "expression": {
+                    "expression": "0.5 + 0.5 * sin(time * tau)"
+                }
+            }
+        },
+        {
+            "id": "official.expression.audio_gain",
+            "version": "1.0.0",
+            "operator": "scalar.expression",
+            "titles": {
+                "zh-CN": "音频柔和放大",
+                "en-US": "Soft audio gain"
+            },
+            "properties": {
+                "expression": {
+                    "expression": "clamp(sqrt(abs(a)) * 1.2, 0, 1)"
+                }
+            }
+        },
+        {
+            "id": "official.color_adjust.default",
+            "version": "1.0.0",
+            "operator": "texture.color_adjust",
+            "titles": {
+                "zh-CN": "默认 · 原色",
+                "en-US": "Default · Original"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.color_adjust.monochrome",
+            "version": "1.0.0",
+            "operator": "texture.color_adjust",
+            "titles": {
+                "zh-CN": "黑白",
+                "en-US": "Monochrome"
+            },
+            "properties": {
+                "saturation": 0
+            }
+        },
+        {
+            "id": "official.color_adjust.vivid",
+            "version": "1.0.0",
+            "operator": "texture.color_adjust",
+            "titles": {
+                "zh-CN": "鲜艳",
+                "en-US": "Vivid"
+            },
+            "properties": {
+                "contrast": 1.15,
+                "saturation": 1.4
+            }
+        },
+        {
+            "id": "official.color_adjust.negative",
+            "version": "1.0.0",
+            "operator": "texture.color_adjust",
+            "titles": {
+                "zh-CN": "负片",
+                "en-US": "Negative"
+            },
+            "properties": {
+                "invert": 1
+            }
+        },
+        {
+            "id": "official.grid.wide",
+            "version": "1.0.0",
+            "operator": "point.grid",
+            "titles": {
+                "zh-CN": "横屏点阵",
+                "en-US": "Wide lattice"
+            },
+            "properties": {
+                "columns": 24,
+                "rows": 12,
+                "point_size": 0.01
+            }
+        },
+        {
+            "id": "official.grid.square",
+            "version": "1.0.0",
+            "operator": "point.grid",
+            "titles": {
+                "zh-CN": "方形点阵",
+                "en-US": "Square lattice"
+            },
+            "properties": {
+                "columns": 16,
+                "rows": 16,
+                "point_size": 0.015
+            }
+        },
+        {
+            "id": "official.grid.sparse",
+            "version": "1.0.0",
+            "operator": "point.grid",
+            "titles": {
+                "zh-CN": "稀疏光点",
+                "en-US": "Sparse lights"
+            },
+            "properties": {
+                "columns": 7,
+                "rows": 5,
+                "point_size": 0.035
+            }
+        },
+        {
+            "id": "official.emitter.default",
+            "version": "1.0.0",
+            "operator": "point.emitter",
+            "titles": {
+                "zh-CN": "默认 · 青紫喷泉",
+                "en-US": "Default · Cyan fountain"
+            },
+            "properties": {
+                "particle_capacity": 2048,
+                "seed": 1,
+                "emission_rate": 120,
+                "emission": 1,
+                "burst": 0,
+                "lifetime": 3,
+                "lifetime_variation": 0.5,
+                "emitter_shape": 0,
+                "center_x": 0.5,
+                "center_y": 0.7,
+                "emitter_width": 0.1,
+                "emitter_height": 0.05,
+                "direction": -90,
+                "spread": 30,
+                "particle_speed": 0.3,
+                "speed_variation": 0.67,
+                "gravity_x": 0,
+                "gravity_y": 0.1,
+                "point_size": 0.015,
+                "size_variation": 0.67,
+                "angular_speed": 1,
+                "fade_in": 0.05,
+                "fade_out": 0.25,
+                "color_a": [
+                    0.1,
+                    0.8,
+                    1,
+                    1
+                ],
+                "color_b": [
+                    0.8,
+                    0.1,
+                    1,
+                    0
+                ]
+            }
+        },
+        {
+            "id": "official.emitter.snow",
+            "version": "1.0.0",
+            "operator": "point.emitter",
+            "titles": {
+                "zh-CN": "轻雪",
+                "en-US": "Soft snow"
+            },
+            "properties": {
+                "center_y": -0.05,
+                "emitter_width": 1.1,
+                "direction": 90,
+                "spread": 8,
+                "particle_speed": 0.08,
+                "gravity_y": 0,
+                "lifetime": 18,
+                "emission_rate": 35,
+                "color_a": [
+                    1,
+                    1,
+                    1,
+                    0.8
+                ],
+                "color_b": [
+                    0.7,
+                    0.85,
+                    1,
+                    0
+                ]
+            }
+        },
+        {
+            "id": "official.emitter.fireflies",
+            "version": "1.0.0",
+            "operator": "point.emitter",
+            "titles": {
+                "zh-CN": "萤火",
+                "en-US": "Fireflies"
+            },
+            "properties": {
+                "emitter_width": 0.9,
+                "emitter_height": 0.9,
+                "center_y": 0.5,
+                "direction": 0,
+                "spread": 360,
+                "particle_speed": 0.02,
+                "gravity_y": 0,
+                "lifetime": 6,
+                "emission_rate": 20,
+                "color_a": [
+                    0.6,
+                    1,
+                    0.1,
+                    1
+                ],
+                "color_b": [
+                    1,
+                    0.5,
+                    0.05,
+                    0
+                ]
+            }
+        },
+        {
+            "id": "official.emitter.ring",
+            "version": "1.0.0",
+            "operator": "point.emitter",
+            "titles": {
+                "zh-CN": "漂浮光环",
+                "en-US": "Floating ring"
+            },
+            "properties": {
+                "emitter_shape": 2,
+                "emitter_width": 0.6,
+                "emitter_height": 0.6,
+                "center_y": 0.5,
+                "particle_speed": 0.03,
+                "gravity_y": 0,
+                "spread": 360,
+                "lifetime": 4,
+                "emission_rate": 160
+            }
+        },
+        {
+            "id": "official.point_transform.quarter",
+            "version": "1.0.0",
+            "operator": "point.transform",
+            "titles": {
+                "zh-CN": "旋转四分之一圈",
+                "en-US": "Quarter turn"
+            },
+            "properties": {
+                "rotation": 90
+            }
+        },
+        {
+            "id": "official.point_transform.half",
+            "version": "1.0.0",
+            "operator": "point.transform",
+            "titles": {
+                "zh-CN": "半尺寸点云",
+                "en-US": "Half-size cloud"
+            },
+            "properties": {
+                "scale": 0.5
+            }
+        },
+        {
+            "id": "official.point_render.glow",
+            "version": "1.0.0",
+            "operator": "point.render",
+            "titles": {
+                "zh-CN": "叠加光点",
+                "en-US": "Additive lights"
+            },
+            "properties": {
+                "point_style": 0,
+                "point_blend": 1
+            }
+        },
+        {
+            "id": "official.grid.default",
+            "version": "1.0.0",
+            "operator": "point.grid",
+            "titles": {
+                "zh-CN": "默认 · 光点阵",
+                "en-US": "Default · Light lattice"
+            },
+            "properties": {
+                "columns": 16,
+                "rows": 9,
+                "point_size": 0.012,
+                "grid_width": 0.8,
+                "grid_height": 0.8,
+                "center_x": 0.5,
+                "center_y": 0.5,
+                "color_a": [
+                    0.1,
+                    0.8,
+                    1,
+                    1
+                ]
+            }
+        },
+        {
+            "id": "official.point_transform.default",
+            "version": "1.0.0",
+            "operator": "point.transform",
+            "titles": {
+                "zh-CN": "默认 · 无变换",
+                "en-US": "Default · Identity"
+            },
+            "properties": {
+                "scale": 1,
+                "rotation": 0,
+                "translate_x": 0,
+                "translate_y": 0,
+                "opacity": 1
+            }
+        },
+        {
+            "id": "official.point_render.default",
+            "version": "1.0.0",
+            "operator": "point.render",
+            "titles": {
+                "zh-CN": "默认 · 柔边光点",
+                "en-US": "Default · Soft lights"
+            },
+            "properties": {
+                "point_style": 0,
+                "point_blend": 0
+            }
+        },
+        {
+            "id": "official.physics2d.default",
+            "version": "1.0.0",
+            "operator": "point.physics2d",
+            "titles": {
+                "zh-CN": "物理 · 弹性容器",
+                "en-US": "Physics · Bouncy container"
+            },
+            "properties": {
+                "gravity_x": 0,
+                "gravity_y": 0.98,
+                "body_shape": 0,
+                "restitution": 0.6,
+                "friction": 0.3,
+                "density": 1,
+                "physics_bounds": 2
+            }
+        },
+        {
+            "id": "official.physics2d.settle",
+            "version": "1.0.0",
+            "operator": "point.physics2d",
+            "titles": {
+                "zh-CN": "物理 · 堆积",
+                "en-US": "Physics · Settling pile"
+            },
+            "properties": {
+                "gravity_x": 0,
+                "gravity_y": 0.98,
+                "body_shape": 1,
+                "restitution": 0,
+                "friction": 0.8,
+                "density": 1,
+                "physics_bounds": 2
+            }
+        },
+        {
+            "id": "official.physics2d.float",
+            "version": "1.0.0",
+            "operator": "point.physics2d",
+            "titles": {
+                "zh-CN": "物理 · 零重力",
+                "en-US": "Physics · Zero gravity"
+            },
+            "properties": {
+                "gravity_x": 0,
+                "gravity_y": 0,
+                "body_shape": 0,
+                "restitution": 1,
+                "friction": 0,
+                "density": 1,
+                "physics_bounds": 2
+            }
+        },
+        {
+            "id": "official.physics2d.rain",
+            "version": "1.0.0",
+            "operator": "point.physics2d",
+            "titles": {
+                "zh-CN": "物理 · 单边落地",
+                "en-US": "Physics · Rain on floor"
+            },
+            "properties": {
+                "gravity_x": 0,
+                "gravity_y": 0.98,
+                "body_shape": 0,
+                "restitution": 0.2,
+                "friction": 0.3,
+                "density": 1,
+                "physics_bounds": 1
+            }
+        },
+        {
+            "id": "official.sphere.default",
+            "version": "1.0.0",
+            "operator": "geometry.sphere",
+            "titles": {
+                "zh-CN": "默认球体",
+                "en-US": "Default sphere"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.sphere.tall",
+            "version": "1.0.0",
+            "operator": "geometry.sphere",
+            "titles": {
+                "zh-CN": "修长椭球",
+                "en-US": "Tall ellipsoid"
+            },
+            "properties": {
+                "radius": 0.3,
+                "height": 1.6
+            }
+        },
+        {
+            "id": "official.sphere.flat",
+            "version": "1.0.0",
+            "operator": "geometry.sphere",
+            "titles": {
+                "zh-CN": "扁平椭球",
+                "en-US": "Flat ellipsoid"
+            },
+            "properties": {
+                "radius": 0.7,
+                "height": 0.4
+            }
+        },
+        {
+            "id": "official.unlit.default",
+            "version": "1.0.0",
+            "operator": "material.unlit",
+            "titles": {
+                "zh-CN": "默认青色材质",
+                "en-US": "Default cyan material"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.unlit.coral",
+            "version": "1.0.0",
+            "operator": "material.unlit",
+            "titles": {
+                "zh-CN": "珊瑚色材质",
+                "en-US": "Coral material"
+            },
+            "properties": {
+                "color_a": [
+                    1,
+                    0.2,
+                    0.35,
+                    1
+                ]
+            }
+        },
+        {
+            "id": "official.unlit.gold",
+            "version": "1.0.0",
+            "operator": "material.unlit",
+            "titles": {
+                "zh-CN": "金色材质",
+                "en-US": "Gold material"
+            },
+            "properties": {
+                "color_a": [
+                    1,
+                    0.7,
+                    0.12,
+                    1
+                ]
+            }
+        },
+        {
+            "id": "official.scene_transform.default",
+            "version": "1.0.0",
+            "operator": "scene.transform",
+            "titles": {
+                "zh-CN": "默认三维变换",
+                "en-US": "Default 3D transform"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.scene_transform.tilt",
+            "version": "1.0.0",
+            "operator": "scene.transform",
+            "titles": {
+                "zh-CN": "倾斜展示",
+                "en-US": "Tilted display"
+            },
+            "properties": {
+                "rotation_x": 25,
+                "rotation_y": 35
+            }
+        },
+        {
+            "id": "official.scene_transform.small",
+            "version": "1.0.0",
+            "operator": "scene.transform",
+            "titles": {
+                "zh-CN": "缩小几何",
+                "en-US": "Smaller geometry"
+            },
+            "properties": {
+                "scale": 0.5
+            }
+        },
+        {
+            "id": "official.scene_camera.default",
+            "version": "1.0.0",
+            "operator": "scene.camera",
+            "titles": {
+                "zh-CN": "默认透视相机",
+                "en-US": "Default perspective camera"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.scene_camera.orthographic",
+            "version": "1.0.0",
+            "operator": "scene.camera",
+            "titles": {
+                "zh-CN": "正交相机",
+                "en-US": "Orthographic camera"
+            },
+            "properties": {
+                "projection": 1,
+                "orthographic_height": 2
+            }
+        },
+        {
+            "id": "official.scene_camera.overview",
+            "version": "1.0.0",
+            "operator": "scene.camera",
+            "titles": {
+                "zh-CN": "俯视相机",
+                "en-US": "Elevated camera"
+            },
+            "properties": {
+                "eye_x": 2,
+                "eye_y": 2,
+                "eye_z": 3
+            }
+        },
+        {
+            "id": "official.pbr.default",
+            "version": "1.0.0",
+            "operator": "material.pbr",
+            "titles": {
+                "zh-CN": "默认 PBR 材质",
+                "en-US": "Default PBR material"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.pbr.copper",
+            "version": "1.0.0",
+            "operator": "material.pbr",
+            "titles": {
+                "zh-CN": "铜色金属",
+                "en-US": "Copper metal"
+            },
+            "properties": {
+                "color_a": [
+                    0.955,
+                    0.637,
+                    0.538,
+                    1
+                ],
+                "metallic": 1,
+                "roughness": 0.3
+            }
+        },
+        {
+            "id": "official.pbr.chrome",
+            "version": "1.0.0",
+            "operator": "material.pbr",
+            "titles": {
+                "zh-CN": "光滑银色",
+                "en-US": "Smooth silver"
+            },
+            "properties": {
+                "color_a": [
+                    0.95,
+                    0.95,
+                    0.95,
+                    1
+                ],
+                "metallic": 1,
+                "roughness": 0.15
+            }
+        },
+        {
+            "id": "official.pbr.gold",
+            "version": "1.0.0",
+            "operator": "material.pbr",
+            "titles": {
+                "zh-CN": "金色金属",
+                "en-US": "Gold metal"
+            },
+            "properties": {
+                "color_a": [
+                    1,
+                    0.766,
+                    0.336,
+                    1
+                ],
+                "metallic": 1,
+                "roughness": 0.3
+            }
+        },
+        {
+            "id": "official.pbr.rough",
+            "version": "1.0.0",
+            "operator": "material.pbr",
+            "titles": {
+                "zh-CN": "粗糙白色",
+                "en-US": "Rough white"
+            },
+            "properties": {
+                "color_a": [
+                    0.8,
+                    0.8,
+                    0.8,
+                    1
+                ],
+                "roughness": 1
+            }
+        },
+        {
+            "id": "official.pbr.clay",
+            "version": "1.0.0",
+            "operator": "material.pbr",
+            "titles": {
+                "zh-CN": "红陶",
+                "en-US": "Terracotta"
+            },
+            "properties": {
+                "color_a": [
+                    0.6,
+                    0.16,
+                    0.08,
+                    1
+                ],
+                "roughness": 0.9
+            }
+        },
+        {
+            "id": "official.pbr.emissive",
+            "version": "1.0.0",
+            "operator": "material.pbr",
+            "titles": {
+                "zh-CN": "青色自发光",
+                "en-US": "Cyan emission"
+            },
+            "properties": {
+                "color_a": [
+                    0.04,
+                    0.2,
+                    0.3,
+                    1
+                ],
+                "color_b": [
+                    0,
+                    0.5,
+                    1,
+                    1
+                ],
+                "emission": 0.5
+            }
+        },
+        {
+            "id": "official.directional.default",
+            "version": "1.0.0",
+            "operator": "scene.directional_light",
+            "titles": {
+                "zh-CN": "默认方向光",
+                "en-US": "Default directional light"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.directional.front",
+            "version": "1.0.0",
+            "operator": "scene.directional_light",
+            "titles": {
+                "zh-CN": "正面光",
+                "en-US": "Front light"
+            },
+            "properties": {
+                "light_x": 0,
+                "light_y": 0,
+                "light_z": 1,
+                "light_energy": 2
+            }
+        },
+        {
+            "id": "official.directional.rim",
+            "version": "1.0.0",
+            "operator": "scene.directional_light",
+            "titles": {
+                "zh-CN": "侧后轮廓光",
+                "en-US": "Rear rim light"
+            },
+            "properties": {
+                "light_x": -1,
+                "light_y": 0.3,
+                "light_z": -0.8,
+                "light_energy": 3
+            }
+        },
+        {
+            "id": "official.directional.warm",
+            "version": "1.0.0",
+            "operator": "scene.directional_light",
+            "titles": {
+                "zh-CN": "暖色主光",
+                "en-US": "Warm key light"
+            },
+            "properties": {
+                "color_a": [
+                    1,
+                    0.75,
+                    0.5,
+                    1
+                ],
+                "light_energy": 3
+            }
+        },
+        {
+            "id": "official.directional.cool",
+            "version": "1.0.0",
+            "operator": "scene.directional_light",
+            "titles": {
+                "zh-CN": "冷色补光",
+                "en-US": "Cool fill light"
+            },
+            "properties": {
+                "color_a": [
+                    0.3,
+                    0.55,
+                    1,
+                    1
+                ],
+                "light_x": -1,
+                "light_y": 0.2,
+                "light_energy": 1.5
+            }
+        },
+        {
+            "id": "official.glb.default",
+            "version": "1.0.0",
+            "operator": "geometry.glb",
+            "titles": {
+                "zh-CN": "默认 GLB 模型",
+                "en-US": "Default GLB model"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.blur.default",
+            "version": "1.0.0",
+            "operator": "texture.blur",
+            "titles": {
+                "zh-CN": "默认 · 柔光",
+                "en-US": "Default · Soft glow"
+            },
+            "properties": {
+                "blur_radius": 6
+            }
+        },
+        {
+            "id": "official.blur.subtle",
+            "version": "1.0.0",
+            "operator": "texture.blur",
+            "titles": {
+                "zh-CN": "轻柔模糊",
+                "en-US": "Subtle blur"
+            },
+            "properties": {
+                "blur_radius": 1.5
+            }
+        },
+        {
+            "id": "official.blur.wide",
+            "version": "1.0.0",
+            "operator": "texture.blur",
+            "titles": {
+                "zh-CN": "宽光晕",
+                "en-US": "Wide halo"
+            },
+            "properties": {
+                "blur_radius": 24
+            }
+        },
+        {
+            "id": "official.texture_noise.default",
+            "version": "1.0.0",
+            "operator": "texture.noise",
+            "titles": {
+                "zh-CN": "默认 · 海雾",
+                "en-US": "Default · Sea mist"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.texture_noise.clouds",
+            "version": "1.0.0",
+            "operator": "texture.noise",
+            "titles": {
+                "zh-CN": "浓云",
+                "en-US": "Dense clouds"
+            },
+            "properties": {
+                "noise_scale": 2,
+                "contrast": 3
+            }
+        },
+        {
+            "id": "official.texture_noise.detail",
+            "version": "1.0.0",
+            "operator": "texture.noise",
+            "titles": {
+                "zh-CN": "细密纹理",
+                "en-US": "Fine detail"
+            },
+            "properties": {
+                "noise_scale": 16,
+                "contrast": 2.5
+            }
+        },
+        {
+            "id": "official.mapping.default",
+            "version": "1.0.0",
+            "operator": "texture.mapping",
+            "titles": {
+                "zh-CN": "默认 · 镜像八瓣",
+                "en-US": "Default · Eight mirrors"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.mapping.tunnel",
+            "version": "1.0.0",
+            "operator": "texture.mapping",
+            "titles": {
+                "zh-CN": "螺旋隧道",
+                "en-US": "Spiral tunnel"
+            },
+            "properties": {
+                "mapping_mode": 1,
+                "radial_power": -0.65,
+                "scale": 2.4,
+                "twist": 0.3
+            }
+        },
+        {
+            "id": "official.mapping.petals",
+            "version": "1.0.0",
+            "operator": "texture.mapping",
+            "titles": {
+                "zh-CN": "十二瓣折叠",
+                "en-US": "Twelve petals"
+            },
+            "properties": {
+                "sectors": 12,
+                "twist": 0.5,
+                "scale": 0.8
+            }
+        },
+        {
+            "id": "official.contours.default",
+            "version": "1.0.0",
+            "operator": "texture.contours",
+            "titles": {
+                "zh-CN": "默认 · 等高线",
+                "en-US": "Default · Contours"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.contours.filaments",
+            "version": "1.0.0",
+            "operator": "texture.contours",
+            "titles": {
+                "zh-CN": "细密光丝",
+                "en-US": "Fine filaments"
+            },
+            "properties": {
+                "contour_count": 24,
+                "line_width": 0.055
+            }
+        },
+        {
+            "id": "official.contours.ribbons",
+            "version": "1.0.0",
+            "operator": "texture.contours",
+            "titles": {
+                "zh-CN": "宽幅丝带",
+                "en-US": "Broad ribbons"
+            },
+            "properties": {
+                "contour_count": 6,
+                "line_width": 0.22
+            }
+        }
+    ]
+}

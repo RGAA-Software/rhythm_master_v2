@@ -1,0 +1,151 @@
+{
+    "status": "isolated project-owned media and playback validation; application license decision pending",
+    "source_url": "https://github.com/FFmpeg/FFmpeg",
+    "imported_source_files": [],
+    "target_modules": [
+        "src/media",
+        "src/audio_playback"
+    ],
+    "source_build": "none; existing installed vcpkg libraries only",
+    "packages": [
+        {
+            "triplet": "x64-windows",
+            "source_packages": [
+                {
+                    "name": "ffmpeg",
+                    "SPDXID": "SPDXRef-port",
+                    "versionInfo": "6.1.1#11",
+                    "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/ffmpeg",
+                    "homepage": "https://ffmpeg.org",
+                    "licenseConcluded": "NOASSERTION",
+                    "licenseDeclared": "NOASSERTION",
+                    "copyrightText": "NOASSERTION",
+                    "description": "a library to decode, encode, transcode, mux, demux, stream, filter and play pretty much anything that humans and machines have created.\nFFmpeg is the leading multimedia framework, able to decode, encode, transcode, mux, demux, stream, filter and play pretty much anything that humans and machines have created. It supports the most obscure ancient formats up to the cutting edge. No matter if they were designed by some standards committee, the community or a corporation. It is also highly portable: FFmpeg compiles, runs, and passes our testing infrastructure FATE across Linux, Mac OS X, Microsoft Windows, the BSDs, Solaris, etc. under a wide variety of build environments, machine architectures, and configurations.",
+                    "comment": "This is the port (recipe) consumed by vcpkg."
+                },
+                {
+                    "name": "ffmpeg:x64-windows",
+                    "SPDXID": "SPDXRef-binary",
+                    "versionInfo": "c845da32ac03909fd6e0c60f303c7e0f308c6c3c978aca8e546abb9d2da4f0c5",
+                    "downloadLocation": "NONE",
+                    "licenseConcluded": "NOASSERTION",
+                    "licenseDeclared": "NOASSERTION",
+                    "copyrightText": "NOASSERTION",
+                    "comment": "This is a binary package built by vcpkg."
+                },
+                {
+                    "SPDXID": "SPDXRef-resource-1",
+                    "name": "ffmpeg/ffmpeg",
+                    "downloadLocation": "git+https://github.com/ffmpeg/ffmpeg@n6.1.1",
+                    "licenseConcluded": "NOASSERTION",
+                    "licenseDeclared": "NOASSERTION",
+                    "copyrightText": "NOASSERTION",
+                    "checksums": [
+                        {
+                            "algorithm": "SHA512",
+                            "checksumValue": "a84209fe36a2a0262ebc34b727e7600b12d4739991a95599d7b4df533791b12e2e43586ccc6ff26aab2f935a3049866204e322ec0c5e49e378fc175ded34e183"
+                        }
+                    ]
+                }
+            ],
+            "linked_files": [
+                {
+                    "path": "C:/source/vcpkg/installed/x64-windows/lib/avformat.lib",
+                    "sha256": "9548246f379d8814ebbe4c93b03d10fdd304724ddd8d4e61bc3de1c3446a6824"
+                },
+                {
+                    "path": "C:/source/vcpkg/installed/x64-windows/debug/bin/avformat-60.dll",
+                    "sha256": "0c777d353232e0e10c75f86986b0af54acc8e365cc1b3b6e3eb76f2d1aec2776"
+                },
+                {
+                    "path": "C:/source/vcpkg/installed/x64-windows/lib/avcodec.lib",
+                    "sha256": "a02b5dc2551061ec64fd05dbc0be6df2e0d96416e7da75adc5d69d85013368fc"
+                },
+                {
+                    "path": "C:/source/vcpkg/installed/x64-windows/debug/bin/avcodec-60.dll",
+                    "sha256": "25f73860082d2784ab835b50beb208c8c9f1619236982884ff24b8dcc9ae8b5d"
+                },
+                {
+                    "path": "C:/source/vcpkg/installed/x64-windows/lib/swresample.lib",
+                    "sha256": "5c7913f637a4c608dff253af1eaedfa07e11fda6d59049b013cab9e01b95fe72"
+                },
+                {
+                    "path": "C:/source/vcpkg/installed/x64-windows/debug/bin/swresample-4.dll",
+                    "sha256": "983301fb6d71d8f36adb281d11486ff4e821bc7724e7c6d4cc214bae47b4d057"
+                },
+                {
+                    "path": "C:/source/vcpkg/installed/x64-windows/lib/avutil.lib",
+                    "sha256": "0eb80cf25e8916d2f0ce712a2ab42eb4cec94eaf283ba216591cf2f7c91decdc"
+                },
+                {
+                    "path": "C:/source/vcpkg/installed/x64-windows/debug/bin/avutil-58.dll",
+                    "sha256": "a76c0783c698150c740c37da545abdc9a023ef74d6b8e24ef418951dade41976"
+                }
+            ],
+            "license_profile": "GPL-2.0-or-later; installed gpl/x264 features",
+            "modifications": []
+        },
+        {
+            "triplet": "arm64-android",
+            "source_packages": [
+                {
+                    "name": "ffmpeg",
+                    "SPDXID": "SPDXRef-port",
+                    "versionInfo": "6.1#2",
+                    "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/ffmpeg",
+                    "homepage": "https://ffmpeg.org",
+                    "licenseConcluded": "NOASSERTION",
+                    "licenseDeclared": "NOASSERTION",
+                    "copyrightText": "NOASSERTION",
+                    "description": "a library to decode, encode, transcode, mux, demux, stream, filter and play pretty much anything that humans and machines have created.\nFFmpeg is the leading multimedia framework, able to decode, encode, transcode, mux, demux, stream, filter and play pretty much anything that humans and machines have created. It supports the most obscure ancient formats up to the cutting edge. No matter if they were designed by some standards committee, the community or a corporation. It is also highly portable: FFmpeg compiles, runs, and passes our testing infrastructure FATE across Linux, Mac OS X, Microsoft Windows, the BSDs, Solaris, etc. under a wide variety of build environments, machine architectures, and configurations.",
+                    "comment": "This is the port (recipe) consumed by vcpkg."
+                },
+                {
+                    "name": "ffmpeg:arm64-android",
+                    "SPDXID": "SPDXRef-binary",
+                    "versionInfo": "8cf58c5b308ba1ac810556b203718d84e0ca80cfba0dfe5db80f73320d0325cf",
+                    "downloadLocation": "NONE",
+                    "licenseConcluded": "NOASSERTION",
+                    "licenseDeclared": "NOASSERTION",
+                    "copyrightText": "NOASSERTION",
+                    "comment": "This is a binary package built by vcpkg."
+                },
+                {
+                    "SPDXID": "SPDXRef-resource-1",
+                    "name": "ffmpeg/ffmpeg",
+                    "downloadLocation": "git+https://github.com/ffmpeg/ffmpeg@n6.1",
+                    "licenseConcluded": "NOASSERTION",
+                    "licenseDeclared": "NOASSERTION",
+                    "copyrightText": "NOASSERTION",
+                    "checksums": [
+                        {
+                            "algorithm": "SHA512",
+                            "checksumValue": "abb9207364553248278f8e23e3d565da51ecb0ae9b20edda41624b314541bc3f53a8d6aac7fa5455168d2323d5d70d5a8acbe059f33423fbc2563e1a6cd0348b"
+                        }
+                    ]
+                }
+            ],
+            "linked_files": [
+                {
+                    "path": "C:/source/vcpkg/installed/arm64-android/lib/libavformat.a",
+                    "sha256": "710698b7f4e941dd67fc9823aaacbab044593a07eba93897faa42971170b4757"
+                },
+                {
+                    "path": "C:/source/vcpkg/installed/arm64-android/lib/libavcodec.a",
+                    "sha256": "9312d85a22558b3ef22b97408006006c73bff950dd4359195baf0fbe6db3e6a2"
+                },
+                {
+                    "path": "C:/source/vcpkg/installed/arm64-android/lib/libswresample.a",
+                    "sha256": "faa9d1dc3bd4a4acc3d6585a2a79a8766df36aff9a0d5c01e2a19284b8a9b9c3"
+                },
+                {
+                    "path": "C:/source/vcpkg/installed/arm64-android/lib/libavutil.a",
+                    "sha256": "1152f6163c96c1a2aa9785aea9ea39fc44458a28570e9194de5cd385941deea2"
+                }
+            ],
+            "license_profile": "LGPL-2.1-or-later; no installed GPL feature",
+            "modifications": []
+        }
+    ],
+    "project_outbound_license": "pending; not selected by this validation"
+}

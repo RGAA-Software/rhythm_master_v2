@@ -1,0 +1,19 @@
+{
+    "source_url": "file:///D:/GoCloud/GammaRayPremium",
+    "revision": "ba64cf722578d8efdf85d5464d4db8ce14660cf4",
+    "byte_identity": "git objects, not mutable worktree; SHA-256 before writing",
+    "files": {
+        "src/px_deps/px_common/qrcode/qr_generator.h": "035b0401fa50b229eff30750813f82797967ccbd2a001dd4d35fe4e19eacfcc6",
+        "src/px_deps/px_common/qrcode/qr_generator.cpp": "5936408b649483fd92324730b3cb3aed262c242fd43737fd8bb0780a76431a72"
+    },
+    "license": "Explicitly authorized first-party reuse; outbound project license pending",
+    "notice": "Created by RGAA on 2024/4/8",
+    "target": "src/qr/qr_generator.cpp and include/rhythm/qr/generator.h",
+    "modifications": [
+        "Project value-only API, Google naming, initialized members, four spaces",
+        "Bounded payload/pixels and four-module quiet zone",
+        "Integer-only scaling, automatic mask and version, minimum medium error correction",
+        "Binary-safe payload; no payload logging or global logger dependency"
+    ],
+    "embedded_third_party": "Nayuki remains MIT; see third_party/qrcodegen_source.json"
+}

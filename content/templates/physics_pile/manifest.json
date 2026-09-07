@@ -1,0 +1,23 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.physics_pile",
+    "content_version": "0.1.0",
+    "project_id": "official-physics_pile",
+    "graph_revision": 0,
+    "title": "方块堆积 / Falling block pile",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "方块堆积",
+        "en-US": "Falling block pile"
+    },
+    "maturity": "experimental",
+    "author": "Rhythm Master",
+    "license_status": "first-party; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": []
+}

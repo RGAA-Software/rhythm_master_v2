@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.pulse_card",
+            "reset": true,
+            "id": "official.semantic.pulse_component.default",
+            "titles": {
+                "zh-CN": "默认参数",
+                "en-US": "Default"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.pulse_card",
+            "reset": true,
+            "id": "official.semantic.pulse_component.variant",
+            "titles": {
+                "zh-CN": "柔和呼吸",
+                "en-US": "Gentle breathing"
+            },
+            "properties": {
+                "rotation_speed": 0,
+                "pulse_rate": 0.12,
+                "pulse_base": 0.65,
+                "pulse_depth": 0.08,
+                "exposure": 0.2
+            }
+        }
+    ]
+}

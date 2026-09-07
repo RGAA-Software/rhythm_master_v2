@@ -1,0 +1,23 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.point_lattice",
+    "content_version": "0.1.0",
+    "project_id": "official-point_lattice",
+    "graph_revision": 0,
+    "title": "旋转光点阵 / Rotating light lattice",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "旋转光点阵",
+        "en-US": "Rotating light lattice"
+    },
+    "maturity": "experimental",
+    "author": "Rhythm Master",
+    "license_status": "first-party; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": []
+}

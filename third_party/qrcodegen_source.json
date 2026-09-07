@@ -1,0 +1,17 @@
+{
+    "source_url": "file:///D:/GoCloud/GammaRayPremium",
+    "revision": "ba64cf722578d8efdf85d5464d4db8ce14660cf4",
+    "byte_identity": "git objects, not mutable worktree; SHA-256 before writing",
+    "upstream_url": "https://github.com/nayuki/QR-Code-generator",
+    "upstream_revision": "unknown; exact embedded source pinned by parent revision and hashes",
+    "license": "MIT; Project Nayuki; complete notice retained in both sources and notices/qrcodegen/LICENSE",
+    "files": {
+        "src/px_deps/px_common/qrcode/qrcodegen.hpp": "b779c3b156cf7a57ce789d6fee4fc991ccc2913774d26c909d22bb8f26b2a793",
+        "src/px_deps/px_common/qrcode/qrcodegen.cpp": "1f3b3fcdac6954c32cf583ccd02ec9b5901f756a38c461acedc70be4a77d3757"
+    },
+    "destination": "third_party/sources/qrcodegen",
+    "target": "qr_generator via private qr_nayuki static library",
+    "modifications": "None",
+    "dependencies": "C++ standard library only",
+    "distribution": "Retain copyright and complete MIT permission/disclaimer with binaries/source; no project outbound license selected"
+}

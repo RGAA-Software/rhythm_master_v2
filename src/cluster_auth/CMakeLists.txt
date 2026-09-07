@@ -1,0 +1,4 @@
+add_library(cluster_auth STATIC room_authority.cpp invitation_link.cpp control_codec.cpp admission_gate.cpp session_envelope.cpp)
+target_include_directories(cluster_auth PUBLIC include)
+target_link_libraries(cluster_auth PUBLIC identity_security)
+rhythm_project_target(cluster_auth)

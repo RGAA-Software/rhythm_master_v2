@@ -1,0 +1,10 @@
+add_library(audio_capture STATIC capture.cpp wasapi_device.cpp)
+target_include_directories(audio_capture PUBLIC include)
+target_link_libraries(audio_capture PUBLIC audio_types PRIVATE audio_analysis ole32 uuid)
+rhythm_project_target(audio_capture)
+if(BUILD_TESTING)
+    add_executable(audio_capture_tests tests/capture_tests.cpp)
+    target_link_libraries(audio_capture_tests PRIVATE audio_capture)
+    rhythm_project_target(audio_capture_tests)
+    # Actual device check is run explicitly; headless CI may have no audio endpoint.
+endif()

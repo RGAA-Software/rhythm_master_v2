@@ -1,0 +1,84 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 11e3783..7898192 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -40,6 +40,11 @@ if (POLICY CMP0111)
+ endif()
+ 
+ project(msquic)
++if(MSVC AND DEFINED RHYTHM_MSVC_INCLUDE_PREFIX)
++    # CMake 3.28 misdecodes Chinese-only MSVC diagnostics; preserve Ninja dependencies.
++    set(CMAKE_CL_SHOWINCLUDES_PREFIX "${RHYTHM_MSVC_INCLUDE_PREFIX}")
++    add_compile_options(/FC)
++endif()
+ 
+ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+ 
+@@ -295,9 +300,17 @@ if (WIN32)
+     elseif (QUIC_GAMECORE_BUILD)
+         message(STATUS "Allowing non-system32 DLLs to be loaded for GameCore")
+     else()
+-        # Configure linker to only load from the system directory.
+-        message(STATUS "Configuring linker to only load from the system directory")
+-        set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEPENDENTLOADFLAG:0x800")
++        option(RHYTHM_SHARED_TLS_APPLICATION_DIR "Permit bundled external TLS in the application directory" OFF)
++        if(RHYTHM_SHARED_TLS_APPLICATION_DIR)
++            if(NOT QUIC_USE_EXTERNAL_OPENSSL OR NOT QUIC_TLS_LIB STREQUAL "openssl")
++                message(FATAL_ERROR "Application-directory TLS search requires the explicit external OpenSSL profile")
++            endif()
++            # Shared TLS ships beside the executable. Exclude CWD, PATH and user directories.
++            set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEPENDENTLOADFLAG:0xA00")
++        else()
++            # Preserve upstream's system-only default for other profiles.
++            set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEPENDENTLOADFLAG:0x800")
++        endif()
+     endif()
+ 
+     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+diff --git a/src/core/crypto_tls.c b/src/core/crypto_tls.c
+index 4fa6b8c..220eb2f 100644
+--- a/src/core/crypto_tls.c
++++ b/src/core/crypto_tls.c
+@@ -895,7 +895,7 @@ QuicCryptoTlsEncodeTransportParameters(
+                 0);
+     }
+     if (TransportParams->Flags & (QUIC_TP_FLAG_TIMESTAMP_SEND_ENABLED | QUIC_TP_FLAG_TIMESTAMP_RECV_ENABLED)) {
+-        const uint32_t value =
++        const uint64_t value =
+             (TransportParams->Flags &
+              (QUIC_TP_FLAG_TIMESTAMP_SEND_ENABLED | QUIC_TP_FLAG_TIMESTAMP_RECV_ENABLED))
+             >> QUIC_TP_FLAG_TIMESTAMP_SHIFT;
+@@ -1231,7 +1231,7 @@ QuicCryptoTlsEncodeTransportParameters(
+             "TP: Reliable Reset");
+     }
+     if (TransportParams->Flags & (QUIC_TP_FLAG_TIMESTAMP_SEND_ENABLED | QUIC_TP_FLAG_TIMESTAMP_RECV_ENABLED)) {
+-        const uint32_t value =
++        const uint64_t value =
+             (TransportParams->Flags &
+              (QUIC_TP_FLAG_TIMESTAMP_SEND_ENABLED | QUIC_TP_FLAG_TIMESTAMP_RECV_ENABLED))
+             >> QUIC_TP_FLAG_TIMESTAMP_SHIFT;
+@@ -1244,7 +1244,7 @@ QuicCryptoTlsEncodeTransportParameters(
+             EncodeTPTimestamp,
+             Connection,
+             "TP: Timestamp (%u)",
+-            value);
++            (uint32_t)value);
+     }
+     if (TestParam != NULL) {
+         TPBuf =
+diff --git a/src/platform/CMakeLists.txt b/src/platform/CMakeLists.txt
+index bc6ecb8..e84a5f4 100644
+--- a/src/platform/CMakeLists.txt
++++ b/src/platform/CMakeLists.txt
+@@ -65,6 +65,11 @@ else()
+     message(FATAL_ERROR "TLS Provider not configured")
+ endif()
+ 
++# Runtime-only Android builds do not need upstream test-certificate generation.
++# That helper calls glob(), which is unavailable before API 28.
++if(ANDROID AND ANDROID_PLATFORM_LEVEL LESS 28 AND NOT QUIC_BUILD_TEST AND NOT QUIC_BUILD_TOOLS)
++    list(REMOVE_ITEM SOURCES selfsign_openssl.c)
++endif()
+ add_library(msquic_platform STATIC ${SOURCES})
+ add_library(msquic::platform ALIAS msquic_platform)
+ set_target_properties(msquic_platform PROPERTIES EXPORT_NAME platform)

@@ -1,0 +1,93 @@
+#include "scene_descriptors.h"
+
+namespace rhythm::graph {
+void AppendSceneDescriptors(std::vector<OperatorDescriptor>& operators) {
+    using Type = ValueType;
+    operators.push_back({"geometry.glb",
+                         Operation::kGeometryGlb,
+                         Type::kGeometry,
+                         {},
+                         {{"asset", assets::AssetId{}}}});
+    operators.push_back({"material.pbr",
+                         Operation::kMaterialPbr,
+                         Type::kMaterial,
+                         {{"metallic", Type::kScalar, false},
+                          {"roughness", Type::kScalar, false},
+                          {"emission", Type::kScalar, false}},
+                         {{"color_a", Color{0.8, 0.3, 0.08, 1}},
+                          {"metallic", 0.0, 0, 1},
+                          {"roughness", 0.5, 0.05, 1},
+                          {"emission", 0.0, 0, 100},
+                          {"color_b", Color{1, 1, 1, 1}},
+                          {"double_sided", 0.0, 0, 1, {"option.off", "option.on"}}}});
+    operators.push_back({"scene.directional_light",
+                         Operation::kDirectionalLight,
+                         Type::kScene,
+                         {{"light_energy", Type::kScalar, false}},
+                         {{"light_x", 1.0, -1, 1},
+                          {"light_y", 1.0, -1, 1},
+                          {"light_z", 1.0, -1, 1},
+                          {"light_energy", 3.0, 0, 100},
+                          {"color_a", Color{1, 1, 1, 1}}}});
+    operators.push_back({"geometry.cube", Operation::kGeometryCube, Type::kGeometry});
+    operators.push_back({"geometry.sphere",
+                         Operation::kGeometrySphere,
+                         Type::kGeometry,
+                         {},
+                         {{"radius", 0.5, 0.001, 100},
+                          {"height", 1.0, 0.001, 100},
+                          {"radial_segments", 32.0, 3, 256, {}, true},
+                          {"rings", 16.0, 1, 128, {}, true}}});
+    operators.push_back({"material.unlit",
+                         Operation::kMaterialUnlit,
+                         Type::kMaterial,
+                         {},
+                         {{"color_a", Color{0.1, 0.8, 1, 1}},
+                          {"double_sided", 0.0, 0, 1, {"option.off", "option.on"}}}});
+    operators.push_back({"scene.instance",
+                         Operation::kSceneInstance,
+                         Type::kScene,
+                         {{"geometry", Type::kGeometry}, {"material", Type::kMaterial, false}}});
+    operators.push_back({"scene.transform",
+                         Operation::kSceneTransform,
+                         Type::kScene,
+                         {{"scene", Type::kScene},
+                          {"rotation_x", Type::kScalar, false},
+                          {"rotation_y", Type::kScalar, false},
+                          {"rotation_z", Type::kScalar, false},
+                          {"scale", Type::kScalar, false},
+                          {"translate_x", Type::kScalar, false},
+                          {"translate_y", Type::kScalar, false},
+                          {"translate_z", Type::kScalar, false}},
+                         {{"rotation_x", 0.0, -36000, 36000},
+                          {"rotation_y", 0.0, -36000, 36000},
+                          {"rotation_z", 0.0, -36000, 36000},
+                          {"scale", 1.0, 0.001, 100},
+                          {"translate_x", 0.0, -1000, 1000},
+                          {"translate_y", 0.0, -1000, 1000},
+                          {"translate_z", 0.0, -1000, 1000}}});
+    operators.push_back({"scene.merge",
+                         Operation::kSceneMerge,
+                         Type::kScene,
+                         {{"a", Type::kScene}, {"b", Type::kScene}}});
+    operators.push_back({"scene.camera",
+                         Operation::kSceneCamera,
+                         Type::kCamera,
+                         {},
+                         {{"eye_x", 0.0, -10000, 10000},
+                          {"eye_y", 0.0, -10000, 10000},
+                          {"eye_z", 3.0, -10000, 10000},
+                          {"target_x", 0.0, -10000, 10000},
+                          {"target_y", 0.0, -10000, 10000},
+                          {"target_z", 0.0, -10000, 10000},
+                          {"projection", 0.0, 0, 1, {"camera.perspective", "camera.orthographic"}},
+                          {"field_of_view", 60.0, 1, 179},
+                          {"orthographic_height", 2.0, 0.001, 10000},
+                          {"near_plane", 0.05, 0.001, 10000},
+                          {"far_plane", 1000.0, 0.002, 100000}}});
+    operators.push_back({"scene.render",
+                         Operation::kSceneRender,
+                         Type::kTexture,
+                         {{"scene", Type::kScene}, {"camera", Type::kCamera, false}}});
+}
+}  // namespace rhythm::graph

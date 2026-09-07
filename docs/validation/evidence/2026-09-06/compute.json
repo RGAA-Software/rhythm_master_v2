@@ -1,0 +1,15 @@
+{
+  "compiler": "C:\\source\\shark_dynamics_wallpaper\\cmake-build-qt6\\generated\\bgfx_tools\\bin\\shaderc.exe",
+  "compiler_sha256": "6f310cf7091937aab1f1dc0b4bdafcc5c317bc789d0fc2b82f46a28e29f143b5",
+  "source": "C:\\source\\rhythm_master\\src\\windows_spike\\tests\\shaders\\compute_probe.sc",
+  "source_sha256": "0db2e5cfa71e83adbbb7035f0685c46a99d812538d70e394b776bb7585c96493",
+  "include_hashes": {
+    "C:\\source\\rhythm_master\\third_party\\sources\\bgfx\\src\\bgfx_compute.sh": "c2cb5d05818dc7bf9663406be480a8e52410fdca1b5ec89617f21b4eeddb315c",
+    "C:\\source\\rhythm_master\\third_party\\sources\\bgfx\\src\\bgfx_shader.sh": "5ad79a2ff5d1b1fd1f22d986f2b0b5dc49f89ffd5ce18e57966b6ab894094508",
+    "C:\\source\\rhythm_master\\third_party\\sources\\bgfx\\src\\cs_mipgen.sh": "e7b6839283ee2c0f4fa3ceeb86b6d9cab423ea1277e9834116e8172cc814149a"
+  },
+  "artifact_sha256": "a57d227026970fcc192c86b3d68b16386f56e10dcbea22b962a96a5b1c53c1b6",
+  "stage": "compute",
+  "platform": "windows",
+  "profile": "s_5_0"
+}

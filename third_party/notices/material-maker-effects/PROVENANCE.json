@@ -1,0 +1,19 @@
+{
+    "source_url": "https://github.com/RodZill4/material-maker",
+    "revision": "ad19fcf0ee34a7caf74df709dc4de7112f0d467d",
+    "license": "MIT",
+    "license_file": "third_party/notices/material-maker-effects/LICENSE.md",
+    "files": [
+        {
+            "upstream_file": "addons/material_maker/nodes/kaleidoscope2.mmg",
+            "imported_file": "third_party/sources/material-maker-effects/kaleidoscope2.mmg",
+            "sha256": "448310086ea8d947b8901f7d604fdfc67fc224edccd62a34b149b144bab9f129"
+        }
+    ],
+    "target": "src/rhythm_render/shaders/texture_mapping.sc",
+    "modifications": [
+        "Adapt angular replication to bgfx fragment pass; omit seeded variation output.",
+        "Mirror each sector to remove fold seams; preserve aspect, expose rotation/twist/scale and mirrored edge sampling.",
+        "Guard the center atan2 singularity."
+    ]
+}

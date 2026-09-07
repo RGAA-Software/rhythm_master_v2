@@ -1,0 +1,330 @@
+schema_version: 4
+id: "semantic-lit_ellipsoid_duet"
+canvas { width: 640 height: 360 }
+output: 2
+nodes { id: 1 type_key: "component.official.lit_ellipsoid_duet" schema_version: 1 }
+nodes { id: 2 type_key: "output.texture" schema_version: 1 }
+edges { id: 1 from: 1 to: 2 input: "source" }
+components {
+    type_key: "component.official.lit_ellipsoid_duet"
+    schema_version: 1
+    output: 8
+    nodes {
+      id: 1
+      type_key: "core.time"
+      schema_version: 1
+    }
+    nodes {
+      id: 2
+      type_key: "time.local"
+      schema_version: 1
+      properties {
+        key: "duration"
+        value {
+          scalar: 360
+        }
+      }
+      properties {
+        key: "speed"
+        value {
+          scalar: 16
+        }
+      }
+      properties {
+        key: "time_mode"
+        value {
+          scalar: 1
+        }
+      }
+    }
+    nodes {
+      id: 3
+      type_key: "geometry.sphere"
+      schema_version: 1
+      properties {
+        key: "height"
+        value {
+          scalar: 1.5
+        }
+      }
+      properties {
+        key: "radius"
+        value {
+          scalar: 0.3
+        }
+      }
+    }
+    nodes {
+      id: 4
+      type_key: "material.pbr"
+      schema_version: 1
+      properties {
+        key: "color_a"
+        value {
+          color {
+            r: 0.05
+            g: 0.75
+            b: 1
+            a: 1
+          }
+        }
+      }
+    }
+    nodes {
+      id: 5
+      type_key: "scene.instance"
+      schema_version: 1
+    }
+    nodes {
+      id: 6
+      type_key: "scene.transform"
+      schema_version: 1
+      properties {
+        key: "rotation_x"
+        value {
+          scalar: 25
+        }
+      }
+      properties {
+        key: "translate_y"
+        value {
+          scalar: 0.55
+        }
+      }
+    }
+    nodes {
+      id: 7
+      type_key: "scene.camera"
+      schema_version: 1
+      properties {
+        key: "eye_z"
+        value {
+          scalar: 4
+        }
+      }
+      properties {
+        key: "field_of_view"
+        value {
+          scalar: 45
+        }
+      }
+    }
+    nodes {
+      id: 8
+      type_key: "scene.render"
+      schema_version: 1
+    }
+    nodes {
+      id: 12
+      type_key: "material.pbr"
+      schema_version: 1
+      properties {
+        key: "color_a"
+        value {
+          color {
+            r: 1
+            g: 0.18
+            b: 0.45
+            a: 1
+          }
+        }
+      }
+    }
+    nodes {
+      id: 13
+      type_key: "scene.instance"
+      schema_version: 1
+    }
+    nodes {
+      id: 14
+      type_key: "scene.transform"
+      schema_version: 1
+      properties {
+        key: "rotation_x"
+        value {
+          scalar: -25
+        }
+      }
+      properties {
+        key: "translate_y"
+        value {
+          scalar: -0.55
+        }
+      }
+    }
+    nodes {
+      id: 15
+      type_key: "scene.merge"
+      schema_version: 1
+    }
+    nodes {
+      id: 16
+      type_key: "scene.directional_light"
+      schema_version: 1
+      properties {
+        key: "color_a"
+        value {
+          color {
+            r: 1
+            g: 0.75
+            b: 0.5
+            a: 1
+          }
+        }
+      }
+    }
+    nodes {
+      id: 17
+      type_key: "scene.merge"
+      schema_version: 1
+    }
+    nodes {
+      id: 18
+      type_key: "scene.directional_light"
+      schema_version: 1
+      properties {
+        key: "color_a"
+        value {
+          color {
+            r: 0.3
+            g: 0.55
+            b: 1
+            a: 1
+          }
+        }
+      }
+      properties {
+        key: "light_energy"
+        value {
+          scalar: 1.5
+        }
+      }
+      properties {
+        key: "light_x"
+        value {
+          scalar: -1
+        }
+      }
+      properties {
+        key: "light_y"
+        value {
+          scalar: 0.2
+        }
+      }
+    }
+    nodes {
+      id: 19
+      type_key: "scene.merge"
+      schema_version: 1
+    }
+    edges {
+      id: 1
+      from: 1
+      to: 2
+      input: "time"
+    }
+    edges {
+      id: 2
+      from: 3
+      to: 5
+      input: "geometry"
+    }
+    edges {
+      id: 3
+      from: 4
+      to: 5
+      input: "material"
+    }
+    edges {
+      id: 4
+      from: 5
+      to: 6
+      input: "scene"
+    }
+    edges {
+      id: 5
+      from: 2
+      to: 6
+      input: "rotation_y"
+    }
+    edges {
+      id: 6
+      from: 7
+      to: 8
+      input: "camera"
+    }
+    edges {
+      id: 10
+      from: 3
+      to: 13
+      input: "geometry"
+    }
+    edges {
+      id: 11
+      from: 12
+      to: 13
+      input: "material"
+    }
+    edges {
+      id: 12
+      from: 13
+      to: 14
+      input: "scene"
+    }
+    edges {
+      id: 13
+      from: 2
+      to: 14
+      input: "rotation_z"
+    }
+    edges {
+      id: 14
+      from: 6
+      to: 15
+      input: "a"
+    }
+    edges {
+      id: 15
+      from: 14
+      to: 15
+      input: "b"
+    }
+    edges {
+      id: 16
+      from: 19
+      to: 8
+      input: "scene"
+    }
+    edges {
+      id: 30
+      from: 15
+      to: 17
+      input: "a"
+    }
+    edges {
+      id: 31
+      from: 16
+      to: 17
+      input: "b"
+    }
+    edges {
+      id: 32
+      from: 17
+      to: 19
+      input: "a"
+    }
+    edges {
+      id: 33
+      from: 18
+      to: 19
+      input: "b"
+    }
+    parameters { key: "rotation_speed" node: 2 property: "speed" group: "component.motion" }
+    parameters { key: "radius" node: 3 property: "radius" group: "component.motion" }
+    parameters { key: "height" node: 3 property: "height" group: "component.motion" }
+    parameters { key: "color_a" node: 4 property: "color_a" group: "component.palette" }
+    parameters { key: "color_b" node: 12 property: "color_a" group: "component.palette" }
+    parameters { key: "roughness" node: 4 property: "roughness" group: "component.palette" }
+    parameters { key: "light_energy" node: 16 property: "light_energy" group: "component.palette" }
+}
+

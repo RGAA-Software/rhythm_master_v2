@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Rhythm Master Player</string>
+    <string name="open_package">Open package</string>
+    <string name="pause_resume">Pause / Resume</string>
+    <string name="restart">Restart</string>
+    <string name="package_error">Cannot open package. Current playback is retained.</string>
+    <string name="playing">Playing</string>
+    <string name="paused">Paused</string>
+</resources>

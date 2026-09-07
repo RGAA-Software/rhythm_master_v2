@@ -1,0 +1,19 @@
+Start testing: Sep 06 23:30 China Standard Time
+----------------------------------------------------------
+1/1 Testing: render_contracts
+1/1 Test: render_contracts
+Command: "C:/source/rhythm_master/out/render-standalone/render_contract_tests.exe"
+Directory: C:/source/rhythm_master/out/render-standalone
+"render_contracts" start time: Sep 06 23:30 China Standard Time
+Output:
+----------------------------------------------------------
+render contracts passed
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"render_contracts" end time: Sep 06 23:30 China Standard Time
+"render_contracts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 06 23:30 China Standard Time

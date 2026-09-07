@@ -1,0 +1,129 @@
+schema_version: 4
+id: "semantic-gradient_medallion"
+canvas { width: 640 height: 360 }
+output: 2
+nodes { id: 1 type_key: "component.official.gradient_medallion" schema_version: 1 }
+nodes { id: 2 type_key: "output.texture" schema_version: 1 }
+edges { id: 1 from: 1 to: 2 input: "source" }
+components {
+    type_key: "component.official.gradient_medallion"
+    schema_version: 1
+    output: 4
+    nodes {
+      id: 1
+      type_key: "core.time"
+      schema_version: 1
+    }
+    nodes {
+      id: 2
+      type_key: "time.local"
+      schema_version: 1
+      properties {
+        key: "duration"
+        value {
+          scalar: 360
+        }
+      }
+      properties {
+        key: "speed"
+        value {
+          scalar: 16
+        }
+      }
+      properties {
+        key: "time_mode"
+        value {
+          scalar: 1
+        }
+      }
+    }
+    nodes {
+      id: 3
+      type_key: "texture.gradient"
+      schema_version: 1
+      properties {
+        key: "color_a"
+        value {
+          color {
+            r: 0.02
+            g: 0.75
+            b: 0.5
+            a: 1
+          }
+        }
+      }
+      properties {
+        key: "color_b"
+        value {
+          color {
+            r: 0.6
+            g: 0.04
+            b: 0.7
+            a: 1
+          }
+        }
+      }
+    }
+    nodes {
+      id: 4
+      type_key: "texture.affine"
+      schema_version: 1
+      properties {
+        key: "scale"
+        value {
+          scalar: 0.65
+        }
+      }
+    }
+    nodes {
+      id: 8
+      type_key: "texture.shape"
+      schema_version: 1
+      properties {
+        key: "shape_type"
+        value {
+          scalar: 2
+        }
+      }
+    }
+    nodes {
+      id: 9
+      type_key: "texture.mask"
+      schema_version: 1
+    }
+    edges {
+      id: 1
+      from: 1
+      to: 2
+      input: "time"
+    }
+    edges {
+      id: 2
+      from: 2
+      to: 4
+      input: "rotation"
+    }
+    edges {
+      id: 3
+      from: 9
+      to: 4
+      input: "source"
+    }
+    edges {
+      id: 7
+      from: 3
+      to: 9
+      input: "source"
+    }
+    edges {
+      id: 8
+      from: 8
+      to: 9
+      input: "mask"
+    }
+    parameters { key: "rotation_speed" node: 2 property: "speed" group: "component.motion" }
+    parameters { key: "color_a" node: 3 property: "color_a" group: "component.palette" }
+    parameters { key: "color_b" node: 3 property: "color_b" group: "component.palette" }
+    parameters { key: "scale" node: 4 property: "scale" group: "component.motion" }
+}
+

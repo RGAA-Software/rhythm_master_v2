@@ -1,0 +1,94 @@
+{
+    "source_url": "https://github.com/godotengine/godot",
+    "revision": "f62fdbde15035c5576dad93e586201f4d41ef0cb",
+    "tag": "4.5.1-stable",
+    "license": "MIT",
+    "notice": "third_party/notices/godot/LICENSE.txt",
+    "authors": "third_party/notices/godot/AUTHORS.md",
+    "reference_files": [
+        {
+            "file": "core/math/basis.cpp",
+            "sha256": "10ac0d60886b0b0314361cd34956a3c3abfdd5d1ca0d426f10c17618c0c73eb5"
+        },
+        {
+            "file": "core/math/projection.cpp",
+            "sha256": "c64a4ac63b2c8b8932236919abe1d7458b1c8aeb798a997125a22ea8ac0dd99f"
+        },
+        {
+            "file": "core/math/transform_3d.cpp",
+            "sha256": "ab482ecd830c49b66b170edee6fefdaeae71b5605d833a035d64a9e4f741323d"
+        },
+        {
+            "file": "LICENSE.txt",
+            "sha256": "b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80"
+        },
+        {
+            "file": "modules/gltf/gltf_document.cpp",
+            "sha256": "be5cd97ad0530eef4597240daa9012eed23847b39d8ebc8cc5333161ccb6951e"
+        },
+        {
+            "file": "scene/3d/camera_3d.cpp",
+            "sha256": "bdc8954e471a35d0c4398d971dabc0a2e9cc5f9c47ab1343a2d0c76a7e2d8be2"
+        },
+        {
+            "file": "scene/3d/node_3d.cpp",
+            "sha256": "456d3ca794e76cfd5d26f08b8f07ddc53e7d8153402e874851497096d563f3da"
+        },
+        {
+            "file": "scene/resources/3d/primitive_meshes.cpp",
+            "sha256": "3b4ae4e98d083d1d9c7ca2ed693cdbda02dfed139d3bc6879123334d9de18d5b"
+        },
+        {
+            "file": "scene/resources/material.cpp",
+            "sha256": "4c51d82afacc18e0d2429a26189adff8145b610ddfaedb3b5fc6bf0db1a554b3"
+        },
+        {
+            "file": "drivers/gles3/shaders/scene.glsl",
+            "sha256": "741d48c937836dd443b4526544648194588d0349e88472a0f54c1b140a9cdf31"
+        },
+        {
+            "file": "drivers/gles3/shaders/stdlib_inc.glsl",
+            "sha256": "386e3ebb0dba8bcf2da4bcb5d9de12619e485871600aab6b6938ce6efe4bce76"
+        }
+    ],
+    "adapted_files": [
+        {
+            "source": "core/math/projection.cpp",
+            "target": "src/scene3d/camera.cpp",
+            "scope": "Perspective and orthographic projection equations, changed to validated project value contracts and explicit clip convention."
+        },
+        {
+            "source": "scene/resources/3d/primitive_meshes.cpp",
+            "symbol": "SphereMesh::create_mesh_array",
+            "target": "src/scene3d/sphere.cpp",
+            "scope": "Retain full-sphere positions, ellipsoid normals, UV seam/pole handling and row topology. Replace Godot containers/math with project values, STL and GLM-backed normalization; reverse winding to CCW; bound dimensions/tessellation; omit hemisphere, tangents and UV2 outside the initial vertex contract."
+        },
+        {
+            "source": "drivers/gles3/shaders/scene.glsl",
+            "symbols": [
+                "F0",
+                "D_GGX",
+                "V_GGX",
+                "SchlickFresnel",
+                "light_compute Lambert and isotropic Schlick-GGX paths",
+                "final albedo/metallic diffuse factors"
+            ],
+            "target": "src/rhythm_render/shaders/godot_brdf.sh",
+            "scope": "Extract isotropic directional BRDF into bgfx shader syntax. Fix dielectric specular to default 0.5; Lambert diffuse, normalized directional radiance, no size/shadow/attenuation. Rename helpers and parameters to project style; reject back-lit contribution before half-vector normalization. Caller clamps roughness to 0.05 for finite mobile precision. Exclude anisotropy, toon, clearcoat, IBL and custom material code; radiance remains linear, display color management pending."
+        }
+    ],
+    "study_only": [
+        "hierarchical transforms and visibility",
+        "camera target/view semantics",
+        "mesh/resource instance separation",
+        "glTF scene/material import responsibilities",
+        "other primitive geometry and GLES lighting/BRDF implementation"
+    ],
+    "excluded": [
+        "Object/Variant/Ref/RID and engine containers",
+        "RenderingServer and engine lifecycle",
+        "embedded media and third-party modules",
+        "engine renderer and shaders except the explicitly adapted BRDF helpers"
+    ],
+    "outbound_license": "not selected; Godot contributions retain MIT"
+}

@@ -1,0 +1,83 @@
+Start testing: Sep 06 23:32 China Standard Time
+----------------------------------------------------------
+1/5 Testing: source_boundaries
+1/5 Test: source_boundaries
+Command: "C:/Users/chess/AppData/Local/Programs/Python/Python313/python.exe" "C:/source/rhythm_master/tools/check-boundaries.py"
+Directory: C:/source/rhythm_master/out/core
+"source_boundaries" start time: Sep 06 23:32 China Standard Time
+Output:
+----------------------------------------------------------
+Portable boundary checks passed for 27 files; public APIs and locale parity passed
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"source_boundaries" end time: Sep 06 23:32 China Standard Time
+"source_boundaries" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/5 Testing: render_contracts
+2/5 Test: render_contracts
+Command: "C:/source/rhythm_master/out/core/src/rhythm_render/render_contract_tests.exe"
+Directory: C:/source/rhythm_master/out/core/src/rhythm_render
+"render_contracts" start time: Sep 06 23:32 China Standard Time
+Output:
+----------------------------------------------------------
+render contracts passed
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"render_contracts" end time: Sep 06 23:32 China Standard Time
+"render_contracts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/5 Testing: graph_contracts
+3/5 Test: graph_contracts
+Command: "C:/source/rhythm_master/out/core/src/graph/graph_contract_tests.exe"
+Directory: C:/source/rhythm_master/out/core/src/graph
+"graph_contracts" start time: Sep 06 23:32 China Standard Time
+Output:
+----------------------------------------------------------
+graph contracts passed
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"graph_contracts" end time: Sep 06 23:32 China Standard Time
+"graph_contracts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/5 Testing: runtime_contracts
+4/5 Test: runtime_contracts
+Command: "C:/source/rhythm_master/out/core/src/runtime/runtime_contract_tests.exe"
+Directory: C:/source/rhythm_master/out/core/src/runtime
+"runtime_contracts" start time: Sep 06 23:32 China Standard Time
+Output:
+----------------------------------------------------------
+runtime contracts passed
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"runtime_contracts" end time: Sep 06 23:32 China Standard Time
+"runtime_contracts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/5 Testing: editor_contracts
+5/5 Test: editor_contracts
+Command: "C:/source/rhythm_master/out/core/src/editor_application/editor_contract_tests.exe"
+Directory: C:/source/rhythm_master/out/core/src/editor_application
+"editor_contracts" start time: Sep 06 23:32 China Standard Time
+Output:
+----------------------------------------------------------
+editor contracts passed
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"editor_contracts" end time: Sep 06 23:32 China Standard Time
+"editor_contracts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 06 23:32 China Standard Time

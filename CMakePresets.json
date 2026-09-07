@@ -1,0 +1,33 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "core",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/core",
+      "cacheVariables": {"CMAKE_BUILD_TYPE": "Debug", "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"}
+    },
+    {
+      "name": "windows",
+      "inherits": "core",
+      "binaryDir": "${sourceDir}/out/windows",
+      "cacheVariables": {"RHYTHM_BUILD_WINDOWS_SPIKE": "ON"}
+    },
+    {
+      "name": "render",
+      "inherits": "core",
+      "binaryDir": "${sourceDir}/out/render",
+      "cacheVariables": {"RHYTHM_RENDER_ONLY": "ON"}
+    }
+  ],
+  "buildPresets": [
+    {"name": "core", "configurePreset": "core", "jobs": 20},
+    {"name": "windows", "configurePreset": "windows", "jobs": 20},
+    {"name": "render", "configurePreset": "render", "jobs": 20}
+  ],
+  "testPresets": [
+    {"name": "core", "configurePreset": "core", "output": {"outputOnFailure": true}},
+    {"name": "windows", "configurePreset": "windows", "output": {"outputOnFailure": true}},
+    {"name": "render", "configurePreset": "render", "output": {"outputOnFailure": true}}
+  ]
+}

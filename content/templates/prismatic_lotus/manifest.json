@@ -1,0 +1,24 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.prismatic_lotus",
+    "content_version": "0.1.0",
+    "project_id": "official-prismatic-lotus",
+    "graph_revision": 0,
+    "title": "棱镜星莲 / Prismatic lotus",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "棱镜星莲",
+        "en-US": "Prismatic lotus"
+    },
+    "category": "procedural",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party graph; MIT TiXL / Material Maker shader adaptations; outbound license pending",
+    "compatible_players": [
+        "windows"
+    ],
+    "external_assets": []
+}

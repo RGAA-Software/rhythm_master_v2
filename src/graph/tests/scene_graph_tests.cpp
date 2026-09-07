@@ -1,0 +1,64 @@
+#include <iostream>
+#include <stdexcept>
+
+#include "rhythm/graph/compiler.h"
+
+namespace {
+void Require(bool condition, const char* message) {
+    if (!condition) throw std::runtime_error(message);
+}
+void Run() {
+    using namespace rhythm::graph;
+    Registry registry;
+    Document document;
+    document.id_ = "scene.contract";
+    document.nodes_ = {
+            registry.MakeNode(1, "geometry.sphere"), registry.MakeNode(2, "material.unlit"),
+            registry.MakeNode(3, "scene.instance"),  registry.MakeNode(4, "scene.transform"),
+            registry.MakeNode(5, "scene.camera"),    registry.MakeNode(6, "scene.render"),
+            registry.MakeNode(7, "output.texture")};
+    document.edges_ = {{1, 1, 3, "geometry"}, {2, 2, 3, "material"}, {3, 3, 4, "scene"},
+                       {4, 4, 6, "scene"},    {5, 5, 6, "camera"},   {6, 6, 7, "source"}};
+    document.output_ = 7;
+    Require(std::holds_alternative<ExecutionPlan>(Compile(document, registry)),
+            "typed scene compiles");
+    auto bad = document;
+    bad.edges_[1].from_ = 1;
+    Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(bad, registry)),
+            "geometry cannot connect to material input");
+    for (NodeId id = 8; id <= 16; ++id) {
+        const NodeId previous = id == 8 ? 4 : id - 1;
+        document.nodes_.push_back(registry.MakeNode(id, "scene.merge"));
+        document.edges_.push_back({id * 2, previous, id, "a"});
+        document.edges_.push_back({id * 2 + 1, previous, id, "b"});
+    }
+    document.edges_[3].from_ = 16;
+    const auto rejected = Compile(document, registry);
+    Require(std::holds_alternative<std::vector<Diagnostic>>(rejected) &&
+                    std::get<std::vector<Diagnostic>>(rejected).at(0).code_ == "graph.scene_budget",
+            "exponential merge rejects before runtime allocation");
+    ExecutionPlan malformed;
+    malformed.instructions_.push_back(
+            {registry.MakeNode(1, "scene.transform"), Operation::kSceneTransform, {0}});
+    Require(ValidateSceneBudget(malformed).has_value(),
+            "future/self input rejects in budget guard");
+    ExecutionPlan lights;
+    lights.instructions_.push_back(
+            {registry.MakeNode(1, "scene.directional_light"), Operation::kDirectionalLight, {{}}});
+    for (std::size_t i = 1; i <= 3; ++i)
+        lights.instructions_.push_back(
+                {registry.MakeNode(i + 1, "scene.merge"), Operation::kSceneMerge, {i - 1, i - 1}});
+    Require(ValidateSceneBudget(lights).has_value(),
+            "more than four lights rejects before rendering");
+    std::cout << "Scene graph: typed ports, compilation and bounded merge passed\n";
+}
+}  // namespace
+int main() {
+    try {
+        Run();
+        return 0;
+    } catch (const std::exception& error) {
+        std::cerr << error.what() << '\n';
+        return 1;
+    }
+}

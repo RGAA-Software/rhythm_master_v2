@@ -1,0 +1,6 @@
+TiXL Gaussian blur, downsample, Perlin noise and polar-coordinate shaders
+Source: https://github.com/tixl3d/tixl
+Revision: fbc994d923e8a0142d2ff1b772e4d12248c5b0ba
+MIT; see LICENSE.txt. Adapted for bgfx and premultiplied RGBA.
+Polar mapping adds a bounded center and mirrored edge coordinates.
+Exact imported hashes, files and modifications: PROVENANCE.json.

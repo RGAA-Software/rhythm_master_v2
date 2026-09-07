@@ -1,0 +1,28 @@
+{
+    "source_url": "https://github.com/KhronosGroup/glTF-Sample-Assets",
+    "revision": "9429648735279342b4c32b8745f7904196607379",
+    "license": "CC-BY-4.0",
+    "copyright": "2017 Cesium",
+    "files": [
+        {
+            "source": "Models/Box/glTF-Binary/Box.glb",
+            "target": "third_party/assets/khronos-box/Box.glb",
+            "sha256": "ed52f7192b8311d700ac0ce80644e3852cd01537e4d62241b9acba023da3d54e"
+        },
+        {
+            "source": "Models/Box/LICENSE.md",
+            "target": "third_party/assets/khronos-box/LICENSE.md",
+            "sha256": "3679e04fcfa669a93792fb707e928001eaec8f923dd94002837f09cc9c2839d2"
+        },
+        {
+            "source": "Models/Box/README.md",
+            "target": "third_party/assets/khronos-box/README.md",
+            "sha256": "ae63b4ad1c8136b881686e66faf930c9b9e71fa823a7a4b1738076ae06739c35"
+        }
+    ],
+    "modifications": [],
+    "use": "static GLB importer, resource preparation and GPU integration acceptance fixture",
+    "notices": "third_party/notices/khronos-box",
+    "legal_text_source": "https://raw.githubusercontent.com/spdx/license-list-data/main/text/CC-BY-4.0.txt",
+    "legal_text_sha256": "d557539df68e771cc1eedcc91d13f70fca930e508d11eedcafa4b15db49e3744"
+}

@@ -1,0 +1,6 @@
+Box model
+Copyright 2017 Cesium.
+Source: https://github.com/KhronosGroup/glTF-Sample-Assets/tree/9429648735279342b4c32b8745f7904196607379/Models/Box
+License: Creative Commons Attribution 4.0 International (CC-BY-4.0)
+https://creativecommons.org/licenses/by/4.0/
+The source GLB is unmodified. Rhythm Master parses it into its bounded static model representation for validation.

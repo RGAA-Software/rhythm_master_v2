@@ -1,0 +1,183 @@
+# Rhythm Master Next
+
+> Status: Phase A architecture validation and the first Windows slice are authorized.
+> A Windows Studio slice and portable core are implemented and tested.
+> 2026-09-07: the user accepted the current Windows build, including deployment,
+> node dragging, pan cursor and node styling. Apple ports are deferred to the final platform stage.
+> Phase A remains in progress; platform and graphics risk gates are not all closed.
+> Latest product review rejects the flat node palette and current template visual
+> quality. Earlier acceptance was limited to the interaction/deployment slice.
+> Catalog counts are runnable examples and preset records, not polished content
+> acceptance. See [quality correction](docs/validation/authoring_quality_correction_2026-09-07.md).
+>
+> Decision date: 2026-09-06
+
+This directory contains the new Rhythm Master design and initial implementation. The new
+application will not link Qt. Studio/node editing targets Windows and macOS;
+the shared Player targets Windows, macOS, Android and iOS. It will retain the
+proven portable rendering, graph, effect, audio-analysis and physics work from
+the existing project, while rebuilding the application shell and editor around
+SDL3, Dear ImGui, imgui-node-editor and RhythmRender/bgfx. Studio and Player are
+multilingual products, initially shipping complete Simplified Chinese and
+English locales.
+
+Multi-platform architecture applies from the first shared module: Studio targets
+Windows/macOS and Player targets Windows/macOS/Android/iOS. Windows-first is the
+host delivery and product acceptance order. Shared contracts, package formats,
+toolchain probes and dependency evaluation cover all target platforms now;
+mobile application hosts remain deferred until Windows product acceptance.
+Delivery order is Windows, then Android Player, then the final Apple platform
+stage (macOS Studio/Player and iOS Player). No Apple hardware is currently available;
+Apple toolchain, GPU and device validation move to that stage and do not block
+Windows/Android development. Portable contracts and Apple compatibility review
+remain required now; Apple support is recorded as deferred, not validated.
+
+Cluster playback is planned: a desktop Host coordinates N QR-joined native
+Players on a reachable venue LAN. Phones render locally from shared packages,
+audio features and session time; video streaming is not the default. GammaRay
+first-party executor/joiner and QR wrapper have been extracted with provenance.
+Clock and bounded input models, runtime role/control/time nodes and an offline
+Studio input panel are tested. Authenticated room transport, camera scanning
+and measured venue capacity remain pending. See the
+[foundation evidence](docs/validation/cluster_foundations_2026-09-07.md).
+
+Media backend decision: FFmpeg alone handles demuxing, decoding, conversion
+and encoding/muxing. VLC/libVLC and Qt Multimedia are not migrated. Thin audio
+device adapters and the existing audio-feature analyzer remain separate; they
+are not additional players. See `docs/media_pipeline_plan.md`.
+
+Rhythm Master is an open-source project targeting commercial-grade reliability,
+performance and usability. Payment, activation and proprietary editions are not
+product assumptions. The project's exact outbound license has not yet been
+selected; see `docs/third_party_reuse_policy.md` for dependency reuse rules.
+
+The old repository remains the behavioral and migration reference until the
+new Windows application reaches feature parity. Source is not copied without a
+dependency and ownership audit.
+
+Documents:
+
+- `docs/technology_stack_evaluation.md`: whole-product library evaluation,
+  confirmed decisions versus candidates, boundaries and validation gates.
+- `docs/gammaray_common_reuse_plan.md`: inspected first-party foundations,
+  source/dependency findings and focused extraction/test sequence.
+- `docs/cluster_playback_plan.md`: PC Host, QR admission, local rendering,
+  synchronization, transport, venue capacity and staged acceptance.
+- `docs/godot_3d_reference_plan.md`: confirmed primary 3D design/source
+  reference, extraction boundaries and staged validation.
+- `docs/media_pipeline_plan.md`: confirmed FFmpeg-only media backend, device
+  boundary, shared playback clock, frame delivery and validation stages.
+- `docs/architecture_overview.md`: target architecture, module boundaries and
+  staged validation.
+- [Phase A execution plan](docs/phase_a_execution_plan.md): multi-platform core
+  validation, the first Windows workflow, minimal contracts, acceptance cases,
+  dependency decision criteria and the actual unfinished implementation state.
+- `docs/project_persistence.md`: current persistence audit and the proposed
+  project/package format.
+- `docs/commercial_product_plan.md`: product scope, distribution, security,
+  commercial-grade quality, open-source delivery and release gates (historical
+  filename retained).
+- `docs/localization_plan.md`: language-neutral identities, catalogs, text
+  rendering, IME behavior and cross-platform localization acceptance.
+- `docs/coding_and_design_rules.md`: mandatory ownership, style, dependency and
+  composition rules for project-owned code.
+- `docs/visual_authoring_capability_plan.md`: capability research and the new
+  typed Texture/Signal/Point/Scene/Material/time execution and editor model.
+- `docs/builtin_nodes_and_presets_plan.md`: data-driven semantic nodes, presets,
+  templates, catalog targets and easy-authoring acceptance gates.
+- `docs/template_quality_delivery_plan.md`: latest minimum of 50 Basic and 50
+  Advanced templates, the first representative batch and visual acceptance.
+- `docs/third_party_reuse_policy.md`: open-source reuse, provenance, license
+  compatibility and maintained-fork rules, including GPL code candidates.
+
+The root `AGENTS.md`, `.clang-format` and `.editorconfig` enforce four-space
+Google-style project code, explicit initialization, smart ownership and
+composition-oriented design. Unavoidable third-party raw pointers are confined
+to narrow adapters and never become project public APIs.
+
+The implemented slice loads a data-defined graph, renders it through a private
+bgfx/D3D11 adapter, and provides a docked node canvas, descriptor-based Inspector,
+node creation/link editing, live parameter preview, undo/redo, asynchronous
+transactional save/reopen, Chinese/English UI, and budgeted previews directly
+inside texture nodes. The initial graph displays five inline previews; up to
+eight visible nodes share a 256x144 / 15 Hz preview budget, with selected-node
+priority and no routine CPU image readback.
+The shared renderer also builds from its own directory without Studio dependencies.
+Current Windows and Android checks include actual Adreno 650 GLES pixels and
+playback of Windows-published runtime packages. Exact counts and remaining
+capabilities are tracked in the implementation progress record below.
+This does not establish Android App lifecycle acceptance.
+See [runtime/Player validation](docs/validation/runtime_player_2026-09-07.md).
+Current continuous implementation through Android is tracked in
+[implementation progress](docs/implementation_progress.md).
+
+On this Windows development machine (MSVC, CMake, Ninja, Python and the recorded
+read-only SDK):
+
+```powershell
+./tools/prepare-dependencies.ps1
+./tools/build.ps1 -Preset core
+./tools/build.ps1 -Preset render-standalone
+./tools/build.ps1 -Preset windows -ShaderCompiler 'C:/source/shark_dynamics_wallpaper/cmake-build-qt6/generated/bgfx_tools/bin/shaderc.exe'
+./tools/run-studio.ps1
+```
+
+The graphics build now compiles owned color-filter shaders for D3D11/GLES using
+the validated host `shaderc` candidate. Set `RHYTHM_SHADERC` to your host compiler;
+the example path is read-only and specific to this development machine. Android
+accepts the same `-ShaderCompiler` argument on `tools/build-android.ps1`. Subsequent
+builds preserve the configured path. Shader compilation/embedding is implemented
+in Python; compiler/source/include hashes are retained beside generated artifacts.
+Reproducible release distribution of the compiler remains a pending dependency
+task; its executable is not bundled with Player.
+
+Every Windows build automatically runs `tools/deploy-windows.py` to assemble
+`out/windows/src/windows_spike/deploy/` with the executable, recursively resolved
+runtime DLLs, content, locales and third-party notices. Double-click
+`deploy/rhythm_master.exe` or use the launcher above; no SDK PATH is required.
+Runtime DLLs are also copied beside the original build executable. CMake only
+supplies build metadata and invokes Python; deployment logic lives in Python.
+For a manual refresh without compilation:
+
+```powershell
+python tools/deploy-windows.py --config out/windows/src/windows_spike/deploy-config-Debug.txt
+```
+
+The `windows_deploy_smoke` test starts the deployed app from an unrelated working
+directory with a system-only PATH and checks that runtime DLLs load from `deploy`.
+See the [deployment acceptance record](docs/validation/windows_deployment_2026-09-07.md).
+Copy the entire `deploy` folder when moving the acceptance build. Default saves go to
+the SDL per-user `RhythmMaster/Studio/Projects/Untitled.rhythmproj` directory.
+Drag node headers, body text or empty body space with the left mouse button;
+drag the colored circular sockets to connect nodes. Right-drag pans the canvas
+with a hand cursor; the wheel zooms. Nodes have typed color accents, input sockets
+on the left, output sockets on the right and matching link colors.
+Select a node to edit properties, and use the toolbar to add
+nodes, save/reopen, undo/redo or switch language. The output continues to use the
+last valid compiled graph while an incomplete edit is diagnosed.
+
+Shared Android validation uses `tools/build-android.ps1` and
+`tools/test-android.ps1`; these build/run native contracts and install no APK.
+The Player APK is built with `python tools/build-android-player.py` and placed
+at `out/android-arm64/apk/rhythm-player-debug.apk`. Native Player builds also
+invoke Python packaging automatically. USB installation is pending a phone-side
+installation restriction; the APK is a local debug build, not a completed release.
+SDK paths are script parameters, and target libraries are separate from host
+protoc. The SDK is an audited experiment snapshot rather than a release lock;
+see [dependency records](third_party/README.md).
+
+The user authorizes continued development and broader implementation after
+successful validation. The user subsequently accepted the Windows build and
+authorized continuous implementation through Android completion. Remaining
+Phase A and product gates are tracked alongside this work; pending dependencies
+are validated before adoption, and a working demo does not close those gates.
+
+Transparent windows/backbuffers are now tentative end-of-roadmap features by user
+decision. Their current limitation does not block this slice or ordinary-window
+backend adoption.
+
+All currently discussed plans are filed here, under `docs/`; temporary drafts
+outside this directory are not authoritative. The technology evaluation tracks
+unresolved choices. Document completion does not imply implementation or test
+completion. Start with that evaluation, then the architecture and relevant
+feature plan; retain the Windows-before-mobile implementation gate.

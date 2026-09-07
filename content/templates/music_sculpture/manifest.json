@@ -1,0 +1,23 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.music_sculpture",
+    "content_version": "0.1.0",
+    "project_id": "official-music_sculpture",
+    "graph_revision": 0,
+    "title": "音乐光雕 / Music sculpture",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "音乐光雕",
+        "en-US": "Music sculpture"
+    },
+    "maturity": "experimental",
+    "author": "Rhythm Master",
+    "license_status": "first-party graph; Godot/GLM notices supplied with runtime; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": []
+}

@@ -1,0 +1,24 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.layered_neon",
+    "content_version": "0.1.0",
+    "project_id": "official-layered-neon",
+    "graph_revision": 0,
+    "title": "分层霓虹 · 音频轨道 / Layered neon audio orbit",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "分层霓虹 · 音频轨道",
+        "en-US": "Layered neon audio orbit"
+    },
+    "category": "audio",
+    "tier": "basic",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "first-party graph; TiXL-derived renderer shaders under MIT; outbound license pending",
+    "compatible_players": [
+        "windows"
+    ],
+    "external_assets": []
+}

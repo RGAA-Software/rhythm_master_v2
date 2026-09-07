@@ -1,0 +1,3 @@
+add_library(atomic_storage STATIC atomic_file.cpp)
+target_include_directories(atomic_storage PUBLIC include)
+rhythm_project_target(atomic_storage)

@@ -1,0 +1,36 @@
+{
+    "ownership": "first-party, explicitly authorized reuse",
+    "source_url": "file:///D:/GoCloud/GammaRayPremium",
+    "revision": "83b59ed96a2483ab9cad370e2925238dc2d52046",
+    "source_files": [
+        {
+            "path": "src/px_deps/px_common/blocking_executor.h",
+            "sha256": "0d91f95c4d5f0b90e53a8537188fc5bfc5b4fa0ac383ca77fc20be86dfdbb703"
+        },
+        {
+            "path": "src/px_deps/px_common/blocking_executor.cpp",
+            "sha256": "4fa955fcfb604f2bf7e19f3e633d3c05c9d335ffeb9b396d0a5bdfebbb516524"
+        },
+        {
+            "path": "src/px_deps/px_common/async_runtime.cpp",
+            "sha256": "36fa4f954adc6425a30e93a16944841b6ef131eb7a48aad3c0e30f59a2b426a1"
+        }
+    ],
+    "source_worktree_status": "",
+    "target_modules": [
+        "src/foundation/blocking_executor.cpp",
+        "src/foundation/thread_joiner.cpp",
+        "src/foundation/include/rhythm/foundation/blocking_executor.h"
+    ],
+    "extraction": "BlockingExecutor plus RuntimeThreadJoiner only; no Asio or third-party source imported",
+    "license": "First-party permission; project outbound license remains pending. Source files contain no separate copyright/license header.",
+    "modifications": [
+        "Google naming, 4 spaces, initialized members and project namespace",
+        "Constructor startup with failure cleanup; value or shared ownership as needed",
+        "Bounded global pool leases retained through deferred joins, fixed 8-batch join queue",
+        "Destroy cancelled/completed user captures outside locks",
+        "WaitForIdle rejects worker self-wait; no detached threads",
+        "Standalone target without the original async_runtime/Asio public dependency"
+    ],
+    "validation": "Windows 28 suites and Android 20 native suites passed, including executor contracts and integrated project/asset worker lifecycle. Device evidence: /data/local/tmp/rhythm-master-phase-a-20260906200008828. Apple pending."
+}

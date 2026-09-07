@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.physics_pile",
+            "reset": true,
+            "id": "official.semantic.physics_pile.default",
+            "titles": {
+                "zh-CN": "默认参数",
+                "en-US": "Default"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.physics_pile",
+            "reset": true,
+            "id": "official.semantic.physics_pile.variant",
+            "titles": {
+                "zh-CN": "弹跳积木",
+                "en-US": "Bouncing blocks"
+            },
+            "properties": {
+                "restitution": 0.85,
+                "friction": 0.1,
+                "emission_rate": 8,
+                "lifetime": 12,
+                "gravity_y": 0.75
+            }
+        }
+    ]
+}
