@@ -593,3 +593,9 @@ explicit acceptance dimensions. Music visualization remains the core use case;
 wallpaper hosting remains excluded. Template counts and standalone playback do
 not establish completion of Studio authoring. Existing performance, media,
 platform and deferred-communication priorities continue under these criteria.
+
+## 2026-09-08 音画编码后端
+
+Windows MPEG-4/AAC、H264/MF 与 Android 原生 MPEG-4/AAC 回读通过；
+准确处理 MP4 movie timescale 和 AAC 末帧填充。导出 UI/GPU 队列仍在实施，
+见 [验证记录](validation/media_encoding_2026-09-08.md)。

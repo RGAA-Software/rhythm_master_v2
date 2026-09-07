@@ -1,0 +1,23 @@
+{
+    "source_url": "https://github.com/FFmpeg/FFmpeg/tree/n6.1.1/doc/examples",
+    "revision": "n6.1.1",
+    "license": "MIT (actual example-file headers)",
+    "source_files": {
+        "doc/examples/mux.c": "915901a0091dda81a12b0fc1977ce36f9fa7e0915fe1fe3dbd506589b82c8bc9",
+        "doc/examples/encode_video.c": "c9b1c21af4f6af47c40d36391d03b4e1d920e9199c6aae98064fb648b620beb5"
+    },
+    "import": "Adapted encoding, drain and packet time-base sequence; no whole example binary or replacement media backend",
+    "target_modules": [
+        "src/media/av_writer.cpp"
+    ],
+    "modifications": "RAII track encoders; custom local staging I/O; bounded interleaved input; SDR Rec.709; typed configuration and explicit finalization/cancellation",
+    "notices": "third_party/notices/ffmpeg-examples/LICENSE.txt",
+    "dependencies": "Existing isolated vcpkg FFmpeg 6.1.1#11 LGPL SDK; no FFmpeg rebuild or shared SDK upgrade",
+    "status": "MPEG-4/AAC validated on Windows and USB Android; H264/MF CFR validated on Windows. GPU export integration pending; no Android H264 claim.",
+    "additional_study": {
+        "file": "libavcodec/mfenc.c",
+        "license": "LGPL-2.1-or-later; study only, no copied source",
+        "decision": "camera_record option requests CFR; software MF encoding is not GPU interoperability evidence",
+        "decoder_tail": "FFmpeg n6.1.1 libavcodec/decode.c and libavformat/mov.c: LGPL study only, no source copied. Exact MOV final packet duration trims AAC frame padding in our adapter; no generic duration-based truncation."
+    }
+}

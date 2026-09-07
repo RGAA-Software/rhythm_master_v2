@@ -9,6 +9,10 @@
 #include "ffmpeg_resources.h"
 #include "local_input.h"
 
+extern "C" {
+#include <libavutil/avstring.h>
+}
+
 namespace rhythm::media {
 namespace {
 constexpr int kMaximumConvertedFrames = 1048576;
@@ -61,6 +65,7 @@ class AudioDecoder::Impl final {
         }
         detail::Check(avcodec_parameters_to_context(codec_.get(), &parameters), "audio parameters");
         codec_->thread_count = 1;
+        codec_->pkt_timebase = format_->streams[stream_]->time_base;
         codec_->max_samples = kMaximumDecodedFrames;
         detail::Check(avcodec_open2(codec_.get(), decoder, nullptr), "open audio decoder");
         if (codec_->sample_rate < 8000 || codec_->sample_rate > 192000 ||
@@ -148,6 +153,26 @@ class AudioDecoder::Impl final {
     }
 
    private:
+    int PresentedSamples() const {
+        const auto& stream = *format_->streams[stream_];
+        // MOV stores AAC end padding as the last packet's shorter duration.
+        // FFmpeg 6.1 decodes the complete AAC frame. Honor that exact final
+        // packet interval, never a format-wide or bitrate-estimated duration.
+        if (codec_->codec_id != AV_CODEC_ID_AAC || !av_match_name("mov", format_->iformat->name) ||
+            stream.start_time < 0 || stream.duration <= 0 || frame_->pts < stream.start_time ||
+            frame_->duration <= 0)
+            return frame_->nb_samples;
+        const auto position = frame_->pts - stream.start_time;
+        if (position > stream.duration || frame_->duration != stream.duration - position)
+            return frame_->nb_samples;
+        const AVRational sample_time{1, frame_->sample_rate};
+        const auto samples = av_rescale_q(frame_->duration, stream.time_base, sample_time);
+        if (samples <= 0 || samples >= frame_->nb_samples ||
+            av_compare_ts(samples, sample_time, frame_->duration, stream.time_base) != 0)
+            return frame_->nb_samples;
+        return static_cast<int>(samples);
+    }
+
     bool Receive() {
         for (;;) {
             if (input_->Canceled()) {
@@ -223,8 +248,8 @@ class AudioDecoder::Impl final {
             drained_ = true;
             return false;
         }
-        const int capacity =
-                swr_get_out_samples(resampler_.get(), received ? frame_->nb_samples : 0);
+        const int input_frames = received ? PresentedSamples() : 0;
+        const int capacity = swr_get_out_samples(resampler_.get(), input_frames);
         detail::Check(capacity, "audio conversion capacity");
         if (capacity > kMaximumConvertedFrames) {
             throw std::runtime_error("audio conversion exceeds memory budget");
@@ -234,7 +259,7 @@ class AudioDecoder::Impl final {
         const int frames = swr_convert(
                 resampler_.get(), &output, std::max(capacity, 1),
                 received ? const_cast<const std::uint8_t**>(frame_->extended_data) : nullptr,
-                received ? frame_->nb_samples : 0);
+                input_frames);
         detail::Check(frames, "convert audio");
         pending_.resize(static_cast<std::size_t>(frames) * kAudioChannels);
         for (auto& value : pending_) {
