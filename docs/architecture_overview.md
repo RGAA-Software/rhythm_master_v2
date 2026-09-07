@@ -252,6 +252,22 @@ carry values, paths and handles; SDL/FFmpeg types remain private adapters.
 This is a local offline job, independent of the deferred cluster transport.
 See [implementation and validation](validation/studio_export_2026-09-08.md).
 
+### Authored soundtrack implementation (2026-09-08)
+
+Soundtrack identity, gain and repeat settings are project values alongside the
+graph snapshot. A bounded authoring worker imports content-addressed music and
+probes it through the existing media adapter. The UI validates the document,
+revision and current music selection before applying the returned snapshot.
+Package preparation publishes immutable compressed music bytes whose lifetime
+is shared by Session and the audio decoder worker. Host adapters select that
+source and feed the same playback time/features into the graph; Session does
+not become a second decoder or audio-device owner.
+
+Music-bearing packages use `music-performance-v1` with program ABI 2; archive and
+asset budgets remain unchanged. The audio worker explicitly acknowledges source
+replacement before host-owned imported files are reclaimed. See
+[workflow and platform evidence](validation/work_soundtrack_2026-09-08.md).
+
 ## 6. Application and session model
 
 One executable supports explicit launch modes:

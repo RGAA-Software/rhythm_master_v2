@@ -13,18 +13,22 @@ void Session::LoadPrepared(PreparedPackage package, double initial_seconds) {
         (initial_seconds > 0 && !package.SupportsAnalyticSeek()))
         throw std::invalid_argument("player.unsupported_seek");
     auto resources = std::move(package.resources_);
-    Commit(package.Take(), std::move(resources));
+    auto soundtrack = std::move(package.soundtrack_);
+    Commit(package.Take(), std::move(resources), std::move(soundtrack));
     clock_.Seek(initial_seconds);
 }
 void Session::Open(const std::filesystem::path& path) {
     auto package = project::LoadPackage(path);
     auto resources = prepared_assets::Prepare(package.program_, package.assets_);
-    Commit(std::move(package), std::move(resources));
+    auto soundtrack = prepared_assets::PrepareSoundtrack(package.soundtrack_, package.assets_);
+    Commit(std::move(package), std::move(resources), std::move(soundtrack));
 }
 void Session::Commit(project::RuntimePackage package,
-                     std::shared_ptr<const prepared_assets::Resources> resources) {
+                     std::shared_ptr<const prepared_assets::Resources> resources,
+                     std::optional<media::SoundtrackSource> soundtrack) {
     package_ = std::move(package);
     resources_ = std::move(resources);
+    soundtrack_ = std::move(soundtrack);
     videos_.Reset();
     clock_.SetPaused(false);
     Restart();

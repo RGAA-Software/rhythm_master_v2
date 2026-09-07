@@ -294,3 +294,10 @@ thread; integration exposed and resolved SDL STA/MF apartment incompatibility.
 No new media backend or SDK build was introduced. Android MPEG-4/AAC and GPU
 readback have native device evidence; Apple and general hardware interop remain
 unvalidated. See `validation/studio_export_2026-09-08.md` and provenance records.
+
+The same custom FFmpeg I/O adapter now handles package-owned audio bytes as well
+as video. File/embedded audio decode and exact seek pass on Windows and Android;
+an actual Studio-published soundtrack drives Adreno GLES pixels. This adds no
+decoder, package-library or device-output dependency. See
+`validation/work_soundtrack_2026-09-08.md` for the retained limits and pending
+Android application acceptance.

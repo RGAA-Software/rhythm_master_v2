@@ -10,6 +10,7 @@
 #include "package_archive.h"
 #include "rhythm/project/package.h"
 #include "rhythm/storage/atomic_file.h"
+#include "soundtrack_codec.h"
 
 namespace rhythm::project {
 namespace {
@@ -50,11 +51,13 @@ class StagedPackage final {
 }  // namespace
 
 std::string EncodePackage(const graph::Document& document, std::string_view title,
-                          std::span<const PackagedAsset> assets) {
+                          std::span<const PackagedAsset> assets,
+                          const std::optional<media::Soundtrack>& soundtrack) {
     if (title.size() > 4096) throw std::length_error("package.title");
     if (assets.size() > kMaximumPackageAssets) throw std::length_error("package.asset_count");
     detail::PackageEntries entries;
     Json asset_records = Json::array();
+    std::vector<assets::AssetRecord> records;
     std::size_t asset_bytes = 0;
     for (const auto& asset : assets) {
         if (!assets::ValidId(asset.record_.id_) ||
@@ -64,6 +67,7 @@ std::string EncodePackage(const graph::Document& document, std::string_view titl
         if (asset.bytes_.size() > kMaximumPackageAssetBytes - asset_bytes)
             throw std::length_error("package.asset_bytes");
         asset_bytes += asset.bytes_.size();
+        records.push_back(asset.record_);
         if (Hash(asset.bytes_) != asset.record_.id_.sha256_ ||
             !entries.emplace("assets/" + asset.record_.id_.sha256_, asset.bytes_).second)
             throw std::invalid_argument("package.asset_hash");
@@ -80,7 +84,7 @@ std::string EncodePackage(const graph::Document& document, std::string_view titl
     Json manifest = {{"format", "rhythm.runtime"},
                      {"manifest_version", 1},
                      {"program_abi", 2},
-                     {"profile", "texture-signal-v2"},
+                     {"profile", soundtrack ? "music-performance-v1" : "texture-signal-v2"},
                      {"canvas", {{"width", plan.canvas_.width_}, {"height", plan.canvas_.height_}}},
                      {"document_id", plan.document_id_},
                      {"revision", plan.revision_},
@@ -89,6 +93,7 @@ std::string EncodePackage(const graph::Document& document, std::string_view titl
                      {"program_bytes", program.size()},
                      {"operators", Operators(plan)}};
     manifest["assets"] = std::move(asset_records);
+    if (soundtrack) manifest["soundtrack"] = detail::EncodeSoundtrack(*soundtrack, records);
     entries.emplace("manifest.json", manifest.dump(2));
     entries.emplace("runtime/program.pb", program);
     return detail::WriteArchive(entries);
@@ -107,7 +112,8 @@ RuntimePackage DecodePackage(std::string_view bytes) {
                 if (event == Json::parse_event_t::object_end) object_keys.pop_back();
                 return true;
             });
-    const bool current = manifest.at("profile") == "texture-signal-v2";
+    const bool music = manifest.at("profile") == "music-performance-v1";
+    const bool current = music || manifest.at("profile") == "texture-signal-v2";
     if (manifest.at("format") != "rhythm.runtime" || manifest.at("manifest_version") != 1 ||
         manifest.at("program_abi") != (current ? 2 : 1) ||
         (!current && manifest.at("profile") != "texture-signal-v1" &&
@@ -118,7 +124,8 @@ RuntimePackage DecodePackage(std::string_view bytes) {
         manifest.at("program_sha256") != Hash(program))
         throw std::invalid_argument("package.hash");
     RuntimePackage package;
-    package.profile_ = current ? PackageProfile::kTextureSignalV2
+    package.profile_ = music     ? PackageProfile::kMusicPerformanceV1
+                       : current ? PackageProfile::kTextureSignalV2
                        : manifest.at("profile") == "texture-signal-assets-v1"
                                ? PackageProfile::kTextureSignalAssetsV1
                                : PackageProfile::kTextureSignalV1;
@@ -142,6 +149,13 @@ RuntimePackage DecodePackage(std::string_view bytes) {
         }
     } else if (manifest.contains("assets")) {
         throw std::invalid_argument("package.profile");
+    }
+    if (music) {
+        std::vector<assets::AssetRecord> records;
+        for (const auto& asset : package.assets_) records.push_back(asset.record_);
+        package.soundtrack_ = detail::DecodeSoundtrack(manifest.at("soundtrack"), records);
+    } else if (manifest.contains("soundtrack")) {
+        throw std::invalid_argument("package.soundtrack_profile");
     }
     if (entries.size() != package.assets_.size() + 2)
         throw std::invalid_argument("package.unlisted_asset");

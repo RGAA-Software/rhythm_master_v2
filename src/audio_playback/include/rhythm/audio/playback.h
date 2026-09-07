@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <vector>
 
 #include "rhythm/audio/features.h"
 
@@ -17,6 +18,9 @@ struct PlaybackSnapshot {
     std::uint32_t queued_frames_ = 0;
     // Latest pause intent; state_ separately acknowledges the worker/device.
     bool paused_ = false;
+    // Worker has released the preceding source and processed this generation.
+    // Unlike generation_, Stop/Load intent cannot advance this acknowledgment.
+    std::uint64_t source_generation_ = 0;
 };
 
 // UI-thread commands publish desired values; a single worker owns file I/O,
@@ -30,6 +34,7 @@ class FilePlayback final {
     FilePlayback(const FilePlayback&) = delete;
     FilePlayback& operator=(const FilePlayback&) = delete;
     void Load(const std::filesystem::path& path);
+    void Load(std::shared_ptr<const std::vector<std::uint8_t>> bytes);
     void Stop();
     void Seek(double seconds);
     void Pause(bool paused);

@@ -6,6 +6,11 @@
 > 见 [Studio 导出验收](validation/studio_export_2026-09-08.md) 与
 > [Android 音乐应用记录](validation/android_music_application_2026-09-08.md)。
 
+2026-09-08 作品交付补充：音乐资产、音量与循环设置已接入工程保存及运行包，
+共享 FFmpeg 解码支持包内不可变字节。Windows Studio 按钮和 Android 原生音乐/GLES
+验证见 [作品音乐记录](validation/work_soundtrack_2026-09-08.md)。当前为单曲、有界资产
+规格；大媒体流式容器、多轨编排及实际 APK 生命周期继续推进。
+
 ## 1. 决策和范围
 
 媒体能力服务于[音乐可视化产品主线](product_scope.md)：音乐文件/实时输入、

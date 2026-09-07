@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rhythm/audio/playback.h"
+#include "rhythm/media/soundtrack.h"
 #include "rhythm/runtime/inputs.h"
 #include "rhythm/runtime/playback_clock.h"
 
@@ -18,6 +19,8 @@ class MusicPlayback final {
    public:
     explicit MusicPlayback(std::filesystem::path cache);
     bool Open(std::filesystem::path path);
+    void Open(const media::SoundtrackSource& source);
+    void Clear();
     void Apply(const runtime::PlaybackCommand& command);
     void SetSuspended(bool suspended);
     void SetLoop(bool loop) { file_.SetLoop(loop); }
@@ -37,6 +40,8 @@ class MusicPlayback final {
     std::filesystem::path cache_{};
     std::optional<FileLease> active_{};
     std::optional<FileLease> retired_{};
+    std::shared_ptr<const std::vector<std::uint8_t>> embedded_{};
+    bool selected_ = false;
     std::uint64_t generation_ = 0;
     bool suspended_ = false;
     bool resume_ = false;

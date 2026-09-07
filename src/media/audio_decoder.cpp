@@ -25,6 +25,20 @@ class AudioDecoder::Impl final {
         : path_(path),
           input_(std::make_unique<detail::LocalInput>(path, stop)),
           generation_(generation) {
+        Initialize();
+    }
+    Impl(std::shared_ptr<const std::vector<std::uint8_t>> bytes, std::uint64_t generation,
+         std::stop_token stop)
+        : bytes_(std::move(bytes)),
+          input_(std::make_unique<detail::LocalInput>(bytes_, stop)),
+          generation_(generation) {
+        Initialize();
+    }
+    std::unique_ptr<Impl> Reopen(std::uint64_t generation, std::stop_token stop) const {
+        return bytes_ ? std::make_unique<Impl>(bytes_, generation, stop)
+                      : std::make_unique<Impl>(path_, generation, stop);
+    }
+    void Initialize() {
         format_.reset(avformat_alloc_context());
         if (!format_) {
             throw std::bad_alloc();
@@ -85,7 +99,6 @@ class AudioDecoder::Impl final {
     }
 
     AudioInfo Info() const { return info_; }
-    const std::filesystem::path& Path() const { return path_; }
 
     std::optional<AudioBlock> Read(std::stop_token stop) {
         if (stop.stop_requested()) {
@@ -270,6 +283,7 @@ class AudioDecoder::Impl final {
     }
 
     std::filesystem::path path_{};
+    std::shared_ptr<const std::vector<std::uint8_t>> bytes_{};
     std::unique_ptr<detail::LocalInput> input_{};
     std::unique_ptr<AVFormatContext, detail::FormatDelete> format_{};
     std::unique_ptr<AVCodecContext, detail::CodecDelete> codec_{};
@@ -291,6 +305,9 @@ class AudioDecoder::Impl final {
 AudioDecoder::AudioDecoder(const std::filesystem::path& path, std::uint64_t generation,
                            std::stop_token stop)
     : impl_(std::make_unique<Impl>(path, generation, stop)) {}
+AudioDecoder::AudioDecoder(std::shared_ptr<const std::vector<std::uint8_t>> bytes,
+                           std::uint64_t generation, std::stop_token stop)
+    : impl_(std::make_unique<Impl>(std::move(bytes), generation, stop)) {}
 AudioDecoder::~AudioDecoder() = default;
 AudioDecoder::AudioDecoder(AudioDecoder&&) noexcept = default;
 AudioDecoder& AudioDecoder::operator=(AudioDecoder&&) noexcept = default;
@@ -298,7 +315,7 @@ AudioInfo AudioDecoder::Info() const { return impl_->Info(); }
 std::optional<AudioBlock> AudioDecoder::Read(std::stop_token stop) { return impl_->Read(stop); }
 void AudioDecoder::Seek(std::uint64_t first_sample, std::uint64_t generation,
                         std::stop_token stop) {
-    auto replacement = std::make_unique<Impl>(impl_->Path(), generation, stop);
+    auto replacement = impl_->Reopen(generation, stop);
     replacement->Skip(first_sample, stop);
     impl_ = std::move(replacement);
 }

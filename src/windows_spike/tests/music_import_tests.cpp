@@ -1,5 +1,6 @@
 #include <chrono>
 #include <filesystem>
+#include <fstream>
 #include <functional>
 #include <iostream>
 #include <stdexcept>
@@ -59,6 +60,24 @@ int main(int argc, char* argv[]) {
             Check(!std::filesystem::exists(first) && std::filesystem::exists(second),
                   "worker acknowledgment releases retired file only");
             Check(!music.Open(second) && std::filesystem::exists(second), "duplicate active path");
+            std::ifstream input(outside, std::ios::binary);
+            const media::SoundtrackSource embedded{
+                    {{}, "Embedded", 0, true},
+                    std::make_shared<const std::vector<std::uint8_t>>(
+                            std::istreambuf_iterator<char>(input),
+                            std::istreambuf_iterator<char>())};
+            music.Open(embedded);
+            wait([](const auto& frame) { return frame.inputs_.audio_.has_value(); });
+            Check(!std::filesystem::exists(second),
+                  "embedded source retires previous file after acknowledgment");
+            music.Apply({true, 0.5});
+            wait([](const auto& frame) {
+                return frame.playback_->paused_ && frame.playback_->seconds_ == 0.5;
+            });
+            music.Clear();
+            Check(!music.Frame().playback_, "cleared package has no stale music clock");
+            music.Open(embedded);
+            wait([](const auto& frame) { return frame.inputs_.audio_.has_value(); });
         }
         Check(!std::filesystem::exists(second) && std::filesystem::exists(outside),
               "destruction joins decoder before removing owned cache files");

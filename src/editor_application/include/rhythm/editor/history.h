@@ -2,6 +2,7 @@
 
 #include "rhythm/assets/types.h"
 #include "rhythm/graph/compiler.h"
+#include "rhythm/media/soundtrack.h"
 
 namespace rhythm::editor {
 struct Position {
@@ -15,6 +16,7 @@ struct Snapshot {
     std::string title_{};
     std::vector<assets::AssetRecord> assets_{};
     std::map<std::string, std::map<graph::NodeId, Position>> component_positions_{};
+    std::optional<media::Soundtrack> soundtrack_{};
     bool operator==(const Snapshot&) const = default;
 };
 // Editing may contain incomplete graphs. Validation prevents executing them,

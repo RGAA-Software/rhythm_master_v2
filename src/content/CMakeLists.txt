@@ -6,6 +6,13 @@ add_library(semantic_catalog STATIC semantic.cpp user_components.cpp component_l
 target_include_directories(semantic_catalog PUBLIC include)
 target_link_libraries(semantic_catalog PUBLIC content_catalog editor_application project_io)
 rhythm_project_target(semantic_catalog)
+if(RHYTHM_BUILD_MEDIA)
+    add_library(music_authoring STATIC music_authoring.cpp)
+    target_include_directories(music_authoring PUBLIC include)
+    target_link_libraries(music_authoring PUBLIC editor_application foundation_async
+        PRIVATE asset_store prepared_assets runtime_package)
+    rhythm_project_target(music_authoring)
+endif()
 file(GLOB semantic_manifests CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/content/semantic/*/manifest.json")
 set(semantic_products)
 foreach(manifest IN LISTS semantic_manifests)

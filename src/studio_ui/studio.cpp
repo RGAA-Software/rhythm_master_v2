@@ -38,6 +38,7 @@
 #include "timeline_panel.h"
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
 #include "export_panel.h"
+#include "soundtrack_panel.h"
 #endif
 
 namespace rhythm::studio {
@@ -63,6 +64,9 @@ class Studio::Impl final {
                                     ? project::Load(project_)
                                     : project::PrepareTemplate(template_path, project_ / "assets");
         history_.emplace(loaded.snapshot_);
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        soundtrack_panel_.Sync(history_->Current(), project_ / "assets", audio_panel_);
+#endif
         presets_ = content::LoadPresets(resources / "content/presets/catalog.json", registry_);
         semantics_ = content::LoadSemantics(resources / "content/semantic", registry_);
         for (const auto& entry : semantics_) {
@@ -126,7 +130,11 @@ class Studio::Impl final {
             QueueCompile();
     }
     void Toolbar(platform::Host& host, render::Renderer& renderer, double seconds) {
-        ImGui::BeginDisabled(store_.Busy());
+        bool busy = store_.Busy();
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        busy |= soundtrack_panel_.Busy();
+#endif
+        ImGui::BeginDisabled(busy);
         if (ImGui::Button(Label("save").c_str())) {
             CommitEdits();
             store_.SaveProject(project_, history_->Current());
@@ -175,6 +183,9 @@ class Studio::Impl final {
             if (asset_edit.removed_)
                 std::erase_if(next.assets_,
                               [&](const auto& asset) { return asset.id_ == *asset_edit.removed_; });
+            if (asset_edit.removed_ && next.soundtrack_ &&
+                next.soundtrack_->asset_ == *asset_edit.removed_)
+                next.soundtrack_.reset();
             if (asset_edit.added_ &&
                 std::none_of(next.assets_.begin(), next.assets_.end(), [&](const auto& asset) {
                     return asset.id_ == asset_edit.added_->id_;
@@ -275,6 +286,14 @@ class Studio::Impl final {
     }
     void Frame(platform::Host& host, render::Renderer& renderer, double seconds) {
         component_library_.Initialize(host.DataDirectory() / "Components");
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        if (auto edit = soundtrack_panel_.Take(
+                    history_->Current(),
+                    inspector_.Preview().has_value() || timeline_.Preview().has_value() ||
+                            std::string(title_.data()) != history_->Current().title_,
+                    audio_panel_))
+            Apply(std::move(*edit));
+#endif
         if (const auto completed = store_.Take()) {
             if (!completed->error_.empty()) {
                 std::cerr << completed->error_ << '\n';
@@ -401,6 +420,9 @@ class Studio::Impl final {
                                                 graph::Operation::kParticleEmitter ||
                                         instruction.operation_ == graph::Operation::kPointPhysics;
                              });
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        soundtrack_panel_.Sync(history_->Current(), project_ / "assets", audio_panel_);
+#endif
         audio_panel_.ApplyPlayback(timeline_.TakePlaybackCommand());
         const auto audio_frame = audio_panel_.Frame();
         const auto playback_seconds = timeline_.Advance(seconds, seekable, audio_frame.playback_);
@@ -502,6 +524,18 @@ class Studio::Impl final {
         Inspector();
         ImGui::EndDisabled();
         audio_panel_.Draw(catalogs_.at(locale_));
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        ImGui::BeginDisabled(store_.Busy());
+        if (const auto action = soundtrack_panel_.Draw(history_->Current(),
+                                                       audio_panel_.SelectedFile().has_value(),
+                                                       catalogs_.at(locale_))) {
+            CommitEdits();
+            if (auto edit = soundtrack_panel_.Start(*action, history_->Current(),
+                                                    project_ / "assets", audio_panel_))
+                Apply(std::move(*edit));
+        }
+        ImGui::EndDisabled();
+#endif
         input_preview_.Draw(catalogs_.at(locale_));
         ImGui::Separator();
         ImGui::Text("%s: %llu", Text("revision").c_str(),
@@ -609,6 +643,7 @@ class Studio::Impl final {
     TimelinePanel timeline_{};
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
     ExportPanel export_panel_{};
+    SoundtrackPanel soundtrack_panel_{};
 #endif
     runtime::ExternalInputs preview_inputs_{};
     std::optional<double> evaluated_seconds_{};

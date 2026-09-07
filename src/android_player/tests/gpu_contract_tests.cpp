@@ -16,6 +16,9 @@ void VerifyEffectPixels(render::Renderer& renderer);
 void VerifyVideoUploadPixels(render::Renderer& renderer);
 void VerifyTextureReusePixels(render::Renderer& renderer);
 void VerifyReadbackPixels(render::Renderer& renderer);
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path& path);
+#endif
 void MeasureTemplate(render::Renderer& renderer, const std::filesystem::path& path,
                      player::RenderQuality quality);
 }  // namespace rhythm::validation
@@ -336,6 +339,13 @@ void VerifyAffine(rhythm::render::Renderer& renderer) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        if (argc == 3 && std::string_view(argv[2]) == "--music") {
+            auto renderer = platform::Host::CreateRenderer();
+            validation::VerifyMusicPackage(renderer, argv[1]);
+            return 0;
+        }
+#endif
         std::cout << std::unitbuf;
         if (argc == 2 && std::string_view(argv[1]) == "--readback") {
             auto renderer = platform::Host::CreateRenderer();

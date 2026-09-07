@@ -1,4 +1,4 @@
-add_library(prepared_assets STATIC prepare.cpp loader.cpp video_assets.cpp)
+add_library(prepared_assets STATIC prepare.cpp loader.cpp video_assets.cpp soundtrack.cpp)
 target_include_directories(prepared_assets PUBLIC include)
 target_link_libraries(prepared_assets PUBLIC model_assets media_types PRIVATE asset_store)
 if(RHYTHM_BUILD_MEDIA)

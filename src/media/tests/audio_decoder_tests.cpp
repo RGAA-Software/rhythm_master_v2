@@ -71,6 +71,35 @@ void Run(const std::filesystem::path& directory) {
     Require(ramp.Info().source_sample_rate_ == 48000 && ramp.Info().source_channels_ == 2,
             "source metadata");
     const auto samples = Decode(ramp, 9);
+    {
+        std::ifstream input(ramp_path, std::ios::binary);
+        auto bytes = std::make_shared<const std::vector<std::uint8_t>>(
+                std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>());
+        const std::weak_ptr<const std::vector<std::uint8_t>> lifetime = bytes;
+        media::AudioDecoder embedded(bytes, 31);
+        bytes.reset();
+        Require(!lifetime.expired(), "embedded source retained by decoder");
+        Require(Decode(embedded, 31) == samples, "embedded PCM equals file decoding");
+        embedded.Seek(4173, 32);
+        const auto block = embedded.Read();
+        Require(block && block->first_sample_ == 4173 && block->generation_ == 32,
+                "embedded seek position");
+        Require(std::equal(block->samples_.begin(), block->samples_.end(),
+                           samples.begin() + 4173 * 2),
+                "embedded seek exact PCM");
+        std::stop_source stop;
+        stop.request_stop();
+        bool canceled = false;
+        try {
+            embedded.Seek(0, 33, stop.get_token());
+        } catch (const std::exception&) {
+            canceled = true;
+        }
+        Require(canceled, "embedded canceled seek rejects");
+        const auto retained = embedded.Read();
+        Require(retained && retained->first_sample_ == 4173 + 4096 && retained->generation_ == 32,
+                "embedded canceled seek preserves source and decoder");
+    }
     Require(samples.size() == 120031 * 2, "exact PCM sample count including final partial block");
     for (std::size_t index = 0; index < samples.size() / 2; ++index) {
         Require(samples[index * 2] == Ramp(index) && samples[index * 2 + 1] == -Ramp(index),

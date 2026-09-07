@@ -9,6 +9,7 @@
 #include "rhythm/runtime/playback_clock.h"
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
 #include "rhythm/audio/playback.h"
+#include "rhythm/media/soundtrack.h"
 #endif
 
 namespace rhythm::audio_ui {
@@ -26,10 +27,14 @@ class AudioPanel final {
     void SetSuspended(bool suspended);
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
     void LoadFile(const std::filesystem::path& path);
+    void LoadSoundtrack(const media::SoundtrackSource& source);
+    void ClearFile();
+    void SetLoop(bool loop);
     void SetVolume(float volume);
     void SetDemoFile(std::filesystem::path path);
     std::optional<std::filesystem::path> SelectedFile() const;
     float Volume() const { return volume_; }
+    bool Loop() const { return loop_; }
 #endif
 
    private:
@@ -47,6 +52,7 @@ class AudioPanel final {
     bool loop_ = false;
     std::filesystem::path demo_file_{};
     std::filesystem::path loaded_file_{};
+    std::shared_ptr<const std::vector<std::uint8_t>> embedded_{};
     bool media_selected_ = false;
 #endif
 };

@@ -31,6 +31,7 @@ class PreparedPackage final {
     project::RuntimePackage Take();
     std::optional<project::RuntimePackage> package_{};
     std::shared_ptr<const prepared_assets::Resources> resources_{};
+    std::optional<media::SoundtrackSource> soundtrack_{};
     std::array<std::uint8_t, 32> digest_{};
 };
 }  // namespace rhythm::player

@@ -27,6 +27,8 @@ void PublishSnapshot(const std::filesystem::path& path, const editor::Snapshot& 
     if (!std::holds_alternative<graph::ExecutionPlan>(compiled))
         throw std::invalid_argument("package.invalid_program");
     prepared_assets::Prepare(std::get<graph::ExecutionPlan>(compiled), packaged);
-    InstallPackage(path, EncodePackage(snapshot.document_, snapshot.title_, packaged));
+    prepared_assets::PrepareSoundtrack(snapshot.soundtrack_, packaged);
+    InstallPackage(path, EncodePackage(snapshot.document_, snapshot.title_, packaged,
+                                       snapshot.soundtrack_));
 }
 }  // namespace rhythm::project

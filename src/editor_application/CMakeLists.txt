@@ -1,6 +1,6 @@
 add_library(editor_application STATIC history.cpp compiler_worker.cpp commands.cpp template_command.cpp binding_commands.cpp component_commands.cpp component_edit.cpp component_detach.cpp component_unpack.cpp)
 target_include_directories(editor_application PUBLIC include)
-target_link_libraries(editor_application PUBLIC Rhythm::Graph asset_types)
+target_link_libraries(editor_application PUBLIC Rhythm::Graph asset_types media_types)
 rhythm_project_target(editor_application)
 if(BUILD_TESTING)
     add_executable(component_edit_tests tests/component_edit_tests.cpp)

@@ -1,5 +1,6 @@
 #include <chrono>
 #include <filesystem>
+#include <fstream>
 #include <functional>
 #include <iostream>
 #include <stdexcept>
@@ -86,6 +87,30 @@ void Run(const std::filesystem::path& directory) {
             "repeat clears old analysis and retains queue bounds");
     playback.SetLoop(false);
     Wait(playback, [](const auto& value) { return value.state_ == PlaybackState::kEnded; });
+    std::ifstream input(directory / "tone.flac", std::ios::binary);
+    auto bytes = std::make_shared<const std::vector<std::uint8_t>>(
+            std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>());
+    const std::weak_ptr<const std::vector<std::uint8_t>> lifetime = bytes;
+    playback.Load(bytes);
+    bytes.reset();
+    Wait(playback, [](const auto& value) { return value.features_.has_value(); });
+    playback.Pause(true);
+    Wait(playback, [](const auto& value) { return value.state_ == PlaybackState::kPaused; });
+    playback.Seek(0.25);
+    const auto embedded = Wait(playback, [](const auto& value) {
+        return value.state_ == PlaybackState::kPaused && value.position_seconds_ == 0.25;
+    });
+    Require(!lifetime.expired() && !embedded.features_, "embedded seek retains shared source");
+    playback.SetLoop(true);
+    playback.Pause(false);
+    Wait(playback, [&](const auto& value) {
+        return value.generation_ > embedded.generation_ && value.features_.has_value();
+    });
+    playback.Stop();
+    const auto release_deadline = std::chrono::steady_clock::now() + 2s;
+    while (!lifetime.expired() && std::chrono::steady_clock::now() < release_deadline)
+        std::this_thread::sleep_for(5ms);
+    Require(lifetime.expired(), "stopped worker releases embedded source");
     std::cout << "file playback: device output, canonical analysis, bounded queue, pause, seek, "
                  "EOF, bounded repeat, latest-request cancellation and recovery passed\n";
 }

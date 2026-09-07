@@ -4,6 +4,16 @@ target_link_libraries(player_core PUBLIC graph_runtime runtime_package foundatio
 rhythm_project_target(player_core)
 if(BUILD_TESTING)
     if(RHYTHM_BUILD_MEDIA)
+        add_executable(soundtrack_player_tests tests/soundtrack_player_tests.cpp)
+        target_link_libraries(soundtrack_player_tests PRIVATE player_core asset_store project_io media_audio)
+        rhythm_project_target(soundtrack_player_tests)
+        add_test(NAME soundtrack_player COMMAND soundtrack_player_tests
+            "${PROJECT_BINARY_DIR}/audio-decoder-tests/tone.flac" "${PROJECT_BINARY_DIR}/soundtrack-player")
+        set_tests_properties(soundtrack_player PROPERTIES FIXTURES_REQUIRED local_audio_media)
+        if(WIN32)
+            set_tests_properties(soundtrack_player PROPERTIES ENVIRONMENT_MODIFICATION
+                "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
+        endif()
         add_executable(video_player_tests tests/video_player_tests.cpp)
         target_link_libraries(video_player_tests PRIVATE player_core asset_store project_io)
         rhythm_project_target(video_player_tests)

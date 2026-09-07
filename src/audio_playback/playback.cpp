@@ -19,6 +19,7 @@ using Clock = std::chrono::steady_clock;
 struct Request {
     bool loop_ = false;
     std::optional<std::filesystem::path> path_{};
+    std::shared_ptr<const std::vector<std::uint8_t>> bytes_{};
     std::uint64_t generation_ = 0;
     std::uint64_t first_sample_ = 0;
     std::uint64_t revision_ = 0;
@@ -41,6 +42,17 @@ class FilePlayback::Impl final {
     void Load(const std::filesystem::path& path) {
         std::lock_guard lock(mutex_);
         request_.path_ = path;
+        request_.bytes_.reset();
+        request_.first_sample_ = 0;
+        request_.paused_ = false;
+        RestartRequest();
+    }
+    void Load(std::shared_ptr<const std::vector<std::uint8_t>> bytes) {
+        if (!bytes || bytes->empty() || bytes->size() > 16 * 1024 * 1024)
+            throw std::invalid_argument("embedded media byte budget");
+        std::lock_guard lock(mutex_);
+        request_.path_.reset();
+        request_.bytes_ = std::move(bytes);
         request_.first_sample_ = 0;
         request_.paused_ = false;
         RestartRequest();
@@ -48,6 +60,7 @@ class FilePlayback::Impl final {
     void Stop() {
         std::lock_guard lock(mutex_);
         request_.path_.reset();
+        request_.bytes_.reset();
         request_.first_sample_ = 0;
         RestartRequest();
     }
@@ -56,7 +69,7 @@ class FilePlayback::Impl final {
             throw std::invalid_argument("invalid audio seek time");
         }
         std::lock_guard lock(mutex_);
-        if (!request_.path_) {
+        if (!request_.path_ && !request_.bytes_) {
             return;
         }
         request_.first_sample_ = static_cast<std::uint64_t>(seconds * media::kAudioSampleRate);
@@ -84,6 +97,7 @@ class FilePlayback::Impl final {
         std::lock_guard lock(mutex_);
         auto result = snapshot_;
         result.paused_ = request_.paused_;
+        result.source_generation_ = source_generation_;
         return result;
     }
 
@@ -101,7 +115,8 @@ class FilePlayback::Impl final {
         snapshot_.generation_ = request_.generation_;
         snapshot_.position_seconds_ =
                 static_cast<double>(request_.first_sample_) / media::kAudioSampleRate;
-        snapshot_.state_ = request_.path_ ? PlaybackState::kLoading : PlaybackState::kStopped;
+        snapshot_.state_ = request_.path_ || request_.bytes_ ? PlaybackState::kLoading
+                                                             : PlaybackState::kStopped;
         Changed();
     }
     Request Desired() const {
@@ -112,12 +127,13 @@ class FilePlayback::Impl final {
         std::lock_guard lock(mutex_);
         if (value.generation_ == request_.generation_) {
             snapshot_ = value;
+            source_generation_ = value.generation_;
         }
     }
     void Repeat(std::uint64_t generation) {
         std::lock_guard lock(mutex_);
         if (request_.generation_ != generation || !request_.loop_ || request_.paused_ ||
-            !request_.path_)
+            (!request_.path_ && !request_.bytes_))
             return;
         request_.first_sample_ = 0;
         RestartRequest();
@@ -149,9 +165,14 @@ class FilePlayback::Impl final {
                     failed = false;
                     ended_input = false;
                     origin = request.first_sample_;
-                    if (request.path_) {
-                        decoder = std::make_unique<media::AudioDecoder>(
-                                *request.path_, active_generation, request.cancel_);
+                    if (request.path_ || request.bytes_) {
+                        decoder = request.bytes_
+                                          ? std::make_unique<media::AudioDecoder>(request.bytes_,
+                                                                                  active_generation,
+                                                                                  request.cancel_)
+                                          : std::make_unique<media::AudioDecoder>(*request.path_,
+                                                                                  active_generation,
+                                                                                  request.cancel_);
                         if (origin) {
                             decoder->Seek(origin, active_generation, request.cancel_);
                         }
@@ -242,12 +263,16 @@ class FilePlayback::Impl final {
     Request request_{};
     std::stop_source request_cancel_{};
     PlaybackSnapshot snapshot_{};
+    std::uint64_t source_generation_ = 0;
     // Destroyed first: join completes while the mailbox and mutex still exist.
     std::jthread worker_{};
 };
 FilePlayback::FilePlayback() : impl_(std::make_unique<Impl>()) {}
 FilePlayback::~FilePlayback() = default;
 void FilePlayback::Load(const std::filesystem::path& path) { impl_->Load(path); }
+void FilePlayback::Load(std::shared_ptr<const std::vector<std::uint8_t>> bytes) {
+    impl_->Load(std::move(bytes));
+}
 void FilePlayback::Stop() { impl_->Stop(); }
 void FilePlayback::Seek(double seconds) { impl_->Seek(seconds); }
 void FilePlayback::Pause(bool paused) { impl_->Pause(paused); }

@@ -52,7 +52,10 @@ void AudioPanel::ApplyPlayback(const runtime::PlaybackCommand& command) {
     const auto state = file_.Snapshot().state_;
     if ((state == audio::PlaybackState::kStopped || state == audio::PlaybackState::kEnded) &&
         (command.seek_ || command.paused_ == false)) {
-        file_.Load(loaded_file_);
+        if (embedded_)
+            file_.Load(embedded_);
+        else
+            file_.Load(loaded_file_);
         file_.Pause(command.paused_.value_or(true));
     }
     if (command.seek_) file_.Seek(*command.seek_);
@@ -107,6 +110,7 @@ std::optional<std::filesystem::path> AudioPanel::SelectedFile() const {
 }
 void AudioPanel::LoadFile(const std::filesystem::path& path) {
     capture_.Stop();
+    embedded_.reset();
     loaded_file_ = path;
     media_selected_ = true;
     const auto utf8 = path.u8string();
@@ -120,6 +124,32 @@ void AudioPanel::LoadFile(const std::filesystem::path& path) {
         resume_file_ = true;
         file_.Pause(true);
     }
+}
+void AudioPanel::LoadSoundtrack(const media::SoundtrackSource& source) {
+    file_.Load(source.bytes_);
+    capture_.Stop();
+    embedded_ = source.bytes_;
+    loaded_file_.clear();
+    file_path_.fill(0);
+    media_selected_ = true;
+    SetVolume(source.binding_.gain_);
+    SetLoop(source.binding_.loop_);
+    if (suspended_) {
+        resume_file_ = true;
+        file_.Pause(true);
+    }
+}
+void AudioPanel::ClearFile() {
+    file_.Stop();
+    embedded_.reset();
+    loaded_file_.clear();
+    file_path_.fill(0);
+    media_selected_ = false;
+    resume_file_ = false;
+}
+void AudioPanel::SetLoop(bool loop) {
+    loop_ = loop;
+    file_.SetLoop(loop);
 }
 void AudioPanel::SetVolume(float volume) {
     file_.SetVolume(volume);

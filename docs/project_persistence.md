@@ -4,6 +4,13 @@
 >
 > Date: 2026-09-06
 
+2026-09-08: authored soundtrack identity/gain/repeat now live in manifest version
+2 when present; unbound projects retain version 1. Published music uses the
+explicit `music-performance-v1` profile with program ABI 2 and unchanged 8 MiB
+asset/16 MiB archive budgets. This avoids silently ignoring music in old readers.
+See [work soundtrack validation](validation/work_soundtrack_2026-09-08.md) for
+transaction, compatibility, Player ownership and remaining large-media limits.
+
 ## 1. Decision summary
 
 Protobuf remains appropriate for typed graph/runtime records, but the current

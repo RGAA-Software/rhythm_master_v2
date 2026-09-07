@@ -15,8 +15,10 @@ MusicPlayback::MusicPlayback(std::filesystem::path cache)
     : cache_(std::filesystem::canonical(cache)) {}
 void MusicPlayback::Collect() {
     const auto snapshot = file_.Snapshot();
-    if (snapshot.generation_ >= generation_ && snapshot.state_ != audio::PlaybackState::kLoading)
+    if (snapshot.source_generation_ >= generation_) {
         retired_.reset();
+        if (embedded_ || !selected_) active_.reset();
+    }
 }
 bool MusicPlayback::Open(std::filesystem::path path) {
     try {
@@ -34,6 +36,8 @@ bool MusicPlayback::Open(std::filesystem::path path) {
         if (active_) retired_.emplace(std::move(*active_));
         active_.emplace(std::move(incoming));
         file_.Load(active_->path_);
+        embedded_.reset();
+        selected_ = true;
         generation_ = file_.Snapshot().generation_;
         if (suspended_) {
             resume_ = true;
@@ -44,11 +48,33 @@ bool MusicPlayback::Open(std::filesystem::path path) {
         return false;
     }
 }
+void MusicPlayback::Open(const media::SoundtrackSource& source) {
+    file_.Load(source.bytes_);
+    embedded_ = source.bytes_;
+    selected_ = true;
+    generation_ = file_.Snapshot().generation_;
+    SetLoop(source.binding_.loop_);
+    SetVolume(source.binding_.gain_);
+    if (suspended_) {
+        resume_ = true;
+        file_.Pause(true);
+    }
+}
+void MusicPlayback::Clear() {
+    file_.Stop();
+    embedded_.reset();
+    selected_ = false;
+    resume_ = false;
+    generation_ = file_.Snapshot().generation_;
+}
 void MusicPlayback::Apply(const runtime::PlaybackCommand& command) {
-    if (!active_) return;
+    if (!selected_) return;
     const auto state = file_.Snapshot().state_;
     if (state == audio::PlaybackState::kEnded && (command.seek_ || command.paused_ == false)) {
-        file_.Load(active_->path_);
+        if (embedded_)
+            file_.Load(embedded_);
+        else
+            file_.Load(active_->path_);
         file_.Pause(command.paused_.value_or(true));
     }
     if (command.seek_) file_.Seek(*command.seek_);
@@ -71,8 +97,8 @@ void MusicPlayback::SetSuspended(bool suspended) {
     }
 }
 MusicFrame MusicPlayback::Frame() {
-    if (!active_) return {};
     Collect();
+    if (!selected_) return {};
     const auto snapshot = file_.Snapshot();
     MusicFrame frame;
     frame.inputs_.audio_ = snapshot.features_;

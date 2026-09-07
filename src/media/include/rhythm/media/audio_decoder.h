@@ -34,6 +34,10 @@ class AudioDecoder final {
    public:
     explicit AudioDecoder(const std::filesystem::path& path, std::uint64_t generation = 1,
                           std::stop_token stop = {});
+    // Immutable compressed asset bytes share lifetime with package playback.
+    // Uses the same bounded custom I/O adapter as embedded video (16 MiB limit).
+    explicit AudioDecoder(std::shared_ptr<const std::vector<std::uint8_t>> bytes,
+                          std::uint64_t generation = 1, std::stop_token stop = {});
     ~AudioDecoder();
     AudioDecoder(AudioDecoder&&) noexcept;
     AudioDecoder& operator=(AudioDecoder&&) noexcept;

@@ -53,6 +53,15 @@ int main(int, char**) {
                 SDL_Log("player stored package rejected; using builtin");
             }
         }
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        const auto apply_soundtrack = [&] {
+            if (const auto track = session.Soundtrack())
+                music.Open(*track);
+            else
+                music.Clear();
+        };
+        apply_soundtrack();
+#endif
         std::uint64_t frames = 0;
         std::uint64_t devices = 0;
         std::uint64_t surface_generation = 0;
@@ -111,6 +120,9 @@ int main(int, char**) {
             if (auto loaded = imports.Take()) {
                 if (loaded->package_) {
                     session.LoadPrepared(std::move(*loaded->package_));
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+                    apply_soundtrack();
+#endif
                     error.clear();
                 } else {
                     error = "package_error";

@@ -10,17 +10,21 @@
 namespace rhythm::player {
 PreparedPackage::PreparedPackage(std::string_view bytes, std::stop_token stop)
     : package_(project::DecodePackage(bytes)),
-      resources_(prepared_assets::Prepare(package_->program_, package_->assets_, stop)) {
+      resources_(prepared_assets::Prepare(package_->program_, package_->assets_, stop)),
+      soundtrack_(
+              prepared_assets::PrepareSoundtrack(package_->soundtrack_, package_->assets_, stop)) {
     picosha2::hash256(bytes.begin(), bytes.end(), digest_);
 }
 PreparedPackage::PreparedPackage(PreparedPackage&& other) noexcept
     : package_(std::exchange(other.package_, std::nullopt)),
       resources_(std::move(other.resources_)),
+      soundtrack_(std::move(other.soundtrack_)),
       digest_(other.digest_) {}
 PreparedPackage& PreparedPackage::operator=(PreparedPackage&& other) noexcept {
     if (this != &other) {
         package_ = std::exchange(other.package_, std::nullopt);
         resources_ = std::move(other.resources_);
+        soundtrack_ = std::move(other.soundtrack_);
         digest_ = other.digest_;
     }
     return *this;

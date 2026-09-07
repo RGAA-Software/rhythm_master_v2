@@ -21,4 +21,8 @@ std::shared_ptr<const Resources> Prepare(const graph::ExecutionPlan& plan,
                                          std::span<const project::PackagedAsset> assets,
                                          std::stop_token stop = {});
 bool Covers(const graph::ExecutionPlan& plan, const Resources& resources);
+// Worker-only: probes the actual embedded audio with the shared media backend.
+std::optional<media::SoundtrackSource> PrepareSoundtrack(
+        const std::optional<media::Soundtrack>& binding,
+        std::span<const project::PackagedAsset> assets, std::stop_token stop = {});
 }  // namespace rhythm::prepared_assets

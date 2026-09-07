@@ -65,12 +65,23 @@ int main(int argc, char* argv[]) {
         }
         session.Open(requested_package.value_or(host.ResourceDirectory() /
                                                 "content/packages/signal_texture.rhythmpack"));
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        const auto apply_soundtrack = [&] {
+            if (const auto track = session.Soundtrack())
+                audio_panel.LoadSoundtrack(*track);
+            else
+                audio_panel.ClearFile();
+            if (smoke) audio_panel.SetVolume(0);
+        };
+        if (!requested_audio) apply_soundtrack();
+#endif
         std::array<char, 4096> path{};
         std::string error;
         bool chinese = true;
         const auto start = std::chrono::steady_clock::now();
         std::uint64_t frames = 0;
         bool observed_audio = false;
+        bool observed_gpu_output = false;
         while (host.Poll() && (!smoke || frames < 30)) {
             const auto elapsed =
                     std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
@@ -86,6 +97,9 @@ int main(int argc, char* argv[]) {
             if (auto result = package_loader.Take()) {
                 if (result->package_) {
                     session.LoadPrepared(std::move(*result->package_));
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+                    apply_soundtrack();
+#endif
                     error.clear();
                 } else if (result->error_ != rhythm::player::PackageLoadError::kCancelled) {
                     error = "package_error";
@@ -162,11 +176,12 @@ int main(int argc, char* argv[]) {
             ImGui::End();
             renderer.Submit({}, host.EndUi(), 0x111822ff);
             renderer.EndFrame();
+            observed_gpu_output |= renderer.IsValid(output.final_) && renderer.Stats().passes_ >= 2;
             ++frames;
         }
-        if (smoke && (frames != 30 || renderer.Stats().passes_ < 2))
+        if (smoke && (frames != 30 || !observed_gpu_output))
             throw std::runtime_error("player.no_gpu_output");
-        if (smoke && requested_audio && !observed_audio)
+        if (smoke && (requested_audio || session.Soundtrack()) && !observed_audio)
             throw std::runtime_error("player.no_file_audio_features");
         std::cout << "player_gpu_frames=" << frames << " package_loaded=" << session.Ready()
                   << '\n';

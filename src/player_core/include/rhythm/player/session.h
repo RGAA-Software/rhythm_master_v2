@@ -21,6 +21,7 @@ class Session final {
     [[nodiscard]] bool Ready() const { return package_.has_value(); }
     [[nodiscard]] const std::string& Title() const;
     [[nodiscard]] render::Extent Canvas() const;
+    [[nodiscard]] std::optional<media::SoundtrackSource> Soundtrack() const { return soundtrack_; }
     [[nodiscard]] double Seconds() const { return clock_.Seconds(); }
     void Restart();
     // Interactive seek starts fresh temporal history at the requested time.
@@ -39,9 +40,11 @@ class Session final {
 
    private:
     void Commit(project::RuntimePackage package,
-                std::shared_ptr<const prepared_assets::Resources> resources);
+                std::shared_ptr<const prepared_assets::Resources> resources,
+                std::optional<media::SoundtrackSource> soundtrack);
     std::optional<project::RuntimePackage> package_{};
     std::shared_ptr<const prepared_assets::Resources> resources_{};
+    std::optional<media::SoundtrackSource> soundtrack_{};
     runtime::Runtime runtime_{};
     video_sources::Streams videos_{};
     runtime::PlaybackClock clock_{};

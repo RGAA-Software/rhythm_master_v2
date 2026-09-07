@@ -13,6 +13,7 @@
 #include "rhythm/assets/store.h"
 #include "rhythm/project/store.h"
 #include "rhythm/storage/atomic_file.h"
+#include "soundtrack_codec.h"
 
 namespace rhythm::project {
 namespace {
@@ -117,7 +118,8 @@ std::vector<ContentEntry> ScanTemplates(const std::filesystem::path& root) {
 LoadResult LoadRevision(const std::filesystem::path& directory) {
     if (std::filesystem::is_symlink(directory)) throw std::invalid_argument("project.symlink");
     const auto manifest = ParseMetadata(Read(directory / "manifest.json", 1024 * 1024));
-    if (manifest.at("format") != "rhythm.project" || manifest.at("manifest_version") != 1)
+    const auto version = manifest.at("manifest_version");
+    if (manifest.at("format") != "rhythm.project" || (version != 1 && version != 2))
         throw std::invalid_argument("project.manifest_version");
     const auto bytes = Read(directory / "graph.pb", kMaximumGraphBytes);
     if (manifest.at("graph_sha256") != Digest(bytes))
@@ -142,6 +144,11 @@ LoadResult LoadRevision(const std::filesystem::path& directory) {
         }
         EncodeAssets(result.snapshot_.assets_);
     }
+    if (version == 2)
+        result.snapshot_.soundtrack_ =
+                detail::DecodeSoundtrack(manifest.at("soundtrack"), result.snapshot_.assets_);
+    else if (manifest.contains("soundtrack"))
+        throw std::invalid_argument("project.soundtrack_version");
     try {
         const auto layout_bytes = Read(directory / "editor.json", 1024 * 1024);
         if (manifest.at("editor_sha256") != Digest(layout_bytes))
@@ -172,6 +179,9 @@ void Save(const std::filesystem::path& project, const editor::Snapshot& snapshot
     const auto graph_bytes = EncodeGraph(snapshot.document_);
     const auto editor_bytes = EncodeLayout(snapshot).dump(2);
     const auto assets = EncodeAssets(snapshot.assets_);
+    const auto soundtrack =
+            snapshot.soundtrack_ ? detail::EncodeSoundtrack(*snapshot.soundtrack_, snapshot.assets_)
+                                 : Json{};
     VerifyAssets(project, snapshot.assets_);
     if (editor_bytes.size() > 1024 * 1024 || snapshot.title_.size() > 4096)
         throw std::length_error("project.metadata_limit");
@@ -193,15 +203,16 @@ void Save(const std::filesystem::path& project, const editor::Snapshot& snapshot
     Fault(CommitStep::kGraphWritten, fail_after);
     storage::WriteDurable(directory / "editor.json", editor_bytes);
     Fault(CommitStep::kEditorWritten, fail_after);
-    const Json manifest = {{"format", "rhythm.project"},
-                           {"manifest_version", 1},
-                           {"revision_id", revision},
-                           {"project_id", snapshot.document_.id_},
-                           {"graph_revision", snapshot.document_.revision_},
-                           {"title", snapshot.title_},
-                           {"assets", assets},
-                           {"graph_sha256", Digest(graph_bytes)},
-                           {"editor_sha256", Digest(editor_bytes)}};
+    Json manifest = {{"format", "rhythm.project"},
+                     {"manifest_version", snapshot.soundtrack_ ? 2 : 1},
+                     {"revision_id", revision},
+                     {"project_id", snapshot.document_.id_},
+                     {"graph_revision", snapshot.document_.revision_},
+                     {"title", snapshot.title_},
+                     {"assets", assets},
+                     {"graph_sha256", Digest(graph_bytes)},
+                     {"editor_sha256", Digest(editor_bytes)}};
+    if (snapshot.soundtrack_) manifest["soundtrack"] = soundtrack;
     storage::WriteDurable(directory / "manifest.json", manifest.dump(2));
     Fault(CommitStep::kManifestWritten, fail_after);
     const auto reopened = LoadRevision(directory);

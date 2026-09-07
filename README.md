@@ -160,6 +160,12 @@ Existing files are preserved. The initial Windows profile supports H.264 or
 MPEG-4 with optional AAC, up to 1080p pixel count and one hour; arrangement and
 range export remain separate work. See [export acceptance](docs/validation/studio_export_2026-09-08.md).
 
+Use **作品音乐 / Work soundtrack → 保存当前音乐及设置 / Keep current music and settings**
+to retain music with the work. Save/reopen restores the binding; publishing
+includes it in one runtime package for Player. Music shares the existing 8 MiB
+asset budget, so prefer compressed audio for longer tracks. See
+[portable soundtrack acceptance](docs/validation/work_soundtrack_2026-09-08.md).
+
 Every Windows application build automatically runs `tools/deploy-windows.py` to assemble
 the sibling `deploy/` directory with the executable, recursively resolved
 runtime DLLs, content, locales and third-party notices. Double-click
