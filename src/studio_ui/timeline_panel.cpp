@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "curve_editor.h"
+#include "rhythm/editor/commands.h"
 
 namespace rhythm::studio {
 std::size_t TimelinePanel::WaveformBins() const {
@@ -40,11 +41,12 @@ double TimelinePanel::Advance(double host_seconds, bool,
 }
 TimelineEdit TimelinePanel::Draw(const editor::Snapshot& base, bool seekable,
                                  const std::map<std::string, std::string>& text,
-                                 const std::optional<std::filesystem::path>& music) {
+                                 const std::optional<std::filesystem::path>& music,
+                                 const std::function<graph::NodeId()>& reserve_id) {
     TimelineEdit edit;
     if (draft_ && (draft_->document_.revision_ != base.document_.revision_ ||
                    draft_->document_.id_ != base.document_.id_)) {
-        draft_.reset();
+        ResetEdit();
         edit.preview_changed_ = true;
     }
     if (ImGui::Button(text.at(Paused() ? "timeline.play" : "timeline.pause").c_str())) {
@@ -106,6 +108,40 @@ TimelineEdit TimelinePanel::Draw(const editor::Snapshot& base, bool seekable,
     (void)music;
 #endif
     ImGui::Separator();
+    ImGui::BeginDisabled(draft_ && curve_draft_);
+    const auto section = sections_.Draw((draft_ ? *draft_ : base).document_, duration_,
+                                        static_cast<bool>(reserve_id) && !draft_, text);
+    ImGui::EndDisabled();
+    if (section.add_) {
+        const auto section_id = reserve_id();
+        const auto clock_id = reserve_id();
+        auto result = editor::AddTimeSection(base, graph::Registry{},
+                                             std::clamp(clock_.Seconds(), 0.0, 86400.0), section_id,
+                                             clock_id);
+        if (std::holds_alternative<editor::Snapshot>(result)) {
+            edit.committed_ = std::move(std::get<editor::Snapshot>(result));
+            section_error_.clear();
+        } else {
+            section_error_ = std::get<graph::Diagnostic>(result).code_;
+        }
+        return edit;
+    }
+    if (!section_error_.empty()) ImGui::TextWrapped("%s", text.at(section_error_).c_str());
+    if (section.changed_) {
+        if (!draft_) draft_ = base;
+        for (auto& node : draft_->document_.nodes_)
+            if (node.id_ == section.changed_->id_) node = *section.changed_;
+        curve_draft_ = false;
+        edit.preview_changed_ = true;
+    }
+    if (section.committed_ && draft_ && !curve_draft_) {
+        edit.committed_ = std::move(draft_);
+        ResetEdit();
+        return edit;
+    }
+    // Finish the active section transaction before entering a curve editor.
+    if (draft_ && !curve_draft_) return edit;
+    ImGui::Separator();
     const auto& snapshot = draft_ ? *draft_ : base;
     std::vector<graph::NodeId> tracks;
     for (const auto& node : snapshot.document_.nodes_)
@@ -146,6 +182,7 @@ TimelineEdit TimelinePanel::Draw(const editor::Snapshot& base, bool seekable,
             DrawCurveEditor(curve, "timeline.curve." + std::to_string(track_), text);
     if (curve_edit.changed_) {
         if (!draft_) draft_ = base;
+        curve_draft_ = true;
         for (auto& node : draft_->document_.nodes_)
             if (node.id_ == track_) node.properties_["curve"] = std::move(curve);
         edit.preview_changed_ = true;

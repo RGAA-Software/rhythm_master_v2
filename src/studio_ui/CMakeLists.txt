@@ -1,4 +1,5 @@
 add_library(studio_ui STATIC studio.cpp node_palette.cpp semantic_palette.cpp graph_canvas.cpp node_visual.cpp curve_editor.cpp expression_editor.cpp binding_editor.cpp component_panel.cpp component_workbench.cpp component_interface.cpp property_inspector.cpp asset_panel.cpp canvas_settings.cpp input_preview.cpp timeline_panel.cpp)
+target_sources(studio_ui PRIVATE time_section_editor.cpp)
 target_include_directories(studio_ui PUBLIC include)
 target_sources(studio_ui PRIVATE template_browser.cpp performance_panel.cpp component_library_panel.cpp preview_routing.cpp)
 target_link_libraries(studio_ui PUBLIC platform_sdl PRIVATE graph_runtime editor_application project_io
@@ -53,7 +54,16 @@ if(BUILD_TESTING)
     add_test(NAME component_interactions COMMAND component_interaction_tests)
     set_tests_properties(component_interactions PROPERTIES TIMEOUT 30 ENVIRONMENT_MODIFICATION
         "PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/bin;PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/debug/bin")
-    add_executable(timeline_interaction_tests tests/timeline_interaction_tests.cpp timeline_panel.cpp curve_editor.cpp)
+    add_executable(timeline_interaction_tests tests/timeline_interaction_tests.cpp timeline_panel.cpp curve_editor.cpp time_section_editor.cpp)
+    add_executable(time_section_interaction_tests tests/time_section_interaction_tests.cpp timeline_panel.cpp curve_editor.cpp time_section_editor.cpp)
+    target_include_directories(time_section_interaction_tests PRIVATE .)
+    target_link_libraries(time_section_interaction_tests PRIVATE graph_runtime editor_application spike_imgui nlohmann_json::nlohmann_json)
+    rhythm_project_target(time_section_interaction_tests)
+    foreach(locale en-US zh-CN)
+        add_test(NAME time_section_ui_${locale} COMMAND time_section_interaction_tests "${PROJECT_SOURCE_DIR}/locales/${locale}/studio.json")
+        set_tests_properties(time_section_ui_${locale} PROPERTIES TIMEOUT 30 ENVIRONMENT_MODIFICATION
+            "PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/bin;PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/debug/bin")
+    endforeach()
     target_include_directories(timeline_interaction_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
     target_link_libraries(timeline_interaction_tests PRIVATE graph_runtime editor_application spike_imgui)
     rhythm_project_target(timeline_interaction_tests)

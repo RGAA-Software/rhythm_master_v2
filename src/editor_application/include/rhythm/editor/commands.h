@@ -10,6 +10,11 @@ EditResult AddNode(const Snapshot& snapshot, const graph::Registry& registry, st
                    Position position, graph::NodeId id);
 EditResult Connect(const Snapshot& snapshot, const graph::Registry& registry, graph::NodeId from,
                    graph::NodeId to, std::string_view input);
+// Adds an envelope driven by a root core.time, creating that clock if necessary.
+// Caller reserves both IDs through History. The returned edit is one undo step;
+// its output remains available for the author to connect to visual parameters.
+EditResult AddTimeSection(const Snapshot& snapshot, const graph::Registry& registry, double start,
+                          graph::NodeId section_id, graph::NodeId clock_id);
 EditResult DefineSignal(const Snapshot& snapshot, const graph::Registry& registry,
                         std::string_view name, graph::NodeId source);
 EditResult BindInput(const Snapshot& snapshot, const graph::Registry& registry, graph::NodeId node,

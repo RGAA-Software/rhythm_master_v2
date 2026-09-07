@@ -1,0 +1,14 @@
+{
+    "source_url": "https://github.com/ocornut/imgui",
+    "revision": "4806a1924ff6181180bf5e4b8b79ab4394118875",
+    "license": "MIT",
+    "studied_files": ["imgui_widgets.cpp: InvisibleButton and DragScalar", "imgui.cpp: ImGuiListClipper"],
+    "imported_files": [],
+    "decision": "Reuse the existing ImGui input and visible-row APIs; no separate timeline widget dependency or copied upstream implementation.",
+    "first_party_reuse": ["Parameter curve evaluator", "Registry and graph value commands", "History ID allocation and snapshot undo", "Studio timeline draft compilation", "Portable package capability validation"],
+    "modifications": "Project-owned interval gain and root-scope bar interaction, sharing existing graph, clock, editing and publication contracts.",
+    "target_modules": ["src/runtime/scalar_ops.cpp", "src/editor_application/time_sections.cpp", "src/studio_ui/time_section_editor.cpp", "src/studio_ui/timeline_panel.cpp"],
+    "notices": "third_party/notices/sources/imgui/LICENSE.txt",
+    "validation": "docs/validation/time_sections_2026-09-08.md",
+    "outbound_license": "Unselected; no third-party code relicensed."
+}

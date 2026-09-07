@@ -328,8 +328,8 @@
     "gravity_y": "纵向加速度",
     "size_variation": "大小变化幅度",
     "angular_speed": "角速度幅度",
-    "fade_in": "生命期淡入比例",
-    "fade_out": "生命期淡出比例",
+    "fade_in": "淡入（秒）",
+    "fade_out": "淡出（秒）",
     "point_style": "点形状",
     "point_blend": "点混合方式",
     "point.soft_circle": "柔边圆点",
@@ -618,5 +618,11 @@
     "waveform.failed": "无法扫描音乐，请检查本地文件是否可播放且不超过 256 MiB。",
     "waveform.empty": "音乐中没有可解码的采样。",
     "waveform.timeout": "波形扫描超时，音乐仍可正常播放。",
-    "waveform.canceled": "已取消波形扫描。"
+    "waveform.canceled": "已取消波形扫描。",
+    "time.envelope": "时间段包络",
+    "clip_start": "段落开始（秒）",
+    "clip_duration": "段落时长（秒）",
+    "fade_shape": "淡变曲线",
+    "timeline.add_section": "在播放位置添加段落",
+    "timeline.section_help": "将包络输出连接到画面参数。拖动条带移动，拖动两端调整起止。段落时间基于节点的时间输入；淡入淡出重叠时会按比例缩短。"
 }

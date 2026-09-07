@@ -295,6 +295,7 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                 case graph::Operation::kExpression:
                 case graph::Operation::kMath:
                 case graph::Operation::kLocalTime:
+                case graph::Operation::kTimeEnvelope:
                 case graph::Operation::kCurve:
                 case graph::Operation::kMap:
                 case graph::Operation::kCompare:

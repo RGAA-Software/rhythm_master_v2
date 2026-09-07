@@ -17,6 +17,7 @@ std::string_view Category(graph::Operation operation) {
             return "palette.values";
         case kTime:
         case kLocalTime:
+        case kTimeEnvelope:
         case kCurve:
         case kOscillator:
         case kNoise:

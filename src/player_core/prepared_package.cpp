@@ -64,6 +64,7 @@ bool PreparedPackage::SupportsAnalyticSeek() const {
             case Operation::kConstant:
             case Operation::kMath:
             case Operation::kLocalTime:
+            case Operation::kTimeEnvelope:
             case Operation::kCurve:
             case Operation::kMap:
             case Operation::kCompare:

@@ -83,6 +83,33 @@ int main() {
         document.edges_.push_back({7, 3, 8, "a"});
         document.nodes_[2].properties_["value"] = 7.0;
         Check(value(evaluate(0.25), 8) == 7);
+        document.nodes_.push_back(registry.MakeNode(9, "time.envelope"));
+        auto& envelope = document.nodes_.back();
+        envelope.properties_["clip_start"] = 2.0;
+        envelope.properties_["clip_duration"] = 4.0;
+        envelope.properties_["fade_in"] = 1.0;
+        envelope.properties_["fade_out"] = 1.0;
+        envelope.properties_["fade_shape"] = 0.0;
+        document.edges_[3].from_ = 9;
+        document.edges_.push_back({8, 1, 9, "time"});
+        for (const auto& [seconds, expected] :
+             {std::pair{0.0, 0.0}, {2.0, 0.0}, {2.5, 0.5}, {3.0, 1.0}, {5.5, 0.5}, {6.0, 0.0}})
+            Check(value(evaluate(seconds), 9) == expected);
+        Check(evaluate(6).evaluated_ == 0);
+        envelope.properties_["fade_shape"] = 1.0;
+        Check(value(evaluate(2.25), 9) == 0.15625);
+        envelope.properties_["fade_in"] = 0.0;
+        envelope.properties_["fade_out"] = 0.0;
+        Check(value(evaluate(2), 9) == 1 && value(evaluate(6), 9) == 0);
+        envelope.properties_["fade_in"] = 3.0;
+        envelope.properties_["fade_out"] = 3.0;
+        Check(value(evaluate(4), 9) == 1);
+        document.edges_.back().from_ = 3;
+        document.nodes_[2].properties_["value"] = 4.0;
+        Check(value(evaluate(100), 9) == 1);
+        Check(evaluate(101).outputs_.back().node_ == document.output_);
+        // A constant local time keeps its envelope cached as global time advances.
+        Check(evaluate(102).evaluated_ <= 1);
         std::cout << "scalar/time/curve/expression contracts passed\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

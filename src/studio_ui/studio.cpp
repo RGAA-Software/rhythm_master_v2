@@ -564,8 +564,8 @@ class Studio::Impl final {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
                 music = audio_panel_.SelectedFile();
 #endif
-                auto edit =
-                        timeline_.Draw(history_->Current(), seekable, catalogs_.at(locale_), music);
+                auto edit = timeline_.Draw(history_->Current(), seekable, catalogs_.at(locale_),
+                                           music, [&] { return history_->ReserveNodeId(); });
                 ImGui::EndDisabled();
                 if (edit.committed_)
                     Apply(std::move(*edit.committed_));

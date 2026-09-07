@@ -20,7 +20,7 @@ void Activate(const char* window_name, const char* item) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        if (argc != 5)
+        if (argc != 5 && !(argc == 6 && std::string_view(argv[5]) == "--sections"))
             throw std::invalid_argument("soundtrack_studio resources template music output");
         const auto root =
                 std::filesystem::path(argv[4]) /
@@ -33,8 +33,19 @@ int main(int argc, char* argv[]) {
                 std::filesystem::file_size(argv[3]) > project::kMaximumPackageAssetBytes
                         ? project::PackageProfile::kMusicPerformanceV2
                         : project::PackageProfile::kMusicPerformanceV1;
-        project::Save(project_path,
-                      project::PrepareTemplate(argv[2], project_path / "assets").snapshot_);
+        auto initial = project::PrepareTemplate(argv[2], project_path / "assets").snapshot_;
+        if (argc == 6) {
+            // Exercise the new interval with the existing complex graph and its
+            // explicit clock edge, without modifying the built-in source asset.
+            for (auto& node : initial.document_.nodes_)
+                if (node.id_ == 2 && node.type_ == "scalar.curve") {
+                    node = graph::Registry{}.MakeNode(2, "time.envelope");
+                    node.properties_["clip_duration"] = 128.0;
+                    node.properties_["fade_in"] = 3.0;
+                    node.properties_["fade_out"] = 3.0;
+                }
+        }
+        project::Save(project_path, initial);
         platform::Host host(true);
         host.Resize({1920, 1440});
         ImGui::GetIO().IniFilename = nullptr;

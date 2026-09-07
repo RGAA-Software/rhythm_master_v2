@@ -328,8 +328,8 @@
     "gravity_y": "Vertical acceleration",
     "size_variation": "Size variation",
     "angular_speed": "Angular speed range",
-    "fade_in": "Lifetime fade-in fraction",
-    "fade_out": "Lifetime fade-out fraction",
+    "fade_in": "Fade in (s)",
+    "fade_out": "Fade out (s)",
     "point_style": "Point style",
     "point_blend": "Point blending",
     "point.soft_circle": "Soft circle",
@@ -618,5 +618,11 @@
     "waveform.failed": "Could not scan this music. Check the local file and the 256 MiB overview limit.",
     "waveform.empty": "The music contains no decoded samples.",
     "waveform.timeout": "Overview scanning exceeded its time budget. Music playback is still available.",
-    "waveform.canceled": "Overview scan canceled."
+    "waveform.canceled": "Overview scan canceled.",
+    "time.envelope": "Time envelope",
+    "clip_start": "Section start (s)",
+    "clip_duration": "Section duration (s)",
+    "fade_shape": "Fade curve",
+    "timeline.add_section": "Add section at playhead",
+    "timeline.section_help": "Connect the envelope output to a visual parameter. Drag a bar to move it or its ends to resize. Section times use the node time input; overlapping fades scale to fit."
 }

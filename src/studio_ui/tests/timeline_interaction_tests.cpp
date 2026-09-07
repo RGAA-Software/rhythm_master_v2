@@ -35,6 +35,7 @@ int main() {
                                                       {"timeline.media_clock", "Music clock"},
                                                       {"timeline.no_tracks", "No tracks"},
                                                       {"timeline.track", "Track"},
+                                                      {"timeline.add_section", "Add section"},
                                                       {"timeline.curve_help", "Curve seconds"},
                                                       {"scalar.curve", "Curve"},
                                                       {"key_time", "Time"},
