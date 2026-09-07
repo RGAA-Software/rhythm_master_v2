@@ -11,6 +11,7 @@
 #include "rhythm/graph/bindings.h"
 #include "rhythm/project/store.h"
 #include "wire_limits.h"
+#include "wire_serialization.h"
 
 namespace rhythm::project {
 graph::Document DecodeGraph(std::string_view bytes) {
@@ -104,8 +105,7 @@ std::string EncodeGraph(const graph::Document& document) {
     for (const auto& definition : document.components_)
         detail::EncodeComponent(definition, *message.add_components());
     if (message.ByteSizeLong() > kMaximumGraphBytes) throw std::length_error("project.graph_bytes");
-    std::string bytes;
-    if (!message.SerializeToString(&bytes)) throw std::invalid_argument("project.serialize");
+    const auto bytes = detail::SerializeDeterministically(message);
     // Parse validates UTF-8 on the write boundary, including unknown node strings.
     DecodeGraph(bytes);
     return bytes;

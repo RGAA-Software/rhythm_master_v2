@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <iostream>
 #include <stdexcept>
 
@@ -75,6 +76,30 @@ void Run() {
     document.nodes_[1].properties_["value"] = 0.6;
     Require(std::holds_alternative<ExecutionPlan>(Compile(document, registry)),
             "nested component compiles");
+    const auto scope = std::get<ExpandedComponentScope>(
+            ExpandComponentScope(document, registry, std::array<NodeId, 2>{20, 1}));
+    Require(scope.document_ == std::get<Document>(ExpandComponents(document, registry)) &&
+                    scope.nodes_.at(2) == 20 && scope.nodes_.size() == 2,
+            "nested viewers share the normal expanded graph and output identity");
+    const auto scoped_value =
+            std::find_if(scope.document_.nodes_.begin(), scope.document_.nodes_.end(),
+                         [&](const auto& node) { return node.id_ == scope.nodes_.at(1); });
+    Require(scoped_value != scope.document_.nodes_.end() &&
+                    Scalar(*scoped_value, "value", 0) == 0.6,
+            "nested viewer observes the selected instance parameter override");
+    const auto other_scope = std::get<ExpandedComponentScope>(
+            ExpandComponentScope(document, registry, std::array<NodeId, 1>{10}));
+    Require(other_scope.nodes_.at(1) != scope.nodes_.at(1) &&
+                    std::any_of(other_scope.document_.edges_.begin(),
+                                other_scope.document_.edges_.end(),
+                                [](const auto& edge) {
+                                    return edge.from_ == 50 && edge.to_ == 10 &&
+                                           edge.input_ == "amount";
+                                }),
+            "instance views stay isolated and preserve their external wiring");
+    Require(std::holds_alternative<std::vector<Diagnostic>>(
+                    ExpandComponentScope(document, registry, std::array<NodeId, 2>{20, 99})),
+            "deleted or invalid instance paths cannot show another instance's output");
     auto cyclic = document;
     cyclic.components_[1].nodes_[0].type_ = nested.type_;
     Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(cyclic, registry)),

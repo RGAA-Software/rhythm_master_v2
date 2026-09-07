@@ -61,6 +61,13 @@ if(BUILD_TESTING)
     target_link_libraries(editor_benchmark PRIVATE studio_ui platform_sdl project_io spike_imgui)
     rhythm_project_target(editor_benchmark)
     add_dependencies(editor_benchmark studio_resources)
+    add_executable(component_preview_gpu_tests tests/component_preview_gpu_tests.cpp)
+    target_link_libraries(component_preview_gpu_tests PRIVATE studio_ui platform_sdl project_io spike_imgui spike_bgfx)
+    rhythm_project_target(component_preview_gpu_tests)
+    add_dependencies(component_preview_gpu_tests studio_resources)
+    add_test(NAME component_preview_gpu COMMAND component_preview_gpu_tests "${CMAKE_CURRENT_BINARY_DIR}"
+        "${PROJECT_BINARY_DIR}/content/templates/resonance_live" "${PROJECT_BINARY_DIR}/component-preview-project")
+    set_tests_properties(component_preview_gpu PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE)
     if(RHYTHM_BUILD_MEDIA)
         add_executable(audio_transport_tests tests/audio_transport_tests.cpp)
         add_executable(music_import_tests tests/music_import_tests.cpp
@@ -86,6 +93,11 @@ if(BUILD_TESTING)
             --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/resonance_gate.rhythmpack"
             --fixtures "${PROJECT_BINARY_DIR}/music-fixtures" --output "${PROJECT_BINARY_DIR}/music-gpu-captures")
         set_tests_properties(music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME resonance_live_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
+            --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/resonance_live.rhythmpack"
+            --expected-nodes 197 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --output "${PROJECT_BINARY_DIR}/resonance-live-music-captures")
+        set_tests_properties(resonance_live_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_executable(video_gpu_tests tests/video_gpu_tests.cpp)
         target_link_libraries(video_gpu_tests PRIVATE platform_sdl spike_bgfx graph_runtime video_sources asset_store)
         rhythm_project_target(video_gpu_tests)

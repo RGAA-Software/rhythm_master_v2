@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include "property_codec.h"
+#include "wire_serialization.h"
 
 namespace rhythm::project::detail {
 graph::Node DecodeNode(const schema::Node& record) {
@@ -12,7 +13,7 @@ graph::Node DecodeNode(const schema::Node& record) {
     node.version_ = record.schema_version();
     for (const auto& [key, value] : record.properties())
         node.properties_[key] = DecodeProperty(value, true);
-    node.extensions_ = record.SerializeAsString();
+    node.extensions_ = SerializeDeterministically(record);
     return node;
 }
 void EncodeNode(const graph::Node& node, schema::Node& record) {

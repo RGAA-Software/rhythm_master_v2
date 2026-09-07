@@ -23,6 +23,10 @@ struct Expansion {
     Document result_{};
     NodeId next_node_ = 0;
     std::vector<std::string> active_{};
+    std::vector<NodeId> path_{};
+    std::vector<NodeId> requested_path_{};
+    std::map<NodeId, NodeId> scope_nodes_{};
+    bool scope_found_ = false;
 };
 NodeId Allocate(Expansion& state) {
     Require(state.next_node_ != std::numeric_limits<NodeId>::max());
@@ -32,6 +36,10 @@ void ExpandScope(const Document& body, const std::map<NodeId, NodeId>& ids,
                  std::span<const Incoming> external,
                  std::span<const ComponentDefinition> definitions, const Registry& registry,
                  Expansion& state) {
+    if (state.path_ == state.requested_path_) {
+        state.scope_nodes_ = ids;
+        state.scope_found_ = true;
+    }
     const auto resolved = ResolveEdges(body);
     if (std::holds_alternative<std::vector<Diagnostic>>(resolved))
         throw Failure{std::get<std::vector<Diagnostic>>(resolved).front()};
@@ -102,13 +110,16 @@ void ExpandScope(const Document& body, const std::map<NodeId, NodeId>& ids,
             mapped.push_back({edge.source_, port->node_, port->input_});
         }
         state.active_.push_back(node.type_);
+        state.path_.push_back(node.id_);
         ExpandScope(inner, inner_ids, mapped, definitions, registry, state);
+        state.path_.pop_back();
         state.active_.pop_back();
     }
 }
 }  // namespace
-ComponentExpansion ExpandComponents(const Document& document, const Registry& registry,
-                                    NodeId minimum_generated_id) {
+ComponentScopeExpansion ExpandComponentScope(const Document& document, const Registry& registry,
+                                             std::span<const NodeId> instance_path,
+                                             NodeId minimum_generated_id) {
     try {
         Require(document.components_.size() <= 256 && document.nodes_.size() <= 10000);
         std::set<std::string> types;
@@ -124,6 +135,8 @@ ComponentExpansion ExpandComponents(const Document& document, const Registry& re
                             .has_value());
         }
         Expansion state;
+        Require(instance_path.size() <= 16);
+        state.requested_path_.assign(instance_path.begin(), instance_path.end());
         state.next_node_ = minimum_generated_id ? minimum_generated_id - 1 : 0;
         state.result_.id_ = document.id_;
         state.result_.revision_ = document.revision_;
@@ -135,9 +148,17 @@ ComponentExpansion ExpandComponents(const Document& document, const Registry& re
             state.next_node_ = std::max(state.next_node_, node.id_);
         }
         ExpandScope(document, ids, {}, document.components_, registry, state);
-        return std::move(state.result_);
+        if (!state.scope_found_) return std::vector<Diagnostic>{{"graph.missing_viewer"}};
+        return ExpandedComponentScope{std::move(state.result_), std::move(state.scope_nodes_)};
     } catch (const Failure& failure) {
         return std::vector<Diagnostic>{failure.diagnostic_};
     }
+}
+ComponentExpansion ExpandComponents(const Document& document, const Registry& registry,
+                                    NodeId minimum_generated_id) {
+    auto expanded = ExpandComponentScope(document, registry, {}, minimum_generated_id);
+    if (std::holds_alternative<std::vector<Diagnostic>>(expanded))
+        return std::get<std::vector<Diagnostic>>(std::move(expanded));
+    return std::get<ExpandedComponentScope>(std::move(expanded)).document_;
 }
 }  // namespace rhythm::graph

@@ -66,6 +66,10 @@ Source is not copied without a dependency and ownership audit.
 
 Documents:
 
+- [Resonance Live walkthrough and validation](docs/validation/resonance_live_2026-09-08.md):
+  music performance, exposed controls, reusable components and project/package workflow.
+- [Live component viewers](docs/validation/component_previews_2026-09-08.md):
+  instance-aware draft previews in the shared rendering runtime.
 - [Product scope](docs/product_scope.md): music visualization workflows, scope boundaries
   and acceptance criteria; supersedes conflicting historical product assumptions.
 - `docs/technology_stack_evaluation.md`: whole-product library evaluation,

@@ -4,8 +4,10 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <string_view>
 
 #include "component_workbench.h"
+#include "preview_routing.h"
 
 namespace {
 struct ContextDeleter {
@@ -32,6 +34,7 @@ void Run() {
     project.document_.id_ = "component-window";
     project.document_.components_ = {definition};
     project.document_.nodes_ = {{10, definition.type_}, registry.MakeNode(20, "output.texture")};
+    project.document_.nodes_[0].properties_["width"] = 0.7;
     project.document_.edges_ = {{1, 10, 20, "source"}};
     project.document_.output_ = 20;
     project.positions_ = {{10, {20, 20}}, {20, {330, 20}}};
@@ -39,6 +42,7 @@ void Run() {
     studio::ComponentWorkbench workbench;
     workbench.Open(project, definition.type_);
     std::optional<editor::Snapshot> applied;
+    studio::CanvasPreviews previews{true, {{1, 123}}};
     const auto frame = [&] {
         ImGui::NewFrame();
         ImGui::SetNextWindowPos({0, 0});
@@ -47,12 +51,47 @@ void Run() {
         root.Draw(project, registry, {});
         ImGui::End();
         ImGui::SetNextWindowPos({30, 30});
-        if (auto result = workbench.Draw(project, registry, {}, "en-US"))
+        if (auto result = workbench.Draw(project, registry, {}, "en-US", previews))
             applied = std::move(result);
         ImGui::Render();
     };
     for (int index = 0; index < 8; ++index) frame();
     Require(!applied, "opening draft does not mutate project");
+    Require(workbench.PreviewDocument() &&
+                    workbench.PreviewViewers().instance_path_ == std::vector<graph::NodeId>{10} &&
+                    workbench.DrawnPreviews() == 1,
+            "body viewer requests the concrete root instance and displays its texture");
+    const auto preview_generation = workbench.PreviewGeneration();
+    frame();
+    Require(workbench.PreviewGeneration() == preview_generation,
+            "idle workbench does not continuously request compilation");
+    const auto hide_parameter = [] {
+        // Short-lived ImGui borrowing remains inside this synchronous test adapter.
+        for (auto* window : ImGui::GetCurrentContext()->Windows) {
+            if (window->Active && std::string_view(window->Name).find("component.inspector") !=
+                                          std::string_view::npos) {
+                ImGui::ActivateItemByID(ImHashStr("component.hide", 0, window->GetID(256)));
+                return;
+            }
+        }
+        throw std::runtime_error("component inspector child");
+    };
+    hide_parameter();
+    frame();
+    frame();
+    Require(workbench.PreviewDocument() &&
+                    !workbench.PreviewDocument()->nodes_[0].properties_.contains("width") &&
+                    project.document_.nodes_[0].properties_.contains("width"),
+            "interface draft updates the live document without committing project history");
+    {
+        auto* window = ImGui::FindWindowByName("###component.workbench");
+        Require(window != nullptr, "workbench undo boundary");
+        ImGui::ActivateItemByID(window->GetID("undo"));
+    }
+    frame();
+    frame();
+    Require(workbench.PreviewDocument()->nodes_[0].properties_.at("width") == graph::Property{0.7},
+            "undo restores the preview's instance override");
     // Borrow ImGui's window only during this synchronous adapter query; clicks
     // are injected into ImGui, never the user's OS mouse.
     const auto apply_position = [] {
@@ -73,6 +112,26 @@ void Run() {
     applied.reset();
     frame();
     Require(!applied, "applied draft closes");
+    Require(!workbench.PreviewDocument() && workbench.PreviewViewers().nodes_.empty(),
+            "closing draft releases its live preview demand");
+    studio::PreviewRouting routing;
+    const auto request = routing.Prepare({1, 2, 3, 4, 5, 6, 7, 8}, {{10}, {1, 2, 3, 4, 5, 6}});
+    Require(request.roots_.size() == 2 && request.scoped_.nodes_.size() == 6,
+            "component and root demand share one eight-image budget");
+    editor::Compilation compilation;
+    compilation.viewers_ = {101};
+    compilation.scoped_nodes_ = {{2, 101}};
+    routing.Stage(compilation);
+    const studio::CanvasPreviews rendered{true, {{101, 777}}};
+    Require(routing.Scoped(rendered).textures_.empty(),
+            "completed compilation cannot map textures before its resources are committed");
+    routing.Commit();
+    Require(routing.Scoped(rendered).textures_.at(2) == 777,
+            "committed instance map selects its own existing runtime image");
+    routing.Prepare({}, {{20}, {2}});
+    Require(routing.Scoped(rendered).textures_.empty() && routing.TakeInvalidation() &&
+                    !routing.TakeInvalidation(),
+            "switching instance hides the old mapping and invalidates cached images once");
     std::cout << "component UI: simultaneous canvases, draft isolation, apply and close passed\n";
 }
 }  // namespace

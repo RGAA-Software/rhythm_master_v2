@@ -4,9 +4,25 @@
 
 #include <algorithm>
 
+#include "rhythm/runtime/viewers.h"
+
 namespace rhythm::studio {
-void ComponentWorkbench::Open(const editor::Snapshot& project, std::string type) {
+void ComponentWorkbench::Open(const editor::Snapshot& project, std::string type,
+                              graph::NodeId instance) {
+    instance_path_.clear();
+    const auto& nodes = project.document_.nodes_;
+    auto found = std::find_if(nodes.begin(), nodes.end(), [&](const auto& node) {
+        return node.id_ == instance && node.type_ == type;
+    });
+    if (found == nodes.end())
+        found = std::find_if(nodes.begin(), nodes.end(),
+                             [&](const auto& node) { return node.type_ == type; });
+    if (found != nodes.end()) instance_path_.push_back(found->id_);
     edit_.emplace(project, std::move(type));
+    preview_body_.reset();
+    preview_document_.reset();
+    preview_nodes_.clear();
+    ++preview_generation_;
     status_.clear();
     ResetView();
 }
@@ -17,16 +33,64 @@ void ComponentWorkbench::CommitPreview() {
 void ComponentWorkbench::ResetView() {
     inspector_.Reset();
     canvas_.RestoreLayout();
+    if (edit_ && instance_path_.size() > edit_->Path().size())
+        instance_path_.resize(edit_->Path().size());
+}
+void ComponentWorkbench::UpdatePreview(const editor::Snapshot& project,
+                                       const graph::Registry& registry, bool visible) {
+    if (!edit_) {
+        if (preview_document_ || !preview_nodes_.empty()) ++preview_generation_;
+        preview_document_.reset();
+        preview_body_.reset();
+        preview_nodes_.clear();
+        return;
+    }
+    const auto body = inspector_.Preview() ? *inspector_.Preview() : edit_->Body();
+    if (instance_path_.size() > edit_->Path().size()) instance_path_.resize(edit_->Path().size());
+    if (!preview_body_ || *preview_body_ != body.document_ ||
+        source_revision_ != project.document_.revision_ || source_id_ != project.document_.id_) {
+        auto preview_edit = *edit_;
+        if (inspector_.Preview()) preview_edit.ReplaceBody(body);
+        const auto finished = preview_edit.Finish(project, registry);
+        if (std::holds_alternative<editor::Snapshot>(finished)) {
+            preview_document_ = std::get<editor::Snapshot>(finished).document_;
+        } else {
+            preview_document_.reset();
+            status_ = std::get<graph::Diagnostic>(finished).code_;
+        }
+        preview_body_ = body.document_;
+        source_revision_ = project.document_.revision_;
+        source_id_ = project.document_.id_;
+        ++preview_generation_;
+    }
+    std::vector<graph::NodeId> nodes;
+    if (visible && preview_document_ && !instance_path_.empty()) {
+        const auto shown = canvas_.PreviewNodes();
+        nodes.assign(shown.begin(), shown.end());
+        if (const auto selected = std::find(nodes.begin(), nodes.end(), canvas_.Selection());
+            selected != nodes.end())
+            std::rotate(nodes.begin(), selected, selected + 1);
+        if (nodes.size() > runtime::Viewers::kMaxPreviews)
+            nodes.resize(runtime::Viewers::kMaxPreviews);
+    }
+    if (nodes != preview_nodes_ || preview_path_ != instance_path_) {
+        preview_nodes_ = std::move(nodes);
+        preview_path_ = instance_path_;
+        ++preview_generation_;
+    }
 }
 std::optional<editor::Snapshot> ComponentWorkbench::Draw(
         const editor::Snapshot& project, const graph::Registry& registry,
-        const std::map<std::string, std::string>& text, const std::string& locale) {
+        const std::map<std::string, std::string>& text, const std::string& locale,
+        const CanvasPreviews& previews) {
     if (!edit_) return {};
     const auto label = [&](const std::string& key) {
         const auto found = text.find(key);
         return found == text.end() ? key : found->second;
     };
     bool open = true;
+    bool canvas_visible = false;
+    const auto drawn_path = instance_path_;
     std::optional<editor::Snapshot> result;
     ImGui::SetNextWindowSize({1100, 750}, ImGuiCond_FirstUseEver);
     if (ImGui::Begin((label("component.edit") + "###component.workbench").c_str(), &open)) {
@@ -61,14 +125,19 @@ std::optional<editor::Snapshot> ComponentWorkbench::Draw(
                         (label(path[index]) + "###crumb" + std::to_string(index)).c_str())) {
                 CommitPreview();
                 edit_->Navigate(index);
+                if (instance_path_.size() > index + 1) instance_path_.resize(index + 1);
                 ResetView();
                 break;
             }
         }
-        if (!status_.empty()) ImGui::TextWrapped("%s", status_.c_str());
+        if (!status_.empty()) ImGui::TextWrapped("%s", label(status_).c_str());
         if (ImGui::Button(label("component.enter").c_str())) {
             CommitPreview();
-            if (edit_->Enter(canvas_.Selection())) ResetView();
+            const auto selected = canvas_.Selection();
+            if (edit_->Enter(selected)) {
+                if (!instance_path_.empty()) instance_path_.push_back(selected);
+                ResetView();
+            }
         }
         ImGui::SameLine();
         if (ImGui::Button(label("component.set_output").c_str())) {
@@ -107,10 +176,21 @@ std::optional<editor::Snapshot> ComponentWorkbench::Draw(
         ImGui::SameLine();
         ImGui::Text("%s: %llu", label("output").c_str(),
                     static_cast<unsigned long long>(edit_->Definition().output_));
+        if (instance_path_.empty())
+            ImGui::TextWrapped("%s", label("component.preview_no_instance").c_str());
+        else {
+            std::string instance_label;
+            for (const auto id : instance_path_) instance_label += "/" + std::to_string(id);
+            ImGui::Text("%s: %s", label("component.preview_instance").c_str(),
+                        instance_label.c_str());
+        }
         const auto available = ImGui::GetContentRegionAvail();
         if (ImGui::BeginChild("component.canvas", {std::max(250.0f, available.x * 0.62f), 0})) {
+            canvas_visible = true;
             ImGui::BeginDisabled(inspector_.Preview().has_value());
-            if (const auto edited = canvas_.Draw(edit_->Body(), registry, text)) {
+            const auto current_previews =
+                    drawn_path == instance_path_ ? previews : CanvasPreviews{previews.enabled_, {}};
+            if (const auto edited = canvas_.Draw(edit_->Body(), registry, text, current_previews)) {
                 edit_->ReplaceBody(*edited);
             }
             ImGui::EndDisabled();
@@ -135,6 +215,7 @@ std::optional<editor::Snapshot> ComponentWorkbench::Draw(
         edit_.reset();
         inspector_.Reset();
     }
+    UpdatePreview(project, registry, canvas_visible && previews.enabled_);
     return result;
 }
 }  // namespace rhythm::studio

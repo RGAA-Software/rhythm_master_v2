@@ -1,0 +1,28 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.resonance_live",
+    "content_version": "0.1.0",
+    "project_id": "official-resonance-live",
+    "graph_revision": 0,
+    "title": "星门演出 / Resonance Live",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "星门演出",
+        "en-US": "Resonance Live"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition; existing attributed Godot torus and effect adapters; outbound license pending",
+    "compatible_players": [
+        "windows"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "完整音乐演出：24 频段光场、三维交织星环、粒子拖尾与开场关键帧。展开两个组件编辑内部节点，或保存到我的组件库复用。播放音乐后，时间轴跟随音乐；静音不会伪造节拍。",
+        "en-US": "Music performance with a 24-band field, interlocking 3D rings, particle trails and an opening keyframe. Edit either embedded component or save it to your library. Music drives the shared timeline; silence never fabricates beats."
+    }
+}

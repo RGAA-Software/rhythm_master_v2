@@ -44,6 +44,7 @@ preview harness merely to save them.
 - Studio was incrementally rebuilt and its complete Release deploy refreshed.
   Source boundaries and deployed startup with music pass.
 
-This completes this cross-project library increment. Internal component viewers,
-single-instance expansion, automatic official-component migration, media export
-and the rest of the visual-authoring/content roadmap remain separate work.
+This completes this cross-project library increment. Internal component viewers
+were subsequently added; see `component_previews_2026-09-08.md`. Single-instance
+expansion, automatic official-component migration, media export and the rest
+of the visual-authoring/content roadmap remain separate work.

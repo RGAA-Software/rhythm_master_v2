@@ -106,6 +106,29 @@ int main() {
         if (!completed || completed->generation_ != generation ||
             !std::holds_alternative<std::vector<rhythm::graph::Diagnostic>>(completed->result_))
             throw std::runtime_error("compiler.latest_generation");
+        rhythm::graph::ComponentDefinition component;
+        component.type_ = "component.test.viewer";
+        component.nodes_ = {registry.MakeNode(1, "texture.gradient"),
+                            registry.MakeNode(2, "texture.shape")};
+        component.output_ = 1;
+        latest.components_ = {component};
+        latest.nodes_ = {registry.MakeNode(10, component.type_, latest.components_),
+                         registry.MakeNode(20, "output.texture")};
+        latest.output_ = 20;
+        latest.edges_ = {{1, 10, 20, "source"}};
+        const auto scoped_generation = worker.Submit(latest, {10}, {{10}, {2}});
+        completed.reset();
+        const auto scoped_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+        while (!completed && std::chrono::steady_clock::now() < scoped_deadline) {
+            completed = worker.Take();
+            std::this_thread::yield();
+        }
+        if (!completed || completed->generation_ != scoped_generation ||
+            !std::holds_alternative<rhythm::graph::ExecutionPlan>(completed->result_) ||
+            completed->viewers_.size() != 2 || completed->scoped_nodes_.size() != 1 ||
+            completed->viewers_.back() != completed->scoped_nodes_.at(2) ||
+            std::get<rhythm::graph::ExecutionPlan>(completed->result_).instructions_.size() != 3)
+            throw std::runtime_error("compiler.scoped_viewer_only_branch");
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

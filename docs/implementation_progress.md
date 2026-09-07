@@ -38,6 +38,20 @@ controls, layout and referenced assets, and inserts them with collision isolatio
 and undo. English/Chinese ImGui interaction tests and Windows/Android core
 round-trips pass. See `validation/user_component_library_2026-09-08.md`.
 
+Resonance Live adds a structured music performance with two editable components,
+197 reachable instructions, PBR rings and an opening curve. Real decoded PCM
+changes its D3D11 output; the complete authoring API workflow passes on Windows
+and the USB Android device. That workflow also found and fixed nondeterministic
+multi-property component hashes. Native mobile timing remains below stable
+60 fps even at economy quality. See `validation/resonance_live_2026-09-08.md`.
+Inventory is now 30 examples; media arrangement/export,
+50 + 50 content quality and Android application acceptance remain unfinished.
+
+Component workbench viewers now reuse the root graph runtime with concrete
+instance mapping, transient draft preview, shared eight-image budgeting and
+generation-bound cache invalidation. Actual Studio/D3D11 and ImGui regressions
+pass; see `validation/component_previews_2026-09-08.md`.
+
 ## 2026-09-07: complex music-driven scene and large-canvas verification
 
 Resonance Gate adds a fully connected 164-node / 269-edge Advanced audio template,

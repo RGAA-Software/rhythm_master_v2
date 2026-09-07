@@ -19,6 +19,7 @@
 #include "input_preview.h"
 #include "node_palette.h"
 #include "performance_panel.h"
+#include "preview_routing.h"
 #include "property_inspector.h"
 #include "rhythm/audio_ui/audio_panel.h"
 #include "rhythm/content/presets.h"
@@ -99,10 +100,16 @@ class Studio::Impl final {
     }
     void QueueCompile() {
         asset_loader_.Cancel();
-        const auto& document = inspector_.Preview()  ? inspector_.Preview()->document_
-                               : timeline_.Preview() ? timeline_.Preview()->document_
-                                                     : history_->Current().document_;
-        generation_ = compiler_.Submit(document, viewer_nodes_);
+        const auto& document = component_workbench_.PreviewDocument()
+                                       ? *component_workbench_.PreviewDocument()
+                               : inspector_.Preview() ? inspector_.Preview()->document_
+                               : timeline_.Preview()  ? timeline_.Preview()->document_
+                                                      : history_->Current().document_;
+        auto request = preview_routing_.Prepare(
+                viewer_nodes_,
+                show_viewers_ ? component_workbench_.PreviewViewers() : editor::ScopedViewers{});
+        generation_ =
+                compiler_.Submit(document, std::move(request.roots_), std::move(request.scoped_));
     }
     void Apply(editor::Snapshot next) {
         const auto assets_changed = next.assets_ != history_->Current().assets_;
@@ -226,7 +233,7 @@ class Studio::Impl final {
                     history_->Current().document_, canvas_.Selections(), catalogs_.at(locale_))) {
             CommitEdits();
             if (action->kind_ == ComponentActionKind::kEdit) {
-                component_workbench_.Open(history_->Current(), action->value_);
+                component_workbench_.Open(history_->Current(), action->value_, canvas_.Selection());
             } else {
                 const auto fresh_id = history_->ReserveNodeId();
                 auto edit = ExecuteComponentAction(*action, history_->Current(), registry_,
@@ -319,6 +326,7 @@ class Studio::Impl final {
         if (const auto completed = compiler_.Take();
             completed && completed->generation_ == generation_) {
             if (std::holds_alternative<graph::ExecutionPlan>(completed->result_)) {
+                preview_routing_.Stage(*completed);
                 auto next = std::get<graph::ExecutionPlan>(completed->result_);
                 const auto& records = history_->Current().assets_;
                 const bool listed = std::all_of(
@@ -336,6 +344,7 @@ class Studio::Impl final {
                         });
                 if (listed && prepared_assets::Covers(next, *prepared_resources_)) {
                     plan_ = std::move(next);
+                    preview_routing_.Commit();
                     diagnostics_.clear();
                 } else {
                     try {
@@ -355,6 +364,7 @@ class Studio::Impl final {
             completed && completed->generation_ == generation_) {
             if (completed->resources_) {
                 plan_ = std::move(completed->plan_);
+                preview_routing_.Commit();
                 prepared_resources_ = std::move(completed->resources_);
                 diagnostics_.clear();
                 status_.clear();
@@ -385,7 +395,11 @@ class Studio::Impl final {
         }
         // Evaluate/capture before building UI draw lists. Preview owners remain
         // alive through submission, even when this frame changes viewer demand.
-        const auto viewer_due = viewers_.BeginFrame(seconds, !viewer_nodes_.empty(), reset_);
+        if (preview_routing_.TakeInvalidation()) {
+            viewers_.BeginFrame(seconds, false, reset_);
+        }
+        const auto active_viewers = preview_routing_.ActiveNodes();
+        const auto viewer_due = viewers_.BeginFrame(seconds, !active_viewers.empty(), reset_);
         runtime::FrameResult output;
         if (plan_) {
             const render::Extent extent{static_cast<std::uint16_t>(plan_->canvas_.width_),
@@ -400,7 +414,9 @@ class Studio::Impl final {
                 preview_inputs_.audio_ = audio_frame.features_;
             }
             frame.external_ = preview_inputs_;
-            if (reuse_textures_) frame.retained_textures_ = viewer_nodes_;
+            if (reuse_textures_)
+                frame.retained_textures_ =
+                        std::vector<graph::NodeId>(active_viewers.begin(), active_viewers.end());
             frame.profile_nodes_ = profiling_;
             frame.advance_state_ =
                     !timeline_.Paused() && (!audio_frame.playback_ || transport_changed ||
@@ -414,7 +430,7 @@ class Studio::Impl final {
         budget_limited_ = output.budget_.has_value();
         if (output.budget_) viewers_.BeginFrame(seconds, false, reset_);
         try {
-            viewers_.Capture(output, viewer_nodes_, renderer);
+            viewers_.Capture(output, active_viewers, renderer);
         } catch (const render::BudgetExceeded&) {
             viewers_.BeginFrame(seconds, false, reset_);
             show_viewers_ = false;
@@ -495,11 +511,18 @@ class Studio::Impl final {
             ImGui::End();
         }
         if (!show_timeline_ && timeline_.Preview()) CommitEdits();
-        if (const auto edited = component_workbench_.Draw(history_->Current(), registry_,
-                                                          catalogs_.at(locale_), locale_)) {
+        auto component_previews = preview_routing_.Scoped(previews);
+        component_previews.enabled_ = show_viewers_;
+        if (const auto edited =
+                    component_workbench_.Draw(history_->Current(), registry_, catalogs_.at(locale_),
+                                              locale_, component_previews)) {
             inspector_.Reset();
             Apply(*edited);
             canvas_.RestoreLayout();
+        }
+        if (component_preview_generation_ != component_workbench_.PreviewGeneration()) {
+            component_preview_generation_ = component_workbench_.PreviewGeneration();
+            QueueCompile();
         }
         const auto output_visible = ImGui::Begin((Text("output") + "###output").c_str());
         if (output_visible && output.budget_) {
@@ -556,6 +579,8 @@ class Studio::Impl final {
     ComponentPanel component_panel_{};
     ComponentLibraryPanel component_library_{};
     ComponentWorkbench component_workbench_{};
+    std::uint64_t component_preview_generation_ = 0;
+    PreviewRouting preview_routing_{};
     InputPreview input_preview_{};
     audio_ui::AudioPanel audio_panel_{};
     TimelinePanel timeline_{};
@@ -591,7 +616,8 @@ FrameStatus Studio::Status() const {
             impl_->preview_inputs_.audio_ ? impl_->preview_inputs_.audio_->rms_ : 0,
             impl_->budget_limited_,
             impl_->recycled_textures_,
-            impl_->profiled_nodes_};
+            impl_->profiled_nodes_,
+            impl_->component_workbench_.DrawnPreviews()};
 }
 void Studio::LoadAudioFile(const std::filesystem::path& path, float volume) {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA

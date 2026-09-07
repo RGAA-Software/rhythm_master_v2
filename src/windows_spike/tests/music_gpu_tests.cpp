@@ -33,14 +33,16 @@ std::vector<rhythm::audio::Features> Decode(const std::filesystem::path& path) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        if (argc != 4) throw std::invalid_argument("music_gpu package fixtures output");
+        if (argc != 4 && argc != 5)
+            throw std::invalid_argument("music_gpu package fixtures output [expected_nodes]");
+        const auto expected_nodes = argc == 5 ? std::stoull(argv[4]) : 164;
         const auto package = project::LoadPackage(argv[1]);
         const auto& instructions = package.program_.instructions_;
         const auto bands = std::count_if(
                 instructions.begin(), instructions.end(), [](const auto& instruction) {
                     return instruction.operation_ == graph::Operation::kAudioBand;
                 });
-        if (instructions.size() != 164 || bands < 24)
+        if (instructions.size() != expected_nodes || bands < 24)
             throw std::runtime_error("music.full_graph_not_reachable");
         std::cout << "reachable_instructions=" << instructions.size() << " audio_bands=" << bands
                   << '\n';

@@ -30,7 +30,7 @@ class Graph:
         return identity
 
 
-def main():
+def build_graph():
     graph = Graph()
     node = graph.node
     time = node('core.time', 0, 0)
@@ -105,6 +105,11 @@ def main():
     final = node('texture.composite', 5880, 0, dict(a=composed, b=halos, amount=gain), composite_mode=1)
     exposure = node('texture.color_adjust', 6240, 0, dict(source=final), exposure=0.8)
     output = node('output.texture', 6580, 0, dict(source=exposure))
+    return graph, output
+
+
+def main():
+    graph, output = build_graph()
     destination = ROOT / 'content/templates/resonance_gate'
     destination.mkdir(parents=True, exist_ok=True)
     text = [f'schema_version: 4\nid: "official-resonance-gate"\noutput: {output}\ncanvas {{ width: 1280 height: 720 }}']

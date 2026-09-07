@@ -1,0 +1,14 @@
+{
+    "template": "resonance_live",
+    "package_sha256": "fe861d9dd8384102aecf3d7a0baa88a44409195169d55305a1f1e55567e7105d",
+    "thumbnail_sha256": "eb36808e05d7c89bfd44ac731b414e27cf5638abc4dbeb5982a40cb6d6d7ae6c",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

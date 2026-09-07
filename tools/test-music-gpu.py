@@ -12,9 +12,11 @@ def main():
     parser.add_argument('--package', type=Path, required=True)
     parser.add_argument('--fixtures', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--expected-nodes', type=int, default=164)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
-    subprocess.run([str(args.executable), str(args.package), str(args.fixtures), str(args.output)], check=True, timeout=90)
+    subprocess.run([str(args.executable), str(args.package), str(args.fixtures), str(args.output),
+                    str(args.expected_nodes)], check=True, timeout=90)
     ffmpeg = 'C:/source/vcpkg/installed/x64-windows-static-release/tools/ffmpeg/ffmpeg.exe'
     images = {}
     for name in ('resonance_demo', 'silence', 'low', 'high'):

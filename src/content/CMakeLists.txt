@@ -26,6 +26,16 @@ add_custom_command(OUTPUT "${PROJECT_BINARY_DIR}/content/audio/resonance_demo.wa
     DEPENDS "${PROJECT_SOURCE_DIR}/tools/create-music-fixture.py" VERBATIM)
 add_custom_target(demo_audio_content DEPENDS "${PROJECT_BINARY_DIR}/content/audio/resonance_demo.wav")
 if(BUILD_TESTING)
+    add_executable(performance_workflow_tests tests/performance_workflow_tests.cpp)
+    target_link_libraries(performance_workflow_tests PRIVATE semantic_catalog player_core)
+    add_dependencies(performance_workflow_tests phase_a_content)
+    rhythm_project_target(performance_workflow_tests)
+    add_test(NAME performance_workflow COMMAND performance_workflow_tests
+        "${PROJECT_BINARY_DIR}/content/templates/resonance_live" "${PROJECT_BINARY_DIR}/performance-workflow")
+    if(WIN32)
+        set_tests_properties(performance_workflow PROPERTIES ENVIRONMENT_MODIFICATION
+            "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_IO_SDK}/debug/bin")
+    endif()
     add_executable(user_components_tests tests/user_components_tests.cpp)
     target_link_libraries(user_components_tests PRIVATE semantic_catalog asset_store)
     rhythm_project_target(user_components_tests)
