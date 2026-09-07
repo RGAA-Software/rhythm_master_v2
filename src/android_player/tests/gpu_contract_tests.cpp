@@ -17,7 +17,8 @@ void VerifyVideoUploadPixels(render::Renderer& renderer);
 void VerifyTextureReusePixels(render::Renderer& renderer);
 void VerifyReadbackPixels(render::Renderer& renderer);
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
-void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path& path);
+void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path& path,
+                        bool arrangement);
 #endif
 void MeasureTemplate(render::Renderer& renderer, const std::filesystem::path& path,
                      player::RenderQuality quality);
@@ -340,9 +341,11 @@ int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
-        if (argc == 3 && std::string_view(argv[2]) == "--music") {
+        if (argc == 3 && (std::string_view(argv[2]) == "--music" ||
+                          std::string_view(argv[2]) == "--arrangement")) {
             auto renderer = platform::Host::CreateRenderer();
-            validation::VerifyMusicPackage(renderer, argv[1]);
+            validation::VerifyMusicPackage(renderer, argv[1],
+                                           std::string_view(argv[2]) == "--arrangement");
             return 0;
         }
 #endif

@@ -24,7 +24,7 @@ def component(graph, output, kind, title, parameters):
     return '\n'.join(lines) + '\n}'
 
 
-def build_core():
+def build_core(radius=0.47):
     graph = GATE.Graph()
     node = graph.node
     time = node('core.time', 0, 0)
@@ -38,7 +38,7 @@ def build_core():
     gold = node('material.pbr', 660, 300, dict(emission=emission),
                 color_a=(0.8, 0.28, 0.05, 1), color_b=(1, 0.3, 0.06, 1),
                 metallic=0.8, roughness=0.21)
-    geometry = node('geometry.torus', 660, 600, radius=0.47, tube_ratio=0.025,
+    geometry = node('geometry.torus', 660, 600, radius=radius, tube_ratio=0.025,
                     radial_segments=96, tube_segments=12)
     assembled = None
     for index in range(4):

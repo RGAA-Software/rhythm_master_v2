@@ -69,7 +69,9 @@ int main(int argc, char* argv[]) {
                 completed_frame = frame;
             if (completed_frame >= 0 && frame > completed_frame + 20) break;
         }
-        if (!studio.HasValidPlan() || studio.Status().authored_nodes_ != 9 || frame_ms.size() < 10)
+        if (!studio.HasValidPlan() ||
+            studio.Status().authored_nodes_ != prepared.snapshot_.document_.nodes_.size() ||
+            frame_ms.size() < 10)
             throw std::runtime_error("export mutated the live graph or prevented UI frames");
         media::VideoDecoder exported(output_path);
         int frames = 0;

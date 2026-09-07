@@ -1,6 +1,7 @@
 #include <GLES3/gl3.h>
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <fstream>
@@ -31,8 +32,12 @@ void Write(const std::filesystem::path& path, const render::ReadbackImage& image
 }  // namespace
 // Actual packaged PCM, shared analysis and Session on GLES. This offscreen
 // diagnostic does not substitute for Android application audio/lifecycle tests.
-void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path& path) {
-    std::vector<render::ReadbackImage> images;
+void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path& path,
+                        bool arrangement) {
+    const auto frames = arrangement ? 960 : 240;
+    const std::vector<int> checkpoints =
+            arrangement ? std::vector<int>{120, 360, 600, 840} : std::vector<int>{239};
+    std::array<std::vector<render::ReadbackImage>, 2> images;
     for (int silent = 0; silent < 2; ++silent) {
         player::Session session;
         session.Open(path);
@@ -49,7 +54,20 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
         std::vector<double> elapsed;
         float maximum_rms = 0;
         std::optional<render::Readback> ticket;
-        for (int frame = 0; frame < 240; ++frame) {
+        const auto collect = [&] {
+            if (!ticket) return;
+            if (auto image = ticket->Poll()) {
+                const auto suffix =
+                        arrangement ? "." + std::to_string(checkpoints[images[silent].size()] / 60)
+                                    : std::string{};
+                Write(std::filesystem::path(path.string() + suffix +
+                                            (silent ? ".silence.ppm" : ".music.ppm")),
+                      *image);
+                images[silent].push_back(std::move(*image));
+                ticket.reset();
+            }
+        };
+        for (int frame = 0; frame < frames; ++frame) {
             const auto begin = std::chrono::steady_clock::now();
             if (frame) {
                 std::vector<float> pcm(1600);
@@ -58,7 +76,8 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
                         block = decoder.Read();
                         offset = 0;
                     }
-                    if (!block) throw std::runtime_error("music test needs four seconds of audio");
+                    if (!block)
+                        throw std::runtime_error("music fixture ended before requested duration");
                     value = silent ? 0 : block->samples_[offset];
                     ++offset;
                 }
@@ -74,7 +93,10 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
                                              runtime::PlaybackSample{frame / 60.0, 1, false, 16});
             if (output.budget_ || !renderer.IsValid(output.final_))
                 throw std::runtime_error("music scene budget/output");
-            if (frame == 239) {
+            const bool capture =
+                    std::find(checkpoints.begin(), checkpoints.end(), frame) != checkpoints.end();
+            if (capture) {
+                if (ticket) throw std::runtime_error("previous music readback pending");
                 renderer.Submit(target.Handle(), Quad(output.final_), 0x000000ff);
                 ticket.emplace(renderer.RequestReadback(target.Handle()));
             }
@@ -82,43 +104,45 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
             glFinish();
             if (glGetError() != GL_NO_ERROR) throw std::runtime_error("music GLES error");
             if (frame == 60) stable_bytes = renderer.Stats().texture_bytes_;
-            if (frame >= 60 && frame < 239) {
+            if (frame >= 60 && !ticket) {
                 if (stable_bytes != renderer.Stats().texture_bytes_)
                     throw std::runtime_error("music texture growth");
                 elapsed.push_back(std::chrono::duration<double, std::milli>(
                                           std::chrono::steady_clock::now() - begin)
                                           .count());
             }
+            collect();
         }
-        std::optional<render::ReadbackImage> image;
-        for (int frame = 0; frame < 12 && !image; ++frame) {
+        for (int frame = 0; frame < 12 && ticket; ++frame) {
             renderer.BeginFrame();
             renderer.EndFrame();
-            image = ticket->Poll();
+            collect();
         }
-        if (!image || (!silent && maximum_rms < 0.01F))
+        if (images[silent].size() != checkpoints.size() || (!silent && maximum_rms < 0.01F))
             throw std::runtime_error("music readback/audio");
-        Write(std::filesystem::path(path.string() + (silent ? ".silence.ppm" : ".music.ppm")),
-              *image);
-        images.push_back(std::move(*image));
         std::sort(elapsed.begin(), elapsed.end());
-        std::cout << (silent ? "silence" : "music")
-                  << " native_GLES_frames=240 extent=640x360 p50_ms=" << elapsed[elapsed.size() / 2]
+        std::cout << (silent ? "silence" : "music") << " native_GLES_frames=" << frames
+                  << " extent=640x360 p50_ms=" << elapsed[elapsed.size() / 2]
                   << " p95_ms=" << elapsed[elapsed.size() * 95 / 100]
                   << " texture_bytes=" << stable_bytes << " maximum_rms=" << maximum_rms << '\n';
     }
-    double difference = 0, brightness = 0;
-    for (std::size_t offset = 0; offset < images[0].rgba_.size(); ++offset) {
-        if (offset % 4 == 3) continue;
-        brightness += images[0].rgba_[offset];
-        difference += std::abs(int(images[0].rgba_[offset]) - int(images[1].rgba_[offset]));
+    for (std::size_t checkpoint = 0; checkpoint < checkpoints.size(); ++checkpoint) {
+        const auto& music = images[0][checkpoint];
+        const auto& silence = images[1][checkpoint];
+        double difference = 0, brightness = 0;
+        for (std::size_t offset = 0; offset < music.rgba_.size(); ++offset) {
+            if (offset % 4 == 3) continue;
+            brightness += music.rgba_[offset];
+            difference += std::abs(int(music.rgba_[offset]) - int(silence.rgba_[offset]));
+        }
+        const auto count = music.rgba_.size() / 4 * 3;
+        difference /= count;
+        brightness /= count;
+        std::cout << "packaged music vs silence mean_rgb_difference=" << difference
+                  << " music_mean_rgb=" << brightness
+                  << " seconds=" << checkpoints[checkpoint] / 60.0 << '\n';
+        if (difference < (arrangement ? 0.15 : 1.0) || brightness < (arrangement ? 0.5 : 2.0))
+            throw std::runtime_error("packaged music does not change GLES pixels");
     }
-    const auto count = images[0].rgba_.size() / 4 * 3;
-    difference /= count;
-    brightness /= count;
-    if (difference < 1 || brightness < 2)
-        throw std::runtime_error("packaged music does not change GLES pixels");
-    std::cout << "packaged music vs silence mean_rgb_difference=" << difference
-              << " music_mean_rgb=" << brightness << '\n';
 }
 }  // namespace rhythm::validation

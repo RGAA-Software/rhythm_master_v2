@@ -46,6 +46,8 @@ int main(int argc, char* argv[]) {
                 }
         }
         project::Save(project_path, initial);
+        const auto expected_nodes = initial.document_.nodes_.size();
+        std::size_t published_instructions = 0;
         platform::Host host(true);
         host.Resize({1920, 1440});
         ImGui::GetIO().IniFilename = nullptr;
@@ -107,6 +109,7 @@ int main(int argc, char* argv[]) {
                 const auto package = project::LoadPackage(package_path);
                 if (!package.soundtrack_ || package.profile_ != expected_profile)
                     throw std::runtime_error("toolbar publish lost music");
+                published_instructions = package.program_.instructions_.size();
                 published = frames;
             }
             if (published >= 0 && frames == published + 15)
@@ -116,12 +119,13 @@ int main(int argc, char* argv[]) {
             if (published >= 0 && frames > published + 220) break;
         }
         if (!saved || published < 0 || !observed_clear || !restored || !studio.HasValidPlan() ||
-            studio.Status().authored_nodes_ != 9 || !waveform_bins || waveform_bins > 4096)
+            studio.Status().authored_nodes_ != expected_nodes || !waveform_bins ||
+            waveform_bins > 4096)
             throw std::runtime_error("Studio bind/save/publish/clear/reopen did not complete");
         const auto path = package_path.u8string();
-        std::cout << "Studio bind/save/publish/clear/reopen: music restored, 197 instructions, "
-                     "frames="
-                  << frames << " waveform_bins=" << waveform_bins
+        std::cout << "Studio bind/save/publish/clear/reopen: music restored, "
+                  << published_instructions << " instructions, frames=" << frames
+                  << " waveform_bins=" << waveform_bins
                   << " package=" << std::string(path.begin(), path.end()) << '\n';
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

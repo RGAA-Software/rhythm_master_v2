@@ -99,6 +99,10 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/resonance_live"
             "${PROJECT_BINARY_DIR}/large-music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/time-section-studio" --sections)
         set_tests_properties(time_section_studio_gpu PROPERTIES FIXTURES_REQUIRED large_music_pcm TIMEOUT 60 RUN_SERIAL TRUE)
+        add_test(NAME arrangement_studio_gpu COMMAND soundtrack_studio_gpu_tests
+            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/resonance_arrangement"
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/arrangement-studio")
+        set_tests_properties(arrangement_studio_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 60 RUN_SERIAL TRUE)
         target_link_libraries(export_ui_gpu_tests PRIVATE studio_ui platform_sdl media_video project_io spike_bgfx spike_imgui)
         rhythm_project_target(export_ui_gpu_tests)
         add_dependencies(export_ui_gpu_tests studio_deploy)
@@ -106,6 +110,10 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/resonance_live"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/export-ui")
         set_tests_properties(export_ui_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME arrangement_export_ui_gpu COMMAND export_ui_gpu_tests
+            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/resonance_arrangement"
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/arrangement-export")
+        set_tests_properties(arrangement_export_ui_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_executable(export_gpu_tests tests/export_gpu_tests.cpp)
         target_link_libraries(export_gpu_tests PRIVATE export_core platform_sdl media_video)
         rhythm_project_target(export_gpu_tests)
@@ -115,6 +123,11 @@ if(BUILD_TESTING)
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
             "${PROJECT_BINARY_DIR}/export-gpu")
         set_tests_properties(export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME arrangement_export_gpu COMMAND export_gpu_tests
+            "${PROJECT_BINARY_DIR}/content/packages/resonance_arrangement.rhythmpack"
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
+            "${PROJECT_BINARY_DIR}/arrangement-export-core" 480)
+        set_tests_properties(arrangement_export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_executable(audio_transport_tests tests/audio_transport_tests.cpp)
         add_executable(music_import_tests tests/music_import_tests.cpp
             "${PROJECT_SOURCE_DIR}/src/android_player/music_playback.cpp")

@@ -15,7 +15,7 @@ namespace {
 void Require(bool value, const char* message) {
     if (!value) throw std::runtime_error(message);
 }
-std::vector<std::uint64_t> ReviewVideo(const std::filesystem::path& path) {
+std::vector<std::uint64_t> ReviewVideo(const std::filesystem::path& path, int expected_frames) {
     rhythm::media::VideoDecoder decoder(path);
     std::vector<std::uint64_t> hashes;
     while (const auto frame = decoder.Read()) {
@@ -34,39 +34,44 @@ std::vector<std::uint64_t> ReviewVideo(const std::filesystem::path& path) {
             Require(light / (640 * 360 * 3) > 1, "offline performance output is blank");
         }
     }
-    Require(hashes.size() == 120, "offline export lost a video frame");
+    Require(hashes.size() == expected_frames, "offline export lost a video frame");
     Require(std::set(hashes.begin(), hashes.end()).size() > 50,
             "offline animation did not advance");
     return hashes;
 }
-std::vector<float> ReviewAudio(const std::filesystem::path& path, bool source = false) {
+std::vector<float> ReviewAudio(const std::filesystem::path& path, std::size_t expected_samples,
+                               bool source = false) {
     rhythm::media::AudioDecoder decoder(path);
     std::vector<float> samples;
     while (const auto block = decoder.Read()) {
         Require(block->first_sample_ == samples.size() / 2, "offline audio discontinuity");
         samples.insert(samples.end(), block->samples_.begin(), block->samples_.end());
-        if (source && samples.size() >= 192000 * 2) break;
-        Require(samples.size() <= 192000 * 2, "offline soundtrack exceeded the video duration");
+        if (source && samples.size() >= expected_samples * 2) break;
+        Require(samples.size() <= expected_samples * 2,
+                "offline soundtrack exceeded the video duration");
     }
-    Require(samples.size() >= 192000 * 2, "offline soundtrack is truncated");
-    samples.resize(192000 * 2);
+    Require(samples.size() >= expected_samples * 2, "offline soundtrack is truncated");
+    samples.resize(expected_samples * 2);
     return samples;
 }
 }  // namespace
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        Require(argc == 4, "export_gpu_tests package music output");
+        Require(argc == 4 || argc == 5, "export_gpu_tests package music output [frames]");
+        const auto frames = argc == 5 ? std::stoi(argv[4]) : 120;
+        Require(frames == 120 || frames == 480, "unsupported export validation duration");
+        const auto samples = static_cast<std::size_t>(frames) * 1600;
         std::cout << std::unitbuf;
         const auto package = project::LoadPackage(argv[1]);
         const auto root =
                 std::filesystem::path(argv[3]) /
                 std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
         std::filesystem::create_directories(root);
-        const auto source_audio = ReviewAudio(argv[2], true);
+        const auto source_audio = ReviewAudio(argv[2], samples, true);
         exporting::ExportSettings settings;
         settings.encoding_ = {640, 360, 30, 8000000, media::VideoCodec::kMpeg4, true};
-        settings.frames_ = 120;
+        settings.frames_ = frames;
         settings.music_ = argv[2];
         platform::Host host(true);
         std::vector<std::uint64_t> reference;
@@ -81,19 +86,19 @@ int main(int argc, char* argv[]) {
                 exporting::RenderExport(
                         package, settings, path, renderer, [&](exporting::ExportProgress progress) {
                             Require(progress.completed_frames_ == next++, "offline progress order");
-                            Require(progress.total_frames_ == 120 &&
+                            Require(progress.total_frames_ == frames &&
                                             progress.texture_bytes_ <= 256ULL * 1024 * 1024,
                                     "offline budget or progress total");
                         });
-                Require(next == 121 && renderer.Stats().texture_bytes_ == 0,
+                Require(next == frames + 1 && renderer.Stats().texture_bytes_ == 0,
                         "completed export retains graph or staging resources");
             }
-            const auto hashes = ReviewVideo(path);
+            const auto hashes = ReviewVideo(path, frames);
             if (scenario == 0) reference = hashes;
             if (scenario == 1) Require(hashes == reference, "offline render is not deterministic");
             if (scenario == 2)
                 Require(hashes != reference, "soundtrack did not drive the exported graph");
-            const auto audio = ReviewAudio(path);
+            const auto audio = ReviewAudio(path, samples);
             double squared_error = 0;
             for (std::size_t index = 0; index < audio.size(); ++index) {
                 const auto expected = scenario == 2 ? 0.0f : source_audio[index];
