@@ -16,6 +16,7 @@
 
 namespace rhythm::runtime {
 void Runtime::Impl::Reset() {
+    failure_.reset();
     states_.clear();
     white_ = {};
     point_sprite_ = {};

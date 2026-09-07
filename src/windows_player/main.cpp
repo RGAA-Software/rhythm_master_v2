@@ -140,6 +140,10 @@ int main(int argc, char* argv[]) {
             const auto output = session.Tick(smoke ? frames / 60.0 : elapsed, false,
                                              session.Canvas(), renderer, inputs);
             host.ClearViewerTextures();
+            if (output.budget_)
+                ImGui::TextWrapped("%s", catalogs.at(chinese ? "zh-CN" : "en-US")
+                                                 .at("render.resource_budget")
+                                                 .c_str());
             if (renderer.IsValid(output.final_)) {
                 const auto fit = rhythm::render::AspectFit(session.Canvas(), {0, 0, width, height});
                 const auto cursor = ImGui::GetCursorPos();

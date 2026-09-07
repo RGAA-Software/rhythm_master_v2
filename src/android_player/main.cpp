@@ -18,6 +18,7 @@ rhythm::render::DrawList Present(rhythm::render::TextureHandle texture, rhythm::
     rhythm::render::DrawList list;
     list.width_ = width;
     list.height_ = height;
+    if (!texture.device_) return list;
     const auto fit = rhythm::render::AspectFit(canvas, {0, 0, width, height});
     list.vertices_ = {{fit.x_, fit.y_, 0, 0},
                       {fit.x_ + fit.width_, fit.y_, 1, 0},
@@ -106,6 +107,7 @@ int main(int, char**) {
                 status << (session.Paused() ? "paused" : "playing") << " " << session.Seconds()
                        << " s | frames=" << frames << " devices=" << devices << " " << error;
                 if (imports.Busy()) status << " loading";
+                if (output.budget_) status << " render.resource_budget";
                 android_host::PublishStatus(status.str());
             }
             if (frames % 300 == 0)

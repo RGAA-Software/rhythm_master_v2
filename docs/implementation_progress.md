@@ -519,3 +519,15 @@ Android images match; independent decoding passes 20 synthetic image cases.
 Complete builds now pass 29 Windows and 21 Android native suites. Camera scanning,
 invitation validation and authenticated join remain separate work; see
 validation/cluster_foundations_2026-09-07.md for exact evidence and limits.
+
+
+## Latest continuation: bounded rendering and Android complex-scene evidence
+
+Resource admission failures now keep Studio/Player alive and permit explicit or
+edited-scene recovery. Real D3D11 tests cover memory, framebuffer handles, pass
+exhaustion and reopening a smaller canvas. See
+[render budget recovery](validation/render_budget_recovery_2026-09-07.md).
+The 164-node musical Resonance Gate also runs in the Android native GLES probe;
+720p/540p/360p p95 are 45.95/34.07/17.43 ms. This is synthesized feature input,
+not Android APK real-music acceptance or a 60 fps claim. Full content/product
+milestones remain open; communications remain deferred.

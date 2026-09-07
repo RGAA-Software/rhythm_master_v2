@@ -5,6 +5,7 @@
 #include "rhythm/assets/images.h"
 #include "rhythm/graph/compiler.h"
 #include "rhythm/particles/types.h"
+#include "rhythm/render/budget.h"
 #include "rhythm/render/renderer.h"
 #include "rhythm/runtime/inputs.h"
 #include "rhythm/runtime/video_inputs.h"
@@ -43,6 +44,8 @@ struct FrameResult {
     render::TextureHandle final_{};
     std::uint32_t evaluated_ = 0;
     render::Extent extent_{640, 360};
+    // No output handles are returned after a resource admission failure.
+    std::optional<render::Budget> budget_{};
 };
 // Evaluation and resource ownership are host-thread confined. The immutable plan
 // may be compiled elsewhere; no UI or platform objects are retained here.
@@ -56,6 +59,11 @@ class Runtime final {
     Runtime& operator=(const Runtime&) = delete;
     FrameResult Evaluate(const graph::ExecutionPlan& plan, FrameContext frame,
                          render::Renderer& renderer);
+    // Host-facing evaluation: release partial resources and latch budget failures.
+    // Retry when the plan, extent, reset generation or prepared resources change,
+    // or after Reset(). Time/audio changes alone never retry a rejected scene.
+    FrameResult EvaluateSafely(const graph::ExecutionPlan& plan, FrameContext frame,
+                               render::Renderer& renderer);
     void Reset();
 
    private:

@@ -39,7 +39,9 @@ void MeasureTemplate(render::Renderer& renderer, const std::filesystem::path& pa
         }
         const auto start = std::chrono::steady_clock::now();
         renderer.BeginFrame();
-        session.Tick(frame / 60.0, false, extent, renderer, inputs);
+        const auto output = session.Tick(frame / 60.0, false, extent, renderer, inputs);
+        if (output.budget_ || !renderer.IsValid(output.final_))
+            throw std::runtime_error("template rejected or missing GPU output");
         renderer.EndFrame();
         glFinish();
         if (glGetError() != GL_NO_ERROR) throw std::runtime_error("template GPU error");

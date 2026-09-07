@@ -6,6 +6,8 @@
 #include <limits>
 #include <stdexcept>
 
+#include "rhythm/render/budget.h"
+
 namespace rhythm::render::detail {
 namespace {
 std::atomic<std::uint64_t> next_device{1};
@@ -26,14 +28,15 @@ TextureHandle ResourceTable::Allocate(Extent extent, std::span<const std::uint8_
     const auto bytes = std::uint64_t{extent.width_} * extent.height_ *
                        (precision == TexturePrecision::kFloat16 ? 8 : 4);
     if (!extent.width_ || !extent.height_ || extent.width_ > 8192 || extent.height_ > 8192 ||
-        bytes > kTextureBudget - bytes_ || (!rgba.empty() && rgba.size() != bytes)) {
+        (!rgba.empty() && rgba.size() != bytes)) {
         throw std::invalid_argument("render.texture_size");
     }
+    if (bytes > kTextureBudget - bytes_) throw BudgetExceeded(Budget::kTextureBytes);
     auto slot = std::find_if(slots_.begin(), slots_.end(), [](const Slot& item) {
         return !item.live_ && item.generation_ != std::numeric_limits<std::uint32_t>::max();
     });
     if (slot == slots_.end()) {
-        if (slots_.size() >= 1024) throw std::length_error("render.texture_limit");
+        if (slots_.size() >= 1024) throw BudgetExceeded(Budget::kTextureSlots);
         slots_.emplace_back();
         slot = slots_.end() - 1;
     }
@@ -100,7 +103,7 @@ bool ResourceTable::ReserveDepth(TextureHandle handle) {
     auto& slot = slots_[handle.slot_];
     if (slot.depth_) return false;
     const auto bytes = std::uint64_t{slot.extent_.width_} * slot.extent_.height_ * 4;
-    if (bytes > kTextureBudget - bytes_) throw std::length_error("render.depth_budget");
+    if (bytes > kTextureBudget - bytes_) throw BudgetExceeded(Budget::kTextureBytes);
     bytes_ += bytes;
     slot.depth_ = true;
     return true;

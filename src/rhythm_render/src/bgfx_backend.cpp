@@ -15,6 +15,7 @@
 #include "bgfx_scene.h"
 #include "bgfx_texture_programs.h"
 #include "resource_table.h"
+#include "rhythm/render/budget.h"
 
 namespace rhythm::render::detail {
 namespace {
@@ -178,7 +179,7 @@ class BgfxBackend final : public Backend {
         if (!resources_.IsRenderTarget(target)) throw std::invalid_argument("render.scene_target");
         if (!scene_) scene_ = std::make_unique<BgfxScene>(resources_.DeviceId());
         scene_->Validate(list);
-        if (passes_ >= 240) throw std::length_error("render.pass_limit");
+        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
         const auto extent = resources_.Size(target);
         const bool allocated = resources_.ReserveDepth(target);
         bgfx::FrameBufferHandle framebuffer = BGFX_INVALID_HANDLE;
@@ -204,7 +205,9 @@ class BgfxBackend final : public Backend {
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         resources_.Validate(target, list);
         resources_.RecordSamples(list);
-        if (passes_ >= 240) throw std::length_error("render.pass_limit");
+        // Reserve the last 16 views for host/UI presentation after graph admission fails.
+        if (passes_ >= (target == TextureHandle{} ? 256U : 240U))
+            throw BudgetExceeded(Budget::kPasses);
         const auto view = static_cast<bgfx::ViewId>(passes_++);
         auto extent = size_;
         bgfx::FrameBufferHandle framebuffer = BGFX_INVALID_HANDLE;

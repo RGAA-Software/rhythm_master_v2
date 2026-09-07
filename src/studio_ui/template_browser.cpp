@@ -39,7 +39,13 @@ render::TextureHandle TemplateBrowser::Thumbnail(std::size_t index,
         missing_thumbnails_.insert(index);
         return {};
     }
-    auto texture = renderer.CreateTexture({256, 144}, pixels);
+    render::Texture texture;
+    try {
+        texture = renderer.CreateTexture({256, 144}, pixels);
+    } catch (const render::BudgetExceeded&) {
+        missing_thumbnails_.insert(index);
+        return {};
+    }
     const auto handle = texture.Handle();
     thumbnails_.emplace(index, std::move(texture));
     return handle;
@@ -75,7 +81,9 @@ void TemplateBrowser::UpdatePreview(std::span<const project::ContentEntry> entri
         const auto fit = render::AspectFit(preview_.Canvas(), {0, 0, 256, 144});
         live_extent_ = {static_cast<std::uint16_t>(fit.width_),
                         static_cast<std::uint16_t>(fit.height_)};
-        live_ = preview_.Tick(seconds, false, live_extent_, renderer, inputs).final_;
+        const auto output = preview_.Tick(seconds, false, live_extent_, renderer, inputs);
+        live_ = output.final_;
+        failed_ = output.budget_.has_value();
     }
 }
 std::optional<std::size_t> TemplateBrowser::Draw(std::span<const project::ContentEntry> entries,
@@ -180,6 +188,10 @@ std::optional<std::size_t> TemplateBrowser::Draw(std::span<const project::Conten
         } else
             ImGui::TextWrapped("%s",
                                text.at(failed_ ? "catalog.failed" : "catalog.loading").c_str());
+        if (failed_ && preview_.Ready() && ImGui::Button(text.at("render.retry").c_str())) {
+            preview_.Restart();
+            failed_ = false;
+        }
         if (const auto found = entry.descriptions_.find(locale); found != entry.descriptions_.end())
             ImGui::TextWrapped("%s", found->second.c_str());
         ImGui::TextWrapped("%s", text.at("catalog.live_help").c_str());

@@ -531,5 +531,8 @@
     "layer_6": "Layer 6",
     "layer_7": "Layer 7",
     "layer_8": "Layer 8",
-    "audio.demo": "Play demo music (original synth loop)"
+    "audio.demo": "Play demo music (original synth loop)",
+  "render.resource_budget": "Scene paused: texture memory, GPU resources or render pass budget exceeded. Lower canvas resolution, simplify effects, or release other previews and retry.",
+  "render.retry": "Retry rendering",
+  "render.preview_budget": "Node previews exceeded the resource budget and were disabled. Reduce preview demand, then enable node previews again."
 }

@@ -65,7 +65,7 @@ runtime::FrameResult Session::Tick(double monotonic_seconds, bool suspended, ren
         context.images_ = resources_->images_;
         context.videos_ = videos_.Update(package_->program_, *resources_, seconds_, generation_);
         context.external_ = paused_ ? external_ : inputs;
-        frame_ = runtime_.Evaluate(package_->program_, context, renderer);
+        frame_ = runtime_.EvaluateSafely(package_->program_, context, renderer);
         external_ = context.external_;
         extent_ = extent;
     }

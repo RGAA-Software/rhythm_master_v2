@@ -13,9 +13,20 @@ class Runtime::Impl final {
    public:
     FrameResult Evaluate(const graph::ExecutionPlan& plan, FrameContext frame,
                          render::Renderer& renderer);
+    FrameResult EvaluateSafely(const graph::ExecutionPlan& plan, FrameContext frame,
+                               render::Renderer& renderer);
     void Reset();
 
    private:
+    struct Failure {
+        graph::ExecutionPlan plan_{};
+        render::Extent extent_{};
+        std::uint64_t reset_generation_ = 0;
+        std::shared_ptr<const scene::Resources> resources_{};
+        std::shared_ptr<const assets::Images> images_{};
+        render::Budget budget_ = render::Budget::kTextureBytes;
+    };
+    std::optional<Failure> failure_{};
     struct State {
         std::optional<graph::Node> node_{};
         std::vector<std::uint64_t> input_versions_{};

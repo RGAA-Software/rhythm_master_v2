@@ -98,7 +98,7 @@ The delivered project is `out/review/resonance_gate.rhythmproj`; the package is
 The cumulative 256 MiB texture and per-frame pass limits remain in force.
 Automatic transient-target reuse and larger/high-resolution graph admission
 remain future work; increasing output resolution can exceed these limits.
-Android rendering/performance for this composition remains unvalidated.
+Android native GLES measurements are recorded below; APK music/display and thermal endurance remain unvalidated.
 
 ## Checks and delivery
 
@@ -110,3 +110,33 @@ the 300-frame catalog regression. Newly changed code compiled without warnings.
 Studio: `out/windows-release/src/windows_spike/deploy/rhythm_master.exe`.
 Both Windows applications retain complete automatic Python deployment with
 20 Release DLLs, resources and the matching FFmpeg notices/source materials.
+
+
+## Subsequent Android native measurements
+
+USB device e2b3b128 (22021211RC/munch, API 34, Adreno 650), Release GLES.
+Each run warms 120 frames and measures 300 with `glFinish`, with synthesized
+band/loudness input snapshots. The probe now explicitly rejects missing output
+or a budget diagnostic instead of timing a rejected graph as a fast frame.
+These are offscreen native execution measurements, not real decoded phone
+music, APK display refresh or sustained thermal acceptance.
+
+| Profile | Extent | p50 ms | p95 ms | Stable texture bytes |
+| --- | --- | ---: | ---: | ---: |
+| Original | 1280x720 | 42.6754 | 45.9465 | 215094788 |
+| Balanced | 960x540 | 30.1226 | 34.0716 | 120998468 |
+| Economy | 640x360 | 15.3002 | 17.4296 | 53814788 |
+
+Even Economy exceeds a 16.67 ms frame budget at p95; this composition is not
+accepted as a sustained 60 fps Android scene. Quality selection remains explicit;
+the measurements did not change the scene's effects or the default player profile.
+The next performance work should reduce intermediate targets and repeated full
+image passes before increasing the authored scene or output resolution further.
+
+Artifacts, including binary/package hashes:
+- `out/android-template-measurements/e4af0d68d5c24815883aa04fed2559b6/results.json`
+- `out/android-template-measurements/a0c5629fcd764950b1551eb32d88d058/results.json`
+- `out/android-template-measurements/db3c8e19782d4e47bf240d017b8f6848/results.json`
+
+See [budget recovery](render_budget_recovery_2026-09-07.md) for editor recovery
+when increasing this graph to an extent which exceeds the current resource limits.

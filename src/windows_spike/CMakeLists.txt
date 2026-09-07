@@ -50,6 +50,13 @@ add_custom_command(TARGET rhythm_master POST_BUILD COMMAND ${rhythm_deploy_comma
 add_custom_target(studio_deploy ALL COMMAND ${rhythm_deploy_command}
     DEPENDS rhythm_master studio_resources VERBATIM)
 if(BUILD_TESTING)
+    add_executable(budget_gpu_tests tests/budget_gpu_tests.cpp)
+    target_link_libraries(budget_gpu_tests PRIVATE studio_ui platform_sdl project_io graph_runtime spike_imgui)
+    rhythm_project_target(budget_gpu_tests)
+    add_dependencies(budget_gpu_tests studio_resources)
+    add_test(NAME budget_gpu COMMAND budget_gpu_tests "${CMAKE_CURRENT_BINARY_DIR}"
+        "${PROJECT_BINARY_DIR}/budget-gpu-projects")
+    set_tests_properties(budget_gpu PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE)
     add_executable(editor_benchmark tests/editor_benchmark.cpp)
     target_link_libraries(editor_benchmark PRIVATE studio_ui platform_sdl project_io spike_imgui)
     rhythm_project_target(editor_benchmark)

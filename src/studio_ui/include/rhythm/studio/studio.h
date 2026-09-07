@@ -10,6 +10,7 @@ struct FrameStatus {
     std::size_t viewers_ = 0;
     std::size_t inline_previews_ = 0;
     float audio_rms_ = 0;
+    bool budget_limited_ = false;
 };
 class Studio final {
    public:

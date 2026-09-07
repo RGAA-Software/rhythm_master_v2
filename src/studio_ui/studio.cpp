@@ -369,10 +369,18 @@ class Studio::Impl final {
             }
             frame.external_ = preview_inputs_;
             frame.advance_state_ = !timeline_.Paused();
-            output = runtime_.Evaluate(*plan_, frame, renderer);
+            output = runtime_.EvaluateSafely(*plan_, frame, renderer);
         }
         evaluated_ = output.evaluated_;
-        viewers_.Capture(output, viewer_nodes_, renderer);
+        budget_limited_ = output.budget_.has_value();
+        if (output.budget_) viewers_.BeginFrame(seconds, false, reset_);
+        try {
+            viewers_.Capture(output, viewer_nodes_, renderer);
+        } catch (const render::BudgetExceeded&) {
+            viewers_.BeginFrame(seconds, false, reset_);
+            show_viewers_ = false;
+            status_ = Text("render.preview_budget");
+        }
         CanvasPreviews previews;
         previews.enabled_ = show_viewers_;
         for (const auto& value : viewers_.Outputs())
@@ -453,6 +461,10 @@ class Studio::Impl final {
             canvas_.RestoreLayout();
         }
         const auto output_visible = ImGui::Begin((Text("output") + "###output").c_str());
+        if (output_visible && output.budget_) {
+            ImGui::TextWrapped("%s", Text("render.resource_budget").c_str());
+            if (ImGui::Button(Label("render.retry").c_str())) ++reset_;
+        }
         if (output_visible && output.final_.device_) {
             const auto available = ImGui::GetContentRegionAvail();
             const auto fit = render::AspectFit(output.extent_, {0, 0, std::max(1.0f, available.x),
@@ -511,6 +523,7 @@ class Studio::Impl final {
     std::uint64_t reset_ = 0;
     std::uint64_t load_revision_ = 0;
     bool show_viewers_ = true;
+    bool budget_limited_ = false;
     bool show_timeline_ = false;
     bool layout_created_ = false;
 };
@@ -523,9 +536,12 @@ void Studio::Frame(platform::Host& host, render::Renderer& renderer, double seco
 bool Studio::HasValidPlan() const { return impl_->plan_.has_value(); }
 void Studio::SetSuspended(bool suspended) { impl_->audio_panel_.SetSuspended(suspended); }
 FrameStatus Studio::Status() const {
-    return {impl_->history_->Current().document_.nodes_.size(), impl_->canvas_.VisibleNodes(),
-            impl_->viewers_.Outputs().size(), impl_->canvas_.DrawnPreviews(),
-            impl_->preview_inputs_.audio_ ? impl_->preview_inputs_.audio_->rms_ : 0};
+    return {impl_->history_->Current().document_.nodes_.size(),
+            impl_->canvas_.VisibleNodes(),
+            impl_->viewers_.Outputs().size(),
+            impl_->canvas_.DrawnPreviews(),
+            impl_->preview_inputs_.audio_ ? impl_->preview_inputs_.audio_->rms_ : 0,
+            impl_->budget_limited_};
 }
 void Studio::LoadAudioFile(const std::filesystem::path& path, float volume) {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA

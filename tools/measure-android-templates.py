@@ -8,7 +8,7 @@ import subprocess
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
-NAMES = ("layered_neon", "aurora_clouds", "firefly_garden", "prismatic_lotus", "stellar_currents", "orbital_reliquary")
+NAMES = ("layered_neon", "aurora_clouds", "firefly_garden", "prismatic_lotus", "stellar_currents", "orbital_reliquary", "resonance_gate")
 
 
 def main():
@@ -18,6 +18,7 @@ def main():
     parser.add_argument("--compact", action="store_true")
     parser.add_argument("--balanced", action="store_true")
     parser.add_argument("--build", type=Path, default=ROOT / "out/android-arm64")
+    parser.add_argument("--packages", type=Path, default=ROOT / "out/windows-release/content/packages")
     parser.add_argument("--name", choices=NAMES, action="append")
     args = parser.parse_args()
     if args.compact and args.balanced:
@@ -44,7 +45,7 @@ def main():
                "build": str(args.build), "binary_sha256": hashlib.sha256(executable.read_bytes()).hexdigest(),
                "templates": {}}
     for name in args.name or NAMES:
-        package = ROOT / "out/windows/content/packages" / (name + ".rhythmpack")
+        package = args.packages / (name + ".rhythmpack")
         adb("push", package, remote + "/" + name)
         print("Measuring", name, flush=True)
         log = adb("shell", remote + "/measure", remote + "/" + name,

@@ -1,4 +1,4 @@
-add_library(graph_runtime STATIC runtime.cpp runtime_facade.cpp point_ops.cpp point_physics.cpp point_draw.cpp viewers.cpp frame_clock.cpp scalar_ops.cpp audio_spectrum.cpp affine.cpp shapes.cpp texture_ops.cpp)
+add_library(graph_runtime STATIC runtime_recovery.cpp runtime.cpp runtime_facade.cpp point_ops.cpp point_physics.cpp point_draw.cpp viewers.cpp frame_clock.cpp scalar_ops.cpp audio_spectrum.cpp affine.cpp shapes.cpp texture_ops.cpp)
 target_include_directories(graph_runtime PUBLIC include)
 target_sources(graph_runtime PRIVATE scene_ops.cpp scene_pass.cpp blur_pass.cpp trail_pass.cpp image_pass.cpp video_pass.cpp)
 target_link_libraries(graph_runtime PUBLIC Rhythm::Graph Rhythm::Render runtime_inputs particles scene3d media_types)

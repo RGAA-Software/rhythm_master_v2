@@ -6,6 +6,52 @@
 #include "rhythm/runtime/viewers.h"
 
 namespace {
+void CheckBudgetRecovery(std::size_t count, rhythm::render::Extent extent,
+                         rhythm::render::Budget expected) {
+    using namespace rhythm;
+    graph::Registry registry;
+    graph::Document document;
+    document.id_ = "budget.recovery";
+    document.nodes_.push_back(registry.MakeNode(1, "texture.gradient"));
+    for (std::size_t index = 2; index <= count; ++index) {
+        document.nodes_.push_back(registry.MakeNode(index, "texture.blend"));
+        document.edges_.push_back({index * 2, index - 1, index, "a"});
+        document.edges_.push_back({index * 2 + 1, index - 1, index, "b"});
+    }
+    document.output_ = count + 1;
+    document.nodes_.push_back(registry.MakeNode(count + 1, "output.texture"));
+    document.edges_.push_back({count * 2 + 2, count, count + 1, "source"});
+    auto plan = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+    auto renderer = render::Renderer::CreateNull();
+    runtime::Runtime runtime;
+    runtime::FrameContext context;
+    context.extent_ = extent;
+    for (int frame = 0; frame < 3; ++frame) {
+        context.seconds_ = frame;
+        renderer.BeginFrame();
+        const auto output = runtime.EvaluateSafely(plan, context, renderer);
+        if (output.budget_ != expected || output.final_.device_ || !output.outputs_.empty() ||
+            renderer.Stats().texture_bytes_ || (frame && renderer.Stats().passes_))
+            throw std::runtime_error("runtime.budget_not_latched_or_leaked");
+        render::DrawList ui;
+        ui.width_ = 640;
+        ui.height_ = 360;
+        renderer.Submit({}, ui);
+        renderer.EndFrame();
+    }
+    // Editing a plan without changing its revision must also permit recovery
+    // (property previews and demand changes may retain the authored revision).
+    document.edges_.back().from_ = 1;
+    plan = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+    renderer.BeginFrame();
+    auto output = runtime.EvaluateSafely(plan, context, renderer);
+    if (output.budget_ || !renderer.IsValid(output.final_))
+        throw std::runtime_error("runtime.budget_edit_did_not_recover");
+    renderer.EndFrame();
+    runtime.Reset();
+    if (renderer.Stats().texture_bytes_) throw std::runtime_error("runtime.budget_reset_leak");
+}
+
 void CheckViewerCapacity() {
     using namespace rhythm;
     auto renderer = render::Renderer::CreateNull();
@@ -86,6 +132,8 @@ void CheckViewerBudget() {
 int main() {
     using namespace rhythm;
     try {
+        CheckBudgetRecovery(80, {1024, 1024}, render::Budget::kTextureBytes);
+        CheckBudgetRecovery(260, {16, 16}, render::Budget::kPasses);
         CheckViewerCapacity();
         CheckViewerBudget();
         runtime::FrameClock clock;

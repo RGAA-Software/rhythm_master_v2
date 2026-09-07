@@ -2,7 +2,7 @@
 
 #include <bgfx/bgfx.h>
 
-#include <stdexcept>
+#include "rhythm/render/budget.h"
 
 namespace rhythm::render::detail {
 // External integer handles are move-only RAII values, private to the backend
@@ -12,7 +12,7 @@ class GpuHandle final {
    public:
     GpuHandle() = default;
     explicit GpuHandle(Handle handle) : handle_(handle) {
-        if (!bgfx::isValid(handle)) throw std::runtime_error("render.gpu_allocation");
+        if (!bgfx::isValid(handle)) throw BudgetExceeded(Budget::kBackendResources);
     }
     ~GpuHandle() { Reset(); }
     GpuHandle(GpuHandle&& other) noexcept : handle_(other.handle_) {

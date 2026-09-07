@@ -3,6 +3,7 @@
 #include "backend.h"
 #include "mesh_store.h"
 #include "resource_table.h"
+#include "rhythm/render/budget.h"
 
 namespace rhythm::render::detail {
 namespace {
@@ -40,7 +41,7 @@ class NullBackend final : public Backend {
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         if (!resources_.IsRenderTarget(target)) throw std::invalid_argument("render.scene_target");
         meshes_.Validate(list);
-        if (passes_ >= 240) throw std::length_error("render.pass_limit");
+        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
         resources_.ReserveDepth(target);
         ++passes_;
         draws_ += static_cast<std::uint32_t>(list.draws_.size());
@@ -56,7 +57,9 @@ class NullBackend final : public Backend {
     void Submit(TextureHandle target, const DrawList& list, std::uint32_t) override {
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         resources_.Validate(target, list);
-        if (passes_ >= 240) throw std::length_error("render.pass_limit");
+        // Reserve the last 16 views for host/UI presentation after graph admission fails.
+        if (passes_ >= (target == TextureHandle{} ? 256U : 240U))
+            throw BudgetExceeded(Budget::kPasses);
         resources_.RecordSamples(list);
         ++passes_;
         draws_ += static_cast<std::uint32_t>(list.commands_.size());
