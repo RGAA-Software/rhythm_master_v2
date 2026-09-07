@@ -175,8 +175,9 @@ class Studio::Impl final {
         }
         ImGui::EndDisabled();
         ImGui::SameLine();
-        const auto asset_edit = assets_.Draw(project_ / "assets", history_->Current().assets_,
-                                             catalogs_.at(locale_));
+        const auto asset_edit =
+                assets_.Draw(project_ / "assets", history_->Current().assets_,
+                             catalogs_.at(locale_), history_->Current().soundtrack_);
         if (asset_edit.added_ || asset_edit.removed_) {
             CommitEdits();
             auto next = history_->Current();

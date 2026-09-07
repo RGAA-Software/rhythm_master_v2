@@ -1,0 +1,27 @@
+{
+    "source_url": "https://github.com/richgel999/miniz",
+    "revision": "d10b03cc73475af673df40f06e5cefd1d5f940d9",
+    "license": "MIT; existing upstream notices retained under third_party/sources/miniz",
+    "imported_files": [],
+    "studied_files": [
+        "miniz_zip.c",
+        "miniz_zip.h",
+        "miniz_common.h"
+    ],
+    "source_hash_manifest": "third_party/miniz_source.json",
+    "reuse": "Existing pinned miniz read/write callbacks, STORE extraction iterator, CRC validation and ZIP metadata handling. Existing PicoSHA2 incremental hashes and first-party FileBytes leases.",
+    "modifications": [
+        "No upstream source modification or additional dependency",
+        "Project-owned bounded native allocator and file callbacks",
+        "Private adapter obtains stored payload offset from the public extract iterator cur_file_ofs after miniz validates the local header",
+        "Explicit music-performance-v2 manifest and atomic file publication/import"
+    ],
+    "revision_coupling": "Review iterator layout/offset semantics and rerun range/CRC/corruption tests before changing the pinned miniz revision.",
+    "target_modules": [
+        "src/project_io/file_archive.cpp",
+        "src/project_io/archive_memory.h",
+        "src/project_io/music_package.cpp"
+    ],
+    "validation": "docs/validation/large_music_packages_2026-09-08.md",
+    "outbound_license": "Not selected; no third-party relicensing."
+}

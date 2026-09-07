@@ -643,3 +643,13 @@ Viewer 无 CPU 读回；离线导出任务继续接入。见 [验证记录](vali
 原子文件替换已验证；14 项受影响回归及 Android 真机读取/解码/发布通过。
 见 [文件音频范围记录](validation/file_audio_ranges_2026-09-08.md)。本步骤尚未改变运行包
 和作品绑定上限，继续接入流式容器、资源准备与 Player。
+
+## 2026-09-08 大音乐作品发布与播放
+
+`music-performance-v2` 已接通单首 256 MiB 音乐、8 MiB 普通素材和 272 MiB 文件包，
+沿用 miniz、PicoSHA2 和同一 FFmpeg 文件范围解码。128 秒、24 MiB 原创音乐完成
+Studio 绑定/保存/发布/重开、中英文交互、后台安装、Windows 与 Android 全曲 PCM
+比对。手机用同一 Studio 作品完成 480 帧音乐/静音 GLES 对照，p95 19.10 ms，纹理
+内存稳定；这不代表稳定 60 fps。见 [大音乐运行包验证](validation/large_music_packages_2026-09-08.md)。
+最新版 APK 与重链接材料已生成，手机仍以 USB 安装限制拒绝安装，应用生命周期门
+保持未通过。媒体编排、100 个品质模板与 Android 完整验收继续实施。

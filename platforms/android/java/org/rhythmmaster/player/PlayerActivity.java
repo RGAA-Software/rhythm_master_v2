@@ -209,7 +209,7 @@ public final class PlayerActivity extends SDLActivity {
                     int count;
                     while ((count = input.read(buffer)) != -1) {
                         total += count;
-                        if (total > (music ? 64L : 16L) * 1024 * 1024 || Thread.currentThread().isInterrupted())
+                        if (total > (music ? 64L : 272L) * 1024 * 1024 || Thread.currentThread().isInterrupted())
                             throw new java.io.IOException("Import limit");
                         output.write(buffer, 0, count);
                     }

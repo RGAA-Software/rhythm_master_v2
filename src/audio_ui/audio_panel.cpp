@@ -52,7 +52,9 @@ void AudioPanel::ApplyPlayback(const runtime::PlaybackCommand& command) {
     const auto state = file_.Snapshot().state_;
     if ((state == audio::PlaybackState::kStopped || state == audio::PlaybackState::kEnded) &&
         (command.seek_ || command.paused_ == false)) {
-        if (embedded_)
+        if (streamed_.Valid())
+            file_.Load(streamed_);
+        else if (embedded_)
             file_.Load(embedded_);
         else
             file_.Load(loaded_file_);
@@ -111,6 +113,7 @@ std::optional<std::filesystem::path> AudioPanel::SelectedFile() const {
 void AudioPanel::LoadFile(const std::filesystem::path& path) {
     capture_.Stop();
     embedded_.reset();
+    streamed_ = {};
     loaded_file_ = path;
     media_selected_ = true;
     const auto utf8 = path.u8string();
@@ -126,9 +129,15 @@ void AudioPanel::LoadFile(const std::filesystem::path& path) {
     }
 }
 void AudioPanel::LoadSoundtrack(const media::SoundtrackSource& source) {
-    file_.Load(source.bytes_);
+    if (bool(source.bytes_) == source.file_bytes_.Valid())
+        throw std::invalid_argument("project.soundtrack_invalid");
+    if (source.file_bytes_.Valid())
+        file_.Load(source.file_bytes_);
+    else
+        file_.Load(source.bytes_);
     capture_.Stop();
     embedded_ = source.bytes_;
+    streamed_ = source.file_bytes_;
     loaded_file_.clear();
     file_path_.fill(0);
     media_selected_ = true;
@@ -142,6 +151,7 @@ void AudioPanel::LoadSoundtrack(const media::SoundtrackSource& source) {
 void AudioPanel::ClearFile() {
     file_.Stop();
     embedded_.reset();
+    streamed_ = {};
     loaded_file_.clear();
     file_path_.fill(0);
     media_selected_ = false;

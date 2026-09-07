@@ -20,7 +20,7 @@ void Session::LoadPrepared(PreparedPackage package, double initial_seconds) {
 void Session::Open(const std::filesystem::path& path) {
     auto package = project::LoadPackage(path);
     auto resources = prepared_assets::Prepare(package.program_, package.assets_);
-    auto soundtrack = prepared_assets::PrepareSoundtrack(package.soundtrack_, package.assets_);
+    auto soundtrack = prepared_assets::PrepareSoundtrack(package);
     Commit(std::move(package), std::move(resources), std::move(soundtrack));
 }
 void Session::Commit(project::RuntimePackage package,

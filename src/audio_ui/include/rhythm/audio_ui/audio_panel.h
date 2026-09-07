@@ -53,6 +53,7 @@ class AudioPanel final {
     std::filesystem::path demo_file_{};
     std::filesystem::path loaded_file_{};
     std::shared_ptr<const std::vector<std::uint8_t>> embedded_{};
+    storage::FileBytes streamed_{};
     bool media_selected_ = false;
 #endif
 };

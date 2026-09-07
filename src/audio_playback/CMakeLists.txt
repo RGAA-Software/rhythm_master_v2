@@ -4,6 +4,11 @@ target_link_libraries(audio_playback PUBLIC audio_types PRIVATE media_audio audi
 rhythm_project_target(audio_playback)
 if(BUILD_TESTING)
     add_executable(audio_playback_tests tests/playback_tests.cpp)
-    target_link_libraries(audio_playback_tests PRIVATE audio_playback)
+    target_link_libraries(audio_playback_tests PRIVATE audio_playback atomic_storage)
     rhythm_project_target(audio_playback_tests)
+    if(WIN32)
+        add_test(NAME audio_playback COMMAND audio_playback_tests "${PROJECT_BINARY_DIR}/audio-decoder-tests")
+        set_tests_properties(audio_playback PROPERTIES FIXTURES_REQUIRED local_audio_media TIMEOUT 60
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
+    endif()
 endif()

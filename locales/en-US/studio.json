@@ -599,7 +599,7 @@
     "media.export_encoder_unavailable": "The selected encoder is unavailable. Try MPEG-4.",
     "export.copy_path": "Copy file path",
     "music.work": "Work soundtrack",
-    "music.binding_help": "Save and publish the current music, gain and repeat setting with the work. Music and other assets currently share an 8 MiB package budget; use MP3/AAC for longer tracks.",
+    "music.binding_help": "Save and publish the current music, gain and repeat setting with the work. One music file can use up to 256 MiB; other assets share 8 MiB.",
     "music.unbound": "No soundtrack bound to this work",
     "music.bind": "Keep current music and settings",
     "music.load": "Play work soundtrack",
@@ -608,5 +608,7 @@
     "music.bound": "Music is bound to the work. Save or publish to keep it.",
     "music.binding_failed": "Could not bind music. Check that the file plays and fits the asset budget.",
     "music.binding_canceled": "Music binding canceled",
-    "project.soundtrack_invalid": "Invalid work soundtrack reference or settings"
+    "project.soundtrack_invalid": "Invalid work soundtrack reference or settings",
+    "asset.music_bytes": "Bound music bytes",
+    "package.music_bytes": "The bound music must be non-empty and at most 256 MiB."
 }

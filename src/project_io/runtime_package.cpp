@@ -7,6 +7,7 @@
 #include <set>
 #include <stdexcept>
 
+#include "file_archive.h"
 #include "package_archive.h"
 #include "rhythm/project/package.h"
 #include "rhythm/storage/atomic_file.h"
@@ -49,6 +50,31 @@ class StagedPackage final {
     std::filesystem::path path_{};
 };
 }  // namespace
+
+bool RequiresStreamedAudio(std::span<const assets::AssetRecord> records,
+                           const std::optional<media::Soundtrack>& soundtrack) {
+    if (records.size() > kMaximumPackageAssets) throw std::length_error("package.asset_count");
+    if (soundtrack && !media::ValidSoundtrack(*soundtrack, records))
+        throw std::invalid_argument("project.soundtrack_invalid");
+    std::uint64_t ordinary = 0;
+    std::uint64_t music = 0;
+    std::set<std::string> identities;
+    for (const auto& record : records) {
+        if (!assets::ValidId(record.id_) || !assets::ValidMediaType(record.media_type_) ||
+            !identities.insert(record.id_.sha256_).second)
+            throw std::invalid_argument("package.asset_record");
+        if (soundtrack && record.id_ == soundtrack->asset_) {
+            if (!record.bytes_ || record.bytes_ > kMaximumMusicAssetBytes)
+                throw std::length_error("package.music_bytes");
+            music = record.bytes_;
+        } else {
+            if (record.bytes_ > kMaximumPackageAssetBytes - ordinary)
+                throw std::length_error("package.asset_bytes");
+            ordinary += record.bytes_;
+        }
+    }
+    return music > kMaximumPackageAssetBytes - ordinary;
+}
 
 std::string EncodePackage(const graph::Document& document, std::string_view title,
                           std::span<const PackagedAsset> assets,
@@ -99,8 +125,9 @@ std::string EncodePackage(const graph::Document& document, std::string_view titl
     return detail::WriteArchive(entries);
 }
 
-RuntimePackage DecodePackage(std::string_view bytes) {
-    const auto entries = detail::ReadArchive(bytes);
+namespace {
+RuntimePackage DecodeEntries(const detail::PackageEntries& entries,
+                             const std::optional<detail::ArchiveMedia>& streamed = {}) {
     std::vector<std::set<std::string>> object_keys;
     const auto manifest = Json::parse(
             entries.at("manifest.json"), [&](int depth, Json::parse_event_t event, Json& value) {
@@ -112,7 +139,9 @@ RuntimePackage DecodePackage(std::string_view bytes) {
                 if (event == Json::parse_event_t::object_end) object_keys.pop_back();
                 return true;
             });
-    const bool music = manifest.at("profile") == "music-performance-v1";
+    const bool file_music = manifest.at("profile") == "music-performance-v2";
+    const bool music = file_music || manifest.at("profile") == "music-performance-v1";
+    if (file_music != streamed.has_value()) throw std::invalid_argument("package.media_profile");
     const bool current = music || manifest.at("profile") == "texture-signal-v2";
     if (manifest.at("format") != "rhythm.runtime" || manifest.at("manifest_version") != 1 ||
         manifest.at("program_abi") != (current ? 2 : 1) ||
@@ -124,15 +153,16 @@ RuntimePackage DecodePackage(std::string_view bytes) {
         manifest.at("program_sha256") != Hash(program))
         throw std::invalid_argument("package.hash");
     RuntimePackage package;
-    package.profile_ = music     ? PackageProfile::kMusicPerformanceV1
-                       : current ? PackageProfile::kTextureSignalV2
+    package.profile_ = file_music ? PackageProfile::kMusicPerformanceV2
+                       : music    ? PackageProfile::kMusicPerformanceV1
+                       : current  ? PackageProfile::kTextureSignalV2
                        : manifest.at("profile") == "texture-signal-assets-v1"
                                ? PackageProfile::kTextureSignalAssetsV1
                                : PackageProfile::kTextureSignalV1;
     if (current || manifest.at("profile") == "texture-signal-assets-v1") {
         const auto& records = manifest.at("assets");
         if (!records.is_array() || (!current && records.empty()) ||
-            records.size() > kMaximumPackageAssets)
+            records.size() > kMaximumPackageAssets - static_cast<std::size_t>(file_music))
             throw std::invalid_argument("package.asset_count");
         std::set<std::string> seen;
         for (const auto& record : records) {
@@ -153,10 +183,29 @@ RuntimePackage DecodePackage(std::string_view bytes) {
     if (music) {
         std::vector<assets::AssetRecord> records;
         for (const auto& asset : package.assets_) records.push_back(asset.record_);
+        if (file_music) {
+            const auto& record = manifest.at("streamed_audio");
+            const assets::AssetRecord audio{{record.at("sha256").get<std::string>()},
+                                            record.at("bytes").get<std::uint64_t>(),
+                                            record.at("media_type").get<std::string>()};
+            if (!assets::ValidId(audio.id_) || !record.at("bytes").is_number_unsigned() ||
+                !assets::ValidMediaType(audio.media_type_) ||
+                !audio.media_type_.starts_with("audio/") ||
+                audio.id_.sha256_ != streamed->sha256_ || audio.bytes_ != streamed->bytes_.Size() ||
+                std::any_of(records.begin(), records.end(),
+                            [&](const auto& item) { return item.id_ == audio.id_; }))
+                throw std::invalid_argument("package.media_record");
+            records.push_back(audio);
+            package.streamed_audio_ = RuntimePackage::StreamedAudio{audio, streamed->bytes_};
+        }
         package.soundtrack_ = detail::DecodeSoundtrack(manifest.at("soundtrack"), records);
+        if (file_music && package.soundtrack_->asset_ != package.streamed_audio_->record_.id_)
+            throw std::invalid_argument("package.media_binding");
     } else if (manifest.contains("soundtrack")) {
         throw std::invalid_argument("package.soundtrack_profile");
     }
+    if (!file_music && manifest.contains("streamed_audio"))
+        throw std::invalid_argument("package.media_profile");
     if (entries.size() != package.assets_.size() + 2)
         throw std::invalid_argument("package.unlisted_asset");
     package.program_ = DecodeProgram(program, current ? 2 : 1);
@@ -176,15 +225,19 @@ RuntimePackage DecodePackage(std::string_view bytes) {
         throw std::invalid_argument("package.identity");
     return package;
 }
+}  // namespace
+RuntimePackage DecodePackage(std::string_view bytes) {
+    return DecodeEntries(detail::ReadArchive(bytes));
+}
 
-RuntimePackage LoadPackage(const std::filesystem::path& path) {
-    const auto size = std::filesystem::file_size(path);
-    if (size > kMaximumPackageBytes) throw std::length_error("package.archive_bytes");
-    std::ifstream file(path, std::ios::binary);
-    file.exceptions(std::ios::badbit | std::ios::failbit);
-    std::string bytes(static_cast<std::size_t>(size), '\0');
-    file.read(bytes.data(), static_cast<std::streamsize>(size));
-    return DecodePackage(bytes);
+RuntimePackage ReadPackage(storage::FileBytes source, std::stop_token stop) {
+    const auto archive = detail::ReadFileArchive(source, stop);
+    if (!archive.media_ && source.Size() > kMaximumPackageBytes)
+        throw std::length_error("package.archive_bytes");
+    return DecodeEntries(archive.entries_, archive.media_);
+}
+RuntimePackage LoadPackage(const std::filesystem::path& path, std::stop_token stop) {
+    return ReadPackage(storage::FileBytes::Open(path, kMaximumFilePackageBytes), stop);
 }
 
 void PublishPackage(const std::filesystem::path& path, const graph::Document& document,

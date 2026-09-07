@@ -41,6 +41,7 @@ class MusicPlayback final {
     std::optional<FileLease> active_{};
     std::optional<FileLease> retired_{};
     std::shared_ptr<const std::vector<std::uint8_t>> embedded_{};
+    storage::FileBytes streamed_{};
     bool selected_ = false;
     std::uint64_t generation_ = 0;
     bool suspended_ = false;

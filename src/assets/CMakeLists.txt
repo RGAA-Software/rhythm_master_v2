@@ -1,6 +1,6 @@
 add_library(asset_store STATIC store.cpp importer.cpp)
 target_include_directories(asset_store PUBLIC include PRIVATE "${PROJECT_SOURCE_DIR}/third_party/sources/picosha2")
-target_link_libraries(asset_store PUBLIC asset_types foundation_async PRIVATE atomic_storage)
+target_link_libraries(asset_store PUBLIC asset_types foundation_async atomic_storage)
 rhythm_project_target(asset_store)
 if(BUILD_TESTING)
     add_executable(asset_contract_tests tests/asset_contract_tests.cpp)

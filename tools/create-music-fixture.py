@@ -11,6 +11,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--tones', action='store_true')
+    parser.add_argument('--repeat', type=int, choices=range(1, 17), default=1,
+                        help='Repeat the generated PCM in bounded chunks for large-song tests')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     rate = 48000
@@ -39,7 +41,8 @@ def main():
             output.setnchannels(2)
             output.setsampwidth(2)
             output.setframerate(rate)
-            output.writeframes(pcm)
+            for _ in range(args.repeat):
+                output.writeframesraw(pcm)
     print(args.output)
 
 

@@ -15,6 +15,7 @@ namespace rhythm::player {
 class PreparedPackage final {
    public:
     explicit PreparedPackage(std::string_view bytes, std::stop_token stop = {});
+    explicit PreparedPackage(storage::FileBytes bytes, std::stop_token stop = {});
     PreparedPackage(PreparedPackage&& other) noexcept;
     PreparedPackage& operator=(PreparedPackage&& other) noexcept;
     PreparedPackage(const PreparedPackage&) = delete;

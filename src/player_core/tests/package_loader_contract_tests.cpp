@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
         const auto huge = directory / "oversized.rhythmpack";
         {
             std::ofstream output(huge, std::ios::binary);
-            output.seekp(project::kMaximumPackageBytes);
+            output.seekp(project::kMaximumFilePackageBytes);
             output.put('\0');
         }
         check(loader.StartFile(huge));

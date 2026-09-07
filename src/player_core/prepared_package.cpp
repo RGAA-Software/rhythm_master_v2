@@ -11,8 +11,7 @@ namespace rhythm::player {
 PreparedPackage::PreparedPackage(std::string_view bytes, std::stop_token stop)
     : package_(project::DecodePackage(bytes)),
       resources_(prepared_assets::Prepare(package_->program_, package_->assets_, stop)),
-      soundtrack_(
-              prepared_assets::PrepareSoundtrack(package_->soundtrack_, package_->assets_, stop)) {
+      soundtrack_(prepared_assets::PrepareSoundtrack(*package_, stop)) {
     picosha2::hash256(bytes.begin(), bytes.end(), digest_);
 }
 PreparedPackage::PreparedPackage(PreparedPackage&& other) noexcept
@@ -20,6 +19,23 @@ PreparedPackage::PreparedPackage(PreparedPackage&& other) noexcept
       resources_(std::move(other.resources_)),
       soundtrack_(std::move(other.soundtrack_)),
       digest_(other.digest_) {}
+PreparedPackage::PreparedPackage(storage::FileBytes bytes, std::stop_token stop)
+    : package_(project::ReadPackage(bytes, stop)),
+      resources_(prepared_assets::Prepare(package_->program_, package_->assets_, stop)),
+      soundtrack_(prepared_assets::PrepareSoundtrack(*package_, stop)) {
+    picosha2::hash256_one_by_one hash;
+    std::array<std::uint8_t, 65536> buffer{};
+    std::uint64_t offset = 0;
+    while (offset < bytes.Size()) {
+        if (stop.stop_requested()) throw std::runtime_error("package.cancelled");
+        const auto count = bytes.Read(offset, buffer);
+        if (!count) throw std::runtime_error("package.source_changed");
+        hash.process(buffer.begin(), buffer.begin() + count);
+        offset += count;
+    }
+    hash.finish();
+    hash.get_hash_bytes(digest_.begin(), digest_.end());
+}
 PreparedPackage& PreparedPackage::operator=(PreparedPackage&& other) noexcept {
     if (this != &other) {
         package_ = std::exchange(other.package_, std::nullopt);

@@ -7,6 +7,7 @@
 #include <thread>
 
 #include "rhythm/audio/playback.h"
+#include "rhythm/storage/file_bytes.h"
 
 namespace {
 using namespace std::chrono_literals;
@@ -111,6 +112,31 @@ void Run(const std::filesystem::path& directory) {
     while (!lifetime.expired() && std::chrono::steady_clock::now() < release_deadline)
         std::this_thread::sleep_for(5ms);
     Require(lifetime.expired(), "stopped worker releases embedded source");
+    auto range = rhythm::storage::FileBytes::Open(directory / "tone.flac", 16 * 1024 * 1024);
+    playback.Load(range);
+    range = {};
+    const auto file_signal = Wait(playback, [](const auto& value) {
+        return value.features_ && value.features_->rms_ > 0.01f;
+    });
+    Require(file_signal.queued_frames_ <= 24000,
+            "file-range playback keeps the same bounded queue");
+    playback.Pause(true);
+    Wait(playback, [](const auto& value) { return value.state_ == PlaybackState::kPaused; });
+    playback.Seek(0.125);
+    const auto file_seek = Wait(playback, [](const auto& value) {
+        return value.state_ == PlaybackState::kPaused && value.position_seconds_ == 0.125;
+    });
+    playback.SetLoop(true);
+    playback.Pause(false);
+    Wait(playback, [&](const auto& value) {
+        return value.generation_ > file_seek.generation_ && value.features_.has_value();
+    });
+    playback.Stop();
+    const auto stopped_generation = playback.Snapshot().generation_;
+    Wait(playback, [&](const auto& value) {
+        return value.source_generation_ >= stopped_generation &&
+               value.state_ == PlaybackState::kStopped;
+    });
     std::cout << "file playback: device output, canonical analysis, bounded queue, pause, seek, "
                  "EOF, bounded repeat, latest-request cancellation and recovery passed\n";
 }

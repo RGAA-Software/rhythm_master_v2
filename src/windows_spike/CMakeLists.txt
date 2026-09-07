@@ -91,6 +91,10 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/resonance_live"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/soundtrack-studio")
         set_tests_properties(soundtrack_studio_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 60 RUN_SERIAL TRUE)
+        add_test(NAME large_soundtrack_studio_gpu COMMAND soundtrack_studio_gpu_tests
+            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/resonance_live"
+            "${PROJECT_BINARY_DIR}/large-music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/large-soundtrack-studio")
+        set_tests_properties(large_soundtrack_studio_gpu PROPERTIES FIXTURES_REQUIRED large_music_pcm TIMEOUT 60 RUN_SERIAL TRUE)
         target_link_libraries(export_ui_gpu_tests PRIVATE studio_ui platform_sdl media_video project_io spike_bgfx spike_imgui)
         rhythm_project_target(export_ui_gpu_tests)
         add_dependencies(export_ui_gpu_tests studio_deploy)

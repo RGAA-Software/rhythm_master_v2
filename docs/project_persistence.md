@@ -9,7 +9,15 @@
 explicit `music-performance-v1` profile with program ABI 2 and unchanged 8 MiB
 asset/16 MiB archive budgets. This avoids silently ignoring music in old readers.
 See [work soundtrack validation](validation/work_soundtrack_2026-09-08.md) for
-transaction, compatibility, Player ownership and remaining large-media limits.
+transaction, compatibility and Player ownership in that initial profile.
+
+The subsequent `music-performance-v2` profile supports one stored music attachment
+up to 256 MiB and a 272 MiB file archive, retaining 8 MiB for ordinary assets and
+64 combined records. Studio chooses it only when the bound song and other assets
+exceed the small budget. Old byte APIs retain their limits; file APIs validate
+CRC/hash in chunks and retain an open audio range across replacement. Project
+manifest version 2 and program ABI 2 remain unchanged. See
+[large-song validation](validation/large_music_packages_2026-09-08.md).
 
 ## 1. Decision summary
 

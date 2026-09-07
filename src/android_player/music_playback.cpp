@@ -17,7 +17,7 @@ void MusicPlayback::Collect() {
     const auto snapshot = file_.Snapshot();
     if (snapshot.source_generation_ >= generation_) {
         retired_.reset();
-        if (embedded_ || !selected_) active_.reset();
+        if (embedded_ || streamed_.Valid() || !selected_) active_.reset();
     }
 }
 bool MusicPlayback::Open(std::filesystem::path path) {
@@ -37,6 +37,7 @@ bool MusicPlayback::Open(std::filesystem::path path) {
         active_.emplace(std::move(incoming));
         file_.Load(active_->path_);
         embedded_.reset();
+        streamed_ = {};
         selected_ = true;
         generation_ = file_.Snapshot().generation_;
         if (suspended_) {
@@ -49,8 +50,14 @@ bool MusicPlayback::Open(std::filesystem::path path) {
     }
 }
 void MusicPlayback::Open(const media::SoundtrackSource& source) {
-    file_.Load(source.bytes_);
+    if (bool(source.bytes_) == source.file_bytes_.Valid())
+        throw std::invalid_argument("project.soundtrack_invalid");
+    if (source.file_bytes_.Valid())
+        file_.Load(source.file_bytes_);
+    else
+        file_.Load(source.bytes_);
     embedded_ = source.bytes_;
+    streamed_ = source.file_bytes_;
     selected_ = true;
     generation_ = file_.Snapshot().generation_;
     SetLoop(source.binding_.loop_);
@@ -63,6 +70,7 @@ void MusicPlayback::Open(const media::SoundtrackSource& source) {
 void MusicPlayback::Clear() {
     file_.Stop();
     embedded_.reset();
+    streamed_ = {};
     selected_ = false;
     resume_ = false;
     generation_ = file_.Snapshot().generation_;
@@ -71,7 +79,9 @@ void MusicPlayback::Apply(const runtime::PlaybackCommand& command) {
     if (!selected_) return;
     const auto state = file_.Snapshot().state_;
     if (state == audio::PlaybackState::kEnded && (command.seek_ || command.paused_ == false)) {
-        if (embedded_)
+        if (streamed_.Valid())
+            file_.Load(streamed_);
+        else if (embedded_)
             file_.Load(embedded_);
         else
             file_.Load(active_->path_);

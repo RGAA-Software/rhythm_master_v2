@@ -258,15 +258,21 @@ Soundtrack identity, gain and repeat settings are project values alongside the
 graph snapshot. A bounded authoring worker imports content-addressed music and
 probes it through the existing media adapter. The UI validates the document,
 revision and current music selection before applying the returned snapshot.
-Package preparation publishes immutable compressed music bytes whose lifetime
-is shared by Session and the audio decoder worker. Host adapters select that
+Package preparation publishes compressed music bytes or a retained file range
+whose lifetime is shared by Session and the audio decoder worker. Host adapters select that
 source and feed the same playback time/features into the graph; Session does
 not become a second decoder or audio-device owner.
 
-Music-bearing packages use `music-performance-v1` with program ABI 2; archive and
-asset budgets remain unchanged. The audio worker explicitly acknowledges source
+Small music-bearing packages use `music-performance-v1`. Larger songs use
+`music-performance-v2`: one stored music attachment up to 256 MiB, ordinary assets
+up to 8 MiB, at most 64 combined records and a 272 MiB file archive. Both use
+program ABI 2. ZIP metadata, hashing and file copies are bounded; FFmpeg seeks
+inside the retained range without buffering the whole song. The audio worker explicitly acknowledges source
 replacement before host-owned imported files are reclaimed. See
 [workflow and platform evidence](validation/work_soundtrack_2026-09-08.md).
+The [large-song evidence](validation/large_music_packages_2026-09-08.md) includes
+actual Studio authoring, Windows playback and USB Android PCM/GLES. APK lifecycle
+acceptance remains pending; native tests do not establish it.
 
 ## 6. Application and session model
 

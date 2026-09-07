@@ -1,29 +1,16 @@
 #include "rhythm/player/package_loader.h"
 
-#include <algorithm>
 #include <chrono>
-#include <fstream>
 
 namespace rhythm::player {
 namespace {
 PackageLoadResult Load(const std::filesystem::path& source,
                        const std::optional<std::filesystem::path>& install, std::stop_token stop) {
     PackageLoadResult result;
-    std::string bytes;
+    storage::FileBytes bytes;
     try {
-        const auto size = std::filesystem::file_size(source);
-        if (!size || size > project::kMaximumPackageBytes) return {{}, PackageLoadError::kRead};
-        std::ifstream input(source, std::ios::binary);
-        if (!input) return {{}, PackageLoadError::kRead};
-        bytes.resize(static_cast<std::size_t>(size));
-        for (std::size_t offset = 0; offset < bytes.size();) {
-            if (stop.stop_requested()) return {{}, PackageLoadError::kCancelled};
-            const auto count = static_cast<std::streamsize>(
-                    std::min<std::size_t>(65536, bytes.size() - offset));
-            if (!input.read(bytes.data() + offset, count)) return {{}, PackageLoadError::kRead};
-            offset += static_cast<std::size_t>(count);
-        }
-        if (input.peek() != std::char_traits<char>::eof()) return {{}, PackageLoadError::kRead};
+        bytes = storage::FileBytes::Open(source, project::kMaximumFilePackageBytes);
+        if (!bytes.Size()) return {{}, PackageLoadError::kRead};
     } catch (const std::exception&) {
         return {{}, PackageLoadError::kRead};
     }
@@ -37,9 +24,11 @@ PackageLoadResult Load(const std::filesystem::path& source,
     if (stop.stop_requested()) return {{}, PackageLoadError::kCancelled};
     if (install) {
         try {
-            project::InstallPackage(*install, bytes);
+            project::InstallPackageFile(*install, bytes, false, stop);
         } catch (const std::exception&) {
-            return {{}, PackageLoadError::kInstall};
+            return {{},
+                    stop.stop_requested() ? PackageLoadError::kCancelled
+                                          : PackageLoadError::kInstall};
         }
     }
     return result;

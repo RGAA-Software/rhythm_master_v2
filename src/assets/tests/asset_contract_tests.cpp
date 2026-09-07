@@ -1,3 +1,4 @@
+#include <array>
 #include <chrono>
 #include <future>
 #include <iostream>
@@ -7,6 +8,7 @@
 #include "rhythm/assets/importer.h"
 #include "rhythm/assets/store.h"
 #include "rhythm/storage/atomic_file.h"
+#include "rhythm/storage/file_bytes.h"
 
 namespace {
 void Check(bool value) {
@@ -44,6 +46,19 @@ int main(int argc, char* argv[]) {
                       "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad" &&
               asset.bytes_ == 3);
         Check(store.Read(asset) == "abc" && store.Verify(asset));
+        {
+            const auto opened = store.Open(asset, 3);
+            std::array<std::uint8_t, 3> bytes{};
+            Check(opened.Read(0, bytes) == 3 && bytes[0] == 'a' && bytes[2] == 'c' &&
+                  assets::VerifyFile(asset, opened));
+            auto wrong = asset;
+            wrong.id_.sha256_[0] = '0';
+            Check(!assets::VerifyFile(wrong, opened));
+            Reject([&] { store.Open(asset, 2); });
+            std::stop_source canceled;
+            canceled.request_stop();
+            Reject([&] { store.Open(asset, 3, canceled.get_token()); });
+        }
         assets::Store copied(root / "copied-assets");
         Check(copied.CopyFrom(store, asset, 3) == asset && copied.Read(asset) == "abc");
         Reject([&] { copied.CopyFrom(store, asset, 2); });
@@ -81,6 +96,7 @@ int main(int argc, char* argv[]) {
         Check(store.Read(asset) == "abc");
         storage::WriteDurable(blob, "bad");
         Check(!store.Verify(asset));
+        Reject([&] { store.Open(asset); });
         Check(copied.Read(asset) == "abc");
         Reject([&] { copied.CopyFrom(store, asset); });
         Reject([&] { store.Read(asset); });

@@ -10,8 +10,16 @@ if(BUILD_TESTING)
         add_test(NAME soundtrack_player COMMAND soundtrack_player_tests
             "${PROJECT_BINARY_DIR}/audio-decoder-tests/tone.flac" "${PROJECT_BINARY_DIR}/soundtrack-player")
         set_tests_properties(soundtrack_player PROPERTIES FIXTURES_REQUIRED local_audio_media)
+        add_test(NAME large_music_fixture COMMAND "${Python3_EXECUTABLE}"
+            "${PROJECT_SOURCE_DIR}/tools/create-music-fixture.py" --repeat 8
+            --output "${PROJECT_BINARY_DIR}/large-music-fixtures")
+        set_tests_properties(large_music_fixture PROPERTIES FIXTURES_SETUP large_music_pcm)
+        add_test(NAME large_soundtrack_player COMMAND soundtrack_player_tests
+            "${PROJECT_BINARY_DIR}/large-music-fixtures/resonance_demo.wav"
+            "${PROJECT_BINARY_DIR}/large-soundtrack-player")
+        set_tests_properties(large_soundtrack_player PROPERTIES FIXTURES_REQUIRED large_music_pcm TIMEOUT 90)
         if(WIN32)
-            set_tests_properties(soundtrack_player PROPERTIES ENVIRONMENT_MODIFICATION
+            set_tests_properties(soundtrack_player large_soundtrack_player PROPERTIES ENVIRONMENT_MODIFICATION
                 "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
         endif()
         add_executable(video_player_tests tests/video_player_tests.cpp)

@@ -7,6 +7,10 @@
 
 #include "rhythm/audio/features.h"
 
+namespace rhythm::storage {
+class FileBytes;
+}
+
 namespace rhythm::audio {
 enum class PlaybackState { kStopped, kLoading, kPlaying, kPaused, kEnded, kFailed };
 struct PlaybackSnapshot {
@@ -35,6 +39,7 @@ class FilePlayback final {
     FilePlayback& operator=(const FilePlayback&) = delete;
     void Load(const std::filesystem::path& path);
     void Load(std::shared_ptr<const std::vector<std::uint8_t>> bytes);
+    void Load(storage::FileBytes bytes);
     void Stop();
     void Seek(double seconds);
     void Pause(bool paused);

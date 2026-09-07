@@ -6,7 +6,14 @@
 
 #include "rhythm/assets/types.h"
 
+namespace rhythm::storage {
+class FileBytes;
+}
+
 namespace rhythm::assets {
+// Worker-only hash validation over a bounded open-file range.
+bool VerifyFile(const AssetRecord& asset, const storage::FileBytes& bytes,
+                std::stop_token cancellation = {});
 // Blocking I/O belongs on a bounded worker, never a render/audio callback.
 // Blobs are immutable; original machine paths are not part of asset identity.
 class Store final {
@@ -16,6 +23,9 @@ class Store final {
                        std::uint64_t maximum_bytes = 256 * 1024 * 1024,
                        std::stop_token cancellation = {});
     [[nodiscard]] bool Verify(const AssetRecord& asset) const;
+    storage::FileBytes Open(const AssetRecord& asset,
+                            std::uint64_t maximum_bytes = 256 * 1024 * 1024,
+                            std::stop_token cancellation = {}) const;
     AssetRecord CopyFrom(const Store& source, const AssetRecord& asset,
                          std::uint64_t maximum_bytes = 256 * 1024 * 1024,
                          std::stop_token cancellation = {});

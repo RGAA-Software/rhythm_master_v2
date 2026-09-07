@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "rhythm/assets/types.h"
+#include "rhythm/storage/file_bytes.h"
 
 namespace rhythm::media {
 // Authored playback settings reference immutable content, never a host path.
@@ -22,6 +23,9 @@ struct SoundtrackSource {
     Soundtrack binding_{};
     // Shared by package/session and the asynchronous decoder; no host path.
     std::shared_ptr<const std::vector<std::uint8_t>> bytes_{};
+    // Exactly one source is present. File-backed songs retain their validated
+    // range across package replacement; only decoder workers perform reads.
+    storage::FileBytes file_bytes_{};
 };
 inline bool ValidSoundtrack(const Soundtrack& track, std::span<const assets::AssetRecord> records) {
     return assets::ValidId(track.asset_) && track.title_.size() <= 512 &&

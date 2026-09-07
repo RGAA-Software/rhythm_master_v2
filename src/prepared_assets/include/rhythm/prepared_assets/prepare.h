@@ -25,4 +25,6 @@ bool Covers(const graph::ExecutionPlan& plan, const Resources& resources);
 std::optional<media::SoundtrackSource> PrepareSoundtrack(
         const std::optional<media::Soundtrack>& binding,
         std::span<const project::PackagedAsset> assets, std::stop_token stop = {});
+std::optional<media::SoundtrackSource> PrepareSoundtrack(const project::RuntimePackage& package,
+                                                         std::stop_token stop = {});
 }  // namespace rhythm::prepared_assets

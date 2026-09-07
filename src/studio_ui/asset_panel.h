@@ -6,6 +6,7 @@
 #include <span>
 
 #include "rhythm/assets/importer.h"
+#include "rhythm/media/soundtrack.h"
 
 namespace rhythm::studio {
 struct AssetEdit {
@@ -18,7 +19,8 @@ class AssetPanel final {
    public:
     AssetEdit Draw(const std::filesystem::path& directory,
                    std::span<const assets::AssetRecord> records,
-                   const std::map<std::string, std::string>& catalog);
+                   const std::map<std::string, std::string>& catalog,
+                   const std::optional<media::Soundtrack>& soundtrack = {});
 
    private:
     assets::Importer importer_{};

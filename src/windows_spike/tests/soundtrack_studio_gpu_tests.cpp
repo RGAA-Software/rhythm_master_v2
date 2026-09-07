@@ -29,6 +29,10 @@ int main(int argc, char* argv[]) {
                 root / "Projects" / std::filesystem::path(u8"音乐作品.rhythmproj");
         const auto package_path =
                 root / "Published" / std::filesystem::path(u8"音乐作品.rhythmpack");
+        const auto expected_profile =
+                std::filesystem::file_size(argv[3]) > project::kMaximumPackageAssetBytes
+                        ? project::PackageProfile::kMusicPerformanceV2
+                        : project::PackageProfile::kMusicPerformanceV1;
         project::Save(project_path,
                       project::PrepareTemplate(argv[2], project_path / "assets").snapshot_);
         platform::Host host(true);
@@ -82,8 +86,7 @@ int main(int argc, char* argv[]) {
                 saved = project::Load(project_path).snapshot_.soundtrack_.has_value();
             if (published < 0 && std::filesystem::is_regular_file(package_path)) {
                 const auto package = project::LoadPackage(package_path);
-                if (!package.soundtrack_ ||
-                    package.profile_ != project::PackageProfile::kMusicPerformanceV1)
+                if (!package.soundtrack_ || package.profile_ != expected_profile)
                     throw std::runtime_error("toolbar publish lost music");
                 published = frames;
             }

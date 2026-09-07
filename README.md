@@ -1,5 +1,11 @@
 # Rhythm Master Next
 
+Large-song authoring now supports one bound music file up to 256 MiB through
+`music-performance-v2`, with streamed decoding in the shared Player core.
+Windows Studio/Player and USB Android native PCM/GLES validation pass; Android
+APK installation/lifecycle acceptance remains pending. See
+[large-song evidence](docs/validation/large_music_packages_2026-09-08.md).
+
 > Status: Phase A architecture validation and the first Windows slice are authorized.
 > A Windows Studio slice and portable core are implemented and tested.
 > 2026-09-07: the user accepted the current Windows build, including deployment,

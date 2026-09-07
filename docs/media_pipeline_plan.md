@@ -9,11 +9,14 @@
 2026-09-08 作品交付补充：音乐资产、音量与循环设置已接入工程保存及运行包，
 共享 FFmpeg 解码支持包内不可变字节。Windows Studio 按钮和 Android 原生音乐/GLES
 验证见 [作品音乐记录](validation/work_soundtrack_2026-09-08.md)。当前为单曲、有界资产
-规格；大媒体流式容器、多轨编排及实际 APK 生命周期继续推进。
+规格；多轨编排及实际 APK 生命周期继续推进。
 
 大音乐容器前置验证已加入共享文件切片和同一 FFmpeg 自定义 I/O，
-见 [文件音频范围验证](validation/file_audio_ranges_2026-09-08.md)。此适配层步骤尚未
-调整工程/运行包上限，容器、准备资源和 Player 接入继续实施。
+见 [文件音频范围验证](validation/file_audio_ranges_2026-09-08.md)。后续已完成
+`music-performance-v2`：单首音乐最多 256 MiB，普通素材仍共用 8 MiB，归档最多
+272 MiB。Studio 绑定、保存、发布、重开及 Windows/Android 原生播放验证见
+[大音乐运行包记录](validation/large_music_packages_2026-09-08.md)。沿用同一 FFmpeg
+解码器和 miniz，音频工作线程持有文件范围；不把整首音乐读入内存。
 
 ## 1. 决策和范围
 

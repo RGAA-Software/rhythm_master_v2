@@ -38,7 +38,8 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
         session.Open(path);
         const auto track = session.Soundtrack();
         if (!track) throw std::runtime_error("music package missing soundtrack");
-        media::AudioDecoder decoder(track->bytes_);
+        auto decoder = track->file_bytes_.Valid() ? media::AudioDecoder(track->file_bytes_)
+                                                  : media::AudioDecoder(track->bytes_);
         audio::Analyzer analyzer;
         if (!analyzer.Reset(48000, 1)) throw std::runtime_error("music analyzer");
         auto target = renderer.CreateTexture({320, 180});

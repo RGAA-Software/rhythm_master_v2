@@ -11,6 +11,7 @@ std::optional<std::uint32_t> Profile(const player::PreparedPackage& package) {
     if (!profile) return std::nullopt;
     switch (*profile) {
         case project::PackageProfile::kMusicPerformanceV1:
+        case project::PackageProfile::kMusicPerformanceV2:
             // Music package scheduling is outside the deferred cluster profile.
             return std::nullopt;
         case project::PackageProfile::kTextureSignalV2:

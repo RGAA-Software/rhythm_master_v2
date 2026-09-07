@@ -20,6 +20,11 @@ if(BUILD_TESTING)
                 "${PROJECT_SOURCE_DIR}/locales/${locale}/studio.json")
             set_tests_properties(soundtrack_ui_${locale} PROPERTIES FIXTURES_REQUIRED local_audio_media
                 ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
+            add_test(NAME large_soundtrack_ui_${locale} COMMAND soundtrack_interaction_tests
+                "${PROJECT_BINARY_DIR}/large-music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/large-soundtrack-ui"
+                "${PROJECT_SOURCE_DIR}/locales/${locale}/studio.json")
+            set_tests_properties(large_soundtrack_ui_${locale} PROPERTIES FIXTURES_REQUIRED large_music_pcm TIMEOUT 60
+                ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
         endforeach()
     endif()
     add_executable(component_library_interaction_tests tests/component_library_interaction_tests.cpp)

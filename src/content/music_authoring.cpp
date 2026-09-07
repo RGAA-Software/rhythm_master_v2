@@ -29,7 +29,7 @@ MusicImportResult Import(editor::Snapshot snapshot, const std::filesystem::path&
         // This private media type denotes audio recognized by FFmpeg, independent
         // of user filename extensions. No second decoder/protocol is selected.
         const auto record = store.Import(source, "audio/x-rhythm-media",
-                                         project::kMaximumPackageAssetBytes, stop);
+                                         project::kMaximumMusicAssetBytes, stop);
         const auto existing =
                 std::find_if(next.assets_.begin(), next.assets_.end(),
                              [&](const auto& item) { return item.id_ == record.id_; });
@@ -37,22 +37,23 @@ MusicImportResult Import(editor::Snapshot snapshot, const std::filesystem::path&
             next.assets_.push_back(record);
         else if (!existing->media_type_.starts_with("audio/"))
             throw std::invalid_argument("project.soundtrack_invalid");
-        std::uint64_t total = 0;
-        for (const auto& asset : next.assets_) {
-            if (asset.bytes_ > project::kMaximumPackageAssetBytes - total)
-                throw std::length_error("asset.package_full");
-            total += asset.bytes_;
-        }
-        if (next.assets_.size() > project::kMaximumPackageAssets)
-            throw std::length_error("asset.package_full");
         const auto title = source.filename().u8string();
         next.soundtrack_ =
                 media::Soundtrack{record.id_, std::string(title.begin(), title.end()), gain, loop};
         if (!media::ValidSoundtrack(*next.soundtrack_, next.assets_))
             throw std::invalid_argument("project.soundtrack_invalid");
-        const std::vector<project::PackagedAsset> music{
-                {record, store.Read(record, project::kMaximumPackageAssetBytes)}};
-        prepared_assets::PrepareSoundtrack(next.soundtrack_, music, stop);
+        if (project::RequiresStreamedAudio(next.assets_, next.soundtrack_)) {
+            bool used = UsesAsset(next.document_.nodes_, record.id_);
+            for (const auto& component : next.document_.components_)
+                used |= UsesAsset(component.nodes_, record.id_);
+            if (used) throw std::length_error("package.asset_bytes");
+        }
+        project::RuntimePackage probe;
+        probe.profile_ = project::PackageProfile::kMusicPerformanceV2;
+        probe.soundtrack_ = next.soundtrack_;
+        probe.streamed_audio_ = project::RuntimePackage::StreamedAudio{
+                record, store.Open(record, project::kMaximumMusicAssetBytes, stop)};
+        prepared_assets::PrepareSoundtrack(probe, stop);
         if (stop.stop_requested()) throw std::runtime_error("audio.canceled");
         result.snapshot_ = std::move(next);
     } catch (const std::exception& error) {

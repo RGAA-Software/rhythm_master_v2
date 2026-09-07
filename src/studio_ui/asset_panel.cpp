@@ -10,7 +10,8 @@
 namespace rhythm::studio {
 AssetEdit AssetPanel::Draw(const std::filesystem::path& directory,
                            std::span<const assets::AssetRecord> records,
-                           const std::map<std::string, std::string>& catalog) {
+                           const std::map<std::string, std::string>& catalog,
+                           const std::optional<media::Soundtrack>& soundtrack) {
     const auto text = [&](const std::string& key) {
         const auto found = catalog.find(key);
         return found == catalog.end() ? catalog.at("operation_failed") : found->second;
@@ -38,7 +39,13 @@ AssetEdit AssetPanel::Draw(const std::filesystem::path& directory,
     ImGui::InputTextWithHint("###asset.source", text("asset.source_path").c_str(), source_.data(),
                              source_.size());
     std::uint64_t total = 0;
-    for (const auto& record : records) total += record.bytes_;
+    std::uint64_t music_bytes = 0;
+    for (const auto& record : records) {
+        if (soundtrack && record.id_ == soundtrack->asset_)
+            music_bytes = record.bytes_;
+        else
+            total += record.bytes_;
+    }
     const bool full = total >= project::kMaximumPackageAssetBytes ||
                       records.size() >= project::kMaximumPackageAssets;
     ImGui::BeginDisabled(source_[0] == '\0' || full);
@@ -74,6 +81,9 @@ AssetEdit AssetPanel::Draw(const std::filesystem::path& directory,
     ImGui::Separator();
     ImGui::Text("%s: %llu / 8 MiB", text("asset.total_bytes").c_str(),
                 static_cast<unsigned long long>(total));
+    if (soundtrack)
+        ImGui::Text("%s: %llu / 256 MiB", text("asset.music_bytes").c_str(),
+                    static_cast<unsigned long long>(music_bytes));
     ImGuiListClipper clipper;
     clipper.Begin(static_cast<int>(records.size()));
     while (clipper.Step()) {

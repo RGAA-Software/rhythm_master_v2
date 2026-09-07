@@ -599,7 +599,7 @@
     "media.export_encoder_unavailable": "当前系统不支持所选编码，请尝试 MPEG-4。",
     "export.copy_path": "复制文件路径",
     "music.work": "作品音乐",
-    "music.binding_help": "将当前音乐及音量、循环设置一同保存和发布。当前运行包的音乐与其他素材共用 8 MiB；较长音乐请使用 MP3/AAC。",
+    "music.binding_help": "将当前音乐及音量、循环设置一同保存和发布。单首音乐最多 256 MiB；其他素材共用 8 MiB。",
     "music.unbound": "作品尚未绑定音乐",
     "music.bind": "保存当前音乐及设置",
     "music.load": "播放作品音乐",
@@ -608,5 +608,7 @@
     "music.bound": "音乐已绑定到作品，可保存或发布。",
     "music.binding_failed": "音乐绑定失败，请检查文件是否可播放及素材容量。",
     "music.binding_canceled": "已取消音乐绑定",
-    "project.soundtrack_invalid": "作品音乐引用或设置无效"
+    "project.soundtrack_invalid": "作品音乐引用或设置无效",
+    "asset.music_bytes": "作品音乐字节数",
+    "package.music_bytes": "作品音乐不能为空，且不能超过 256 MiB。"
 }

@@ -1,9 +1,12 @@
 #include <chrono>
+#include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <thread>
 
 #include "rhythm/assets/store.h"
 #include "rhythm/media/audio_decoder.h"
+#include "rhythm/player/package_loader.h"
 #include "rhythm/player/session.h"
 #include "rhythm/project/store.h"
 
@@ -21,7 +24,8 @@ int main(int argc, char* argv[]) {
                 std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
         const auto asset_path = root / "work.rhythmproj" / "assets";
         assets::Store store(asset_path);
-        const auto record = store.Import(argv[1], "audio/flac");
+        const auto record =
+                store.Import(argv[1], "audio/x-rhythm-media", project::kMaximumMusicAssetBytes);
         editor::Snapshot snapshot;
         graph::Registry registry;
         snapshot.title_ = "Portable music";
@@ -35,11 +39,39 @@ int main(int argc, char* argv[]) {
         project::Save(root / "work.rhythmproj", snapshot);
         const auto restored = project::Load(root / "work.rhythmproj").snapshot_;
         project::PublishSnapshot(root / "show.rhythmpack", restored, asset_path);
+        const bool streamed = record.bytes_ > project::kMaximumPackageAssetBytes;
+        const auto package = project::LoadPackage(root / "show.rhythmpack");
+        Check(package.streamed_audio_.has_value() == streamed, "music profile selection");
+        if (streamed) Check(package.assets_.empty(), "large music stays outside in-memory assets");
+        std::string revision;
+        std::getline(std::ifstream(root / "work.rhythmproj" / "CURRENT"), revision);
+        const auto template_path = root / "template";
+        std::filesystem::create_directories(template_path);
+        for (const auto* name : {"graph.pb", "editor.json", "manifest.json"})
+            std::filesystem::copy_file(root / "work.rhythmproj" / "revisions" / revision / name,
+                                       template_path / name);
+        assets::Store(template_path / "assets")
+                .CopyFrom(store, record, project::kMaximumMusicAssetBytes);
+        const auto copied = project::PrepareTemplate(template_path, root / "copied-assets");
+        project::PublishSnapshot(root / "copied.rhythmpack", copied.snapshot_,
+                                 root / "copied-assets");
+        player::PackageLoader loader;
+        Check(loader.StartFile(root / "copied.rhythmpack", root / "installed.rhythmpack"),
+              "start file import");
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(30);
+        std::optional<player::PackageLoadResult> loaded;
+        while (!loaded && std::chrono::steady_clock::now() < deadline) {
+            loaded = loader.Take();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        Check(loaded && loaded->error_ == player::PackageLoadError::kNone && loaded->package_,
+              "verified file installation");
         player::Session session;
-        session.Open(root / "show.rhythmpack");
+        session.LoadPrepared(std::move(*loaded->package_));
         const auto soundtrack = session.Soundtrack();
         Check(soundtrack && soundtrack->binding_ == *snapshot.soundtrack_, "portable settings");
-        media::AudioDecoder embedded(soundtrack->bytes_);
+        auto embedded = streamed ? media::AudioDecoder(soundtrack->file_bytes_)
+                                 : media::AudioDecoder(soundtrack->bytes_);
         media::AudioDecoder original(argv[1]);
         for (;;) {
             const auto expected = original.Read();
@@ -74,6 +106,14 @@ int main(int argc, char* argv[]) {
         embedded.Seek(37, 3);
         Check(embedded.Read()->first_sample_ == 37,
               "old decoder retains source across package change");
+        project::PublishPackage(root / "copied.rhythmpack", snapshot.document_, "Replacement");
+        embedded.Seek(12000, 4);
+        original.Seek(12000, 4);
+        const auto retained = embedded.Read();
+        const auto expected_tail = original.Read();
+        Check(retained && expected_tail && retained->first_sample_ == 12000 &&
+                      retained->samples_ == expected_tail->samples_,
+              "old file music remains exact after its package is replaced");
         std::cout << "saved music -> package -> Player exact PCM, replacement and shared lifetime "
                      "pass\n";
     } catch (const std::exception& error) {

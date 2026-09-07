@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 #include "rhythm/storage/atomic_file.h"
+#include "rhythm/storage/file_bytes.h"
 
 namespace rhythm::assets {
 namespace {
@@ -27,22 +28,27 @@ class StagingFile final {
    private:
     std::filesystem::path path_{};
 };
-std::string HashFile(const std::filesystem::path& path, std::uint64_t expected_bytes) {
-    std::ifstream source(path, std::ios::binary);
-    if (!source) throw std::runtime_error("asset.open");
+std::string HashFile(const storage::FileBytes& source, std::stop_token cancellation = {}) {
     picosha2::hash256_one_by_one hash;
-    std::array<char, 64 * 1024> buffer{};
+    std::array<std::uint8_t, 64 * 1024> buffer{};
     std::uint64_t bytes = 0;
-    while (source.read(buffer.data(), buffer.size()) || source.gcount()) {
-        bytes += static_cast<std::uint64_t>(source.gcount());
-        if (bytes > expected_bytes) throw std::runtime_error("asset.size_changed");
-        hash.process(buffer.begin(), buffer.begin() + source.gcount());
+    while (bytes < source.Size()) {
+        if (cancellation.stop_requested()) throw std::runtime_error("asset.cancelled");
+        const auto count = source.Read(bytes, buffer);
+        if (!count) throw std::runtime_error("asset.read");
+        hash.process(buffer.begin(), buffer.begin() + count);
+        bytes += count;
     }
-    if (!source.eof() || bytes != expected_bytes) throw std::runtime_error("asset.read");
     hash.finish();
     return picosha2::get_hash_hex_string(hash);
 }
 }  // namespace
+bool VerifyFile(const AssetRecord& asset, const storage::FileBytes& bytes,
+                std::stop_token cancellation) {
+    if (cancellation.stop_requested()) throw std::runtime_error("asset.cancelled");
+    return ValidId(asset.id_) && ValidMediaType(asset.media_type_) && bytes.Valid() &&
+           bytes.Size() == asset.bytes_ && HashFile(bytes, cancellation) == asset.id_.sha256_;
+}
 Store::Store(std::filesystem::path directory) : directory_(std::move(directory)) {
     std::filesystem::create_directories(directory_);
     directory_ = std::filesystem::canonical(directory_);
@@ -97,7 +103,8 @@ AssetRecord Store::Import(const std::filesystem::path& source, std::string media
         return asset;
     }
     storage::SyncFile(pending.Path());
-    if (HashFile(pending.Path(), bytes) != asset.id_.sha256_)
+    if (HashFile(storage::FileBytes::Open(pending.Path(), bytes), cancellation) !=
+        asset.id_.sha256_)
         throw std::runtime_error("asset.staging_hash");
     if (cancellation.stop_requested()) throw std::runtime_error("asset.cancelled");
     std::filesystem::create_directories(destination.parent_path());
@@ -112,10 +119,19 @@ bool Store::Verify(const AssetRecord& asset) const {
         const auto path = BlobPath(asset.id_);
         return asset.bytes_ <= 1024ull * 1024 * 1024 &&
                std::filesystem::file_size(path) == asset.bytes_ &&
-               HashFile(path, asset.bytes_) == asset.id_.sha256_;
+               HashFile(storage::FileBytes::Open(path, asset.bytes_)) == asset.id_.sha256_;
     } catch (const std::exception&) {
         return false;
     }
+}
+storage::FileBytes Store::Open(const AssetRecord& asset, std::uint64_t maximum_bytes,
+                               std::stop_token cancellation) const {
+    if (cancellation.stop_requested()) throw std::runtime_error("asset.cancelled");
+    if (asset.bytes_ > maximum_bytes || maximum_bytes > 1024ull * 1024 * 1024)
+        throw std::length_error("asset.read_budget");
+    auto bytes = storage::FileBytes::Open(BlobPath(asset.id_), asset.bytes_);
+    if (!VerifyFile(asset, bytes, cancellation)) throw std::runtime_error("asset.hash");
+    return bytes;
 }
 AssetRecord Store::CopyFrom(const Store& source, const AssetRecord& asset,
                             std::uint64_t maximum_bytes, std::stop_token cancellation) {
