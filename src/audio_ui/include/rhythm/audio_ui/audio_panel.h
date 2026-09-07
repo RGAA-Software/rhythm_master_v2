@@ -28,6 +28,8 @@ class AudioPanel final {
     void LoadFile(const std::filesystem::path& path);
     void SetVolume(float volume);
     void SetDemoFile(std::filesystem::path path);
+    std::optional<std::filesystem::path> SelectedFile() const;
+    float Volume() const { return volume_; }
 #endif
 
    private:

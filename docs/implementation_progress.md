@@ -44,8 +44,11 @@ changes its D3D11 output; the complete authoring API workflow passes on Windows
 and the USB Android device. That workflow also found and fixed nondeterministic
 multi-property component hashes. Native mobile timing remains below stable
 60 fps even at economy quality. See `validation/resonance_live_2026-09-08.md`.
-Inventory is now 30 examples; media arrangement/export,
+Inventory is now 30 examples; media arrangement,
 50 + 50 content quality and Android application acceptance remain unfinished.
+Windows Studio now exports the applied work and selected music to MP4 through
+an independent host with bounded rendering/encoding queues. See
+`validation/studio_export_2026-09-08.md` for its supported profile and limits.
 
 Component workbench viewers now reuse the root graph runtime with concrete
 instance mapping, transient draft preview, shared eight-image budgeting and
@@ -610,3 +613,11 @@ Viewer 无 CPU 读回；离线导出任务继续接入。见 [验证记录](vali
 197 节点作品与真实音乐已生成 4 秒 MP4，同机重复导出逐帧一致，音轨长度准确；
 静音改变视觉，取消与预算验证通过。导出 UI/进程/发布继续接入，
 见 [验证记录](validation/offline_export_core_2026-09-08.md)。
+
+## 2026-09-08 Studio 音画导出闭环
+
+导出面板、独立隐藏 host、有界编码线程、进度/取消和禁止覆盖的原子发布已接通。
+真实 Studio 按钮流程导出 16 秒 H.264 MP4，父编辑器 p95 帧耗时 16.95 ms；
+13 项回归通过。Windows 部署已更新，Android 共享核心编译及真机原子发布通过。
+见 [完整规格与验证](validation/studio_export_2026-09-08.md)。
+作品音乐绑定持久化、媒体编排、50 + 50 品质内容与 Android 应用验收继续推进。

@@ -1,7 +1,10 @@
 # FFmpeg 统一媒体方案
 
 > 2026-09-06：用户已确认 FFmpeg 为新项目唯一媒体后端。
-> 当前为架构决策与实施规划，尚未迁移源码、构建或进行播放验收。
+> 2026-09-08：Windows 音视频播放与 Studio MP4 音画导出已接通，Android 原生
+> 解码/编码/读回已验证。应用安装、生命周期、媒体编排及其他未验证能力仍按专项记录推进。
+> 见 [Studio 导出验收](validation/studio_export_2026-09-08.md) 与
+> [Android 音乐应用记录](validation/android_music_application_2026-09-08.md)。
 
 ## 1. 决策和范围
 

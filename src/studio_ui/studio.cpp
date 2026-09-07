@@ -36,6 +36,9 @@
 #include "semantic_palette.h"
 #include "template_browser.h"
 #include "timeline_panel.h"
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+#include "export_panel.h"
+#endif
 
 namespace rhythm::studio {
 class Studio::Impl final {
@@ -136,6 +139,19 @@ class Studio::Impl final {
             store_.PublishProject(project_.parent_path().parent_path() / "Published" / name,
                                   history_->Current(), project_ / "assets");
         }
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        ImGui::SameLine();
+        if (ImGui::Button(Label("export.open").c_str())) {
+            CommitEdits();
+            auto name = project_.filename();
+            name.replace_extension(".mp4");
+            const auto music = audio_panel_.Frame().playback_;
+            export_panel_.Open(project_.parent_path().parent_path() / "Exports" / name,
+                               audio_panel_.SelectedFile(),
+                               music && music->duration_ ? *music->duration_ : 10,
+                               audio_panel_.Volume(), history_->Current().document_.canvas_);
+        }
+#endif
         ImGui::SameLine();
         if (ImGui::Button(Label("reopen").c_str())) {
             load_revision_ = history_->Current().document_.revision_;
@@ -538,6 +554,13 @@ class Studio::Impl final {
             ImGui::Image(host.RegisterTexture(output.final_), {fit.width_, fit.height_});
         }
         ImGui::End();
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        if (auto request = export_panel_.Draw(catalogs_.at(locale_))) {
+            CommitEdits();
+            export_panel_.Start(host.ResourceDirectory() / "rhythm_master.exe", history_->Current(),
+                                project_ / "assets", std::move(*request));
+        }
+#endif
     }
     void CommitEdits() {
         auto next = inspector_.Preview()  ? *inspector_.Preview()
@@ -584,6 +607,9 @@ class Studio::Impl final {
     InputPreview input_preview_{};
     audio_ui::AudioPanel audio_panel_{};
     TimelinePanel timeline_{};
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+    ExportPanel export_panel_{};
+#endif
     runtime::ExternalInputs preview_inputs_{};
     std::optional<double> evaluated_seconds_{};
     std::uint64_t timeline_generation_ = 0;

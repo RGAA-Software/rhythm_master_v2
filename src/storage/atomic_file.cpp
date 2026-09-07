@@ -12,6 +12,10 @@
 #include <fcntl.h>
 #include <sys/file.h>
 #include <unistd.h>
+#ifdef __linux__
+#include <linux/fs.h>
+#include <sys/syscall.h>
+#endif
 #endif
 
 namespace rhythm::storage {
@@ -113,6 +117,29 @@ void SyncDirectory(const std::filesystem::path& path) {
     static_cast<void>(path);
 #else
     Flush(path);
+#endif
+}
+void PublishNew(const std::filesystem::path& source, const std::filesystem::path& destination) {
+    SyncFile(source);
+#ifdef _WIN32
+    if (!MoveFileExW(source.c_str(), destination.c_str(), MOVEFILE_WRITE_THROUGH))
+        throw std::runtime_error("export.destination_exists_or_unwritable");
+#elif defined(__linux__)
+    // Android app/shell policies can deny hard links. The kernel's atomic
+    // no-replace rename preserves the same contract without creating a link.
+    // Use syscall because bionic exposes renameat2 only from API 30; our floor
+    // is API 26. An unsupported kernel/filesystem fails without a racy fallback.
+    if (syscall(SYS_renameat2, AT_FDCWD, source.c_str(), AT_FDCWD, destination.c_str(),
+                RENAME_NOREPLACE) != 0)
+        throw std::runtime_error("export.destination_exists_or_unwritable");
+    SyncDirectory(destination.parent_path());
+#else
+    // link is atomic and fails with EEXIST; unlike rename it cannot clobber a
+    // destination created by another process between checking and committing.
+    std::filesystem::create_hard_link(source, destination);
+    std::error_code ignored;
+    std::filesystem::remove(source, ignored);
+    SyncDirectory(destination.parent_path());
 #endif
 }
 }  // namespace rhythm::storage

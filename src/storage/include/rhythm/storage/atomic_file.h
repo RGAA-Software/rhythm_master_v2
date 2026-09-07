@@ -18,4 +18,7 @@ class WriteGuard final {
 };
 void WriteDurable(const std::filesystem::path& path, std::string_view bytes);
 void Replace(const std::filesystem::path& source, const std::filesystem::path& destination);
+// Atomically install a completed file without replacing an existing destination.
+// Source and destination must reside on the same filesystem.
+void PublishNew(const std::filesystem::path& source, const std::filesystem::path& destination);
 }  // namespace rhythm::storage

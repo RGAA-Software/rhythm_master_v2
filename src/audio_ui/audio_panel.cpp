@@ -101,6 +101,10 @@ void AudioPanel::Draw(const std::map<std::string, std::string>& text) {
 }
 
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
+std::optional<std::filesystem::path> AudioPanel::SelectedFile() const {
+    if (media_selected_ && !loaded_file_.empty()) return loaded_file_;
+    return std::nullopt;
+}
 void AudioPanel::LoadFile(const std::filesystem::path& path) {
     capture_.Stop();
     loaded_file_ = path;

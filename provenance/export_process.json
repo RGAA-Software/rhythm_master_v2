@@ -1,0 +1,18 @@
+{
+    "source_url": "https://github.com/libsdl-org/SDL",
+    "revision": "96292a5b464258a2b926e0a3d72f8b98c2a81aa6 (3.2.20)",
+    "license": "zlib",
+    "studied_files": {
+        "include/SDL3/SDL_process.h": "a69f2081728c024b8e12284c4baa405f3a72a33d7c3421a48d98aa55a1fcf99e",
+        "src/process/SDL_process.c": "c09f6615cddb51df4f909e8d129f37885cd65bcf651aa223eed3bcd7779dfab5",
+        "src/process/windows/SDL_windowsprocess.c": "4dfc15dd7cf1722f9fe57ab9b39390505a54b12463145ebbffdde858b42c8345"
+    },
+    "imported_files": [],
+    "decision": "Use the already validated SDL process API through a private RAII adapter. No copied upstream source, dependency upgrade, extra process library or shell command construction.",
+    "modifications": "Project-owned argv conversion, hidden child ownership, cancellation/reaping and mandatory completion receipt. SDL background mode hides OS exit codes, so a stopped child is not treated as success without a complete result.",
+    "target_modules": [
+        "src/export_jobs/export_process.cpp"
+    ],
+    "notices": "third_party/notices/sources/sdl/LICENSE.txt",
+    "validation": "Windows background export and actual Studio/D3D11 continue concurrently; Unicode paths, failed child, cancellation and publication protection tested. Apple process adaptation remains unvalidated."
+}

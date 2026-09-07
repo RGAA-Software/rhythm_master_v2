@@ -153,6 +153,13 @@ It preserves the separate `out/windows` Debug cache; use
 `--configuration Debug` for debugging. The Studio launcher defaults to Release.
 Do not use the Debug bundle to assess animation performance.
 
+Studio's **导出音画 / Export A/V** toolbar action exports the applied work and
+selected music to MP4 in a separate background host. Set the path, duration,
+frame rate, size, codec and gain; completion displays a copyable file path.
+Existing files are preserved. The initial Windows profile supports H.264 or
+MPEG-4 with optional AAC, up to 1080p pixel count and one hour; arrangement and
+range export remain separate work. See [export acceptance](docs/validation/studio_export_2026-09-08.md).
+
 Every Windows application build automatically runs `tools/deploy-windows.py` to assemble
 the sibling `deploy/` directory with the executable, recursively resolved
 runtime DLLs, content, locales and third-party notices. Double-click

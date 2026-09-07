@@ -5,6 +5,7 @@
 #include <deque>
 #include <stdexcept>
 
+#include "encoding_queue.h"
 #include "rhythm/prepared_assets/prepare.h"
 #include "rhythm/runtime/runtime.h"
 #include "rhythm/video_sources/streams.h"
@@ -49,15 +50,23 @@ void RenderExport(const project::RuntimePackage& package, const ExportSettings& 
     video_sources::Streams videos;
     runtime::Runtime runtime;
     auto target = renderer.CreateTexture(extent);
-    media::AvWriter writer(staging, encoding, stop);
+    detail::EncodingQueue writer(staging, encoding, stop);
     std::deque<PendingFrame> pending;
-    std::uint64_t rendered = 0, completed = 0;
+    std::uint64_t rendered = 0, submitted = 0, completed = 0;
     auto last_progress = std::chrono::steady_clock::now();
     const auto notify = [&] {
         if (progress) progress({completed, settings.frames_, renderer.Stats().texture_bytes_});
     };
+    const auto report = [&] {
+        const auto encoded = writer.Completed();
+        while (completed < encoded) {
+            if (stop.stop_requested()) throw std::runtime_error("export.canceled");
+            ++completed;
+            notify();
+        }
+    };
     notify();
-    while (completed < settings.frames_) {
+    while (submitted < settings.frames_) {
         if (stop.stop_requested()) throw std::runtime_error("export.canceled");
         // The common runtime evaluates exactly once per output time. Frames
         // used only to advance GPU completion never advance simulation/audio.
@@ -93,16 +102,16 @@ void RenderExport(const project::RuntimePackage& package, const ExportSettings& 
             if (stop.stop_requested()) throw std::runtime_error("export.canceled");
             auto image = pending.front().readback_.Poll();
             if (!image) break;
-            writer.WriteVideo(image->rgba_);
-            if (encoding.audio_) writer.WriteAudio(pending.front().audio_);
+            writer.Push(std::move(*image), std::move(pending.front().audio_));
             pending.pop_front();
-            ++completed;
+            ++submitted;
             last_progress = std::chrono::steady_clock::now();
-            notify();
+            report();
         }
         if (std::chrono::steady_clock::now() - last_progress > std::chrono::seconds(30))
             throw std::runtime_error("export.gpu_timeout");
     }
     writer.Finish();
+    report();
 }
 }  // namespace rhythm::exporting

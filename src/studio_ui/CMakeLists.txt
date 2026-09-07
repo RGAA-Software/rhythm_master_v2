@@ -4,6 +4,10 @@ target_sources(studio_ui PRIVATE template_browser.cpp performance_panel.cpp comp
 target_link_libraries(studio_ui PUBLIC platform_sdl PRIVATE graph_runtime editor_application project_io
     cyber_ui asset_store prepared_assets content_catalog semantic_catalog audio_ui player_core spike_imgui spike_node_editor nlohmann_json::nlohmann_json)
 rhythm_project_target(studio_ui)
+if(RHYTHM_BUILD_MEDIA)
+    target_sources(studio_ui PRIVATE export_panel.cpp)
+    target_link_libraries(studio_ui PRIVATE export_jobs)
+endif()
 if(BUILD_TESTING)
     add_executable(component_library_interaction_tests tests/component_library_interaction_tests.cpp)
     target_include_directories(component_library_interaction_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")

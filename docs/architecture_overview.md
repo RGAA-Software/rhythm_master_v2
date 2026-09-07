@@ -235,6 +235,23 @@ visualization preview and fullscreen playback windows are additional surfaces
 sharing that device and frame boundary. Tentative native transparency follows
 the separate deferred feature decision; it does not imply desktop embedding.
 
+### Offline A/V export implementation (2026-09-08)
+
+Studio captures an applied project snapshot and submits it to `ExportJobs`.
+A bounded background executor stages assets and music, then the private SDL
+process adapter launches the deployed executable's hidden `--export-job` host.
+That process owns its renderer and evaluates the shared Runtime at exact frame
+times. Three GPU readback tickets feed a separate encoder thread with two queued
+frames and one active frame. This also keeps FFmpeg Media Foundation's thread
+apartment separate from SDL window hosting. Interactive viewers remain GPU-only.
+
+The controller requires a success receipt and complete frame count before
+atomically publishing a new MP4 without replacing an existing destination.
+Cancellation reaps the child before owned staging cleanup. Project contracts
+carry values, paths and handles; SDL/FFmpeg types remain private adapters.
+This is a local offline job, independent of the deferred cluster transport.
+See [implementation and validation](validation/studio_export_2026-09-08.md).
+
 ## 6. Application and session model
 
 One executable supports explicit launch modes:

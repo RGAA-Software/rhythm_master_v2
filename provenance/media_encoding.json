@@ -13,11 +13,12 @@
     "modifications": "RAII track encoders; custom local staging I/O; bounded interleaved input; SDR Rec.709; typed configuration and explicit finalization/cancellation",
     "notices": "third_party/notices/ffmpeg-examples/LICENSE.txt",
     "dependencies": "Existing isolated vcpkg FFmpeg 6.1.1#11 LGPL SDK; no FFmpeg rebuild or shared SDK upgrade",
-    "status": "MPEG-4/AAC validated on Windows and USB Android; H264/MF CFR validated on Windows. GPU export integration pending; no Android H264 claim.",
+    "status": "MPEG-4/AAC validated on Windows and USB Android; H264/MF CFR validated in a dedicated encoder thread inside the Windows offline export host. No Android H264 or hardware encoding claim.",
     "additional_study": {
         "file": "libavcodec/mfenc.c",
         "license": "LGPL-2.1-or-later; study only, no copied source",
         "decision": "camera_record option requests CFR; software MF encoding is not GPU interoperability evidence",
-        "decoder_tail": "FFmpeg n6.1.1 libavcodec/decode.c and libavformat/mov.c: LGPL study only, no source copied. Exact MOV final packet duration trims AAC frame padding in our adapter; no generic duration-based truncation."
+        "decoder_tail": "FFmpeg n6.1.1 libavcodec/decode.c and libavformat/mov.c: LGPL study only, no source copied. Exact MOV final packet duration trims AAC frame padding in our adapter; no generic duration-based truncation.",
+        "thread_apartment": "FFmpeg mfenc.c rejects the SDL window thread STA apartment. A dedicated encoder thread owns all FFmpeg encoding/MF objects; the render host transfers at most two queued frames plus one active frame."
     }
 }

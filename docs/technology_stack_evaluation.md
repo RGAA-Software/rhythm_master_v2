@@ -286,3 +286,11 @@ and a verified object/archive relink bundle for the static LGPL combination.
 Media-enabled native decoder/GLES tests pass on the device; Java/SDL application
 audio and lifecycle acceptance remain separate. No outbound project license is
 selected. See `validation/android_music_application_2026-09-08.md`.
+
+2026-09-08 export follow-up: the existing Windows LGPL FFmpeg SDK's MPEG-4/AAC
+and H.264/Media Foundation paths pass decoded-frame and sample-duration checks.
+Studio exports through the existing SDL 3.2.20 process API and a dedicated encoder
+thread; integration exposed and resolved SDL STA/MF apartment incompatibility.
+No new media backend or SDK build was introduced. Android MPEG-4/AAC and GPU
+readback have native device evidence; Apple and general hardware interop remain
+unvalidated. See `validation/studio_export_2026-09-08.md` and provenance records.

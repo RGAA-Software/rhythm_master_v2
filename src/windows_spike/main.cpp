@@ -5,6 +5,9 @@
 #include "rhythm/platform/host.h"
 #include "rhythm/runtime/frame_clock.h"
 #include "rhythm/studio/studio.h"
+#ifdef RHYTHM_HAS_EXPORT
+#include "rhythm/export/jobs.h"
+#endif
 
 // The process-entry argv pointers are mandated by the C++ host ABI and are not stored.
 #ifdef _WIN32
@@ -16,6 +19,7 @@ int main(int argc, char* argv[]) {
         bool smoke = false;
         std::optional<std::filesystem::path> requested_project;
         std::optional<std::filesystem::path> requested_audio;
+        std::optional<std::filesystem::path> export_job;
         for (int index = 1; index < argc; ++index) {
             const std::filesystem::path argument(argv[index]);
             if (argument == "--smoke")
@@ -24,10 +28,21 @@ int main(int argc, char* argv[]) {
                 requested_project = std::filesystem::path(argv[++index]);
             else if (argument == "--audio" && index + 1 < argc)
                 requested_audio = std::filesystem::path(argv[++index]);
+#ifdef RHYTHM_HAS_EXPORT
+            else if (argument == "--export-job" && index + 1 < argc)
+                export_job = std::filesystem::path(argv[++index]);
+#endif
             else
                 throw std::invalid_argument(
                         "Usage: rhythm_master [--project directory] [--audio file] [--smoke]");
         }
+#ifdef RHYTHM_HAS_EXPORT
+        if (export_job) {
+            if (argc != 3)
+                throw std::invalid_argument("export job requires an exclusive entry branch");
+            return rhythm::exporting::RunExportJob(*export_job);
+        }
+#endif
         rhythm::platform::Host host(smoke);
         auto renderer = host.CreateRenderer();
         auto font = host.CreateFontTexture(renderer);
