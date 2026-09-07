@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string_view>
 
+#include "component_panel.h"
 #include "component_workbench.h"
 #include "preview_routing.h"
 
@@ -132,6 +133,33 @@ void Run() {
     Require(routing.Scoped(rendered).textures_.empty() && routing.TakeInvalidation() &&
                     !routing.TakeInvalidation(),
             "switching instance hides the old mapping and invalidates cached images once");
+    studio::ComponentPanel panel;
+    std::optional<studio::ComponentAction> action;
+    const auto panel_frame = [&](const char* activate = "") {
+        ImGui::NewFrame();
+        ImGui::SetNextWindowPos({0, 0});
+        ImGui::SetNextWindowSize({1100, 800});
+        ImGui::Begin("Unpack panel");
+        if (*activate) ImGui::ActivateItemByID(ImGui::GetID(activate));
+        if (const auto requested =
+                    panel.Draw(project.document_, std::vector<graph::NodeId>{10}, {}))
+            action = requested;
+        ImGui::End();
+        ImGui::Render();
+    };
+    panel_frame();
+    panel_frame("###component.panel");
+    panel_frame();
+    panel_frame("###component.unpack");
+    panel_frame();
+    Require(action && action->kind_ == studio::ComponentActionKind::kUnpack,
+            "selected instance unpack is reachable through the component panel");
+    const auto unpacked = studio::ExecuteComponentAction(*action, project, registry,
+                                                         std::vector<graph::NodeId>{10}, 30, {});
+    Require(std::holds_alternative<editor::Snapshot>(unpacked) &&
+                    std::get<editor::Snapshot>(unpacked).document_.nodes_.back().type_ ==
+                            "texture.shape",
+            "unpack UI action reaches the pure authoring command");
     std::cout << "component UI: simultaneous canvases, draft isolation, apply and close passed\n";
 }
 }  // namespace

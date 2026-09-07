@@ -32,6 +32,7 @@ if(BUILD_TESTING)
     rhythm_project_target(performance_workflow_tests)
     add_test(NAME performance_workflow COMMAND performance_workflow_tests
         "${PROJECT_BINARY_DIR}/content/templates/resonance_live" "${PROJECT_BINARY_DIR}/performance-workflow")
+    set_tests_properties(performance_workflow PROPERTIES FIXTURES_SETUP performance_project)
     if(WIN32)
         set_tests_properties(performance_workflow PROPERTIES ENVIRONMENT_MODIFICATION
             "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_IO_SDK}/debug/bin")

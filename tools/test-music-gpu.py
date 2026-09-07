@@ -13,6 +13,7 @@ def main():
     parser.add_argument('--fixtures', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--expected-nodes', type=int, default=164)
+    parser.add_argument('--reference-output', type=Path)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     subprocess.run([str(args.executable), str(args.package), str(args.fixtures), str(args.output),
@@ -34,6 +35,14 @@ def main():
         if difference < 0.15:
             raise AssertionError(f'Audio response too small: {first} / {second}: {difference}')
     (args.output / 'pixel-differences.json').write_text(json.dumps(differences, indent=4) + '\n', encoding='utf-8')
+    if args.reference_output:
+        for name, pixels in images.items():
+            reference = subprocess.run([ffmpeg, '-v', 'error', '-i', str(args.reference_output / (name + '.png')),
+                                        '-frames:v', '1', '-pix_fmt', 'rgb24', '-f', 'rawvideo', '-'],
+                                       check=True, capture_output=True).stdout
+            if pixels != reference:
+                raise AssertionError(f'Component transformation changed rendered pixels: {name}')
+        print('All four decoded-PCM images exactly match the reference project')
     print(differences)
 
 

@@ -21,6 +21,10 @@ EditResult MakeComponent(const Snapshot& snapshot, const graph::Registry& regist
                          std::string_view title);
 EditResult ExpandAllComponents(const Snapshot& snapshot, const graph::Registry& registry,
                                graph::NodeId first_fresh_id);
+// Unwrap only the selected instance's immediate body. Nested components and
+// other instances remain reusable; its output ID and external connections survive.
+EditResult UnpackComponent(const Snapshot& snapshot, const graph::Registry& registry,
+                           graph::NodeId instance, graph::NodeId first_fresh_id);
 // Clones the entire referenced component closure for one instance. Other
 // instances keep their existing embedded definitions and parameter values.
 EditResult DetachComponent(const Snapshot& snapshot, const graph::Registry& registry,

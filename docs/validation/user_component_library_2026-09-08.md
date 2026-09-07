@@ -45,6 +45,7 @@ preview harness merely to save them.
   Source boundaries and deployed startup with music pass.
 
 This completes this cross-project library increment. Internal component viewers
-were subsequently added; see `component_previews_2026-09-08.md`. Single-instance
-expansion, automatic official-component migration, media export and the rest
+and single-instance unpacking were subsequently added; see
+`component_previews_2026-09-08.md` and `component_unpack_2026-09-08.md`.
+Automatic official-component migration, media export and the rest
 of the visual-authoring/content roadmap remain separate work.

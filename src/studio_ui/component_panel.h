@@ -5,7 +5,7 @@
 #include "rhythm/editor/commands.h"
 
 namespace rhythm::studio {
-enum class ComponentActionKind { kCreate, kAdd, kExpand, kEdit, kDetach };
+enum class ComponentActionKind { kCreate, kAdd, kExpand, kEdit, kDetach, kUnpack };
 struct ComponentAction {
     ComponentActionKind kind_ = ComponentActionKind::kCreate;
     std::string value_{};

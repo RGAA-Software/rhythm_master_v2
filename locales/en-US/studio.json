@@ -559,5 +559,6 @@
     "component.library_limit": "The library scan limit was reached; split larger collections into folders.",
     "component.library_skipped": "Some damaged library entries were skipped; valid components remain available.",
     "component.preview_instance": "Preview instance",
-    "component.preview_no_instance": "No root instance of this definition. Add an instance, or enter it through its parent component to preview."
+    "component.preview_no_instance": "No root instance of this definition. Add an instance, or enter it through its parent component to preview.",
+    "component.unpack": "Unpack selected instance (one level)"
 }

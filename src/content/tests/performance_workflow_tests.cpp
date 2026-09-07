@@ -47,6 +47,16 @@ int main(int argc, char* argv[]) {
               "published executable matches the edited project");
         Check(package.program_.instructions_.size() == 197,
               "all expected performance operators reach the final output");
+        const auto unpacked =
+                std::get<editor::Snapshot>(editor::UnpackComponent(restored, registry, 4, 10000));
+        Check(unpacked.document_.nodes_.size() == 35 &&
+                      unpacked.document_.components_ == restored.document_.components_ &&
+                      unpacked.document_.nodes_[2] == restored.document_.nodes_[2],
+              "unpacking the 3D core keeps the field reusable and all shared definitions intact");
+        const auto unpacked_path = output / "unpacked-performance.rhythmpack";
+        project::PublishSnapshot(unpacked_path, unpacked);
+        Check(project::LoadPackage(unpacked_path).program_.instructions_.size() == 197,
+              "unpacked performance retains the complete executable composition");
 
         const auto component = content::CaptureComponent(restored, 4, registry);
         for (int attempt = 0; attempt < 8; ++attempt)
@@ -74,7 +84,7 @@ int main(int argc, char* argv[]) {
               "component publication excludes the unrelated spectrum field");
 
         auto renderer = render::Renderer::CreateNull();
-        for (const auto& path : {package_path, solo_path}) {
+        for (const auto& path : {package_path, solo_path, unpacked_path}) {
             player::Session session;
             session.Open(path);
             runtime::ExternalInputs inputs;

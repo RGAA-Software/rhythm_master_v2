@@ -86,6 +86,7 @@ if(BUILD_TESTING)
         target_link_libraries(music_gpu_tests PRIVATE platform_sdl spike_bgfx player_core media_audio audio_analysis)
         rhythm_project_target(music_gpu_tests)
         add_dependencies(music_gpu_tests runtime_builtin_content)
+        add_dependencies(music_gpu_tests performance_workflow_tests)
         add_test(NAME music_fixtures COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/create-music-fixture.py"
             --output "${PROJECT_BINARY_DIR}/music-fixtures" --tones)
         set_tests_properties(music_fixtures PROPERTIES FIXTURES_SETUP music_pcm TIMEOUT 30)
@@ -98,6 +99,17 @@ if(BUILD_TESTING)
             --expected-nodes 197 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/resonance-live-music-captures")
         set_tests_properties(resonance_live_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME performance_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
+            --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/performance-workflow/performance.rhythmpack"
+            --expected-nodes 197 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --output "${PROJECT_BINARY_DIR}/performance-music-captures")
+        set_tests_properties(performance_music_gpu PROPERTIES FIXTURES_REQUIRED "performance_project;music_pcm"
+            FIXTURES_SETUP performance_pixels TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME unpacked_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
+            --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/performance-workflow/unpacked-performance.rhythmpack"
+            --expected-nodes 197 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --output "${PROJECT_BINARY_DIR}/unpacked-music-captures" --reference-output "${PROJECT_BINARY_DIR}/performance-music-captures")
+        set_tests_properties(unpacked_music_gpu PROPERTIES FIXTURES_REQUIRED performance_pixels TIMEOUT 120 RUN_SERIAL TRUE)
         add_executable(video_gpu_tests tests/video_gpu_tests.cpp)
         target_link_libraries(video_gpu_tests PRIVATE platform_sdl spike_bgfx graph_runtime video_sources asset_store)
         rhythm_project_target(video_gpu_tests)

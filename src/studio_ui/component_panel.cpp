@@ -27,9 +27,13 @@ std::optional<ComponentAction> ComponentPanel::Draw(
                              [&](const auto& value) { return value.id_ == selection.front(); });
         if (node != document.nodes_.end() &&
             std::any_of(document.components_.begin(), document.components_.end(),
-                        [&](const auto& value) { return value.type_ == node->type_; }) &&
-            ImGui::Button(label("component.detach").c_str()))
-            return ComponentAction{ComponentActionKind::kDetach};
+                        [&](const auto& value) { return value.type_ == node->type_; })) {
+            if (ImGui::Button((label("component.unpack") + "###component.unpack").c_str()))
+                return ComponentAction{ComponentActionKind::kUnpack};
+            ImGui::SameLine();
+            if (ImGui::Button(label("component.detach").c_str()))
+                return ComponentAction{ComponentActionKind::kDetach};
+        }
     }
     if (!document.components_.empty()) {
         ImGui::TextWrapped("%s", label("component.expand_help").c_str());
@@ -70,6 +74,10 @@ editor::EditResult ExecuteComponentAction(const ComponentAction& action,
             if (selection.size() == 1)
                 return editor::DetachComponent(snapshot, registry, selection.front(),
                                                "component.user." + std::to_string(fresh_id));
+            break;
+        case ComponentActionKind::kUnpack:
+            if (selection.size() == 1)
+                return editor::UnpackComponent(snapshot, registry, selection.front(), fresh_id);
             break;
     }
     return graph::Diagnostic{"graph.component"};

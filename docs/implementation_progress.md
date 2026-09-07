@@ -52,6 +52,11 @@ instance mapping, transient draft preview, shared eight-image budgeting and
 generation-bound cache invalidation. Actual Studio/D3D11 and ImGui regressions
 pass; see `validation/component_previews_2026-09-08.md`.
 
+Selected instances can now be unpacked one level with parameter, signal,
+connection, layout and undo preservation. Four real decoded-PCM D3D11 images
+remain pixel-identical after unpacking the performance core. The portable command
+also passes on Android; see `validation/component_unpack_2026-09-08.md`.
+
 ## 2026-09-07: complex music-driven scene and large-canvas verification
 
 Resonance Gate adds a fully connected 164-node / 269-edge Advanced audio template,

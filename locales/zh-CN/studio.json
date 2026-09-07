@@ -559,5 +559,6 @@
     "component.library_limit": "组件库已达到扫描数量上限，请将大型集合拆分到不同文件夹。",
     "component.library_skipped": "已跳过部分损坏的组件库条目，其他组件仍可使用。",
     "component.preview_instance": "预览实例",
-    "component.preview_no_instance": "此定义没有根图实例。添加一个实例，或从外层组件进入后预览。"
+    "component.preview_no_instance": "此定义没有根图实例。添加一个实例，或从外层组件进入后预览。",
+    "component.unpack": "展开所选实例（一级）"
 }
