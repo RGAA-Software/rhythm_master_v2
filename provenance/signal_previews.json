@@ -1,0 +1,18 @@
+{
+    "source_url": "https://github.com/ocornut/imgui",
+    "revision": "4806a1924ff6181180bf5e4b8b79ab4394118875",
+    "license": "MIT",
+    "studied_files": {
+        "imgui_widgets.cpp": "a9928a00a72a892461b1ee979b7f6c68b606039db0e41d41f1903f3352bb0b37",
+        "imgui.cpp": "14595633b7233587ac2df74107633b271660cc926cb22f09759c593263735491"
+    },
+    "imported_files": [],
+    "decision": "Reuse the already validated PlotLines API, ring offset and scaling; no dependency change or copied source.",
+    "modifications": "Project adapter disables plot input and permits overlap so the existing node editor owns body dragging. A bounded project cache owns evaluated graph IDs, playback/reset lifetime and numeric history.",
+    "target_modules": [
+        "src/studio_ui/node_visual.cpp",
+        "src/runtime/signal_previews.cpp"
+    ],
+    "notices": "third_party/notices/sources/imgui/LICENSE.txt",
+    "validation": "Real ImGui drag/link/pan and thousand-node regressions; actual Studio D3D11 component previews; Windows and USB Android evaluated signal history contracts."
+}

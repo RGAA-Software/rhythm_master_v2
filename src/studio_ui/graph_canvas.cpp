@@ -166,6 +166,8 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
         output_types[node.id_] = visual.output_.type_;
         visual.preview_enabled_ = previews.enabled_ && descriptor &&
                                   (descriptor->output_ == graph::ValueType::kTexture ||
+                                   descriptor->output_ == graph::ValueType::kScalar ||
+                                   descriptor->output_ == graph::ValueType::kSignal ||
                                    descriptor->output_ == graph::ValueType::kPoints ||
                                    descriptor->output_ == graph::ValueType::kGeometry ||
                                    descriptor->output_ == graph::ValueType::kMaterial ||
@@ -173,6 +175,8 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
         visual.preview_waiting_ = text("preview_waiting");
         if (const auto found = previews.textures_.find(node.id_); found != previews.textures_.end())
             visual.preview_texture_ = found->second;
+        if (const auto found = previews.signals_.find(node.id_); found != previews.signals_.end())
+            visual.preview_signal_ = found->second;
         preview_bounds[node.id_] = DrawNode(visual);
     }
     for (const auto& edge : snapshot.document_.edges_)
@@ -298,7 +302,8 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
             preview_first.x < origin.x + canvas_size.x && preview_last.y > origin.y &&
             preview_first.y < origin.y + canvas_size.y) {
             impl_->preview_nodes_.push_back(node.id_);
-            if (previews.textures_.contains(node.id_)) ++impl_->drawn_previews_;
+            if (previews.textures_.contains(node.id_) || previews.signals_.contains(node.id_))
+                ++impl_->drawn_previews_;
         }
     }
     ed::SetCurrentEditor(nullptr);

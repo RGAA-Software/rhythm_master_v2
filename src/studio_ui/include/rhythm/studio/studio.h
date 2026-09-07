@@ -14,6 +14,7 @@ struct FrameStatus {
     std::uint32_t recycled_textures_ = 0;
     std::size_t profiled_nodes_ = 0;
     std::size_t component_inline_previews_ = 0;
+    std::size_t signal_previews_ = 0;
 };
 class Studio final {
    public:

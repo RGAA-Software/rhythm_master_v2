@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rhythm/graph/registry.h"
+#include "rhythm/runtime/signal_previews.h"
 
 namespace rhythm::studio {
 struct PortVisual {
@@ -17,6 +18,7 @@ struct NodeVisual {
     bool preview_enabled_ = false;
     std::uint64_t preview_texture_ = 0;
     std::string preview_waiting_{};
+    std::optional<runtime::SignalTrace> preview_signal_{};
 };
 struct PreviewBounds {
     float x_ = 0;

@@ -114,9 +114,10 @@ The implemented slice loads a data-defined graph, renders it through a private
 bgfx/D3D11 adapter, and provides a docked node canvas, descriptor-based Inspector,
 node creation/link editing, live parameter preview, undo/redo, asynchronous
 transactional save/reopen, Chinese/English UI, and budgeted previews directly
-inside texture nodes. The initial graph displays five inline previews; up to
-eight visible nodes share a 256x144 / 15 Hz preview budget, with selected-node
-priority and no routine CPU image readback.
+inside image/3D and scalar/signal nodes. Up to eight visible nodes share a preview
+budget, with selected-node priority and no routine CPU image readback. Images use
+256x144 / 15 Hz capture; numeric nodes show evaluated values and up to 120 history
+samples, including inside components. See [signal preview behavior and tests](docs/validation/signal_previews_2026-09-08.md).
 The shared renderer also builds from its own directory without Studio dependencies.
 Current Windows and Android checks include actual Adreno 650 GLES pixels and
 playback of Windows-published runtime packages. Exact counts and remaining

@@ -181,12 +181,23 @@ void InlinePreviewVisibility() {
     CanvasFixture fixture;
     fixture.previews_.enabled_ = true;
     fixture.previews_.textures_[3] = 1;
+    rhythm::runtime::SignalTrace trace;
+    trace.samples_[0] = -1;
+    trace.samples_[1] = 1;
+    trace.count_ = 2;
+    trace.value_ = 1;
+    fixture.previews_.signals_[1] = trace;
+    fixture.previews_.signals_[2] = trace;
     fixture.canvas_.RestoreLayout();
     for (int frame = 0; frame < 6; ++frame) fixture.Frame();
-    Check(fixture.canvas_.PreviewNodes().size() == 1 &&
-                  fixture.canvas_.PreviewNodes().front() == 3 &&
-                  fixture.canvas_.DrawnPreviews() == 1,
-          "Only a visible texture node should request and draw an inline preview");
+    Check(fixture.canvas_.PreviewNodes().size() == 3 && fixture.canvas_.DrawnPreviews() == 3,
+          "Visible scalar, signal and texture nodes must request and draw inline previews");
+    const auto signal_before = fixture.snapshot_.positions_.at(2);
+    const auto plot = fixture.canvas_.ToScreen({signal_before.x_ + 90, signal_before.y_ + 120});
+    fixture.Drag(plot, {plot.x_ + 40, plot.y_ + 25});
+    Check(fixture.snapshot_.positions_.at(2) != signal_before &&
+                  fixture.snapshot_.document_.edges_.empty(),
+          "Dragging the signal plot must move its node without capturing a widget or linking");
     const auto before = fixture.snapshot_.positions_.at(3);
     const auto image = fixture.canvas_.ToScreen({before.x_ + 90, before.y_ + 120});
     fixture.Drag(image, {image.x_ + 60, image.y_ + 40});

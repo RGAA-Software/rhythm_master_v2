@@ -435,6 +435,7 @@ class Studio::Impl final {
         // alive through submission, even when this frame changes viewer demand.
         if (preview_routing_.TakeInvalidation()) {
             viewers_.BeginFrame(seconds, false, reset_);
+            signal_previews_.Clear();
         }
         const auto active_viewers = preview_routing_.ActiveNodes();
         const auto viewer_due = viewers_.BeginFrame(seconds, !active_viewers.empty(), reset_);
@@ -466,16 +467,23 @@ class Studio::Impl final {
         recycled_textures_ = output.recycled_textures_;
         profiled_nodes_ = output.profiles_.size();
         budget_limited_ = output.budget_.has_value();
+        if (output.budget_ || !show_viewers_ || active_viewers.empty()) signal_previews_.Clear();
+        if (viewer_due && plan_ && !output.budget_) {
+            signal_previews_.Capture(output, preview_routing_.SignalNodes(), playback_seconds,
+                                     reset_);
+        }
         if (output.budget_) viewers_.BeginFrame(seconds, false, reset_);
         try {
             viewers_.Capture(output, active_viewers, renderer);
         } catch (const render::BudgetExceeded&) {
             viewers_.BeginFrame(seconds, false, reset_);
+            signal_previews_.Clear();
             show_viewers_ = false;
             status_ = Text("render.preview_budget");
         }
         CanvasPreviews previews;
         previews.enabled_ = show_viewers_;
+        previews.signals_ = signal_previews_.Traces();
         for (const auto& value : viewers_.Outputs())
             if (renderer.IsValid(value.texture_))
                 previews.textures_[value.node_] = host.RegisterTexture(value.texture_);
@@ -621,6 +629,7 @@ class Studio::Impl final {
     runtime::Runtime runtime_{};
     video_sources::Streams videos_{};
     runtime::Viewers viewers_{};
+    runtime::SignalPreviews signal_previews_{};
     std::vector<graph::NodeId> viewer_nodes_{};
     std::uint32_t evaluated_ = 0;
     GraphCanvas canvas_{};
@@ -678,7 +687,8 @@ FrameStatus Studio::Status() const {
             impl_->budget_limited_,
             impl_->recycled_textures_,
             impl_->profiled_nodes_,
-            impl_->component_workbench_.DrawnPreviews()};
+            impl_->component_workbench_.DrawnPreviews(),
+            impl_->signal_previews_.Traces().size()};
 }
 void Studio::LoadAudioFile(const std::filesystem::path& path, float volume) {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA

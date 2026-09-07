@@ -4,6 +4,8 @@
 #include <imgui_node_editor.h>
 
 #include <algorithm>
+#include <cmath>
+#include <cstdio>
 
 namespace rhythm::studio {
 namespace ed = ax::NodeEditor;
@@ -87,7 +89,30 @@ PreviewBounds DrawNode(const NodeVisual& node) {
     if (node.preview_enabled_) {
         const auto position = ImGui::GetCursorScreenPos();
         preview = {position.x, position.y, width, width * 0.5625f};
-        if (node.preview_texture_)
+        if (node.preview_signal_ && node.preview_signal_->count_) {
+            const auto& trace = *node.preview_signal_;
+            const auto samples = std::span(trace.samples_).first(trace.count_);
+            const auto [minimum, maximum] = std::minmax_element(samples.begin(), samples.end());
+            const auto padding =
+                    std::max(0.01f, std::max(std::abs(*minimum), std::abs(*maximum)) * 0.05f);
+            char label[64]{};
+            std::snprintf(label, sizeof(label), "%.6g", trace.value_);
+            ImGui::PushID(static_cast<int>(node.id_));
+            ImGui::PushStyleColor(ImGuiCol_PlotLines, TypeColor(node.output_.type_).Value);
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(16, 22, 31, 255));
+            // Upstream PlotLines uses ButtonBehavior. A display-only plot must
+            // not claim clicks from the node editor's body drag interaction.
+            ImGui::PushStyleVar(ImGuiStyleVar_DisabledAlpha, 1.0f);
+            ImGui::BeginDisabled();
+            ImGui::SetNextItemAllowOverlap();
+            ImGui::PlotLines("##signal", samples.data(), static_cast<int>(samples.size()),
+                             static_cast<int>(trace.offset_), label, *minimum - padding,
+                             *maximum + padding, {preview.width_, preview.height_});
+            ImGui::EndDisabled();
+            ImGui::PopStyleVar();
+            ImGui::PopStyleColor(2);
+            ImGui::PopID();
+        } else if (node.preview_texture_)
             ImGui::Image(node.preview_texture_, {preview.width_, preview.height_});
         else {
             ImGui::Dummy({preview.width_, preview.height_});

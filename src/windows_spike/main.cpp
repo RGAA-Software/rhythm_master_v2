@@ -74,10 +74,11 @@ int main(int argc, char* argv[]) {
         const auto status = studio.Status();
         std::cout << "visible_nodes=" << status.visible_nodes_ << "/" << status.authored_nodes_
                   << " viewers=" << status.viewers_
+                  << " signal_previews=" << status.signal_previews_
                   << " inline_previews=" << status.inline_previews_ << '\n';
         if (smoke && !requested_project &&
             (status.visible_nodes_ != status.authored_nodes_ || status.viewers_ != 5 ||
-             status.inline_previews_ != 5))
+             status.signal_previews_ != 3 || status.inline_previews_ != 8))
             throw std::runtime_error("studio.smoke_layout");
         std::cout << "gpu_frames=" << renderer.Stats().frame_ << '\n';
         return 0;

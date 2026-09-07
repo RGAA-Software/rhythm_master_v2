@@ -38,10 +38,14 @@ int main(int argc, char* argv[]) {
         auto font = host.CreateFontTexture(renderer);
         studio::Studio studio(resources, output);
         std::size_t maximum_previews = 0;
+        std::size_t maximum_signals = 0;
+        bool captured = false;
         std::uint64_t peak_bytes = 0;
         for (int frame = 0; frame < 210; ++frame) {
             if (!host.Poll()) throw std::runtime_error("component_preview.closed");
-            if (!maximum_previews && frame >= 55 && frame < 105 && frame % 5 == 0) ZoomComponent();
+            if (!studio.Status().component_inline_previews_ && frame >= 55 && frame < 140 &&
+                frame % 5 == 0)
+                ZoomComponent();
             host.BeginUi();
             renderer.BeginFrame();
             if (frame == 15) Activate("###inspector", "###component.panel");
@@ -51,24 +55,27 @@ int main(int argc, char* argv[]) {
             studio.Frame(host, renderer, frame / 60.0);
             auto draw = host.EndUi();
             renderer.Submit({}, draw, 0x111822ff);
-            if (frame == 150) {
-                if (!studio.Status().component_inline_previews_)
-                    throw std::runtime_error("component_preview.capture_empty");
+            if (!captured && frame >= 150 && frame < 175 &&
+                studio.Status().component_inline_previews_ && studio.Status().signal_previews_) {
                 const auto capture = (output / "component-preview").string();
                 bgfx::requestScreenShot(BGFX_INVALID_HANDLE, capture.c_str());
+                captured = true;
             }
             renderer.EndFrame();
             const auto status = studio.Status();
             maximum_previews = std::max(maximum_previews, status.component_inline_previews_);
+            maximum_signals = std::max(maximum_signals, status.signal_previews_);
             peak_bytes = std::max(peak_bytes, renderer.Stats().texture_bytes_);
-            if (status.budget_limited_ || status.viewers_ > 8 || status.authored_nodes_ != 9)
+            if (status.budget_limited_ || status.viewers_ + status.signal_previews_ > 8 ||
+                status.authored_nodes_ != 9)
                 throw std::runtime_error("component_preview.budget_or_draft_mutation");
             if (frame > 185 && status.component_inline_previews_ != 0)
                 throw std::runtime_error("component_preview.cancel_keeps_viewers");
         }
-        if (!maximum_previews || !studio.HasValidPlan())
+        if (!captured || !maximum_previews || !maximum_signals || !studio.HasValidPlan())
             throw std::runtime_error("component_preview.no_internal_images");
         std::cout << "actual Studio component previews=" << maximum_previews
+                  << " numeric previews=" << maximum_signals
                   << " total viewer budget=8 peak_texture_bytes=" << peak_bytes
                   << " frames=210 cancel/draft isolation passed\n";
     } catch (const std::exception& error) {

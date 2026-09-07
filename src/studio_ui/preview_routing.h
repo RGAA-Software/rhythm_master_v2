@@ -17,11 +17,14 @@ class PreviewRouting final {
     void Commit();
     bool TakeInvalidation();
     std::span<const graph::NodeId> ActiveNodes() const { return active_nodes_; }
+    std::span<const graph::NodeId> SignalNodes() const { return signal_nodes_; }
     CanvasPreviews Scoped(const CanvasPreviews& previews) const;
 
    private:
     std::vector<graph::NodeId> active_nodes_{};
     std::vector<graph::NodeId> pending_nodes_{};
+    std::vector<graph::NodeId> signal_nodes_{};
+    std::vector<graph::NodeId> pending_signal_nodes_{};
     std::map<graph::NodeId, graph::NodeId> scoped_nodes_{};
     std::map<graph::NodeId, graph::NodeId> pending_scoped_nodes_{};
     bool invalidated_ = false;

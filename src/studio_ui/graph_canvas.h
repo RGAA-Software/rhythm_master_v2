@@ -4,12 +4,14 @@
 #include <span>
 
 #include "rhythm/editor/history.h"
+#include "rhythm/runtime/signal_previews.h"
 
 namespace rhythm::studio {
 struct CanvasPreviews {
     bool enabled_ = false;
     // Frame-local UI texture IDs; native/backend handles stay inside adapters.
     std::map<graph::NodeId, std::uint64_t> textures_{};
+    std::map<graph::NodeId, runtime::SignalTrace> signals_{};
 };
 class GraphCanvas final {
    public:

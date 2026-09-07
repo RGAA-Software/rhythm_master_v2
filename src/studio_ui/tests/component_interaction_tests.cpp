@@ -123,14 +123,18 @@ void Run() {
     compilation.viewers_ = {101};
     compilation.scoped_nodes_ = {{2, 101}};
     routing.Stage(compilation);
-    const studio::CanvasPreviews rendered{true, {{101, 777}}};
+    studio::CanvasPreviews rendered{true, {{101, 777}}};
+    rendered.signals_[101].value_ = 0.375;
     Require(routing.Scoped(rendered).textures_.empty(),
             "completed compilation cannot map textures before its resources are committed");
     routing.Commit();
     Require(routing.Scoped(rendered).textures_.at(2) == 777,
             "committed instance map selects its own existing runtime image");
+    Require(routing.Scoped(rendered).signals_.at(2).value_ == 0.375,
+            "numeric previews must use the same committed instance mapping");
     routing.Prepare({}, {{20}, {2}});
-    Require(routing.Scoped(rendered).textures_.empty() && routing.TakeInvalidation() &&
+    Require(routing.Scoped(rendered).textures_.empty() &&
+                    routing.Scoped(rendered).signals_.empty() && routing.TakeInvalidation() &&
                     !routing.TakeInvalidation(),
             "switching instance hides the old mapping and invalidates cached images once");
     studio::ComponentPanel panel;
