@@ -610,5 +610,13 @@
     "music.binding_canceled": "已取消音乐绑定",
     "project.soundtrack_invalid": "作品音乐引用或设置无效",
     "asset.music_bytes": "作品音乐字节数",
-    "package.music_bytes": "作品音乐不能为空，且不能超过 256 MiB。"
+    "package.music_bytes": "作品音乐不能为空，且不能超过 256 MiB。",
+    "waveform.title": "整曲波形",
+    "waveform.refresh": "重新扫描",
+    "waveform.scanning": "已扫描音乐：",
+    "waveform.help": "点击或拖动后在波形内松开以定位。指示线跟随音乐播放。",
+    "waveform.failed": "无法扫描音乐，请检查本地文件是否可播放且不超过 256 MiB。",
+    "waveform.empty": "音乐中没有可解码的采样。",
+    "waveform.timeout": "波形扫描超时，音乐仍可正常播放。",
+    "waveform.canceled": "已取消波形扫描。"
 }

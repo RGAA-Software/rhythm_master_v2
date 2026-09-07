@@ -10,6 +10,18 @@
 #include "curve_editor.h"
 
 namespace rhythm::studio {
+std::size_t TimelinePanel::WaveformBins() const {
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+    return waveform_.BinCount();
+#else
+    return 0;
+#endif
+}
+void TimelinePanel::CancelMediaPreview() {
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+    waveform_.Clear();
+#endif
+}
 void TimelinePanel::Restart() {
     clock_.Seek(0);
     command_.seek_ = 0;
@@ -27,7 +39,8 @@ double TimelinePanel::Advance(double host_seconds, bool,
     return clock_.Seconds();
 }
 TimelineEdit TimelinePanel::Draw(const editor::Snapshot& base, bool seekable,
-                                 const std::map<std::string, std::string>& text) {
+                                 const std::map<std::string, std::string>& text,
+                                 const std::optional<std::filesystem::path>& music) {
     TimelineEdit edit;
     if (draft_ && (draft_->document_.revision_ != base.document_.revision_ ||
                    draft_->document_.id_ != base.document_.id_)) {
@@ -84,6 +97,14 @@ TimelineEdit TimelinePanel::Draw(const editor::Snapshot& base, bool seekable,
     ImGui::EndDisabled();
     if (clock_.FollowingMedia()) ImGui::TextWrapped("%s", text.at("timeline.media_clock").c_str());
     if (!seekable) ImGui::TextWrapped("%s", text.at("timeline.stateful").c_str());
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+    if (const auto seek = waveform_.Draw(music, clock_.Seconds(), text)) {
+        clock_.Seek(*seek);
+        command_.seek_ = *seek;
+    }
+#else
+    (void)music;
+#endif
     ImGui::Separator();
     const auto& snapshot = draft_ ? *draft_ : base;
     std::vector<graph::NodeId> tracks;

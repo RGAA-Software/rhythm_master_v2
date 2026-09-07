@@ -46,6 +46,7 @@ int main(int argc, char* argv[]) {
         int published = -1;
         bool saved = false, observed_clear = false, restored = false;
         int frames = 0;
+        std::size_t waveform_bins = 0;
         for (; frames < 1200; ++frames) {
             if (!host.Poll() || std::chrono::steady_clock::now() - start > std::chrono::seconds(40))
                 throw std::runtime_error("soundtrack Studio workflow timeout");
@@ -71,6 +72,12 @@ int main(int argc, char* argv[]) {
             if (published >= 0 && frames == published + 5)
                 Activate("###inspector", "###music.clear");
             if (published >= 0 && frames == published + 20) Activate("###graph", "###reopen");
+            if (published >= 0 && frames == published + 30) Activate("###graph", "###timeline");
+            if (published >= 0 && frames == published + 33)
+                if (auto* window = ImGui::FindWindowByName("###timeline")) {
+                    ImGui::SetWindowPos(window, {20, 800}, ImGuiCond_Always);
+                    ImGui::SetWindowSize(window, {620, 570}, ImGuiCond_Always);
+                }
             studio.Frame(host, renderer,
                          std::chrono::duration<double>(std::chrono::steady_clock::now() - start)
                                  .count());
@@ -82,6 +89,7 @@ int main(int argc, char* argv[]) {
             renderer.EndFrame();
             if (studio.Status().budget_limited_)
                 throw std::runtime_error("soundtrack graph budget");
+            waveform_bins = std::max(waveform_bins, studio.Status().waveform_bins_);
             if (!saved && frames > 45 && frames % 10 == 0)
                 saved = project::Load(project_path).snapshot_.soundtrack_.has_value();
             if (published < 0 && std::filesystem::is_regular_file(package_path)) {
@@ -97,12 +105,13 @@ int main(int argc, char* argv[]) {
             if (published >= 0 && frames > published + 220) break;
         }
         if (!saved || published < 0 || !observed_clear || !restored || !studio.HasValidPlan() ||
-            studio.Status().authored_nodes_ != 9)
+            studio.Status().authored_nodes_ != 9 || !waveform_bins || waveform_bins > 4096)
             throw std::runtime_error("Studio bind/save/publish/clear/reopen did not complete");
         const auto path = package_path.u8string();
         std::cout << "Studio bind/save/publish/clear/reopen: music restored, 197 instructions, "
                      "frames="
-                  << frames << " package=" << std::string(path.begin(), path.end()) << '\n';
+                  << frames << " waveform_bins=" << waveform_bins
+                  << " package=" << std::string(path.begin(), path.end()) << '\n';
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

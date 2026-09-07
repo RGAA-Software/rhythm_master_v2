@@ -560,7 +560,12 @@ class Studio::Impl final {
             ImGui::SetNextWindowSize({760, 530}, ImGuiCond_FirstUseEver);
             if (ImGui::Begin((Text("timeline") + "###timeline").c_str(), &show_timeline_)) {
                 ImGui::BeginDisabled(inspector_.Preview().has_value());
-                auto edit = timeline_.Draw(history_->Current(), seekable, catalogs_.at(locale_));
+                std::optional<std::filesystem::path> music;
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+                music = audio_panel_.SelectedFile();
+#endif
+                auto edit =
+                        timeline_.Draw(history_->Current(), seekable, catalogs_.at(locale_), music);
                 ImGui::EndDisabled();
                 if (edit.committed_)
                     Apply(std::move(*edit.committed_));
@@ -570,6 +575,7 @@ class Studio::Impl final {
             ImGui::End();
         }
         if (!show_timeline_ && timeline_.Preview()) CommitEdits();
+        if (!show_timeline_) timeline_.CancelMediaPreview();
         auto component_previews = preview_routing_.Scoped(previews);
         component_previews.enabled_ = show_viewers_;
         if (const auto edited =
@@ -689,7 +695,8 @@ FrameStatus Studio::Status() const {
             impl_->recycled_textures_,
             impl_->profiled_nodes_,
             impl_->component_workbench_.DrawnPreviews(),
-            impl_->signal_previews_.Traces().size()};
+            impl_->signal_previews_.Traces().size(),
+            impl_->timeline_.WaveformBins()};
 }
 void Studio::LoadAudioFile(const std::filesystem::path& path, float volume) {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA

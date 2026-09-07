@@ -1,0 +1,37 @@
+{
+    "source_references": [
+        {
+            "url": "https://github.com/FFmpeg/FFmpeg/blob/n8.1.2/libavfilter/avf_showwaves.c",
+            "revision": "n8.1.2 release source snapshot",
+            "license": "LGPL-2.1-or-later; Copyright (c) 2012 Stefano Sabatini",
+            "sha256": "cffffb0d06142b65064c921c55e5868d0cb80affddfa3b65f81676a2c335b5cc",
+            "decision": "Studied peak reduction and whole-picture frame queue. No source copied. Queueing the entire decoded song is incompatible with the bounded overview; runtime remains the validated vcpkg FFmpeg 6.1 profile."
+        },
+        {
+            "url": "https://github.com/ocornut/imgui",
+            "revision": "4806a1924ff6181180bf5e4b8b79ab4394118875",
+            "license": "MIT",
+            "studied_files": [
+                "imgui_widgets.cpp: InvisibleButton, ButtonBehavior, PlotEx"
+            ],
+            "decision": "Reuse existing InvisibleButton, hover/disabled handling and batched draw-list primitives; no custom input framework."
+        }
+    ],
+    "first_party_reuse": [
+        "Existing AudioDecoder and FileBytes adapter",
+        "GammaRay-derived foundation::BlockingExecutor, provenance/gammaray_common.json"
+    ],
+    "imported_files": [],
+    "modifications": [
+        "Project-owned fixed-capacity min/max summary with adaptive pair compaction",
+        "One worker/result, cancellation and source-generation invalidation",
+        "Waveform release emits the existing timeline seek command"
+    ],
+    "target_modules": [
+        "src/media/waveform.cpp",
+        "src/studio_ui/waveform_panel.cpp",
+        "src/studio_ui/timeline_panel.cpp"
+    ],
+    "validation": "docs/validation/music_waveform_2026-09-08.md",
+    "outbound_license": "Unselected; no third-party code relicensed."
+}

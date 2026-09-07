@@ -610,5 +610,13 @@
     "music.binding_canceled": "Music binding canceled",
     "project.soundtrack_invalid": "Invalid work soundtrack reference or settings",
     "asset.music_bytes": "Bound music bytes",
-    "package.music_bytes": "The bound music must be non-empty and at most 256 MiB."
+    "package.music_bytes": "The bound music must be non-empty and at most 256 MiB.",
+    "waveform.title": "Music overview",
+    "waveform.refresh": "Rescan",
+    "waveform.scanning": "Scanning decoded music:",
+    "waveform.help": "Click or drag, then release inside the waveform to seek. The line follows music playback.",
+    "waveform.failed": "Could not scan this music. Check the local file and the 256 MiB overview limit.",
+    "waveform.empty": "The music contains no decoded samples.",
+    "waveform.timeout": "Overview scanning exceeded its time budget. Music playback is still available.",
+    "waveform.canceled": "Overview scan canceled."
 }
