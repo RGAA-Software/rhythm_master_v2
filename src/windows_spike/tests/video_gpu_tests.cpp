@@ -1,10 +1,8 @@
 #include <bgfx/bgfx.h>
 
-#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
-#include <thread>
 
 #include "rhythm/assets/store.h"
 #include "rhythm/platform/host.h"
@@ -47,18 +45,13 @@ int main(int argc, char** argv) {
             const auto seconds = kTimes[scenario];
             const std::uint64_t generation = scenario == 4 ? 2 : 1;
             runtime::FrameContext context{seconds, generation, {128, 128}, true};
-            const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
-            for (;;) {
-                context.videos_ = streams.Update(plan, *resources, seconds, generation);
-                bool ready = context.videos_.size() == 2;
-                for (const auto& sample : context.videos_) {
-                    const auto expected = sample.node_ == 1 ? std::fmod(seconds, 2.0) : 0.8;
-                    ready &= std::abs(sample.frame_->seconds_ - expected) < 0.001;
-                }
-                if (ready) break;
-                if (!streams.Error().empty() || std::chrono::steady_clock::now() > deadline)
-                    throw std::runtime_error("video GPU preparation deadline or decoder failure");
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            context.videos_ = streams.Resolve(plan, *resources, seconds, generation);
+            if (context.videos_.size() != 2)
+                throw std::runtime_error("offline video demand omitted a source");
+            for (const auto& sample : context.videos_) {
+                const auto expected = sample.node_ == 1 ? std::fmod(seconds, 2.0) : 0.8;
+                if (std::abs(sample.frame_->seconds_ - expected) >= 0.001)
+                    throw std::runtime_error("offline video demand returned a stale timestamp");
             }
             const auto capture = (output / ("video-" + std::to_string(scenario))).string();
             for (int frame = 0; frame < 8; ++frame) {

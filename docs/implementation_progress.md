@@ -604,3 +604,9 @@ Windows MPEG-4/AAC、H264/MF 与 Android 原生 MPEG-4/AAC 回读通过；
 
 Windows D3D11 与 USB Android/GLES 的三帧异步读回、像素顺序、透明度和取消通过。
 Viewer 无 CPU 读回；离线导出任务继续接入。见 [验证记录](validation/async_readback_2026-09-08.md)。
+
+## 2026-09-08 离线音画导出核心
+
+197 节点作品与真实音乐已生成 4 秒 MP4，同机重复导出逐帧一致，音轨长度准确；
+静音改变视觉，取消与预算验证通过。导出 UI/进程/发布继续接入，
+见 [验证记录](validation/offline_export_core_2026-09-08.md)。

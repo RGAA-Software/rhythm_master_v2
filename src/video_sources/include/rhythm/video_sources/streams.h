@@ -17,6 +17,12 @@ class Streams final {
     std::vector<runtime::VideoInput> Update(const graph::ExecutionPlan& plan,
                                             const prepared_assets::Resources& resources,
                                             double seconds, std::uint64_t generation);
+    // Offline worker only. Waits for each exact video demand using the same
+    // per-node playback/loop/offset rules; never call this from the live UI.
+    std::vector<runtime::VideoInput> Resolve(const graph::ExecutionPlan& plan,
+                                             const prepared_assets::Resources& resources,
+                                             double seconds, std::uint64_t generation,
+                                             std::stop_token stop = {});
     void Reset();
     const std::string& Error() const;
 

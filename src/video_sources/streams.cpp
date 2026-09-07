@@ -15,8 +15,10 @@ class Streams::Impl final {
    public:
     std::vector<runtime::VideoInput> Update(const graph::ExecutionPlan& plan,
                                             const prepared_assets::Resources& resources,
-                                            double seconds, std::uint64_t generation) {
+                                            double seconds, std::uint64_t generation,
+                                            bool resolve = false, std::stop_token stop = {}) {
         if (!std::isfinite(seconds) || seconds < 0) throw std::invalid_argument("video.time");
+        if (stop.stop_requested()) throw std::runtime_error("video.resolve_canceled");
         std::vector<runtime::VideoInput> result;
         std::set<graph::NodeId> active;
         error_.clear();
@@ -41,9 +43,11 @@ class Streams::Impl final {
                                                      graph::Scalar(node, "video_offset", 0),
                                              0.0, 86400.0 * 7);
             const bool loop = graph::Scalar(node, "video_loop", 1) != 0;
-            entry.playback_->Request(target, generation, loop);
-            const auto snapshot = entry.playback_->Snapshot();
+            if (!resolve) entry.playback_->Request(target, generation, loop);
+            const auto snapshot = resolve ? entry.playback_->Resolve(target, generation, loop, stop)
+                                          : entry.playback_->Snapshot();
             if (!snapshot.error_.empty()) error_ = snapshot.error_;
+            if (resolve && !error_.empty()) throw std::runtime_error(error_);
             if (!snapshot.frame_) continue;
             const auto duration = snapshot.duration_seconds_;
             const double local =
@@ -61,6 +65,7 @@ class Streams::Impl final {
             result.push_back({node.id_, id, snapshot.frame_, entry.revision_, generation});
 #else
             static_cast<void>(generation);
+            static_cast<void>(resolve);
             throw std::runtime_error("video.decoder_unavailable");
 #endif
         }
@@ -101,5 +106,11 @@ std::vector<runtime::VideoInput> Streams::Update(const graph::ExecutionPlan& pla
     return impl_->Update(plan, resources, seconds, generation);
 }
 void Streams::Reset() { impl_->Reset(); }
+std::vector<runtime::VideoInput> Streams::Resolve(const graph::ExecutionPlan& plan,
+                                                  const prepared_assets::Resources& resources,
+                                                  double seconds, std::uint64_t generation,
+                                                  std::stop_token stop) {
+    return impl_->Update(plan, resources, seconds, generation, true, stop);
+}
 const std::string& Streams::Error() const { return impl_->Error(); }
 }  // namespace rhythm::video_sources

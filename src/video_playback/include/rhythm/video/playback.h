@@ -32,6 +32,11 @@ class Playback final {
     // at/before demand, so VFR frames are never presented before their timestamp.
     void Request(double seconds, std::uint64_t generation, bool loop);
     PlaybackSnapshot Snapshot() const;
+    // Offline worker only: wait for this exact demand, or throw on cancellation
+    // or supersession. Uses the same decoder/PTS selection as realtime playback.
+    // Cancellation stops waiting; destruction also cancels and joins decoding.
+    PlaybackSnapshot Resolve(double seconds, std::uint64_t generation, bool loop,
+                             std::stop_token stop = {});
 
    private:
     class Impl;

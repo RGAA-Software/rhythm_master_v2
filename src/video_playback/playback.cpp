@@ -38,13 +38,13 @@ class Playback::Impl final {
         }
         wake_.notify_all();
     }
-    void Request(double seconds, std::uint64_t generation, bool loop) {
+    std::uint64_t Request(double seconds, std::uint64_t generation, bool loop) {
         if (!std::isfinite(seconds) || seconds < 0 || seconds > 86400 * 7)
             throw std::invalid_argument("video request time");
         std::lock_guard lock(mutex_);
         if (demand_.revision_ && demand_.seconds_ == seconds && demand_.generation_ == generation &&
             demand_.loop_ == loop)
-            return;
+            return demand_.revision_;
         if (!demand_.revision_ || demand_.generation_ != generation || seconds < demand_.seconds_ ||
             seconds - demand_.seconds_ > 0.5 || loop != demand_.loop_) {
             cancel_.request_stop();
@@ -60,9 +60,22 @@ class Playback::Impl final {
         snapshot_.pending_ = true;
         snapshot_.generation_ = generation;
         wake_.notify_all();
+        resolved_.notify_all();
+        return demand_.revision_;
     }
     PlaybackSnapshot Snapshot() const {
         std::lock_guard lock(mutex_);
+        return snapshot_;
+    }
+    PlaybackSnapshot Resolve(double seconds, std::uint64_t generation, bool loop,
+                             std::stop_token stop) {
+        if (stop.stop_requested()) throw std::runtime_error("video.resolve_canceled");
+        const auto revision = Request(seconds, generation, loop);
+        std::unique_lock lock(mutex_);
+        resolved_.wait(lock, stop,
+                       [&] { return demand_.revision_ != revision || !snapshot_.pending_; });
+        if (stop.stop_requested()) throw std::runtime_error("video.resolve_canceled");
+        if (demand_.revision_ != revision) throw std::runtime_error("video.resolve_superseded");
         return snapshot_;
     }
 
@@ -80,6 +93,7 @@ class Playback::Impl final {
         if (demand.epoch_ != demand_.epoch_) return;
         snapshot.pending_ = demand.revision_ != demand_.revision_;
         snapshot_ = std::move(snapshot);
+        resolved_.notify_all();
     }
     void Run(std::stop_token stop) {
         std::unique_ptr<media::VideoDecoder> decoder;
@@ -163,6 +177,7 @@ class Playback::Impl final {
     Source source_{};
     mutable std::mutex mutex_{};
     std::condition_variable_any wake_{};
+    std::condition_variable_any resolved_{};
     Demand demand_{};
     PlaybackSnapshot snapshot_{};
     std::stop_source cancel_{};
@@ -177,4 +192,8 @@ void Playback::Request(double seconds, std::uint64_t generation, bool loop) {
     impl_->Request(seconds, generation, loop);
 }
 PlaybackSnapshot Playback::Snapshot() const { return impl_->Snapshot(); }
+PlaybackSnapshot Playback::Resolve(double seconds, std::uint64_t generation, bool loop,
+                                   std::stop_token stop) {
+    return impl_->Resolve(seconds, generation, loop, stop);
+}
 }  // namespace rhythm::video

@@ -75,6 +75,15 @@ if(BUILD_TESTING)
         "${PROJECT_BINARY_DIR}/content/templates/resonance_live" "${PROJECT_BINARY_DIR}/component-preview-project")
     set_tests_properties(component_preview_gpu PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE)
     if(RHYTHM_BUILD_MEDIA)
+        add_executable(export_gpu_tests tests/export_gpu_tests.cpp)
+        target_link_libraries(export_gpu_tests PRIVATE export_core platform_sdl media_video)
+        rhythm_project_target(export_gpu_tests)
+        add_dependencies(export_gpu_tests runtime_builtin_content)
+        add_test(NAME export_gpu COMMAND export_gpu_tests
+            "${PROJECT_BINARY_DIR}/content/packages/resonance_live.rhythmpack"
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
+            "${PROJECT_BINARY_DIR}/export-gpu")
+        set_tests_properties(export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_executable(audio_transport_tests tests/audio_transport_tests.cpp)
         add_executable(music_import_tests tests/music_import_tests.cpp
             "${PROJECT_SOURCE_DIR}/src/android_player/music_playback.cpp")

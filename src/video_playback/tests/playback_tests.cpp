@@ -1,9 +1,7 @@
-#include <chrono>
 #include <cmath>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
-#include <thread>
 
 #include "rhythm/video/playback.h"
 
@@ -13,14 +11,7 @@ void Check(bool condition, const char* message) {
 }
 rhythm::video::PlaybackSnapshot Await(rhythm::video::Playback& playback, double seconds,
                                       std::uint64_t generation, bool loop = false) {
-    playback.Request(seconds, generation, loop);
-    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
-    while (std::chrono::steady_clock::now() < deadline) {
-        auto snapshot = playback.Snapshot();
-        if (!snapshot.pending_ && snapshot.generation_ == generation) return snapshot;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    throw std::runtime_error("video worker deadline");
+    return playback.Resolve(seconds, generation, loop);
 }
 void Frame(const rhythm::video::PlaybackSnapshot& snapshot, double pts, int red) {
     Check(snapshot.error_.empty() && snapshot.frame_ &&
@@ -79,6 +70,17 @@ int main(int argc, char** argv) {
             rejected = true;
         }
         Check(rejected, "negative request rejected");
+        std::stop_source canceled;
+        canceled.request_stop();
+        rejected = false;
+        try {
+            playback.Resolve(0, 52, false, canceled.get_token());
+        } catch (const std::runtime_error&) {
+            rejected = true;
+        }
+        Check(rejected, "offline canceled demand rejects without replacing current frame");
+        Frame(playback.Snapshot(), 1.2, 120);
+        Frame(playback.Resolve(0.2, 53, false), 0.2, 20);
         std::cout << "Video timestamp hold, VFR, seek supersession, loops, EOF and independent "
                      "embedded sources passed\n";
     } catch (const std::exception& error) {
