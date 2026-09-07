@@ -9,6 +9,7 @@
 
 #include "compressed_fixture.h"
 #include "rhythm/media/audio_decoder.h"
+#include "rhythm/storage/file_bytes.h"
 
 namespace {
 void Require(bool condition, const char* message) {
@@ -71,6 +72,42 @@ void Run(const std::filesystem::path& directory) {
     Require(ramp.Info().source_sample_rate_ == 48000 && ramp.Info().source_channels_ == 2,
             "source metadata");
     const auto samples = Decode(ramp, 9);
+    {
+        const auto container = directory / std::filesystem::path(u8"音乐 range.bin");
+        const auto original_size = std::filesystem::file_size(ramp_path);
+        {
+            std::ofstream output(container, std::ios::binary | std::ios::trunc);
+            output.exceptions(std::ios::badbit | std::ios::failbit);
+            const std::string padding(65536, '!');
+            for (int index = 0; index < 300; ++index) output.write(padding.data(), padding.size());
+            std::ifstream input(ramp_path, std::ios::binary);
+            output << input.rdbuf();
+            output.write(padding.data(), padding.size());
+        }
+        auto range = rhythm::storage::FileBytes::Open(container, 32 * 1024 * 1024)
+                             .Slice(300 * 65536, original_size);
+        media::AudioDecoder streamed(range, 41);
+        range = {};
+        Require(Decode(streamed, 41) == samples, "bounded file range PCM equals original");
+        streamed.Seek(4173, 42);
+        const auto block = streamed.Read();
+        Require(block && block->first_sample_ == 4173 && block->generation_ == 42 &&
+                        std::equal(block->samples_.begin(), block->samples_.end(),
+                                   samples.begin() + 4173 * 2),
+                "file range seek reuses source lifetime and yields exact PCM");
+        std::stop_source stop;
+        stop.request_stop();
+        bool canceled = false;
+        try {
+            streamed.Seek(0, 43, stop.get_token());
+        } catch (const std::exception&) {
+            canceled = true;
+        }
+        const auto retained = streamed.Read();
+        Require(canceled && retained && retained->first_sample_ == 4173 + 4096 &&
+                        retained->generation_ == 42,
+                "canceled file range seek preserves the active decoder");
+    }
     {
         std::ifstream input(ramp_path, std::ios::binary);
         auto bytes = std::make_shared<const std::vector<std::uint8_t>>(

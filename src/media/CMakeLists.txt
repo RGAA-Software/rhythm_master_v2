@@ -26,7 +26,7 @@ foreach(component avformat avcodec swresample avutil swscale)
             IMPORTED_LOCATION "${RHYTHM_MEDIA_${component}}")
     endif()
 endforeach()
-target_link_libraries(media_audio PRIVATE media_backend_avformat media_backend_avcodec
+target_link_libraries(media_audio PUBLIC atomic_storage PRIVATE media_backend_avformat media_backend_avcodec
     media_backend_swresample media_backend_avutil)
 if(WIN32)
     add_library(media_backend_zlib SHARED IMPORTED GLOBAL)

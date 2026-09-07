@@ -1,8 +1,10 @@
 #include "rhythm/storage/atomic_file.h"
 
+#include <cstring>
 #include <fstream>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -31,6 +33,31 @@ void Flush(const std::filesystem::path& path) {
     if (native == INVALID_HANDLE_VALUE) throw std::runtime_error("project.flush_open");
     const std::unique_ptr<void, HandleCloser> handle(native);
     if (!FlushFileBuffers(handle.get())) throw std::runtime_error("project.flush");
+}
+bool ReplaceOpenTarget(const std::filesystem::path& source,
+                       const std::filesystem::path& destination) {
+    // Modern Windows POSIX rename preserves readers of the replaced file.
+    // No delete-then-move fallback: failure must preserve both existing files.
+    const auto name = std::filesystem::absolute(destination).make_preferred().native();
+    if (name.size() > 32767) return false;
+    Flush(source);
+    const auto native = CreateFileW(source.c_str(), DELETE | SYNCHRONIZE,
+                                    FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr,
+                                    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (native == INVALID_HANDLE_VALUE) return false;
+    const std::unique_ptr<void, HandleCloser> handle(native);
+    const auto name_bytes = name.size() * sizeof(wchar_t);
+    const auto size = offsetof(FILE_RENAME_INFO, FileName) + name_bytes;
+    // Native variable-length structure, with FILE_RENAME_INFO alignment and
+    // owned storage throughout the synchronous boundary call.
+    std::vector<FILE_RENAME_INFO> buffer((size + sizeof(FILE_RENAME_INFO) - 1) /
+                                         sizeof(FILE_RENAME_INFO));
+    buffer.front().Flags = FILE_RENAME_FLAG_REPLACE_IF_EXISTS | FILE_RENAME_FLAG_POSIX_SEMANTICS;
+    buffer.front().FileNameLength = static_cast<DWORD>(name_bytes);
+    std::memcpy(reinterpret_cast<std::byte*>(buffer.data()) + offsetof(FILE_RENAME_INFO, FileName),
+                name.data(), name_bytes);
+    return SetFileInformationByHandle(handle.get(), FileRenameInfoEx, buffer.data(),
+                                      static_cast<DWORD>(size)) != 0;
 }
 #else
 class FileDescriptor final {
@@ -103,7 +130,8 @@ void WriteDurable(const std::filesystem::path& path, std::string_view bytes) {
 void Replace(const std::filesystem::path& source, const std::filesystem::path& destination) {
 #ifdef _WIN32
     if (!MoveFileExW(source.c_str(), destination.c_str(),
-                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) &&
+        !(GetLastError() == ERROR_ACCESS_DENIED && ReplaceOpenTarget(source, destination)))
         throw std::runtime_error("project.commit");
 #else
     std::filesystem::rename(source, destination);

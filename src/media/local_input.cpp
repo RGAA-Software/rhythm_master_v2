@@ -49,6 +49,16 @@ void LocalInput::InitializeContext() {
     buffer.release();
 }
 
+LocalInput::LocalInput(storage::FileBytes bytes, std::stop_token stop)
+    : file_bytes_(std::move(bytes)), stop_(stop) {
+    if (stop.stop_requested()) throw std::runtime_error("media operation canceled");
+    if (!file_bytes_.Valid() || !file_bytes_.Size() ||
+        file_bytes_.Size() > static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()))
+        throw std::invalid_argument("media file range");
+    size_ = static_cast<std::int64_t>(file_bytes_.Size());
+    InitializeContext();
+}
+
 int LocalInput::Read(void* opaque, std::uint8_t* buffer, int size) noexcept {
     auto& input = *static_cast<LocalInput*>(opaque);
     if (input.Canceled()) {
@@ -56,6 +66,16 @@ int LocalInput::Read(void* opaque, std::uint8_t* buffer, int size) noexcept {
     }
     if (size <= 0) {
         return AVERROR(EINVAL);
+    }
+    if (input.file_bytes_.Valid()) {
+        try {
+            const auto count = input.file_bytes_.Read(static_cast<std::uint64_t>(input.position_),
+                                                      {buffer, static_cast<std::size_t>(size)});
+            input.position_ += static_cast<std::int64_t>(count);
+            return count ? static_cast<int>(count) : AVERROR_EOF;
+        } catch (const std::exception&) {
+            return AVERROR(EIO);
+        }
     }
     if (input.bytes_) {
         const auto count =
@@ -89,7 +109,7 @@ std::int64_t LocalInput::Seek(void* opaque, std::int64_t offset, int whence) noe
     if (whence != SEEK_SET && whence != SEEK_CUR && whence != SEEK_END) {
         return AVERROR(EINVAL);
     }
-    if (input.bytes_) {
+    if (input.bytes_ || input.file_bytes_.Valid()) {
         const auto base = whence == SEEK_SET   ? 0
                           : whence == SEEK_CUR ? input.position_
                                                : input.size_;

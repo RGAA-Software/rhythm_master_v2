@@ -1,0 +1,30 @@
+{
+    "ownership": "first-party, explicitly authorized reuse",
+    "source_url": "file:///D:/GoCloud/GammaRayPremium",
+    "revision": "e90892046aba57fe2ae33480eab93a29405d1eb1",
+    "source_files": [
+        {
+            "path": "src/px_deps/px_common/file.cpp",
+            "sha256": "334676169cc698e4c91c3977d2f0f1fc2f9dcf0647e071f69870a8fea08e20fb"
+        }
+    ],
+    "source_worktree_status": "clean for file.h and file.cpp; original repository not modified",
+    "license": "First-party permission; no separate copyright/license header in the adapted source. Project outbound license remains pending.",
+    "imported_files": [],
+    "extraction": "Focused FILE ownership and POSIX 64-bit seek/tell adaptation. The Windows adapter reuses this project's atomic_storage HANDLE ownership because CRT file handles did not support the required replacement behavior.",
+    "modifications": [
+        "Read-only shared file/range value handles with checked offsets, serialized cursor I/O and bounded caller-owned buffers",
+        "Google naming, initialized members, pimpl and no public native pointers",
+        "No px DataPtr, logging, string utilities, async or network dependencies",
+        "Existing FFmpeg LocalInput accepts file ranges through its 32 KiB custom AVIO buffer",
+        "Windows atomic replacement uses FileRenameInfoEx POSIX semantics after access-denied MoveFileEx; no delete-then-move fallback"
+    ],
+    "target_modules": [
+        "src/storage/file_bytes.cpp",
+        "src/storage/atomic_file.cpp",
+        "src/media/local_input.cpp",
+        "src/media/audio_decoder.cpp"
+    ],
+    "api_reference": "https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/4217551b-d2c0-42cb-9dc1-69a716cf6d0c",
+    "validation": "Windows and USB Android 32 MiB ranges, concurrent readers, retained old file after atomic replacement, exact FFmpeg PCM from a ranged source larger than 16 MiB, precise seek and cancellation. Container/Player integration follows separately."
+}

@@ -7,6 +7,10 @@
 #include <stop_token>
 #include <vector>
 
+namespace rhythm::storage {
+class FileBytes;
+}
+
 namespace rhythm::media {
 inline constexpr std::uint32_t kAudioSampleRate = 48000;
 inline constexpr std::uint32_t kAudioChannels = 2;
@@ -38,6 +42,10 @@ class AudioDecoder final {
     // Uses the same bounded custom I/O adapter as embedded video (16 MiB limit).
     explicit AudioDecoder(std::shared_ptr<const std::vector<std::uint8_t>> bytes,
                           std::uint64_t generation = 1, std::stop_token stop = {});
+    // A validated file/range lease streams through the same 32 KiB custom I/O
+    // buffer. Does not copy the whole compressed source or open nested paths.
+    explicit AudioDecoder(storage::FileBytes bytes, std::uint64_t generation = 1,
+                          std::stop_token stop = {});
     ~AudioDecoder();
     AudioDecoder(AudioDecoder&&) noexcept;
     AudioDecoder& operator=(AudioDecoder&&) noexcept;
