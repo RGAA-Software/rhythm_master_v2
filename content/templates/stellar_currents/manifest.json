@@ -1,0 +1,28 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.stellar_currents",
+    "content_version": "0.1.0",
+    "project_id": "official-stellar_currents",
+    "graph_revision": 0,
+    "title": "星河涡流 / Stellar currents",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "星河涡流",
+        "en-US": "Stellar currents"
+    },
+    "category": "particles",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party graph; MIT TiXL/GLM/Godot renderer and particle dependencies; outbound license pending",
+    "compatible_players": [
+        "windows"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "青蓝与熔金粒子沿两组演化流场织出长线，旋转残影与星尘形成深空层次。音量轻推发射密度。",
+        "en-US": "Cyan and molten-gold particles trace evolving currents, with rotating trails and distant stars. Audio gently modulates emission."
+    }
+}

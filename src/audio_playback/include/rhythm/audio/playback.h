@@ -32,6 +32,9 @@ class FilePlayback final {
     void Seek(double seconds);
     void Pause(bool paused);
     void SetVolume(float volume);
+    // Restarts after the device tail drains, with a new analysis generation.
+    // This is bounded repeat playback, not a gapless music-editing loop.
+    void SetLoop(bool loop);
     PlaybackSnapshot Snapshot() const;
 
    private:

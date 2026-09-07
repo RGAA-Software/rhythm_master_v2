@@ -30,6 +30,10 @@ struct Extent {
     bool operator==(const Extent&) const = default;
 };
 
+// Float targets retain low-amplitude history through repeated temporal filtering.
+// Uploads remain RGBA8; kFloat16 is for render targets only, at eight bytes/pixel.
+enum class TexturePrecision : std::uint8_t { kUnorm8, kFloat16 };
+
 struct Vertex {
     // Positions and normalized texture UVs use the logical top-left origin.
     // Uploaded RGBA row zero and render-target row zero address the same edge.
@@ -93,6 +97,24 @@ struct TextureContours {
     std::array<float, 4> color_a_{0.02f, 0.6f, 1, 1};
     std::array<float, 4> color_b_{1, 0.12f, 0.35f, 1};
 };
+enum class TextureDisplaceKind : std::uint8_t { kGradient, kVectorRg };
+// Strength is in image-height units; radius is in map pixels, rotation in degrees.
+// RG vectors use 0.5 as neutral; transparent map pixels carry no vector.
+// Both map and source must be valid and distinct from the destination.
+struct TextureDisplace {
+    TextureHandle map_{};
+    TextureDisplaceKind kind_ = TextureDisplaceKind::kGradient;
+    float strength_ = 0.05f;
+    float radius_ = 2;
+    float rotation_ = 0;
+};
+// Per-channel peak envelope, preserving fresh highlights and decaying history.
+struct TextureTrail {
+    TextureHandle history_{};
+    float retention_ = 0;
+    float scale_ = 1;
+    float rotation_ = 0;
+};
 struct DrawCommand {
     TextureHandle texture_{};
     std::uint32_t first_index_ = 0;
@@ -104,6 +126,8 @@ struct DrawCommand {
     std::optional<TextureNoise> texture_noise_{};
     std::optional<TextureMapping> texture_mapping_{};
     std::optional<TextureContours> texture_contours_{};
+    std::optional<TextureDisplace> texture_displace_{};
+    std::optional<TextureTrail> texture_trail_{};
 };
 
 // Owned frame data; third-party draw buffers never survive their boundary call.
@@ -175,7 +199,12 @@ class Renderer final {
     Renderer& operator=(const Renderer&) = delete;
     // Input pixels and vertex colors use straight alpha. Internal target storage
     // and compositing preserve coverage across repeated render passes.
-    Texture CreateTexture(Extent extent, std::span<const std::uint8_t> rgba = {});
+    Texture CreateTexture(Extent extent, std::span<const std::uint8_t> rgba = {},
+                          TexturePrecision precision = TexturePrecision::kUnorm8);
+    // Host thread, after BeginFrame and before this texture is sampled. Replaces all
+    // straight-alpha pixels of an uploaded RGBA8 texture, preserving its handle
+    // and extent. Render targets cannot be overwritten through this operation.
+    void UpdateTexture(TextureHandle texture, std::span<const std::uint8_t> rgba);
     [[nodiscard]] bool IsValid(TextureHandle handle) const;
     Mesh CreateMesh(std::span<const MeshVertex> vertices, std::span<const std::uint32_t> indices);
     [[nodiscard]] bool IsValid(MeshHandle handle) const;

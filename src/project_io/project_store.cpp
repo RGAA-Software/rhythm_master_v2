@@ -93,10 +93,21 @@ std::vector<ContentEntry> ScanTemplates(const std::filesystem::path& root) {
             throw std::invalid_argument("content.identity");
         content.titles_ = manifest.at("titles").get<std::map<std::string, std::string>>();
         content.default_ = manifest.value("default", false);
+        content.tier_ = manifest.value("tier", "example");
+        content.category_ = manifest.value("category", "general");
+        if (content.tier_ != "basic" && content.tier_ != "advanced" && content.tier_ != "example")
+            throw std::invalid_argument("content.tier");
+        if (content.category_.empty() || content.category_.size() > 64)
+            throw std::invalid_argument("content.category");
+        if (manifest.contains("descriptions"))
+            content.descriptions_ =
+                    manifest.at("descriptions").get<std::map<std::string, std::string>>();
         for (const auto& locale : {"zh-CN", "en-US"})
             if (!content.titles_.contains(locale) || content.titles_.at(locale).empty() ||
                 content.titles_.at(locale).size() > 512)
                 throw std::invalid_argument("content.locale");
+        for (const auto& [locale, description] : content.descriptions_)
+            if (description.size() > 2048) throw std::invalid_argument("content.description");
         result.push_back(std::move(content));
     }
     std::sort(result.begin(), result.end(),

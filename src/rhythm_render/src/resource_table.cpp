@@ -17,9 +17,14 @@ void ResourceTable::CheckThread() const {
     if (std::this_thread::get_id() != thread_) throw std::logic_error("render.thread_affinity");
 }
 
-TextureHandle ResourceTable::Allocate(Extent extent, std::span<const std::uint8_t> rgba) {
+TextureHandle ResourceTable::Allocate(Extent extent, std::span<const std::uint8_t> rgba,
+                                      TexturePrecision precision) {
     CheckReady();
-    const auto bytes = std::uint64_t{extent.width_} * extent.height_ * 4;
+    if (precision > TexturePrecision::kFloat16 ||
+        (precision == TexturePrecision::kFloat16 && !rgba.empty()))
+        throw std::invalid_argument("render.texture_precision");
+    const auto bytes = std::uint64_t{extent.width_} * extent.height_ *
+                       (precision == TexturePrecision::kFloat16 ? 8 : 4);
     if (!extent.width_ || !extent.height_ || extent.width_ > 8192 || extent.height_ > 8192 ||
         bytes > kTextureBudget - bytes_ || (!rgba.empty() && rgba.size() != bytes)) {
         throw std::invalid_argument("render.texture_size");
@@ -33,9 +38,11 @@ TextureHandle ResourceTable::Allocate(Extent extent, std::span<const std::uint8_
         slot = slots_.end() - 1;
     }
     slot->extent_ = extent;
+    slot->precision_ = precision;
     slot->live_ = true;
     slot->render_target_ = rgba.empty();
     slot->depth_ = false;
+    slot->sampled_ = false;
     bytes_ += bytes;
     ++live_;
     return {device_, static_cast<std::uint32_t>(slot - slots_.begin()), slot->generation_};
@@ -52,7 +59,8 @@ void ResourceTable::Release(TextureHandle handle) noexcept {
     if (std::this_thread::get_id() != thread_) std::terminate();
     if (!Owns(handle)) return;
     auto& slot = slots_[handle.slot_];
-    bytes_ -= std::uint64_t{slot.extent_.width_} * slot.extent_.height_ * (slot.depth_ ? 8 : 4);
+    bytes_ -= std::uint64_t{slot.extent_.width_} * slot.extent_.height_ *
+              ((slot.precision_ == TexturePrecision::kFloat16 ? 8 : 4) + (slot.depth_ ? 4 : 0));
     slot.live_ = false;
     ++slot.generation_;
     --live_;
@@ -64,6 +72,27 @@ Extent ResourceTable::Size(TextureHandle handle) const {
 }
 bool ResourceTable::IsRenderTarget(TextureHandle handle) const {
     return IsValid(handle) && slots_[handle.slot_].render_target_;
+}
+void ResourceTable::ValidateUpload(TextureHandle handle, std::span<const std::uint8_t> rgba) const {
+    CheckReady();
+    const auto extent = Size(handle);
+    if (IsRenderTarget(handle) || rgba.size() != std::size_t(extent.width_) * extent.height_ * 4)
+        throw std::invalid_argument("render.texture_upload");
+    if (slots_[handle.slot_].sampled_) throw std::logic_error("render.upload_after_sample");
+}
+void ResourceTable::BeginFrame() {
+    CheckReady();
+    for (auto& slot : slots_) slot.sampled_ = false;
+}
+void ResourceTable::RecordSamples(const DrawList& list) {
+    const auto sample = [&](TextureHandle handle) {
+        if (IsValid(handle)) slots_[handle.slot_].sampled_ = true;
+    };
+    for (const auto& command : list.commands_) {
+        sample(command.texture_);
+        if (command.texture_displace_) sample(command.texture_displace_->map_);
+        if (command.texture_trail_) sample(command.texture_trail_->history_);
+    }
 }
 bool ResourceTable::ReserveDepth(TextureHandle handle) {
     CheckReady();
@@ -106,11 +135,28 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
                              int(command.texture_filter_.has_value()) +
                              int(command.color_adjustment_.has_value()) +
                              int(command.texture_mapping_.has_value()) +
-                             int(command.texture_contours_.has_value());
+                             int(command.texture_contours_.has_value()) +
+                             int(command.texture_displace_.has_value()) +
+                             int(command.texture_trail_.has_value());
         if (effects > 1) throw std::invalid_argument("render.effect_conflict");
         const auto bounded = [](float value, float minimum, float maximum) {
             return std::isfinite(value) && value >= minimum && value <= maximum;
         };
+        if (command.texture_trail_) {
+            const auto& trail = *command.texture_trail_;
+            if (!IsValid(trail.history_) || trail.history_ == target ||
+                !bounded(trail.retention_, 0, 1) || !bounded(trail.scale_, 0.5f, 2) ||
+                !bounded(trail.rotation_, -180, 180))
+                throw std::invalid_argument("render.texture_trail");
+        }
+        if (command.texture_displace_) {
+            const auto& displace = *command.texture_displace_;
+            if (!IsValid(displace.map_) || displace.map_ == target ||
+                displace.kind_ > TextureDisplaceKind::kVectorRg ||
+                !bounded(displace.strength_, -1, 1) || !bounded(displace.radius_, 1, 32) ||
+                !bounded(displace.rotation_, -36000, 36000))
+                throw std::invalid_argument("render.texture_displace");
+        }
         if (command.texture_mapping_) {
             const auto& mapping = *command.texture_mapping_;
             if (mapping.kind_ > TextureMappingKind::kPolar ||

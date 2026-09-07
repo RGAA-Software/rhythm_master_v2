@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
         Check(argc == 2, "catalog path required");
         graph::Registry registry;
         const auto catalog = content::LoadSemantics(argv[1], registry);
-        Check(catalog.size() == 8, "semantic catalog coverage");
+        Check(catalog.size() == 11, "semantic catalog coverage");
         editor::Snapshot original;
         original.document_.id_ = "semantic.test";
         original.document_.nodes_ = {registry.MakeNode(1, "texture.gradient"),

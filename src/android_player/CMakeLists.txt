@@ -8,11 +8,13 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(RHYTHM_PLAYER_PACKAGE "${PROJECT_SOURCE_DIR}/out/windows/content/packages/signal_texture.rhythmpack"
     CACHE FILEPATH "Published package produced by the native host compiler")
 set(android_package_command "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/build-android-player.py"
-    --skip-native --package "${RHYTHM_PLAYER_PACKAGE}")
+    --skip-native --package "${RHYTHM_PLAYER_PACKAGE}" --build "${PROJECT_BINARY_DIR}"
+    --configuration "${CMAKE_BUILD_TYPE}")
 add_custom_command(TARGET rhythm_android POST_BUILD COMMAND ${android_package_command} VERBATIM)
 add_custom_target(android_player_apk ALL COMMAND ${android_package_command} DEPENDS rhythm_android VERBATIM)
 if(BUILD_TESTING)
-    add_executable(android_gpu_contract_tests tests/gpu_contract_tests.cpp tests/point_gpu.cpp)
+    add_executable(android_gpu_contract_tests tests/gpu_contract_tests.cpp tests/point_gpu.cpp tests/effect_gpu.cpp tests/template_gpu.cpp tests/video_upload_gpu.cpp)
+    target_include_directories(android_gpu_contract_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/runtime")
     target_include_directories(android_gpu_contract_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/runtime/tests")
     target_include_directories(android_gpu_contract_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src")
     target_include_directories(android_gpu_contract_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests")

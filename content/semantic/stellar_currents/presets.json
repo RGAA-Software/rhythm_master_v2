@@ -1,0 +1,32 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.stellar_currents",
+            "reset": true,
+            "id": "official.semantic.stellar_currents.default",
+            "titles": {
+                "zh-CN": "默认参数",
+                "en-US": "Default"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.stellar_currents",
+            "reset": true,
+            "id": "official.semantic.stellar_currents.variant",
+            "titles": {
+                "zh-CN": "疾风星潮",
+                "en-US": "Star storm"
+            },
+            "properties": {
+                "flow_strength": 0.4,
+                "flow_frequency": 6,
+                "trail_half_life": 0.35,
+                "accent_amount": 0.3
+            }
+        }
+    ]
+}

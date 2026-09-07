@@ -1,0 +1,14 @@
+{
+    "template": "audio_spectrum",
+    "package_sha256": "a8fe1b8f7faa50bb312b01888ad8d82999b95933894fdd9c6e01c6f7acc18077",
+    "thumbnail_sha256": "1b425ea94ab9bfdc7a6b4a832c94f3e10e25dedde58f7be4e94cbb82b6f6a961",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

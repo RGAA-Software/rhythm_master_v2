@@ -1,5 +1,5 @@
 param(
-    [string]$BuildDirectory = 'out/windows'
+    [string]$BuildDirectory = 'out/windows-release'
 )
 $ErrorActionPreference = 'Stop'
 $project_root = Split-Path $PSScriptRoot -Parent

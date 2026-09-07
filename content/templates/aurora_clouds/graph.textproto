@@ -54,10 +54,10 @@ nodes { id: 10 type_key: "texture.composite" schema_version: 1
 }
 edges { id: 1 from: 1 to: 2 input: "time" }
 edges { id: 2 from: 2 to: 3 input: "phase" }
-edges { id: 3 from: 3 to: 4 input: "source" }
+edges { id: 3 from: 11 to: 4 input: "source" }
 edges { id: 4 from: 1 to: 5 input: "time" }
 edges { id: 5 from: 5 to: 6 input: "phase" }
-edges { id: 6 from: 6 to: 7 input: "source" }
+edges { id: 6 from: 12 to: 7 input: "source" }
 edges { id: 7 from: 4 to: 8 input: "a" }
 edges { id: 8 from: 7 to: 8 input: "b" }
 edges { id: 9 from: 8 to: 9 input: "source" }
@@ -69,4 +69,17 @@ parameters { key: "color_a" node: 3 property: "color_a" group: "component.palett
 parameters { key: "color_b" node: 3 property: "color_b" group: "component.palette" }
 parameters { key: "contrast" node: 3 property: "contrast" group: "component.palette" }
 parameters { key: "glow_amount" node: 10 property: "amount" group: "component.palette" }
+nodes { id: 11 type_key: "texture.displace" schema_version: 1
+    properties { key: "displace_strength" value { scalar: 0.6 } }
+    properties { key: "sample_radius" value { scalar: 20 } }
+}
+nodes { id: 12 type_key: "texture.displace" schema_version: 1
+    properties { key: "displace_strength" value { scalar: -0.4 } }
+    properties { key: "sample_radius" value { scalar: 24 } }
+}
+edges { id: 12 from: 3 to: 11 input: "source" }
+edges { id: 13 from: 6 to: 11 input: "displace_map" }
+edges { id: 14 from: 6 to: 12 input: "source" }
+edges { id: 15 from: 3 to: 12 input: "displace_map" }
+parameters { key: "displace_strength" node: 11 property: "displace_strength" group: "component.motion" }
 }

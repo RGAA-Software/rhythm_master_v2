@@ -3,9 +3,9 @@
 #include <future>
 
 #include "rhythm/foundation/blocking_executor.h"
-#include "rhythm/model_assets/prepare.h"
+#include "rhythm/prepared_assets/prepare.h"
 
-namespace rhythm::model_assets {
+namespace rhythm::prepared_assets {
 struct LoadRequest {
     graph::ExecutionPlan plan_{};
     std::vector<assets::AssetRecord> assets_{};
@@ -14,7 +14,7 @@ struct LoadRequest {
 };
 struct LoadResult {
     graph::ExecutionPlan plan_{};
-    std::shared_ptr<const scene::Resources> resources_{};
+    std::shared_ptr<const Resources> resources_{};
     std::uint64_t generation_ = 0;
     std::string error_{};
 };
@@ -36,4 +36,4 @@ class Loader final {
     std::optional<LoadRequest> latest_{};
     std::stop_source cancellation_{};
 };
-}  // namespace rhythm::model_assets
+}  // namespace rhythm::prepared_assets

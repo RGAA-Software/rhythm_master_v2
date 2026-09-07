@@ -13,6 +13,21 @@ Registry::Registry() {
     using Type = ValueType;
     operators_ = {
             {"core.time", Operation::kTime, Type::kScalar, {}, {}, true},
+            {"texture.image",
+             Operation::kTextureImage,
+             Type::kTexture,
+             {},
+             {{"asset", assets::AssetId{}},
+              {"image_fill", 0.0, 0, 1, {"image.fit", "image.fill"}, true}}},
+            {"texture.video",
+             Operation::kTextureVideo,
+             Type::kTexture,
+             {},
+             {{"asset", assets::AssetId{}},
+              {"video_speed", 1.0, 0, 4},
+              {"video_offset", 0.0, 0, 3600},
+              {"video_loop", 1.0, 0, 1, {"video.hold", "video.repeat"}, true},
+              {"image_fill", 0.0, 0, 1, {"image.fit", "image.fill"}, true}}},
             {"signal.oscillator",
              Operation::kOscillator,
              Type::kSignal,
@@ -219,6 +234,18 @@ Registry::Registry() {
               {"color_a", Color{0.05, 0.9, 0.8, 1}},
               {"color_b", Color{0.2, 0.1, 0.8, 1}}}}};
     AppendPointDescriptors(operators_);
+    operators_.push_back({"texture.stack",
+                          Operation::kTextureStack,
+                          Type::kTexture,
+                          {{"layer_1", Type::kTexture},
+                           {"layer_2", Type::kTexture, false},
+                           {"layer_3", Type::kTexture, false},
+                           {"layer_4", Type::kTexture, false},
+                           {"layer_5", Type::kTexture, false},
+                           {"layer_6", Type::kTexture, false},
+                           {"layer_7", Type::kTexture, false},
+                           {"layer_8", Type::kTexture, false}},
+                          {{"composite_mode", 0.0, 0, 1, {"composite.over", "composite.add"}}}});
     AppendSceneDescriptors(operators_);
     operators_.push_back({"texture.noise",
                           Operation::kTextureNoise,
@@ -259,6 +286,26 @@ Registry::Registry() {
                            {"phase", 0.0, -4096, 4096},
                            {"color_a", Color{0.02, 0.6, 1, 1}},
                            {"color_b", Color{1, 0.12, 0.35, 1}}}});
+    operators_.push_back(
+            {"texture.displace",
+             Operation::kTextureDisplace,
+             Type::kTexture,
+             {{"source", Type::kTexture},
+              {"displace_map", Type::kTexture},
+              {"displace_strength", Type::kScalar, false},
+              {"rotation", Type::kScalar, false}},
+             {{"displace_mode", 0.0, 0, 1, {"displace.gradient", "displace.vector_rg"}},
+              {"displace_strength", 0.05, -1, 1},
+              {"sample_radius", 2.0, 1, 32},
+              {"rotation", 0.0, -36000, 36000}}});
+    operators_.push_back({"texture.trail",
+                          Operation::kTextureTrail,
+                          Type::kTexture,
+                          {{"source", Type::kTexture}, {"trail_half_life", Type::kScalar, false}},
+                          {{"trail_half_life", 0.5, 0, 5},
+                           {"trail_zoom_rate", 0.0, -0.5, 0.5},
+                           {"trail_rotation_rate", 0.0, -180, 180}},
+                          true});
 }
 std::optional<OperatorDescriptor> Registry::Find(
         std::string_view type, std::span<const ComponentDefinition> components) const {

@@ -1,0 +1,28 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.orbital_reliquary",
+    "content_version": "0.1.0",
+    "project_id": "official-orbital_reliquary",
+    "graph_revision": 0,
+    "title": "星环仪 / Orbital reliquary",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "星环仪",
+        "en-US": "Orbital reliquary"
+    },
+    "category": "scene",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party graph; MIT TiXL/GLM/Godot renderer and particle dependencies; outbound license pending",
+    "compatible_players": [
+        "windows"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "六重金属星环独立旋转，青蓝球核与金色卫星组成精密仪器。双色灯光塑造材质，音量控制主光，星尘和辉光衬托轮廓。",
+        "en-US": "Six independently rotating metallic rings surround a cyan core and golden satellites. Two lights shape the instrument, with audio-reactive key illumination."
+    }
+}

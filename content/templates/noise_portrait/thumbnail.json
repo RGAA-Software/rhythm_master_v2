@@ -1,0 +1,14 @@
+{
+    "template": "noise_portrait",
+    "package_sha256": "3af383753d586d0a6076821363b5a820d7fd5dd5aeedcf8b2e6c0b49dec421e8",
+    "thumbnail_sha256": "f696bbe1a31f744f154c582b816df24638461fa8cb542d488fa84d3ea4b68966",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

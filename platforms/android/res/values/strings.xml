@@ -6,4 +6,8 @@
     <string name="package_error">Cannot open package. Current playback is retained.</string>
     <string name="playing">Playing</string>
     <string name="paused">Paused</string>
+    <string name="render_quality">Picture quality</string>
+    <string name="quality_original">Original</string>
+    <string name="quality_balanced">Balanced (recommended)</string>
+    <string name="quality_economy">Economy</string>
 </resources>

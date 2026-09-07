@@ -1,0 +1,28 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.resonance_gate",
+    "content_version": "0.1.0",
+    "project_id": "official-resonance-gate",
+    "graph_revision": 0,
+    "title": "共振星门 / Resonance Gate",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "共振星门",
+        "en-US": "Resonance Gate"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party graph; existing attributed effect adapters; outbound license pending",
+    "compatible_players": [
+        "windows"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "164 个完整节点：24 频段控制放射光束，低频推动环带，高频驱动星尘，响度控制辉光。请在音频输入中开启系统监听或播放本地音乐。",
+        "en-US": "164 editable nodes: 24 bands animate radial blades; bass pulses the rings, treble emits stardust, loudness drives glow. Start system audio capture or play a local music file."
+    }
+}

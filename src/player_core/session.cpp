@@ -3,7 +3,7 @@
 #include <cmath>
 #include <stdexcept>
 
-#include "rhythm/model_assets/prepare.h"
+#include "rhythm/prepared_assets/prepare.h"
 
 namespace rhythm::player {
 void Session::Load(std::string_view package_bytes) { LoadPrepared(PreparedPackage(package_bytes)); }
@@ -19,13 +19,14 @@ void Session::LoadPrepared(PreparedPackage package, double initial_seconds) {
 }
 void Session::Open(const std::filesystem::path& path) {
     auto package = project::LoadPackage(path);
-    auto resources = model_assets::Prepare(package.program_, package.assets_);
+    auto resources = prepared_assets::Prepare(package.program_, package.assets_);
     Commit(std::move(package), std::move(resources));
 }
 void Session::Commit(project::RuntimePackage package,
-                     std::shared_ptr<const scene::Resources> resources) {
+                     std::shared_ptr<const prepared_assets::Resources> resources) {
     package_ = std::move(package);
     resources_ = std::move(resources);
+    videos_.Reset();
     paused_ = false;
     Restart();
 }
@@ -57,9 +58,12 @@ runtime::FrameResult Session::Tick(double monotonic_seconds, bool suspended, ren
         throw std::invalid_argument("runtime.external_inputs");
     seconds_ = playback_offset_seconds_ + clock_.Advance(monotonic_seconds, suspended || paused_);
     if (!package_ || suspended || !extent.width_ || !extent.height_) return {};
-    if (!paused_ || extent != extent_ || !renderer.IsValid(frame_.final_)) {
+    if (!paused_ || extent != extent_ || !renderer.IsValid(frame_.final_) ||
+        !resources_->videos_.empty()) {
         runtime::FrameContext context{seconds_, generation_, extent, false};
-        context.resources_ = resources_;
+        context.resources_ = resources_->models_;
+        context.images_ = resources_->images_;
+        context.videos_ = videos_.Update(package_->program_, *resources_, seconds_, generation_);
         context.external_ = paused_ ? external_ : inputs;
         frame_ = runtime_.Evaluate(package_->program_, context, renderer);
         external_ = context.external_;

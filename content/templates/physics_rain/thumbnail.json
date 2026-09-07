@@ -1,0 +1,14 @@
+{
+    "template": "physics_rain",
+    "package_sha256": "206bdeb62822b857321ba6e9a251d104a2a3808c8457840cedb0b6b5b0f971d8",
+    "thumbnail_sha256": "f68e3565d8ef518129b16199b619eb490ff9fa399bc293277a91c862a485d354",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

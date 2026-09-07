@@ -11,7 +11,6 @@
 #include <optional>
 
 #include "asset_panel.h"
-#include "audio_panel.h"
 #include "canvas_settings.h"
 #include "component_panel.h"
 #include "component_workbench.h"
@@ -19,17 +18,20 @@
 #include "input_preview.h"
 #include "node_palette.h"
 #include "property_inspector.h"
+#include "rhythm/audio_ui/audio_panel.h"
 #include "rhythm/content/presets.h"
 #include "rhythm/cyber/theme.h"
 #include "rhythm/editor/commands.h"
 #include "rhythm/editor/compiler_worker.h"
-#include "rhythm/model_assets/loader.h"
+#include "rhythm/prepared_assets/loader.h"
 #include "rhythm/project/async_store.h"
 #include "rhythm/project/store.h"
 #include "rhythm/render/layout.h"
 #include "rhythm/runtime/runtime.h"
 #include "rhythm/runtime/viewers.h"
+#include "rhythm/video_sources/streams.h"
 #include "semantic_palette.h"
+#include "template_browser.h"
 #include "timeline_panel.h"
 
 namespace rhythm::studio {
@@ -37,6 +39,9 @@ class Studio::Impl final {
    public:
     Impl(const std::filesystem::path& resources, const std::filesystem::path& project)
         : project_(project) {
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        audio_panel_.SetDemoFile(resources / "content/audio/resonance_demo.wav");
+#endif
         for (const auto& locale : {"zh-CN", "en-US"}) {
             std::ifstream file(resources / "locales" / locale / "studio.json");
             catalogs_[locale] =
@@ -91,7 +96,7 @@ class Studio::Impl final {
         timeline_.ResetEdit();
     }
     void QueueCompile() {
-        model_loader_.Cancel();
+        asset_loader_.Cancel();
         const auto& document = inspector_.Preview()  ? inspector_.Preview()->document_
                                : timeline_.Preview() ? timeline_.Preview()->document_
                                                      : history_->Current().document_;
@@ -108,7 +113,7 @@ class Studio::Impl final {
             (before != after || assets_changed))
             QueueCompile();
     }
-    void Toolbar() {
+    void Toolbar(platform::Host& host, render::Renderer& renderer, double seconds) {
         ImGui::BeginDisabled(store_.Busy());
         if (ImGui::Button(Label("save").c_str())) {
             CommitEdits();
@@ -128,16 +133,12 @@ class Studio::Impl final {
             store_.LoadProject(project_);
         }
         ImGui::SameLine();
-        if (ImGui::Button(Label("templates").c_str())) ImGui::OpenPopup("templates.popup");
-        if (ImGui::BeginPopup("templates.popup")) {
-            ImGui::TextWrapped("%s", Text("templates.help").c_str());
-            for (const auto& entry : templates_)
-                if (ImGui::Selectable((entry.titles_.at(locale_) + "###" + entry.id_).c_str())) {
-                    CommitEdits();
-                    load_revision_ = history_->Current().document_.revision_;
-                    store_.LoadTemplate(entry.directory_, project_ / "assets");
-                }
-            ImGui::EndPopup();
+        if (const auto selected =
+                    template_browser_.Draw(templates_, locale_, catalogs_.at(locale_), host,
+                                           renderer, seconds, preview_inputs_)) {
+            CommitEdits();
+            load_revision_ = history_->Current().document_.revision_;
+            store_.LoadTemplate(templates_[*selected].directory_, project_ / "assets");
         }
         ImGui::EndDisabled();
         ImGui::SameLine();
@@ -294,7 +295,9 @@ class Studio::Impl final {
                 const bool listed = std::all_of(
                         next.instructions_.begin(), next.instructions_.end(),
                         [&](const auto& instruction) {
-                            if (instruction.operation_ != graph::Operation::kGeometryGlb)
+                            if (instruction.operation_ != graph::Operation::kGeometryGlb &&
+                                instruction.operation_ != graph::Operation::kTextureImage &&
+                                instruction.operation_ != graph::Operation::kTextureVideo)
                                 return true;
                             const auto& id = std::get<assets::AssetId>(
                                     instruction.node_.properties_.at("asset"));
@@ -302,34 +305,34 @@ class Studio::Impl final {
                                     records.begin(), records.end(),
                                     [&](const auto& record) { return record.id_ == id; });
                         });
-                if (listed && model_assets::Covers(next, *model_resources_)) {
+                if (listed && prepared_assets::Covers(next, *prepared_resources_)) {
                     plan_ = std::move(next);
                     diagnostics_.clear();
                 } else {
                     try {
-                        model_loader_.Submit(
+                        asset_loader_.Submit(
                                 {std::move(next), records, project_ / "assets", generation_});
-                        status_ = Text("model.loading");
+                        status_ = Text("asset.preparing");
                     } catch (const std::exception& error) {
                         std::cerr << error.what() << '\n';
-                        diagnostics_ = {{"model.invalid"}};
-                        status_ = Text("model.invalid");
+                        diagnostics_ = {{"asset.prepare_failed"}};
+                        status_ = Text("asset.prepare_failed");
                     }
                 }
             } else
                 diagnostics_ = std::get<std::vector<graph::Diagnostic>>(completed->result_);
         }
-        if (auto completed = model_loader_.Take();
+        if (auto completed = asset_loader_.Take();
             completed && completed->generation_ == generation_) {
             if (completed->resources_) {
                 plan_ = std::move(completed->plan_);
-                model_resources_ = std::move(completed->resources_);
+                prepared_resources_ = std::move(completed->resources_);
                 diagnostics_.clear();
                 status_.clear();
             } else {
                 std::cerr << completed->error_ << '\n';
-                diagnostics_ = {{"model.invalid"}};
-                status_ = Text("model.invalid");
+                diagnostics_ = {{"asset.prepare_failed"}};
+                status_ = Text("asset.prepare_failed");
             }
         }
         host.ClearViewerTextures();
@@ -338,6 +341,7 @@ class Studio::Impl final {
                 std::none_of(plan_->instructions_.begin(), plan_->instructions_.end(),
                              [](const auto& instruction) {
                                  return instruction.operation_ == graph::Operation::kFeedback ||
+                                        instruction.operation_ == graph::Operation::kTextureTrail ||
                                         instruction.operation_ ==
                                                 graph::Operation::kParticleEmitter ||
                                         instruction.operation_ == graph::Operation::kPointPhysics;
@@ -355,7 +359,10 @@ class Studio::Impl final {
             const render::Extent extent{static_cast<std::uint16_t>(plan_->canvas_.width_),
                                         static_cast<std::uint16_t>(plan_->canvas_.height_)};
             runtime::FrameContext frame{playback_seconds, reset_, extent, viewer_due};
-            frame.resources_ = model_resources_;
+            frame.resources_ = prepared_resources_->models_;
+            frame.images_ = prepared_resources_->images_;
+            frame.videos_ = videos_.Update(*plan_, *prepared_resources_, playback_seconds, reset_);
+            if (!videos_.Error().empty()) status_ = Text("video.playback_failed");
             if (!timeline_.Paused()) {
                 preview_inputs_ = input_preview_.Snapshot(playback_seconds);
                 preview_inputs_.audio_ = audio_panel_.Snapshot();
@@ -390,7 +397,7 @@ class Studio::Impl final {
         }
         const auto graph_visible = ImGui::Begin((Text("graph") + "###graph").c_str());
         if (graph_visible) {
-            Toolbar();
+            Toolbar(host, renderer, seconds);
             previews.enabled_ = show_viewers_;
             if (const auto edit = canvas_.Draw(history_->Current(), registry_,
                                                catalogs_.at(locale_), previews))
@@ -473,12 +480,13 @@ class Studio::Impl final {
     std::optional<editor::History> history_{};
     editor::CompilerWorker compiler_{};
     project::AsyncStore store_{};
-    model_assets::Loader model_loader_{};
-    std::shared_ptr<const scene::Resources> model_resources_ =
-            std::make_shared<const scene::Resources>();
+    prepared_assets::Loader asset_loader_{};
+    std::shared_ptr<const prepared_assets::Resources> prepared_resources_ =
+            std::make_shared<const prepared_assets::Resources>();
     AssetPanel assets_{};
     std::optional<graph::ExecutionPlan> plan_{};
     runtime::Runtime runtime_{};
+    video_sources::Streams videos_{};
     runtime::Viewers viewers_{};
     std::vector<graph::NodeId> viewer_nodes_{};
     std::uint32_t evaluated_ = 0;
@@ -487,6 +495,7 @@ class Studio::Impl final {
     std::map<std::string, std::map<std::string, std::string>> catalogs_{};
     std::filesystem::path project_{};
     std::vector<project::ContentEntry> templates_{};
+    TemplateBrowser template_browser_{};
     std::string locale_ = "zh-CN";
     std::string status_{};
     std::array<char, 4097> title_{};
@@ -494,7 +503,7 @@ class Studio::Impl final {
     ComponentPanel component_panel_{};
     ComponentWorkbench component_workbench_{};
     InputPreview input_preview_{};
-    AudioPanel audio_panel_{};
+    audio_ui::AudioPanel audio_panel_{};
     TimelinePanel timeline_{};
     runtime::ExternalInputs preview_inputs_{};
     std::uint64_t timeline_generation_ = 0;
@@ -515,6 +524,17 @@ bool Studio::HasValidPlan() const { return impl_->plan_.has_value(); }
 void Studio::SetSuspended(bool suspended) { impl_->audio_panel_.SetSuspended(suspended); }
 FrameStatus Studio::Status() const {
     return {impl_->history_->Current().document_.nodes_.size(), impl_->canvas_.VisibleNodes(),
-            impl_->viewers_.Outputs().size(), impl_->canvas_.DrawnPreviews()};
+            impl_->viewers_.Outputs().size(), impl_->canvas_.DrawnPreviews(),
+            impl_->preview_inputs_.audio_ ? impl_->preview_inputs_.audio_->rms_ : 0};
+}
+void Studio::LoadAudioFile(const std::filesystem::path& path, float volume) {
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+    impl_->audio_panel_.SetVolume(volume);
+    impl_->audio_panel_.LoadFile(path);
+#else
+    static_cast<void>(path);
+    static_cast<void>(volume);
+    throw std::runtime_error("media.disabled");
+#endif
 }
 }  // namespace rhythm::studio

@@ -1,0 +1,31 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.firefly_garden",
+            "reset": true,
+            "id": "official.semantic.firefly_garden.default",
+            "titles": {
+                "zh-CN": "默认参数",
+                "en-US": "Default"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.firefly_garden",
+            "reset": true,
+            "id": "official.semantic.firefly_garden.variant",
+            "titles": {
+                "zh-CN": "长曝光萤光",
+                "en-US": "Long exposure"
+            },
+            "properties": {
+                "dust_density": 120,
+                "flow_strength": 0.025,
+                "trail_half_life": 1.2
+            }
+        }
+    ]
+}

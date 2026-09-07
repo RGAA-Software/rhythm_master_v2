@@ -1,0 +1,14 @@
+{
+    "template": "gradient_medallion",
+    "package_sha256": "16a3d77c57336679e0a6e4e9cdae1a810ff610c1eada4bd9179b9bdaff59bdc2",
+    "thumbnail_sha256": "91d933467a71f12ad4bc60c54ef7dea15adbfa2e7cdf16ad3205af3690b554ae",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

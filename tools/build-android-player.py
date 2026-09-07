@@ -32,13 +32,16 @@ def main():
     parser.add_argument("--protoc", type=Path, default=Path("C:/source/vcpkg/installed/x64-windows/tools/protobuf/protoc.exe"))
     parser.add_argument("--package", type=Path, default=ROOT / "out/windows/content/packages/signal_texture.rhythmpack")
     parser.add_argument("--skip-native", action="store_true")
+    parser.add_argument("--build", type=Path)
+    parser.add_argument("--configuration", choices=("Debug", "Release"), default="Debug")
     args = parser.parse_args()
-    build = ROOT / "out/android-arm64"
+    build = (args.build or ROOT / ("out/android-arm64" if args.configuration == "Debug"
+                                  else "out/android-arm64-release")).resolve()
     ndk = args.sdk / "ndk" / args.ndk
     if not args.skip_native:
         run(["cmake", "-S", ROOT, "-B", build, "-G", "Ninja",
              f"-DCMAKE_TOOLCHAIN_FILE={ndk}/build/cmake/android.toolchain.cmake",
-             "-DANDROID_ABI=arm64-v8a", "-DANDROID_PLATFORM=android-26", "-DCMAKE_BUILD_TYPE=Debug",
+             "-DANDROID_ABI=arm64-v8a", "-DANDROID_PLATFORM=android-26", "-DCMAKE_BUILD_TYPE=" + args.configuration,
              "-DCMAKE_POSITION_INDEPENDENT_CODE=ON", "-DRHYTHM_BUILD_ANDROID_PLAYER=ON",
              "-DRHYTHM_BUILD_PROJECT_IO=ON", f"-DRHYTHM_IO_SDK={args.target_sdk}",
              f"-DRHYTHM_PROTOC={args.protoc}", f"-DCMAKE_FIND_ROOT_PATH={args.target_sdk}"])
@@ -60,8 +63,8 @@ def main():
         fingerprint.update(path.read_bytes())
     signature = fingerprint.hexdigest()
     stamp = output / "inputs.sha256"
-    apk = output / "rhythm-player-debug.apk"
-    if apk.exists() and stamp.exists() and stamp.read_text() == signature:
+    apk = output / ("rhythm-player-" + args.configuration.lower() + ".apk")
+    if apk.exists() and stamp.exists() and stamp.read_text(encoding="utf-8") == signature:
         print(f"APK unchanged: {apk}")
         return
     assets = output / "assets"
@@ -95,7 +98,10 @@ def main():
             archive.write(path, "lib/arm64-v8a/" + path.name, compress_type=zipfile.ZIP_STORED)
     aligned = output / "aligned.apk"
     run([build_tools / "zipalign.exe", "-P", "16", "-f", "4", unsigned, aligned])
-    keystore = output / "local-debug.keystore"
+    # Both configurations use the existing local acceptance identity, allowing
+    # ordinary updates without uninstalling the user's imported projects.
+    keystore = ROOT / "out/android-arm64/apk/local-debug.keystore"
+    keystore.parent.mkdir(parents=True, exist_ok=True)
     if not keystore.exists():
         run([java / "keytool.exe", "-genkeypair", "-keystore", keystore, "-storepass", "android",
              "-keypass", "android", "-alias", "androiddebugkey", "-dname", "CN=Local Android Debug,O=Rhythm Master,C=CN",
@@ -105,7 +111,7 @@ def main():
     run([java / "java.exe", "-jar", build_tools / "lib/apksigner.jar", "verify", "--verbose", apk])
     run([build_tools / "zipalign.exe", "-c", "-P", "16", "4", apk])
     run([sys.executable, ROOT / "tools/verify-android-apk.py", apk, "--report", output / "verification.json"])
-    stamp.write_text(signature)
+    stamp.write_text(signature, encoding="utf-8")
     print(f"Built local acceptance APK: {apk}")
 
 

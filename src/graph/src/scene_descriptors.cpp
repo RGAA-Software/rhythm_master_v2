@@ -30,6 +30,14 @@ void AppendSceneDescriptors(std::vector<OperatorDescriptor>& operators) {
                           {"light_energy", 3.0, 0, 100},
                           {"color_a", Color{1, 1, 1, 1}}}});
     operators.push_back({"geometry.cube", Operation::kGeometryCube, Type::kGeometry});
+    operators.push_back({"geometry.torus",
+                         Operation::kGeometryTorus,
+                         Type::kGeometry,
+                         {},
+                         {{"radius", 0.8, 0.001, 100},
+                          {"tube_ratio", 0.08, 0.01, 0.9},
+                          {"radial_segments", 64.0, 3, 256, {}, true},
+                          {"tube_segments", 16.0, 3, 128, {}, true}}});
     operators.push_back({"geometry.sphere",
                          Operation::kGeometrySphere,
                          Type::kGeometry,

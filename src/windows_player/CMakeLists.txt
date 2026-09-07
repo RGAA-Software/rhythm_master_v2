@@ -1,5 +1,5 @@
 add_executable(rhythm_player main.cpp)
-target_link_libraries(rhythm_player PRIVATE platform_sdl player_core audio_capture spike_imgui)
+target_link_libraries(rhythm_player PRIVATE platform_sdl player_core audio_ui spike_imgui nlohmann_json::nlohmann_json)
 rhythm_project_target(rhythm_player)
 add_dependencies(rhythm_player runtime_builtin_content)
 set(player_deploy_config "${CMAKE_CURRENT_BINARY_DIR}/deploy-config-$<CONFIG>.txt")
@@ -12,10 +12,12 @@ source_root=${PROJECT_SOURCE_DIR}
 build_root=${PROJECT_BINARY_DIR}
 sdk=${RHYTHM_SPIKE_SDK}
 io_sdk=${RHYTHM_IO_SDK}
+media_sdk=${RHYTHM_MEDIA_SDK}
 ")
 set(player_deploy_command "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/deploy-windows.py" --config "${player_deploy_config}")
 add_custom_command(TARGET rhythm_player POST_BUILD COMMAND ${player_deploy_command} VERBATIM)
-add_custom_target(player_deploy ALL COMMAND ${player_deploy_command} DEPENDS rhythm_player runtime_builtin_content VERBATIM)
+add_custom_target(player_deploy ALL COMMAND ${player_deploy_command} DEPENDS rhythm_player runtime_builtin_content demo_audio_content VERBATIM)
+add_dependencies(rhythm_player demo_audio_content)
 if(BUILD_TESTING)
     add_test(NAME windows_player_smoke COMMAND "$<TARGET_FILE_DIR:rhythm_player>/deploy/rhythm_player.exe" --smoke)
     set_tests_properties(windows_player_smoke PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE WORKING_DIRECTORY "${PROJECT_BINARY_DIR}")

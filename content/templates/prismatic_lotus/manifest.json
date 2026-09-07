@@ -20,5 +20,9 @@
     "compatible_players": [
         "windows"
     ],
-    "external_assets": []
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "镜像光丝与极坐标深度交织成旋转星莲，冷暖两层独立演化。",
+        "en-US": "Mirrored filaments and polar depth form a rotating lotus, with independently evolving cool and warm layers."
+    }
 }

@@ -1,0 +1,190 @@
+schema_version: 4
+id: "official-stellar_currents"
+output: 7
+canvas { width: 1280 height: 720 }
+nodes { id: 1 type_key: "texture.gradient" schema_version: 1
+    properties { key: "color_a" value { color { r: 0.001 g: 0.003 b: 0.012 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.012 g: 0.003 b: 0.026 a: 1 } } }
+}
+nodes { id: 2 type_key: "component.official.neon_dust" schema_version: 1
+}
+nodes { id: 3 type_key: "component.official.stellar_currents" schema_version: 1
+}
+nodes { id: 4 type_key: "component.official.neon_glow" schema_version: 1
+    properties { key: "glow_near" value { scalar: 1.8 } }
+    properties { key: "glow_wide" value { scalar: 18 } }
+    properties { key: "glow_amount" value { scalar: 0.5 } }
+}
+nodes { id: 5 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 0.2 } }
+}
+nodes { id: 6 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+}
+nodes { id: 7 type_key: "output.texture" schema_version: 1
+}
+nodes { id: 8 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 1 } }
+}
+edges { id: 1 from: 3 to: 8 input: "a" }
+edges { id: 2 from: 3 to: 8 input: "b" }
+edges { id: 3 from: 8 to: 4 input: "source" }
+edges { id: 4 from: 1 to: 5 input: "a" }
+edges { id: 5 from: 2 to: 5 input: "b" }
+edges { id: 6 from: 5 to: 6 input: "a" }
+edges { id: 7 from: 4 to: 6 input: "b" }
+edges { id: 8 from: 6 to: 7 input: "source" }
+components { type_key: "component.official.stellar_currents" schema_version: 1 title: "Stellar currents" output: 11
+nodes { id: 1 type_key: "point.emitter" schema_version: 1
+    properties { key: "particle_capacity" value { scalar: 5000 } }
+    properties { key: "seed" value { scalar: 149 } }
+    properties { key: "emission_rate" value { scalar: 650 } }
+    properties { key: "lifetime" value { scalar: 9 } }
+    properties { key: "lifetime_variation" value { scalar: 0.25 } }
+    properties { key: "center_x" value { scalar: 0.5 } }
+    properties { key: "center_y" value { scalar: 0.5 } }
+    properties { key: "emitter_width" value { scalar: 0.73 } }
+    properties { key: "emitter_height" value { scalar: 0.8 } }
+    properties { key: "particle_speed" value { scalar: 0.006 } }
+    properties { key: "speed_variation" value { scalar: 1 } }
+    properties { key: "spread" value { scalar: 360 } }
+    properties { key: "gravity_y" value { scalar: 0 } }
+    properties { key: "point_size" value { scalar: 0.0038 } }
+    properties { key: "size_variation" value { scalar: 0.55 } }
+    properties { key: "flow_strength" value { scalar: 0.22 } }
+    properties { key: "flow_frequency" value { scalar: 3.3 } }
+    properties { key: "flow_evolution" value { scalar: 0.08 } }
+    properties { key: "color_a" value { color { r: 0.02 g: 0.8 b: 1 a: 0.85 } } }
+    properties { key: "color_b" value { color { r: 0.25 g: 0.08 b: 0.75 a: 0 } } }
+}
+nodes { id: 2 type_key: "point.render" schema_version: 1
+    properties { key: "point_blend" value { scalar: 1 } }
+}
+nodes { id: 3 type_key: "texture.trail" schema_version: 1
+    properties { key: "trail_half_life" value { scalar: 1.0 } }
+    properties { key: "trail_zoom_rate" value { scalar: 0.012 } }
+    properties { key: "trail_rotation_rate" value { scalar: 1.5 } }
+}
+nodes { id: 4 type_key: "point.emitter" schema_version: 1
+    properties { key: "particle_capacity" value { scalar: 3000 } }
+    properties { key: "seed" value { scalar: 193 } }
+    properties { key: "emission_rate" value { scalar: 350 } }
+    properties { key: "lifetime" value { scalar: 8 } }
+    properties { key: "center_x" value { scalar: 0.5 } }
+    properties { key: "center_y" value { scalar: 0.5 } }
+    properties { key: "emitter_width" value { scalar: 0.55 } }
+    properties { key: "emitter_height" value { scalar: 0.55 } }
+    properties { key: "particle_speed" value { scalar: 0.006 } }
+    properties { key: "spread" value { scalar: 360 } }
+    properties { key: "gravity_y" value { scalar: 0 } }
+    properties { key: "point_size" value { scalar: 0.0038 } }
+    properties { key: "size_variation" value { scalar: 0.5 } }
+    properties { key: "flow_strength" value { scalar: 0.17 } }
+    properties { key: "flow_frequency" value { scalar: 2.6 } }
+    properties { key: "flow_evolution" value { scalar: 0.1 } }
+    properties { key: "color_a" value { color { r: 1 g: 0.45 b: 0.08 a: 0.8 } } }
+    properties { key: "color_b" value { color { r: 0.55 g: 0.04 b: 0.18 a: 0 } } }
+}
+nodes { id: 5 type_key: "point.render" schema_version: 1
+    properties { key: "point_blend" value { scalar: 1 } }
+}
+nodes { id: 6 type_key: "texture.trail" schema_version: 1
+    properties { key: "trail_half_life" value { scalar: 0.65 } }
+    properties { key: "trail_rotation_rate" value { scalar: -1 } }
+}
+nodes { id: 7 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 0.75 } }
+}
+nodes { id: 8 type_key: "texture.shape" schema_version: 1
+    properties { key: "shape_type" value { scalar: 1 } }
+    properties { key: "shape_width" value { scalar: 0.85 } }
+    properties { key: "shape_height" value { scalar: 1.6 } }
+}
+nodes { id: 9 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 24 } }
+}
+nodes { id: 10 type_key: "texture.mask" schema_version: 1
+}
+nodes { id: 11 type_key: "texture.affine" schema_version: 1
+}
+nodes { id: 12 type_key: "audio.feature" schema_version: 1
+    properties { key: "audio_feature" value { scalar: 0 } }
+}
+nodes { id: 13 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "0.9 + a * 0.35" } }
+}
+edges { id: 1 from: 1 to: 2 input: "points" }
+edges { id: 2 from: 2 to: 3 input: "source" }
+edges { id: 3 from: 4 to: 5 input: "points" }
+edges { id: 4 from: 5 to: 6 input: "source" }
+edges { id: 5 from: 3 to: 7 input: "a" }
+edges { id: 6 from: 6 to: 7 input: "b" }
+edges { id: 7 from: 8 to: 9 input: "source" }
+edges { id: 8 from: 7 to: 10 input: "source" }
+edges { id: 9 from: 9 to: 10 input: "mask" }
+edges { id: 10 from: 10 to: 11 input: "source" }
+edges { id: 11 from: 12 to: 13 input: "a" }
+edges { id: 12 from: 13 to: 1 input: "emission" }
+parameters { key: "flow_strength" node: 1 property: "flow_strength" group: "component.motion" }
+parameters { key: "flow_frequency" node: 1 property: "flow_frequency" group: "component.motion" }
+parameters { key: "flow_evolution" node: 1 property: "flow_evolution" group: "component.motion" }
+parameters { key: "trail_half_life" node: 3 property: "trail_half_life" group: "component.motion" }
+parameters { key: "color_a" node: 1 property: "color_a" group: "component.palette" }
+parameters { key: "accent_amount" node: 7 property: "amount" group: "component.palette" }
+}
+components { type_key: "component.official.neon_dust" schema_version: 1 title: "neon_dust" output: 2
+nodes { id: 1 type_key: "point.emitter" schema_version: 1
+    properties { key: "particle_capacity" value { scalar: 700 } }
+    properties { key: "seed" value { scalar: 37 } }
+    properties { key: "emission_rate" value { scalar: 80 } }
+    properties { key: "lifetime" value { scalar: 8 } }
+    properties { key: "emitter_width" value { scalar: 1.4 } }
+    properties { key: "emitter_height" value { scalar: 1.3 } }
+    properties { key: "center_y" value { scalar: 0.5 } }
+    properties { key: "direction" value { scalar: -20 } }
+    properties { key: "spread" value { scalar: 360 } }
+    properties { key: "particle_speed" value { scalar: 0.025 } }
+    properties { key: "gravity_y" value { scalar: 0 } }
+    properties { key: "point_size" value { scalar: 0.005 } }
+    properties { key: "fade_in" value { scalar: 0.1 } }
+    properties { key: "fade_out" value { scalar: 0.6 } }
+    properties { key: "color_a" value { color { r: 0.15 g: 0.48 b: 1 a: 0.7 } } }
+    properties { key: "color_b" value { color { r: 0.7 g: 0.1 b: 0.9 a: 0 } } }
+}
+nodes { id: 2 type_key: "point.render" schema_version: 1
+    properties { key: "point_blend" value { scalar: 1 } }
+}
+edges { id: 1 from: 1 to: 2 input: "points" }
+parameters { key: "dust_density" node: 1 property: "emission_rate" group: "component.motion" }
+}
+components { type_key: "component.official.neon_glow" schema_version: 1 title: "neon_glow" output: 5
+nodes { id: 1 type_key: "texture.affine" schema_version: 1
+}
+nodes { id: 2 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 2.5 } }
+}
+nodes { id: 3 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 16 } }
+}
+nodes { id: 4 type_key: "texture.composite" schema_version: 1
+    properties { key: "amount" value { scalar: 0.65 } }
+    properties { key: "composite_mode" value { scalar: 1 } }
+}
+nodes { id: 5 type_key: "texture.composite" schema_version: 1
+    properties { key: "amount" value { scalar: 0.9 } }
+    properties { key: "composite_mode" value { scalar: 1 } }
+}
+edges { id: 1 from: 1 to: 2 input: "source" }
+edges { id: 2 from: 1 to: 3 input: "source" }
+edges { id: 3 from: 2 to: 4 input: "a" }
+edges { id: 4 from: 3 to: 4 input: "b" }
+edges { id: 5 from: 1 to: 5 input: "a" }
+edges { id: 6 from: 4 to: 5 input: "b" }
+parameters { key: "glow_near" node: 2 property: "blur_radius" group: "component.palette" }
+parameters { key: "glow_wide" node: 3 property: "blur_radius" group: "component.palette" }
+parameters { key: "glow_amount" node: 5 property: "amount" group: "component.palette" }
+inputs { key: "source" node: 1 input: "source" }
+}

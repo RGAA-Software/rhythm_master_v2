@@ -22,7 +22,7 @@ struct ContextDeleter {
 // window, so it neither moves the user's mouse nor touches their saved project.
 class CanvasFixture final {
    public:
-    CanvasFixture() {
+    explicit CanvasFixture(std::uint64_t count = 3) {
         context_.reset(ImGui::CreateContext());
         auto& io = ImGui::GetIO();
         io.IniFilename = nullptr;
@@ -33,6 +33,12 @@ class CanvasFixture final {
                                       registry_.MakeNode(2, "signal.oscillator"),
                                       registry_.MakeNode(3, "texture.gradient")};
         snapshot_.positions_ = {{1, {100, 100}}, {2, {400, 100}}, {3, {100, 330}}};
+        for (std::uint64_t index = 4; index <= count; ++index) {
+            snapshot_.document_.nodes_.push_back(registry_.MakeNode(index, "scalar.math"));
+            snapshot_.positions_[index] = {100 + float(index % 16) * 360,
+                                           700 + float(index / 16) * 220};
+            snapshot_.document_.edges_.push_back({index, index == 4 ? 1 : index - 1, index, "a"});
+        }
         for (int frame = 0; frame < 6; ++frame) Frame();
     }
     void Frame() {
@@ -90,6 +96,26 @@ void DragWithOverlappingDomainIds() {
                   fixture.snapshot_.positions_.at(2) == before.positions_.at(2) &&
                   fixture.snapshot_.document_ == before.document_,
           "Dragging must only move the targeted node");
+}
+
+void ThousandNodeCanvas() {
+    CanvasFixture fixture(1000);
+    const auto document = fixture.snapshot_.document_;
+    for (int step = 0; step < 24; ++step) {
+        fixture.Move(fixture.canvas_.ToScreen({120, 114}));
+        ImGui::GetIO().AddMouseWheelEvent(0, 1);
+        fixture.Frame();
+        fixture.Frame();
+    }
+    const auto before = fixture.snapshot_.positions_.at(1);
+    const auto start = fixture.canvas_.ToScreen({before.x_ + 20, before.y_ + 14});
+    fixture.Drag(start, {start.x_ + 60, start.y_ + 40});
+    Check(fixture.snapshot_.positions_.at(1) != before && fixture.snapshot_.document_ == document,
+          "1000-node canvas: zoomed header drag must move only the node layout");
+    const auto saved = fixture.snapshot_.positions_;
+    fixture.Drag({900, 650}, {850, 600}, ImGuiMouseButton_Right);
+    Check(fixture.snapshot_.positions_ == saved && fixture.snapshot_.document_ == document,
+          "1000-node canvas: panning must preserve graph and authored positions");
 }
 
 void DragNodeAndConnect() {
@@ -185,6 +211,7 @@ int main() {
         DragNodeAndConnect();
         PanCursor();
         InlinePreviewVisibility();
+        ThousandNodeCanvas();
         std::cout
                 << "Canvas interactions passed: node drag, port link, connected drag, pan/cursor\n";
         return 0;

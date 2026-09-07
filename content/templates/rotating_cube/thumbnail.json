@@ -1,0 +1,14 @@
+{
+    "template": "rotating_cube",
+    "package_sha256": "c2b6008502fdb441c6069fb0a8b98d65c05d6bb53d93f402ec2227b7aa14b203",
+    "thumbnail_sha256": "09dfc6ced34e364fd0ffb18d39f774c76311d32616b5fbe05cb90ac7955d8cca",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

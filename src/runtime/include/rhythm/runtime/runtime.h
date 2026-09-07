@@ -2,10 +2,12 @@
 
 #include <map>
 
+#include "rhythm/assets/images.h"
 #include "rhythm/graph/compiler.h"
 #include "rhythm/particles/types.h"
 #include "rhythm/render/renderer.h"
 #include "rhythm/runtime/inputs.h"
+#include "rhythm/runtime/video_inputs.h"
 #include "rhythm/scene/camera.h"
 #include "rhythm/scene/resources.h"
 #include "rhythm/scene/scene.h"
@@ -20,6 +22,8 @@ struct FrameContext {
     ExternalInputs external_{};
     bool advance_state_ = true;
     std::shared_ptr<const scene::Resources> resources_{};
+    std::shared_ptr<const assets::Images> images_{};
+    std::vector<VideoInput> videos_{};
 };
 struct NodeOutput {
     graph::NodeId node_ = 0;

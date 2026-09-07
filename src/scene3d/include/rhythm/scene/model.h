@@ -66,4 +66,7 @@ Model Cube();
 // radial segments 3..256, intermediate rings 1..128. Triangle winding is CCW.
 Model Sphere(float radius = 0.5f, float height = 1, std::uint32_t radial_segments = 32,
              std::uint32_t rings = 16);
+// Major radius and tube/major radius ratio. Both seams close exactly; CCW faces.
+Model Torus(float radius = 0.8f, float tube_ratio = 0.08f, std::uint32_t segments = 64,
+            std::uint32_t tube_segments = 16);
 }  // namespace rhythm::scene

@@ -6,4 +6,8 @@
     <string name="package_error">无法打开运行包，继续播放当前内容。</string>
     <string name="playing">播放中</string>
     <string name="paused">已暂停</string>
+    <string name="render_quality">画质</string>
+    <string name="quality_original">原始画质</string>
+    <string name="quality_balanced">均衡（推荐）</string>
+    <string name="quality_economy">省电</string>
 </resources>

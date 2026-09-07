@@ -13,11 +13,13 @@ def main():
     parser.add_argument("--vcpkg", type=Path, default=Path("C:/source/vcpkg"))
     parser.add_argument("--ndk", type=Path, default=Path("D:/android/sdk/ndk/29.0.14206865"))
     parser.add_argument("--jobs", type=int, default=20)
+    parser.add_argument("--sdk", type=Path, help="Isolated installed vcpkg triplet override")
+    parser.add_argument("--build", type=Path, help="Separate incremental validation directory")
     args = parser.parse_args()
     if not 1 <= args.jobs <= 64:
         parser.error("jobs must be 1..64")
     triplet = "x64-windows" if args.platform == "windows" else "arm64-android"
-    sdk = args.vcpkg / "installed" / triplet
+    sdk = args.sdk or args.vcpkg / "installed" / triplet
     configuration = "Debug" if args.platform == "windows" else "Release"
     host_build = "windows" if args.platform == "windows" else "android-arm64"
     options = ["-DCMAKE_BUILD_TYPE=" + configuration, "-DRHYTHM_MEDIA_SDK=" + sdk.as_posix(),
@@ -30,7 +32,7 @@ def main():
     else:
         options += ["-DCMAKE_TOOLCHAIN_FILE=" + (args.ndk / "build/cmake/android.toolchain.cmake").as_posix(),
                     "-DANDROID_ABI=arm64-v8a", "-DANDROID_PLATFORM=26", "-DANDROID_STL=c++_static"]
-    build = ROOT / "out/media-validation" / args.platform
+    build = args.build or ROOT / "out/media-validation" / args.platform
     subprocess.run(["cmake", "-S", str(ROOT / "probes/media"), "-B", str(build), "-G", "Ninja", *options], check=True)
     subprocess.run(["cmake", "--build", str(build), "--parallel", str(args.jobs)], check=True)
 

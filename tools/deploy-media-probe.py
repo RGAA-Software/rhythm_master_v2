@@ -29,7 +29,7 @@ def main():
             source = sdk / "share" / package / name
             if source.is_file():
                 deployment.copy_file(source, destination / "notices" / package / name)
-    for directory in ("audio_fft", "sources/sdl"):
+    for directory in ("audio_fft", "sources/sdl", "ffmpeg-examples"):
         deployment.copy_tree(ROOT / "third_party/notices" / directory, destination / "notices" / directory)
     (destination / "README.txt").write_text(
         "Local media adapter validation only; not the Studio or Player release.\n"

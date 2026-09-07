@@ -17,11 +17,11 @@ int main() {
         instruction.node_.properties_["exposure"] = -3.0;
         std::array<runtime::NodeOutput, 2> outputs{};
         outputs[1].scalar_ = 2;
-        const auto draw = [&] {
+        const auto draw = [&](std::size_t expected_commands = 1) {
             render::DrawList list;
             list.width_ = list.height_ = 16;
             const auto clear = runtime::detail::DrawTexture(instruction, outputs, {}, {}, list);
-            require(clear == 0 && list.commands_.size() == 1);
+            require(clear == 0 && list.commands_.size() == expected_commands);
             return list;
         };
         require(draw().commands_[0].color_adjustment_->exposure_ == 2);
@@ -58,6 +58,26 @@ int main() {
         require(draw().commands_[0].texture_contours_->phase_ == -4096);
         instruction.inputs_[1].reset();
         require(draw().commands_[0].texture_contours_->phase_ == 0);
+        instruction.node_ = registry.MakeNode(1, "texture.displace");
+        instruction.operation_ = graph::Operation::kTextureDisplace;
+        instruction.inputs_ = {0, 1, 1, {}};
+        outputs[1].texture_ = {42, 2, 3};
+        outputs[1].scalar_ = -100;
+        require(draw().commands_[0].texture_displace_->map_ == outputs[1].texture_);
+        require(draw().commands_[0].texture_displace_->strength_ == -1);
+        instruction.inputs_[2].reset();
+        require(draw().commands_[0].texture_displace_->strength_ == 0.05f);
+        instruction.node_ = registry.MakeNode(1, "texture.stack");
+        instruction.operation_ = graph::Operation::kTextureStack;
+        instruction.inputs_ = {0, {}, 1, {}, {}, {}, {}, 0};
+        const auto layered = draw(3);
+        require(layered.commands_.size() == 3 && layered.vertices_.size() == 12);
+        require(layered.commands_[1].texture_ == outputs[1].texture_);
+        require(layered.commands_[2].first_index_ == 12);
+        require(layered.commands_[1].blend_ == render::BlendMode::kSourceOver);
+        instruction.node_.properties_["composite_mode"] = 1.0;
+        require(draw(3).commands_[0].blend_ == render::BlendMode::kSourceOver);
+        require(draw(3).commands_[1].blend_ == render::BlendMode::kAdd);
         std::cout << "Texture commands passed: color binding, fallback, clamp and "
                      "unsupported-operation rejection\n";
     } catch (const std::exception& error) {

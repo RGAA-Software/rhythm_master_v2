@@ -55,7 +55,13 @@ enum class Operation : std::uint8_t {
     kGaussianBlur,
     kTextureNoise,
     kTextureMapping,
-    kTextureContours
+    kTextureContours,
+    kTextureDisplace,
+    kTextureTrail,
+    kGeometryTorus,
+    kTextureImage,
+    kTextureVideo,
+    kTextureStack
 };
 struct PortDescriptor {
     std::string key_{};

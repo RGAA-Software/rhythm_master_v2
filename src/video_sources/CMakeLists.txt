@@ -1,0 +1,8 @@
+add_library(video_sources STATIC streams.cpp)
+target_include_directories(video_sources PUBLIC include "${PROJECT_SOURCE_DIR}/src/runtime/include")
+target_link_libraries(video_sources PUBLIC prepared_assets)
+if(RHYTHM_BUILD_MEDIA)
+    target_link_libraries(video_sources PRIVATE video_playback)
+    target_compile_definitions(video_sources PRIVATE RHYTHM_HAS_VIDEO_PLAYBACK=1)
+endif()
+rhythm_project_target(video_sources)

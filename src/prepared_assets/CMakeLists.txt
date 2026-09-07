@@ -1,0 +1,8 @@
+add_library(prepared_assets STATIC prepare.cpp loader.cpp video_assets.cpp)
+target_include_directories(prepared_assets PUBLIC include)
+target_link_libraries(prepared_assets PUBLIC model_assets media_types PRIVATE asset_store)
+if(RHYTHM_BUILD_MEDIA)
+    target_link_libraries(prepared_assets PRIVATE media_video)
+    target_compile_definitions(prepared_assets PRIVATE RHYTHM_HAS_IMAGE_DECODER=1)
+endif()
+rhythm_project_target(prepared_assets)

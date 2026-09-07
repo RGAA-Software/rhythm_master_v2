@@ -8,10 +8,15 @@ namespace rhythm::render::detail {
 namespace {
 class NullBackend final : public Backend {
    public:
-    TextureHandle Create(Extent extent, std::span<const std::uint8_t> rgba) override {
-        return resources_.Allocate(extent, rgba);
+    TextureHandle Create(Extent extent, std::span<const std::uint8_t> rgba,
+                         TexturePrecision precision) override {
+        return resources_.Allocate(extent, rgba, precision);
     }
     void Release(TextureHandle handle) noexcept override { resources_.Release(handle); }
+    void Update(TextureHandle handle, std::span<const std::uint8_t> rgba) override {
+        resources_.ValidateUpload(handle, rgba);
+        if (!in_frame_) throw std::logic_error("render.frame_not_open");
+    }
     bool IsValid(TextureHandle handle) const override { return resources_.IsValid(handle); }
     bool SupportsScenes() const override {
         resources_.CheckReady();
@@ -43,6 +48,7 @@ class NullBackend final : public Backend {
     void BeginFrame() override {
         resources_.CheckReady();
         if (in_frame_) throw std::logic_error("render.frame_already_open");
+        resources_.BeginFrame();
         in_frame_ = true;
         passes_ = 0;
         draws_ = 0;
@@ -51,6 +57,7 @@ class NullBackend final : public Backend {
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         resources_.Validate(target, list);
         if (passes_ >= 240) throw std::length_error("render.pass_limit");
+        resources_.RecordSamples(list);
         ++passes_;
         draws_ += static_cast<std::uint32_t>(list.commands_.size());
     }

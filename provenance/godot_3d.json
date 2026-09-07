@@ -90,5 +90,11 @@
         "embedded media and third-party modules",
         "engine renderer and shaders except the explicitly adapted BRDF helpers"
     ],
-    "outbound_license": "not selected; Godot contributions retain MIT"
+    "outbound_license": "not selected; Godot contributions retain MIT",
+    "torus_adaptation": {
+        "source_file": "scene/resources/3d/primitive_meshes.cpp",
+        "symbol": "TorusMesh::_create_mesh_array",
+        "target": "src/scene3d/torus.cpp",
+        "scope": "Retain torus position/normal/UV and exact seam construction; reverse winding to CCW. Use bounded major radius and tube ratio; omit tangents and UV2 outside project vertex contract."
+    }
 }

@@ -1,4 +1,4 @@
-add_library(scene3d STATIC math.cpp camera.cpp model.cpp sphere.cpp resources.cpp)
+add_library(scene3d STATIC math.cpp camera.cpp model.cpp sphere.cpp torus.cpp resources.cpp)
 target_link_libraries(scene3d PUBLIC asset_types)
 target_include_directories(scene3d PUBLIC include)
 if(ANDROID)

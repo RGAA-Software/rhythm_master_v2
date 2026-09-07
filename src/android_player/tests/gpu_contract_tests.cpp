@@ -6,12 +6,17 @@
 #include <stdexcept>
 
 #include "bgfx_backend.h"
+#include "rhythm/player/render_quality.h"
 #include "rhythm/player/session.h"
 #include "rhythm/render/renderer.h"
 
 namespace rhythm::validation {
 void VerifyPointPixels(render::Renderer& renderer);
-}
+void VerifyEffectPixels(render::Renderer& renderer);
+void VerifyVideoUploadPixels(render::Renderer& renderer);
+void MeasureTemplate(render::Renderer& renderer, const std::filesystem::path& path,
+                     player::RenderQuality quality);
+}  // namespace rhythm::validation
 
 namespace rhythm::platform {
 namespace {
@@ -329,11 +334,26 @@ void VerifyAffine(rhythm::render::Renderer& renderer) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+        std::cout << std::unitbuf;
+        if (argc == 3 && (std::string_view(argv[2]) == "--benchmark" ||
+                          std::string_view(argv[2]) == "--benchmark-compact" ||
+                          std::string_view(argv[2]) == "--benchmark-balanced")) {
+            auto renderer = platform::Host::CreateRenderer();
+            const auto quality = std::string_view(argv[2]) == "--benchmark-compact"
+                                         ? player::RenderQuality::kEconomy
+                                 : std::string_view(argv[2]) == "--benchmark-balanced"
+                                         ? player::RenderQuality::kBalanced
+                                         : player::RenderQuality::kOriginal;
+            rhythm::validation::MeasureTemplate(renderer, argv[1], quality);
+            return 0;
+        }
         for (int device = 0; device < 2; ++device) {
             auto renderer = platform::Host::CreateRenderer();
             const auto gpu = glGetString(GL_RENDERER);
             if (gpu) std::cout << "GPU " << gpu << '\n';
             VerifySpectrum(renderer);
+            rhythm::validation::VerifyVideoUploadPixels(renderer);
+            rhythm::validation::VerifyEffectPixels(renderer);
             rhythm::validation::VerifyPointPixels(renderer);
             VerifyAlpha(renderer);
             VerifyAffine(renderer);

@@ -1,0 +1,14 @@
+{
+    "template": "prismatic_lotus",
+    "package_sha256": "f6137ed24531e508f92f58273775592ce36d44e5f95ebe74fb36d91662872317",
+    "thumbnail_sha256": "6704256d0ca2faac6bfc0084d9200214c2663165364fca6c518b3f4eb0a94ee8",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

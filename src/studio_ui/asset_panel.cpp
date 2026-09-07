@@ -26,7 +26,11 @@ AssetEdit AssetPanel::Draw(const std::filesystem::path& directory,
     }
     const auto label = text("asset.manager") + "###asset.manager";
     if (ImGui::Button(label.c_str())) ImGui::OpenPopup("asset.manager.popup");
-    ImGui::SetNextWindowSize({560, 420}, ImGuiCond_FirstUseEver);
+    // BeginPopup enables content autosizing; an explicit size each frame prevents
+    // fill-available child regions and collapsed/filtered content from shrinking it.
+    const auto available = ImGui::GetMainViewport()->WorkSize;
+    ImGui::SetNextWindowSize({std::min(560.0f, std::max(1.0f, available.x - 16)),
+                              std::min(420.0f, std::max(1.0f, available.y - 16))});
     if (!ImGui::BeginPopup("asset.manager.popup")) return edit;
     ImGui::TextWrapped("%s", text("asset.import_help").c_str());
     ImGui::BeginDisabled(importer_.Busy());
@@ -46,9 +50,17 @@ AssetEdit AssetPanel::Draw(const std::filesystem::path& directory,
         auto extension = source_path.extension().string();
         std::transform(extension.begin(), extension.end(), extension.begin(),
                        [](unsigned char value) { return static_cast<char>(std::tolower(value)); });
-        importer_.Start(directory, source_path,
-                        extension == ".glb" ? "model/gltf-binary" : "application/octet-stream",
-                        project::kMaximumPackageAssetBytes - total);
+        const auto mime = extension == ".glb"                           ? "model/gltf-binary"
+                          : extension == ".png"                         ? "image/png"
+                          : extension == ".jpg" || extension == ".jpeg" ? "image/jpeg"
+                          : extension == ".webp"                        ? "image/webp"
+                          : extension == ".bmp"                         ? "image/bmp"
+                          : extension == ".mp4"                         ? "video/mp4"
+                          : extension == ".mkv"                         ? "video/x-matroska"
+                          : extension == ".webm"                        ? "video/webm"
+                          : extension == ".mov"                         ? "video/quicktime"
+                                                : "application/octet-stream";
+        importer_.Start(directory, source_path, mime, project::kMaximumPackageAssetBytes - total);
         status_ = "asset.importing";
     }
     ImGui::EndDisabled();

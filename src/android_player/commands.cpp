@@ -50,6 +50,8 @@ Java_org_rhythmmaster_player_PlayerActivity_nativeCommand(JNIEnv*, jclass, jint 
     std::lock_guard lock(mutex);
     if (command == 1) pending.toggle_pause_ = !pending.toggle_pause_;
     if (command == 2) pending.restart_ = true;
+    if (command >= 10 && command <= 12)
+        pending.render_quality_ = static_cast<player::RenderQuality>(command - 10);
 }
 extern "C" JNIEXPORT jboolean JNICALL
 Java_org_rhythmmaster_player_PlayerActivity_nativeOpen(JNIEnv* env, jclass, jstring path) {

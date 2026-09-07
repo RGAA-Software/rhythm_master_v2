@@ -1,6 +1,7 @@
 package org.rhythmmaster.player;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ public final class PlayerActivity extends SDLActivity {
     private TextView status_ = null;
     private boolean importing_ = false;
     private boolean active_ = false;
+    private int render_quality_ = 1;
     private static native void nativeCommand(int command);
     private static native boolean nativeOpen(String path);
     private static native String nativeStatus();
@@ -71,6 +73,12 @@ public final class PlayerActivity extends SDLActivity {
         AddButton(buttons, R.string.pause_resume, () -> nativeCommand(1));
         AddButton(buttons, R.string.restart, () -> nativeCommand(2));
         controls.addView(buttons);
+        LinearLayout settings = new LinearLayout(this);
+        AddButton(settings, R.string.render_quality, () -> ChooseQuality());
+        controls.addView(settings);
+        render_quality_ = Math.max(0, Math.min(2, getSharedPreferences("player", MODE_PRIVATE)
+                .getInt("render_quality", 1)));
+        nativeCommand(10 + render_quality_);
         status_ = new TextView(this);
         status_.setTextColor(0xffeeeeee);
         status_.setPadding(16, 4, 16, 12);
@@ -94,6 +102,18 @@ public final class PlayerActivity extends SDLActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         startActivityForResult(intent, kOpenPackage);
+    }
+
+    private void ChooseQuality() {
+        String[] choices = {getString(R.string.quality_original), getString(R.string.quality_balanced),
+                getString(R.string.quality_economy)};
+        new AlertDialog.Builder(this).setTitle(R.string.render_quality)
+                .setSingleChoiceItems(choices, render_quality_, (dialog, selected) -> {
+                    render_quality_ = selected;
+                    getSharedPreferences("player", MODE_PRIVATE).edit().putInt("render_quality", selected).apply();
+                    nativeCommand(10 + selected);
+                    dialog.dismiss();
+                }).setNegativeButton(android.R.string.cancel, null).show();
     }
 
     @Override protected void onActivityResult(int request, int result, Intent data) {

@@ -34,10 +34,16 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
             break;
         }
         case Operation::kGeometryCube:
+        case Operation::kGeometryTorus:
         case Operation::kGeometrySphere: {
             auto model =
-                    instruction.operation_ == Operation::kGeometryCube
-                            ? scene::Cube()
+                    instruction.operation_ == Operation::kGeometryCube ? scene::Cube()
+                    : instruction.operation_ == Operation::kGeometryTorus
+                            ? scene::Torus(
+                                      static_cast<float>(scalar("radius", 0.8)),
+                                      static_cast<float>(scalar("tube_ratio", 0.08)),
+                                      static_cast<std::uint32_t>(scalar("radial_segments", 64)),
+                                      static_cast<std::uint32_t>(scalar("tube_segments", 16)))
                             : scene::Sphere(
                                       static_cast<float>(scalar("radius", 0.5)),
                                       static_cast<float>(scalar("height", 1)),

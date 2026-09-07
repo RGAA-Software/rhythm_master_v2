@@ -20,5 +20,9 @@
     "compatible_players": [
         "windows"
     ],
-    "external_assets": []
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "双色分形云层缓缓交错，适合留白充足的环境背景。",
+        "en-US": "Two colored fractal cloud layers drift across a spacious atmospheric background."
+    }
 }

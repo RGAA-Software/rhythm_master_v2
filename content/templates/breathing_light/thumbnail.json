@@ -1,0 +1,14 @@
+{
+    "template": "breathing_light",
+    "package_sha256": "0aada9ec4f72c6ce3e103a88bb93c26316d24c7094119c30d46fa0fa907625ea",
+    "thumbnail_sha256": "9886ed4af06fe4efcfe1eb3bd55ade70ad04785f95550c808ebc0fca39431bc8",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

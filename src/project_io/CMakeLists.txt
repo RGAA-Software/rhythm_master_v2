@@ -19,7 +19,7 @@ rhythm_project_target(runtime_package)
 add_library(project_io STATIC codec.cpp graph_records.cpp graph_validation.cpp layout_codec.cpp project_store.cpp project_publish.cpp project_template.cpp async_store.cpp)
 target_include_directories(project_io PUBLIC include PRIVATE "${PROJECT_SOURCE_DIR}/third_party/sources/picosha2")
 target_link_libraries(project_io PUBLIC editor_application foundation_async PRIVATE project_schema protobuf::libprotobuf
-    atomic_storage asset_store property_codec runtime_package model_assets nlohmann_json::nlohmann_json)
+    atomic_storage asset_store property_codec runtime_package prepared_assets nlohmann_json::nlohmann_json)
 rhythm_project_target(project_io)
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 set(template_output "${PROJECT_BINARY_DIR}/content/templates/signal_texture")
@@ -30,13 +30,14 @@ foreach(manifest IN LISTS template_manifests)
     get_filename_component(source_dir "${manifest}" DIRECTORY)
     get_filename_component(template_name "${source_dir}" NAME)
     set(output_dir "${PROJECT_BINARY_DIR}/content/templates/${template_name}")
+    file(GLOB template_thumbnails CONFIGURE_DEPENDS "${source_dir}/thumbnail.rgba" "${source_dir}/thumbnail.json")
     list(APPEND template_names "${template_name}")
     list(APPEND template_products "${output_dir}/graph.pb" "${output_dir}/manifest.json" "${output_dir}/editor.json")
     add_custom_command(OUTPUT "${output_dir}/graph.pb" "${output_dir}/manifest.json" "${output_dir}/editor.json"
         COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/compile-content.py"
             "${RHYTHM_PROTOC}" "${schema}" "${source_dir}" "${output_dir}"
         DEPENDS "${schema}" "${source_dir}/graph.textproto" "${manifest}"
-            "${source_dir}/editor.json" "${PROJECT_SOURCE_DIR}/tools/compile-content.py" VERBATIM)
+            "${source_dir}/editor.json" ${template_thumbnails} "${PROJECT_SOURCE_DIR}/tools/compile-content.py" VERBATIM)
 endforeach()
 add_custom_target(phase_a_content ALL DEPENDS ${template_products})
 if(NOT CMAKE_CROSSCOMPILING)
@@ -52,6 +53,7 @@ if(NOT CMAKE_CROSSCOMPILING)
         add_custom_command(OUTPUT "${runtime_package_output}"
             COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/compile-runtime-package.py"
                 --publisher "$<TARGET_FILE:rhythm_package>" --sdk "${RHYTHM_IO_SDK}"
+                --media-sdk "${RHYTHM_MEDIA_SDK}"
                 --template "${source_dir}" --output "${runtime_package_output}"
             DEPENDS rhythm_package "${source_dir}/graph.pb" "${source_dir}/manifest.json"
                 "${PROJECT_SOURCE_DIR}/tools/compile-runtime-package.py" ${previous_package_output} VERBATIM)

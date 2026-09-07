@@ -37,7 +37,8 @@ def compile_shader(compiler, source, output, stage, include, varying=None,
             command += ["--varyingdef", str(varying)]
         completed = subprocess.run(command, capture_output=True, timeout=30)
         if completed.returncode:
-            raise RuntimeError(completed.stderr.decode("utf-8", errors="replace")[-8192:])
+            diagnostic = completed.stdout + b"\n" + completed.stderr
+            raise RuntimeError(diagnostic.decode("utf-8", errors="replace")[-8192:])
         if source.read_bytes() != source_bytes or any(
                 hashlib.sha256(Path(path).read_bytes()).hexdigest() != expected
                 for path, expected in include_hashes.items()):

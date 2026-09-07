@@ -1,4 +1,13 @@
-add_library(particles STATIC simulation.cpp)
+add_library(particles STATIC simulation.cpp flow_field.cpp)
+if(ANDROID)
+    set(rhythm_particle_triplet arm64-android)
+else()
+    set(rhythm_particle_triplet x64-windows)
+endif()
+find_path(RHYTHM_PARTICLE_GLM_INCLUDE glm/gtc/noise.hpp
+    PATHS "C:/source/vcpkg/installed/${rhythm_particle_triplet}/include"
+    NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH REQUIRED)
+target_include_directories(particles SYSTEM PRIVATE "${RHYTHM_PARTICLE_GLM_INCLUDE}")
 target_include_directories(particles PUBLIC include)
 rhythm_project_target(particles)
 if(BUILD_TESTING)

@@ -21,5 +21,6 @@
     ],
     "external_assets": [],
     "default": false,
-    "semantic": true
+    "semantic": true,
+    "category": "scene"
 }

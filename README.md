@@ -119,6 +119,7 @@ read-only SDK):
 ./tools/build.ps1 -Preset core
 ./tools/build.ps1 -Preset render-standalone
 ./tools/build.ps1 -Preset windows -ShaderCompiler 'C:/source/shark_dynamics_wallpaper/cmake-build-qt6/generated/bgfx_tools/bin/shaderc.exe'
+python tools/build-windows.py
 ./tools/run-studio.ps1
 ```
 
@@ -131,17 +132,31 @@ in Python; compiler/source/include hashes are retained beside generated artifact
 Reproducible release distribution of the compiler remains a pending dependency
 task; its executable is not bundled with Player.
 
-Every Windows build automatically runs `tools/deploy-windows.py` to assemble
-`out/windows/src/windows_spike/deploy/` with the executable, recursively resolved
+For daily acceptance, `python tools/build-windows.py` builds **Release** with
+20 workers and the validated local SDKs, and deploys both Studio and Player.
+It preserves the separate `out/windows` Debug cache; use
+`--configuration Debug` for debugging. The Studio launcher defaults to Release.
+Do not use the Debug bundle to assess animation performance.
+
+Every Windows application build automatically runs `tools/deploy-windows.py` to assemble
+the sibling `deploy/` directory with the executable, recursively resolved
 runtime DLLs, content, locales and third-party notices. Double-click
-`deploy/rhythm_master.exe` or use the launcher above; no SDK PATH is required.
+`out/windows-release/src/windows_spike/deploy/rhythm_master.exe` or use the launcher
+above; no SDK PATH is required. Player is in
+`out/windows-release/src/windows_player/deploy/rhythm_player.exe`.
 Runtime DLLs are also copied beside the original build executable. CMake only
 supplies build metadata and invokes Python; deployment logic lives in Python.
 For a manual refresh without compilation:
 
 ```powershell
-python tools/deploy-windows.py --config out/windows/src/windows_spike/deploy-config-Debug.txt
+python tools/deploy-windows.py --config out/windows-release/src/windows_spike/deploy-config-Release.txt
 ```
+
+For the large music-driven reference, search **共振星门 / Resonance Gate** in
+the template browser, apply it, and click **播放演示音乐** in the audio panel.
+The 164-node graph also responds to local music files or enabled system audio.
+See [large-graph and audio evidence](docs/validation/resonance_gate_2026-09-07.md)
+for frame times, the separate 1000-node interaction check and remaining limits.
 
 The `windows_deploy_smoke` test starts the deployed app from an unrelated working
 directory with a system-only PATH and checks that runtime DLLs load from `deploy`.

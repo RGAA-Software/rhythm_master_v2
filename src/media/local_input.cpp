@@ -1,6 +1,8 @@
 #include "local_input.h"
 
+#include <algorithm>
 #include <cerrno>
+#include <cstring>
 #include <limits>
 #include <stdexcept>
 
@@ -22,6 +24,17 @@ LocalInput::LocalInput(const std::filesystem::path& path, std::stop_token stop) 
     if (!file_) {
         throw std::runtime_error("cannot open media file");
     }
+    InitializeContext();
+}
+LocalInput::LocalInput(std::shared_ptr<const std::vector<std::uint8_t>> bytes, std::stop_token stop)
+    : bytes_(std::move(bytes)), stop_(stop) {
+    if (stop.stop_requested()) throw std::runtime_error("media operation canceled");
+    if (!bytes_ || bytes_->empty() || bytes_->size() > 16 * 1024 * 1024)
+        throw std::invalid_argument("embedded media byte budget");
+    size_ = static_cast<std::int64_t>(bytes_->size());
+    InitializeContext();
+}
+void LocalInput::InitializeContext() {
     constexpr int kBufferBytes = 32768;
     auto buffer = std::unique_ptr<unsigned char, BufferDelete>(
             static_cast<unsigned char*>(av_malloc(kBufferBytes)));
@@ -43,6 +56,15 @@ int LocalInput::Read(void* opaque, std::uint8_t* buffer, int size) noexcept {
     }
     if (size <= 0) {
         return AVERROR(EINVAL);
+    }
+    if (input.bytes_) {
+        const auto count =
+                static_cast<int>(std::min<std::int64_t>(size, input.size_ - input.position_));
+        if (!count) return AVERROR_EOF;
+        std::memcpy(buffer, input.bytes_->data() + input.position_,
+                    static_cast<std::size_t>(count));
+        input.position_ += count;
+        return count;
     }
     input.file_.read(reinterpret_cast<char*>(buffer), size);
     const auto count = input.file_.gcount();
@@ -66,6 +88,14 @@ std::int64_t LocalInput::Seek(void* opaque, std::int64_t offset, int whence) noe
                                                 : std::ios::end;
     if (whence != SEEK_SET && whence != SEEK_CUR && whence != SEEK_END) {
         return AVERROR(EINVAL);
+    }
+    if (input.bytes_) {
+        const auto base = whence == SEEK_SET   ? 0
+                          : whence == SEEK_CUR ? input.position_
+                                               : input.size_;
+        if (offset < -base || offset > input.size_ - base) return AVERROR(EINVAL);
+        input.position_ = base + offset;
+        return input.position_;
     }
     input.file_.clear();
     input.file_.seekg(offset, direction);

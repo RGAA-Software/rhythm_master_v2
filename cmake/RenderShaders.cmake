@@ -77,3 +77,17 @@ add_custom_command(OUTPUT "${mapping_shader_header}"
         "${RHYTHM_SHADERC}" ${render_shader_includes}
     VERBATIM)
 target_sources(render_bgfx PRIVATE "${mapping_shader_header}")
+
+set(displace_shader_header "${PROJECT_BINARY_DIR}/generated/render/texture_displace_shader.h")
+add_custom_command(OUTPUT "${displace_shader_header}"
+    COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        --compiler "${RHYTHM_SHADERC}" --output "${displace_shader_header}"
+        --platform "${render_shader_platform}" --group displace
+    DEPENDS "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        "${PROJECT_SOURCE_DIR}/tools/compile-shader.py"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/texture_displace.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/texture_trail.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/varying.def.sc"
+        "${RHYTHM_SHADERC}" ${render_shader_includes}
+    VERBATIM)
+target_sources(render_bgfx PRIVATE "${displace_shader_header}")

@@ -1,11 +1,11 @@
-#include "rhythm/model_assets/loader.h"
+#include "rhythm/prepared_assets/loader.h"
 
 #include <chrono>
 #include <set>
 
 #include "rhythm/assets/store.h"
 
-namespace rhythm::model_assets {
+namespace rhythm::prepared_assets {
 namespace {
 LoadResult Load(LoadRequest request, std::stop_token stop) {
     LoadResult result;
@@ -16,7 +16,9 @@ LoadResult Load(LoadRequest request, std::stop_token stop) {
         std::vector<project::PackagedAsset> packaged;
         std::set<std::string> required;
         for (const auto& instruction : result.plan_.instructions_)
-            if (instruction.operation_ == graph::Operation::kGeometryGlb)
+            if ((instruction.operation_ == graph::Operation::kGeometryGlb ||
+                 instruction.operation_ == graph::Operation::kTextureImage ||
+                 instruction.operation_ == graph::Operation::kTextureVideo))
                 required.insert(std::get<assets::AssetId>(instruction.node_.properties_.at("asset"))
                                         .sha256_);
         std::size_t remaining = project::kMaximumPackageAssetBytes;
@@ -74,4 +76,4 @@ std::optional<LoadResult> Loader::Take() {
     if (cancelled) return {};
     return result;
 }
-}  // namespace rhythm::model_assets
+}  // namespace rhythm::prepared_assets

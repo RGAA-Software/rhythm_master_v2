@@ -23,6 +23,11 @@
             "upstream_file": "Operators/Lib/Assets/shaders/img/fx/PolarCoordinates.hlsl",
             "imported_file": "third_party/sources/tixl-effects/PolarCoordinates.hlsl",
             "sha256": "0464f9df8b89ccc94e99a33ff64fb856e61d1a169ec04742a2e91e8abec84817"
+        },
+        {
+            "upstream_file": "Operators/Lib/Assets/shaders/img/fx/Displace.hlsl",
+            "imported_file": "third_party/sources/tixl-effects/Displace.hlsl",
+            "sha256": "9a5fedbd2ad440670244482cccc484b03d688ccd127b82987ef7e7706d647d5e"
         }
     ],
     "target": "src/rhythm_render/shaders/texture_filter.sc",
@@ -44,5 +49,12 @@
         "Adapt forward polar coordinate mapping, radial power, travel and twist to bgfx.",
         "Bound center radius, support negative radial power for tunnel perspective, mirror edge coordinates explicitly.",
         "Omit inverse mode and external API types; preserve premultiplied RGBA."
+    ],
+    "displace_target": "src/rhythm_render/shaders/texture_displace.sc",
+    "displace_modifications": [
+        "Adapt central-difference height and RG displacement to bgfx two-sampler bindings.",
+        "Use explicit signed image-height strength and rotation, omit offset/shading/RGSS and unrelated includes.",
+        "Remove upstream unreachable RG-mode branch; use centered premultiplied RG vectors so transparent maps are neutral.",
+        "Clamp map edges and mirror source edges; bound radius, strength and rotation in project contracts."
     ]
 }

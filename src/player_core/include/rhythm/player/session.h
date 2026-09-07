@@ -4,6 +4,7 @@
 #include "rhythm/project/package.h"
 #include "rhythm/runtime/frame_clock.h"
 #include "rhythm/runtime/runtime.h"
+#include "rhythm/video_sources/streams.h"
 
 namespace rhythm::player {
 // Host-thread confined playback. Loading validates before replacing the current
@@ -33,10 +34,12 @@ class Session final {
                               const runtime::ExternalInputs& inputs = {});
 
    private:
-    void Commit(project::RuntimePackage package, std::shared_ptr<const scene::Resources> resources);
+    void Commit(project::RuntimePackage package,
+                std::shared_ptr<const prepared_assets::Resources> resources);
     std::optional<project::RuntimePackage> package_{};
-    std::shared_ptr<const scene::Resources> resources_{};
+    std::shared_ptr<const prepared_assets::Resources> resources_{};
     runtime::Runtime runtime_{};
+    video_sources::Streams videos_{};
     runtime::FrameClock clock_{};
     runtime::FrameResult frame_{};
     runtime::ExternalInputs external_{};

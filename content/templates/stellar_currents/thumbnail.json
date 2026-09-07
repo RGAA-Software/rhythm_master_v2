@@ -1,0 +1,14 @@
+{
+    "template": "stellar_currents",
+    "package_sha256": "bbfe1099309b348a942bbd34e8ebeb53946c0d2f72f0589e9b8cdff9799a9769",
+    "thumbnail_sha256": "2eb809eda873345328345ca72a5050dbab71f9035ee89ffc3582d7e1fe5d865e",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

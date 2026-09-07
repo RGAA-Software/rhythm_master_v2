@@ -2,6 +2,7 @@
 /third_party/sources/*
 !/third_party/sources/tixl-effects/
 !/third_party/sources/material-maker-effects/
+!/third_party/sources/ffmpeg-examples/
 /third_party/source_archives/
 CMakeUserPresets.json
 *.user

@@ -17,7 +17,7 @@ def main():
     parser.add_argument("--compiler", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--platform", choices=("windows", "android"), required=True)
-    parser.add_argument("--group", choices=("color", "scene", "filter", "noise", "mapping"), default="color")
+    parser.add_argument("--group", choices=("color", "scene", "filter", "noise", "mapping", "displace"), default="color")
     args = parser.parse_args()
     output = args.output.resolve()
     if not output.is_relative_to(ROOT / "out"):
@@ -31,6 +31,9 @@ def main():
         programs = [("texture_filter.sc", "fragment", "varying.def.sc", "kTextureFilterShader")]
     elif args.group == "noise":
         programs = [("texture_noise.sc", "fragment", "varying.def.sc", "kTextureNoiseShader")]
+    elif args.group == "displace":
+        programs = [("texture_displace.sc", "fragment", "varying.def.sc", "kTextureDisplaceShader"),
+                    ("texture_trail.sc", "fragment", "varying.def.sc", "kTextureTrailShader")]
     elif args.group == "mapping":
         programs = [("texture_mapping.sc", "fragment", "varying.def.sc", "kTextureMappingShader"),
                     ("texture_contours.sc", "fragment", "varying.def.sc", "kTextureContoursShader")]

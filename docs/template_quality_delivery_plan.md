@@ -7,8 +7,8 @@ This replaces the earlier 24-template minimum. The independent requirements of
 40 semantic nodes and 120 visually distinct presets remain. Counts measure
 distinct accepted compositions, not recolors, aspect ratios or device variants.
 
-The inventory currently contains 25 runnable examples, eight semantic components
-and 111 preset records. The user rejected the examples' visual quality. No accepted
+The inventory currently contains 28 runnable examples, 11 semantic components
+and 126 preset records. The user rejected the earlier examples' visual quality. No accepted
 Basic/Advanced allocation has been established. Functional test results remain
 valid for the behavior they cover; they do not establish visual acceptance.
 
@@ -55,9 +55,11 @@ valid for the behavior they cover; they do not establish visual acceptance.
 | Advanced | Lit audio sculpture | Composed geometry, materials, deliberate lights/camera and audio modulation |
 
 Layered neon and atmospheric clouds now have runnable Basic candidates. Prismatic
-lotus is the first Advanced visual reference, using polar depth, independently
-evolving mirrored fields and antialiased contours. The remaining batch items are
-still pending. See `validation/prismatic_lotus_2026-09-07.md` for actual evidence.
+lotus uses polar depth, independently evolving mirrored fields and antialiased
+contours. Firefly garden, Stellar currents and Orbital reliquary now complete the
+six authored candidates, with Android Release measurements and real browser
+previews. See `validation/reference_batch_2026-09-07.md` for evidence and remaining
+visual/product acceptance. These are still candidates, not user-accepted counts.
 
 These are scope proposals for concrete production, not assertions that all
 required operators exist. Prefer a well-composed modest scene over simulating

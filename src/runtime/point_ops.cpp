@@ -42,6 +42,8 @@ particles::Config Configuration(const graph::Node& node) {
     config.speed_ = {speed * (1 - scalar("speed_variation", 0.67)), speed};
     config.gravity_x_ = scalar("gravity_x", 0);
     config.gravity_y_ = scalar("gravity_y", 0.1);
+    config.flow_ = {scalar("flow_strength", 0), scalar("flow_frequency", 3),
+                    scalar("flow_evolution", 0.15)};
     const auto size = scalar("point_size", 0.015);
     config.size_ = {size * (1 - scalar("size_variation", 0.67)), size};
     const auto angular = scalar("angular_speed", 1);
@@ -57,7 +59,8 @@ std::shared_ptr<const particles::PointCloud> EmitPoints(PointState& state,
                                                         const graph::Instruction& instruction,
                                                         std::span<const NodeOutput> outputs,
                                                         FrameContext frame) {
-    const auto config = Configuration(instruction.node_);
+    auto config = Configuration(instruction.node_);
+    config.flow_.strength_ = Control(instruction, outputs, 2, "flow_strength", 0, 0, 2);
     if (config != state.simulation_.Configuration()) state.simulation_.Configure(config);
     if (state.last_seconds_ && frame.seconds_ < *state.last_seconds_) {
         state.simulation_.Reset();

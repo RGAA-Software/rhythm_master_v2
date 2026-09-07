@@ -6,7 +6,9 @@ if(MSVC AND DEFINED RHYTHM_MSVC_INCLUDE_PREFIX)
 endif()
 include("${rhythm_root}/cmake/ProjectOptions.cmake")
 set(BUILD_TESTING ON)
+add_subdirectory("${rhythm_root}/src/media_types" media_types)
 add_subdirectory("${rhythm_root}/src/media" media)
+add_subdirectory("${rhythm_root}/src/video_playback" video_playback)
 set(RHYTHM_SDL_BUILD "" CACHE PATH "Validated SDL build package; vcpkg SDL3 is not installed yet")
 find_package(SDL3 CONFIG REQUIRED PATHS "${RHYTHM_SDL_BUILD}"
     NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
@@ -15,7 +17,7 @@ add_subdirectory("${rhythm_root}/src/audio_output" audio_output)
 add_subdirectory("${rhythm_root}/src/audio_playback" audio_playback)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 if(WIN32)
-    foreach(probe_target media_audio_tests audio_playback_tests audio_output_tests)
+    foreach(probe_target media_audio_tests media_video_tests video_playback_tests audio_playback_tests audio_output_tests)
     file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/deploy-${probe_target}.txt" CONTENT
 "executable=$<TARGET_FILE:${probe_target}>
 runtime_dlls=$<TARGET_RUNTIME_DLLS:${probe_target}>

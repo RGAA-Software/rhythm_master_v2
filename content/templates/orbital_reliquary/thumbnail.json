@@ -1,0 +1,14 @@
+{
+    "template": "orbital_reliquary",
+    "package_sha256": "7df0d063ee9b9d1e7438d061f497b4f6b7841e7877d31c7b069936adbc8c791b",
+    "thumbnail_sha256": "a02df976e708be294c705b23703212488bef0d1264e786416f3c4726565e319c",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

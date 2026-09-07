@@ -3,6 +3,7 @@
 #include <limits>
 #include <stdexcept>
 
+#include "rhythm/player/render_quality.h"
 #include "rhythm/player/session.h"
 
 namespace {
@@ -13,6 +14,20 @@ void Check(bool condition, const char* message) {
 int main() {
     using namespace rhythm;
     try {
+        using player::PlaybackExtent;
+        using player::RenderQuality;
+        Check(PlaybackExtent({1280, 720}, RenderQuality::kBalanced) == render::Extent{960, 540},
+              "balanced landscape budget");
+        Check(PlaybackExtent({720, 1280}, RenderQuality::kBalanced) == render::Extent{540, 960},
+              "balanced portrait preserves orientation");
+        Check(PlaybackExtent({1024, 1024}, RenderQuality::kBalanced) == render::Extent{720, 720},
+              "balanced square pixel budget");
+        Check(PlaybackExtent({1280, 720}, RenderQuality::kEconomy) == render::Extent{640, 360},
+              "economy budget");
+        Check(PlaybackExtent({320, 180}, RenderQuality::kEconomy) == render::Extent{320, 180},
+              "quality never upscales");
+        Check(PlaybackExtent({720, 1280}, RenderQuality::kOriginal) == render::Extent{720, 1280},
+              "original quality preserves canvas");
         graph::Registry registry;
         graph::Document document;
         document.id_ = "player.test";

@@ -1,0 +1,14 @@
+{
+    "template": "scene_particle_echo",
+    "package_sha256": "450734425ece9f2cbe73dca4baa0cf02f9f5572df5a62f061678fb47971aca5a",
+    "thumbnail_sha256": "ec1527f8156657b8e0ea617e52626381c27598d32d96752371ad0f180ab75530",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

@@ -20,6 +20,11 @@ foreach(manifest IN LISTS semantic_manifests)
             "${manifest}" "${source_dir}/editor.json" "${source_dir}/presets.json" "${PROJECT_SOURCE_DIR}/tools/compile-content.py" VERBATIM)
 endforeach()
 add_custom_target(semantic_content ALL DEPENDS ${semantic_products})
+add_custom_command(OUTPUT "${PROJECT_BINARY_DIR}/content/audio/resonance_demo.wav"
+    COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/create-music-fixture.py"
+        --output "${PROJECT_BINARY_DIR}/content/audio"
+    DEPENDS "${PROJECT_SOURCE_DIR}/tools/create-music-fixture.py" VERBATIM)
+add_custom_target(demo_audio_content DEPENDS "${PROJECT_BINARY_DIR}/content/audio/resonance_demo.wav")
 if(BUILD_TESTING)
     add_executable(semantic_tests tests/semantic_tests.cpp)
     target_link_libraries(semantic_tests PRIVATE semantic_catalog runtime_package graph_runtime)

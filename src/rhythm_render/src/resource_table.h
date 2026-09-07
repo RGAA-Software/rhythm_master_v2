@@ -9,13 +9,17 @@ namespace rhythm::render::detail {
 class ResourceTable final {
    public:
     ResourceTable();
-    TextureHandle Allocate(Extent extent, std::span<const std::uint8_t> rgba);
+    TextureHandle Allocate(Extent extent, std::span<const std::uint8_t> rgba,
+                           TexturePrecision precision);
     void Release(TextureHandle handle) noexcept;
     bool IsValid(TextureHandle handle) const;
     bool Owns(TextureHandle handle) const;
     void Invalidate();
     void CheckReady() const;
     Extent Size(TextureHandle handle) const;
+    void ValidateUpload(TextureHandle handle, std::span<const std::uint8_t> rgba) const;
+    void BeginFrame();
+    void RecordSamples(const DrawList& list);
     void CheckThread() const;
     std::uint64_t DeviceId() const { return device_; }
     bool IsRenderTarget(TextureHandle handle) const;
@@ -31,6 +35,8 @@ class ResourceTable final {
         bool live_ = false;
         bool render_target_ = false;
         bool depth_ = false;
+        bool sampled_ = false;
+        TexturePrecision precision_ = TexturePrecision::kUnorm8;
     };
     std::uint64_t device_ = 0;
     std::vector<Slot> slots_{};

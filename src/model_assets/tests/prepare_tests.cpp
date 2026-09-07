@@ -7,8 +7,8 @@
 #include <thread>
 
 #include "rhythm/assets/store.h"
-#include "rhythm/model_assets/loader.h"
 #include "rhythm/model_assets/prepare.h"
+#include "rhythm/prepared_assets/loader.h"
 
 namespace {
 void Check(bool value, const char* message) {
@@ -85,11 +85,11 @@ int main(int argc, char** argv) {
         const std::filesystem::path directory(argv[2]);
         assets::Store store(directory);
         const auto record = store.Import(argv[1], "model/gltf-binary");
-        model_assets::Loader loader;
+        prepared_assets::Loader loader;
         loader.Submit({plan, {record}, directory, 1});
         loader.Submit({plan, {record}, directory, 2});
         loader.Submit({plan, {record}, directory, 3});
-        std::optional<model_assets::LoadResult> loaded;
+        std::optional<prepared_assets::LoadResult> loaded;
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
         while (!loaded && std::chrono::steady_clock::now() < deadline) {
             loaded = loader.Take();

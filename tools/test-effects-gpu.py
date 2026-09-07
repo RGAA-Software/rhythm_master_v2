@@ -91,11 +91,23 @@ def main():
         raise AssertionError(f"Contour line count/spacing failed: {output}, {peaks}")
     if any(pixel != (0, 0, 0) for row in mapping[4] for pixel in row):
         raise AssertionError(f"Transparent contours leaked color: {output}")
+    displaced = [read_tga(output / f"displace-{index}.tga") for index in range(7)]
+    for y in range(12, 50):
+        for x in range(12, 50):
+            expected = [(x*4, y*4, 0), ((x+8)*4, y*4, 0), ((x-8)*4, y*4, 0),
+                        (x*4+4, y*4, 0), (x*4, y*4, 0), (x*4, (y+8)*4, 0), (0, 0, 0)]
+            for index, value in enumerate(expected):
+                if any(abs(a-b) > 2 for a, b in zip(displaced[index][y][x], value)):
+                    raise AssertionError(f"Displacement case {index} at {x},{y}: {output}")
+    trails = [read_tga(output / f"trail-{index}.tga") for index in range(3)]
+    for index, expected in enumerate((128, 128, 0)):
+        if any(abs(channel-expected) > 3 for row in trails[index] for pixel in row for channel in pixel):
+            raise AssertionError(f"Temporal decay/rate/precision failed ({index}): {output}")
     resized = read_tga(output / "cached-resize.tga")
     if any(abs(a-b) > 2 for row in resized for pixel in row
            for a,b in zip(pixel, (0,255,0))):
         raise AssertionError(f"Static graph disappeared after resize: {output}")
-    print(f"Four blur, five noise, five mapping/contour GPU cases and cached resize passed; evidence: {output}")
+    print(f"Blur, noise, mapping/contour, seven displacement GPU cases and cached resize passed; evidence: {output}")
 
 
 if __name__ == "__main__":

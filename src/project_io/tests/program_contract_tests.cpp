@@ -26,6 +26,25 @@ int main() {
     using namespace rhythm;
     try {
         graph::Registry registry;
+        {
+            graph::Document particles;
+            particles.id_ = "legacy-particle-inputs";
+            particles.nodes_ = {registry.MakeNode(1, "point.emitter"),
+                                registry.MakeNode(2, "point.render"),
+                                registry.MakeNode(3, "output.texture")};
+            particles.edges_ = {{1, 1, 2, "points"}, {2, 2, 3, "source"}};
+            particles.output_ = 3;
+            const auto plan = std::get<graph::ExecutionPlan>(graph::Compile(particles, registry));
+            schema::CompiledProgram legacy;
+            Check(legacy.ParseFromString(project::EncodeProgram(plan)), "Particle program");
+            legacy.mutable_instructions(0)->mutable_input_slots()->RemoveLast();
+            const auto restored = project::DecodeProgram(legacy.SerializeAsString());
+            Check(restored.instructions_[0].inputs_.size() == 3 &&
+                          !restored.instructions_[0].inputs_[2],
+                  "Legacy emitter gains neutral optional flow input");
+            legacy.mutable_instructions(1)->clear_input_slots();
+            Reject(legacy.SerializeAsString());
+        }
         graph::Document document;
         document.id_ = "program.roundtrip";
         document.revision_ = 17;

@@ -22,4 +22,14 @@ destination.mkdir(parents=True, exist_ok=True)
 (destination / "editor.json").write_bytes(editor)
 if (source / "presets.json").is_file():
     (destination / "presets.json").write_bytes((source / "presets.json").read_bytes())
+if (source / "thumbnail.rgba").is_file():
+    thumbnail = (source / "thumbnail.rgba").read_bytes()
+    if len(thumbnail) != 256 * 144 * 4:
+        raise ValueError("Catalog thumbnail must be 256x144 RGBA")
+    (destination / "thumbnail.rgba").write_bytes(thumbnail)
+    if (source / "thumbnail.json").is_file():
+        (destination / "thumbnail.json").write_bytes((source / "thumbnail.json").read_bytes())
+else:
+    (destination / "thumbnail.rgba").unlink(missing_ok=True)
+    (destination / "thumbnail.json").unlink(missing_ok=True)
 (destination / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")

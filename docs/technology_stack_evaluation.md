@@ -258,3 +258,20 @@ been decoded as GBK and rewritten as valid but incorrect Han characters. The
 source manifest and generator were corrected with explicit UTF-8 I/O. Exact
 catalog/title/package assertions replace the insufficient glyph-only diagnosis.
 See `validation/template_title_encoding_2026-09-07.md`.
+
+
+### 2026-09-07 validated media profile follow-up
+
+Windows application media now uses the isolated vcpkg manifest in
+`probes/media/vcpkg.json`: FFmpeg 6.1.1#11, no default/GPL/nonfree features,
+avcodec/avformat/swresample/swscale/zlib, zlib 1.3.1 for the historical port's
+library-name compatibility. Both DLL configurations report LGPL-2.1-or-later.
+Exact hashes/configuration and matching patched source/recipe are recorded in
+`provenance/media_lgpl_windows.json`; the Python application deploy carries the
+matching notices/build archive. This does not select the outbound project license.
+The existing shared vcpkg installation remains unchanged.
+
+Android uses a separate isolated manifest installation and API-26 overlay triplet;
+its decoder probe passes on the connected device, including PNG/embedded bytes.
+This is not APK audio/image acceptance. See
+`validation/media_application_2026-09-07.md` for evidence and remaining limits.

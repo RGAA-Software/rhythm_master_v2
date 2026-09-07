@@ -2,6 +2,7 @@
 
 #include <span>
 
+#include "rhythm/particles/flow_field.h"
 #include "rhythm/particles/types.h"
 
 namespace rhythm::particles {
@@ -24,6 +25,8 @@ class Simulation final {
         double y_ = 0;
         double velocity_x_ = 0;
         double velocity_y_ = 0;
+        double flow_x_ = 0;
+        double flow_y_ = 0;
         double age_ = 0;
         double lifetime_ = 1;
         double rotation_ = 0;
@@ -42,5 +45,7 @@ class Simulation final {
     std::uint64_t next_id_ = 1;
     double accumulator_ = 0;
     double emission_ = 0;
+    FlowField field_{};
+    std::uint64_t step_ = 0;
 };
 }  // namespace rhythm::particles

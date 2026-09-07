@@ -15,14 +15,18 @@ int main(int argc, char* argv[]) {
     try {
         bool smoke = false;
         std::optional<std::filesystem::path> requested_project;
+        std::optional<std::filesystem::path> requested_audio;
         for (int index = 1; index < argc; ++index) {
             const std::filesystem::path argument(argv[index]);
             if (argument == "--smoke")
                 smoke = true;
             else if (argument == "--project" && index + 1 < argc)
                 requested_project = std::filesystem::path(argv[++index]);
+            else if (argument == "--audio" && index + 1 < argc)
+                requested_audio = std::filesystem::path(argv[++index]);
             else
-                throw std::invalid_argument("Usage: rhythm_master [--project directory] [--smoke]");
+                throw std::invalid_argument(
+                        "Usage: rhythm_master [--project directory] [--audio file] [--smoke]");
         }
         rhythm::platform::Host host(smoke);
         auto renderer = host.CreateRenderer();
@@ -33,6 +37,7 @@ int main(int argc, char* argv[]) {
         if (requested_project && !std::filesystem::exists(project / "CURRENT"))
             throw std::invalid_argument("project.current_missing");
         rhythm::studio::Studio studio(host.ResourceDirectory(), project);
+        if (requested_audio) studio.LoadAudioFile(*requested_audio, smoke ? 0.0f : 1.0f);
         const auto start = std::chrono::steady_clock::now();
         rhythm::runtime::FrameClock clock;
         for (int frame = 0; host.Poll() && (!smoke || frame < 30); ++frame) {

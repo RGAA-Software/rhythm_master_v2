@@ -2,11 +2,14 @@
 
 #include <array>
 #include <chrono>
+#include <fstream>
 #include <iostream>
+#include <map>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <string_view>
 
-#include "rhythm/audio/capture.h"
+#include "rhythm/audio_ui/audio_panel.h"
 #include "rhythm/platform/host.h"
 #include "rhythm/player/package_loader.h"
 #include "rhythm/player/session.h"
@@ -21,23 +24,37 @@ int main(int argc, char* argv[]) {
     try {
         bool smoke = false;
         std::optional<std::filesystem::path> requested_package;
+        std::optional<std::filesystem::path> requested_audio;
         for (int index = 1; index < argc; ++index) {
             const std::filesystem::path argument(argv[index]);
             if (argument == "--smoke")
                 smoke = true;
             else if (argument == "--package" && index + 1 < argc)
                 requested_package = std::filesystem::path(argv[++index]);
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+            else if (argument == "--audio" && index + 1 < argc)
+                requested_audio = std::filesystem::path(argv[++index]);
+#endif
             else
-                throw std::invalid_argument("Usage: rhythm_player [--package file] [--smoke]");
+                throw std::invalid_argument(
+                        "Usage: rhythm_player [--package file] [--audio local-file] [--smoke]");
         }
         rhythm::platform::Host host(smoke);
         auto renderer = host.CreateRenderer();
         auto font = host.CreateFontTexture(renderer);
         rhythm::player::Session session;
         rhythm::player::PackageLoader package_loader;
-        rhythm::audio::SystemCapture audio_capture;
-        bool audio_enabled = false;
-        bool audio_suspended = false;
+        rhythm::audio_ui::AudioPanel audio_panel;
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        if (smoke) audio_panel.SetVolume(0);
+        if (requested_audio) audio_panel.LoadFile(*requested_audio);
+#endif
+        std::map<std::string, std::map<std::string, std::string>> catalogs;
+        for (const auto locale : {"zh-CN", "en-US"}) {
+            std::ifstream file(host.ResourceDirectory() / "locales" / locale / "studio.json");
+            catalogs[locale] =
+                    nlohmann::json::parse(file).get<std::map<std::string, std::string>>();
+        }
         session.Open(requested_package.value_or(host.ResourceDirectory() /
                                                 "content/packages/signal_texture.rhythmpack"));
         std::array<char, 4096> path{};
@@ -45,21 +62,16 @@ int main(int argc, char* argv[]) {
         bool chinese = true;
         const auto start = std::chrono::steady_clock::now();
         std::uint64_t frames = 0;
+        bool observed_audio = false;
         while (host.Poll() && (!smoke || frames < 30)) {
             const auto elapsed =
                     std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
             if (host.IsSuspended()) {
-                if (!audio_suspended) {
-                    audio_capture.Stop();
-                    audio_suspended = true;
-                }
+                audio_panel.SetSuspended(true);
                 session.Tick(elapsed, true, {}, renderer);
                 continue;
             }
-            if (audio_suspended) {
-                audio_suspended = false;
-                if (audio_enabled) audio_capture.Start();
-            }
+            audio_panel.SetSuspended(false);
             host.BeginUi();
             renderer.BeginFrame();
             // Runtime changes happen before this frame borrows any texture handles.
@@ -91,18 +103,7 @@ int main(int argc, char* argv[]) {
                 session.Restart();
             ImGui::SameLine();
             ImGui::Text("%.2f s", session.Seconds());
-            if (ImGui::Checkbox(
-                        chinese ? "系统声音驱动##audio_input" : "Use system audio##audio_input",
-                        &audio_enabled)) {
-                if (audio_enabled)
-                    audio_capture.Start();
-                else
-                    audio_capture.Stop();
-            }
-            const auto audio = audio_capture.Snapshot();
-            if (audio_enabled && audio.state_ == rhythm::audio::CaptureState::kFailed)
-                ImGui::TextUnformatted(chinese ? "音频设备不可用，请重新启用。"
-                                               : "Audio device unavailable; toggle to retry.");
+            audio_panel.Draw(catalogs.at(chinese ? "zh-CN" : "en-US"));
             ImGui::SetNextItemWidth(-140);
             ImGui::InputText(chinese ? "运行包路径##path" : "Package path##path", path.data(),
                              path.size());
@@ -134,8 +135,8 @@ int main(int argc, char* argv[]) {
             const auto width = std::max(1.0f, available.x);
             const auto height = std::max(1.0f, available.y);
             rhythm::runtime::ExternalInputs inputs;
-            if (audio.state_ == rhythm::audio::CaptureState::kRunning && audio.features_.valid_)
-                inputs.audio_ = audio.features_;
+            inputs.audio_ = audio_panel.Snapshot();
+            observed_audio |= inputs.audio_ && inputs.audio_->valid_ && inputs.audio_->rms_ > 0;
             const auto output = session.Tick(smoke ? frames / 60.0 : elapsed, false,
                                              session.Canvas(), renderer, inputs);
             host.ClearViewerTextures();
@@ -152,6 +153,8 @@ int main(int argc, char* argv[]) {
         }
         if (smoke && (frames != 30 || renderer.Stats().passes_ < 2))
             throw std::runtime_error("player.no_gpu_output");
+        if (smoke && requested_audio && !observed_audio)
+            throw std::runtime_error("player.no_file_audio_features");
         std::cout << "player_gpu_frames=" << frames << " package_loaded=" << session.Ready()
                   << '\n';
     } catch (const std::exception& error) {

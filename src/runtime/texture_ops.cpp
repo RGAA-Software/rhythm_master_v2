@@ -39,7 +39,33 @@ std::uint32_t DrawTexture(const graph::Instruction& instruction,
     const auto input = [&](std::size_t port) -> const NodeOutput& {
         return outputs[instruction.inputs_.at(port).value()];
     };
-    if (operation == graph::Operation::kTextureMapping) {
+    if (operation == graph::Operation::kTextureStack) {
+        // Ordered layers share a single target/pass using the existing quad and
+        // premultiplied blend path. No full-canvas texture per composition step.
+        for (std::size_t port = 0; port < instruction.inputs_.size(); ++port) {
+            if (!instruction.inputs_[port]) continue;
+            AppendTextureQuad(list, input(port).texture_, 0xffffffff, 0xffffffff);
+            if (list.commands_.size() > 1 && graph::Scalar(node, "composite_mode", 0) == 1)
+                list.commands_.back().blend_ = render::BlendMode::kAdd;
+        }
+        return 0;
+    }
+    if (operation == graph::Operation::kTextureDisplace) {
+        AppendTextureQuad(list, input(0).texture_, 0xffffffff, 0xffffffff);
+        render::TextureDisplace displace{input(1).texture_};
+        displace.kind_ = graph::Scalar(node, "displace_mode", 0) == 0
+                                 ? render::TextureDisplaceKind::kGradient
+                                 : render::TextureDisplaceKind::kVectorRg;
+        displace.strength_ = static_cast<float>(
+                std::clamp(instruction.inputs_[2] ? input(2).scalar_
+                                                  : graph::Scalar(node, "displace_strength", 0.05),
+                           -1.0, 1.0));
+        displace.rotation_ = static_cast<float>(std::clamp(
+                instruction.inputs_[3] ? input(3).scalar_ : graph::Scalar(node, "rotation", 0),
+                -36000.0, 36000.0));
+        displace.radius_ = static_cast<float>(graph::Scalar(node, "sample_radius", 2));
+        list.commands_.back().texture_displace_ = displace;
+    } else if (operation == graph::Operation::kTextureMapping) {
         AppendTextureQuad(list, input(0).texture_, 0xffffffff, 0xffffffff);
         const auto bound = [&](std::size_t port, std::string_view key, double fallback,
                                double minimum, double maximum) {

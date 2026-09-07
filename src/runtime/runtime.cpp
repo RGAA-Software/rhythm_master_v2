@@ -19,6 +19,8 @@ void Runtime::Impl::Reset() {
     states_.clear();
     white_ = {};
     point_sprite_ = {};
+    images_ = {};
+    videos_ = {};
     document_id_.clear();
     extent_ = {};
 }
@@ -34,6 +36,8 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
     if (graph::ValidatePointBudget(plan)) throw std::length_error("runtime.points_budget");
     static const scene::Resources kNoResources;
     const auto& resources = frame.resources_ ? *frame.resources_ : kNoResources;
+    static const assets::Images kNoImages;
+    const auto& images = frame.images_ ? *frame.images_ : kNoImages;
     const auto geometry_budgets = detail::GeometryBudgets(plan, resources);
     if (graph::ValidateSceneBudget(plan, geometry_budgets))
         throw std::length_error("runtime.scene_budget");
@@ -50,6 +54,8 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
         const std::array<std::uint8_t, 4> white{255, 255, 255, 255};
         white_ = renderer.CreateTexture({1, 1}, white);
     }
+    images_.Retain(plan, images);
+    videos_.Prepare(plan, frame.videos_, renderer);
     std::set<graph::NodeId> active;
     for (const auto& instruction : plan.instructions_) active.insert(instruction.node_.id_);
     std::erase_if(states_, [&](const auto& item) { return !active.contains(item.first); });
@@ -103,13 +109,16 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                                 {value.node_, value.version_, value.texture_.device_,
                                  value.texture_.slot_, value.texture_.generation_});
             }
-        if (operation == graph::Operation::kTime ||
+        if (operation == graph::Operation::kTime || operation == graph::Operation::kTextureTrail ||
             operation == graph::Operation::kParticleEmitter ||
             operation == graph::Operation::kPointPhysics)
             versions.push_back(std::bit_cast<std::uint64_t>(frame.seconds_));
         if (operation == graph::Operation::kParticleEmitter ||
+            operation == graph::Operation::kTextureTrail ||
             operation == graph::Operation::kPointPhysics)
             versions.push_back(frame.advance_state_ ? 1 : 0);
+        if (operation == graph::Operation::kTextureVideo)
+            versions.push_back(videos_.Revision(node.id_));
         const auto external_value = detail::ExternalScalar(instruction, frame);
         if (external_value) versions.push_back(std::bit_cast<std::uint64_t>(*external_value));
         if (operation == graph::Operation::kAudioSpectrum)
@@ -126,6 +135,36 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
             list.width_ = extent.width_;
             list.height_ = extent.height_;
             switch (operation) {
+                case graph::Operation::kTextureTrail: {
+                    if (!state.trail_ || redraw)
+                        state.trail_ = std::make_unique<detail::TrailPass>();
+                    const auto half_life = instruction.inputs_[1]
+                                                   ? input(1).scalar_
+                                                   : graph::Scalar(node, "trail_half_life", 0.5);
+                    const detail::TrailSettings settings{
+                            std::clamp(half_life, 0.0, 5.0),
+                            graph::Scalar(node, "trail_zoom_rate", 0),
+                            graph::Scalar(node, "trail_rotation_rate", 0)};
+                    state.output_.texture_ =
+                            state.trail_->Draw(input(0).texture_, extent, frame.seconds_,
+                                               frame.advance_state_, settings, renderer);
+                    break;
+                }
+                case graph::Operation::kTextureVideo: {
+                    if (!state.target_.Handle().device_)
+                        state.target_ = renderer.CreateTexture(extent);
+                    renderer.Submit(state.target_.Handle(), videos_.Draw(node, extent), 0x00000000);
+                    state.output_.texture_ = state.target_.Handle();
+                    break;
+                }
+                case graph::Operation::kTextureImage: {
+                    if (!state.target_.Handle().device_)
+                        state.target_ = renderer.CreateTexture(extent);
+                    renderer.Submit(state.target_.Handle(),
+                                    images_.Draw(node, extent, images, renderer), 0x00000000);
+                    state.output_.texture_ = state.target_.Handle();
+                    break;
+                }
                 case graph::Operation::kGaussianBlur: {
                     if (!state.blur_) state.blur_ = std::make_unique<detail::BlurPass>();
                     const auto value = instruction.inputs_[1]
@@ -140,6 +179,7 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                     break;
                 }
                 case graph::Operation::kGeometryCube:
+                case graph::Operation::kGeometryTorus:
                 case graph::Operation::kGeometrySphere:
                 case graph::Operation::kGeometryGlb:
                 case graph::Operation::kMaterialUnlit:

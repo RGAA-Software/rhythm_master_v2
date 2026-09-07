@@ -1,0 +1,14 @@
+{
+    "template": "resonance_gate",
+    "package_sha256": "6736bee17033746a5416f61d4134fe85c3e01da1e2e76f8711ac0eeef9fdf50b",
+    "thumbnail_sha256": "e82be48a4d095bc8b9ae808c6f2b541e78ec408c2f440c43d03f7102fdfbca82",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

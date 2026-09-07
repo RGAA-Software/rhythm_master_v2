@@ -115,7 +115,7 @@ graph::ExecutionPlan DecodeProgram(std::string_view bytes, std::uint32_t require
         const auto& config = record.configuration();
         const auto descriptor = registry.Find(record.operator_type());
         if (!descriptor ||
-            static_cast<std::size_t>(record.input_slots_size()) != descriptor->inputs_.size() ||
+            static_cast<std::size_t>(record.input_slots_size()) > descriptor->inputs_.size() ||
             config.properties_size() > 128 || config.schema_version() != 1 ||
             config.id() != record.source_node() || config.type_key() != record.operator_type())
             throw std::invalid_argument("package.operator");
@@ -129,6 +129,14 @@ graph::ExecutionPlan DecodeProgram(std::string_view bytes, std::uint32_t require
                 throw std::invalid_argument("package.slot");
             instruction.inputs_.push_back(slot ? std::optional<std::size_t>(slot - 1)
                                                : std::nullopt);
+        }
+        // An appended optional port does not invalidate packages published by an
+        // earlier version of the same operator. Required ports still must exist.
+        for (std::size_t port = instruction.inputs_.size(); port < descriptor->inputs_.size();
+             ++port) {
+            if (descriptor->inputs_[port].required_)
+                throw std::invalid_argument("package.operator");
+            instruction.inputs_.push_back(std::nullopt);
         }
         for (const auto& [key, property] : config.properties())
             instruction.node_.properties_[key] = detail::DecodeProperty(property, false);

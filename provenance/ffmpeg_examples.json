@@ -1,0 +1,27 @@
+{
+    "source_url": "https://github.com/FFmpeg/FFmpeg/tree/n6.1.1/doc/examples",
+    "revision": "n6.1.1",
+    "license": "MIT",
+    "copyright": "Copyright (c) 2012 Stefano Sabatini",
+    "files": [
+        {
+            "upstream_file": "doc/examples/demux_decode.c",
+            "imported_file": "third_party/sources/ffmpeg-examples/demux_decode.c",
+            "sha256": "009e29d4913594b93af723a3802b323a3dd8586d96b1b0e97287edd4dfbab318"
+        },
+        {
+            "upstream_file": "doc/examples/scale_video.c",
+            "imported_file": "third_party/sources/ffmpeg-examples/scale_video.c",
+            "sha256": "c56a52fc425bd0e47d5ee06e14f5127b614d9e75560eff02d345083df297ca0f"
+        }
+    ],
+    "target_modules": [
+        "src/media/video_decoder.cpp"
+    ],
+    "modifications": [
+        "Exact upstream example files retained unchanged.",
+        "Adapt demux/decoder send-receive-drain and swscale conversion sequence into local-file, bounded, worker-owned RAII decoder.",
+        "Replace process globals, raw ownership and output files with project-owned values, cancellation, PTS and transactional seek."
+    ],
+    "library_dependency": "FFmpeg is independently licensed; this example license does not change its linked-library obligations."
+}

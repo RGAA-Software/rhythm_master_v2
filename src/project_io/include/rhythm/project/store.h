@@ -30,6 +30,9 @@ struct ContentEntry {
     std::filesystem::path directory_{};
     std::map<std::string, std::string> titles_{};
     bool default_ = false;
+    std::string tier_ = "example";
+    std::string category_ = "general";
+    std::map<std::string, std::string> descriptions_{};
 };
 std::vector<ContentEntry> ScanTemplates(const std::filesystem::path& root);
 LoadResult LoadRevision(const std::filesystem::path& directory);

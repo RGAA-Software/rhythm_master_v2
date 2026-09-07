@@ -1,0 +1,14 @@
+{
+    "template": "firefly_garden",
+    "package_sha256": "b343127b12a8d081ea9105a7fac440f487d3759dfb3da8f1da7b82439335199e",
+    "thumbnail_sha256": "163599f1e2c88654b994ccb43b1091e7a97b15a9d9f3ae513c629222965dd4fe",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

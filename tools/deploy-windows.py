@@ -39,8 +39,8 @@ def version_key(path):
 
 def runtime_directories(config):
     directories = []
-    for key in ("sdk", "io_sdk"):
-        if config[key]:
+    for key in ("media_sdk", "sdk", "io_sdk"):
+        if config.get(key):
             sdk = Path(config[key])
             if config["configuration"].lower() == "debug":
                 directories.append(sdk / "debug/bin")
@@ -105,6 +105,13 @@ def deploy(config):
     if not executable.is_file():
         raise RuntimeError(f"Build the executable first: {executable}")
     dependencies = resolve_dependencies(config)
+    if config.get("media_sdk"):
+        profile = json.loads((Path(config["source_root"]) / "provenance/media_lgpl_windows.json")
+                             .read_text(encoding="utf-8"))
+        expected = profile["profiles"][config["configuration"]]["dll_sha256"]
+        for dependency in dependencies.values():
+            if dependency.name in expected and hashlib.sha256(dependency.read_bytes()).hexdigest() != expected[dependency.name]:
+                raise RuntimeError(f"Media dependency differs from the validated profile: {dependency}")
     destination = executable.parent / "deploy"
     for source in dependencies.values():
         copy_file(source, executable.parent / source.name)
@@ -114,6 +121,15 @@ def deploy(config):
     copy_tree(Path(config["build_root"]) / "content", destination / "content")
     copy_tree(source_root / "locales", destination / "locales")
     copy_tree(source_root / "third_party/notices", destination / "notices")
+    if config.get("media_sdk"):
+        media_sdk = Path(config["media_sdk"])
+        for package in ("ffmpeg", "zlib"):
+            copy_tree(media_sdk / "share" / package, destination / "notices" / package)
+        media_sources = source_root / "out/release-sources/ffmpeg-vcpkg.zip"
+        if not media_sources.is_file():
+            raise RuntimeError("Prepare matching FFmpeg source/build materials before application deployment")
+        copy_file(media_sources, destination / "notices/ffmpeg/source-and-build.zip")
+        copy_file(source_root / "provenance/media_lgpl_windows.json", destination / "notices/ffmpeg/validated-profile.json")
     copy_file(source_root / "third_party/README.md", destination / "THIRD_PARTY_NOTICES.md")
     (destination / "README.txt").write_text(
         f"Rhythm Master - {config['configuration']} local acceptance build\n\n"

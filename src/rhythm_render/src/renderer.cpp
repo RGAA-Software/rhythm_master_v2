@@ -26,11 +26,16 @@ Texture& Texture::operator=(Texture&& other) noexcept {
 }
 Renderer::Renderer(std::shared_ptr<detail::Backend> backend) : backend_(std::move(backend)) {}
 Renderer Renderer::CreateNull() { return Renderer(detail::CreateNullBackend()); }
-Texture Renderer::CreateTexture(Extent extent, std::span<const std::uint8_t> rgba) {
+Texture Renderer::CreateTexture(Extent extent, std::span<const std::uint8_t> rgba,
+                                TexturePrecision precision) {
     if (!backend_) throw std::logic_error("render.moved_from");
-    return Texture(backend_, backend_->Create(extent, rgba));
+    return Texture(backend_, backend_->Create(extent, rgba, precision));
 }
 bool Renderer::IsValid(TextureHandle handle) const { return backend_ && backend_->IsValid(handle); }
+void Renderer::UpdateTexture(TextureHandle texture, std::span<const std::uint8_t> rgba) {
+    if (!backend_) throw std::logic_error("render.moved_from");
+    backend_->Update(texture, rgba);
+}
 void Renderer::BeginFrame() {
     if (!backend_) throw std::logic_error("render.moved_from");
     backend_->BeginFrame();

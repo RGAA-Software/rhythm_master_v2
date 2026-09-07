@@ -1,0 +1,95 @@
+schema_version: 4
+id: "semantic-firefly_garden"
+canvas { width: 640 height: 360 }
+output: 2
+nodes { id: 1 type_key: "component.official.firefly_garden" schema_version: 1 }
+nodes { id: 2 type_key: "output.texture" schema_version: 1 }
+edges { id: 1 from: 1 to: 2 input: "source" }
+components { type_key: "component.official.firefly_garden" schema_version: 1 title: "Firefly garden" output: 9
+nodes { id: 1 type_key: "point.emitter" schema_version: 1
+    properties { key: "particle_capacity" value { scalar: 2500 } }
+    properties { key: "seed" value { scalar: 33 } }
+    properties { key: "emission_rate" value { scalar: 300 } }
+    properties { key: "lifetime" value { scalar: 7 } }
+    properties { key: "lifetime_variation" value { scalar: 0.3 } }
+    properties { key: "center_x" value { scalar: 0.5 } }
+    properties { key: "center_y" value { scalar: 0.8 } }
+    properties { key: "emitter_width" value { scalar: 0.75 } }
+    properties { key: "emitter_height" value { scalar: 0.4 } }
+    properties { key: "particle_speed" value { scalar: 0.045 } }
+    properties { key: "speed_variation" value { scalar: 0.8 } }
+    properties { key: "direction" value { scalar: -90 } }
+    properties { key: "spread" value { scalar: 100 } }
+    properties { key: "gravity_y" value { scalar: -0.004 } }
+    properties { key: "point_size" value { scalar: 0.005 } }
+    properties { key: "size_variation" value { scalar: 0.7 } }
+    properties { key: "flow_strength" value { scalar: 0.055 } }
+    properties { key: "flow_frequency" value { scalar: 2.3 } }
+    properties { key: "flow_evolution" value { scalar: 0.08 } }
+    properties { key: "color_a" value { color { r: 1 g: 0.54 b: 0.12 a: 0.95 } } }
+    properties { key: "color_b" value { color { r: 0.08 g: 0.5 b: 0.38 a: 0 } } }
+}
+nodes { id: 2 type_key: "point.render" schema_version: 1
+    properties { key: "point_blend" value { scalar: 1 } }
+}
+nodes { id: 3 type_key: "texture.trail" schema_version: 1
+    properties { key: "trail_half_life" value { scalar: 0.22 } }
+    properties { key: "trail_zoom_rate" value { scalar: 0.008 } }
+}
+nodes { id: 4 type_key: "point.emitter" schema_version: 1
+    properties { key: "particle_capacity" value { scalar: 256 } }
+    properties { key: "seed" value { scalar: 87 } }
+    properties { key: "emission_rate" value { scalar: 22 } }
+    properties { key: "lifetime" value { scalar: 7 } }
+    properties { key: "center_x" value { scalar: 0.5 } }
+    properties { key: "center_y" value { scalar: 0.7 } }
+    properties { key: "emitter_width" value { scalar: 0.7 } }
+    properties { key: "emitter_height" value { scalar: 0.6 } }
+    properties { key: "particle_speed" value { scalar: 0.015 } }
+    properties { key: "direction" value { scalar: -90 } }
+    properties { key: "spread" value { scalar: 100 } }
+    properties { key: "gravity_y" value { scalar: 0 } }
+    properties { key: "point_size" value { scalar: 0.011 } }
+    properties { key: "size_variation" value { scalar: 0.8 } }
+    properties { key: "flow_strength" value { scalar: 0.035 } }
+    properties { key: "flow_frequency" value { scalar: 2.3 } }
+    properties { key: "flow_evolution" value { scalar: 0.08 } }
+    properties { key: "color_a" value { color { r: 0.2 g: 1 b: 0.64 a: 0.5 } } }
+    properties { key: "color_b" value { color { r: 1 g: 0.62 b: 0.18 a: 0 } } }
+}
+nodes { id: 5 type_key: "point.render" schema_version: 1
+    properties { key: "point_blend" value { scalar: 1 } }
+}
+nodes { id: 6 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 2.5 } }
+}
+nodes { id: 7 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 0.7 } }
+}
+nodes { id: 8 type_key: "texture.shape" schema_version: 1
+    properties { key: "shape_type" value { scalar: 1 } }
+    properties { key: "shape_width" value { scalar: 0.82 } }
+    properties { key: "shape_height" value { scalar: 1.6 } }
+    properties { key: "color_a" value { color { r: 1 g: 1 b: 1 a: 1 } } }
+}
+nodes { id: 9 type_key: "texture.mask" schema_version: 1
+}
+nodes { id: 10 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 28 } }
+}
+edges { id: 1 from: 1 to: 2 input: "points" }
+edges { id: 2 from: 2 to: 3 input: "source" }
+edges { id: 3 from: 4 to: 5 input: "points" }
+edges { id: 4 from: 5 to: 6 input: "source" }
+edges { id: 5 from: 3 to: 7 input: "a" }
+edges { id: 6 from: 6 to: 7 input: "b" }
+edges { id: 7 from: 8 to: 10 input: "source" }
+edges { id: 8 from: 7 to: 9 input: "source" }
+edges { id: 9 from: 10 to: 9 input: "mask" }
+parameters { key: "dust_density" node: 1 property: "emission_rate" group: "component.motion" }
+parameters { key: "flow_strength" node: 1 property: "flow_strength" group: "component.motion" }
+parameters { key: "trail_half_life" node: 3 property: "trail_half_life" group: "component.motion" }
+parameters { key: "color_a" node: 1 property: "color_a" group: "component.palette" }
+parameters { key: "color_b" node: 1 property: "color_b" group: "component.palette" }
+}

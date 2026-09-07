@@ -1,5 +1,6 @@
 #include "node_palette.h"
 
+#include <algorithm>
 #include <array>
 
 namespace rhythm::studio {
@@ -28,16 +29,21 @@ std::string_view Category(graph::Operation operation) {
         case kGradient:
         case kShape:
         case kTextureNoise:
+        case kTextureImage:
+        case kTextureVideo:
             return "palette.generators";
         case kTransform:
         case kAffine:
         case kColorAdjust:
         case kGaussianBlur:
         case kTextureMapping:
+        case kTextureDisplace:
         case kTextureContours:
             return "palette.filters";
         case kBlend:
+        case kTextureStack:
         case kFeedback:
+        case kTextureTrail:
         case kMask:
         case kComposite:
             return "palette.composite";
@@ -50,6 +56,7 @@ std::string_view Category(graph::Operation operation) {
             return "palette.physics";
         case kGeometryCube:
         case kGeometrySphere:
+        case kGeometryTorus:
         case kGeometryGlb:
         case kSceneInstance:
         case kSceneTransform:
@@ -88,7 +95,11 @@ std::optional<std::string> NodePalette::Draw(std::span<const graph::OperatorDesc
     };
     ImGui::PushID(popup_id.c_str());
     if (ImGui::Button((label("add_node") + "###add").c_str())) ImGui::OpenPopup(popup_id.c_str());
-    ImGui::SetNextWindowSize({460, 540}, ImGuiCond_FirstUseEver);
+    // BeginPopup enables content autosizing; an explicit size each frame prevents
+    // fill-available child regions and collapsed/filtered content from shrinking it.
+    const auto available = ImGui::GetMainViewport()->WorkSize;
+    ImGui::SetNextWindowSize({std::min(460.0f, std::max(1.0f, available.x - 16)),
+                              std::min(540.0f, std::max(1.0f, available.y - 16))});
     std::optional<std::string> selected;
     if (ImGui::BeginPopup(popup_id.c_str())) {
         ImGui::TextUnformatted(label("palette.search").c_str());

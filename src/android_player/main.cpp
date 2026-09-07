@@ -35,6 +35,7 @@ int main(int, char**) {
         platform::Host host;
         std::optional<render::Renderer> renderer;
         player::Session session;
+        auto render_quality = player::RenderQuality::kBalanced;
         session.Load(host.ReadAsset("signal_texture.rhythmpack"));
         const auto installed = host.DataDirectory() / "selected.rhythmpack";
         android_host::PackageImports imports(installed, host.CacheDirectory());
@@ -77,6 +78,7 @@ int main(int, char**) {
             const auto commands = android_host::TakeCommands();
             if (commands.toggle_pause_) session.SetPaused(!session.Paused());
             if (commands.restart_) session.Restart();
+            if (commands.render_quality_) render_quality = *commands.render_quality_;
             if (!commands.package_path_.empty()) {
                 if (!imports.Request(commands.package_path_)) error = "package_error";
             }
@@ -94,7 +96,8 @@ int main(int, char**) {
                 continue;
             }
             renderer->BeginFrame();
-            const auto output = session.Tick(seconds, false, session.Canvas(), *renderer);
+            const auto extent = player::PlaybackExtent(session.Canvas(), render_quality);
+            const auto output = session.Tick(seconds, false, extent, *renderer);
             renderer->Submit({}, Present(output.final_, size, session.Canvas()), 0x111822ff);
             renderer->EndFrame();
             ++frames;

@@ -20,5 +20,9 @@
     "compatible_players": [
         "windows"
     ],
-    "external_assets": []
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "分层音频轨道、细线与星尘随节奏呼吸，可编辑频谱、旋转和辉光。",
+        "en-US": "Layered audio orbits, fine lines and stars breathe with the rhythm. Edit the spectrum, rotation and glow."
+    }
 }

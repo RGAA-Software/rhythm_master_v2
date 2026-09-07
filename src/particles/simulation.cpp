@@ -33,7 +33,8 @@ void Validate(const Config& config) {
         !Between(config.gravity_x_, -20, 20) || !Between(config.gravity_y_, -20, 20) ||
         !Valid(config.size_, 0, 1) || !Valid(config.angular_speed_, -100, 100) ||
         !Valid(config.color_from_) || !Valid(config.color_to_) || !Between(config.fade_in_, 0, 1) ||
-        !Between(config.fade_out_, 0, 1) ||
+        !Between(config.fade_out_, 0, 1) || !Between(config.flow_.strength_, 0, 2) ||
+        !Between(config.flow_.frequency_, 0.25, 12) || !Between(config.flow_.evolution_, 0, 2) ||
         (config.shape_ != EmitterShape::kRectangle && config.shape_ != EmitterShape::kDisk &&
          config.shape_ != EmitterShape::kRing))
         throw std::invalid_argument("particles.config");
@@ -62,6 +63,7 @@ void Simulation::Reset() {
     next_id_ = 1;
     accumulator_ = 0;
     emission_ = 0;
+    step_ = 0;
 }
 double Simulation::Unit() {
     auto value = random_;
@@ -102,6 +104,7 @@ void Simulation::Emit(std::uint32_t count, Update& update) {
     update.emitted_ += count;
 }
 void Simulation::Step(Update& update) {
+    field_.Prepare(config_.flow_, config_.seed_, step_++);
     for (std::size_t index = 0; index < states_.size();) {
         auto& state = states_[index];
         state.age_ += kStep;
@@ -113,8 +116,11 @@ void Simulation::Step(Update& update) {
         }
         state.velocity_x_ += config_.gravity_x_ * kStep;
         state.velocity_y_ += config_.gravity_y_ * kStep;
-        state.x_ += state.velocity_x_ * kStep;
-        state.y_ += state.velocity_y_ * kStep;
+        const auto flow = field_.Velocity(state.x_, state.y_);
+        state.flow_x_ = flow[0];
+        state.flow_y_ = flow[1];
+        state.x_ += (state.velocity_x_ + state.flow_x_) * kStep;
+        state.y_ += (state.velocity_y_ + state.flow_y_) * kStep;
         state.rotation_ += state.angular_speed_ * kStep;
         ++index;
     }
@@ -136,8 +142,9 @@ void Simulation::Publish() {
                     mix(first.alpha_, second.alpha_) * static_cast<float>(fade_in * fade_out)};
         points_.push_back({state.id_, static_cast<float>(state.x_), static_cast<float>(state.y_),
                            static_cast<float>(state.rotation_), static_cast<float>(state.size_),
-                           static_cast<float>(age), color, static_cast<float>(state.velocity_x_),
-                           static_cast<float>(state.velocity_y_),
+                           static_cast<float>(age), color,
+                           static_cast<float>(state.velocity_x_ + state.flow_x_),
+                           static_cast<float>(state.velocity_y_ + state.flow_y_),
                            static_cast<float>(state.angular_speed_)});
     }
 }

@@ -72,6 +72,19 @@ std::optional<Diagnostic> ValidateSceneBudget(
                 indices += count.indices_;
                 break;
             }
+            case Operation::kGeometryTorus: {
+                const auto segments = Scalar(instruction.node_, "radial_segments", 64);
+                const auto tubes = Scalar(instruction.node_, "tube_segments", 16);
+                if (!std::isfinite(segments) || !std::isfinite(tubes) || segments < 3 ||
+                    segments > 256 || tubes < 3 || tubes > 128 ||
+                    std::floor(segments) != segments || std::floor(tubes) != tubes)
+                    return fail();
+                vertices += static_cast<std::uint64_t>((segments + 1) * (tubes + 1));
+                count = {1, static_cast<std::uint64_t>(segments * tubes * 6)};
+                count.draws_ = 1;
+                indices += count.indices_;
+                break;
+            }
             case Operation::kSceneInstance:
             case Operation::kSceneTransform:
             case Operation::kSceneMerge:

@@ -1,0 +1,2 @@
+add_library(media_types INTERFACE)
+target_include_directories(media_types INTERFACE include)

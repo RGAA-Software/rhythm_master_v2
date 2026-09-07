@@ -1,0 +1,14 @@
+{
+    "template": "pulse_square",
+    "package_sha256": "c60fdb84812beffb65af8fa9290cb8b2c3d6563dba1344d2fe83312a82c1a070",
+    "thumbnail_sha256": "aced112a91922fe07722c3c2a9ba3c38e8a7aa94454020240bf771b0dacff47b",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

@@ -1,0 +1,14 @@
+{
+    "template": "aurora_clouds",
+    "package_sha256": "4de97885833c0ea0b3ebcb6a1fc41acb9647499d54dcad801b8d8409690597f3",
+    "thumbnail_sha256": "e6b07d71edabfcc354f5560ad7762316784974ed3520b289342a489725e74fb8",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

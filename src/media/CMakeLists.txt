@@ -5,18 +5,55 @@ endif()
 add_library(media_audio STATIC audio_decoder.cpp local_input.cpp)
 target_include_directories(media_audio PUBLIC include)
 target_include_directories(media_audio SYSTEM PRIVATE "${RHYTHM_MEDIA_SDK}/include")
-foreach(component avformat avcodec swresample avutil)
+foreach(component avformat avcodec swresample avutil swscale)
     find_library(RHYTHM_MEDIA_${component} NAMES ${component}
         PATHS "${RHYTHM_MEDIA_SDK}/lib" NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH REQUIRED)
-    target_link_libraries(media_audio PRIVATE "${RHYTHM_MEDIA_${component}}")
+    if(WIN32)
+        file(GLOB component_dll "${RHYTHM_MEDIA_SDK}/bin/${component}-*.dll")
+        list(LENGTH component_dll component_dll_count)
+        if(NOT component_dll_count EQUAL 1)
+            message(FATAL_ERROR "Expected one validated ${component} DLL in the media SDK")
+        endif()
+        add_library(media_backend_${component} SHARED IMPORTED GLOBAL)
+        get_filename_component(component_dll_name "${component_dll}" NAME)
+        set_target_properties(media_backend_${component} PROPERTIES
+            IMPORTED_IMPLIB "${RHYTHM_MEDIA_${component}}" IMPORTED_LOCATION "${component_dll}"
+            IMPORTED_IMPLIB_DEBUG "${RHYTHM_MEDIA_SDK}/debug/lib/${component}.lib"
+            IMPORTED_LOCATION_DEBUG "${RHYTHM_MEDIA_SDK}/debug/bin/${component_dll_name}")
+    else()
+        add_library(media_backend_${component} UNKNOWN IMPORTED GLOBAL)
+        set_target_properties(media_backend_${component} PROPERTIES
+            IMPORTED_LOCATION "${RHYTHM_MEDIA_${component}}")
+    endif()
 endforeach()
+target_link_libraries(media_audio PRIVATE media_backend_avformat media_backend_avcodec
+    media_backend_swresample media_backend_avutil)
+if(WIN32)
+    add_library(media_backend_zlib SHARED IMPORTED GLOBAL)
+    set_target_properties(media_backend_zlib PROPERTIES
+        IMPORTED_IMPLIB "${RHYTHM_MEDIA_SDK}/lib/zlib.lib"
+        IMPORTED_LOCATION "${RHYTHM_MEDIA_SDK}/bin/zlib1.dll"
+        IMPORTED_IMPLIB_DEBUG "${RHYTHM_MEDIA_SDK}/debug/lib/zlibd.lib"
+        IMPORTED_LOCATION_DEBUG "${RHYTHM_MEDIA_SDK}/debug/bin/zlibd1.dll")
+    target_link_libraries(media_audio PRIVATE media_backend_zlib)
+endif()
 if(ANDROID)
-    target_link_libraries(media_audio PRIVATE android m atomic)
+    find_library(RHYTHM_MEDIA_z NAMES z zlib PATHS "${RHYTHM_MEDIA_SDK}/lib"
+        NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH REQUIRED)
+    target_link_libraries(media_audio PRIVATE android m atomic "${RHYTHM_MEDIA_z}")
 endif()
 rhythm_project_target(media_audio)
+add_library(media_video STATIC video_decoder.cpp)
+target_include_directories(media_video PUBLIC include)
+target_include_directories(media_video SYSTEM PRIVATE "${RHYTHM_MEDIA_SDK}/include")
+target_link_libraries(media_video PUBLIC media_types PRIVATE media_audio media_backend_swscale)
+rhythm_project_target(media_video)
 if(BUILD_TESTING)
     add_executable(media_audio_tests tests/audio_decoder_tests.cpp tests/compressed_fixture.cpp)
     target_include_directories(media_audio_tests SYSTEM PRIVATE "${RHYTHM_MEDIA_SDK}/include")
     target_link_libraries(media_audio_tests PRIVATE media_audio)
     rhythm_project_target(media_audio_tests)
+    add_executable(media_video_tests tests/video_decoder_tests.cpp)
+    target_link_libraries(media_video_tests PRIVATE media_video)
+    rhythm_project_target(media_video_tests)
 endif()

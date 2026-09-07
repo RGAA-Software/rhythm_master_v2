@@ -10,6 +10,73 @@ cluster plans; an installed demonstration APK alone is not Android completion.
 Pending dependencies are validated per module before adoption. Outstanding
 feature and platform checks remain explicit, including Windows risk checks.
 
+## 2026-09-07: complex music-driven scene and large-canvas verification
+
+Resonance Gate adds a fully connected 164-node / 269-edge Advanced audio template,
+24 radial band controls, actual PCM demo playback and a reusable eight-input
+texture stack. The stack fixes the intermediate-texture budget failure exposed
+by the first 183-node composition. Actual decoded music/silence/low/high captures
+differ; the Release editor measures approximately 60 fps at 720p output during
+zoom/pan with live file analysis. A separate 1000-node canvas drag/pan regression
+passes. See `validation/resonance_gate_2026-09-07.md` for exact scope and remaining
+limits. Inventory is now 29 examples, 11 semantic components and 128 preset
+records; quality acceptance and the broader five-item program remain incomplete.
+
+## 2026-09-07: editor performance and optimized acceptance builds
+
+Firefly Garden's CPU work was dominated by the unoptimized Debug build. The
+same full editor with eight previews changes from 32.3 ms to 3.0 ms median
+Studio graph/UI construction in Release, reaching approximately 60 fps in the
+recorded 1080p host test. Python Windows builds and the launcher now default to
+the separate optimized acceptance bundle. Debug caches are preserved. See
+`validation/editor_performance_2026-09-07.md` for controlled measurements,
+deployment paths, checks and scope limits.
+
+## 2026-09-07: shrinking popup corrected
+
+The user-reported template-browser shrink is reproduced as a one-pixel-per-frame
+autosizing feedback loop. Four browsing/asset popups now have stable viewport-
+bounded sizes. Actual 300-frame UI checks cover live preview, empty search and
+reopening. See `validation/popup_sizing_2026-09-07.md`.
+
+## 2026-09-07: five-item continuation, still in progress
+
+Signed image displacement, RGBA16F temporal trails and deterministic curl-field
+particles now reach graph, inspector and Player. The catalog has tier/subject
+filters, search, actual rendered thumbnails and a selected live preview. Three
+new references complete the first authored 3 Basic + 3 Advanced candidate batch;
+the new torus primitive reuses Godot sampling. The three corresponding semantic
+components bring inventory to 11 components, 126 preset records and 28 examples.
+These counts do not establish final visual acceptance or 50 + 50 completion.
+
+The USB Android device reconnected. Selected native CPU/GLES contracts pass,
+including signed displacement, RGBA16F decay and device recreation. Release
+offscreen measurements cover all six references at 720p with stable texture
+allocation; Prismatic lotus still needs a reduced mobile render extent. The
+earlier installation restriction still prevents claiming actual APK acceptance.
+See `validation/reference_batch_2026-09-07.md` and
+`validation/displacement_trails_2026-09-07.md` for exact evidence and limitations.
+
+Windows media integration now uses a validated vcpkg-only LGPL profile, without
+selecting the project's outbound license or upgrading the shared SDK. Studio and
+Player share local music controls, canonical analysis, pause/seek/volume/repeat
+and suspension behavior. Each complete deploy contains 21 DLLs and the matching
+FFmpeg source/build materials. Video decoding validates RGBA/PNG alpha,
+PTS/VFR/B-frame drain, rotation, seek and embedded memory ownership. Static image graph assets now pass import/preparation, save/reopen, publish and
+Player/device-recreation checks, including real D3D11 alpha/framing pixels.
+Video graph consumers now support bounded embedded clips, independent node
+playback, fit/fill, loops and seeks with stable GPU uploads. Shared authoring/media
+transport remains unfinished; see the later media validation section for limits.
+The isolated API-26 Android profile passes PNG and embedded decoding on the USB
+device; application audio and actual APK acceptance remain outstanding. See `validation/media_application_2026-09-07.md`.
+
+Android Release measurements now also cover the shared balanced quality policy.
+At 960x540 all six references have p95 below 30 ms in the short native offscreen
+test; actual display and long-duration thermal acceptance remain outstanding.
+The APK offers persistent original/balanced/economy quality. Its Python packager
+now uses the actual build directory/configuration, so Release native binaries
+cannot silently be replaced by the old Debug build during APK assembly.
+
 ## 2026-09-07: template title encoding corrected
 
 The prismatic-lotus label was incorrectly GBK-decoded in authored metadata; changing

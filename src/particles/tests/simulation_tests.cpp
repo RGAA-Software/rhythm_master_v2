@@ -82,6 +82,37 @@ void Run() {
         const auto radius = std::hypot(item.x_ - config.center_x_, item.y_ - config.center_y_);
         Require(std::abs(radius - 0.4) < 1e-6, "ring emitter geometric contract");
     }
+    config = {};
+    config.rate_ = 40;
+    config.flow_ = {0.35, 3, 0.15};
+    Simulation flow_sixty(config);
+    Simulation flow_thirty(config);
+    for (int frame = 0; frame < 120; ++frame) flow_sixty.Advance(1.0 / 60);
+    for (int frame = 0; frame < 60; ++frame) flow_thirty.Advance(1.0 / 30);
+    const PointCloud flow_expected(flow_sixty.Points().begin(), flow_sixty.Points().end());
+    Require(PointCloud(flow_thirty.Points().begin(), flow_thirty.Points().end()) == flow_expected,
+            "flow simulation is presentation-rate independent");
+    flow_sixty.Reset();
+    for (int frame = 0; frame < 120; ++frame) flow_sixty.Advance(1.0 / 60);
+    Require(PointCloud(flow_sixty.Points().begin(), flow_sixty.Points().end()) == flow_expected,
+            "flow reset replays the same field and trajectories");
+    config.flow_.strength_ = 0;
+    Simulation no_flow(config);
+    for (int frame = 0; frame < 120; ++frame) no_flow.Advance(1.0 / 60);
+    Require(PointCloud(no_flow.Points().begin(), no_flow.Points().end()) != flow_expected,
+            "flow affects particle trajectories");
+    FlowField field;
+    field.Prepare({0.4, 3, 0.15}, 123, 240);
+    const auto velocity = field.Velocity(0.4, 0.3);
+    for (int y = -1; y <= 11; ++y)
+        for (int x = -1; x <= 11; ++x) {
+            const auto sample = field.Velocity(x / 10.0, y / 10.0);
+            Require(std::hypot(sample[0], sample[1]) <= 0.400001, "flow speed remains bounded");
+        }
+    field.Prepare({0.4, 3, 0.15}, 124, 240);
+    Require(field.Velocity(0.4, 0.3) != velocity, "seed changes field");
+    field.Prepare({0, 3, 0.15}, 123, 240);
+    Require(field.Velocity(0.4, 0.3) == std::array<double, 2>{}, "zero strength is neutral");
     std::cout << "particles: frame-rate determinism, reset, gravity, lifetime, burst/catch-up "
                  "bounds, "
                  "invalid-input preservation and ring geometry passed\n";

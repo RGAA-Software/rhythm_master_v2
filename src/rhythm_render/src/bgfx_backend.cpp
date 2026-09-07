@@ -88,8 +88,13 @@ class BgfxBackend final : public Backend {
                 .end();
         texture_programs_.emplace();
     }
-    TextureHandle Create(Extent extent, std::span<const std::uint8_t> rgba) override {
-        const auto handle = resources_.Allocate(extent, rgba);
+    TextureHandle Create(Extent extent, std::span<const std::uint8_t> rgba,
+                         TexturePrecision precision) override {
+        const auto format = precision == TexturePrecision::kFloat16 ? bgfx::TextureFormat::RGBA16F
+                                                                    : bgfx::TextureFormat::RGBA8;
+        if (!bgfx::isTextureValid(0, false, 1, format, rgba.empty() ? BGFX_TEXTURE_RT : 0))
+            throw std::invalid_argument("render.unsupported_texture_precision");
+        const auto handle = resources_.Allocate(extent, rgba, precision);
         try {
             if (textures_.size() <= handle.slot_) textures_.resize(handle.slot_ + 1);
             auto& entry = textures_[handle.slot_];
@@ -100,14 +105,18 @@ class BgfxBackend final : public Backend {
                 for (std::size_t channel = 0; channel < 3; ++channel)
                     pixels[index + channel] = static_cast<std::uint8_t>(
                             (pixels[index + channel] * pixels[index + 3] + 127) / 255);
-            // bgfx::copy owns a copy; no borrowed application bytes survive this call.
-            entry.texture_ = GpuHandle(bgfx::createTexture2D(
-                    extent.width_, extent.height_, false, 1, bgfx::TextureFormat::RGBA8,
-                    BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP |
-                            (rgba.empty() ? BGFX_TEXTURE_RT : 0),
-                    rgba.empty() ? nullptr
-                                 : bgfx::copy(pixels.data(),
-                                              static_cast<std::uint32_t>(pixels.size()))));
+            // Initial-data textures become immutable in bgfx's D3D11 backend.
+            // Allocate without data, then copy the initial pixels so subsequent
+            // host uploads preserve this texture's handle on D3D11 and GLES.
+            entry.texture_ =
+                    GpuHandle(bgfx::createTexture2D(extent.width_, extent.height_, false, 1, format,
+                                                    BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP |
+                                                            (rgba.empty() ? BGFX_TEXTURE_RT : 0),
+                                                    nullptr));
+            if (!rgba.empty())
+                bgfx::updateTexture2D(
+                        entry.texture_.Get(), 0, 0, 0, 0, extent.width_, extent.height_,
+                        bgfx::copy(pixels.data(), static_cast<std::uint32_t>(pixels.size())));
             if (rgba.empty()) {
                 const auto native = entry.texture_.Get();
                 entry.framebuffer_ = GpuHandle(bgfx::createFrameBuffer(1, &native, false));
@@ -121,6 +130,20 @@ class BgfxBackend final : public Backend {
             resources_.Release(handle);
             throw;
         }
+    }
+    void Update(TextureHandle handle, std::span<const std::uint8_t> rgba) override {
+        resources_.ValidateUpload(handle, rgba);
+        if (!in_frame_) throw std::logic_error("render.frame_not_open");
+        const auto extent = resources_.Size(handle);
+        std::vector<std::uint8_t> pixels(rgba.begin(), rgba.end());
+        for (std::size_t index = 0; index < pixels.size(); index += 4)
+            for (std::size_t channel = 0; channel < 3; ++channel)
+                pixels[index + channel] = static_cast<std::uint8_t>(
+                        (pixels[index + channel] * pixels[index + 3] + 127) / 255);
+        // bgfx copies the upload before returning; no application pixels remain borrowed.
+        bgfx::updateTexture2D(textures_.at(handle.slot_).texture_.Get(), 0, 0, 0, 0, extent.width_,
+                              extent.height_,
+                              bgfx::copy(pixels.data(), static_cast<std::uint32_t>(pixels.size())));
     }
     void Release(TextureHandle handle) noexcept override {
         if (!resources_.Owns(handle)) return;
@@ -172,6 +195,7 @@ class BgfxBackend final : public Backend {
     void BeginFrame() override {
         resources_.CheckReady();
         if (in_frame_) throw std::logic_error("render.frame_already_open");
+        resources_.BeginFrame();
         in_frame_ = true;
         passes_ = 0;
         draws_ = 0;
@@ -179,6 +203,7 @@ class BgfxBackend final : public Backend {
     void Submit(TextureHandle target, const DrawList& list, std::uint32_t clear) override {
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         resources_.Validate(target, list);
+        resources_.RecordSamples(list);
         if (passes_ >= 240) throw std::length_error("render.pass_limit");
         const auto view = static_cast<bgfx::ViewId>(passes_++);
         auto extent = size_;
@@ -263,9 +288,13 @@ class BgfxBackend final : public Backend {
                     break;
             }
             bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | blending | BGFX_STATE_MSAA);
+            const auto map = command.texture_trail_      ? command.texture_trail_->history_
+                             : command.texture_displace_ ? command.texture_displace_->map_
+                                                         : command.texture_;
             texture_programs_->Submit(view, command, resources_.Size(command.texture_),
                                       list.width_ / list.height_,
-                                      textures_[command.texture_.slot_].texture_.Get());
+                                      textures_[command.texture_.slot_].texture_.Get(),
+                                      resources_.Size(map), textures_[map.slot_].texture_.Get());
             ++draws_;
         }
     }

@@ -35,6 +35,12 @@ struct Range {
     bool operator==(const Range&) const = default;
 };
 enum class EmitterShape { kRectangle, kDisk, kRing };
+struct FlowConfig {
+    double strength_ = 0;
+    double frequency_ = 3;
+    double evolution_ = 0.15;
+    bool operator==(const FlowConfig&) const = default;
+};
 struct Config {
     std::uint32_t capacity_ = 2048;
     std::uint32_t seed_ = 1;
@@ -56,6 +62,7 @@ struct Config {
     Color color_to_{0.8f, 0.1f, 1, 0};
     double fade_in_ = 0.05;
     double fade_out_ = 0.25;
+    FlowConfig flow_{};
     bool operator==(const Config&) const = default;
 };
 struct Update {

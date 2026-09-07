@@ -4,8 +4,8 @@
 #include <optional>
 #include <stop_token>
 
+#include "rhythm/prepared_assets/prepare.h"
 #include "rhythm/project/package.h"
-#include "rhythm/scene/resources.h"
 
 namespace rhythm::player {
 // Validated, move-only package ownership. Construction performs bounded package
@@ -30,7 +30,7 @@ class PreparedPackage final {
     friend class Session;
     project::RuntimePackage Take();
     std::optional<project::RuntimePackage> package_{};
-    std::shared_ptr<const scene::Resources> resources_{};
+    std::shared_ptr<const prepared_assets::Resources> resources_{};
     std::array<std::uint8_t, 32> digest_{};
 };
 }  // namespace rhythm::player

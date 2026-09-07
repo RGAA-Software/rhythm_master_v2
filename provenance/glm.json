@@ -855,5 +855,13 @@
                 "glm/vector_relational.hpp": "5c461ca06d43006ab7d236be00e25bad24614fe4cdfbc76d10f7d8c1e73900b8"
             }
         }
-    }
+    },
+    "additional_targets": [
+        "src/particles/flow_field.cpp: private use of installed GLM gtc/noise Perlin implementation; no source changes or GLM types in public APIs"
+    ],
+    "flow_adaptation": [
+        "Use a 33x33 bounded velocity lattice at fixed 30 Hz simulation time.",
+        "Rotate central differences of the scalar potential; bound speed and bilinearly interpolate per particle.",
+        "Reuse the existing 120 Hz first-party simulation for lifetime, birth, reset and deterministic integration."
+    ]
 }

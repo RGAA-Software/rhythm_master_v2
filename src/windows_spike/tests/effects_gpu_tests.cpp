@@ -10,6 +10,7 @@
 #include "blur_pass.h"
 #include "rhythm/platform/host.h"
 #include "rhythm/player/session.h"
+#include "rhythm/render/layout.h"
 #include "texture_ops.h"
 
 namespace {
@@ -33,17 +34,23 @@ int main(int argc, char* argv[]) {
             const auto mode = argc == 4 ? std::string_view(argv[3]) : std::string_view{};
             const bool silent = mode == "--silent";
             const bool benchmark = mode == "--benchmark";
-            if (!mode.empty() && !silent && !benchmark)
+            const bool thumbnail = mode == "--thumbnail";
+            if (!mode.empty() && !silent && !benchmark && !thumbnail)
                 throw std::invalid_argument("effects.preview_mode");
-            const render::Extent extent =
+            render::Extent extent =
                     benchmark ? render::Extent{1280, 720} : render::Extent{960, 540};
-            const auto frame_count = benchmark ? 720 : 180;
+            const auto frame_count = benchmark ? 720 : thumbnail ? 124 : 180;
             std::vector<double> frame_times;
             std::uint64_t baseline_bytes = 0;
             std::uint64_t peak_bytes = 0;
 
             player::Session session;
             session.Open(argv[2]);
+            if (thumbnail) {
+                const auto fit = render::AspectFit(session.Canvas(), {0, 0, 640, 360});
+                extent = {static_cast<std::uint16_t>(fit.width_),
+                          static_cast<std::uint16_t>(fit.height_)};
+            }
             runtime::ExternalInputs inputs;
             inputs.audio_.emplace();
             auto& audio = *inputs.audio_;
@@ -68,10 +75,26 @@ int main(int argc, char* argv[]) {
                 const auto start = std::chrono::steady_clock::now();
                 renderer.BeginFrame();
                 const auto image = session.Tick(time, false, extent, renderer, inputs);
-                Present(renderer, image.final_, extent);
+                if (thumbnail) {
+                    render::DrawList draw;
+                    draw.width_ = 256;
+                    draw.height_ = 144;
+                    runtime::detail::AppendTextureQuad(draw, image.final_, 0xffffffff, 0xffffffff);
+                    const auto fit = render::AspectFit(extent, {0, 0, 256, 144});
+                    for (auto& vertex : draw.vertices_) {
+                        vertex.x_ = fit.x_ + vertex.x_ * fit.width_ / 256;
+                        vertex.y_ = fit.y_ + vertex.y_ * fit.height_ / 144;
+                    }
+                    renderer.Submit({}, draw, 0x000000ff);
+                } else
+                    Present(renderer, image.final_, extent);
                 const auto path = (output / ("preview-" + std::to_string(frame))).string();
-                if (frame >= 0 && !benchmark)
+                if (frame >= 0 && !benchmark && !thumbnail)
                     bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
+                if (thumbnail && frame == 120) {
+                    const auto thumbnail_path = (output / "thumbnail").string();
+                    bgfx::requestScreenShot(BGFX_INVALID_HANDLE, thumbnail_path.c_str());
+                }
                 renderer.EndFrame();
                 if (benchmark && frame >= 120) {
                     frame_times.push_back(std::chrono::duration<double, std::milli>(
@@ -185,6 +208,75 @@ int main(int argc, char* argv[]) {
                 }
                 renderer.Submit({}, draw);
                 if (frame == 3) bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
+                renderer.EndFrame();
+            }
+        }
+        // Two-sampler displacement: bypass, signed vectors, gradient and transparency.
+        for (int scenario = 0; scenario < 7; ++scenario) {
+            std::vector<std::uint8_t> pixels(64 * 64 * 4);
+            std::vector<std::uint8_t> map_pixels(32 * 32 * 4);
+            for (int y = 0; y < 64; ++y)
+                for (int x = 0; x < 64; ++x) {
+                    const auto offset = static_cast<std::size_t>((y * 64 + x) * 4);
+                    pixels[offset] = static_cast<std::uint8_t>(x * 4);
+                    pixels[offset + 1] = static_cast<std::uint8_t>(y * 4);
+                    pixels[offset + 3] = scenario == 6 ? 0 : 255;
+                }
+            for (int y = 0; y < 32; ++y)
+                for (int x = 0; x < 32; ++x) {
+                    const auto offset = static_cast<std::size_t>((y * 32 + x) * 4);
+                    map_pixels[offset] = 255;
+                    map_pixels[offset + 1] = 128;
+                    map_pixels[offset + 3] = scenario == 4 ? 0 : 255;
+                    if (scenario == 3)
+                        map_pixels[offset] = map_pixels[offset + 1] = map_pixels[offset + 2] =
+                                static_cast<std::uint8_t>(x * 8);
+                }
+            auto source = renderer.CreateTexture({64, 64}, pixels);
+            auto map = renderer.CreateTexture({32, 32}, map_pixels);
+            render::TextureDisplace displace{map.Handle()};
+            displace.kind_ = scenario == 3 ? render::TextureDisplaceKind::kGradient
+                                           : render::TextureDisplaceKind::kVectorRg;
+            displace.strength_ = scenario == 0 ? 0 : scenario == 2 ? -0.125f : 0.125f;
+            displace.rotation_ = scenario == 5 ? 90.0f : 0.0f;
+            const auto path = (output / ("displace-" + std::to_string(scenario))).string();
+            for (int frame = 0; frame < 8; ++frame) {
+                renderer.BeginFrame();
+                render::DrawList draw;
+                draw.width_ = draw.height_ = 64;
+                runtime::detail::AppendTextureQuad(draw, source.Handle(), 0xffffffff, 0xffffffff);
+                draw.commands_.back().texture_displace_ = displace;
+                renderer.Submit({}, draw);
+                if (frame == 3) bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
+                renderer.EndFrame();
+            }
+        }
+        // Float history must decay equally across rates and eventually disappear.
+        for (int scenario = 0; scenario < 3; ++scenario) {
+            const int rate = scenario == 0 ? 30 : 60;
+            const int count = scenario == 2 ? 600 : rate;
+            const std::array<std::uint8_t, 4> black_pixel{0, 0, 0, 0};
+            auto black = renderer.CreateTexture({1, 1}, black_pixel);
+            auto history = renderer.CreateTexture({16, 16}, {}, render::TexturePrecision::kFloat16);
+            auto target = renderer.CreateTexture({16, 16}, {}, render::TexturePrecision::kFloat16);
+            for (int frame = -3; frame <= count + 4; ++frame) {
+                renderer.BeginFrame();
+                if (frame <= count) {
+                    render::DrawList draw;
+                    draw.width_ = draw.height_ = 16;
+                    const auto source = frame <= 0 ? white.Handle() : black.Handle();
+                    runtime::detail::AppendTextureQuad(draw, source, 0xffffffff, 0xffffffff);
+                    if (frame > 0)
+                        draw.commands_.back().texture_trail_ = render::TextureTrail{
+                                history.Handle(), std::exp2(-1.0f / static_cast<float>(rate))};
+                    renderer.Submit(target.Handle(), draw);
+                    std::swap(target, history);
+                }
+                Present(renderer, history.Handle(), {16, 16});
+                if (frame == count + 1) {
+                    const auto path = (output / ("trail-" + std::to_string(scenario))).string();
+                    bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
+                }
                 renderer.EndFrame();
             }
         }

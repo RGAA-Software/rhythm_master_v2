@@ -73,8 +73,18 @@ void Run(const std::filesystem::path& directory) {
     Wait(playback, [](const auto& value) { return value.state_ == PlaybackState::kFailed; });
     playback.Load(directory / "tone.flac");
     Wait(playback, [](const auto& value) { return value.features_.has_value(); });
+    playback.SetLoop(true);
+    const auto before_loop = playback.Snapshot().generation_;
+    const auto repeated = Wait(playback, [&](const auto& value) {
+        return value.generation_ >= before_loop + 2 && value.features_.has_value();
+    });
+    Require(repeated.features_->generation_ == repeated.generation_ &&
+                    repeated.queued_frames_ <= 24000,
+            "repeat clears old analysis and retains queue bounds");
+    playback.SetLoop(false);
+    Wait(playback, [](const auto& value) { return value.state_ == PlaybackState::kEnded; });
     std::cout << "file playback: device output, canonical analysis, bounded queue, pause, seek, "
-                 "EOF, latest-request cancellation and recovery passed\n";
+                 "EOF, bounded repeat, latest-request cancellation and recovery passed\n";
 }
 }  // namespace
 int main(int argc, char* argv[]) {

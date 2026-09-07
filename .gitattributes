@@ -4,3 +4,4 @@
 third_party/** -text
 dependencies/vcpkg/ports/**/*.patch -text
 dependencies/vcpkg/ports/**/*.diff -text
+*.rgba binary

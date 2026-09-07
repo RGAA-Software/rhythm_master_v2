@@ -1,9 +1,12 @@
 #pragma once
 
 #include "blur_pass.h"
+#include "image_pass.h"
 #include "point_ops.h"
 #include "point_physics.h"
 #include "scene_pass.h"
+#include "trail_pass.h"
+#include "video_pass.h"
 
 namespace rhythm::runtime {
 class Runtime::Impl final {
@@ -24,10 +27,13 @@ class Runtime::Impl final {
         std::unique_ptr<detail::PointPhysics> physics_{};
         std::unique_ptr<detail::ScenePass> scene_{};
         std::unique_ptr<detail::BlurPass> blur_{};
+        std::unique_ptr<detail::TrailPass> trail_{};
     };
     std::map<graph::NodeId, State> states_{};
     render::Texture white_{};
     render::Texture point_sprite_{};
+    detail::ImageUploads images_{};
+    detail::VideoUploads videos_{};
     std::string document_id_{};
     std::uint64_t reset_generation_ = 0;
     render::Extent extent_{};

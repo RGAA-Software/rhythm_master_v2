@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
         if (argc != 2) throw std::invalid_argument("test.arguments");
         graph::Registry registry;
         const auto presets = content::LoadPresets(argv[1], registry);
-        Check(presets.size() == 95);
+        Check(presets.size() == 106);
         for (const auto& descriptor : registry.Operators()) {
             if (descriptor.properties_.empty()) continue;
             bool has_default = false;

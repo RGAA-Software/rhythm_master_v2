@@ -5,12 +5,12 @@
 #include <stdexcept>
 #include <utility>
 
-#include "rhythm/model_assets/prepare.h"
+#include "rhythm/prepared_assets/prepare.h"
 
 namespace rhythm::player {
 PreparedPackage::PreparedPackage(std::string_view bytes, std::stop_token stop)
     : package_(project::DecodePackage(bytes)),
-      resources_(model_assets::Prepare(package_->program_, package_->assets_, stop)) {
+      resources_(prepared_assets::Prepare(package_->program_, package_->assets_, stop)) {
     picosha2::hash256(bytes.begin(), bytes.end(), digest_);
 }
 PreparedPackage::PreparedPackage(PreparedPackage&& other) noexcept

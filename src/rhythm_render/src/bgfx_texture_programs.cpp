@@ -1,10 +1,13 @@
 #include "bgfx_texture_programs.h"
 
+#include <bx/platform.h>
+
 #include <array>
 #include <cmath>
 
 #include "color_adjust_shader.h"
 #include "fs_ocornut_imgui.bin.h"
+#include "texture_displace_shader.h"
 #include "texture_filter_shader.h"
 #include "texture_mapping_shader.h"
 #include "texture_noise_shader.h"
@@ -55,12 +58,42 @@ BgfxTexturePrograms::BgfxTexturePrograms() {
             GpuHandle(bgfx::createUniform("u_contours_color_a", bgfx::UniformType::Vec4));
     contours_color_b_ =
             GpuHandle(bgfx::createUniform("u_contours_color_b", bgfx::UniformType::Vec4));
+    GpuHandle trail_fragment(
+            bgfx::createShader(bgfx::copy(kTextureTrailShader, sizeof(kTextureTrailShader))));
+    trail_program_ = GpuHandle(bgfx::createProgram(vertex.Get(), trail_fragment.Get(), false));
+    trail_settings_ = GpuHandle(bgfx::createUniform("u_trail_settings", bgfx::UniformType::Vec4));
+    GpuHandle displace_fragment(
+            bgfx::createShader(bgfx::copy(kTextureDisplaceShader, sizeof(kTextureDisplaceShader))));
+    displace_program_ =
+            GpuHandle(bgfx::createProgram(vertex.Get(), displace_fragment.Get(), false));
+    displace_settings_ =
+            GpuHandle(bgfx::createUniform("u_displace_settings", bgfx::UniformType::Vec4));
+    displace_domain_ = GpuHandle(bgfx::createUniform("u_displace_domain", bgfx::UniformType::Vec4));
+    map_sampler_ = GpuHandle(bgfx::createUniform("s_displace_map", bgfx::UniformType::Sampler));
     sampler_ = GpuHandle(bgfx::createUniform("s_tex", bgfx::UniformType::Sampler));
 }
 void BgfxTexturePrograms::Submit(std::uint16_t view, const DrawCommand& command, Extent source_size,
-                                 float aspect, bgfx::TextureHandle source) const {
+                                 float aspect, bgfx::TextureHandle source, Extent map_size,
+                                 bgfx::TextureHandle map) const {
     bgfx::setTexture(0, sampler_.Get(), source);
-    if (command.texture_mapping_) {
+    if (command.texture_trail_) {
+        const auto& trail = *command.texture_trail_;
+        const std::array settings{trail.retention_, trail.scale_, trail.rotation_, aspect};
+        bgfx::setTexture(1, map_sampler_.Get(), map);
+        bgfx::setUniform(trail_settings_.Get(), settings.data());
+        bgfx::submit(view, trail_program_.Get());
+    } else if (command.texture_displace_) {
+        const auto& displace = *command.texture_displace_;
+        const std::array settings{displace.strength_, displace.rotation_,
+                                  displace.kind_ == TextureDisplaceKind::kVectorRg ? 1.0f : 0.0f,
+                                  0.0f};
+        const std::array domain{displace.radius_ / map_size.width_,
+                                displace.radius_ / map_size.height_, aspect, 0.0f};
+        bgfx::setTexture(1, map_sampler_.Get(), map);
+        bgfx::setUniform(displace_settings_.Get(), settings.data());
+        bgfx::setUniform(displace_domain_.Get(), domain.data());
+        bgfx::submit(view, displace_program_.Get());
+    } else if (command.texture_mapping_) {
         const auto& mapping = *command.texture_mapping_;
         const std::array settings{mapping.scale_, mapping.rotation_, mapping.travel_,
                                   mapping.twist_};

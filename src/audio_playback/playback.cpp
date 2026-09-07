@@ -17,6 +17,7 @@ namespace rhythm::audio {
 namespace {
 using Clock = std::chrono::steady_clock;
 struct Request {
+    bool loop_ = false;
     std::optional<std::filesystem::path> path_{};
     std::uint64_t generation_ = 0;
     std::uint64_t first_sample_ = 0;
@@ -74,6 +75,11 @@ class FilePlayback::Impl final {
         request_.volume_ = volume;
         Changed();
     }
+    void SetLoop(bool loop) {
+        std::lock_guard lock(mutex_);
+        request_.loop_ = loop;
+        Changed();
+    }
     PlaybackSnapshot Snapshot() const {
         std::lock_guard lock(mutex_);
         return snapshot_;
@@ -103,6 +109,14 @@ class FilePlayback::Impl final {
         if (value.generation_ == request_.generation_) {
             snapshot_ = value;
         }
+    }
+    void Repeat(std::uint64_t generation) {
+        std::lock_guard lock(mutex_);
+        if (request_.generation_ != generation || !request_.loop_ || request_.paused_ ||
+            !request_.path_)
+            return;
+        request_.first_sample_ = 0;
+        RestartRequest();
     }
     void Run(std::stop_token stop) {
         std::unique_ptr<media::AudioDecoder> decoder;
@@ -199,6 +213,7 @@ class FilePlayback::Impl final {
                     }
                     Publish(state);
                 }
+                if (state.state_ == PlaybackState::kEnded) Repeat(active_generation);
             } catch (const std::exception&) {
                 device.reset();
                 decoder.reset();
@@ -233,5 +248,6 @@ void FilePlayback::Stop() { impl_->Stop(); }
 void FilePlayback::Seek(double seconds) { impl_->Seek(seconds); }
 void FilePlayback::Pause(bool paused) { impl_->Pause(paused); }
 void FilePlayback::SetVolume(float volume) { impl_->SetVolume(volume); }
+void FilePlayback::SetLoop(bool loop) { impl_->SetLoop(loop); }
 PlaybackSnapshot FilePlayback::Snapshot() const { return impl_->Snapshot(); }
 }  // namespace rhythm::audio

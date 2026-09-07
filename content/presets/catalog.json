@@ -1442,6 +1442,143 @@
                 "contour_count": 6,
                 "line_width": 0.22
             }
+        },
+        {
+            "id": "official.displace.default",
+            "version": "1.0.0",
+            "operator": "texture.displace",
+            "titles": {
+                "zh-CN": "默认 · 位移",
+                "en-US": "Default · Displacement"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.displace.refraction",
+            "version": "1.0.0",
+            "operator": "texture.displace",
+            "titles": {
+                "zh-CN": "流体折射",
+                "en-US": "Fluid refraction"
+            },
+            "properties": {
+                "displace_strength": 0.35,
+                "sample_radius": 8
+            }
+        },
+        {
+            "id": "official.displace.vector",
+            "version": "1.0.0",
+            "operator": "texture.displace",
+            "titles": {
+                "zh-CN": "向量扭曲",
+                "en-US": "Vector warp"
+            },
+            "properties": {
+                "displace_mode": 1,
+                "displace_strength": 0.08
+            }
+        },
+        {
+            "id": "official.trail.default",
+            "version": "1.0.0",
+            "operator": "texture.trail",
+            "titles": {
+                "zh-CN": "默认 · 拖尾",
+                "en-US": "Default · Trails"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.trail.spiral",
+            "version": "1.0.0",
+            "operator": "texture.trail",
+            "titles": {
+                "zh-CN": "螺旋残影",
+                "en-US": "Spiral echoes"
+            },
+            "properties": {
+                "trail_half_life": 0.8,
+                "trail_zoom_rate": 0.08,
+                "trail_rotation_rate": 12
+            }
+        },
+        {
+            "id": "official.trail.spark",
+            "version": "1.0.0",
+            "operator": "texture.trail",
+            "titles": {
+                "zh-CN": "火花短尾",
+                "en-US": "Spark trails"
+            },
+            "properties": {
+                "trail_half_life": 0.18
+            }
+        },
+        {
+            "id": "official.emitter.flow",
+            "version": "1.0.0",
+            "operator": "point.emitter",
+            "titles": {
+                "zh-CN": "流场星尘",
+                "en-US": "Flowing stardust"
+            },
+            "properties": {
+                "flow_strength": 0.3,
+                "flow_frequency": 3,
+                "flow_evolution": 0.12,
+                "particle_speed": 0.02,
+                "gravity_y": 0,
+                "emitter_width": 0.9,
+                "emitter_height": 0.9,
+                "center_y": 0.5,
+                "point_size": 0.004,
+                "lifetime": 5,
+                "emission_rate": 400
+            }
+        },
+        {
+            "id": "official.torus.default",
+            "version": "1.0.0",
+            "operator": "geometry.torus",
+            "titles": {
+                "zh-CN": "默认 · 环面",
+                "en-US": "Default · Torus"
+            },
+            "properties": {}
+        },
+        {
+            "id": "texture.image.default",
+            "version": "1.0.0",
+            "operator": "texture.image",
+            "titles": {
+                "zh-CN": "图片 · 适配",
+                "en-US": "Image · Fit"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "texture.video.default",
+            "version": "1.0.0",
+            "operator": "texture.video",
+            "titles": {
+                "zh-CN": "视频 · 循环",
+                "en-US": "Video · Loop"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "texture.stack.default",
+            "version": "1.0.0",
+            "operator": "texture.stack",
+            "titles": {
+                "zh-CN": "多层 · 叠加",
+                "en-US": "Layers · Over"
+            },
+            "reset": true,
+            "properties": {}
         }
     ]
 }

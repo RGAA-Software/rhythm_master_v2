@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 
 #include "rhythm/render/layout.h"
@@ -31,6 +32,44 @@ int main() {
         Reject([] { AspectFit({}, {0, 0, 100, 100}); });
         auto renderer = Renderer::CreateNull();
         auto second = Renderer::CreateNull();
+        {
+            const std::array<std::uint8_t, 4> pixel{120, 40, 200, 64};
+            auto image = renderer.CreateTexture({1, 1}, pixel);
+            auto target = renderer.CreateTexture({1, 1});
+            auto foreign = second.CreateTexture({1, 1}, pixel);
+            const auto bytes = renderer.Stats().texture_bytes_;
+            Reject([&] { renderer.UpdateTexture(image.Handle(), pixel); });
+            renderer.BeginFrame();
+            renderer.UpdateTexture(image.Handle(), pixel);
+            Check(renderer.Stats().texture_bytes_ == bytes);
+            Reject([&] { renderer.UpdateTexture(target.Handle(), pixel); });
+            Reject([&] { renderer.UpdateTexture(foreign.Handle(), pixel); });
+            Reject([&] { renderer.UpdateTexture(image.Handle(), {}); });
+            DrawList empty;
+            empty.width_ = empty.height_ = 1;
+            renderer.Submit({}, empty);
+            renderer.UpdateTexture(image.Handle(), pixel);
+            empty.vertices_ = {{0, 0}, {1, 0}, {0, 1}};
+            empty.indices_ = {0, 1, 2};
+            empty.commands_ = {{image.Handle(), 0, 3, {0, 0, 1, 1}}};
+            renderer.Submit({}, empty);
+            Reject([&] { renderer.UpdateTexture(image.Handle(), pixel); });
+            renderer.EndFrame();
+            const auto stale_image = image.Handle();
+            image = {};
+            renderer.BeginFrame();
+            Reject([&] { renderer.UpdateTexture(stale_image, pixel); });
+            renderer.EndFrame();
+        }
+        {
+            auto history = renderer.CreateTexture({16, 16}, {}, TexturePrecision::kFloat16);
+            Check(renderer.Stats().texture_bytes_ == 16 * 16 * 8);
+            const std::array<std::uint8_t, 4> pixel{255, 255, 255, 255};
+            Reject([&] { renderer.CreateTexture({1, 1}, pixel, TexturePrecision::kFloat16); });
+            Reject([&] { renderer.CreateTexture({1, 1}, {}, static_cast<TexturePrecision>(255)); });
+        }
+        const auto initial_frame = renderer.Stats().frame_;
+        Check(renderer.Stats().texture_bytes_ == 0);
         Reject([&] { renderer.CreateTexture({0, 10}); });
         Reject([&] { renderer.EndFrame(); });
         TextureHandle stale;
@@ -92,10 +131,48 @@ int main() {
         Reject([&] { renderer.Submit({}, draw); });
         draw.commands_[0].texture_mapping_.reset();
         draw.commands_[0].texture_contours_.reset();
+        {
+            auto map = renderer.CreateTexture({8, 8});
+            auto foreign = second.CreateTexture({8, 8});
+            auto& effect = draw.commands_[0].texture_displace_;
+            effect = TextureDisplace{map.Handle()};
+            renderer.Submit({}, draw);
+            Reject([&] { renderer.Submit(map.Handle(), draw); });
+            for (const auto invalid : {TextureHandle{}, stale, foreign.Handle()}) {
+                effect->map_ = invalid;
+                Reject([&] { renderer.Submit({}, draw); });
+            }
+            effect->map_ = map.Handle();
+            for (const float invalid : {-2.0f, 2.0f, std::numeric_limits<float>::quiet_NaN()}) {
+                effect->strength_ = invalid;
+                Reject([&] { renderer.Submit({}, draw); });
+            }
+            effect->strength_ = 0;
+            effect->radius_ = 0;
+            Reject([&] { renderer.Submit({}, draw); });
+            effect->radius_ = 2;
+            effect->kind_ = static_cast<TextureDisplaceKind>(255);
+            Reject([&] { renderer.Submit({}, draw); });
+            effect->kind_ = TextureDisplaceKind::kGradient;
+            draw.commands_[0].texture_filter_ = TextureFilter{};
+            Reject([&] { renderer.Submit({}, draw); });
+            draw.commands_[0].texture_filter_.reset();
+            effect.reset();
+            auto& trail = draw.commands_[0].texture_trail_;
+            trail = TextureTrail{map.Handle(), 0.5f};
+            renderer.Submit({}, draw);
+            Reject([&] { renderer.Submit(map.Handle(), draw); });
+            trail->retention_ = std::numeric_limits<float>::quiet_NaN();
+            Reject([&] { renderer.Submit({}, draw); });
+            trail->retention_ = 0.5f;
+            trail->history_ = foreign.Handle();
+            Reject([&] { renderer.Submit({}, draw); });
+            trail.reset();
+        }
         draw.indices_[0] = 999;
         Reject([&] { renderer.Submit({}, draw); });
         renderer.EndFrame();
-        Check(renderer.Stats().draws_ == 1 && renderer.Stats().frame_ == 1);
+        Check(renderer.Stats().draws_ == 3 && renderer.Stats().frame_ == initial_frame + 1);
         replacement = {};
         Check(renderer.Stats().live_textures_ == 0);
         auto moved_renderer = std::move(renderer);

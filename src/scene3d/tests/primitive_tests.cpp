@@ -50,6 +50,43 @@ void Check(float radius, float height, std::uint32_t segments, std::uint32_t rin
     Require(nondegenerate > 0, "primitive contains renderable faces");
 }
 void Run() {
+    {
+        using namespace rhythm::scene;
+        const auto model = Torus();
+        Validate(model);
+        const auto& mesh = model.meshes_.front();
+        Require(mesh.vertices_.size() == 65 * 17 && mesh.indices_.size() == 64 * 16 * 6,
+                "torus topology budget");
+        for (const auto& vertex : mesh.vertices_) {
+            const auto radial = std::hypot(vertex.x_, vertex.z_);
+            Require(std::abs(std::hypot(radial - 0.8, double(vertex.y_)) - 0.064) < 1e-6,
+                    "torus vertices lie on analytic tube");
+            Require(std::abs(vertex.normal_x_ * vertex.normal_x_ +
+                             vertex.normal_y_ * vertex.normal_y_ +
+                             vertex.normal_z_ * vertex.normal_z_ - 1) < 1e-5,
+                    "torus normals are unit length");
+        }
+        for (std::size_t i = 0; i < mesh.indices_.size(); i += 3) {
+            const auto& a = mesh.vertices_[mesh.indices_[i]];
+            const auto& b = mesh.vertices_[mesh.indices_[i + 1]];
+            const auto& c = mesh.vertices_[mesh.indices_[i + 2]];
+            const auto cross =
+                    Cross({double(b.x_) - a.x_, double(b.y_) - a.y_, double(b.z_) - a.z_},
+                          {double(c.x_) - a.x_, double(c.y_) - a.y_, double(c.z_) - a.z_});
+            Require(Dot(cross, {a.normal_x_, a.normal_y_, a.normal_z_}) > 0,
+                    "torus triangles face outward");
+        }
+        for (std::size_t i = 0; i <= 64; ++i) {
+            const auto& a = mesh.vertices_[i * 17];
+            const auto& b = mesh.vertices_[i * 17 + 16];
+            Require(a.x_ == b.x_ && a.y_ == b.y_ && a.z_ == b.z_, "tube seam closes exactly");
+        }
+        for (std::size_t j = 0; j <= 16; ++j) {
+            const auto& a = mesh.vertices_[j];
+            const auto& b = mesh.vertices_[64 * 17 + j];
+            Require(a.x_ == b.x_ && a.y_ == b.y_ && a.z_ == b.z_, "ring seam closes exactly");
+        }
+    }
     Check(0.5f, 1, 32, 16);
     Check(2, 1, 24, 12);
     Check(0.25f, 3, 16, 8);

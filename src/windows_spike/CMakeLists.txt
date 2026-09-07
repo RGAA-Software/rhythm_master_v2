@@ -12,6 +12,10 @@ rhythm_project_target(platform_sdl)
 add_subdirectory(../cyber_ui "${PROJECT_BINARY_DIR}/src/cyber_ui")
 add_subdirectory(../audio_capture "${PROJECT_BINARY_DIR}/src/audio_capture")
 add_subdirectory(../audio_output "${PROJECT_BINARY_DIR}/src/audio_output")
+if(RHYTHM_BUILD_MEDIA)
+    add_subdirectory(../audio_playback "${PROJECT_BINARY_DIR}/src/audio_playback")
+endif()
+add_subdirectory(../audio_ui "${PROJECT_BINARY_DIR}/src/audio_ui")
 add_subdirectory(../studio_ui "${PROJECT_BINARY_DIR}/src/studio_ui")
 add_executable(rhythm_master main.cpp)
 target_link_libraries(rhythm_master PRIVATE platform_sdl studio_ui graph_runtime)
@@ -23,7 +27,7 @@ add_custom_target(studio_resources ALL
         "${PROJECT_BINARY_DIR}/content" "${CMAKE_CURRENT_BINARY_DIR}/content"
     COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/sync-resources.py"
         "${PROJECT_SOURCE_DIR}/locales" "${CMAKE_CURRENT_BINARY_DIR}/locales"
-    DEPENDS phase_a_content semantic_content runtime_builtin_content)
+    DEPENDS phase_a_content semantic_content runtime_builtin_content demo_audio_content)
 add_dependencies(rhythm_master studio_resources)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 # CMake supplies target metadata; Python owns dependency discovery and packaging.
@@ -37,6 +41,7 @@ source_root=${PROJECT_SOURCE_DIR}
 build_root=${PROJECT_BINARY_DIR}
 sdk=${RHYTHM_SPIKE_SDK}
 io_sdk=${RHYTHM_IO_SDK}
+media_sdk=${RHYTHM_MEDIA_SDK}
 ")
 set(rhythm_deploy_command "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/deploy-windows.py"
     --config "${rhythm_deploy_config}")
@@ -45,6 +50,44 @@ add_custom_command(TARGET rhythm_master POST_BUILD COMMAND ${rhythm_deploy_comma
 add_custom_target(studio_deploy ALL COMMAND ${rhythm_deploy_command}
     DEPENDS rhythm_master studio_resources VERBATIM)
 if(BUILD_TESTING)
+    add_executable(editor_benchmark tests/editor_benchmark.cpp)
+    target_link_libraries(editor_benchmark PRIVATE studio_ui platform_sdl project_io spike_imgui)
+    rhythm_project_target(editor_benchmark)
+    add_dependencies(editor_benchmark studio_resources)
+    if(RHYTHM_BUILD_MEDIA)
+        add_executable(music_gpu_tests tests/music_gpu_tests.cpp)
+        target_link_libraries(music_gpu_tests PRIVATE platform_sdl spike_bgfx player_core media_audio audio_analysis)
+        rhythm_project_target(music_gpu_tests)
+        add_dependencies(music_gpu_tests runtime_builtin_content)
+        add_test(NAME music_fixtures COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/create-music-fixture.py"
+            --output "${PROJECT_BINARY_DIR}/music-fixtures" --tones)
+        set_tests_properties(music_fixtures PROPERTIES FIXTURES_SETUP music_pcm TIMEOUT 30)
+        add_test(NAME music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
+            --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/resonance_gate.rhythmpack"
+            --fixtures "${PROJECT_BINARY_DIR}/music-fixtures" --output "${PROJECT_BINARY_DIR}/music-gpu-captures")
+        set_tests_properties(music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_executable(video_gpu_tests tests/video_gpu_tests.cpp)
+        target_link_libraries(video_gpu_tests PRIVATE platform_sdl spike_bgfx graph_runtime video_sources asset_store)
+        rhythm_project_target(video_gpu_tests)
+        add_test(NAME video_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-video-gpu.py"
+            --executable "$<TARGET_FILE:video_gpu_tests>" --fixtures "${PROJECT_BINARY_DIR}/video-playback-fixtures"
+            --output "${PROJECT_BINARY_DIR}/video-gpu-captures")
+        set_tests_properties(video_gpu PROPERTIES FIXTURES_REQUIRED video_playback_media TIMEOUT 90 RUN_SERIAL TRUE)
+        add_executable(image_gpu_tests tests/image_gpu_tests.cpp)
+        target_link_libraries(image_gpu_tests PRIVATE platform_sdl spike_bgfx player_core asset_store)
+        rhythm_project_target(image_gpu_tests)
+        add_test(NAME image_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-image-gpu.py"
+            --executable "$<TARGET_FILE:image_gpu_tests>" --output "${PROJECT_BINARY_DIR}/image-gpu-captures")
+        set_tests_properties(image_gpu PROPERTIES TIMEOUT 90 RUN_SERIAL TRUE)
+    endif()
+    add_executable(catalog_gpu_tests tests/catalog_gpu_tests.cpp)
+    target_include_directories(catalog_gpu_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/studio_ui")
+    target_link_libraries(catalog_gpu_tests PRIVATE studio_ui player_core project_io spike_imgui spike_bgfx nlohmann_json::nlohmann_json)
+    rhythm_project_target(catalog_gpu_tests)
+    add_dependencies(catalog_gpu_tests studio_resources)
+    add_test(NAME catalog_gpu COMMAND catalog_gpu_tests "${CMAKE_CURRENT_BINARY_DIR}"
+        "${PROJECT_BINARY_DIR}/catalog-review")
+    set_tests_properties(catalog_gpu PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE)
     add_executable(template_text_gpu_tests tests/template_text_gpu_tests.cpp)
     target_link_libraries(template_text_gpu_tests PRIVATE platform_sdl spike_imgui project_io spike_bgfx)
     rhythm_project_target(template_text_gpu_tests)

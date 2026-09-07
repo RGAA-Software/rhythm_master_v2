@@ -1,0 +1,14 @@
+{
+    "template": "expression_orbit",
+    "package_sha256": "03b8e4e78097dea3e39cf85e7caa60a2e64cc9f1e0e6a5db6d2595d06fd7fe36",
+    "thumbnail_sha256": "9886ed4af06fe4efcfe1eb3bd55ade70ad04785f95550c808ebc0fca39431bc8",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

@@ -1,0 +1,8 @@
+add_library(audio_ui STATIC audio_panel.cpp)
+target_include_directories(audio_ui PUBLIC include)
+target_link_libraries(audio_ui PUBLIC audio_capture PRIVATE spike_imgui)
+if(RHYTHM_BUILD_MEDIA)
+    target_compile_definitions(audio_ui PUBLIC RHYTHM_HAS_LOCAL_MEDIA=1)
+    target_link_libraries(audio_ui PUBLIC audio_playback)
+endif()
+rhythm_project_target(audio_ui)

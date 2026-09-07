@@ -2,7 +2,7 @@
 #include <stdexcept>
 
 #include "rhythm/assets/store.h"
-#include "rhythm/model_assets/prepare.h"
+#include "rhythm/prepared_assets/prepare.h"
 #include "rhythm/project/package.h"
 #include "rhythm/project/store.h"
 
@@ -26,7 +26,7 @@ void PublishSnapshot(const std::filesystem::path& path, const editor::Snapshot& 
     const auto compiled = graph::Compile(snapshot.document_, graph::Registry{});
     if (!std::holds_alternative<graph::ExecutionPlan>(compiled))
         throw std::invalid_argument("package.invalid_program");
-    model_assets::Prepare(std::get<graph::ExecutionPlan>(compiled), packaged);
+    prepared_assets::Prepare(std::get<graph::ExecutionPlan>(compiled), packaged);
     InstallPackage(path, EncodePackage(snapshot.document_, snapshot.title_, packaged));
 }
 }  // namespace rhythm::project
