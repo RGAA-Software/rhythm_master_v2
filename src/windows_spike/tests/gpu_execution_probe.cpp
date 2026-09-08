@@ -18,6 +18,9 @@ int main() {
         rhythm::validation::VerifyMaterialTextures(renderer);
         rhythm::validation::VerifySceneShadows(renderer);
         rhythm::validation::VerifyEnvironmentLighting(renderer);
+#if defined(RHYTHM_MODEL_IMAGE_PROBE)
+        rhythm::validation::VerifyModelImages(renderer);
+#endif
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

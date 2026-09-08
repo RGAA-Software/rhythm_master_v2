@@ -42,6 +42,11 @@ std::shared_ptr<const Resources> Prepare(const graph::ExecutionPlan& plan,
     std::set<std::string> ids;
 #if defined(RHYTHM_HAS_IMAGE_DECODER)
     std::size_t total = 0;
+    for (const auto& model : result->models_->models_) {
+        if (model.image_bytes_ > assets::kMaximumImageBytes - total)
+            throw std::length_error("image.byte_budget");
+        total += model.image_bytes_;
+    }
 #endif
     for (const auto& instruction : plan.instructions_) {
         if (stop.stop_requested()) throw std::runtime_error("asset.cancelled");

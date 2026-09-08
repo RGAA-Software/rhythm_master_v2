@@ -13,6 +13,7 @@ struct ModelResource {
     std::uint64_t indices_ = 0;
     std::uint64_t draw_indices_ = 0;
     std::uint64_t draws_ = 0;
+    std::uint64_t image_bytes_ = 0;
 };
 // Prepared off the render thread, published as shared immutable values. No file
 // paths, parsers, GPU objects or asset bytes survive in the resource catalog.

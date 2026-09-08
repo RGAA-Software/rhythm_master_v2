@@ -54,10 +54,14 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                  float(light.cone_decay_)});
     std::set<Key> active;
     const auto needs_tangents = [](const scene::Instance& instance) {
-        if (instance.material_) return instance.material_->textures_.nodes_[1] != 0;
+        if (instance.material_)
+            return instance.material_->textures_.nodes_[1] != 0 ||
+                   instance.material_->textures_.images_[1].has_value();
         return std::any_of(instance.geometry_->model_->materials_.begin(),
-                           instance.geometry_->model_->materials_.end(),
-                           [](const auto& material) { return material.textures_.nodes_[1] != 0; });
+                           instance.geometry_->model_->materials_.end(), [](const auto& material) {
+                               return material.textures_.nodes_[1] != 0 ||
+                                      material.textures_.images_[1].has_value();
+                           });
     };
     for (const auto& instance : scene.instances_) {
         if (!instance.geometry_ || !instance.geometry_->model_ || !instance.geometry_->id_ ||
@@ -75,6 +79,7 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
             scene::Validate(*geometry.model_);
             Uploaded upload;
             upload.model_ = geometry.model_;
+            upload.images_.resize(geometry.model_->images_.size());
             upload.worlds_ = scene::WorldTransforms(*geometry.model_);
             std::size_t tangent_vertices = 0;
             for (auto mesh : geometry.model_->meshes_) {
@@ -90,7 +95,7 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
             }
             uploads_.emplace(key, std::move(upload));
         }
-        const auto& upload = uploads_.at(key);
+        auto& upload = uploads_.at(key);
         for (const auto& node : upload.model_->nodes_) {
             const auto& world = upload.worlds_.at(node.id_);
             if (!world.visible_) continue;
@@ -116,7 +121,17 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                 draw.textures_.uv_transform_ = material.textures_.uv_transform_;
                 for (std::size_t slot = 0; slot < 4; ++slot) {
                     const auto texture_node = material.textures_.nodes_[slot];
-                    if (!texture_node) continue;
+                    if (!texture_node) {
+                        if (const auto image = material.textures_.images_[slot]) {
+                            const auto& pixels = upload.model_->images_.at(*image);
+                            auto& texture = upload.images_.at(*image);
+                            if (!renderer.IsValid(texture.Handle()))
+                                texture = renderer.CreateTexture({pixels.width_, pixels.height_},
+                                                                 pixels.rgba_);
+                            draw.textures_.slots_[slot] = texture.Handle();
+                        }
+                        continue;
+                    }
                     const auto found = textures.find(texture_node);
                     if (found == textures.end() || !renderer.IsValid(found->second))
                         throw std::invalid_argument("runtime.material_texture");

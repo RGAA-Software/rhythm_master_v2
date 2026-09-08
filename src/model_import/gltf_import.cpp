@@ -69,11 +69,15 @@ scene::Model ReadGlb(std::span<const std::uint8_t> bytes, std::stop_token stop) 
     detail::Require(cgltf_validate(owner.get()) == cgltf_result_success, "gltf.validation");
     if (stop.stop_requested()) throw std::runtime_error("gltf.cancelled");
     scene::Model model;
+    model.images_ = detail::ReadImages(data, stop);
     model.materials_.emplace_back();
     model.materials_[0].unlit_ = false;
     model.materials_[0].metallic_ = model.materials_[0].roughness_ = 1;
-    for (std::size_t i = 0; i < data.materials_count; ++i)
-        model.materials_.push_back(ReadMaterial(data.materials[i]));
+    for (std::size_t i = 0; i < data.materials_count; ++i) {
+        auto material = ReadMaterial(data.materials[i]);
+        detail::ReadMaterialTextures(data, data.materials[i], material, model);
+        model.materials_.push_back(std::move(material));
+    }
     std::vector<std::vector<std::uint32_t>> meshes(data.meshes_count);
     std::size_t vertex_count = 0, index_count = 0;
     for (std::size_t i = 0; i < data.meshes_count; ++i)

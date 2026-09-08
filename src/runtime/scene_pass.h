@@ -20,6 +20,7 @@ class ScenePass final {
         std::shared_ptr<const scene::Model> model_{};
         std::map<scene::NodeId, scene::WorldNode> worlds_{};
         std::vector<render::Mesh> meshes_{};
+        std::vector<render::Texture> images_{};
     };
     using Key = std::tuple<std::uint64_t, std::uint64_t, bool>;
     std::map<Key, Uploaded> uploads_{};

@@ -9,7 +9,7 @@ R3 已验证 vcpkg `mikktspace 2020-10-06#3`（Zlib，静态链接），仅新�
 `x64-windows` 与 `arm64-android` 包，没有升级共享安装的其他依赖。Windows 与
 USB 手机通过基本几何、镜像 UV 接缝和异常输入检查，采用其切线生成；C 类型仅留在
 Scene3D 私有同步适配器。版本、许可和安装 ABI 见 `provenance/mikktspace.json`。
-点光/聚光、四槽材质、方向/聚光阴影以及 IBL 已通过两端像素检查。IBL 复用 Godot MIT 环境 BRDF、TiXL MIT GGX 预过滤和既有 GLM MIT 颜色转换，没有新增库；见 [环境光照](environment_lighting.md)。嵌入 GLB 纹理仍待接入。
+点光/聚光、四槽材质、方向/聚光阴影以及 IBL 已通过两端像素检查。IBL 复用 Godot MIT 环境 BRDF、TiXL MIT GGX 预过滤和既有 GLM MIT 颜色转换，没有新增库；见 [环境光照](environment_lighting.md)。[GLB 内嵌 PNG/JPEG 材质](glb_material_images.md)已通过 cgltf → 既有 FFmpeg → 发布包 → 两端 GPU 检查，未新增解码器。
 
 R2 的 RGBA16F、sRGB/线性转换、可采样 D24S8 与景深已通过 D3D11 和 USB
 Adreno 650/GLES 3.1 的实际像素检查。色彩适配参考已安装 vcpkg GLM 的 MIT 分支，

@@ -18,5 +18,19 @@
     "modifications": [],
     "target": "src/model_import/cgltf_impl.c (upstream implementation translation unit) and private model_import adapters",
     "notice": "third_party/notices/cgltf/LICENSE.txt",
-    "profile": "Initial self-contained static GLB triangles; bounded parser arena and accessor preflight; URI/texture/animation/compression/unknown-required-extension rejection. Candidate, application integration pending."
+    "profile": "Validated Windows/Android self-contained static GLB triangles with opaque PBR, embedded PNG/JPEG decoded by the existing vcpkg FFmpeg backend, UV0, imported/MikkTSpace tangents, repeat/bilinear samplers and bounded image/ORM preparation. Other profiles reject explicitly.",
+    "image_extension": {
+        "targets": [
+            "src/model_import/gltf_images.cpp",
+            "src/model_import/gltf_mesh.cpp",
+            "src/runtime/scene_pass.cpp"
+        ],
+        "source_reference": "Godot 4.5.1 modules/gltf/gltf_document.cpp _parse_materials (same revision/hash as provenance/godot_3d.json)",
+        "changes": [
+            "Keep cgltf unchanged. Read its image buffer views, texture views, sampler, UV and tangent accessors through private adapters.",
+            "Use existing FFmpeg VideoDecoder for embedded PNG/JPEG; never introduce stb_image or a second media decoder.",
+            "Store owned opaque RGBA8 in immutable Scene3D models and copy imported material channel bindings; consolidate glTF occlusion/R/G/B into renderer ORM with bounded exact-size channel copies.",
+            "Omit optional/required unsupported texture transforms, UV1+, sampler modes and material/animation extensions, reporting explicit errors."
+        ]
+    }
 }

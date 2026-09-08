@@ -192,6 +192,41 @@ void Run() {
     frame = evaluate();
     Require(frame.outputs_[0].geometry_->model_ == resources->models_[0].model_,
             "asset geometry shares prepared immutable CPU model without parsing during evaluation");
+    auto textured = scene::Cube();
+    textured.images_.push_back({1, 1, {128, 128, 255, 255}});
+    textured.materials_[0].unlit_ = false;
+    textured.materials_[0].textures_.images_.fill(0u);
+    const assets::AssetId textured_id{std::string(64, 'b')};
+    document.nodes_[0].properties_["asset"] = textured_id;
+    scene::Resources textured_catalog;
+    textured_catalog.models_.push_back(scene::DescribeModel(textured_id, std::move(textured)));
+    resources = std::make_shared<const scene::Resources>(std::move(textured_catalog));
+    document.edges_.erase(document.edges_.begin() +
+                          1);  // Use imported material instead of graph override.
+    frame = evaluate();
+    std::cout << "model image textures=" << renderer.Stats().live_textures_
+              << " cpu_bytes=" << resources->models_[0].image_bytes_
+              << " outputs=" << frame.outputs_.size() << "\n";
+    Require(renderer.Stats().live_textures_ == 3 && resources->models_[0].image_bytes_ == 4,
+            "one embedded image shared by four slots uploads once with bounded CPU accounting");
+    const auto textured_bytes = renderer.Stats().texture_bytes_;
+    document.nodes_[3].properties_["rotation_y"] = 40.0;
+    frame = evaluate();
+    Require(renderer.Stats().texture_bytes_ == textured_bytes &&
+                    renderer.Stats().live_textures_ == 3,
+            "model image uploads are reused across animation");
+    renderer.BeginFrame();
+    viewers.BeginFrame(4, true, 0);
+    const std::array<graph::NodeId, 1> image_demand{1};
+    viewers.Capture(frame, image_demand, renderer);
+    Require(viewers.Outputs().size() == 1 && renderer.Stats().live_textures_ == 6,
+            "imported geometry preview resolves embedded materials and normal tangents");
+    viewers.BeginFrame(5, false, 0);
+    renderer.EndFrame();
+    Require(renderer.Stats().live_textures_ == 3, "hidden model preview releases its image upload");
+    runtime.Reset();
+    Require(renderer.Stats().live_textures_ == 0 && renderer.Stats().live_meshes_ == 0,
+            "model image GPU ownership releases on reset");
     const auto resolved = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
     Require(graph::ValidateSceneBudget(resolved, std::span<const graph::GeometryBudget>{})
                     .has_value(),

@@ -50,7 +50,18 @@ std::map<NodeId, WorldNode> WorldTransforms(const Model& model) {
 void Validate(const Model& model) {
     Require(!model.nodes_.empty() && model.nodes_.size() <= 2048 && !model.materials_.empty() &&
             model.materials_.size() <= 128 && model.meshes_.size() <= 512);
+    Require(model.images_.size() <= 192);
+    std::size_t image_bytes = 0;
+    for (const auto& image : model.images_) {
+        Require(image.width_ > 0 && image.height_ > 0 && image.width_ <= 4096 &&
+                image.height_ <= 4096 && std::size_t(image.width_) * image.height_ <= 2073600 &&
+                image.rgba_.size() == std::size_t(image.width_) * image.height_ * 4 &&
+                image.rgba_.size() <= kMaximumModelImageBytes - image_bytes);
+        image_bytes += image.rgba_.size();
+    }
     for (const auto& material : model.materials_) {
+        for (const auto index : material.textures_.images_)
+            Require(!index || *index < model.images_.size());
         const auto& c = material.base_color_;
         for (const auto value :
              {c.red_, c.green_, c.blue_, c.alpha_, material.metallic_, material.roughness_})

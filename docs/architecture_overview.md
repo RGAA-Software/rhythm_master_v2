@@ -532,3 +532,8 @@ Environment lighting retains a texture producer ID in Scene3D. A focused Runtime
 EnvironmentPass owns a bounded Float16 atlas and caches by source content version;
 rotation/intensity remain receiver parameters. GPU filtering/bindings remain private
 to Render. See [environment contracts](environment_lighting.md).
+
+GLB import decodes embedded PNG/JPEG on the resource worker through the existing
+FFmpeg adapter. Immutable Scene3D models own bounded RGBA images and material
+indices; scene GPU caches upload demanded model images lazily. Model images and
+graph image assets share the prepared CPU image budget. See [GLB image contracts](glb_material_images.md).

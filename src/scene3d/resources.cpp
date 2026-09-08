@@ -13,6 +13,7 @@ ModelResource DescribeModel(assets::AssetId id, Model model) {
         resource.vertices_ += mesh.vertices_.size();
         resource.indices_ += mesh.indices_.size();
     }
+    for (const auto& image : model.images_) resource.image_bytes_ += image.rgba_.size();
     const auto worlds = WorldTransforms(model);
     for (const auto& node : model.nodes_) {
         if (!worlds.at(node.id_).visible_) continue;

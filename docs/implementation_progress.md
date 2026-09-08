@@ -1,5 +1,15 @@
 # Continuous implementation through Android Player
 
+## R3 functional closure, 2026-09-08
+
+Embedded GLB PNG/JPEG materials now follow cgltf/FFmpeg preparation, immutable
+model image values, package persistence and lazy GPU uploads. Windows/Android
+import, runtime, preview and actual packaged GPU readbacks pass; both Windows
+deploy directories and the overlaid Android APK are updated. Material/light,
+shadow and IBL increments above are now functionally closed within their stated
+profiles. [GLB evidence/limits](glb_material_images.md). R4 geometry/shader work is
+next; R5–R6 and visual/endurance acceptance remain open.
+
 ## R3 environment increment, 2026-09-08
 
 Cached GGX/diffuse environment lighting, graph scalar controls and inline previews

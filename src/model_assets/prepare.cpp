@@ -60,7 +60,7 @@ std::shared_ptr<const scene::Resources> Prepare(const graph::ExecutionPlan& plan
     }
     auto resources = std::make_shared<scene::Resources>();
     ids.clear();
-    std::uint64_t vertices = 0, indices = 0;
+    std::uint64_t vertices = 0, indices = 0, image_bytes = 0;
     for (const auto& instruction : plan.instructions_) {
         CheckCancelled(stop);
         if (instruction.operation_ != graph::Operation::kGeometryGlb) continue;
@@ -73,6 +73,9 @@ std::shared_ptr<const scene::Resources> Prepare(const graph::ExecutionPlan& plan
         const auto bytes = std::span<const std::uint8_t>(
                 reinterpret_cast<const std::uint8_t*>(found->bytes_.data()), found->bytes_.size());
         auto model = scene::DescribeModel(id, model_import::ReadGlb(bytes, stop));
+        if (model.image_bytes_ > scene::kMaximumModelImageBytes - image_bytes)
+            throw std::length_error("image.byte_budget");
+        image_bytes += model.image_bytes_;
         vertices += model.vertices_;
         indices += model.indices_;
         if (vertices > 250000 || indices > 750000) throw std::length_error("graph.scene_budget");

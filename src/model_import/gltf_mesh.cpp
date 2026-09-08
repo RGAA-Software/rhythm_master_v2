@@ -11,7 +11,7 @@ scene::Mesh ReadMesh(const cgltf_data& data, const cgltf_primitive& primitive,
                      std::size_t& vertices, std::size_t& indices, std::stop_token stop) {
     // All native references/pointers are checked borrowed data scoped to this
     // synchronous conversion; no parser storage reaches the returned mesh.
-    std::optional<std::reference_wrapper<const cgltf_accessor>> position, normal, uv;
+    std::optional<std::reference_wrapper<const cgltf_accessor>> position, normal, uv, tangent;
     for (std::size_t i = 0; i < primitive.attributes_count; ++i) {
         const auto& attribute = primitive.attributes[i];
         Require(attribute.data && attribute.index == 0, "gltf.attribute");
@@ -24,6 +24,9 @@ scene::Mesh ReadMesh(const cgltf_data& data, const cgltf_primitive& primitive,
         } else if (attribute.type == cgltf_attribute_type_texcoord) {
             Require(!uv);
             uv = *attribute.data;
+        } else if (attribute.type == cgltf_attribute_type_tangent) {
+            Require(!tangent);
+            tangent = *attribute.data;
         } else
             Require(false, "gltf.attribute_profile");
     }
@@ -36,6 +39,18 @@ scene::Mesh ReadMesh(const cgltf_data& data, const cgltf_primitive& primitive,
     if (normal)
         Require(normal->get().type == cgltf_type_vec3 && normal->get().count == positions.count);
     if (uv) Require(uv->get().type == cgltf_type_vec2 && uv->get().count == positions.count);
+    if (tangent)
+        Require(normal && uv && tangent->get().type == cgltf_type_vec4 &&
+                        tangent->get().count == positions.count,
+                "gltf.tangent_profile");
+    if (primitive.material) {
+        const auto& material = *primitive.material;
+        Require(uv || (!material.pbr_metallic_roughness.base_color_texture.texture &&
+                       !material.pbr_metallic_roughness.metallic_roughness_texture.texture &&
+                       !material.normal_texture.texture && !material.occlusion_texture.texture &&
+                       !material.emissive_texture.texture),
+                "gltf.texture_uv_required");
+    }
     const auto count = primitive.indices ? primitive.indices->count : positions.count;
     Require(count > 0 && count % 3 == 0 && count <= 750000 - indices, "gltf.index_limit");
     vertices += positions.count;
@@ -57,6 +72,9 @@ scene::Mesh ReadMesh(const cgltf_data& data, const cgltf_primitive& primitive,
         mesh.vertices_.push_back({p[0], p[1], p[2], static_cast<float>(normalized.x_),
                                   static_cast<float>(normalized.y_),
                                   static_cast<float>(normalized.z_), tex[0], tex[1]});
+        if (tangent)
+            Require(cgltf_accessor_read_float(&tangent->get(), i,
+                                              mesh.vertices_.back().tangent_.data(), 4));
     }
     mesh.indices_.reserve(count);
     for (std::size_t i = 0; i < count; ++i) {
@@ -65,6 +83,7 @@ scene::Mesh ReadMesh(const cgltf_data& data, const cgltf_primitive& primitive,
         mesh.indices_.push_back(static_cast<std::uint32_t>(index));
     }
     if (!normal) scene::GenerateNormals(mesh);
+    mesh.has_tangents_ = tangent.has_value();
     return mesh;
 }
 }  // namespace rhythm::model_import::detail

@@ -20,6 +20,8 @@ struct MaterialTextures {
     // Texture producer IDs belong to the immutable publishing graph generation.
     // Scene3D stores identities only; Runtime resolves them for each frame.
     std::array<std::uint64_t, 4> nodes_{};
+    // Optional indices into the owning model image array; graph nodes override a slot.
+    std::array<std::optional<std::uint32_t>, 4> images_{};
     bool color_srgb_ = true;
     float normal_scale_ = 1;
     std::array<float, 4> uv_transform_{1, 1, 0, 0};
@@ -61,10 +63,18 @@ struct Node {
 };
 // Immutable after publication. Mesh/material indices address these owned arrays;
 // hierarchy uses stable value IDs. GPU and parser resources are not retained.
+struct TextureImage {
+    std::uint16_t width_ = 0;
+    std::uint16_t height_ = 0;
+    // Owned straight RGBA8, top-left row first. Opaque GLB profile forces alpha 255.
+    std::vector<std::uint8_t> rgba_{};
+};
+inline constexpr std::size_t kMaximumModelImageBytes = 64 * 1024 * 1024;
 struct Model {
     std::vector<Mesh> meshes_{};
     std::vector<Material> materials_{};
     std::vector<Node> nodes_{};
+    std::vector<TextureImage> images_{};
 };
 struct WorldNode {
     Matrix transform_{};

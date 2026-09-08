@@ -128,6 +128,13 @@ if(BUILD_TESTING)
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/src" "${PROJECT_BINARY_DIR}/generated/render")
     target_include_directories(gpu_execution_probe PUBLIC "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests")
     target_link_libraries(gpu_execution_probe PRIVATE Rhythm::Render spike_bgfx)
+    if(RHYTHM_BUILD_MEDIA)
+        target_sources(gpu_execution_probe PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/model_images_gpu.cpp")
+        target_include_directories(gpu_execution_probe PRIVATE
+            "${PROJECT_SOURCE_DIR}/src/model_import/tests" "${PROJECT_SOURCE_DIR}/third_party/sources/picosha2")
+        target_link_libraries(gpu_execution_probe PRIVATE model_assets graph_runtime)
+        target_compile_definitions(gpu_execution_probe PUBLIC RHYTHM_MODEL_IMAGE_PROBE=1)
+    endif()
     rhythm_project_target(gpu_execution_probe)
 endif()
 

@@ -10,6 +10,6 @@ if(BUILD_TESTING)
     add_test(NAME model_assets COMMAND model_asset_tests "${PROJECT_SOURCE_DIR}/third_party/assets/khronos-box/Box.glb" "${PROJECT_BINARY_DIR}/model-asset-tests")
     if(WIN32)
         set_tests_properties(model_assets PROPERTIES ENVIRONMENT_MODIFICATION
-            "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_IO_SDK}/debug/bin")
+            "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_IO_SDK}/debug/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/debug/bin")
     endif()
 endif()

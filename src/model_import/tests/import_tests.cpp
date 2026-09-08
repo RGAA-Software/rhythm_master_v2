@@ -4,48 +4,14 @@
 #include <stdexcept>
 #include <string>
 
+#include "fixtures.h"
 #include "rhythm/model_import/gltf.h"
 
 namespace {
 void Require(bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
 }
-const std::string kJson = R"({"asset":{"version":"2.0"},"buffers":[{"byteLength":42}],
-"bufferViews":[{"buffer":0,"byteOffset":0,"byteLength":36},{"buffer":0,"byteOffset":36,"byteLength":6}],
-"accessors":[{"bufferView":0,"componentType":5126,"count":3,"type":"VEC3"},
-{"bufferView":1,"componentType":5123,"count":3,"type":"SCALAR"}],
-"materials":[{"extensions":{"KHR_materials_unlit":{}},"pbrMetallicRoughness":{"baseColorFactor":[0.2,0.4,0.6,1]}}],
-"meshes":[{"primitives":[{"attributes":{"POSITION":0},"indices":1,"material":0}]}],
-"nodes":[{"mesh":0,"translation":[1,0,0]},{"children":[0],"translation":[0,2,0]}],
-"scenes":[{"nodes":[1]}],"scene":0})";
-void Word(std::vector<std::uint8_t>& bytes, std::uint32_t value) {
-    for (int shift = 0; shift < 32; shift += 8)
-        bytes.push_back(static_cast<std::uint8_t>(value >> shift));
-}
-std::vector<std::uint8_t> Glb(std::string json = kJson) {
-    while (json.size() % 4) json += ' ';
-    std::vector<std::uint8_t> bin;
-    for (const float value : {-1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f})
-        Word(bin, std::bit_cast<std::uint32_t>(value));
-    bin.insert(bin.end(), {0, 0, 1, 0, 2, 0, 0, 0});
-    std::vector<std::uint8_t> bytes;
-    Word(bytes, 0x46546c67);
-    Word(bytes, 2);
-    Word(bytes, static_cast<std::uint32_t>(28 + json.size() + bin.size()));
-    Word(bytes, static_cast<std::uint32_t>(json.size()));
-    Word(bytes, 0x4e4f534a);
-    bytes.insert(bytes.end(), json.begin(), json.end());
-    Word(bytes, static_cast<std::uint32_t>(bin.size()));
-    Word(bytes, 0x004e4942);
-    bytes.insert(bytes.end(), bin.begin(), bin.end());
-    return bytes;
-}
-std::string Replace(std::string value, std::string_view from, std::string_view to) {
-    const auto offset = value.find(from);
-    Require(offset != std::string::npos, "fixture replacement exists");
-    value.replace(offset, from.size(), to);
-    return value;
-}
+using namespace rhythm::model_import::test;
 void Reject(const std::vector<std::uint8_t>& bytes) {
     bool rejected = false;
     try {
@@ -55,6 +21,40 @@ void Reject(const std::vector<std::uint8_t>& bytes) {
     }
     Require(rejected, "unsupported or malformed GLB rejects");
 }
+#if defined(RHYTHM_TEST_IMAGE_DECODER)
+void EmbeddedImages() {
+    using namespace rhythm;
+    auto fixture = EmbeddedFixture();
+    auto& json = fixture.json_;
+    auto& extra = fixture.extra_;
+    const auto model = model_import::ReadGlb(Glb(json, extra));
+    Require(model.images_.size() == 2 && model.images_[0].width_ == 2 &&
+                    model.images_[0].height_ == 2,
+            "embedded PNG decoded by FFmpeg and ORM prepared");
+    Require(model.images_[0].rgba_[0] == 200 && model.images_[0].rgba_[3] == 255 &&
+                    model.images_[0].rgba_[4] == 20 && model.images_[0].rgba_[7] == 255,
+            "opaque glTF ignores texture alpha without discarding RGB");
+    const auto& material = model.materials_[1];
+    Require(material.textures_.images_[0] == 0u && material.textures_.images_[1] == 0u &&
+                    material.textures_.images_[2] == 1u && material.textures_.images_[3] == 0u &&
+                    std::abs(material.textures_.normal_scale_ - 0.3f) < 1e-6,
+            "all material bindings and normal scale retained");
+    Require(model.images_[1].rgba_[0] == 228 && model.images_[1].rgba_[1] == 80 &&
+                    model.images_[1].rgba_[2] == 40,
+            "occlusion strength combines with original roughness/metal channels");
+    Require(model.meshes_[0].vertices_[2].u_ == 0.5f && model.meshes_[0].vertices_[2].v_ == 1,
+            "glTF UV0 stays top-left");
+    Reject(Glb(Replace(json, "\"bufferView\":3", "\"uri\":\"texture.png\""), extra));
+    Reject(Glb(Replace(json, "image/png", "image/gif"), extra));
+    Reject(Glb(Replace(json, "\"scale\":0.3", "\"scale\":0.3,\"texCoord\":1"), extra));
+    Reject(Glb(Replace(json, "\"TEXCOORD_0\":2", "\"TEXCOORD_1\":2"), extra));
+    auto sampler = Replace(json, "\"textures\":[{\"source\":0}]",
+                           R"("samplers":[{"wrapS":33071}],"textures":[{"source":0,"sampler":0}])");
+    Reject(Glb(sampler, extra));
+    std::cout << "GLB images: FFmpeg RGBA, opaque RGB, bindings, ORM, UV and unsupported profiles "
+                 "passed\n";
+}
+#endif
 void Run() {
     using namespace rhythm;
     auto bytes = Glb();
@@ -101,6 +101,9 @@ void Run() {
 int main() {
     try {
         Run();
+#if defined(RHYTHM_TEST_IMAGE_DECODER)
+        EmbeddedImages();
+#endif
         return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
