@@ -8,6 +8,7 @@
 
 #include "rhythm/render/color_pipeline.h"
 #include "rhythm/render/gpu_points.h"
+#include "rhythm/render/image_program.h"
 #include "rhythm/render/scene.h"
 
 namespace rhythm::platform {
@@ -148,6 +149,7 @@ struct DrawCommand {
     std::optional<DepthLinearization> depth_linearization_{};
     std::optional<DepthOfField> depth_of_field_{};
     std::optional<EnvironmentFilter> environment_filter_{};
+    std::optional<ImageProgramInput> image_program_{};
 };
 
 // Owned frame data; third-party draw buffers never survive their boundary call.
@@ -173,6 +175,8 @@ struct FrameStats {
     // Surface resets can discard submissions made earlier in that frame.
     // Cached producers must redraw when this generation changes.
     std::uint64_t presentation_generation_ = 0;
+    std::uint32_t image_programs_ = 0;
+    std::uint64_t image_program_bytes_ = 0;  // Compiled payload, not driver allocation size.
 };
 
 // Move-only resource ownership. Shared backend lifetime ensures destruction order;
@@ -261,6 +265,9 @@ class Renderer final {
     [[nodiscard]] bool IsValid(MeshHandle handle) const;
     [[nodiscard]] bool SupportsScenes() const;
     [[nodiscard]] bool SupportsGpuPoints() const;
+    [[nodiscard]] ImageProgramTarget ImageTarget() const;
+    ImageProgram CreateImageProgram(std::span<const std::uint8_t> artifact);
+    [[nodiscard]] bool IsValid(ImageProgramHandle handle) const;
     GpuPoints CreateGpuPoints(std::uint32_t capacity);
     [[nodiscard]] bool IsValid(GpuPointHandle handle) const;
     void UpdateGpuParticles(GpuPointHandle handle, const GpuParticleStep& step);

@@ -20,6 +20,8 @@ add_custom_command(OUTPUT "${render_shader_header}"
         "${RHYTHM_SHADERC}" ${render_shader_includes}
     VERBATIM)
 target_sources(render_bgfx PRIVATE "${render_shader_header}")
+target_sources(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_image_programs.cpp")
+target_link_libraries(render_bgfx PRIVATE image_shader)
 
 set(filter_shader_header "${PROJECT_BINARY_DIR}/generated/render/texture_filter_shader.h")
 add_custom_command(OUTPUT "${filter_shader_header}"
@@ -123,6 +125,7 @@ if(BUILD_TESTING)
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/shadows_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/environment_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/deformation_gpu.cpp"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/image_program_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_particles_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/scene_instances_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_execution_probe.cpp" "${probe_shader_header}")

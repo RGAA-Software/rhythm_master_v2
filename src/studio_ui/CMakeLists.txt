@@ -1,15 +1,27 @@
 add_library(studio_ui STATIC studio.cpp node_palette.cpp semantic_palette.cpp graph_canvas.cpp node_visual.cpp curve_editor.cpp expression_editor.cpp binding_editor.cpp component_panel.cpp component_workbench.cpp component_interface.cpp property_inspector.cpp asset_panel.cpp canvas_settings.cpp input_preview.cpp timeline_panel.cpp)
 target_sources(studio_ui PRIVATE time_section_editor.cpp time_track_editor.cpp)
 target_include_directories(studio_ui PUBLIC include)
-target_sources(studio_ui PRIVATE template_browser.cpp performance_panel.cpp component_library_panel.cpp preview_routing.cpp)
+target_sources(studio_ui PRIVATE shader_panel.cpp template_browser.cpp performance_panel.cpp component_library_panel.cpp preview_routing.cpp)
 target_link_libraries(studio_ui PUBLIC platform_sdl PRIVATE graph_runtime editor_application project_io
-    cyber_ui asset_store prepared_assets content_catalog semantic_catalog audio_ui player_core spike_imgui spike_node_editor nlohmann_json::nlohmann_json)
+    cyber_ui shader_authoring asset_store prepared_assets content_catalog semantic_catalog audio_ui player_core spike_imgui spike_node_editor nlohmann_json::nlohmann_json)
 rhythm_project_target(studio_ui)
 if(RHYTHM_BUILD_MEDIA)
     target_sources(studio_ui PRIVATE export_panel.cpp soundtrack_panel.cpp waveform_panel.cpp)
     target_link_libraries(studio_ui PRIVATE export_jobs music_authoring media_waveform)
 endif()
 if(BUILD_TESTING)
+    add_executable(shader_interaction_tests tests/shader_interaction_tests.cpp shader_panel.cpp)
+    target_include_directories(shader_interaction_tests PRIVATE .)
+    target_link_libraries(shader_interaction_tests PRIVATE shader_authoring prepared_assets editor_application spike_imgui nlohmann_json::nlohmann_json)
+    rhythm_project_target(shader_interaction_tests)
+    foreach(locale en-US zh-CN)
+        add_test(NAME shader_ui_${locale} COMMAND shader_interaction_tests "${RHYTHM_SHADERC}"
+            "${PROJECT_SOURCE_DIR}/third_party/sources/bgfx/src"
+            "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/varying.def.sc"
+            "${PROJECT_BINARY_DIR}/shader-ui-${locale}" "${PROJECT_SOURCE_DIR}/locales/${locale}/studio.json")
+        set_tests_properties(shader_ui_${locale} PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE ENVIRONMENT_MODIFICATION
+            "PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin;PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/bin;PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/debug/bin;PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin")
+    endforeach()
     if(RHYTHM_BUILD_MEDIA)
         add_executable(waveform_interaction_tests tests/waveform_interaction_tests.cpp waveform_panel.cpp)
         target_include_directories(waveform_interaction_tests PRIVATE .)

@@ -4,6 +4,7 @@
 #include <set>
 #include <stdexcept>
 
+#include "shader_assets.h"
 #include "video_assets.h"
 
 #if defined(RHYTHM_HAS_IMAGE_DECODER)
@@ -12,10 +13,15 @@
 
 namespace rhythm::prepared_assets {
 bool Covers(const graph::ExecutionPlan& plan, const Resources& resources) {
-    if (!resources.models_ || !resources.images_ || !model_assets::Covers(plan, *resources.models_))
+    if (!resources.models_ || !resources.images_ || !resources.shaders_ ||
+        !model_assets::Covers(plan, *resources.models_))
         return false;
     std::size_t video_instances = 0;
     for (const auto& instruction : plan.instructions_) {
+        if (instruction.operation_ == graph::Operation::kTextureShader) {
+            const auto& id = std::get<assets::AssetId>(instruction.node_.properties_.at("asset"));
+            if (!resources.shaders_->programs_.contains(id.sha256_)) return false;
+        }
         if (instruction.operation_ == graph::Operation::kTextureVideo) {
             if (++video_instances > 4) return false;
             const auto& id = std::get<assets::AssetId>(instruction.node_.properties_.at("asset"));
@@ -81,6 +87,7 @@ std::shared_ptr<const Resources> Prepare(const graph::ExecutionPlan& plan,
     if (stop.stop_requested()) throw std::runtime_error("asset.cancelled");
     result->images_ = std::move(images);
     result->videos_ = detail::PrepareVideos(plan, assets, stop);
+    result->shaders_ = detail::PrepareShaders(plan, assets, stop);
     return result;
 }
 }  // namespace rhythm::prepared_assets

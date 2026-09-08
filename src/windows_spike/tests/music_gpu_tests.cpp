@@ -62,9 +62,14 @@ int main(int argc, char* argv[]) {
                 instructions.begin(), instructions.end(), [](const auto& instruction) {
                     return instruction.operation_ == graph::Operation::kGeometryDeform;
                 });
+        const auto shaders = std::count_if(
+                instructions.begin(), instructions.end(), [](const auto& instruction) {
+                    return instruction.operation_ == graph::Operation::kTextureShader;
+                });
         if (instructions.size() != expected_nodes ||
             (bands < 24 && instance_fields == 0 &&
-             !((gpu_fields > 0 || materials > 0 || paths > 0 || deformations > 0) && bands >= 2)))
+             !((gpu_fields > 0 || materials > 0 || paths > 0 || deformations > 0 || shaders > 0) &&
+               bands >= 2)))
             throw std::runtime_error("music.full_graph_not_reachable");
         std::cout << "reachable_instructions=" << instructions.size() << " audio_bands=" << bands
                   << " gpu_particle_fields=" << gpu_fields

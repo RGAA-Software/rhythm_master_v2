@@ -8,3 +8,4 @@
 CMakeUserPresets.json
 *.user
 __pycache__/
+.writer

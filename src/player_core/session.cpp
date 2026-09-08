@@ -76,6 +76,7 @@ runtime::FrameResult Session::Tick(double monotonic_seconds, bool suspended, ren
         runtime::FrameContext context{Seconds(), generation_, extent, false};
         context.resources_ = resources_->models_;
         context.images_ = resources_->images_;
+        context.shaders_ = resources_->shaders_;
         context.videos_ = videos_.Update(package_->program_, *resources_, Seconds(), generation_);
         context.external_ =
                 Paused() && !discontinuity && !media_position_changed ? external_ : inputs;

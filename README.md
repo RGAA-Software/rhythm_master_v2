@@ -21,7 +21,9 @@ R4–R6 and visual/endurance acceptance continue.
 R4 starts with [ordered paths and tube geometry](docs/path_geometry.md), live path previews
 and the editable music-driven Aurora Braid work. [GPU twist/taper](docs/mesh_deformation.md)
 now shares mesh/image uploads across music changes and includes Torque Garden.
-User shaders and model animation remain separate R4 increments.
+[Image shader authoring](docs/image_shader.md) now supports dual-target compilation,
+immutable hot replacement, undo/redo and the editable Phase Loom work on Windows/Android.
+Model animation remains the next R4 increment.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

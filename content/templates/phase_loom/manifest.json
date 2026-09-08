@@ -1,0 +1,36 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.phase_loom",
+    "content_version": "0.1.0",
+    "project_id": "official-phase-loom",
+    "graph_revision": 0,
+    "title": "相位织光 / Phase Loom",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "相位织光",
+        "en-US": "Phase Loom"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "两层可编辑 Shader 干涉织带围绕频谱环展开，低频推动波面，中频改变光色，高频拓宽细丝。浮点近远辉光叠加后显式映射到显示；选中图像 Shader 节点可修改源码并为 Windows 与 Android 一起编译。",
+        "en-US": "Two editable interference shaders surround a spectrum ring: bass displaces waves, mids shift color, treble widens filaments. Floating near/far bloom is display-mapped explicitly. Select an Image shader node to edit source and compile Windows and Android together."
+    },
+    "assets": [
+        {
+            "sha256": "aa907f2a6ae4891e336cd7bc9d12a13918ee3232cdf824aca2d0a178421aae9f",
+            "bytes": 5979,
+            "media_type": "application/x-rhythm-image-shader"
+        }
+    ]
+}

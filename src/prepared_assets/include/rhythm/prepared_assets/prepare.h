@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rhythm/assets/images.h"
+#include "rhythm/image_shader/resources.h"
 #include "rhythm/media/video_frame.h"
 #include "rhythm/model_assets/prepare.h"
 
@@ -16,6 +17,8 @@ struct Resources {
     std::shared_ptr<const scene::Resources> models_ = std::make_shared<const scene::Resources>();
     std::shared_ptr<const assets::Images> images_ = std::make_shared<const assets::Images>();
     std::vector<VideoSource> videos_{};
+    std::shared_ptr<const image_shader::Resources> shaders_ =
+            std::make_shared<const image_shader::Resources>();
 };
 std::shared_ptr<const Resources> Prepare(const graph::ExecutionPlan& plan,
                                          std::span<const project::PackagedAsset> assets,

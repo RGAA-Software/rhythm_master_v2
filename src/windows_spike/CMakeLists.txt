@@ -7,9 +7,24 @@ rhythm_project_target(render_bgfx)
 include("${PROJECT_SOURCE_DIR}/cmake/RenderShaders.cmake")
 if(BUILD_TESTING)
     add_executable(windows_gpu_execution_probe tests/gpu_execution_probe.cpp)
+    add_dependencies(windows_gpu_execution_probe image_shader_source_tests image_shader_program_tests)
     target_link_libraries(windows_gpu_execution_probe PRIVATE platform_sdl gpu_execution_probe)
     rhythm_project_target(windows_gpu_execution_probe)
     add_test(NAME windows_gpu_execution_probe COMMAND windows_gpu_execution_probe)
+    add_test(NAME image_shader_profile COMMAND "${Python3_EXECUTABLE}"
+        "${PROJECT_SOURCE_DIR}/tools/test-image-shader-profile.py"
+        --source-test "$<TARGET_FILE:image_shader_source_tests>"
+        --program-test "$<TARGET_FILE:image_shader_program_tests>"
+        --compiler "${RHYTHM_SHADERC}" --output "${PROJECT_BINARY_DIR}/image-shader-profile")
+    set_tests_properties(image_shader_profile PROPERTIES TIMEOUT 90 RUN_SERIAL TRUE)
+    set_tests_properties(image_shader_profile PROPERTIES FIXTURES_SETUP image_shader_profile)
+    add_test(NAME shader_runtime COMMAND shader_runtime_tests
+        "${PROJECT_BINARY_DIR}/image-shader-profile/windows.bin"
+        "${PROJECT_BINARY_DIR}/image-shader-profile/android.bin")
+    set_tests_properties(shader_runtime PROPERTIES FIXTURES_REQUIRED image_shader_profile TIMEOUT 30)
+    add_test(NAME windows_image_program_gpu COMMAND windows_gpu_execution_probe
+        --image-program "${PROJECT_BINARY_DIR}/image-shader-profile/windows.bin")
+    set_tests_properties(windows_image_program_gpu PROPERTIES FIXTURES_REQUIRED image_shader_profile TIMEOUT 30 RUN_SERIAL TRUE)
     set_tests_properties(windows_gpu_execution_probe PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE)
 endif()
 add_library(platform_sdl STATIC host.cpp ui_bridge.cpp)
@@ -26,6 +41,7 @@ add_subdirectory(../audio_ui "${PROJECT_BINARY_DIR}/src/audio_ui")
 if(RHYTHM_BUILD_MEDIA)
     add_subdirectory(../export_jobs "${PROJECT_BINARY_DIR}/src/export_jobs")
 endif()
+add_subdirectory(../shader_authoring "${PROJECT_BINARY_DIR}/src/shader_authoring")
 add_subdirectory(../studio_ui "${PROJECT_BINARY_DIR}/src/studio_ui")
 add_executable(rhythm_master main.cpp)
 target_link_libraries(rhythm_master PRIVATE platform_sdl studio_ui graph_runtime)
@@ -51,6 +67,7 @@ file(GENERATE OUTPUT "${rhythm_deploy_config}" CONTENT
 runtime_dlls=$<TARGET_RUNTIME_DLLS:rhythm_master>
 configuration=$<CONFIG>
 compiler=${CMAKE_CXX_COMPILER}
+shaderc=${RHYTHM_SHADERC}
 source_root=${PROJECT_SOURCE_DIR}
 build_root=${PROJECT_BINARY_DIR}
 sdk=${RHYTHM_SPIKE_SDK}
@@ -139,6 +156,11 @@ if(BUILD_TESTING)
         target_link_libraries(export_gpu_tests PRIVATE export_core platform_sdl media_video)
         rhythm_project_target(export_gpu_tests)
         add_dependencies(export_gpu_tests runtime_builtin_content)
+        add_test(NAME phase_loom_export_gpu COMMAND export_gpu_tests
+            "${PROJECT_BINARY_DIR}/content/packages/phase_loom.rhythmpack"
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
+            "${PROJECT_BINARY_DIR}/phase-loom-export")
+        set_tests_properties(phase_loom_export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME torque_garden_export_gpu COMMAND export_gpu_tests
             "${PROJECT_BINARY_DIR}/content/packages/torque_garden.rhythmpack"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
@@ -230,6 +252,11 @@ if(BUILD_TESTING)
             --expected-nodes 76 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/aurora-braid-music-captures")
         set_tests_properties(aurora_braid_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME phase_loom_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
+            --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/phase_loom.rhythmpack"
+            --expected-nodes 23 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --output "${PROJECT_BINARY_DIR}/phase-loom-music-captures")
+        set_tests_properties(phase_loom_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME torque_garden_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
             --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/torque_garden.rhythmpack"
             --expected-nodes 66 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"

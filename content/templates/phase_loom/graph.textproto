@@ -1,0 +1,129 @@
+schema_version: 4
+id: "official-phase-loom"
+output: 23
+canvas { width: 1280 height: 720 }
+nodes { id: 1 type_key: "core.time" schema_version: 1
+}
+nodes { id: 2 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "time * 0.09" } }
+}
+nodes { id: 3 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 10 } }
+}
+nodes { id: 4 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 29 } }
+}
+nodes { id: 5 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 48 } }
+}
+nodes { id: 6 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.35 } }
+    properties { key: "output_max" value { scalar: 1 } }
+}
+nodes { id: 7 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.35 } }
+    properties { key: "output_max" value { scalar: 1 } }
+}
+nodes { id: 8 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.35 } }
+    properties { key: "output_max" value { scalar: 1 } }
+}
+nodes { id: 9 type_key: "texture.noise" schema_version: 1
+    properties { key: "noise_scale" value { scalar: 3.3 } }
+    properties { key: "contrast" value { scalar: 1.2 } }
+    properties { key: "seed" value { scalar: 733 } }
+    properties { key: "color_a" value { color { r: 0 g: 0 b: 0 a: 1 } } }
+    properties { key: "color_b" value { color { r: 1 g: 1 b: 1 a: 1 } } }
+}
+nodes { id: 10 type_key: "texture.shader" schema_version: 1
+    properties { key: "texture_precision" value { scalar: 2 } }
+    properties { key: "d" value { scalar: 0.0 } }
+    properties { key: "asset" value { asset_sha256: "aa907f2a6ae4891e336cd7bc9d12a13918ee3232cdf824aca2d0a178421aae9f" } }
+}
+nodes { id: 11 type_key: "texture.affine" schema_version: 1
+    properties { key: "rotation" value { scalar: 0 } }
+    properties { key: "scale" value { scalar: 1.0 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 12 type_key: "texture.shader" schema_version: 1
+    properties { key: "texture_precision" value { scalar: 2 } }
+    properties { key: "d" value { scalar: 1.57 } }
+    properties { key: "asset" value { asset_sha256: "aa907f2a6ae4891e336cd7bc9d12a13918ee3232cdf824aca2d0a178421aae9f" } }
+}
+nodes { id: 13 type_key: "texture.affine" schema_version: 1
+    properties { key: "rotation" value { scalar: 37 } }
+    properties { key: "scale" value { scalar: 0.86 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 14 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 0.45 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 15 type_key: "texture.spectrum" schema_version: 1
+    properties { key: "spectrum_layout" value { scalar: 1 } }
+    properties { key: "bar_count" value { scalar: 64 } }
+    properties { key: "spectrum_radius" value { scalar: 0.34 } }
+    properties { key: "spectrum_gain" value { scalar: 2.5 } }
+    properties { key: "bar_gap" value { scalar: 0.5 } }
+    properties { key: "color_a" value { color { r: 0.2 g: 0.8 b: 1 a: 1 } } }
+    properties { key: "color_b" value { color { r: 1 g: 0.35 b: 0.1 a: 1 } } }
+}
+nodes { id: 16 type_key: "texture.linearize" schema_version: 1
+}
+nodes { id: 17 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 0.6 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 18 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 2 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 19 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 14 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 20 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 0.65 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 21 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 0.5 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 22 type_key: "texture.display" schema_version: 1
+    properties { key: "exposure" value { scalar: 0.3 } }
+}
+nodes { id: 23 type_key: "output.texture" schema_version: 1
+}
+edges { id: 1 from: 1 to: 2 input: "time" }
+edges { id: 2 from: 3 to: 6 input: "value" }
+edges { id: 3 from: 4 to: 7 input: "value" }
+edges { id: 4 from: 5 to: 8 input: "value" }
+edges { id: 5 from: 2 to: 9 input: "phase" }
+edges { id: 6 from: 9 to: 10 input: "source" }
+edges { id: 7 from: 6 to: 10 input: "a" }
+edges { id: 8 from: 7 to: 10 input: "b" }
+edges { id: 9 from: 8 to: 10 input: "c" }
+edges { id: 10 from: 10 to: 11 input: "source" }
+edges { id: 11 from: 9 to: 12 input: "source" }
+edges { id: 12 from: 6 to: 12 input: "a" }
+edges { id: 13 from: 7 to: 12 input: "b" }
+edges { id: 14 from: 8 to: 12 input: "c" }
+edges { id: 15 from: 12 to: 13 input: "source" }
+edges { id: 16 from: 11 to: 14 input: "a" }
+edges { id: 17 from: 13 to: 14 input: "b" }
+edges { id: 18 from: 15 to: 16 input: "source" }
+edges { id: 19 from: 14 to: 17 input: "a" }
+edges { id: 20 from: 16 to: 17 input: "b" }
+edges { id: 21 from: 17 to: 18 input: "source" }
+edges { id: 22 from: 17 to: 19 input: "source" }
+edges { id: 23 from: 18 to: 20 input: "a" }
+edges { id: 24 from: 19 to: 20 input: "b" }
+edges { id: 25 from: 17 to: 21 input: "a" }
+edges { id: 26 from: 20 to: 21 input: "b" }
+edges { id: 27 from: 21 to: 22 input: "source" }
+edges { id: 28 from: 22 to: 23 input: "source" }

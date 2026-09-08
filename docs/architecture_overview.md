@@ -12,6 +12,11 @@ GPU/platform probes, graph/runtime/render contracts and per-increment deliveries
 It preserves the architecture boundaries below; long-duration soak testing moves
 to final integrated acceptance while focused functional checks remain incremental.
 
+R4 image expressions and compiled bundles stay in `image_shader`; `shader_authoring`
+owns the bounded host compiler worker. Prepared immutable assets flow through the same
+Studio/Player/export path, while Runtime alone caches RAII image programs. Native process
+and graphics types stay private. [Shader contracts](image_shader.md).
+
 R3 material slots retain graph producer IDs in Scene3D; Runtime resolves frame texture
 handles and pins indirect dependencies through scene capture and previews. Native
 samplers and MikkTSpace callbacks stay in private adapters. [Material contracts](material_pipeline.md).

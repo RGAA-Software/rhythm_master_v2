@@ -197,7 +197,8 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
                 int(command.texture_trail_.has_value()) + int(command.color_pipeline_.has_value()) +
                 int(command.depth_linearization_.has_value()) +
                 int(command.depth_of_field_.has_value()) +
-                int(command.environment_filter_.has_value());
+                int(command.environment_filter_.has_value()) +
+                int(command.image_program_.has_value());
         if (effects > 1) throw std::invalid_argument("render.effect_conflict");
         const auto bounded = [](float value, float minimum, float maximum) {
             return std::isfinite(value) && value >= minimum && value <= maximum;

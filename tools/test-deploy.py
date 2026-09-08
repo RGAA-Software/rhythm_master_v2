@@ -96,7 +96,7 @@ def main():
     stdout_text = (output / "stdout.log").read_text(encoding="utf-8", errors="replace")
     if return_code != 0:
         raise RuntimeError(f"Packaged app failed: 0x{return_code & 0xffffffff:08x}; see {output}")
-    for marker in ("gpu_frames=30", "visible_nodes=8/8 viewers=5 inline_previews=5"):
+    for marker in ("gpu_frames=30", "visible_nodes=8/8 viewers=5 signal_previews=3 inline_previews=8"):
         if marker not in stdout_text:
             raise RuntimeError(f"Smoke evidence missing: {marker}; see {output}")
     bundled_modules = {path.name.lower(): path for path in loaded if path.name.lower() in expected}

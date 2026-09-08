@@ -34,6 +34,7 @@
 #include "rhythm/runtime/viewers.h"
 #include "rhythm/video_sources/streams.h"
 #include "semantic_palette.h"
+#include "shader_panel.h"
 #include "template_browser.h"
 #include "timeline_panel.h"
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
@@ -46,6 +47,9 @@ class Studio::Impl final {
    public:
     Impl(const std::filesystem::path& resources, const std::filesystem::path& project)
         : project_(project) {
+        shader_panel_.SetTools({resources / "shader_tools/shaderc.exe",
+                                resources / "shader_tools/include",
+                                resources / "shader_tools/varying.def.sc"});
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         audio_panel_.SetDemoFile(resources / "content/audio/resonance_demo.wav");
 #endif
@@ -277,6 +281,8 @@ class Studio::Impl final {
                     status_ = Text(std::get<graph::Diagnostic>(edit).code_);
             }
         }
+        shader_panel_.Draw(history_->Current(), canvas_.Selection(), project_ / "assets",
+                           catalogs_.at(locale_));
         auto result = inspector_.Draw(history_->Current(), canvas_.Selection(), registry_, presets_,
                                       catalogs_.at(locale_), locale_);
         if (result.diagnostic_) status_ = Text(result.diagnostic_->code_);
@@ -287,6 +293,8 @@ class Studio::Impl final {
     }
     void Frame(platform::Host& host, render::Renderer& renderer, double seconds) {
         component_library_.Initialize(host.DataDirectory() / "Components");
+        if (!inspector_.Preview() && !timeline_.Preview())
+            if (auto shader = shader_panel_.Take(history_->Current())) Apply(std::move(*shader));
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         if (auto edit = soundtrack_panel_.Take(
                     history_->Current(),
@@ -370,6 +378,7 @@ class Studio::Impl final {
                         [&](const auto& instruction) {
                             if (instruction.operation_ != graph::Operation::kGeometryGlb &&
                                 instruction.operation_ != graph::Operation::kTextureImage &&
+                                instruction.operation_ != graph::Operation::kTextureShader &&
                                 instruction.operation_ != graph::Operation::kTextureVideo)
                                 return true;
                             const auto& id = std::get<assets::AssetId>(
@@ -448,6 +457,7 @@ class Studio::Impl final {
             runtime::FrameContext frame{playback_seconds, reset_, extent, viewer_due};
             frame.resources_ = prepared_resources_->models_;
             frame.images_ = prepared_resources_->images_;
+            frame.shaders_ = prepared_resources_->shaders_;
             frame.videos_ = videos_.Update(*plan_, *prepared_resources_, playback_seconds, reset_);
             if (!videos_.Error().empty()) status_ = Text("video.playback_failed");
             if (!timeline_.Paused() || transport_changed || audio_frame.playback_) {
@@ -633,6 +643,7 @@ class Studio::Impl final {
     std::shared_ptr<const prepared_assets::Resources> prepared_resources_ =
             std::make_shared<const prepared_assets::Resources>();
     AssetPanel assets_{};
+    ShaderPanel shader_panel_{};
     std::optional<graph::ExecutionPlan> plan_{};
     runtime::Runtime runtime_{};
     video_sources::Streams videos_{};

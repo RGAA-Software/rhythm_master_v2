@@ -78,6 +78,7 @@ void RenderExport(const project::RuntimePackage& package, const ExportSettings& 
             runtime::FrameContext context{seconds, 1, extent, false};
             context.resources_ = resources->models_;
             context.images_ = resources->images_;
+            context.shaders_ = resources->shaders_;
             context.videos_ = videos.Resolve(package.program_, *resources, seconds, 1, stop);
             context.external_.audio_ = soundtrack.Features();
             context.retained_textures_ = std::vector<graph::NodeId>{};

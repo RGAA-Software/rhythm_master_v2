@@ -30,6 +30,7 @@ std::string_view Category(graph::Operation operation) {
         case kGradient:
         case kShape:
         case kTextureNoise:
+        case kTextureShader:
         case kTextureImage:
         case kTextureVideo:
             return "palette.generators";

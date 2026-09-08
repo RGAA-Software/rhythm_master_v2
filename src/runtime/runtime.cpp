@@ -25,6 +25,7 @@ void Runtime::Impl::Reset() {
     white_ = {};
     point_sprite_ = {};
     images_ = {};
+    shaders_ = {};
     videos_ = {};
     document_id_.clear();
     extent_ = {};
@@ -60,6 +61,9 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
         white_ = renderer.CreateTexture({1, 1}, white);
     }
     images_.Retain(plan, images);
+    static const image_shader::Resources kNoShaders;
+    const auto& shaders = frame.shaders_ ? *frame.shaders_ : kNoShaders;
+    shaders_.Retain(plan, shaders);
     videos_.Prepare(plan, frame.videos_, renderer);
     std::set<graph::NodeId> active;
     for (const auto& instruction : plan.instructions_) active.insert(instruction.node_.id_);
@@ -139,7 +143,9 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                                 {value.node_, value.version_, value.texture_.device_,
                                  value.texture_.slot_, value.texture_.generation_});
             }
-        if (operation == graph::Operation::kTime || operation == graph::Operation::kTextureTrail ||
+        if (operation == graph::Operation::kTime ||
+            (operation == graph::Operation::kTextureShader && !instruction.inputs_[1]) ||
+            operation == graph::Operation::kTextureTrail ||
             operation == graph::Operation::kParticleEmitter ||
             operation == graph::Operation::kGpuParticleEmitter ||
             operation == graph::Operation::kPointPhysics)
@@ -188,6 +194,15 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                     if (!state.target_.Handle().device_)
                         state.target_ = renderer.CreateTexture(extent, {}, precision);
                     renderer.Submit(state.target_.Handle(), videos_.Draw(node, extent), 0x00000000);
+                    state.output_.texture_ = state.target_.Handle();
+                    break;
+                }
+                case graph::Operation::kTextureShader: {
+                    if (!state.target_.Handle().device_) state.target_ = acquire(extent, precision);
+                    renderer.Submit(state.target_.Handle(),
+                                    shaders_.Draw(instruction, result.outputs_, frame.seconds_,
+                                                  white_.Handle(), extent, shaders, renderer),
+                                    0);
                     state.output_.texture_ = state.target_.Handle();
                     break;
                 }

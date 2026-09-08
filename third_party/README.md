@@ -33,10 +33,13 @@ source-pinned compiler is still pending; binary use does not close the shader to
 A separate Compute probe uses a read-only shaderc 1.19.157 candidate from the old
 build (`cmake-build-qt6/generated/bgfx_tools/bin/shaderc.exe`), SHA-256
 `6f310cf7091937aab1f1dc0b4bdafcc5c317bc789d0fc2b82f46a28e29f143b5`.
-It produces new artifacts only under this project's `out/`; it is not copied
-into or distributed with Studio. Compute execution and failed/stale publication
-tests passed. Rebuilding the compiler from recorded sources, its embedded tool
-dependencies and its redistribution remain separate pending work.
+The original probe produced artifacts only under this project's `out/`. R4 now also
+uses the validated tool for bounded authoring jobs and copies it into the local Studio
+acceptance bundle. `provenance/shaderc_host.json` records its hash, parent source
+revision, 709 translation-unit hashes and referenced build projects. Compiler component
+licenses and per-file notices are retained in `notices/shaderc`; no sources or binary
+were modified. Rebuilding the compiler inside this project and proving reproducibility
+remain pending. See `docs/image_shader.md` for the exact delivered profile.
 
 Embedded source records:
 
@@ -186,3 +189,8 @@ Copyright 2014–2021 Adobe. SIL Open Font License 1.1 and exact provenance are 
 in `notices/noto-cjk` and `provenance/noto_cjk.json`. The font is retained only as an unused reference after the user restored Microsoft
 YaHei. New deployments no longer copy this font; retained notices cover older
 local bundles that may still contain the experiment. No Windows system font is copied.
+
+R4 lexer reuse: `stb_c_lexer.h` is included privately from installed vcpkg packages,
+with the MIT alternative selected and dual notices retained in `notices/stb-lexer`.
+Exact revisions and the bounded identifier compatibility adapter are recorded in
+`provenance/stb_lexer.json`. No stb media decoder is introduced.

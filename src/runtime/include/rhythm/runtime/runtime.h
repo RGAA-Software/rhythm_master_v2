@@ -4,6 +4,7 @@
 
 #include "rhythm/assets/images.h"
 #include "rhythm/graph/compiler.h"
+#include "rhythm/image_shader/resources.h"
 #include "rhythm/particles/types.h"
 #include "rhythm/render/budget.h"
 #include "rhythm/render/renderer.h"
@@ -31,6 +32,7 @@ struct FrameContext {
     // listed node textures survive evaluation. Other outputs have empty handles.
     std::optional<std::vector<graph::NodeId>> retained_textures_{};
     bool profile_nodes_ = false;
+    std::shared_ptr<const image_shader::Resources> shaders_{};
     bool operator==(const FrameContext&) const = default;
 };
 // Observers of a scene capture, with the exact projection used to write depth.

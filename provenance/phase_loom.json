@@ -1,0 +1,15 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "source_file": "Operators/Lib/Assets/shaders/img/generate/RadialGradient.hlsl",
+    "sha256": "01a61b0ee56dea1d75d207b15e836cc1c9c583081f1b63fc9a3838488b25ac67",
+    "license": "MIT",
+    "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+    "imported_file": "third_party/sources/tixl-effects/RadialGradient.hlsl",
+    "target": "tools/author-phase-loom.py",
+    "modifications": [
+        "Adapt centered UV and X aspect correction before radial distance to the constrained expression profile.",
+        "Do not import upstream gradient texture, bias, hash or blending includes; compose first-party interference/palette with existing graph operators."
+    ],
+    "validation": "23-node Phase Loom real-PCM image differences and MP4 checks passed on Windows; installed Android built-in selection and music playback checked on Adreno 650."
+}

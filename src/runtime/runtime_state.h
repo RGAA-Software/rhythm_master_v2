@@ -7,6 +7,7 @@
 #include "point_physics.h"
 #include "scene_capture.h"
 #include "scene_pass.h"
+#include "shader_pass.h"
 #include "texture_lifetimes.h"
 #include "trail_pass.h"
 #include "video_pass.h"
@@ -27,6 +28,7 @@ class Runtime::Impl final {
         std::uint64_t reset_generation_ = 0;
         std::shared_ptr<const scene::Resources> resources_{};
         std::shared_ptr<const assets::Images> images_{};
+        std::shared_ptr<const image_shader::Resources> shaders_{};
         std::optional<std::vector<graph::NodeId>> retained_{};
         render::Budget budget_ = render::Budget::kTextureBytes;
     };
@@ -61,6 +63,7 @@ class Runtime::Impl final {
     render::Texture white_{};
     render::Texture point_sprite_{};
     detail::ImageUploads images_{};
+    detail::ShaderPrograms shaders_{};
     detail::VideoUploads videos_{};
     std::string document_id_{};
     std::uint64_t reset_generation_ = 0;

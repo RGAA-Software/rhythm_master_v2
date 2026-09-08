@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <filesystem>
 #include <span>
 
 namespace rhythm::render {
@@ -16,6 +17,7 @@ void VerifyMaterialTextures(render::Renderer& renderer);
 void VerifyModelImages(render::Renderer& renderer);
 void VerifyEnvironmentLighting(render::Renderer& renderer);
 void VerifyMeshDeformation(render::Renderer& renderer);
+void VerifyImageProgram(render::Renderer& renderer, const std::filesystem::path& path);
 void VerifySceneShadows(render::Renderer& renderer);
 void VerifyColorPipeline(render::Renderer& renderer);
 void VerifyGpuParticles(render::Renderer& renderer);

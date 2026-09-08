@@ -118,6 +118,22 @@ def deploy(config):
         copy_file(source, destination / source.name)
     copy_file(executable, destination / executable.name)
     source_root = Path(config["source_root"])
+    if config.get("shaderc"):
+        # Studio authoring uses a separate validated host tool. Player needs only
+        # the immutable compiled assets already inside its works.
+        shaderc = Path(config["shaderc"])
+        provenance = json.loads((source_root / "provenance/shaderc_host.json").read_text(encoding="utf-8"))
+        if hashlib.sha256(shaderc.read_bytes()).hexdigest() != provenance["compiler_sha256"]:
+            raise RuntimeError("Shader compiler differs from the validated host profile")
+        compiler_config = dict(config, executable=str(shaderc), runtime_dlls="")
+        compiler_dependencies = resolve_dependencies(compiler_config)
+        for tool_root in (executable.parent / "shader_tools", destination / "shader_tools"):
+            copy_file(shaderc, tool_root / "shaderc.exe")
+            for dependency in compiler_dependencies.values():
+                copy_file(dependency, tool_root / dependency.name)
+            copy_file(source_root / "third_party/sources/bgfx/src/bgfx_shader.sh", tool_root / "include/bgfx_shader.sh")
+            copy_file(source_root / "src/rhythm_render/shaders/varying.def.sc", tool_root / "varying.def.sc")
+            copy_file(source_root / "provenance/shaderc_host.json", tool_root / "validated-profile.json")
     copy_tree(Path(config["build_root"]) / "content", destination / "content")
     copy_tree(source_root / "locales", destination / "locales")
     copy_tree(source_root / "third_party/notices", destination / "notices")

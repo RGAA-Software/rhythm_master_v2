@@ -23,6 +23,7 @@ FrameResult Runtime::Impl::EvaluateSafely(const graph::ExecutionPlan& plan, Fram
         if (failure_->extent_ == frame.extent_ &&
             failure_->reset_generation_ == frame.reset_generation_ &&
             failure_->resources_ == frame.resources_ && failure_->images_ == frame.images_ &&
+            failure_->shaders_ == frame.shaders_ &&
             failure_->retained_ == frame.retained_textures_ &&
             detail::SamePlan(failure_->plan_, plan))
             return Rejected(failure_->budget_, frame.extent_);
@@ -34,13 +35,9 @@ FrameResult Runtime::Impl::EvaluateSafely(const graph::ExecutionPlan& plan, Fram
         // Submitted commands retire at EndFrame. Backend RAII destruction is
         // deferred; no partially evaluated or stale handles escape to host UI.
         Reset();
-        failure_ = Failure{plan,
-                           frame.extent_,
-                           frame.reset_generation_,
-                           frame.resources_,
-                           frame.images_,
-                           frame.retained_textures_,
-                           error.Kind()};
+        failure_ =
+                Failure{plan,          frame.extent_,  frame.reset_generation_,  frame.resources_,
+                        frame.images_, frame.shaders_, frame.retained_textures_, error.Kind()};
         return Rejected(error.Kind(), frame.extent_);
     }
 }

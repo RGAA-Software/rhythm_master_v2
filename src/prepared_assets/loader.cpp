@@ -18,6 +18,7 @@ LoadResult Load(LoadRequest request, std::stop_token stop) {
         for (const auto& instruction : result.plan_.instructions_)
             if ((instruction.operation_ == graph::Operation::kGeometryGlb ||
                  instruction.operation_ == graph::Operation::kTextureImage ||
+                 instruction.operation_ == graph::Operation::kTextureShader ||
                  instruction.operation_ == graph::Operation::kTextureVideo))
                 required.insert(std::get<assets::AssetId>(instruction.node_.properties_.at("asset"))
                                         .sha256_);

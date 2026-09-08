@@ -26,6 +26,7 @@ RENDER_ADAPTERS = {
         "bgfx_gpu_points.h", "bgfx_gpu_points.cpp",
         "bgfx_texture_programs.h", "bgfx_texture_programs.cpp")
 }
+RENDER_ADAPTERS.update({"src/rhythm_render/src/bgfx_image_programs.h", "src/rhythm_render/src/bgfx_image_programs.cpp"})
 
 # This isolated R0 probe deliberately validates native buffer bindings; its public
 # test entry point exposes only project types and a bounded byte span.
@@ -39,12 +40,16 @@ def without_comments(text):
 def main():
     failures = []
     checked = 0
-    for module in ("graph", "runtime", "parameters", "particles", "scene3d", "model_assets", "prepared_assets", "video_playback", "video_sources", "export_core", "audio_analysis", "audio_playback", "cluster", "cluster_auth", "cluster_player", "foundation", "qr", "player_core", "editor_application", "rhythm_render"):
+    for module in ("graph", "runtime", "parameters", "particles", "scene3d", "image_shader", "model_assets", "prepared_assets", "video_playback", "video_sources", "export_core", "audio_analysis", "audio_playback", "cluster", "cluster_auth", "cluster_player", "foundation", "qr", "player_core", "editor_application", "rhythm_render"):
         for path in (ROOT / "src" / module).rglob("*"):
             if path.suffix not in (".h", ".cpp") or path.relative_to(ROOT).as_posix() in RENDER_ADAPTERS:
                 continue
             code = without_comments(path.read_text(encoding="utf-8-sig"))
             for included in re.findall(r"^\s*#\s*include\s*[<\"]([^>\"]+)", code, re.M):
+                # This is a generated GLSL include inside a C++ raw string, not
+                # a C++ backend dependency. Keep the exception file/name exact.
+                if path.relative_to(ROOT).as_posix() == "src/image_shader/source.cpp" and included == "bgfx_shader.sh":
+                    continue
                 if FORBIDDEN.search(included):
                     failures.append(f"{path.relative_to(ROOT)}: forbidden include {included}")
             checked += 1

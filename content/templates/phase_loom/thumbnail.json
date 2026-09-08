@@ -1,0 +1,14 @@
+{
+    "template": "phase_loom",
+    "package_sha256": "21beb1c43b52ef93c8569e0cb8de54cb0fd1e77cc628cf2cfea4a2623872c865",
+    "thumbnail_sha256": "83bdab66b1c7536a27617b29832e73af8b0ce3548e8e9032ef3d4ecb7aef72f8",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

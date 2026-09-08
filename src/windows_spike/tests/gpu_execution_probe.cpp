@@ -4,11 +4,15 @@
 #include <iostream>
 
 #include "rhythm/platform/host.h"
-int main() {
+int main(int argc, char* argv[]) {
     try {
         std::array<std::uint8_t, 32 * 16 * 4> pixels{};
         rhythm::platform::Host host(true);
         auto renderer = host.CreateRenderer();
+        if (argc == 3 && std::string_view(argv[1]) == "--image-program") {
+            rhythm::validation::VerifyImageProgram(renderer, std::filesystem::path(argv[2]));
+            return 0;
+        }
         rhythm::validation::VerifyGpuExecution(pixels);
         rhythm::validation::VerifySceneInstances(renderer);
         rhythm::validation::VerifyGpuParticles(renderer);

@@ -24,6 +24,12 @@ class Backend {
         throw std::logic_error("render.sampleable_depth_unsupported");
     }
     virtual bool SupportsGpuPoints() const { return false; }
+    virtual ImageProgramTarget ImageTarget() const { return ImageProgramTarget::kWindowsSm5; }
+    virtual ImageProgramHandle CreateImageProgram(std::span<const std::uint8_t>) {
+        throw std::logic_error("render.image_program_unsupported");
+    }
+    virtual void ReleaseImageProgram(ImageProgramHandle) noexcept {}
+    virtual bool IsValid(ImageProgramHandle) const { return false; }
     virtual GpuPointHandle CreateGpuPoints(std::uint32_t) {
         throw std::logic_error("render.gpu_points_unsupported");
     }

@@ -328,3 +328,7 @@ an actual Studio-published soundtrack drives Adreno GLES pixels. This adds no
 decoder, package-library or device-output dependency. See
 `validation/work_soundtrack_2026-09-08.md` for the retained limits and pending
 Android application acceptance.
+
+## R4 图像 Shader 增量验证（2026-09-08）
+
+私有词法适配直接使用 vcpkg 已安装 stb C lexer（两端版本、MIT 选择和兼容差异见 `provenance/stb_lexer.json`）。既有 shaderc 1.19.157 已验证 Windows s_5_0 / Android 300_es 的 FSH12 固定绑定、实际像素和作者编译闭环；本地 Studio 部署携带独立工具与完整已记录通知。当前 triplet 未安装 bgfx tools，已检查 port 1.129.8940-496#1，其与当前后端兼容性未验证，不更换共享包或 graphics ABI。现有工具来源、709 个编译源文件与二进制哈希见 `provenance/shaderc_host.json`；在本项目重建工具及可复现性仍待办。该结果仅确认受约束图像 profile，不确认通用材质/compute 或 Apple 编译。详见 [实现与验证](image_shader.md)。

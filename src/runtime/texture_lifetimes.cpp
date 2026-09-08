@@ -19,6 +19,7 @@ bool DynamicSource(graph::Operation operation) {
         case kFeedback:
         case kTextureTrail:
         case kTextureVideo:
+        case kTextureShader:
         case kParticleEmitter:
         case kGpuParticleEmitter:
         case kPointPhysics:
@@ -50,6 +51,7 @@ bool OrdinaryTarget(graph::Operation operation) {
         case kTextureContours:
         case kTextureDisplace:
         case kTextureStack:
+        case kTextureShader:
             return true;
         default:
             return false;

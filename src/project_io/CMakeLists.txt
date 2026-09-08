@@ -30,6 +30,7 @@ foreach(manifest IN LISTS template_manifests)
     get_filename_component(source_dir "${manifest}" DIRECTORY)
     get_filename_component(template_name "${source_dir}" NAME)
     set(output_dir "${PROJECT_BINARY_DIR}/content/templates/${template_name}")
+    file(GLOB template_assets CONFIGURE_DEPENDS "${source_dir}/assets/sha256/*/*")
     file(GLOB template_thumbnails CONFIGURE_DEPENDS "${source_dir}/thumbnail.rgba" "${source_dir}/thumbnail.json")
     list(APPEND template_names "${template_name}")
     list(APPEND template_products "${output_dir}/graph.pb" "${output_dir}/manifest.json" "${output_dir}/editor.json")
@@ -37,7 +38,7 @@ foreach(manifest IN LISTS template_manifests)
         COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/compile-content.py"
             "${RHYTHM_PROTOC}" "${schema}" "${source_dir}" "${output_dir}"
         DEPENDS "${schema}" "${source_dir}/graph.textproto" "${manifest}"
-            "${source_dir}/editor.json" ${template_thumbnails} "${PROJECT_SOURCE_DIR}/tools/compile-content.py" VERBATIM)
+            "${source_dir}/editor.json" ${template_thumbnails} ${template_assets} "${PROJECT_SOURCE_DIR}/tools/compile-content.py" VERBATIM)
 endforeach()
 add_custom_target(phase_a_content ALL DEPENDS ${template_products})
 if(NOT CMAKE_CROSSCOMPILING)

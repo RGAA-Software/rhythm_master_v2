@@ -341,6 +341,11 @@ void VerifyAffine(rhythm::render::Renderer& renderer) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+        if (argc == 3 && std::string_view(argv[1]) == "--image-program") {
+            auto renderer = platform::Host::CreateRenderer();
+            validation::VerifyImageProgram(renderer, std::filesystem::path(argv[2]));
+            return 0;
+        }
         if (argc == 2 && std::string_view(argv[1]) == "--execution-probe") {
             std::array<std::uint8_t, 32 * 16 * 4> pixels{};
             auto renderer = platform::Host::CreateRenderer();

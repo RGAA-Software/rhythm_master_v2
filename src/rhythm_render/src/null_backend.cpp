@@ -2,6 +2,7 @@
 
 #include "backend.h"
 #include "gpu_point_store.h"
+#include "image_program_store.h"
 #include "mesh_store.h"
 #include "resource_table.h"
 #include "rhythm/render/budget.h"
@@ -51,6 +52,18 @@ class NullBackend final : public Backend {
     GpuPointHandle CreateGpuPoints(std::uint32_t capacity) override {
         resources_.CheckReady();
         return points_.Allocate(capacity);
+    }
+    ImageProgramHandle CreateImageProgram(std::span<const std::uint8_t> artifact) override {
+        resources_.CheckReady();
+        return image_programs_.Allocate(artifact);
+    }
+    void ReleaseImageProgram(ImageProgramHandle handle) noexcept override {
+        resources_.CheckThread();
+        image_programs_.Release(handle);
+    }
+    bool IsValid(ImageProgramHandle handle) const override {
+        resources_.CheckThread();
+        return image_programs_.IsValid(handle);
     }
     void ReleaseGpuPoints(GpuPointHandle handle) noexcept override {
         resources_.CheckThread();
@@ -115,6 +128,8 @@ class NullBackend final : public Backend {
     void Submit(TextureHandle target, const DrawList& list, std::uint32_t) override {
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         resources_.Validate(target, list);
+        for (const auto& command : list.commands_)
+            if (command.image_program_) image_programs_.Validate(*command.image_program_);
         // Reserve the last 16 views for host/UI presentation after graph admission fails.
         if (passes_ >= (target == TextureHandle{} ? 256U : 240U))
             throw BudgetExceeded(Budget::kPasses);
@@ -132,6 +147,7 @@ class NullBackend final : public Backend {
         auto stats = resources_.Stats();
         meshes_.AddStats(stats);
         points_.AddStats(stats);
+        image_programs_.AddStats(stats);
         stats.frame_ = frame_;
         stats.passes_ = passes_;
         stats.draws_ = draws_;
@@ -142,12 +158,14 @@ class NullBackend final : public Backend {
         resources_.Invalidate();
         meshes_.Invalidate();
         points_.Invalidate();
+        image_programs_.Invalidate();
     }
 
    private:
     ResourceTable resources_{};
     MeshStore meshes_{resources_.DeviceId()};
     GpuPointStore points_{resources_.DeviceId()};
+    ImageProgramStore image_programs_{resources_.DeviceId()};
     bool in_frame_ = false;
     std::uint64_t frame_ = 0;
     std::uint32_t passes_ = 0;

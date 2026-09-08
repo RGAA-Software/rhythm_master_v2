@@ -13,6 +13,7 @@
 
 #include "bgfx_gpu_points.h"
 #include "bgfx_handles.h"
+#include "bgfx_image_programs.h"
 #include "bgfx_readbacks.h"
 #include "bgfx_scene.h"
 #include "bgfx_texture_programs.h"
@@ -236,6 +237,27 @@ class BgfxBackend final : public Backend {
         if (!gpu_points_) gpu_points_ = std::make_unique<BgfxGpuPoints>(resources_.DeviceId());
         return gpu_points_->Create(capacity);
     }
+    ImageProgramTarget ImageTarget() const override {
+#if BX_PLATFORM_ANDROID
+        return ImageProgramTarget::kGles300;
+#else
+        return ImageProgramTarget::kWindowsSm5;
+#endif
+    }
+    ImageProgramHandle CreateImageProgram(std::span<const std::uint8_t> artifact) override {
+        resources_.CheckReady();
+        if (!image_programs_)
+            image_programs_ = std::make_unique<BgfxImagePrograms>(resources_.DeviceId());
+        return image_programs_->Create(artifact);
+    }
+    void ReleaseImageProgram(ImageProgramHandle handle) noexcept override {
+        resources_.CheckThread();
+        if (image_programs_) image_programs_->Release(handle);
+    }
+    bool IsValid(ImageProgramHandle handle) const override {
+        resources_.CheckThread();
+        return image_programs_ && image_programs_->IsValid(handle);
+    }
     void ReleaseGpuPoints(GpuPointHandle handle) noexcept override {
         resources_.CheckThread();
         if (gpu_points_) gpu_points_->Release(handle);
@@ -321,6 +343,11 @@ class BgfxBackend final : public Backend {
     void Submit(TextureHandle target, const DrawList& list, std::uint32_t clear) override {
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         resources_.Validate(target, list);
+        for (const auto& command : list.commands_) {
+            if (!command.image_program_) continue;
+            if (!image_programs_) throw std::invalid_argument("render.image_program_input");
+            image_programs_->Validate(*command.image_program_);
+        }
         resources_.RecordSamples(list);
         // Reserve the last 16 views for host/UI presentation after graph admission fails.
         if (passes_ >= (target == TextureHandle{} ? 256U : 240U))
@@ -419,11 +446,16 @@ class BgfxBackend final : public Backend {
                              : command.texture_trail_    ? command.texture_trail_->history_
                              : command.texture_displace_ ? command.texture_displace_->map_
                                                          : command.texture_;
-            texture_programs_->Submit(
-                    view, command, resources_.Size(command.texture_), list.width_ / list.height_,
-                    textures_[command.texture_.slot_].texture_.Get(), resources_.Size(map),
-                    textures_[map.slot_].texture_.Get(),
-                    IsValid(target) && resources_.Precision(target) == TexturePrecision::kFloat16);
+            if (command.image_program_)
+                image_programs_->Submit(view, *command.image_program_,
+                                        textures_[command.texture_.slot_].texture_.Get(), extent);
+            else
+                texture_programs_->Submit(view, command, resources_.Size(command.texture_),
+                                          list.width_ / list.height_,
+                                          textures_[command.texture_.slot_].texture_.Get(),
+                                          resources_.Size(map), textures_[map.slot_].texture_.Get(),
+                                          IsValid(target) && resources_.Precision(target) ==
+                                                                     TexturePrecision::kFloat16);
             ++draws_;
         }
     }
@@ -439,6 +471,7 @@ class BgfxBackend final : public Backend {
         auto stats = resources_.Stats();
         if (scene_) scene_->AddStats(stats);
         if (gpu_points_) gpu_points_->AddStats(stats);
+        if (image_programs_) image_programs_->AddStats(stats);
         stats.frame_ = frame_;
         stats.passes_ = passes_;
         stats.draws_ = draws_;
@@ -451,6 +484,7 @@ class BgfxBackend final : public Backend {
         resources_.Invalidate();
         if (scene_) scene_->Invalidate();
         if (gpu_points_) gpu_points_->Invalidate();
+        if (image_programs_) image_programs_->Invalidate();
     }
 
    private:
@@ -468,6 +502,7 @@ class BgfxBackend final : public Backend {
     std::vector<Entry> textures_{};
     std::unique_ptr<BgfxScene> scene_{};
     std::unique_ptr<BgfxGpuPoints> gpu_points_{};
+    std::unique_ptr<BgfxImagePrograms> image_programs_{};
     bgfx::VertexLayout layout_{};
     std::optional<BgfxTexturePrograms> texture_programs_{};
     bool in_frame_ = false;

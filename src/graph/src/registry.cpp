@@ -318,6 +318,21 @@ Registry::Registry() {
                            {"trail_zoom_rate", 0.0, -0.5, 0.5},
                            {"trail_rotation_rate", 0.0, -180, 180}},
                           true});
+    operators_.push_back({"texture.shader",
+                          Operation::kTextureShader,
+                          Type::kTexture,
+                          {{"source", Type::kTexture, false},
+                           {"time", Type::kScalar, false},
+                           {"a", Type::kScalar, false},
+                           {"b", Type::kScalar, false},
+                           {"c", Type::kScalar, false},
+                           {"d", Type::kScalar, false}},
+                          {{"asset", assets::AssetId{}},
+                           {"a", 0.0, -1e6, 1e6},
+                           {"b", 0.0, -1e6, 1e6},
+                           {"c", 0.0, -1e6, 1e6},
+                           {"d", 0.0, -1e6, 1e6}},
+                          true});
     AppendDepthDescriptors(operators_);
     AppendColorDescriptors(operators_);
 }
