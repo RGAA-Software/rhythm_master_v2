@@ -1,21 +1,16 @@
 package org.rhythmmaster.player;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
+import java.util.Locale;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -23,9 +18,12 @@ import org.json.JSONObject;
 final class EffectCatalog {
     interface Selection { void Select(String asset); }
 
-    private static final class Entry {
+    static final class Entry {
         String title_ = "";
         String asset_ = "";
+        String description_ = "";
+        String search_ = "";
+        String tier_ = "example";
         int width_ = 0;
         int height_ = 0;
         boolean audio_ = false;
@@ -52,6 +50,13 @@ final class EffectCatalog {
             Entry entry = new Entry();
             entry.title_ = record.getJSONObject("titles").getString(chinese ? "zh-CN" : "en-US");
             entry.asset_ = record.getString("package");
+            JSONObject titles = record.getJSONObject("titles");
+            JSONObject descriptions = record.getJSONObject("descriptions");
+            entry.description_ = descriptions.getString(chinese ? "zh-CN" : "en-US");
+            entry.tier_ = record.getString("tier");
+            entry.search_ = (record.getString("id") + " " + titles.getString("zh-CN") + " " +
+                    titles.getString("en-US") + " " + descriptions.getString("zh-CN") + " " +
+                    descriptions.getString("en-US")).toLowerCase(Locale.ROOT);
             entry.width_ = record.getJSONObject("canvas").getInt("width");
             entry.height_ = record.getJSONObject("canvas").getInt("height");
             entry.audio_ = record.getBoolean("audio");
@@ -71,38 +76,6 @@ final class EffectCatalog {
     }
 
     void Show(Activity activity, Selection selection) {
-        final int preview_width = (int) (96 * activity.getResources().getDisplayMetrics().density);
-        BaseAdapter adapter = new BaseAdapter() {
-            @Override public int getCount() { return entries_.size(); }
-            @Override public Object getItem(int position) { return entries_.get(position); }
-            @Override public long getItemId(int position) { return position; }
-            @Override public View getView(int position, View recycled, ViewGroup parent) {
-                LinearLayout row;
-                if (recycled instanceof LinearLayout) {
-                    row = (LinearLayout) recycled;
-                } else {
-                    row = new LinearLayout(activity);
-                    row.setGravity(android.view.Gravity.CENTER_VERTICAL);
-                    row.setPadding(16, 8, 16, 8);
-                    ImageView preview = new ImageView(activity);
-                    preview.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                    row.addView(preview, new LinearLayout.LayoutParams(preview_width, preview_width * 9 / 16));
-                    TextView text = new TextView(activity);
-                    text.setTextSize(16);
-                    text.setPadding(20, 0, 0, 0);
-                    row.addView(text, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-                }
-                Entry entry = entries_.get(position);
-                ((ImageView) row.getChildAt(0)).setImageBitmap(entry.thumbnail_);
-                int shape = entry.width_ > entry.height_ ? R.string.landscape_effect :
-                        entry.width_ < entry.height_ ? R.string.portrait_effect : R.string.square_effect;
-                ((TextView) row.getChildAt(1)).setText(entry.title_ + "\n" + activity.getString(shape) +
-                        (entry.audio_ ? " · " + activity.getString(R.string.music_driven) : ""));
-                return row;
-            }
-        };
-        new AlertDialog.Builder(activity).setTitle(R.string.choose_effect)
-                .setAdapter(adapter, (dialog, index) -> selection.Select(entries_.get(index).asset_))
-                .setNegativeButton(android.R.string.cancel, null).show();
+        EffectPicker.Show(activity, Collections.unmodifiableList(entries_), selection);
     }
 }

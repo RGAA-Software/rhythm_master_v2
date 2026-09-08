@@ -1,0 +1,24 @@
+{
+    "ownership": "first-party",
+    "baseline": "b850cf4",
+    "source_files": [
+        "platforms/android/java/org/rhythmmaster/player/EffectCatalog.java",
+        "tools/android_effects.py"
+    ],
+    "imported_third_party_files": [],
+    "platform_reuse": [
+        "Android SDK SearchView, Spinner, ListView and BaseAdapter",
+        "Android SDK AlertDialog and input-method APIs"
+    ],
+    "modifications": [
+        "Separate immutable APK catalog loading from native picker presentation.",
+        "Index both languages for search; intersect tier and canvas-orientation filters.",
+        "Select the visible entry's package identity and retain the existing Player import workflow.",
+        "Include and verify author-provided tier and localized descriptions in APK metadata."
+    ],
+    "target_modules": [
+        "Android Player host UI",
+        "Android APK packaging"
+    ],
+    "license_status": "Project-owned adapters; repository outbound license remains pending. No third-party source imported."
+}

@@ -46,6 +46,8 @@ make every visible demand reachable within the shared eight-preview budget.
 The independent content quality targets continue.
 [Porcelain Pendulum](docs/validation/porcelain_pendulum_2026-09-09.md) adds a ceramic/brass
 music work with editable cues, bound music, Windows export and Android built-in playback.
+[Android catalog search](docs/android_catalog_navigation.md) filters bilingual names/descriptions,
+template levels and canvas orientation before direct playback or queue insertion.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

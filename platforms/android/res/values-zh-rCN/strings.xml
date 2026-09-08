@@ -2,6 +2,16 @@
     <string name="app_name">Rhythm Master 播放器</string>
     <string name="open_package">导入作品</string>
     <string name="choose_effect">选择效果</string>
+    <string name="catalog_search">搜索名称或说明</string>
+    <string name="catalog_tier">模板级别</string>
+    <string name="catalog_shape">画布方向</string>
+    <string name="catalog_all_tiers">所有级别</string>
+    <string name="catalog_all_shapes">所有方向</string>
+    <string name="catalog_basic">基础</string>
+    <string name="catalog_advanced">高级</string>
+    <string name="catalog_example">功能示例</string>
+    <string name="catalog_count">%1$d / %2$d 个作品</string>
+    <string name="catalog_empty">没有匹配作品，请调整搜索或筛选条件。</string>
     <string name="loading_effects">正在加载效果…</string>
     <string name="landscape_effect">横屏</string>
     <string name="portrait_effect">竖屏</string>

@@ -88,6 +88,11 @@ def verify(apk):
                     raise ValueError("Built-in program hash mismatch")
             if not all(entry["titles"].get(locale) for locale in ("zh-CN", "en-US")):
                 raise ValueError("Missing built-in effect translations")
+            if entry.get("tier") not in ("basic", "advanced", "example"):
+                raise ValueError("Invalid built-in effect tier")
+            if not all(isinstance(entry.get("descriptions", {}).get(locale), str)
+                       for locale in ("zh-CN", "en-US")):
+                raise ValueError("Missing built-in search descriptions")
             if "thumbnail" in entry:
                 if entry["thumbnail"] != "effects/" + entry["id"] + ".png":
                     raise ValueError("Invalid thumbnail path")

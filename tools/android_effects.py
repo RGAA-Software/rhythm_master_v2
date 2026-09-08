@@ -56,6 +56,8 @@ def prepare(package_directory, assets):
         with zipfile.ZipFile(package) as archive:
             runtime = json.loads(archive.read("manifest.json"))
         entry = {"id": effect_id, "titles": authored["titles"], "canvas": runtime["canvas"],
+                 "tier": authored.get("tier", "example"),
+                 "descriptions": authored.get("descriptions", {"zh-CN": "", "en-US": ""}),
                  "audio": any(op.startswith("audio.") or op in ("texture.spectrum", "scene.point_instances")
                               for op in runtime["operators"]),
                  "package": "effects/" + package.name,
@@ -73,7 +75,7 @@ def prepare(package_directory, assets):
         entries.append(entry)
     entries.sort(key=lambda entry: (FEATURED.index(entry["id"]) if entry["id"] in FEATURED
                                    else len(FEATURED), entry["id"]))
-    (directory / "catalog.json").write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
+    (directory / "catalog.json").write_text(json.dumps(entries, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
     # Only generated files in this exact, dedicated staging directory are owned here.
     for path in directory.iterdir():
         if path.name not in expected:

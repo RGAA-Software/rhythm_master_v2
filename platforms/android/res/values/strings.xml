@@ -2,6 +2,16 @@
     <string name="app_name">Rhythm Master Player</string>
     <string name="open_package">Import work</string>
     <string name="choose_effect">Choose effect</string>
+    <string name="catalog_search">Search names or descriptions</string>
+    <string name="catalog_tier">Template level</string>
+    <string name="catalog_shape">Canvas orientation</string>
+    <string name="catalog_all_tiers">All levels</string>
+    <string name="catalog_all_shapes">All orientations</string>
+    <string name="catalog_basic">Basic</string>
+    <string name="catalog_advanced">Advanced</string>
+    <string name="catalog_example">Example</string>
+    <string name="catalog_count">%1$d / %2$d works</string>
+    <string name="catalog_empty">No matching works. Change the search or filters.</string>
     <string name="loading_effects">Loading effects…</string>
     <string name="landscape_effect">Landscape</string>
     <string name="portrait_effect">Portrait</string>
