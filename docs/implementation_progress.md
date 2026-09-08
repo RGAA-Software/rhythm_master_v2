@@ -1,5 +1,13 @@
 # Continuous implementation through Android Player
 
+## R3 environment increment, 2026-09-08
+
+Cached GGX/diffuse environment lighting, graph scalar controls and inline previews
+pass Windows/Android checks. Sonic Enamel adds rotating environment reflections;
+real PCM/MP4 checks and Python Windows deploys pass, and the Android APK was
+installed over the existing app. [Contracts/evidence](environment_lighting.md).
+Embedded GLB texture import is the remaining R3 feature; R4–R6 follow.
+
 ## R3 shadow increment, 2026-09-08
 
 Single directional/spot shadows reuse typed D24S8 and a bounded caster pass.

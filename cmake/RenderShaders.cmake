@@ -60,6 +60,7 @@ add_custom_command(OUTPUT "${scene_shader_header}"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/godot_brdf.sh"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/godot_lights.sh"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/godot_shadow.sh"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/godot_environment.sh"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_varying.def.sc"
         "${RHYTHM_SHADERC}" ${render_shader_includes}
     VERBATIM)
@@ -119,6 +120,7 @@ if(BUILD_TESTING)
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/lights_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/material_textures_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/shadows_gpu.cpp"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/environment_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_particles_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/scene_instances_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_execution_probe.cpp" "${probe_shader_header}")
@@ -171,3 +173,17 @@ add_custom_command(OUTPUT "${depth_shader_header}"
         "${RHYTHM_SHADERC}" ${render_shader_includes}
     VERBATIM)
 target_sources(render_bgfx PRIVATE "${depth_shader_header}")
+
+set(environment_shader_header "${PROJECT_BINARY_DIR}/generated/render/environment_shader.h")
+add_custom_command(OUTPUT "${environment_shader_header}"
+    COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        --compiler "${RHYTHM_SHADERC}" --output "${environment_shader_header}"
+        --platform "${render_shader_platform}" --group environment
+    DEPENDS "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        "${PROJECT_SOURCE_DIR}/tools/compile-shader.py"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/environment_filter.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/varying.def.sc"
+        "${RHYTHM_SHADERC}" ${render_shader_includes}
+    VERBATIM)
+target_sources(render_bgfx PRIVATE "${environment_shader_header}"
+    "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_scene_environment.cpp")

@@ -109,7 +109,8 @@ void TextureLifetimes::Prepare(const graph::ExecutionPlan& plan,
             if (instruction.operation_ == graph::Operation::kOutput ||
                 instruction.operation_ == graph::Operation::kGaussianBlur ||
                 instruction.operation_ == graph::Operation::kTextureTrail ||
-                instruction.operation_ == graph::Operation::kMaterialTextures)
+                instruction.operation_ == graph::Operation::kMaterialTextures ||
+                instruction.operation_ == graph::Operation::kSceneEnvironment)
                 pinned.at(*input) = true;
         }
     }

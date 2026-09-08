@@ -28,6 +28,13 @@ struct ShadowSettings {
     float normal_bias_ = 0.01f;
     bool filter_ = true;
 };
+// World environment stays fixed when scene geometry is transformed.
+struct EnvironmentSettings {
+    std::uint64_t texture_node_ = 0;
+    float energy_ = 1;
+    float rotation_ = 0;
+    bool source_srgb_ = true;
+};
 struct Scene {
     std::vector<Instance> instances_{};
     struct DirectionalLight {
@@ -49,5 +56,6 @@ struct Scene {
     // scene transforms change positions/axes but do not rescale that range.
     std::vector<PositionalLight> positional_lights_{};
     std::optional<ShadowSettings> shadow_{};
+    std::optional<EnvironmentSettings> environment_{};
 };
 }  // namespace rhythm::scene

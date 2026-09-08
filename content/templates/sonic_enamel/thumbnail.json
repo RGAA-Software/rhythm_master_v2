@@ -1,7 +1,7 @@
 {
     "template": "sonic_enamel",
-    "package_sha256": "8ae7c2d78f2962b17ebd10c67761e29bf20fd8edbdf4dd91ecfba9a219d4d12b",
-    "thumbnail_sha256": "c78bef1d1e383dd496a7c3afc7caf62dfebbad73867e9a54a4d153a144d8ad77",
+    "package_sha256": "f1679a9f6ac997abd319d1d5e16fc47985564f37dfa3c0b0971e8154bb59e6d4",
+    "thumbnail_sha256": "41b52b0e58c1332417a516a898d8a7c5831d20ffb4eb9298c85fe9406fbb6e24",
     "extent": [
         256,
         144

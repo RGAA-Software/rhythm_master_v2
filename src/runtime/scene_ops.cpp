@@ -133,6 +133,18 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
             output.scene_ = std::make_shared<const scene::Scene>(std::move(scene));
             break;
         }
+        case Operation::kSceneEnvironment: {
+            if (!input(0).scene_) throw std::invalid_argument("runtime.scene_input");
+            auto result = *input(0).scene_;
+            result.environment_.reset();
+            if (scalar("environment_enabled", 1) != 0)
+                result.environment_ = scene::EnvironmentSettings{
+                        input(1).node_, float(control(2, "environment_energy", 1, 0, 100)),
+                        float(control(3, "environment_rotation", 0, -36000, 36000)),
+                        scalar("environment_srgb", 1) != 0};
+            output.scene_ = std::make_shared<const scene::Scene>(std::move(result));
+            break;
+        }
         case Operation::kSceneShadow: {
             if (!input(0).scene_) throw std::invalid_argument("runtime.scene_input");
             auto result = *input(0).scene_;
@@ -169,6 +181,9 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
                             4)
                     throw std::length_error("runtime.scene_instances");
                 const auto& second = *input(1).scene_;
+                if (scene.environment_ && second.environment_)
+                    throw std::invalid_argument("runtime.multiple_environments");
+                if (second.environment_) scene.environment_ = second.environment_;
                 if (scene.shadow_ && second.shadow_)
                     throw std::invalid_argument("runtime.multiple_shadows");
                 if (scene.shadow_ && scene.shadow_->light_ >= scene.lights_.size())
@@ -273,8 +288,9 @@ scene::Scene PreviewScene(const NodeOutput& output) {
         result = *output.scene_;
     else if (output.geometry_)
         result.instances_.push_back({output.geometry_});
-    if (output.material_ || (output.scene_ && result.instances_.empty() &&
-                             (!result.lights_.empty() || !result.positional_lights_.empty()))) {
+    if (output.material_ ||
+        (output.scene_ && result.instances_.empty() &&
+         (!result.lights_.empty() || !result.positional_lights_.empty() || result.environment_))) {
         static const auto kSphere = std::make_shared<const scene::Model>(scene::Sphere());
         auto geometry =
                 std::make_shared<const scene::Geometry>(scene::Geometry{output.node_, 0, kSphere});
@@ -283,7 +299,7 @@ scene::Scene PreviewScene(const NodeOutput& output) {
         result.instances_.push_back({std::move(geometry), {}, output.material_.value_or(material)});
     }
     // Neutral preview lighting never changes the authored graph or final output.
-    if (result.lights_.empty() && result.positional_lights_.empty())
+    if (result.lights_.empty() && result.positional_lights_.empty() && !result.environment_)
         result.lights_.push_back({scene::Normalize({1, 1, 2}), {3, 3, 3}});
     return result;
 }

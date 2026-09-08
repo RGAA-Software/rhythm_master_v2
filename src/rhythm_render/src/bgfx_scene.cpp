@@ -128,6 +128,7 @@ std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std:
         lights_.Bind();
         textures_.Bind(draw.textures_, resolve);
         shadow_.Bind(list.shadow_, resolve);
+        environment_.Bind(list.environment_, resolve);
         std::uint64_t state =
                 BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_LESS |
                 BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_INV_SRC_ALPHA);

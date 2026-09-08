@@ -126,6 +126,11 @@ struct DepthOfField {
     float radius_ = 12;
     std::uint32_t samples_ = 32;
 };
+// Equirectangular source, +Y up. Produces the fixed linear RGBA16F IBL atlas.
+struct EnvironmentFilter {
+    bool source_srgb_ = true;
+};
+inline constexpr Extent kEnvironmentAtlasExtent{780, 66};
 struct DrawCommand {
     TextureHandle texture_{};
     std::uint32_t first_index_ = 0;
@@ -142,6 +147,7 @@ struct DrawCommand {
     std::optional<ColorPipeline> color_pipeline_{};
     std::optional<DepthLinearization> depth_linearization_{};
     std::optional<DepthOfField> depth_of_field_{};
+    std::optional<EnvironmentFilter> environment_filter_{};
 };
 
 // Owned frame data; third-party draw buffers never survive their boundary call.

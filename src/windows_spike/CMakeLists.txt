@@ -212,7 +212,7 @@ if(BUILD_TESTING)
         set_tests_properties(spectral_nebula_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME sonic_enamel_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
             --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/sonic_enamel.rhythmpack"
-            --expected-nodes 61 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --expected-nodes 63 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/sonic-enamel-music-captures")
         set_tests_properties(sonic_enamel_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME spectral_foundry_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"

@@ -83,6 +83,11 @@ def build_graph():
     sculpture = node("scene.shadow", 5080, -300, dict(scene=sculpture),
                      shadow_light=2, shadow_resolution=2, shadow_near=0.1,
                      shadow_bias=0.0005, shadow_normal_bias=0.02)
+    environment = node("texture.noise", 4620, -920, noise_scale=2, contrast=1.6,
+                       seed=271, color_a=(0.015, 0.04, 0.12, 1), color_b=(0.9, 0.76, 0.45, 1))
+    sculpture = node("scene.environment", 5260, -520,
+                     dict(scene=sculpture, environment_texture=environment, environment_rotation=rotation),
+                     environment_energy=0.8, environment_srgb=1)
     camera = node("scene.camera", 4900, 500, eye_x=0, eye_y=2.8, eye_z=7,
                   target_y=-0.2,
                   field_of_view=43, near_plane=0.1, far_plane=30)
@@ -115,8 +120,8 @@ def main():
     manifest = json.loads((ROOT / "content/templates/spectral_foundry/manifest.json").read_text(encoding="utf-8"))
     manifest.update(content_id="official.templates.sonic_enamel", project_id="official-sonic-enamel",
                     title="音律珐琅 / Sonic Enamel", titles={"zh-CN": "音律珐琅", "en-US": "Sonic Enamel"},
-                    descriptions={"zh-CN": "青金色流纹雕塑与四重金属轨道：动态图内贴图驱动颜色、法线、金属度和自发光。低频控制点光，高频点亮纹路，响度驱动呼吸；聚光投影、承影舞台、景深和浮点柔光全部可编辑。",
-                                  "en-US": "Teal-and-gold enamel sculpture inside four metallic orbits. Live graph textures drive color, normals, metal and emission. Bass controls the point light, treble illuminates veins and loudness drives breathing. Edit spot shadows, the stage, depth focus and floating bloom."})
+                    descriptions={"zh-CN": "青金色流纹雕塑与四重金属轨道：动态图内贴图驱动颜色、法线、金属度和自发光。低频控制点光，高频点亮纹路，响度驱动呼吸；旋转环境反射、聚光投影、承影舞台、景深和浮点柔光全部可编辑。",
+                                  "en-US": "Teal-and-gold enamel sculpture inside four metallic orbits. Live graph textures drive color, normals, metal and emission. Bass controls the point light, treble illuminates veins and loudness drives breathing. Edit rotating environment reflections, spot shadows, the stage, depth focus and floating bloom."})
     (destination / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
     print(f"Sonic Enamel: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
 

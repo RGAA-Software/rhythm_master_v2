@@ -527,3 +527,8 @@ Numeric performance budgets must be based on a recorded reference machine
 rather than unsupported universal FPS claims. Frame telemetry must separately
 report UI build, graph evaluation, render submission, GPU execution and present
 latency.
+
+Environment lighting retains a texture producer ID in Scene3D. A focused Runtime
+EnvironmentPass owns a bounded Float16 atlas and caches by source content version;
+rotation/intensity remain receiver parameters. GPU filtering/bindings remain private
+to Render. See [environment contracts](environment_lighting.md).

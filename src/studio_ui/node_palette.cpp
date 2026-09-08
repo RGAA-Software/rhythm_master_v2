@@ -81,6 +81,7 @@ std::string_view Category(graph::Operation operation) {
         case kDirectionalLight:
         case kPointLight:
         case kSpotLight:
+        case kSceneEnvironment:
         case kSceneShadow:
             return "palette.materials";
         case kOutput:

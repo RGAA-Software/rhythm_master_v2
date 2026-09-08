@@ -13,6 +13,7 @@ std::optional<Diagnostic> ValidateSceneBudget(
         std::uint64_t lights_ = 0;
         std::uint64_t draws_ = 0;
         std::uint64_t shadows_ = 0;
+        std::uint64_t environments_ = 0;
     };
     std::vector<Counts> counts(plan.instructions_.size());
     std::uint64_t vertices = 0, indices = 0, snapshots = 0, draws = 0;
@@ -92,6 +93,7 @@ std::optional<Diagnostic> ValidateSceneBudget(
             case Operation::kSceneInstance:
             case Operation::kSceneTransform:
             case Operation::kSceneMerge:
+            case Operation::kSceneEnvironment:
             case Operation::kSceneShadow:
             case Operation::kSceneRender:
             case Operation::kSceneCapture: {
@@ -116,6 +118,7 @@ std::optional<Diagnostic> ValidateSceneBudget(
                     count.lights_ += b->lights_;
                     count.draws_ += b->draws_;
                     count.shadows_ += b->shadows_;
+                    count.environments_ += b->environments_;
                 }
                 if (instruction.operation_ == Operation::kSceneShadow) {
                     count.shadows_ = Scalar(instruction.node_, "shadow_enabled", 1) != 0 ? 1 : 0;
@@ -124,10 +127,13 @@ std::optional<Diagnostic> ValidateSceneBudget(
                                            light >= count.lights_ || std::floor(light) != light))
                         return fail();
                 }
-                if (count.shadows_ > 1) return fail();
+                if (instruction.operation_ == Operation::kSceneEnvironment)
+                    count.environments_ =
+                            Scalar(instruction.node_, "environment_enabled", 1) != 0 ? 1 : 0;
+                if (count.shadows_ > 1 || count.environments_ > 1) return fail();
                 if (instruction.operation_ == Operation::kSceneRender ||
                     instruction.operation_ == Operation::kSceneCapture) {
-                    draws += count.indices_ * (1 + count.shadows_);
+                    draws += count.indices_ * (1 + count.shadows_) + 6 * count.environments_;
                     count = {};
                 } else {
                     snapshots += count.instances_;

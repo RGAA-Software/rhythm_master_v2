@@ -108,6 +108,46 @@ void Shadows() {
     Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
     renderer.EndFrame();
 }
+void Environment() {
+    using namespace rhythm::render;
+    auto renderer = Renderer::CreateNull();
+    auto other = Renderer::CreateNull();
+    auto target = renderer.CreateTexture({16, 16});
+    auto atlas = renderer.CreateTexture(kEnvironmentAtlasExtent, {}, TexturePrecision::kFloat16);
+    auto wrong = renderer.CreateTexture(kEnvironmentAtlasExtent);
+    auto foreign = other.CreateTexture(kEnvironmentAtlasExtent, {}, TexturePrecision::kFloat16);
+    SceneDrawList scene;
+    scene.environment_ = SceneEnvironment{atlas.Handle()};
+    renderer.BeginFrame();
+    renderer.SubmitScene(target.Handle(), scene);
+    Reject([&] { renderer.SubmitScene(atlas.Handle(), scene); });
+    for (auto invalid : {TextureHandle{}, wrong.Handle(), foreign.Handle(), target.Handle()}) {
+        scene.environment_->atlas_ = invalid;
+        Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    }
+    scene.environment_->atlas_ = atlas.Handle();
+    scene.environment_->energy_ = std::numeric_limits<float>::quiet_NaN();
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.environment_->energy_ = 1;
+    scene.environment_->rotation_ = std::numeric_limits<float>::infinity();
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.environment_->rotation_ = 0;
+    atlas = {};
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    DrawList quad;
+    quad.width_ = 780;
+    quad.height_ = 66;
+    quad.vertices_ = {{0, 0, 0, 0}, {780, 0, 1, 0}, {780, 66, 1, 1}, {0, 66, 0, 1}};
+    quad.indices_ = {0, 1, 2, 0, 2, 3};
+    quad.commands_ = {{target.Handle(), 0, 6, {0, 0, 780, 66}}};
+    quad.commands_[0].environment_filter_ = EnvironmentFilter{};
+    Reject([&] { renderer.Submit(wrong.Handle(), quad); });
+    auto valid = renderer.CreateTexture(kEnvironmentAtlasExtent, {}, TexturePrecision::kFloat16);
+    renderer.Submit(valid.Handle(), quad);
+    quad.commands_[0].color_pipeline_ = ColorPipeline{};
+    Reject([&] { renderer.Submit(valid.Handle(), quad); });
+    renderer.EndFrame();
+}
 void MaterialTextures() {
     using namespace rhythm::render;
     auto renderer = Renderer::CreateNull();
@@ -152,6 +192,7 @@ int main() {
         Run();
         MaterialTextures();
         Shadows();
+        Environment();
         return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

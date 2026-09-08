@@ -3,6 +3,7 @@ $input v_world_position, v_world_normal, v_scene_color, v_scene_uv, v_world_tang
 #include "godot_brdf.sh"
 #include "godot_lights.sh"
 #include "godot_shadow.sh"
+#include "godot_environment.sh"
 uniform vec4 u_scene_material;
 uniform vec4 u_scene_emissive;
 uniform vec4 u_scene_camera;
@@ -54,13 +55,16 @@ void main()
         normal *= facing;
         color = u_scene_emissive.rgb;
         if (u_scene_textures.w > 0.5) color *= MaterialColor(texture2D(s_scene_emission, uv));
+        float ao = 1.0;
         float metallic = u_scene_material.x;
         float roughness = u_scene_material.y;
         if (u_scene_textures.z > 0.5) {
             vec3 orm = texture2D(s_scene_orm, uv).rgb;
+            ao = orm.r;
             roughness *= orm.g;
             metallic *= orm.b;
         }
+        color += GodotEnvironment(normal, view, base, metallic, roughness) * ao;
         for (int i = 0; i < 4; ++i)
         {
             if (float(i) < u_scene_camera.w)

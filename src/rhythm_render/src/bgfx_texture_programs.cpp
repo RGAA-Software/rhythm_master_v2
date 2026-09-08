@@ -8,6 +8,7 @@
 #include "color_adjust_shader.h"
 #include "color_pipeline_shader.h"
 #include "depth_shader.h"
+#include "environment_shader.h"
 #include "fs_ocornut_imgui.bin.h"
 #include "texture_displace_shader.h"
 #include "texture_filter_shader.h"
@@ -29,6 +30,12 @@ BgfxTexturePrograms::BgfxTexturePrograms() {
             bgfx::createShader(bgfx::copy(fs_ocornut_imgui_dxbc, sizeof(fs_ocornut_imgui_dxbc))));
 #endif
     program_ = GpuHandle(bgfx::createProgram(vertex.Get(), fragment.Get(), false));
+    GpuHandle environment_fragment(bgfx::createShader(
+            bgfx::copy(kEnvironmentFilterShader, sizeof(kEnvironmentFilterShader))));
+    environment_program_ =
+            GpuHandle(bgfx::createProgram(vertex.Get(), environment_fragment.Get(), false));
+    environment_settings_ =
+            GpuHandle(bgfx::createUniform("u_environment_filter", bgfx::UniformType::Vec4));
     GpuHandle depth_fragment(
             bgfx::createShader(bgfx::copy(kDepthLinearShader, sizeof(kDepthLinearShader))));
     depth_program_ = GpuHandle(bgfx::createProgram(vertex.Get(), depth_fragment.Get(), false));
@@ -94,7 +101,13 @@ void BgfxTexturePrograms::Submit(std::uint16_t view, const DrawCommand& command,
                                  float aspect, bgfx::TextureHandle source, Extent map_size,
                                  bgfx::TextureHandle map, bool float_target) const {
     bgfx::setTexture(0, sampler_.Get(), source);
-    if (command.depth_of_field_) {
+    if (command.environment_filter_) {
+        const std::array settings{command.environment_filter_->source_srgb_ ? 1.0f : 0.0f,
+                                  0.5f / source_size.height_, 0.0f, 0.0f};
+        bgfx::setTexture(0, sampler_.Get(), source, BGFX_SAMPLER_V_CLAMP);
+        bgfx::setUniform(environment_settings_.Get(), settings.data());
+        bgfx::submit(view, environment_program_.Get());
+    } else if (command.depth_of_field_) {
         const auto& dof = *command.depth_of_field_;
         const auto& depth = dof.projection_;
         const std::array projection{depth.near_, depth.far_, depth.orthographic_ ? 1.0f : 0.0f,

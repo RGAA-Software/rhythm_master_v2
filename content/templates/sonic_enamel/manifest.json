@@ -23,7 +23,7 @@
     ],
     "external_assets": [],
     "descriptions": {
-        "zh-CN": "青金色流纹雕塑与四重金属轨道：动态图内贴图驱动颜色、法线、金属度和自发光。低频控制点光，高频点亮纹路，响度驱动呼吸；聚光投影、承影舞台、景深和浮点柔光全部可编辑。",
-        "en-US": "Teal-and-gold enamel sculpture inside four metallic orbits. Live graph textures drive color, normals, metal and emission. Bass controls the point light, treble illuminates veins and loudness drives breathing. Edit spot shadows, the stage, depth focus and floating bloom."
+        "zh-CN": "青金色流纹雕塑与四重金属轨道：动态图内贴图驱动颜色、法线、金属度和自发光。低频控制点光，高频点亮纹路，响度驱动呼吸；旋转环境反射、聚光投影、承影舞台、景深和浮点柔光全部可编辑。",
+        "en-US": "Teal-and-gold enamel sculpture inside four metallic orbits. Live graph textures drive color, normals, metal and emission. Bass controls the point light, treble illuminates veins and loudness drives breathing. Edit rotating environment reflections, spot shadows, the stage, depth focus and floating bloom."
     }
 }

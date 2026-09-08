@@ -17,6 +17,7 @@ int main() {
         rhythm::validation::VerifyPositionalLights(renderer);
         rhythm::validation::VerifyMaterialTextures(renderer);
         rhythm::validation::VerifySceneShadows(renderer);
+        rhythm::validation::VerifyEnvironmentLighting(renderer);
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

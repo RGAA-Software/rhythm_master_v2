@@ -1,0 +1,54 @@
+{
+    "sources": [
+        {
+            "source_url": "https://github.com/godotengine/godot",
+            "revision": "f62fdbde15035c5576dad93e586201f4d41ef0cb",
+            "tag": "4.5.1-stable",
+            "license": "MIT",
+            "notice": "third_party/notices/godot/LICENSE.txt",
+            "source_file": "drivers/gles3/shaders/scene.glsl",
+            "sha256": "741d48c937836dd443b4526544648194588d0349e88472a0f54c1b140a9cdf31",
+            "reference_location": "out/reference/godot-4.5.1/drivers/gles3/shaders/scene.glsl",
+            "symbols": [
+                "Environment brdf approximation (Lazarov 2013)"
+            ],
+            "targets": [
+                "src/rhythm_render/shaders/godot_environment.sh"
+            ],
+            "modifications": [
+                "Retain the mobile split-sum BRDF approximation; sample a bounded linear 2D atlas instead of engine cubemaps.",
+                "Lambert diffuse uses a separate cosine-weighted convolution; metallic suppresses diffuse. AO applies only to environment lighting."
+            ]
+        },
+        {
+            "source_url": "https://github.com/tixl3d/tixl",
+            "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+            "source_file": "Operators/Lib/Assets/shaders/3d/rendering/RenderToCubemap-vs.hlsl",
+            "imported_file": "third_party/sources/tixl-effects/RenderToCubemap-vs.hlsl",
+            "sha256": "1f0d14a8e844d4debd2cec515352053b37e162ae19e06db2b8ade6fb37fd3289",
+            "license": "MIT",
+            "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+            "symbols": [
+                "radicalInverse_VdC",
+                "Hammersley",
+                "ImportanceSampleGGX",
+                "psMain prefilter loop"
+            ],
+            "targets": [
+                "src/rhythm_render/shaders/environment_filter.sc"
+            ],
+            "modifications": [
+                "Translate HLSL into bgfx shader syntax. Fix 64 samples and five roughness levels; use equirectangular source and atlas gutters instead of D3D cubemaps.",
+                "Add cosine-weighted diffuse tile; normalize accumulation before summing. Source mip/pdf/geometry shaders are not imported into runtime."
+            ]
+        },
+        {
+            "source_url": "https://github.com/g-truc/glm",
+            "revision": "bf71a834948186f4097caa076cd2663c69a10e1e",
+            "source_file": "glm/gtc/color_space.inl",
+            "license": "MIT",
+            "notice": "third_party/notices/glm/LICENSE.txt",
+            "details": "Piecewise decoding as recorded in provenance/color_pipeline.json, adapted to environment_filter.sc."
+        }
+    ]
+}

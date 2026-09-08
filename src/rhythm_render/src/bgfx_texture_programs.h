@@ -13,6 +13,8 @@ class BgfxTexturePrograms final {
                 bool float_target) const;
 
    private:
+    GpuHandle<bgfx::ProgramHandle> environment_program_{};
+    GpuHandle<bgfx::UniformHandle> environment_settings_{};
     GpuHandle<bgfx::ProgramHandle> depth_program_{};
     GpuHandle<bgfx::UniformHandle> depth_settings_{};
     GpuHandle<bgfx::ProgramHandle> dof_program_{};

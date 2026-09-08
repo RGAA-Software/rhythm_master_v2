@@ -13,7 +13,9 @@ Windows/USB Android checks; [R2 evidence](docs/validation/float_depth_2026-09-08
 R3 now adds texture materials, point/spot lights and the editable Sonic Enamel work,
 with Windows/Android delivery and real PCM/MP4 checks. [First R3 increment](docs/validation/material_textures_2026-09-08.md).
 Single-light directional/spot shadows are also implemented and verified on both backends;
-[shadow contracts](docs/shadow_pipeline.md). IBL, R4–R6 and visual/endurance acceptance continue.
+[shadow contracts](docs/shadow_pipeline.md). [Environment lighting](docs/environment_lighting.md)
+now adds cached GGX reflections/diffuse on both platforms. Embedded GLB textures,
+R4–R6 and visual/endurance acceptance continue.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

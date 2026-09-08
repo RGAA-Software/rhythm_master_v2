@@ -17,7 +17,7 @@ def main():
     parser.add_argument("--compiler", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--platform", choices=("windows", "android"), required=True)
-    parser.add_argument("--group", choices=("color", "scene", "filter", "noise", "mapping", "displace", "execution_probe", "gpu_points", "color_pipeline", "depth"), default="color")
+    parser.add_argument("--group", choices=("color", "scene", "filter", "noise", "mapping", "displace", "execution_probe", "gpu_points", "color_pipeline", "depth", "environment"), default="color")
     args = parser.parse_args()
     output = args.output.resolve()
     if not output.is_relative_to(ROOT / "out"):
@@ -34,6 +34,8 @@ def main():
                     ("gpu_particle_update.sc", "compute", None, "kGpuParticleComputeShader")]
     elif args.group == "color_pipeline":
         programs = [("color_pipeline.sc", "fragment", "varying.def.sc", "kColorPipelineShader")]
+    elif args.group == "environment":
+        programs = [("environment_filter.sc", "fragment", "varying.def.sc", "kEnvironmentFilterShader")]
     elif args.group == "depth":
         programs = [("depth_linear.sc", "fragment", "varying.def.sc", "kDepthLinearShader"),
                     ("depth_of_field.sc", "fragment", "varying.def.sc", "kDepthOfFieldShader")]

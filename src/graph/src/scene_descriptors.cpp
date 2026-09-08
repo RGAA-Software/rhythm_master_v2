@@ -3,6 +3,17 @@
 namespace rhythm::graph {
 void AppendSceneDescriptors(std::vector<OperatorDescriptor>& operators) {
     using Type = ValueType;
+    operators.push_back({"scene.environment",
+                         Operation::kSceneEnvironment,
+                         Type::kScene,
+                         {{"scene", Type::kScene},
+                          {"environment_texture", Type::kTexture},
+                          {"environment_energy", Type::kScalar, false},
+                          {"environment_rotation", Type::kScalar, false}},
+                         {{"environment_enabled", 1.0, 0, 1, {"option.off", "option.on"}},
+                          {"environment_energy", 1.0, 0, 100},
+                          {"environment_rotation", 0.0, -36000, 36000},
+                          {"environment_srgb", 1.0, 0, 1, {"option.off", "option.on"}}}});
     operators.push_back({"scene.shadow",
                          Operation::kSceneShadow,
                          Type::kScene,

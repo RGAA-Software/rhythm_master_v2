@@ -76,6 +76,12 @@ struct SceneShadow {
     float normal_bias_ = 0.01f;  // World units; applied to the geometric normal.
     bool filter_ = true;
 };
+// Linear atlas prepared by EnvironmentFilter; rotation about world +Y in degrees.
+struct SceneEnvironment {
+    TextureHandle atlas_{};
+    float energy_ = 1;
+    float rotation_ = 0;
+};
 struct SceneDrawList {
     Matrix4 view_ = kIdentityMatrix;
     Matrix4 projection_ = kIdentityMatrix;
@@ -87,5 +93,6 @@ struct SceneDrawList {
     // Shared budget: at most four directional + positional lights per pass.
     std::vector<PositionalLight> positional_lights_{};
     std::optional<SceneShadow> shadow_{};
+    std::optional<SceneEnvironment> environment_{};
 };
 }  // namespace rhythm::render

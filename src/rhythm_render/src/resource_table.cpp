@@ -111,6 +111,15 @@ void ResourceTable::BeginFrame() {
 void ResourceTable::ValidateSceneMaterials(TextureHandle target, const SceneDrawList& list,
                                            TextureHandle depth_target) const {
     CheckReady();
+    if (list.environment_) {
+        const auto& env = *list.environment_;
+        if (!IsValid(env.atlas_) || IsDepth(env.atlas_) || env.atlas_ == target ||
+            Size(env.atlas_) != kEnvironmentAtlasExtent ||
+            Precision(env.atlas_) != TexturePrecision::kFloat16 || !std::isfinite(env.energy_) ||
+            env.energy_ < 0 || env.energy_ > 100 || !std::isfinite(env.rotation_) ||
+            std::abs(env.rotation_) > 36000)
+            throw std::invalid_argument("render.environment_texture");
+    }
     if (list.shadow_) {
         const auto& shadow = *list.shadow_;
         if (!IsDepth(shadow.depth_) || shadow.depth_ == depth_target ||
@@ -124,6 +133,7 @@ void ResourceTable::ValidateSceneMaterials(TextureHandle target, const SceneDraw
                 throw std::invalid_argument("render.material_texture");
 }
 void ResourceTable::RecordSceneSamples(const SceneDrawList& list) {
+    if (list.environment_) slots_[list.environment_->atlas_.slot_].sampled_ = true;
     if (list.shadow_) slots_[list.shadow_->depth_.slot_].sampled_ = true;
     for (const auto& draw : list.draws_)
         for (const auto texture : draw.textures_.slots_)
@@ -186,7 +196,8 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
                 int(command.texture_displace_.has_value()) +
                 int(command.texture_trail_.has_value()) + int(command.color_pipeline_.has_value()) +
                 int(command.depth_linearization_.has_value()) +
-                int(command.depth_of_field_.has_value());
+                int(command.depth_of_field_.has_value()) +
+                int(command.environment_filter_.has_value());
         if (effects > 1) throw std::invalid_argument("render.effect_conflict");
         const auto bounded = [](float value, float minimum, float maximum) {
             return std::isfinite(value) && value >= minimum && value <= maximum;
@@ -198,6 +209,10 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
                 depth.far_ <= depth.near_)
                 throw std::invalid_argument("render.depth_projection");
         };
+        if (command.environment_filter_ &&
+            (!IsRenderTarget(target) || Size(target) != kEnvironmentAtlasExtent ||
+             Precision(target) != TexturePrecision::kFloat16))
+            throw std::invalid_argument("render.environment_target");
         if (command.depth_linearization_) validate_projection(*command.depth_linearization_);
         if (command.depth_of_field_) {
             const auto& dof = *command.depth_of_field_;

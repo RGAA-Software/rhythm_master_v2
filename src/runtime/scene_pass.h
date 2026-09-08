@@ -2,6 +2,7 @@
 
 #include <tuple>
 
+#include "environment_pass.h"
 #include "rhythm/runtime/runtime.h"
 #include "shadow_pass.h"
 
@@ -23,5 +24,6 @@ class ScenePass final {
     using Key = std::tuple<std::uint64_t, std::uint64_t, bool>;
     std::map<Key, Uploaded> uploads_{};
     ShadowPass shadow_{};
+    EnvironmentPass environment_{};
 };
 }  // namespace rhythm::runtime::detail

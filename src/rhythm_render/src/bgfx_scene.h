@@ -3,6 +3,7 @@
 #include <map>
 
 #include "bgfx_handles.h"
+#include "bgfx_scene_environment.h"
 #include "bgfx_scene_instances.h"
 #include "bgfx_scene_lights.h"
 #include "bgfx_scene_shadow.h"
@@ -61,5 +62,6 @@ class BgfxScene final {
     BgfxSceneLights lights_{};
     BgfxSceneTextures textures_{};
     BgfxSceneShadow shadow_{};
+    BgfxSceneEnvironment environment_{};
 };
 }  // namespace rhythm::render::detail

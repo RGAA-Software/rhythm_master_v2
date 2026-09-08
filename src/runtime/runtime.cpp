@@ -225,6 +225,7 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                 case graph::Operation::kSceneInstance:
                 case graph::Operation::kSceneTransform:
                 case graph::Operation::kSceneMerge:
+                case graph::Operation::kSceneEnvironment:
                 case graph::Operation::kSceneShadow:
                 case graph::Operation::kSceneCamera:
                     detail::EvaluateScene(instruction, result.outputs_, state.output_, resources);
