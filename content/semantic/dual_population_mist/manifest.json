@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.dual_population_mist",
+    "content_version": "0.1.0",
+    "project_id": "semantic-dual_population_mist",
+    "graph_revision": 0,
+    "title": "双群星雾 / Dual-population mist",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Dual-population mist",
+        "zh-CN": "双群星雾"
+    },
+    "category": "particles",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "en-US": "Two GPU particle populations form counter-rotating folded clouds. Bass drives flow, high bands drive emission, and loudness sets opacity.",
+        "zh-CN": "两组 GPU 粒子形成反向旋转的折叠云团。低频驱动流动，高频驱动发射，响度控制透明度。"
+    },
+    "semantic": true,
+    "default": false
+}

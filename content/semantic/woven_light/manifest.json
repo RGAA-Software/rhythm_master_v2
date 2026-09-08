@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.woven_light",
+    "content_version": "0.1.0",
+    "project_id": "semantic-woven_light",
+    "graph_revision": 0,
+    "title": "编织光带 / Woven light",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Woven light",
+        "zh-CN": "编织光带"
+    },
+    "category": "scene",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "en-US": "Three audio bands change tube thickness and radius around a rotating braid. Reuse the transparent sculpture over your own background.",
+        "zh-CN": "三个频段改变旋转编织带的粗细和半径。将透明雕塑层叠加到自己的背景上。"
+    },
+    "semantic": true,
+    "default": false
+}

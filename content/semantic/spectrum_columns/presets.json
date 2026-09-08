@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.spectrum_columns",
+            "reset": true,
+            "id": "official.semantic.spectrum_columns.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.spectrum_columns",
+            "reset": true,
+            "id": "official.semantic.spectrum_columns.variant",
+            "titles": {
+                "en-US": "Sparse steps",
+                "zh-CN": "疏列阶梯"
+            },
+            "properties": {
+                "columns": 32,
+                "rows": 24,
+                "instance_span": 8,
+                "roughness": 0.7,
+                "field_of_view": 38
+            }
+        }
+    ]
+}

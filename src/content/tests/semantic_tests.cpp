@@ -13,10 +13,10 @@ void Check(bool condition, const char* message) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        Check(argc == 2, "catalog path required");
+        Check(argc == 2 || argc == 3, "catalog path and optional variant output directory");
         graph::Registry registry;
         const auto catalog = content::LoadSemantics(argv[1], registry);
-        Check(catalog.size() == 11, "semantic catalog coverage");
+        Check(catalog.size() == 17, "semantic catalog coverage");
         editor::Snapshot original;
         original.document_.id_ = "semantic.test";
         original.document_.nodes_ = {registry.MakeNode(1, "texture.gradient"),
@@ -62,6 +62,11 @@ int main(int argc, char* argv[]) {
             root = content::ApplyPreset(root, semantic.presets_[1], registry, definitions);
             const auto variant_package =
                     project::DecodePackage(project::EncodePackage(connected.document_, "variant"));
+            if (argc == 3) {
+                auto name = semantic.metadata_.directory_.filename();
+                name += ".rhythmpack";
+                project::PublishSnapshot(std::filesystem::path(argv[2]) / name, connected);
+            }
             runtime.Reset();
             for (int frame = 0; frame < 60; ++frame) {
                 renderer.BeginFrame();

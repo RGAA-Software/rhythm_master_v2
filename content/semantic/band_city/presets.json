@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.band_city",
+            "reset": true,
+            "id": "official.semantic.band_city.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.band_city",
+            "reset": true,
+            "id": "official.semantic.band_city.variant",
+            "titles": {
+                "en-US": "Overhead city",
+                "zh-CN": "俯视城阵"
+            },
+            "properties": {
+                "roughness": 0.65,
+                "metallic": 0.1,
+                "eye_x": 3,
+                "eye_y": 12,
+                "field_of_view": 48
+            }
+        }
+    ]
+}

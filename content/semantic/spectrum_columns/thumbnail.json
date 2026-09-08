@@ -1,0 +1,14 @@
+{
+    "template": "spectrum_columns",
+    "package_sha256": "49c7633a22dd05836d1e55cb80df5c27e1fe8ea711e20326ac4a51e4e5c42e34",
+    "thumbnail_sha256": "32c6ac5effd00f74d55c29ab97b893e7c05890d1ac1e794a663be63e97b07874",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

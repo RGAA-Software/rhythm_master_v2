@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.band_city",
+    "content_version": "0.1.0",
+    "project_id": "semantic-band_city",
+    "graph_revision": 0,
+    "title": "频段城景 / Band city",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Band city",
+        "zh-CN": "频段城景"
+    },
+    "category": "audio",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "en-US": "Thirty-two bands drive 64 individually editable pillars and their centers. Reuse the lit city layer with your own post-processing.",
+        "zh-CN": "32 个频段驱动 64 根可独立编辑的立柱及其中心位置。将受光城景层接入自己的后期处理。"
+    },
+    "semantic": true,
+    "default": false
+}

@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.enamel_orb",
+            "reset": true,
+            "id": "official.semantic.enamel_orb.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.enamel_orb",
+            "reset": true,
+            "id": "official.semantic.enamel_orb.variant",
+            "titles": {
+                "en-US": "Fine veins",
+                "zh-CN": "细密纹脉"
+            },
+            "properties": {
+                "noise_scale": 5.5,
+                "contour_count": 14,
+                "uv_scale_x": 3,
+                "normal_scale": 0.55,
+                "field_of_view": 49
+            }
+        }
+    ]
+}

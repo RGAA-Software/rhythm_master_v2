@@ -1,0 +1,14 @@
+{
+    "template": "woven_light",
+    "package_sha256": "54a6080be457b4b54c0f4db13efe39ebff532d027d72dd9df8d7c57ba81530fd",
+    "thumbnail_sha256": "6c979e3c18322f8809a6a2b36b916470e79ec89808e7c4b3f3be84dfbd0ba0cc",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

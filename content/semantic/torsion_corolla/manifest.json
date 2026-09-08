@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.torsion_corolla",
+    "content_version": "0.1.0",
+    "project_id": "semantic-torsion_corolla",
+    "graph_revision": 0,
+    "title": "扭转花冠 / Torsion corolla",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Torsion corolla",
+        "zh-CN": "扭转花冠"
+    },
+    "category": "scene",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "en-US": "Six metallic petals twist with separate bands. Change the shared ring geometry, reflections and focus before compositing the sculpture.",
+        "zh-CN": "六片金属花瓣随不同频段扭转。可调整共享环体几何、反射和焦点，再合成到自己的画面。"
+    },
+    "semantic": true,
+    "default": false
+}

@@ -12,10 +12,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--name", action="append", help="Template directory name; default: all")
+    parser.add_argument("--name", action="append", help="Catalog entry directory name; default: all")
+    parser.add_argument("--kind", choices=("templates", "semantic"), default="templates")
     parser.add_argument("--build", type=Path, default=ROOT / "out/windows-release")
     args = parser.parse_args()
-    source_root = ROOT / "content/templates"
+    source_root = ROOT / "content" / args.kind
     names = args.name or sorted(path.name for path in source_root.iterdir() if path.is_dir())
     executable = args.build.resolve() / "src/windows_spike/windows_effects_gpu_tests.exe"
     ffmpeg = Path("C:/source/vcpkg/installed/x64-windows-static-release/tools/ffmpeg/ffmpeg.exe")
@@ -23,8 +24,9 @@ def main():
     for name in names:
         source = (source_root / name).resolve()
         if source.parent != source_root or not (source / "manifest.json").is_file():
-            raise ValueError("Expected an existing project-owned template directory name")
-        package = args.build.resolve() / "content/packages" / (name + ".rhythmpack")
+            raise ValueError("Expected an existing project-owned catalog entry directory name")
+        package_directory = "packages" if args.kind == "templates" else "semantic_packages"
+        package = args.build.resolve() / "content" / package_directory / (name + ".rhythmpack")
         work = output / name
         work.mkdir(parents=True)
         rendered = subprocess.run([str(executable), str(work), str(package), "--thumbnail"],

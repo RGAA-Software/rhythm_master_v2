@@ -1,0 +1,14 @@
+{
+    "template": "band_city",
+    "package_sha256": "d2efd54514a7e76cc0376f72ea98c2a79c9fc8f611bbdf41e4b28b695c64b768",
+    "thumbnail_sha256": "9e90b5201c526e84879cb9610642d599b2e5452350f2c3c5d2548479ce4ac143",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

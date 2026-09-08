@@ -1,0 +1,14 @@
+{
+    "template": "torsion_corolla",
+    "package_sha256": "1338c3b12327e391eeb95a5eaefce69c292b36237cb5c79ce19aea668c0a48f8",
+    "thumbnail_sha256": "bcec5868a45e548e7da279065258be7b663622bcf40b29707bcc198ab49ef3df",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

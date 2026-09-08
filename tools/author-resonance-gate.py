@@ -11,9 +11,13 @@ class Graph:
         self.nodes = []
         self.edges = []
         self.positions = []
+        # Structured authoring records allow focused reuse without parsing textproto.
+        self.records = []
 
     def node(self, kind, x, y, inputs=None, **properties):
         identity = len(self.nodes) + 1
+        self.records.append(dict(id=identity, kind=kind, inputs=dict(inputs or {}),
+                                 properties=dict(properties)))
         lines = [f'nodes {{ id: {identity} type_key: "{kind}" schema_version: 1']
         for key, value in properties.items():
             if isinstance(value, tuple):

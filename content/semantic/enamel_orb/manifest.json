@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.enamel_orb",
+    "content_version": "0.1.0",
+    "project_id": "semantic-enamel_orb",
+    "graph_revision": 0,
+    "title": "珐琅光体 / Enamel light body",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Enamel light body",
+        "zh-CN": "珐琅光体"
+    },
+    "category": "scene",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "en-US": "Procedural enamel, raised-looking veins and local lights form a music-driven sculpture. Control pattern scale, vein count and material UVs.",
+        "zh-CN": "程序化珐琅、纹脉和局部灯光组成音乐雕塑。可控制纹理尺度、纹脉数量和材质 UV。"
+    },
+    "semantic": true,
+    "default": false
+}

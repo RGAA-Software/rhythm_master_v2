@@ -1,0 +1,370 @@
+schema_version: 4
+id: "semantic-woven_light"
+canvas { width: 640 height: 360 }
+output: 2
+nodes { id: 1 type_key: "component.official.woven_light" schema_version: 1 }
+nodes { id: 2 type_key: "output.texture" schema_version: 1 }
+edges { id: 1 from: 1 to: 2 input: "source" }
+components { type_key: "component.official.woven_light" schema_version: 1 title: "Woven light" output: 77
+    nodes { id: 1 type_key: "core.time" schema_version: 1
+    }
+    nodes { id: 2 type_key: "scalar.expression" schema_version: 1
+        properties { key: "expression" value { expression: "time * 9" } }
+    }
+    nodes { id: 3 type_key: "audio.band" schema_version: 1
+        properties { key: "audio_band" value { scalar: 10 } }
+    }
+    nodes { id: 4 type_key: "scalar.map" schema_version: 1
+        properties { key: "input_max" value { scalar: 0.4 } }
+        properties { key: "output_min" value { scalar: 0.7 } }
+        properties { key: "output_max" value { scalar: 1.15 } }
+    }
+    nodes { id: 5 type_key: "scalar.map" schema_version: 1
+        properties { key: "input_max" value { scalar: 0.35 } }
+        properties { key: "output_min" value { scalar: 0.026 } }
+        properties { key: "output_max" value { scalar: 0.09 } }
+    }
+    nodes { id: 6 type_key: "scalar.map" schema_version: 1
+        properties { key: "input_max" value { scalar: 0.35 } }
+        properties { key: "output_min" value { scalar: 0.4 } }
+        properties { key: "output_max" value { scalar: 3.0 } }
+    }
+    nodes { id: 7 type_key: "scalar.expression" schema_version: 1
+        properties { key: "expression" value { expression: "time * 18 + 0" } }
+    }
+    nodes { id: 8 type_key: "path.helix" schema_version: 1
+        properties { key: "path_samples" value { scalar: 64 } }
+        properties { key: "path_height" value { scalar: 4.2 } }
+        properties { key: "path_turns" value { scalar: 2.4 } }
+    }
+    nodes { id: 9 type_key: "path.resample" schema_version: 1
+        properties { key: "path_samples" value { scalar: 256 } }
+    }
+    nodes { id: 10 type_key: "geometry.tube" schema_version: 1
+        properties { key: "tube_sides" value { scalar: 10 } }
+    }
+    nodes { id: 11 type_key: "material.pbr" schema_version: 1
+        properties { key: "color_a" value { color { r: 0.025 g: 0.65 b: 1 a: 1 } } }
+        properties { key: "color_b" value { color { r: 0.025 g: 0.65 b: 1 a: 1 } } }
+        properties { key: "roughness" value { scalar: 0.3 } }
+        properties { key: "metallic" value { scalar: 0.55 } }
+    }
+    nodes { id: 12 type_key: "scene.instance" schema_version: 1
+    }
+    nodes { id: 13 type_key: "geometry.tube" schema_version: 1
+        properties { key: "tube_radius" value { scalar: 0.01 } }
+        properties { key: "tube_sides" value { scalar: 6 } }
+    }
+    nodes { id: 14 type_key: "scene.instance" schema_version: 1
+    }
+    nodes { id: 15 type_key: "scene.transform" schema_version: 1
+        properties { key: "scale_x" value { scalar: 1.18 } }
+        properties { key: "scale_z" value { scalar: 1.18 } }
+    }
+    nodes { id: 16 type_key: "scene.merge" schema_version: 1
+    }
+    nodes { id: 17 type_key: "audio.band" schema_version: 1
+        properties { key: "audio_band" value { scalar: 29 } }
+    }
+    nodes { id: 18 type_key: "scalar.map" schema_version: 1
+        properties { key: "input_max" value { scalar: 0.4 } }
+        properties { key: "output_min" value { scalar: 0.7 } }
+        properties { key: "output_max" value { scalar: 1.15 } }
+    }
+    nodes { id: 19 type_key: "scalar.map" schema_version: 1
+        properties { key: "input_max" value { scalar: 0.35 } }
+        properties { key: "output_min" value { scalar: 0.026 } }
+        properties { key: "output_max" value { scalar: 0.09 } }
+    }
+    nodes { id: 20 type_key: "scalar.map" schema_version: 1
+        properties { key: "input_max" value { scalar: 0.35 } }
+        properties { key: "output_min" value { scalar: 0.4 } }
+        properties { key: "output_max" value { scalar: 3.0 } }
+    }
+    nodes { id: 21 type_key: "scalar.expression" schema_version: 1
+        properties { key: "expression" value { expression: "time * 18 + 120" } }
+    }
+    nodes { id: 22 type_key: "path.helix" schema_version: 1
+        properties { key: "path_samples" value { scalar: 64 } }
+        properties { key: "path_height" value { scalar: 4.2 } }
+        properties { key: "path_turns" value { scalar: 2.4 } }
+    }
+    nodes { id: 23 type_key: "path.resample" schema_version: 1
+        properties { key: "path_samples" value { scalar: 256 } }
+    }
+    nodes { id: 24 type_key: "geometry.tube" schema_version: 1
+        properties { key: "tube_sides" value { scalar: 10 } }
+    }
+    nodes { id: 25 type_key: "material.pbr" schema_version: 1
+        properties { key: "color_a" value { color { r: 1 g: 0.22 b: 0.065 a: 1 } } }
+        properties { key: "color_b" value { color { r: 1 g: 0.22 b: 0.065 a: 1 } } }
+        properties { key: "roughness" value { scalar: 0.3 } }
+        properties { key: "metallic" value { scalar: 0.55 } }
+    }
+    nodes { id: 26 type_key: "scene.instance" schema_version: 1
+    }
+    nodes { id: 27 type_key: "geometry.tube" schema_version: 1
+        properties { key: "tube_radius" value { scalar: 0.01 } }
+        properties { key: "tube_sides" value { scalar: 6 } }
+    }
+    nodes { id: 28 type_key: "scene.instance" schema_version: 1
+    }
+    nodes { id: 29 type_key: "scene.transform" schema_version: 1
+        properties { key: "scale_x" value { scalar: 1.18 } }
+        properties { key: "scale_z" value { scalar: 1.18 } }
+    }
+    nodes { id: 30 type_key: "scene.merge" schema_version: 1
+    }
+    nodes { id: 31 type_key: "audio.band" schema_version: 1
+        properties { key: "audio_band" value { scalar: 48 } }
+    }
+    nodes { id: 32 type_key: "scalar.map" schema_version: 1
+        properties { key: "input_max" value { scalar: 0.4 } }
+        properties { key: "output_min" value { scalar: 0.7 } }
+        properties { key: "output_max" value { scalar: 1.15 } }
+    }
+    nodes { id: 33 type_key: "scalar.map" schema_version: 1
+        properties { key: "input_max" value { scalar: 0.35 } }
+        properties { key: "output_min" value { scalar: 0.026 } }
+        properties { key: "output_max" value { scalar: 0.09 } }
+    }
+    nodes { id: 34 type_key: "scalar.map" schema_version: 1
+        properties { key: "input_max" value { scalar: 0.35 } }
+        properties { key: "output_min" value { scalar: 0.4 } }
+        properties { key: "output_max" value { scalar: 3.0 } }
+    }
+    nodes { id: 35 type_key: "scalar.expression" schema_version: 1
+        properties { key: "expression" value { expression: "time * 18 + 240" } }
+    }
+    nodes { id: 36 type_key: "path.helix" schema_version: 1
+        properties { key: "path_samples" value { scalar: 64 } }
+        properties { key: "path_height" value { scalar: 4.2 } }
+        properties { key: "path_turns" value { scalar: 2.4 } }
+    }
+    nodes { id: 37 type_key: "path.resample" schema_version: 1
+        properties { key: "path_samples" value { scalar: 256 } }
+    }
+    nodes { id: 38 type_key: "geometry.tube" schema_version: 1
+        properties { key: "tube_sides" value { scalar: 10 } }
+    }
+    nodes { id: 39 type_key: "material.pbr" schema_version: 1
+        properties { key: "color_a" value { color { r: 0.6 g: 0.08 b: 1 a: 1 } } }
+        properties { key: "color_b" value { color { r: 0.6 g: 0.08 b: 1 a: 1 } } }
+        properties { key: "roughness" value { scalar: 0.3 } }
+        properties { key: "metallic" value { scalar: 0.55 } }
+    }
+    nodes { id: 40 type_key: "scene.instance" schema_version: 1
+    }
+    nodes { id: 41 type_key: "geometry.tube" schema_version: 1
+        properties { key: "tube_radius" value { scalar: 0.01 } }
+        properties { key: "tube_sides" value { scalar: 6 } }
+    }
+    nodes { id: 42 type_key: "scene.instance" schema_version: 1
+    }
+    nodes { id: 43 type_key: "scene.transform" schema_version: 1
+        properties { key: "scale_x" value { scalar: 1.18 } }
+        properties { key: "scale_z" value { scalar: 1.18 } }
+    }
+    nodes { id: 44 type_key: "scene.merge" schema_version: 1
+    }
+    nodes { id: 45 type_key: "scene.merge" schema_version: 1
+    }
+    nodes { id: 46 type_key: "scene.merge" schema_version: 1
+    }
+    nodes { id: 47 type_key: "scene.transform" schema_version: 1
+        properties { key: "rotation_z" value { scalar: -30 } }
+    }
+    nodes { id: 48 type_key: "geometry.torus" schema_version: 1
+        properties { key: "radius" value { scalar: 1.1 } }
+        properties { key: "tube_ratio" value { scalar: 0.01 } }
+        properties { key: "radial_segments" value { scalar: 96 } }
+        properties { key: "tube_segments" value { scalar: 6 } }
+    }
+    nodes { id: 49 type_key: "material.pbr" schema_version: 1
+        properties { key: "color_a" value { color { r: 0.1 g: 0.5 b: 0.7 a: 1 } } }
+        properties { key: "color_b" value { color { r: 0.03 g: 0.2 b: 0.4 a: 1 } } }
+        properties { key: "metallic" value { scalar: 0.7 } }
+        properties { key: "roughness" value { scalar: 0.35 } }
+        properties { key: "emission" value { scalar: 0.8 } }
+    }
+    nodes { id: 50 type_key: "scene.instance" schema_version: 1
+    }
+    nodes { id: 51 type_key: "scene.transform" schema_version: 1
+        properties { key: "rotation_x" value { scalar: 90 } }
+        properties { key: "rotation_z" value { scalar: -30 } }
+        properties { key: "translate_x" value { scalar: -0.5 } }
+        properties { key: "translate_y" value { scalar: -0.866 } }
+        properties { key: "scale" value { scalar: 1.4 } }
+    }
+    nodes { id: 52 type_key: "scene.merge" schema_version: 1
+    }
+    nodes { id: 53 type_key: "scene.transform" schema_version: 1
+        properties { key: "rotation_x" value { scalar: 90 } }
+        properties { key: "rotation_z" value { scalar: -30 } }
+        properties { key: "translate_x" value { scalar: -0.25 } }
+        properties { key: "translate_y" value { scalar: -0.433 } }
+        properties { key: "scale" value { scalar: 1.4 } }
+    }
+    nodes { id: 54 type_key: "scene.merge" schema_version: 1
+    }
+    nodes { id: 55 type_key: "scene.transform" schema_version: 1
+        properties { key: "rotation_x" value { scalar: 90 } }
+        properties { key: "rotation_z" value { scalar: -30 } }
+        properties { key: "translate_x" value { scalar: 0.0 } }
+        properties { key: "translate_y" value { scalar: 0.0 } }
+        properties { key: "scale" value { scalar: 1.4 } }
+    }
+    nodes { id: 56 type_key: "scene.merge" schema_version: 1
+    }
+    nodes { id: 57 type_key: "scene.transform" schema_version: 1
+        properties { key: "rotation_x" value { scalar: 90 } }
+        properties { key: "rotation_z" value { scalar: -30 } }
+        properties { key: "translate_x" value { scalar: 0.25 } }
+        properties { key: "translate_y" value { scalar: 0.433 } }
+        properties { key: "scale" value { scalar: 1.4 } }
+    }
+    nodes { id: 58 type_key: "scene.merge" schema_version: 1
+    }
+    nodes { id: 59 type_key: "scene.transform" schema_version: 1
+        properties { key: "rotation_x" value { scalar: 90 } }
+        properties { key: "rotation_z" value { scalar: -30 } }
+        properties { key: "translate_x" value { scalar: 0.5 } }
+        properties { key: "translate_y" value { scalar: 0.866 } }
+        properties { key: "scale" value { scalar: 1.4 } }
+    }
+    nodes { id: 60 type_key: "scene.merge" schema_version: 1
+    }
+    nodes { id: 61 type_key: "scene.point_light" schema_version: 1
+        properties { key: "translate_x" value { scalar: -3 } }
+        properties { key: "translate_y" value { scalar: 3 } }
+        properties { key: "translate_z" value { scalar: 4 } }
+        properties { key: "light_energy" value { scalar: 55 } }
+        properties { key: "light_range" value { scalar: 15 } }
+        properties { key: "color_a" value { color { r: 0.5 g: 0.8 b: 1 a: 1 } } }
+    }
+    nodes { id: 62 type_key: "scene.merge" schema_version: 1
+    }
+    nodes { id: 63 type_key: "texture.gradient" schema_version: 1
+        properties { key: "color_a" value { color { r: 0.02 g: 0.08 b: 0.2 a: 1 } } }
+        properties { key: "color_b" value { color { r: 0.6 g: 0.4 b: 0.7 a: 1 } } }
+    }
+    nodes { id: 64 type_key: "scene.environment" schema_version: 1
+        properties { key: "environment_energy" value { scalar: 0.7 } }
+    }
+    nodes { id: 65 type_key: "scene.camera" schema_version: 1
+        properties { key: "eye_y" value { scalar: 0.7 } }
+        properties { key: "eye_z" value { scalar: 8.5 } }
+        properties { key: "field_of_view" value { scalar: 42 } }
+        properties { key: "near_plane" value { scalar: 0.1 } }
+        properties { key: "far_plane" value { scalar: 30 } }
+    }
+    nodes { id: 66 type_key: "scene.capture" schema_version: 1
+    }
+    nodes { id: 67 type_key: "scene.color" schema_version: 1
+    }
+    nodes { id: 68 type_key: "scene.depth" schema_version: 1
+    }
+    nodes { id: 69 type_key: "texture.dof" schema_version: 1
+        properties { key: "focus_distance" value { scalar: 8.5 } }
+        properties { key: "focus_scale" value { scalar: 30 } }
+        properties { key: "dof_radius" value { scalar: 4 } }
+        properties { key: "dof_samples" value { scalar: 20 } }
+    }
+    nodes { id: 77 type_key: "texture.display" schema_version: 1
+        properties { key: "tone_mapping" value { scalar: 1 } }
+    }
+    edges { id: 1 from: 1 to: 2 input: "time" }
+    edges { id: 2 from: 3 to: 4 input: "value" }
+    edges { id: 3 from: 3 to: 5 input: "value" }
+    edges { id: 4 from: 3 to: 6 input: "value" }
+    edges { id: 5 from: 1 to: 7 input: "time" }
+    edges { id: 6 from: 4 to: 8 input: "path_radius" }
+    edges { id: 7 from: 7 to: 8 input: "path_phase" }
+    edges { id: 8 from: 8 to: 9 input: "path" }
+    edges { id: 9 from: 9 to: 10 input: "path" }
+    edges { id: 10 from: 5 to: 10 input: "tube_radius" }
+    edges { id: 11 from: 6 to: 11 input: "emission" }
+    edges { id: 12 from: 10 to: 12 input: "geometry" }
+    edges { id: 13 from: 11 to: 12 input: "material" }
+    edges { id: 14 from: 9 to: 13 input: "path" }
+    edges { id: 15 from: 13 to: 14 input: "geometry" }
+    edges { id: 16 from: 11 to: 14 input: "material" }
+    edges { id: 17 from: 14 to: 15 input: "scene" }
+    edges { id: 18 from: 12 to: 16 input: "a" }
+    edges { id: 19 from: 15 to: 16 input: "b" }
+    edges { id: 20 from: 17 to: 18 input: "value" }
+    edges { id: 21 from: 17 to: 19 input: "value" }
+    edges { id: 22 from: 17 to: 20 input: "value" }
+    edges { id: 23 from: 1 to: 21 input: "time" }
+    edges { id: 24 from: 18 to: 22 input: "path_radius" }
+    edges { id: 25 from: 21 to: 22 input: "path_phase" }
+    edges { id: 26 from: 22 to: 23 input: "path" }
+    edges { id: 27 from: 23 to: 24 input: "path" }
+    edges { id: 28 from: 19 to: 24 input: "tube_radius" }
+    edges { id: 29 from: 20 to: 25 input: "emission" }
+    edges { id: 30 from: 24 to: 26 input: "geometry" }
+    edges { id: 31 from: 25 to: 26 input: "material" }
+    edges { id: 32 from: 23 to: 27 input: "path" }
+    edges { id: 33 from: 27 to: 28 input: "geometry" }
+    edges { id: 34 from: 25 to: 28 input: "material" }
+    edges { id: 35 from: 28 to: 29 input: "scene" }
+    edges { id: 36 from: 26 to: 30 input: "a" }
+    edges { id: 37 from: 29 to: 30 input: "b" }
+    edges { id: 38 from: 31 to: 32 input: "value" }
+    edges { id: 39 from: 31 to: 33 input: "value" }
+    edges { id: 40 from: 31 to: 34 input: "value" }
+    edges { id: 41 from: 1 to: 35 input: "time" }
+    edges { id: 42 from: 32 to: 36 input: "path_radius" }
+    edges { id: 43 from: 35 to: 36 input: "path_phase" }
+    edges { id: 44 from: 36 to: 37 input: "path" }
+    edges { id: 45 from: 37 to: 38 input: "path" }
+    edges { id: 46 from: 33 to: 38 input: "tube_radius" }
+    edges { id: 47 from: 34 to: 39 input: "emission" }
+    edges { id: 48 from: 38 to: 40 input: "geometry" }
+    edges { id: 49 from: 39 to: 40 input: "material" }
+    edges { id: 50 from: 37 to: 41 input: "path" }
+    edges { id: 51 from: 41 to: 42 input: "geometry" }
+    edges { id: 52 from: 39 to: 42 input: "material" }
+    edges { id: 53 from: 42 to: 43 input: "scene" }
+    edges { id: 54 from: 40 to: 44 input: "a" }
+    edges { id: 55 from: 43 to: 44 input: "b" }
+    edges { id: 56 from: 16 to: 45 input: "a" }
+    edges { id: 57 from: 30 to: 45 input: "b" }
+    edges { id: 58 from: 45 to: 46 input: "a" }
+    edges { id: 59 from: 44 to: 46 input: "b" }
+    edges { id: 60 from: 46 to: 47 input: "scene" }
+    edges { id: 61 from: 2 to: 47 input: "rotation_y" }
+    edges { id: 62 from: 48 to: 50 input: "geometry" }
+    edges { id: 63 from: 49 to: 50 input: "material" }
+    edges { id: 64 from: 50 to: 51 input: "scene" }
+    edges { id: 65 from: 47 to: 52 input: "a" }
+    edges { id: 66 from: 51 to: 52 input: "b" }
+    edges { id: 67 from: 50 to: 53 input: "scene" }
+    edges { id: 68 from: 52 to: 54 input: "a" }
+    edges { id: 69 from: 53 to: 54 input: "b" }
+    edges { id: 70 from: 50 to: 55 input: "scene" }
+    edges { id: 71 from: 54 to: 56 input: "a" }
+    edges { id: 72 from: 55 to: 56 input: "b" }
+    edges { id: 73 from: 50 to: 57 input: "scene" }
+    edges { id: 74 from: 56 to: 58 input: "a" }
+    edges { id: 75 from: 57 to: 58 input: "b" }
+    edges { id: 76 from: 50 to: 59 input: "scene" }
+    edges { id: 77 from: 58 to: 60 input: "a" }
+    edges { id: 78 from: 59 to: 60 input: "b" }
+    edges { id: 79 from: 60 to: 62 input: "a" }
+    edges { id: 80 from: 61 to: 62 input: "b" }
+    edges { id: 81 from: 62 to: 64 input: "scene" }
+    edges { id: 82 from: 63 to: 64 input: "environment_texture" }
+    edges { id: 83 from: 64 to: 66 input: "scene" }
+    edges { id: 84 from: 65 to: 66 input: "camera" }
+    edges { id: 85 from: 66 to: 67 input: "capture" }
+    edges { id: 86 from: 66 to: 68 input: "capture" }
+    edges { id: 87 from: 67 to: 69 input: "source" }
+    edges { id: 88 from: 68 to: 69 input: "depth" }
+    edges { id: 89 from: 69 to: 77 input: "source" }
+    parameters { key: "path_turns" node: 8 property: "path_turns" group: "component.geometry" }
+    parameters { key: "path_height" node: 8 property: "path_height" group: "component.geometry" }
+    parameters { key: "roughness" node: 11 property: "roughness" group: "component.material" }
+    parameters { key: "field_of_view" node: 65 property: "field_of_view" group: "component.camera" }
+    parameters { key: "dof_radius" node: 69 property: "dof_radius" group: "component.camera" }
+}

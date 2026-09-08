@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.dual_population_mist",
+            "reset": true,
+            "id": "official.semantic.dual_population_mist.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.dual_population_mist",
+            "reset": true,
+            "id": "official.semantic.dual_population_mist.variant",
+            "titles": {
+                "en-US": "Fourfold cloud",
+                "zh-CN": "四瓣云旋"
+            },
+            "properties": {
+                "emitter_radius": 0.48,
+                "flow_frequency": 9,
+                "sectors": 4,
+                "scale": 1.2,
+                "exposure": -2.1
+            }
+        }
+    ]
+}

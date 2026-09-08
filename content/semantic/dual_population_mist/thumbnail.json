@@ -1,0 +1,14 @@
+{
+    "template": "dual_population_mist",
+    "package_sha256": "ed896304affdbf1937d7c31dc010b1896ebedb6ba51c93c484ef8ca4291fa975",
+    "thumbnail_sha256": "6fe66c99c0ae6df734bb536cb0dbff42e16dff7e3cdd90512ead94895cbfcf83",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

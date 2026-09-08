@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.spectrum_columns",
+    "content_version": "0.1.0",
+    "project_id": "semantic-spectrum_columns",
+    "graph_revision": 0,
+    "title": "频谱柱阵 / Spectrum columns",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Spectrum columns",
+        "zh-CN": "频谱柱阵"
+    },
+    "category": "audio",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "en-US": "A batched field of up to 4096 columns responds to the spectrum. Change grid density, span and camera framing independently of the final background.",
+        "zh-CN": "最多 4096 根批量绘制的立柱响应频谱。独立调整点阵密度、分布跨度和相机取景，不绑定最终背景。"
+    },
+    "semantic": true,
+    "default": false
+}

@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.woven_light",
+            "reset": true,
+            "id": "official.semantic.woven_light.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.woven_light",
+            "reset": true,
+            "id": "official.semantic.woven_light.variant",
+            "titles": {
+                "en-US": "Tight braid",
+                "zh-CN": "紧密编织"
+            },
+            "properties": {
+                "path_turns": 4.0,
+                "path_height": 3.2,
+                "roughness": 0.55,
+                "field_of_view": 49,
+                "dof_radius": 2
+            }
+        }
+    ]
+}

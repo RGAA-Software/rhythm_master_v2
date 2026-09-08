@@ -1,0 +1,14 @@
+{
+    "template": "enamel_orb",
+    "package_sha256": "591254d4541e3cd38484b2f17fd770acf4c50bf32d5926ff15d3b6f2eb7bf1b4",
+    "thumbnail_sha256": "5f4e2fa19941bf2174823920b1c6d9b17df1a5a46e35ce024d67ddc290872666",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

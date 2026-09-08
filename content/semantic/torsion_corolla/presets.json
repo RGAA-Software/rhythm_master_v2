@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.torsion_corolla",
+            "reset": true,
+            "id": "official.semantic.torsion_corolla.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.torsion_corolla",
+            "reset": true,
+            "id": "official.semantic.torsion_corolla.variant",
+            "titles": {
+                "en-US": "Broad petals",
+                "zh-CN": "厚瓣花冠"
+            },
+            "properties": {
+                "radius": 0.68,
+                "tube_ratio": 0.14,
+                "roughness": 0.5,
+                "environment_energy": 0.6,
+                "field_of_view": 49
+            }
+        }
+    ]
+}
