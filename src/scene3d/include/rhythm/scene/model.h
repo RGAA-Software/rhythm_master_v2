@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "rhythm/scene/animation.h"
 #include "rhythm/scene/math.h"
 
 namespace rhythm::scene {
@@ -75,13 +76,16 @@ struct Model {
     std::vector<Material> materials_{};
     std::vector<Node> nodes_{};
     std::vector<TextureImage> images_{};
+    AnimationPose rest_pose_{};
+    std::vector<AnimationClip> animations_{};
 };
 struct WorldNode {
     Matrix transform_{};
     bool visible_ = true;
 };
 void Validate(const Model& model);
-std::map<NodeId, WorldNode> WorldTransforms(const Model& model);
+std::map<NodeId, WorldNode> WorldTransforms(const Model& model, const AnimationPose& pose = {});
+void ValidateAnimations(const Model& model);
 void GenerateNormals(Mesh& mesh);
 // Synchronous, bounded MikkTSpace generation. Splits incompatible corner frames;
 // publishes the replacement only on success. Input must have unit normals/UVs.

@@ -53,6 +53,8 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                  float(light.cone_angle_),
                  float(light.cone_decay_)});
     std::set<Key> active;
+    std::set<PoseKey> active_poses;
+    std::size_t pose_nodes = 0;
     const auto needs_tangents = [](const scene::Instance& instance) {
         if (instance.material_)
             return instance.material_->textures_.nodes_[1] != 0 ||
@@ -68,11 +70,17 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
             !scene::ValidAffine(instance.transform_))
             throw std::invalid_argument("runtime.geometry");
         const auto& geometry = *instance.geometry_;
+        if (geometry.pose_ && active_poses.emplace(geometry.id_, geometry.revision_).second) {
+            if (geometry.model_->nodes_.size() > 65536 - pose_nodes)
+                throw std::length_error("runtime.animation_budget");
+            pose_nodes += geometry.model_->nodes_.size();
+        }
         active.emplace(geometry.upload_id_ ? geometry.upload_id_ : geometry.id_,
                        geometry.upload_id_ ? geometry.upload_revision_ : geometry.revision_,
                        needs_tangents(instance));
     }
     std::erase_if(uploads_, [&](const auto& item) { return !active.contains(item.first); });
+    std::erase_if(poses_, [&](const auto& item) { return !active_poses.contains(item.first); });
     std::uint64_t index_count = 0;
     for (const auto& instance : scene.instances_) {
         const auto& geometry = *instance.geometry_;
@@ -100,8 +108,12 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
             uploads_.emplace(key, std::move(upload));
         }
         auto& upload = uploads_.at(key);
+        const PoseKey pose_key{geometry.id_, geometry.revision_};
+        if (geometry.pose_ && !poses_.contains(pose_key))
+            poses_.emplace(pose_key, scene::WorldTransforms(*upload.model_, *geometry.pose_));
+        const auto& worlds = geometry.pose_ ? poses_.at(pose_key) : upload.worlds_;
         for (const auto& node : upload.model_->nodes_) {
-            const auto& world = upload.worlds_.at(node.id_);
+            const auto& world = worlds.at(node.id_);
             if (!world.visible_) continue;
             const auto transform = scene::Multiply(instance.transform_, world.transform_);
             if (!scene::ValidAffine(transform))

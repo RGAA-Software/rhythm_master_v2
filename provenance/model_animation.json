@@ -1,0 +1,31 @@
+{
+    "sources": [
+        {
+            "source_url": "https://github.com/godotengine/godot",
+            "revision": "f62fdbde15035c5576dad93e586201f4d41ef0cb",
+            "source_file": "modules/gltf/gltf_document.cpp",
+            "sha256": "be5cd97ad0530eef4597240daa9012eed23847b39d8ebc8cc5333161ccb6951e",
+            "license": "MIT",
+            "notice": "third_party/notices/godot/LICENSE.txt",
+            "usage": "Local source study and adaptation of glTF key interval, endpoint, and duration-scaled tangent conventions; no engine types or copied translation unit.",
+            "target": "src/scene3d/animation.cpp",
+            "modifications": [
+                "Binary search replaces linear key search.",
+                "GLM implements vector interpolation, Hermite and shortest-arc quaternion slerp.",
+                "Cubic quaternion tracks use component Hermite then normalization, rather than upstream 4.5.1 spherical fallback.",
+                "Immutable validated clips, bounded value poses and external unified transport time replace engine resources and animation player."
+            ]
+        },
+        {
+            "source_url": "https://github.com/g-truc/glm",
+            "revision": "bf71a834948186f4097caa076cd2663c69a10e1e",
+            "license": "MIT",
+            "notice": "third_party/notices/glm/LICENSE.txt",
+            "source_files": [
+                "glm/gtx/spline.inl",
+                "glm/ext/quaternion_common.inl"
+            ],
+            "usage": "Direct private calls to existing vcpkg GLM 0.9.9.8#2; no new library."
+        }
+    ]
+}

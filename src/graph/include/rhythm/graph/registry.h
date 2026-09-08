@@ -83,7 +83,8 @@ enum class Operation : std::uint8_t {
     kPathResample,
     kGeometryTube,
     kGeometryDeform,
-    kTextureShader
+    kTextureShader,
+    kGeometryAnimate
 };
 struct PortDescriptor {
     std::string key_{};

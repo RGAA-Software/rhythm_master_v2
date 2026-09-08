@@ -14,12 +14,17 @@ void Require(bool condition) {
     if (!condition) throw std::invalid_argument("scene.model");
 }
 }  // namespace
-std::map<NodeId, WorldNode> WorldTransforms(const Model& model) {
+std::map<NodeId, WorldNode> WorldTransforms(const Model& model, const AnimationPose& pose) {
     Require(model.nodes_.size() <= 2048);
+    Validate(pose);
     std::map<NodeId, std::size_t> lookup;
     for (std::size_t i = 0; i < model.nodes_.size(); ++i)
         Require(model.nodes_[i].id_ && lookup.emplace(model.nodes_[i].id_, i).second &&
                 ValidAffine(model.nodes_[i].local_));
+    for (const auto& [id, value] : pose) {
+        (void)value;
+        Require(lookup.contains(id));
+    }
     std::map<NodeId, WorldNode> worlds;
     std::map<NodeId, std::size_t> depths;
     for (const auto& node : model.nodes_) {
@@ -38,8 +43,12 @@ std::map<NodeId, WorldNode> WorldTransforms(const Model& model) {
             const auto parent = source.parent_ ? worlds.at(*source.parent_) : WorldNode{};
             const auto depth = source.parent_ ? depths.at(*source.parent_) + 1 : 1;
             Require(depth <= 64);
-            WorldNode value{Multiply(parent.transform_, source.local_),
-                            parent.visible_ && source.visible_};
+            auto local = source.local_;
+            if (const auto found = pose.find(id); found != pose.end()) {
+                const auto& animated = found->second;
+                local = Compose(animated.translation_, animated.rotation_, animated.scale_);
+            }
+            WorldNode value{Multiply(parent.transform_, local), parent.visible_ && source.visible_};
             Require(ValidAffine(value.transform_));
             worlds.emplace(id, value);
             depths.emplace(id, depth);
@@ -48,6 +57,7 @@ std::map<NodeId, WorldNode> WorldTransforms(const Model& model) {
     return worlds;
 }
 void Validate(const Model& model) {
+    ValidateAnimations(model);
     Require(!model.nodes_.empty() && model.nodes_.size() <= 2048 && !model.materials_.empty() &&
             model.materials_.size() <= 128 && model.meshes_.size() <= 512);
     Require(model.images_.size() <= 192);

@@ -47,7 +47,7 @@ void ValidateProfile(const cgltf_data& data) {
             "gltf.model_limit");
     Require(data.images_count <= 64 && data.textures_count <= 128 && data.samplers_count <= 128,
             "gltf.image_count");
-    Require(!data.skins_count && !data.animations_count && !data.variants_count &&
+    Require(!data.skins_count && data.animations_count <= 64 && !data.variants_count &&
                     !data.cameras_count && !data.lights_count,
             "gltf.static_profile");
     for (std::size_t i = 0; i < data.extensions_required_count; ++i)

@@ -20,6 +20,7 @@ std::optional<Diagnostic> ValidateSceneBudget(
     };
     std::vector<Counts> counts(plan.instructions_.size());
     std::uint64_t vertices = 0, indices = 0, snapshots = 0, draws = 0, path_snapshots = 0;
+    std::uint32_t animated_geometries = 0;
     for (std::size_t index = 0; index < plan.instructions_.size(); ++index) {
         const auto& instruction = plan.instructions_[index];
         auto& count = counts[index];
@@ -33,6 +34,12 @@ std::optional<Diagnostic> ValidateSceneBudget(
             return counts[*instruction.inputs_[port]];
         };
         switch (instruction.operation_) {
+            case Operation::kGeometryAnimate: {
+                const auto geometry_source = source(0);
+                if (!geometry_source || ++animated_geometries > 32) return fail();
+                count = *geometry_source;
+                break;
+            }
             case Operation::kGeometryDeform: {
                 const auto geometry_source = source(0);
                 if (!geometry_source) return fail();

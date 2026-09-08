@@ -15,12 +15,43 @@ std::string Text(const std::map<std::string, std::string>& text, const std::stri
 std::string Label(const std::map<std::string, std::string>& text, const std::string& key) {
     return Text(text, key) + "###" + key;
 }
+std::vector<std::string> AnimationNames(const graph::Document& document, graph::NodeId selected,
+                                        const scene::Resources& models) {
+    for (std::size_t depth = 0; depth < 64; ++depth) {
+        const auto node =
+                std::find_if(document.nodes_.begin(), document.nodes_.end(),
+                             [selected](const auto& value) { return value.id_ == selected; });
+        if (node == document.nodes_.end()) return {};
+        if (node->type_ == "geometry.glb") {
+            const auto asset = node->properties_.find("asset");
+            if (asset == node->properties_.end() ||
+                !std::holds_alternative<assets::AssetId>(asset->second))
+                return {};
+            for (const auto& model : models.models_)
+                if (model.id_ == std::get<assets::AssetId>(asset->second) && model.model_) {
+                    std::vector<std::string> names;
+                    for (const auto& clip : model.model_->animations_)
+                        names.push_back(std::to_string(names.size()) + ": " + clip.Name());
+                    return names;
+                }
+            return {};
+        }
+        if (node->type_ != "geometry.animate" && node->type_ != "geometry.deform") return {};
+        const auto edge = std::find_if(
+                document.edges_.begin(), document.edges_.end(), [selected](const auto& value) {
+                    return value.to_ == selected && value.input_ == "geometry";
+                });
+        if (edge == document.edges_.end()) return {};
+        selected = edge->from_;
+    }
+    return {};
+}
 }  // namespace
 InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::NodeId selected,
                                         const graph::Registry& registry,
                                         std::span<const content::Preset> presets,
                                         const std::map<std::string, std::string>& text,
-                                        const std::string& locale) {
+                                        const std::string& locale, const scene::Resources& models) {
     InspectorResult result;
 
     if (draft_ && (draft_->document_.revision_ != base.document_.revision_ ||
@@ -37,6 +68,9 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
         return result;
     }
     const auto node = *found;
+    const auto animation_names = node.type_ == "geometry.animate"
+                                         ? AnimationNames(snapshot.document_, selected, models)
+                                         : std::vector<std::string>{};
     auto title = Text(text, node.type_);
     if (title == node.type_) {
         const auto definition = std::find_if(
@@ -46,6 +80,8 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
             title = definition->title_;
     }
     ImGui::TextUnformatted(title.c_str());
+    if (node.type_ == "geometry.animate")
+        ImGui::TextWrapped("%s", Text(text, "animation.help").c_str());
     const auto descriptor = registry.Find(node.type_, snapshot.document_.components_);
     if (!descriptor) return result;
     if (!registry.ValidateNode(node, snapshot.document_.components_).empty()) {
@@ -157,7 +193,23 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
             committed = curve_edit.committed_;
             edited = std::move(curve);
         } else if (std::holds_alternative<double>(value)) {
-            if (property.integral_) {
+            if (!animation_names.empty() && node.type_ == "geometry.animate" &&
+                (property.key_ == "animation_clip" || property.key_ == "animation_second")) {
+                const auto current = static_cast<std::size_t>(std::get<double>(value));
+                const auto preview = current < animation_names.size()
+                                             ? animation_names[current]
+                                             : Text(text, "runtime.animation_clip");
+                if (ImGui::BeginCombo(label.c_str(), preview.c_str())) {
+                    for (std::size_t i = 0; i < animation_names.size(); ++i) {
+                        const auto choice = animation_names[i] + "###clip." + std::to_string(i);
+                        if (ImGui::Selectable(choice.c_str(), i == current)) {
+                            edited = static_cast<double>(i);
+                            changed = committed = true;
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+            } else if (property.integral_) {
                 auto number = static_cast<std::int64_t>(std::get<double>(value));
                 const auto minimum = static_cast<std::int64_t>(property.minimum_);
                 const auto maximum = static_cast<std::int64_t>(property.maximum_);

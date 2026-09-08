@@ -259,6 +259,7 @@ Registry::Registry() {
                           {{"composite_mode", 0.0, 0, 1, {"composite.over", "composite.add"}}}});
     AppendSceneDescriptors(operators_);
     AppendPathDescriptors(operators_);
+    AppendAnimationDescriptors(operators_);
     operators_.push_back({"texture.noise",
                           Operation::kTextureNoise,
                           Type::kTexture,

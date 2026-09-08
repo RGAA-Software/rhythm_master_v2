@@ -3,6 +3,8 @@
 #include "rhythm/runtime/runtime.h"
 
 namespace rhythm::runtime::detail {
+void EvaluateAnimation(const graph::Instruction& instruction, std::span<const NodeOutput> outputs,
+                       NodeOutput& output, double seconds);
 void EvaluateDeformation(const graph::Instruction& instruction, std::span<const NodeOutput> outputs,
                          NodeOutput& output);
 std::shared_ptr<const scene::Scene> PointInstances(const graph::Instruction& instruction,

@@ -283,8 +283,9 @@ class Studio::Impl final {
         }
         shader_panel_.Draw(history_->Current(), canvas_.Selection(), project_ / "assets",
                            catalogs_.at(locale_));
-        auto result = inspector_.Draw(history_->Current(), canvas_.Selection(), registry_, presets_,
-                                      catalogs_.at(locale_), locale_);
+        auto result =
+                inspector_.Draw(history_->Current(), canvas_.Selection(), registry_, presets_,
+                                catalogs_.at(locale_), locale_, *prepared_resources_->models_);
         if (result.diagnostic_) status_ = Text(result.diagnostic_->code_);
         if (result.committed_)
             Apply(std::move(*result.committed_));

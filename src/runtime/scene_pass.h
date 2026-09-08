@@ -24,6 +24,8 @@ class ScenePass final {
     };
     using Key = std::tuple<std::uint64_t, std::uint64_t, bool>;
     std::map<Key, Uploaded> uploads_{};
+    using PoseKey = std::pair<std::uint64_t, std::uint64_t>;
+    std::map<PoseKey, std::map<scene::NodeId, scene::WorldNode>> poses_{};
     ShadowPass shadow_{};
     EnvironmentPass environment_{};
 };

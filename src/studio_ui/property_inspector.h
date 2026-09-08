@@ -4,6 +4,7 @@
 #include "expression_editor.h"
 #include "rhythm/content/presets.h"
 #include "rhythm/editor/history.h"
+#include "rhythm/scene/resources.h"
 
 namespace rhythm::studio {
 struct InspectorResult {
@@ -17,7 +18,8 @@ class PropertyInspector final {
    public:
     InspectorResult Draw(const editor::Snapshot& base, graph::NodeId selected,
                          const graph::Registry& registry, std::span<const content::Preset> presets,
-                         const std::map<std::string, std::string>& text, const std::string& locale);
+                         const std::map<std::string, std::string>& text, const std::string& locale,
+                         const scene::Resources& models = {});
     const std::optional<editor::Snapshot>& Preview() const { return draft_; }
     void Reset() {
         draft_.reset();

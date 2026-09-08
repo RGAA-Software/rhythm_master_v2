@@ -22,6 +22,7 @@ struct Geometry {
     std::uint64_t upload_id_ = 0;
     std::uint64_t upload_revision_ = 0;
     std::vector<Deformation> deformations_{};
+    std::shared_ptr<const AnimationPose> pose_{};
 };
 struct Instance {
     std::shared_ptr<const Geometry> geometry_{};

@@ -145,6 +145,7 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
             }
         if (operation == graph::Operation::kTime ||
             (operation == graph::Operation::kTextureShader && !instruction.inputs_[1]) ||
+            (operation == graph::Operation::kGeometryAnimate && !instruction.inputs_[1]) ||
             operation == graph::Operation::kTextureTrail ||
             operation == graph::Operation::kParticleEmitter ||
             operation == graph::Operation::kGpuParticleEmitter ||
@@ -235,6 +236,10 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                     break;
                 case graph::Operation::kGeometryDeform:
                     detail::EvaluateDeformation(instruction, result.outputs_, state.output_);
+                    break;
+                case graph::Operation::kGeometryAnimate:
+                    detail::EvaluateAnimation(instruction, result.outputs_, state.output_,
+                                              frame.seconds_);
                     break;
                 case graph::Operation::kGeometryCube:
                 case graph::Operation::kGeometryTorus:

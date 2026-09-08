@@ -114,6 +114,7 @@ scene::Model ReadGlb(std::span<const std::uint8_t> bytes, std::stop_token stop) 
         if (source.mesh) node.meshes_ = meshes.at(cgltf_mesh_index(&data, source.mesh));
         model.nodes_.push_back(std::move(node));
     }
+    detail::ReadAnimations(data, model, stop);
     scene::Validate(model);
     return model;
 }
