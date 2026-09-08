@@ -52,7 +52,8 @@ void Run() {
         root.Draw(project, registry, {});
         ImGui::End();
         ImGui::SetNextWindowPos({30, 30});
-        if (auto result = workbench.Draw(project, registry, {}, "en-US", previews))
+        rhythm::studio::PreviewRouting routing;
+        if (auto result = workbench.Draw(project, registry, {}, "en-US", routing, previews))
             applied = std::move(result);
         ImGui::Render();
     };
@@ -117,8 +118,8 @@ void Run() {
             "closing draft releases its live preview demand");
     studio::PreviewRouting routing;
     const auto request = routing.Prepare({1, 2, 3, 4, 5, 6, 7, 8}, {{10}, {1, 2, 3, 4, 5, 6}});
-    Require(request.roots_.size() == 2 && request.scoped_.nodes_.size() == 6,
-            "component and root demand share one eight-image budget");
+    Require(request.roots_.size() == 4 && request.scoped_.nodes_.size() == 4,
+            "component and root demand each receive four slots in the shared first group");
     editor::Compilation compilation;
     compilation.viewers_ = {101};
     compilation.scoped_nodes_ = {{2, 101}};

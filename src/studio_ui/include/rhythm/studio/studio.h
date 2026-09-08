@@ -16,6 +16,8 @@ struct FrameStatus {
     std::size_t component_inline_previews_ = 0;
     std::size_t signal_previews_ = 0;
     std::size_t waveform_bins_ = 0;
+    std::size_t preview_group_ = 0;
+    std::size_t preview_groups_ = 0;
 };
 class Studio final {
    public:

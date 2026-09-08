@@ -9,6 +9,7 @@
 #include "time_track_editor.h"
 
 namespace rhythm::studio {
+class PreviewRouting;
 // Owns nested authoring navigation and its draft lifecycle; application history
 // receives one validated value only when the user applies the draft.
 class ComponentWorkbench final {
@@ -17,7 +18,7 @@ class ComponentWorkbench final {
     std::optional<editor::Snapshot> Draw(const editor::Snapshot& project,
                                          const graph::Registry& registry,
                                          const std::map<std::string, std::string>& text,
-                                         const std::string& locale,
+                                         const std::string& locale, PreviewRouting& routing,
                                          const CanvasPreviews& previews = {});
     const std::optional<graph::Document>& PreviewDocument() const { return preview_document_; }
     editor::ScopedViewers PreviewViewers() const { return {instance_path_, preview_nodes_}; }

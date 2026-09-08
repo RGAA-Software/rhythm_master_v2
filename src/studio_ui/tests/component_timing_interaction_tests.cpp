@@ -9,6 +9,7 @@
 #include <stdexcept>
 
 #include "component_workbench.h"
+#include "preview_routing.h"
 
 namespace {
 struct ContextDelete {
@@ -71,7 +72,8 @@ int main(int argc, char* argv[]) {
             ImGui::NewFrame();
             ImGui::SetNextWindowPos({0, 0});
             ImGui::SetNextWindowSize({1350, 1050});
-            if (auto result = workbench.Draw(project, registry, text, "en-US"))
+            rhythm::studio::PreviewRouting routing;
+            if (auto result = workbench.Draw(project, registry, text, "en-US", routing))
                 applied = std::move(result);
             for (auto* window : ImGui::GetCurrentContext()->Windows)
                 if (window->Active && std::string_view(window->Name).find("timeline.sections") !=

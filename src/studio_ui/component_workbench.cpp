@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "preview_routing.h"
 #include "rhythm/runtime/viewers.h"
 
 namespace rhythm::studio {
@@ -76,8 +77,6 @@ void ComponentWorkbench::UpdatePreview(const editor::Snapshot& project,
         if (const auto selected = std::find(nodes.begin(), nodes.end(), canvas_.Selection());
             selected != nodes.end())
             std::rotate(nodes.begin(), selected, selected + 1);
-        if (nodes.size() > runtime::Viewers::kMaxPreviews)
-            nodes.resize(runtime::Viewers::kMaxPreviews);
     }
     if (nodes != preview_nodes_ || preview_path_ != instance_path_) {
         preview_nodes_ = std::move(nodes);
@@ -88,7 +87,7 @@ void ComponentWorkbench::UpdatePreview(const editor::Snapshot& project,
 std::optional<editor::Snapshot> ComponentWorkbench::Draw(
         const editor::Snapshot& project, const graph::Registry& registry,
         const std::map<std::string, std::string>& text, const std::string& locale,
-        const CanvasPreviews& previews) {
+        PreviewRouting& routing, const CanvasPreviews& previews) {
     if (!edit_) return {};
     const auto label = [&](const std::string& key) {
         const auto found = text.find(key);
@@ -101,6 +100,7 @@ std::optional<editor::Snapshot> ComponentWorkbench::Draw(
     ImGui::SetNextWindowSize({1100, 750}, ImGuiCond_FirstUseEver);
     if (ImGui::Begin((label("component.edit") + "###component.workbench").c_str(), &open)) {
         ImGui::TextWrapped("%s", label("component.draft_help").c_str());
+        if (previews.enabled_) routing.DrawNavigation(text);
         if (ImGui::Button(label("component.apply").c_str())) {
             CommitPreview();
             auto applied = edit_->Finish(project, registry);

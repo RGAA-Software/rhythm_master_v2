@@ -121,7 +121,8 @@ class Studio::Impl final {
                                                       : history_->Current().document_;
         auto request = preview_routing_.Prepare(
                 viewer_nodes_,
-                show_viewers_ ? component_workbench_.PreviewViewers() : editor::ScopedViewers{});
+                show_viewers_ ? component_workbench_.PreviewViewers() : editor::ScopedViewers{},
+                document.id_);
         generation_ =
                 compiler_.Submit(document, std::move(request.roots_), std::move(request.scoped_));
     }
@@ -137,6 +138,7 @@ class Studio::Impl final {
             QueueCompile();
     }
     void Toolbar(platform::Host& host, render::Renderer& renderer, double seconds) {
+        if (show_viewers_) preview_routing_.DrawNavigation(catalogs_.at(locale_));
         bool busy = store_.Busy() || assets_.Busy();
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         busy |= soundtrack_panel_.Busy();
@@ -571,8 +573,6 @@ class Studio::Impl final {
             if (const auto selected = std::find(demand.begin(), demand.end(), canvas_.Selection());
                 selected != demand.end())
                 std::rotate(demand.begin(), selected, selected + 1);
-            if (demand.size() > runtime::Viewers::kMaxPreviews)
-                demand.resize(runtime::Viewers::kMaxPreviews);
         }
         if (demand != viewer_nodes_) {
             viewer_nodes_ = std::move(demand);
@@ -630,12 +630,14 @@ class Studio::Impl final {
         component_previews.enabled_ = show_viewers_;
         if (const auto edited =
                     component_workbench_.Draw(history_->Current(), registry_, catalogs_.at(locale_),
-                                              locale_, component_previews)) {
+                                              locale_, preview_routing_, component_previews)) {
             inspector_.Reset();
             Apply(*edited);
             canvas_.RestoreLayout();
         }
-        if (component_preview_generation_ != component_workbench_.PreviewGeneration()) {
+        const bool preview_page_changed = preview_routing_.TakePageChange();
+        if (component_preview_generation_ != component_workbench_.PreviewGeneration() ||
+            preview_page_changed) {
             component_preview_generation_ = component_workbench_.PreviewGeneration();
             QueueCompile();
         }
@@ -749,7 +751,9 @@ FrameStatus Studio::Status() const {
             impl_->profiled_nodes_,
             impl_->component_workbench_.DrawnPreviews(),
             impl_->signal_previews_.Traces().size(),
-            impl_->timeline_.WaveformBins()};
+            impl_->timeline_.WaveformBins(),
+            impl_->preview_routing_.Page(),
+            impl_->preview_routing_.Pages()};
 }
 void Studio::LoadAudioFile(const std::filesystem::path& path, float volume) {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA

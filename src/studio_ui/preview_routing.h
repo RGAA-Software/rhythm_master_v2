@@ -12,7 +12,13 @@ struct PreviewRequest {
 // become visible only when their matching plan/resources are committed.
 class PreviewRouting final {
    public:
-    PreviewRequest Prepare(std::vector<graph::NodeId> roots, editor::ScopedViewers scoped);
+    PreviewRequest Prepare(std::vector<graph::NodeId> roots, editor::ScopedViewers scoped,
+                           std::string document_id = {});
+    void DrawNavigation(const std::map<std::string, std::string>& text);
+    bool StepPage(int direction);
+    bool TakePageChange();
+    std::size_t Page() const { return page_; }
+    std::size_t Pages() const { return pages_; }
     void Stage(const editor::Compilation& compilation);
     void Commit();
     bool TakeInvalidation();
@@ -28,5 +34,10 @@ class PreviewRouting final {
     std::map<graph::NodeId, graph::NodeId> scoped_nodes_{};
     std::map<graph::NodeId, graph::NodeId> pending_scoped_nodes_{};
     bool invalidated_ = false;
+    PreviewRequest demand_{};
+    std::string document_id_{};
+    std::size_t page_ = 0;
+    std::size_t pages_ = 0;
+    bool page_changed_ = false;
 };
 }  // namespace rhythm::studio

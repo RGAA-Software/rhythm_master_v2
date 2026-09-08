@@ -40,7 +40,10 @@ editable audio clips and the built-in Luminous Concerto media performance.
 performance queue and shared-clock two-scene fades on Windows and Android.
 R6 [asset maintenance](docs/asset_maintenance_plan.md) adds reference replacement/undo,
 background integrity checks and original-file recovery through Studio to published Player.
-Content browsing, authoring help and the independent content quality targets continue.
+[Component browsing and node help](docs/catalog_authoring_plan.md) provide live previews before
+insertion and offline typed connection guidance. [Preview groups](docs/preview_navigation.md)
+make every visible demand reachable within the shared eight-preview budget.
+The independent content quality targets continue.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.
