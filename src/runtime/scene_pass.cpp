@@ -141,6 +141,7 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
         if (opaque_a != opaque_b) return opaque_a;
         return !opaque_a && depth(a) < depth(b);
     });
+    shadow_.Apply(scene, result, renderer);
     return result;
 }
 }  // namespace rhythm::runtime::detail

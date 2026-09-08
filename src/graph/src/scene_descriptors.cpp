@@ -3,6 +3,26 @@
 namespace rhythm::graph {
 void AppendSceneDescriptors(std::vector<OperatorDescriptor>& operators) {
     using Type = ValueType;
+    operators.push_back({"scene.shadow",
+                         Operation::kSceneShadow,
+                         Type::kScene,
+                         {{"scene", Type::kScene}},
+                         {{"shadow_enabled", 1.0, 0, 1, {"option.off", "option.on"}},
+                          {"shadow_light", 0.0, 0, 3, {}, true},
+                          {"shadow_resolution",
+                           2.0,
+                           0,
+                           3,
+                           {"shadow.256", "shadow.512", "shadow.1024", "shadow.2048"}},
+                          {"shadow_extent", 10.0, 0.1, 10000},
+                          {"shadow_distance", 20.0, 0.1, 10000},
+                          {"shadow_near", 0.05, 0.001, 1000},
+                          {"shadow_center_x", 0.0, -10000, 10000},
+                          {"shadow_center_y", 0.0, -10000, 10000},
+                          {"shadow_center_z", 0.0, -10000, 10000},
+                          {"shadow_bias", 0.001, 0, 0.05},
+                          {"shadow_normal_bias", 0.01, 0, 1},
+                          {"shadow_filter", 1.0, 0, 1, {"option.off", "option.on"}}}});
     operators.push_back({"material.textures",
                          Operation::kMaterialTextures,
                          Type::kMaterial,

@@ -3,6 +3,7 @@
 #include <tuple>
 
 #include "rhythm/runtime/runtime.h"
+#include "shadow_pass.h"
 
 namespace rhythm::runtime::detail {
 // Host-thread GPU cache keyed by published geometry identity, not object address.
@@ -21,5 +22,6 @@ class ScenePass final {
     };
     using Key = std::tuple<std::uint64_t, std::uint64_t, bool>;
     std::map<Key, Uploaded> uploads_{};
+    ShadowPass shadow_{};
 };
 }  // namespace rhythm::runtime::detail

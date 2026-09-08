@@ -96,6 +96,20 @@ void MeshStore::Validate(const SceneDrawList& list) const {
             throw std::invalid_argument("render.positional_light");
     }
     std::uint64_t indices = 0;
+    if (list.shadow_) {
+        const auto& shadow = *list.shadow_;
+        if (!ValidMatrix(shadow.world_to_clip_) ||
+            shadow.light_ >= list.lights_.size() + list.positional_lights_.size() ||
+            shadow.resolution_ < 256 || shadow.resolution_ > 2048 ||
+            (shadow.resolution_ & (shadow.resolution_ - 1)) != 0 ||
+            !std::isfinite(shadow.depth_bias_) || shadow.depth_bias_ < 0 ||
+            shadow.depth_bias_ > 0.05f || !std::isfinite(shadow.normal_bias_) ||
+            shadow.normal_bias_ < 0 || shadow.normal_bias_ > 1)
+            throw std::invalid_argument("render.shadow_settings");
+        if (shadow.light_ >= list.lights_.size() &&
+            !list.positional_lights_[shadow.light_ - list.lights_.size()].spot_)
+            throw std::invalid_argument("render.point_shadow_unsupported");
+    }
     for (const auto& draw : list.draws_) {
         if (!std::isfinite(draw.textures_.normal_scale_) || draw.textures_.normal_scale_ < 0 ||
             draw.textures_.normal_scale_ > 4 ||

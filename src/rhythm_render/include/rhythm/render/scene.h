@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 #include "rhythm/render/texture_handle.h"
@@ -66,6 +67,15 @@ struct PositionalLight {
 };
 // Canonical right-handed matrices with clip Z in [-1,+1]. Adapters map to their
 // depth range and target orientation. Draw records hold stable resource handles.
+struct SceneShadow {
+    TextureHandle depth_{};
+    Matrix4 world_to_clip_ = kIdentityMatrix;
+    std::uint32_t light_ = 0;  // Directional lights first, then positional lights.
+    std::uint16_t resolution_ = 1024;
+    float depth_bias_ = 0.001f;
+    float normal_bias_ = 0.01f;  // World units; applied to the geometric normal.
+    bool filter_ = true;
+};
 struct SceneDrawList {
     Matrix4 view_ = kIdentityMatrix;
     Matrix4 projection_ = kIdentityMatrix;
@@ -76,5 +86,6 @@ struct SceneDrawList {
     bool orthographic_ = false;
     // Shared budget: at most four directional + positional lights per pass.
     std::vector<PositionalLight> positional_lights_{};
+    std::optional<SceneShadow> shadow_{};
 };
 }  // namespace rhythm::render

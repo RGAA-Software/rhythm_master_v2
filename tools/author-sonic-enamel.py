@@ -62,6 +62,13 @@ def build_graph():
                     dict(scene=orbit, rotation_y=rotation), rotation_x=30 + index * 28,
                     rotation_z=index * 43, scale=1 + index * 0.09)
         sculpture = node("scene.merge", 3020 + index * 320, 0, dict(a=sculpture, b=ring))
+    floor_mesh = node("geometry.cube", 3340, 1600)
+    floor_material = node("material.pbr", 3340, 1860,
+                          color_a=(0.12, 0.16, 0.2, 1), metallic=0.1, roughness=0.85)
+    floor = node("scene.instance", 3660, 1600, dict(geometry=floor_mesh, material=floor_material))
+    floor = node("scene.transform", 3980, 1600, dict(scene=floor),
+                 scale_x=6.5, scale_y=0.06, scale_z=5, translate_y=-2.2)
+    sculpture = node("scene.merge", 4140, 0, dict(a=sculpture, b=floor))
     key = node("scene.point_light", 3340, 400, dict(light_energy=energy),
                translate_x=-2.5, translate_y=2, translate_z=3, light_range=12,
                color_a=(0.25, 0.8, 1, 1))
@@ -73,13 +80,17 @@ def build_graph():
                 color_a=(0.25, 0.3, 1, 1))
     for index, light in enumerate([key, spot, fill]):
         sculpture = node("scene.merge", 4300 + index * 320, 0, dict(a=sculpture, b=light))
-    camera = node("scene.camera", 4900, 500, eye_x=0, eye_y=0.8, eye_z=6.8,
+    sculpture = node("scene.shadow", 5080, -300, dict(scene=sculpture),
+                     shadow_light=2, shadow_resolution=2, shadow_near=0.1,
+                     shadow_bias=0.0005, shadow_normal_bias=0.02)
+    camera = node("scene.camera", 4900, 500, eye_x=0, eye_y=2.8, eye_z=7,
+                  target_y=-0.2,
                   field_of_view=43, near_plane=0.1, far_plane=30)
     capture = node("scene.capture", 5260, 0, dict(scene=sculpture, camera=camera))
     color = node("scene.color", 5600, 0, dict(capture=capture))
     depth = node("scene.depth", 5600, 300, dict(capture=capture))
     focused = node("texture.dof", 5940, 0, dict(source=color, depth=depth),
-                   focus_distance=6.8, focus_scale=40, dof_radius=5, dof_samples=24)
+                   focus_distance=7.4, focus_scale=40, dof_radius=5, dof_samples=24)
     back = node("texture.gradient", 5600, 800,
                 color_a=(0.008, 0.014, 0.03, 1), color_b=(0.015, 0.045, 0.06, 1))
     back = node("texture.linearize", 5940, 800, dict(source=back))
@@ -104,8 +115,8 @@ def main():
     manifest = json.loads((ROOT / "content/templates/spectral_foundry/manifest.json").read_text(encoding="utf-8"))
     manifest.update(content_id="official.templates.sonic_enamel", project_id="official-sonic-enamel",
                     title="音律珐琅 / Sonic Enamel", titles={"zh-CN": "音律珐琅", "en-US": "Sonic Enamel"},
-                    descriptions={"zh-CN": "青金色流纹雕塑与四重金属轨道：动态图内贴图驱动颜色、法线、金属度和自发光。低频控制点光，高频点亮纹路，响度驱动呼吸；聚光、景深和浮点柔光全部可编辑。",
-                                  "en-US": "Teal-and-gold enamel sculpture inside four metallic orbits. Live graph textures drive color, normals, metal and emission. Bass controls the point light, treble illuminates veins and loudness drives breathing. Edit the spot light, depth focus and floating bloom."})
+                    descriptions={"zh-CN": "青金色流纹雕塑与四重金属轨道：动态图内贴图驱动颜色、法线、金属度和自发光。低频控制点光，高频点亮纹路，响度驱动呼吸；聚光投影、承影舞台、景深和浮点柔光全部可编辑。",
+                                  "en-US": "Teal-and-gold enamel sculpture inside four metallic orbits. Live graph textures drive color, normals, metal and emission. Bass controls the point light, treble illuminates veins and loudness drives breathing. Edit spot shadows, the stage, depth focus and floating bloom."})
     (destination / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
     print(f"Sonic Enamel: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
 

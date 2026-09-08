@@ -176,7 +176,7 @@ class BgfxBackend final : public Backend {
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         if (!scene_) scene_ = std::make_unique<BgfxScene>(resources_.DeviceId());
         scene_->Validate(list);
-        resources_.ValidateSceneMaterials(color, list);
+        resources_.ValidateSceneMaterials(color, list, depth);
         resources_.RecordSceneSamples(list);
         if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
         const auto extent = resources_.Size(color);

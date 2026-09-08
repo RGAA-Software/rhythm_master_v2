@@ -40,6 +40,27 @@ void Run() {
                 "ordinary color cannot masquerade as depth");
     }
     auto bad = document;
+    {
+        Document shadow;
+        shadow.id_ = "scene.shadow";
+        shadow.nodes_ = {registry.MakeNode(1, "scene.directional_light"),
+                         registry.MakeNode(2, "scene.shadow"), registry.MakeNode(3, "scene.render"),
+                         registry.MakeNode(4, "output.texture")};
+        shadow.edges_ = {{1, 1, 2, "scene"}, {2, 2, 3, "scene"}, {3, 3, 4, "source"}};
+        shadow.output_ = 4;
+        Require(std::holds_alternative<ExecutionPlan>(Compile(shadow, registry)),
+                "shadow node compiles");
+        shadow.nodes_[1].properties_["shadow_light"] = 1.0;
+        Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(shadow, registry)),
+                "absent shadow light rejected before rendering");
+        shadow.nodes_[1].properties_["shadow_light"] = 0.0;
+        shadow.nodes_.push_back(registry.MakeNode(5, "scene.merge"));
+        shadow.edges_[1].from_ = 5;
+        shadow.edges_.push_back({4, 2, 5, "a"});
+        shadow.edges_.push_back({5, 2, 5, "b"});
+        Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(shadow, registry)),
+                "merging two shadow configurations rejects ambiguity");
+    }
     bad.edges_[1].from_ = 1;
     Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(bad, registry)),
             "geometry cannot connect to material input");

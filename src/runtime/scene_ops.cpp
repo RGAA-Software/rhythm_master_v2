@@ -133,6 +133,28 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
             output.scene_ = std::make_shared<const scene::Scene>(std::move(scene));
             break;
         }
+        case Operation::kSceneShadow: {
+            if (!input(0).scene_) throw std::invalid_argument("runtime.scene_input");
+            auto result = *input(0).scene_;
+            result.shadow_.reset();
+            if (scalar("shadow_enabled", 1) != 0) {
+                scene::ShadowSettings shadow;
+                shadow.light_ = std::uint32_t(scalar("shadow_light", 0));
+                constexpr std::array<std::uint16_t, 4> kResolutions{256, 512, 1024, 2048};
+                shadow.resolution_ = kResolutions.at(std::size_t(scalar("shadow_resolution", 2)));
+                shadow.center_ = {scalar("shadow_center_x", 0), scalar("shadow_center_y", 0),
+                                  scalar("shadow_center_z", 0)};
+                shadow.extent_ = scalar("shadow_extent", 10);
+                shadow.distance_ = scalar("shadow_distance", 20);
+                shadow.near_ = scalar("shadow_near", 0.05);
+                shadow.depth_bias_ = float(scalar("shadow_bias", 0.001));
+                shadow.normal_bias_ = float(scalar("shadow_normal_bias", 0.01));
+                shadow.filter_ = scalar("shadow_filter", 1) != 0;
+                result.shadow_ = shadow;
+            }
+            output.scene_ = std::make_shared<const scene::Scene>(std::move(result));
+            break;
+        }
         case Operation::kSceneTransform:
         case Operation::kSceneMerge: {
             if (!input(0).scene_) throw std::invalid_argument("runtime.scene_input");
@@ -146,6 +168,19 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
                                     input(1).scene_->positional_lights_.size() >
                             4)
                     throw std::length_error("runtime.scene_instances");
+                const auto& second = *input(1).scene_;
+                if (scene.shadow_ && second.shadow_)
+                    throw std::invalid_argument("runtime.multiple_shadows");
+                if (scene.shadow_ && scene.shadow_->light_ >= scene.lights_.size())
+                    scene.shadow_->light_ += std::uint32_t(second.lights_.size());
+                else if (second.shadow_) {
+                    scene.shadow_ = second.shadow_;
+                    const auto offset =
+                            scene.shadow_->light_ < second.lights_.size()
+                                    ? scene.lights_.size()
+                                    : scene.lights_.size() + scene.positional_lights_.size();
+                    scene.shadow_->light_ += std::uint32_t(offset);
+                }
                 scene.instances_.insert(scene.instances_.end(), input(1).scene_->instances_.begin(),
                                         input(1).scene_->instances_.end());
                 scene.lights_.insert(scene.lights_.end(), input(1).scene_->lights_.begin(),
@@ -175,6 +210,9 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
                                                 control(7, "translate_z", 0, -1000, 1000)},
                                                {0, 0, std::sin(z), std::cos(z)}, {1, 1, 1});
                 const auto transform = scene::Multiply(rz, scene::Multiply(ry, rx));
+                if (scene.shadow_)
+                    scene.shadow_->center_ =
+                            scene::TransformPoint(transform, scene.shadow_->center_);
                 for (auto& light : scene.positional_lights_) {
                     light.position_ = scene::TransformPoint(transform, light.position_);
                     const auto tip = scene::TransformPoint(transform, light.direction_);

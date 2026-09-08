@@ -12,6 +12,7 @@ std::optional<Diagnostic> ValidateSceneBudget(
         std::uint64_t indices_ = 0;
         std::uint64_t lights_ = 0;
         std::uint64_t draws_ = 0;
+        std::uint64_t shadows_ = 0;
     };
     std::vector<Counts> counts(plan.instructions_.size());
     std::uint64_t vertices = 0, indices = 0, snapshots = 0, draws = 0;
@@ -91,6 +92,7 @@ std::optional<Diagnostic> ValidateSceneBudget(
             case Operation::kSceneInstance:
             case Operation::kSceneTransform:
             case Operation::kSceneMerge:
+            case Operation::kSceneShadow:
             case Operation::kSceneRender:
             case Operation::kSceneCapture: {
                 const auto a = source(0);
@@ -113,10 +115,19 @@ std::optional<Diagnostic> ValidateSceneBudget(
                     count.indices_ += b->indices_;
                     count.lights_ += b->lights_;
                     count.draws_ += b->draws_;
+                    count.shadows_ += b->shadows_;
                 }
+                if (instruction.operation_ == Operation::kSceneShadow) {
+                    count.shadows_ = Scalar(instruction.node_, "shadow_enabled", 1) != 0 ? 1 : 0;
+                    const auto light = Scalar(instruction.node_, "shadow_light", 0);
+                    if (count.shadows_ && (!std::isfinite(light) || light < 0 ||
+                                           light >= count.lights_ || std::floor(light) != light))
+                        return fail();
+                }
+                if (count.shadows_ > 1) return fail();
                 if (instruction.operation_ == Operation::kSceneRender ||
                     instruction.operation_ == Operation::kSceneCapture) {
-                    draws += count.indices_;
+                    draws += count.indices_ * (1 + count.shadows_);
                     count = {};
                 } else {
                     snapshots += count.instances_;

@@ -41,7 +41,7 @@ class NullBackend final : public Backend {
         resources_.ValidateSceneDepth(color, depth);
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         meshes_.Validate(list);
-        resources_.ValidateSceneMaterials(color, list);
+        resources_.ValidateSceneMaterials(color, list, depth);
         resources_.RecordSceneSamples(list);
         if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
         resources_.DropDepth(color);

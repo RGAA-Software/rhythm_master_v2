@@ -17,6 +17,17 @@ struct Instance {
     Matrix transform_{};
     std::optional<Material> material_{};
 };
+struct ShadowSettings {
+    std::uint32_t light_ = 0;
+    std::uint16_t resolution_ = 1024;
+    Vector3 center_{};
+    double extent_ = 10;
+    double distance_ = 20;
+    double near_ = 0.05;
+    float depth_bias_ = 0.001f;
+    float normal_bias_ = 0.01f;
+    bool filter_ = true;
+};
 struct Scene {
     std::vector<Instance> instances_{};
     struct DirectionalLight {
@@ -37,5 +48,6 @@ struct Scene {
     // All light kinds share the four-light budget. Range is in world units;
     // scene transforms change positions/axes but do not rescale that range.
     std::vector<PositionalLight> positional_lights_{};
+    std::optional<ShadowSettings> shadow_{};
 };
 }  // namespace rhythm::scene

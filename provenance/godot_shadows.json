@@ -1,0 +1,23 @@
+{
+    "source_url": "https://github.com/godotengine/godot",
+    "revision": "f62fdbde15035c5576dad93e586201f4d41ef0cb",
+    "tag": "4.5.1-stable",
+    "license": "MIT",
+    "notice": "third_party/notices/godot/LICENSE.txt",
+    "source_file": "drivers/gles3/shaders/scene.glsl",
+    "sha256": "741d48c937836dd443b4526544648194588d0349e88472a0f54c1b140a9cdf31",
+    "reference_location": "out/reference/godot-4.5.1/drivers/gles3/shaders/scene.glsl",
+    "symbols": [
+        "sample_shadow SHADOW_MODE_PCF_5",
+        "directional normal bias"
+    ],
+    "targets": [
+        "src/rhythm_render/shaders/godot_shadow.sh"
+    ],
+    "modifications": [
+        "Keep the center and four-axis PCF_5 kernel; use explicit point-sampled depth comparisons through the validated sampleable D24S8 path.",
+        "Adapt projected coordinates to project canonical [-1,+1] depth and top-left UV; pixels outside the shadow volume are lit.",
+        "Apply world-unit geometric-normal bias and normalized-depth bias; one selected directional or spot light per scene pass.",
+        "Omit Godot atlas allocation, cascade selection, cube/omni shadows and engine resource types."
+    ]
+}

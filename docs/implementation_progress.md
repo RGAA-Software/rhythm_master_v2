@@ -1,5 +1,13 @@
 # Continuous implementation through Android Player
 
+## R3 shadow increment, 2026-09-08
+
+Single directional/spot shadows reuse typed D24S8 and a bounded caster pass.
+Windows and USB Android pass native occlusion and runtime lifetime checks;
+Sonic Enamel now has 61 instructions, a receiving stage and animated shadows.
+Real PCM and repeated MP4 checks pass; deploy and Android overlay are updated.
+IBL and embedded GLB textures remain next. [Contracts/evidence](shadow_pipeline.md).
+
 ## R3 first material/light delivery, 2026-09-08
 
 Four texture slots, MikkTSpace normals, point/spot lights and Sonic Enamel are

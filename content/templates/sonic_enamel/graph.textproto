@@ -1,6 +1,6 @@
 schema_version: 4
 id: "official-sonic-enamel"
-output: 55
+output: 61
 canvas { width: 1280 height: 720 }
 nodes { id: 1 type_key: "core.time" schema_version: 1
 }
@@ -152,14 +152,31 @@ nodes { id: 36 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 37 type_key: "scene.merge" schema_version: 1
 }
-nodes { id: 38 type_key: "scene.point_light" schema_version: 1
+nodes { id: 38 type_key: "geometry.cube" schema_version: 1
+}
+nodes { id: 39 type_key: "material.pbr" schema_version: 1
+    properties { key: "color_a" value { color { r: 0.12 g: 0.16 b: 0.2 a: 1 } } }
+    properties { key: "metallic" value { scalar: 0.1 } }
+    properties { key: "roughness" value { scalar: 0.85 } }
+}
+nodes { id: 40 type_key: "scene.instance" schema_version: 1
+}
+nodes { id: 41 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 6.5 } }
+    properties { key: "scale_y" value { scalar: 0.06 } }
+    properties { key: "scale_z" value { scalar: 5 } }
+    properties { key: "translate_y" value { scalar: -2.2 } }
+}
+nodes { id: 42 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 43 type_key: "scene.point_light" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.5 } }
     properties { key: "translate_y" value { scalar: 2 } }
     properties { key: "translate_z" value { scalar: 3 } }
     properties { key: "light_range" value { scalar: 12 } }
     properties { key: "color_a" value { color { r: 0.25 g: 0.8 b: 1 a: 1 } } }
 }
-nodes { id: 39 type_key: "scene.spot_light" schema_version: 1
+nodes { id: 44 type_key: "scene.spot_light" schema_version: 1
     properties { key: "translate_x" value { scalar: 2.5 } }
     properties { key: "translate_y" value { scalar: 3 } }
     properties { key: "translate_z" value { scalar: 2 } }
@@ -172,61 +189,69 @@ nodes { id: 39 type_key: "scene.spot_light" schema_version: 1
     properties { key: "spot_decay" value { scalar: 1 } }
     properties { key: "color_a" value { color { r: 1 g: 0.38 b: 0.08 a: 1 } } }
 }
-nodes { id: 40 type_key: "scene.directional_light" schema_version: 1
+nodes { id: 45 type_key: "scene.directional_light" schema_version: 1
     properties { key: "light_x" value { scalar: 0 } }
     properties { key: "light_y" value { scalar: 0.5 } }
     properties { key: "light_z" value { scalar: -1 } }
     properties { key: "light_energy" value { scalar: 0.8 } }
     properties { key: "color_a" value { color { r: 0.25 g: 0.3 b: 1 a: 1 } } }
 }
-nodes { id: 41 type_key: "scene.merge" schema_version: 1
+nodes { id: 46 type_key: "scene.merge" schema_version: 1
 }
-nodes { id: 42 type_key: "scene.merge" schema_version: 1
+nodes { id: 47 type_key: "scene.merge" schema_version: 1
 }
-nodes { id: 43 type_key: "scene.merge" schema_version: 1
+nodes { id: 48 type_key: "scene.merge" schema_version: 1
 }
-nodes { id: 44 type_key: "scene.camera" schema_version: 1
+nodes { id: 49 type_key: "scene.shadow" schema_version: 1
+    properties { key: "shadow_light" value { scalar: 2 } }
+    properties { key: "shadow_resolution" value { scalar: 2 } }
+    properties { key: "shadow_near" value { scalar: 0.1 } }
+    properties { key: "shadow_bias" value { scalar: 0.0005 } }
+    properties { key: "shadow_normal_bias" value { scalar: 0.02 } }
+}
+nodes { id: 50 type_key: "scene.camera" schema_version: 1
     properties { key: "eye_x" value { scalar: 0 } }
-    properties { key: "eye_y" value { scalar: 0.8 } }
-    properties { key: "eye_z" value { scalar: 6.8 } }
+    properties { key: "eye_y" value { scalar: 2.8 } }
+    properties { key: "eye_z" value { scalar: 7 } }
+    properties { key: "target_y" value { scalar: -0.2 } }
     properties { key: "field_of_view" value { scalar: 43 } }
     properties { key: "near_plane" value { scalar: 0.1 } }
     properties { key: "far_plane" value { scalar: 30 } }
 }
-nodes { id: 45 type_key: "scene.capture" schema_version: 1
+nodes { id: 51 type_key: "scene.capture" schema_version: 1
 }
-nodes { id: 46 type_key: "scene.color" schema_version: 1
+nodes { id: 52 type_key: "scene.color" schema_version: 1
 }
-nodes { id: 47 type_key: "scene.depth" schema_version: 1
+nodes { id: 53 type_key: "scene.depth" schema_version: 1
 }
-nodes { id: 48 type_key: "texture.dof" schema_version: 1
-    properties { key: "focus_distance" value { scalar: 6.8 } }
+nodes { id: 54 type_key: "texture.dof" schema_version: 1
+    properties { key: "focus_distance" value { scalar: 7.4 } }
     properties { key: "focus_scale" value { scalar: 40 } }
     properties { key: "dof_radius" value { scalar: 5 } }
     properties { key: "dof_samples" value { scalar: 24 } }
 }
-nodes { id: 49 type_key: "texture.gradient" schema_version: 1
+nodes { id: 55 type_key: "texture.gradient" schema_version: 1
     properties { key: "color_a" value { color { r: 0.008 g: 0.014 b: 0.03 a: 1 } } }
     properties { key: "color_b" value { color { r: 0.015 g: 0.045 b: 0.06 a: 1 } } }
 }
-nodes { id: 50 type_key: "texture.linearize" schema_version: 1
+nodes { id: 56 type_key: "texture.linearize" schema_version: 1
 }
-nodes { id: 51 type_key: "texture.composite" schema_version: 1
+nodes { id: 57 type_key: "texture.composite" schema_version: 1
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 52 type_key: "texture.blur" schema_version: 1
+nodes { id: 58 type_key: "texture.blur" schema_version: 1
     properties { key: "blur_radius" value { scalar: 8 } }
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 53 type_key: "texture.composite" schema_version: 1
+nodes { id: 59 type_key: "texture.composite" schema_version: 1
     properties { key: "composite_mode" value { scalar: 1 } }
     properties { key: "amount" value { scalar: 0.2 } }
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 54 type_key: "texture.display" schema_version: 1
+nodes { id: 60 type_key: "texture.display" schema_version: 1
     properties { key: "exposure" value { scalar: 0.2 } }
 }
-nodes { id: 55 type_key: "output.texture" schema_version: 1
+nodes { id: 61 type_key: "output.texture" schema_version: 1
 }
 edges { id: 1 from: 1 to: 5 input: "time" }
 edges { id: 2 from: 1 to: 6 input: "time" }
@@ -280,24 +305,30 @@ edges { id: 49 from: 29 to: 36 input: "scene" }
 edges { id: 50 from: 6 to: 36 input: "rotation_y" }
 edges { id: 51 from: 35 to: 37 input: "a" }
 edges { id: 52 from: 36 to: 37 input: "b" }
-edges { id: 53 from: 7 to: 38 input: "light_energy" }
-edges { id: 54 from: 37 to: 41 input: "a" }
-edges { id: 55 from: 38 to: 41 input: "b" }
-edges { id: 56 from: 41 to: 42 input: "a" }
-edges { id: 57 from: 39 to: 42 input: "b" }
-edges { id: 58 from: 42 to: 43 input: "a" }
-edges { id: 59 from: 40 to: 43 input: "b" }
-edges { id: 60 from: 43 to: 45 input: "scene" }
-edges { id: 61 from: 44 to: 45 input: "camera" }
-edges { id: 62 from: 45 to: 46 input: "capture" }
-edges { id: 63 from: 45 to: 47 input: "capture" }
-edges { id: 64 from: 46 to: 48 input: "source" }
-edges { id: 65 from: 47 to: 48 input: "depth" }
-edges { id: 66 from: 49 to: 50 input: "source" }
-edges { id: 67 from: 50 to: 51 input: "a" }
-edges { id: 68 from: 48 to: 51 input: "b" }
-edges { id: 69 from: 48 to: 52 input: "source" }
-edges { id: 70 from: 51 to: 53 input: "a" }
-edges { id: 71 from: 52 to: 53 input: "b" }
-edges { id: 72 from: 53 to: 54 input: "source" }
-edges { id: 73 from: 54 to: 55 input: "source" }
+edges { id: 53 from: 38 to: 40 input: "geometry" }
+edges { id: 54 from: 39 to: 40 input: "material" }
+edges { id: 55 from: 40 to: 41 input: "scene" }
+edges { id: 56 from: 37 to: 42 input: "a" }
+edges { id: 57 from: 41 to: 42 input: "b" }
+edges { id: 58 from: 7 to: 43 input: "light_energy" }
+edges { id: 59 from: 42 to: 46 input: "a" }
+edges { id: 60 from: 43 to: 46 input: "b" }
+edges { id: 61 from: 46 to: 47 input: "a" }
+edges { id: 62 from: 44 to: 47 input: "b" }
+edges { id: 63 from: 47 to: 48 input: "a" }
+edges { id: 64 from: 45 to: 48 input: "b" }
+edges { id: 65 from: 48 to: 49 input: "scene" }
+edges { id: 66 from: 49 to: 51 input: "scene" }
+edges { id: 67 from: 50 to: 51 input: "camera" }
+edges { id: 68 from: 51 to: 52 input: "capture" }
+edges { id: 69 from: 51 to: 53 input: "capture" }
+edges { id: 70 from: 52 to: 54 input: "source" }
+edges { id: 71 from: 53 to: 54 input: "depth" }
+edges { id: 72 from: 55 to: 56 input: "source" }
+edges { id: 73 from: 56 to: 57 input: "a" }
+edges { id: 74 from: 54 to: 57 input: "b" }
+edges { id: 75 from: 54 to: 58 input: "source" }
+edges { id: 76 from: 57 to: 59 input: "a" }
+edges { id: 77 from: 58 to: 59 input: "b" }
+edges { id: 78 from: 59 to: 60 input: "source" }
+edges { id: 79 from: 60 to: 61 input: "source" }

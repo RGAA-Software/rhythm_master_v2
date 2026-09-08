@@ -75,7 +75,8 @@ enum class Operation : std::uint8_t {
     kDepthOfField,
     kPointLight,
     kSpotLight,
-    kMaterialTextures
+    kMaterialTextures,
+    kSceneShadow
 };
 struct PortDescriptor {
     std::string key_{};

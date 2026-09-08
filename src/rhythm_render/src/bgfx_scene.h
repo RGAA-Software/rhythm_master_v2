@@ -5,6 +5,7 @@
 #include "bgfx_handles.h"
 #include "bgfx_scene_instances.h"
 #include "bgfx_scene_lights.h"
+#include "bgfx_scene_shadow.h"
 #include "bgfx_scene_textures.h"
 #include "mesh_store.h"
 
@@ -59,5 +60,6 @@ class BgfxScene final {
     GpuHandle<bgfx::UniformHandle> camera_view_{};
     BgfxSceneLights lights_{};
     BgfxSceneTextures textures_{};
+    BgfxSceneShadow shadow_{};
 };
 }  // namespace rhythm::render::detail

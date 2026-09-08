@@ -2,6 +2,7 @@ $input v_world_position, v_world_normal, v_scene_color, v_scene_uv, v_world_tang
 #include <bgfx_shader.sh>
 #include "godot_brdf.sh"
 #include "godot_lights.sh"
+#include "godot_shadow.sh"
 uniform vec4 u_scene_material;
 uniform vec4 u_scene_emissive;
 uniform vec4 u_scene_camera;
@@ -41,6 +42,7 @@ void main()
         vec3 view = view_vector / max(length(view_vector), 1e-6);
         if (u_scene_view.w > 0.5) view = u_scene_view.xyz;
         vec3 normal = v_world_normal / max(length(v_world_normal), 1e-6);
+        vec3 geometric_normal = normal;
         float facing = u_scene_material.w > 0.5 && dot(normal, view) < 0.0 ? -1.0 : 1.0;
         if (u_scene_textures.y > 0.5) {
             vec3 map = texture2D(s_scene_normal, uv).xyz * 2.0 - 1.0;
@@ -75,6 +77,8 @@ void main()
                         attenuation *= GodotSpot(direction, u_scene_spot_directions[i].xyz,
                             u_scene_spot_directions[i].w, u_scene_light_ranges[i].z);
                 }
+                if (abs(float(i) - u_scene_shadow_settings.x) < 0.5)
+                    attenuation *= GodotShadow(v_world_position, geometric_normal, direction);
                 color += GodotDirectional(normal, direction, view,
                     u_scene_light_colors[i].rgb * attenuation, base,
                     metallic, max(roughness, 0.05));

@@ -24,7 +24,8 @@ class ResourceTable final {
     void ValidateUpload(TextureHandle handle, std::span<const std::uint8_t> rgba) const;
     void BeginFrame();
     void RecordSamples(const DrawList& list);
-    void ValidateSceneMaterials(TextureHandle target, const SceneDrawList& list) const;
+    void ValidateSceneMaterials(TextureHandle target, const SceneDrawList& list,
+                                TextureHandle depth_target = {}) const;
     void RecordSceneSamples(const SceneDrawList& list);
     void CheckThread() const;
     std::uint64_t DeviceId() const { return device_; }

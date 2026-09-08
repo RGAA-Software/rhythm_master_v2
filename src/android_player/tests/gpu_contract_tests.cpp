@@ -351,6 +351,7 @@ int main(int argc, char* argv[]) {
             validation::VerifySampleableDepth(renderer);
             validation::VerifyPositionalLights(renderer);
             validation::VerifyMaterialTextures(renderer);
+            validation::VerifySceneShadows(renderer);
             return 0;
         }
 #ifdef RHYTHM_HAS_LOCAL_MEDIA

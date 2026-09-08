@@ -76,6 +76,38 @@ void Run() {
     std::cout << "scene render contracts: mesh ownership, generations, finite input, depth budget "
                  "and device loss passed\n";
 }
+void Shadows() {
+    using namespace rhythm::render;
+    auto renderer = Renderer::CreateNull();
+    auto target = renderer.CreateTexture({16, 16});
+    auto color = renderer.CreateTexture({256, 256});
+    auto depth = renderer.CreateDepthTexture({256, 256});
+    SceneDrawList scene;
+    scene.lights_.push_back({});
+    scene.shadow_ = SceneShadow{};
+    scene.shadow_->depth_ = depth.Handle();
+    scene.shadow_->resolution_ = 256;
+    renderer.BeginFrame();
+    renderer.SubmitScene(target.Handle(), scene);
+    Reject([&] { renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), scene); });
+    scene.shadow_->depth_ = color.Handle();
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.shadow_->depth_ = depth.Handle();
+    scene.shadow_->resolution_ = 512;
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.shadow_->resolution_ = 256;
+    scene.shadow_->light_ = 1;
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.shadow_->light_ = 0;
+    scene.lights_.clear();
+    scene.positional_lights_.push_back({});
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.positional_lights_[0].spot_ = true;
+    renderer.SubmitScene(target.Handle(), scene);
+    scene.shadow_->normal_bias_ = std::numeric_limits<float>::quiet_NaN();
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    renderer.EndFrame();
+}
 void MaterialTextures() {
     using namespace rhythm::render;
     auto renderer = Renderer::CreateNull();
@@ -119,6 +151,7 @@ int main() {
     try {
         Run();
         MaterialTextures();
+        Shadows();
         return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
