@@ -109,7 +109,7 @@ std::string EncodePackage(const graph::Document& document, std::string_view titl
     const auto program = EncodeProgram(plan);
     Json manifest = {{"format", "rhythm.runtime"},
                      {"manifest_version", 1},
-                     {"program_abi", 2},
+                     {"program_abi", plan.control_sequence_ ? 3 : 2},
                      {"profile", soundtrack ? "music-performance-v1" : "texture-signal-v2"},
                      {"canvas", {{"width", plan.canvas_.width_}, {"height", plan.canvas_.height_}}},
                      {"document_id", plan.document_id_},
@@ -143,8 +143,11 @@ RuntimePackage DecodeEntries(const detail::PackageEntries& entries,
     const bool music = file_music || manifest.at("profile") == "music-performance-v1";
     if (file_music != streamed.has_value()) throw std::invalid_argument("package.media_profile");
     const bool current = music || manifest.at("profile") == "texture-signal-v2";
+    if (!manifest.at("program_abi").is_number_unsigned() || manifest.at("program_abi") > 3)
+        throw std::invalid_argument("package.profile");
+    const auto abi = manifest.at("program_abi").get<std::uint32_t>();
     if (manifest.at("format") != "rhythm.runtime" || manifest.at("manifest_version") != 1 ||
-        manifest.at("program_abi") != (current ? 2 : 1) ||
+        (current ? (abi != 2 && abi != 3) : abi != 1) ||
         (!current && manifest.at("profile") != "texture-signal-v1" &&
          manifest.at("profile") != "texture-signal-assets-v1"))
         throw std::invalid_argument("package.profile");
@@ -208,7 +211,7 @@ RuntimePackage DecodeEntries(const detail::PackageEntries& entries,
         throw std::invalid_argument("package.media_profile");
     if (entries.size() != package.assets_.size() + 2)
         throw std::invalid_argument("package.unlisted_asset");
-    package.program_ = DecodeProgram(program, current ? 2 : 1);
+    package.program_ = DecodeProgram(program, abi);
     ValidateReferences(package.program_, package.assets_);
     if (current) {
         if (manifest.at("canvas").at("width") != package.program_.canvas_.width_ ||

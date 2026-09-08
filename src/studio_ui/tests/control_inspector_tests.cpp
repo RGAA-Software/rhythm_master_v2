@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include "property_inspector.h"
+#include "rhythm/graph/controls.h"
 
 namespace {
 struct ContextDeleter {
@@ -65,9 +66,12 @@ int main() {
         Check(commits == 1 && !inspector.Preview());
         const auto value = graph::Scalar(history.Current().document_.nodes_[0], "value", 0);
         Check(value > 0.5);
+        Check(inspector.LiveControls(graph::DescribeControls(history.Current().document_)).at(1) ==
+              value);
         Check(history.Undo() &&
               graph::Scalar(history.Current().document_.nodes_[0], "value", 0) == 0.2);
         frame();
+        Check(inspector.LiveControls(graph::DescribeControls(history.Current().document_)).empty());
         Check(history.Redo() &&
               graph::Scalar(history.Current().document_.nodes_[0], "value", 0) == value);
         inspector.Reset();

@@ -36,6 +36,12 @@ int main() {
         for (int i = 0; i < 65; ++i) controls += Message(1, "");
         Reject(Message(11, controls), WireRoot::kGraph, "codec.repeated_limit");
         Reject(Message(7, controls), WireRoot::kProgram, "codec.repeated_limit");
+        std::string cues;
+        for (int i = 0; i < 257; ++i) cues += Message(3, "");
+        Reject(Message(11, cues), WireRoot::kGraph, "codec.repeated_limit");
+        Reject(Message(7, cues), WireRoot::kProgram, "codec.repeated_limit");
+        Reject(Message(11, Message(3, Message(2, std::string(129, 'a')))), WireRoot::kGraph,
+               "codec.string_limit");
         Reject(Message(11, Message(2, Message(2, std::string(129, 'a')))), WireRoot::kGraph,
                "codec.string_limit");
         for (int index = 0; index < 10000; ++index) graph += Message(4, "");

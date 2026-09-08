@@ -20,6 +20,7 @@ Edit ControlPanel::Draw(const parameters::ControlBank& bank,
         return result;
     }
     auto values = bank.Resolve(current);
+    parameters::ControlValues changes;
     bool changed = false;
     ImGui::BeginChild("sliders",
                       {0, std::min(220.0f, static_cast<float>(bank.Definitions().size()) *
@@ -30,6 +31,7 @@ Edit ControlPanel::Draw(const parameters::ControlBank& bank,
         if (ImGui::SliderScalar(name.c_str(), ImGuiDataType_Double, &value, &control.minimum_,
                                 &control.maximum_, "%.3f", ImGuiSliderFlags_AlwaysClamp)) {
             values[control.id_] = value;
+            changes[control.id_] = value;
             changed = true;
         }
         result.committed_ |= ImGui::IsItemDeactivatedAfterEdit();
@@ -56,6 +58,7 @@ Edit ControlPanel::Draw(const parameters::ControlBank& bank,
         choose("controls.second", second_);
         if (ImGui::Button(label("controls.recall").c_str())) {
             values = bank.Snapshot(first_);
+            changes = values;
             blend_ = 0;
             changed = result.committed_ = true;
         }
@@ -66,6 +69,7 @@ Edit ControlPanel::Draw(const parameters::ControlBank& bank,
         if (ImGui::SliderFloat(label("controls.blend").c_str(), &blend_, 0, 1, "%.3f",
                                ImGuiSliderFlags_AlwaysClamp)) {
             values = bank.Blend(bank.Snapshot(first_), bank.Snapshot(second_), blend_);
+            changes = values;
             changed = true;
         }
         result.committed_ |= ImGui::IsItemDeactivatedAfterEdit();
@@ -80,7 +84,7 @@ Edit ControlPanel::Draw(const parameters::ControlBank& bank,
         }
         ImGui::EndDisabled();
     }
-    if (changed) result.values_ = std::move(values);
+    if (changed) result.values_ = std::move(changes);
     ImGui::PopID();
     return result;
 }

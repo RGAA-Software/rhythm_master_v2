@@ -92,6 +92,22 @@ int main() {
         session.Load(package);
         inputs.controls_.clear();
         Require(Scalar(tick(10), 1) == 0.2, "new package resets to authored defaults");
+        document.control_cues_ = {{1, "Opening", 0, 1}, {2, "Rise", 2, 2, 2}};
+        session.Load(project::EncodePackage(document, "Cue test", {}));
+        Require(session.ControlSequence().has_value(), "published cue arrangement reaches Player");
+        session.Seek(3.5);
+        session.SetPaused(true);
+        Require(Scalar(tick(11), 1) == 0.75, "random seek evaluates cue fade without preroll");
+        inputs.controls_[1] = 0.9;
+        Require(Scalar(tick(12), 1) == 0.9 && session.Seconds() == 3.5,
+                "manual override holds while cue time is paused");
+        inputs.controls_.clear();
+        Require(Scalar(tick(13), 1) == 0.75 && session.CurrentControls().at(1) == 0.75,
+                "clearing override returns to the current automation value");
+        session.Seek(1);
+        Require(Scalar(tick(14), 1) == 0, "reverse seek restores opening cue");
+        session.Seek(3.5);
+        Require(Scalar(tick(15), 1) == 0.75, "repeated seek is deterministic");
         std::cout << "Public controls: package, macros, paused music, snapshots, cache and surface "
                      "recovery passed\n";
     } catch (const std::exception& error) {

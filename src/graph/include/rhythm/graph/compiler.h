@@ -21,6 +21,7 @@ struct ExecutionPlan {
     std::size_t output_ = 0;
     Canvas canvas_{};
     parameters::ControlBank controls_{};
+    std::optional<parameters::ControlSequence> control_sequence_{};
 };
 using CompileResult = std::variant<ExecutionPlan, std::vector<Diagnostic>>;
 // Shared initial CPU-point profile; checked during compilation/publication and

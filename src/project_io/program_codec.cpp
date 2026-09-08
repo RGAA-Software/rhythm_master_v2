@@ -28,6 +28,9 @@ void ValidatePlan(const graph::ExecutionPlan& plan) {
         document.control_titles_[control.id_] = control.title_;
     document.control_snapshots_.assign(plan.controls_.Snapshots().begin(),
                                        plan.controls_.Snapshots().end());
+    if (plan.control_sequence_)
+        document.control_cues_.assign(plan.control_sequence_->Cues().begin(),
+                                      plan.control_sequence_->Cues().end());
     for (const auto& instruction : plan.instructions_) document.nodes_.push_back(instruction.node_);
     for (const auto& instruction : plan.instructions_) {
         const auto descriptor = registry.Find(instruction.node_.type_);
@@ -50,6 +53,8 @@ void ValidatePlan(const graph::ExecutionPlan& plan) {
         throw std::invalid_argument("package.invalid_program");
     const auto& canonical = std::get<graph::ExecutionPlan>(validation);
     if (canonical.controls_ != plan.controls_) throw std::invalid_argument("package.controls");
+    if (canonical.control_sequence_ != plan.control_sequence_)
+        throw std::invalid_argument("package.cues");
     if (canonical.instructions_.size() != plan.instructions_.size() ||
         canonical.output_ != plan.output_)
         throw std::invalid_argument("package.noncanonical_program");
@@ -63,7 +68,7 @@ void ValidatePlan(const graph::ExecutionPlan& plan) {
 std::string EncodeProgram(const graph::ExecutionPlan& plan) {
     ValidatePlan(plan);
     schema::CompiledProgram message;
-    message.set_abi_version(2);
+    message.set_abi_version(plan.control_sequence_ ? 3 : 2);
     message.mutable_canvas()->set_width(plan.canvas_.width_);
     message.mutable_canvas()->set_height(plan.canvas_.height_);
     message.set_document_id(plan.document_id_);
@@ -71,6 +76,9 @@ std::string EncodeProgram(const graph::ExecutionPlan& plan) {
     message.set_output_slot(plan.output_);
     if (!plan.controls_.Definitions().empty()) {
         graph::Document metadata;
+        if (plan.control_sequence_)
+            metadata.control_cues_.assign(plan.control_sequence_->Cues().begin(),
+                                          plan.control_sequence_->Cues().end());
         for (const auto& control : plan.controls_.Definitions())
             metadata.control_titles_[control.id_] = control.title_;
         metadata.control_snapshots_.assign(plan.controls_.Snapshots().begin(),
@@ -112,10 +120,10 @@ graph::ExecutionPlan DecodeProgram(std::string_view bytes, std::uint32_t require
     input.SetRecursionLimit(32);
     input.SetTotalBytesLimit(static_cast<int>(kMaximumProgramBytes));
     if (!message.ParseFromCodedStream(&input) || !input.ConsumedEntireMessage() ||
-        (message.abi_version() != 1 && message.abi_version() != 2) ||
+        (message.abi_version() < 1 || message.abi_version() > 3) ||
         (required_abi != 0 && message.abi_version() != required_abi))
         throw std::invalid_argument("package.abi");
-    if ((message.abi_version() == 2) != message.has_canvas())
+    if ((message.abi_version() >= 2) != message.has_canvas())
         throw std::invalid_argument("package.canvas_abi");
     graph::ExecutionPlan plan;
     plan.document_id_ = message.document_id();
@@ -161,6 +169,10 @@ graph::ExecutionPlan DecodeProgram(std::string_view bytes, std::uint32_t require
     detail::DecodeControls(message.controls(), metadata);
     for (const auto& instruction : plan.instructions_) metadata.nodes_.push_back(instruction.node_);
     plan.controls_ = graph::DescribeControls(metadata);
+    if ((message.abi_version() == 3) != !metadata.control_cues_.empty())
+        throw std::invalid_argument("package.cue_abi");
+    if (!metadata.control_cues_.empty())
+        plan.control_sequence_.emplace(plan.controls_, metadata.control_cues_);
     ValidatePlan(plan);
     return plan;
 }

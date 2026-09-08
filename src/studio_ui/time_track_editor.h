@@ -2,6 +2,7 @@
 
 #include <functional>
 
+#include "cue_editor.h"
 #include "curve_editor.h"
 #include "rhythm/editor/history.h"
 #include "time_section_editor.h"
@@ -19,7 +20,7 @@ class TimeTrackEditor final {
     TimelineEdit Draw(const editor::Snapshot& base, double playhead, double duration,
                       const std::map<std::string, std::string>& text,
                       const std::function<graph::NodeId()>& reserve_id = {},
-                      const std::string& section_action = "timeline.add_section");
+                      const std::string& section_action = "timeline.add_section", double bpm = 120);
     void Reset();
     const std::optional<editor::Snapshot>& Preview() const { return draft_; }
 
@@ -29,6 +30,8 @@ class TimeTrackEditor final {
     CurveEditor curve_editor_{};
     std::string section_error_{};
     bool curve_draft_ = false;
+    bool cue_draft_ = false;
+    CueEditor cues_{};
     graph::NodeId track_ = 0;
 };
 }  // namespace rhythm::studio

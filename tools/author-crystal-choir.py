@@ -108,9 +108,15 @@ def main():
         for control, value in zip((gain, speed, exposure, bloom), values):
             metadata.append(f'    values {{ key: {control} value: {value} }}')
         metadata.append('  }')
+    for index, (title, seconds, snapshot, fade) in enumerate((('Opening', 0, 1, 0),
+                                                             ('Rise', 2, 2, 2),
+                                                             ('Climax', 8, 3, 2),
+                                                             ('Release', 12, 1, 3)), 1):
+        metadata.append(f'  cues {{ id: {index} title: "{title}" seconds: {seconds} '
+                        f'snapshot: {snapshot} fade: {fade} smooth: true }}')
     metadata.append('}')
     (destination / 'graph.textproto').write_text(
-        f'schema_version: 4\nid: "official-crystal-choir"\noutput: {final}\n'
+        f'schema_version: 5\nid: "official-crystal-choir"\noutput: {final}\n'
         'canvas { width: 1280 height: 720 }\n' + '\n'.join(graph.nodes + graph.edges + metadata) + '\n', encoding='utf-8')
     (destination / 'editor.json').write_text(json.dumps(dict(version=2, positions=graph.positions), indent=4) + '\n', encoding='utf-8')
     manifest = json.loads((ROOT / 'content/templates/torque_garden/manifest.json').read_text(encoding='utf-8'))
@@ -119,6 +125,8 @@ def main():
                     assets=[dict(sha256=digest, bytes=len(model), media_type='model/gltf-binary')],
                     descriptions={'zh-CN': '十二片带光脊的三骨骼晶瓣组成双层音乐花冠。低中高频分别混合舒展与脉冲动画，控制四路 GPU 形变及发光。共享模型、双点光与环境反射、近景光环和真实频谱均可在节点图中编辑。',
                                   'en-US': 'Twelve ribbed articulated petals form a layered music crown. Bass, mids and treble blend two skeletal clips and drive four GPU morph targets and emission. Edit the shared GLB, twin lights, environment reflections, halo and live spectrum in the graph.'})
+    manifest['descriptions']['zh-CN'] += ' 四个公开宏、三套快照和四段 16 秒 Cue 编排可直接编辑与演出。'
+    manifest['descriptions']['en-US'] += ' Perform with four public macros, three snapshots and four editable cues across a 16-second arrangement.'
     (destination / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=4) + '\n', encoding='utf-8')
     print(f'Crystal Choir: {len(graph.nodes)} nodes, {len(graph.edges)} edges, {len(model)} GLB bytes')
 

@@ -27,7 +27,8 @@ enum class Kind {
     kControls,
     kControlTitle,
     kControlSnapshot,
-    kControlValue
+    kControlValue,
+    kControlCue
 };
 struct Budget {
     std::size_t fields_ = 0;
@@ -103,6 +104,7 @@ std::optional<Child> Nested(Kind kind, unsigned field) {
         return Child{Kind::kControls};
     if (kind == Kind::kControls && field == 1) return Child{Kind::kControlTitle, 64};
     if (kind == Kind::kControls && field == 2) return Child{Kind::kControlSnapshot, 64};
+    if (kind == Kind::kControls && field == 3) return Child{Kind::kControlCue, 256};
     if (kind == Kind::kControlSnapshot && field == 3) return Child{Kind::kControlValue, 64};
     if ((kind == Kind::kGraph && field == 7) || (kind == Kind::kProgram && field == 6))
         return Child{Kind::kCanvas};
@@ -127,7 +129,10 @@ std::optional<Child> Nested(Kind kind, unsigned field) {
     return std::nullopt;
 }
 std::size_t StringLimit(Kind kind, unsigned field) {
-    if ((kind == Kind::kControlTitle || kind == Kind::kControlSnapshot) && field == 2) return 128;
+    if ((kind == Kind::kControlTitle || kind == Kind::kControlSnapshot ||
+         kind == Kind::kControlCue) &&
+        field == 2)
+        return 128;
     if (kind == Kind::kComponent && (field == 1 || field == 10)) return 256;
     if ((kind == Kind::kComponentInput && (field == 1 || field == 3)) ||
         (kind == Kind::kComponentParameter && (field == 1 || field == 3 || field == 4)))

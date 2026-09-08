@@ -60,6 +60,32 @@ int main() {
         Require(bad.ParseFromString(project::EncodeProgram(plan)));
         (*bad.mutable_controls()->mutable_titles())[999] = "Dangling";
         Reject([&] { (void)project::DecodeProgram(bad.SerializeAsString()); });
+        document.control_cues_ = {{1, "Opening", 0, 11}, {2, "Rise", 2, 12, 2, true}};
+        auto cue_bytes = project::EncodeGraph(document);
+        Require(message.ParseFromString(cue_bytes) && message.schema_version() == 5);
+        auto& cue = *message.mutable_controls()->mutable_cues(0);
+        cue.GetReflection()->MutableUnknownFields(&cue)->AddVarint(100, 77);
+        Require(message.ParseFromString(
+                project::EncodeGraph(project::DecodeGraph(message.SerializeAsString()))));
+        Require(message.controls()
+                        .cues(0)
+                        .GetReflection()
+                        ->GetUnknownFields(message.controls().cues(0))
+                        .field_count() == 1);
+        message.set_schema_version(4);
+        Reject([&] { (void)project::DecodeGraph(message.SerializeAsString()); });
+        const auto cued = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+        auto cued_program = project::EncodeProgram(cued);
+        Require(bad.ParseFromString(cued_program) && bad.abi_version() == 3);
+        Require(project::DecodeProgram(cued_program, 3).control_sequence_ ==
+                cued.control_sequence_);
+        Reject([&] { (void)project::DecodeProgram(cued_program, 2); });
+        bad.set_abi_version(2);
+        Reject([&] { (void)project::DecodeProgram(bad.SerializeAsString()); });
+        const auto cue_package =
+                project::DecodePackage(project::EncodePackage(document, "Cue work", {}));
+        Require(cue_package.program_.control_sequence_ == cued.control_sequence_ &&
+                cue_package.program_.control_sequence_->Sample(3).at(1) == 0.5);
         std::cout << "Controls: project, runtime/package metadata, extensions and invalid "
                      "references passed\n";
     } catch (const std::exception& error) {

@@ -26,6 +26,15 @@ int main() {
                 plan.controls_.Snapshot(1) == parameters::ControlValues{{1, 0.8}});
         require(document.control_snapshots_[0].values_.size() == 2);
         const auto valid = document;
+        document.control_cues_ = {{1, "Opening", 2, 1, 1}};
+        const auto arranged = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+        require(arranged.control_sequence_ && arranged.control_sequence_->Sample(3).at(1) == 0.8);
+        document.control_snapshots_.clear();
+        require(std::holds_alternative<std::vector<graph::Diagnostic>>(
+                graph::Compile(document, registry)));
+        graph::PruneControls(document);
+        require(document.control_cues_.empty());
+        document = valid;
         graph::ComponentDefinition nested;
         nested.type_ = "component.nested_macro";
         nested.nodes_ = {registry.MakeNode(1, "control.scalar")};

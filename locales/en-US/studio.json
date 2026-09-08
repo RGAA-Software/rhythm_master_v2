@@ -829,5 +829,17 @@
     "controls.blend": "A / B blend",
     "controls.name": "New snapshot name",
     "controls.capture": "Capture current values",
-    "controls.rename": "Rename controls (Enter to save)"
+    "controls.rename": "Rename controls (Enter to save)",
+    "cue.title": "Snapshot cue arrangement",
+    "cue.snapshot": "Snapshot for new cue",
+    "cue.snap": "Snap to beats",
+    "cue.add": "Add cue at playhead",
+    "cue.invalid": "Invalid cue name, time or target. Cue start times must be unique.",
+    "cue.name": "Cue name",
+    "cue.start": "Start time",
+    "cue.fade": "Transition duration",
+    "cue.smooth": "Smooth transition",
+    "cue.target": "Target snapshot",
+    "cue.remove": "Delete cue",
+    "cue.follow": "Follow cue automation"
 }

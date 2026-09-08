@@ -829,5 +829,17 @@
     "controls.blend": "A / B 混合",
     "controls.name": "新快照名称",
     "controls.capture": "保存当前快照",
-    "controls.rename": "控件命名（回车保存）"
+    "controls.rename": "控件命名（回车保存）",
+    "cue.title": "快照 Cue 编排",
+    "cue.snapshot": "新 Cue 的快照",
+    "cue.snap": "吸附到节拍",
+    "cue.add": "在播放头添加 Cue",
+    "cue.invalid": "Cue 名称、时间或目标无效；同一时间只能有一条 Cue。",
+    "cue.name": "Cue 名称",
+    "cue.start": "开始时间",
+    "cue.fade": "过渡时长",
+    "cue.smooth": "平滑过渡",
+    "cue.target": "目标快照",
+    "cue.remove": "删除 Cue",
+    "cue.follow": "回到自动编排"
 }

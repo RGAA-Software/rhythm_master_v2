@@ -21,6 +21,8 @@ class Session final {
     [[nodiscard]] bool Ready() const { return package_.has_value(); }
     [[nodiscard]] const std::string& Title() const;
     [[nodiscard]] const parameters::ControlBank& Controls() const;
+    [[nodiscard]] const std::optional<parameters::ControlSequence>& ControlSequence() const;
+    [[nodiscard]] parameters::ControlValues CurrentControls() const;
     [[nodiscard]] render::Extent Canvas() const;
     [[nodiscard]] std::optional<media::SoundtrackSource> Soundtrack() const { return soundtrack_; }
     [[nodiscard]] double Seconds() const { return clock_.Seconds(); }

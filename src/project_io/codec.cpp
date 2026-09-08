@@ -24,7 +24,7 @@ graph::Document DecodeGraph(std::string_view bytes) {
     input.SetRecursionLimit(32);
     input.SetTotalBytesLimit(static_cast<int>(kMaximumGraphBytes));
     if (!message.ParseFromCodedStream(&input) || !input.ConsumedEntireMessage() ||
-        (message.schema_version() < 1 || message.schema_version() > 4))
+        (message.schema_version() < 1 || message.schema_version() > 5))
         throw std::invalid_argument("project.graph_schema");
     if ((message.schema_version() >= 2) != message.has_canvas())
         throw std::invalid_argument("project.canvas_schema");
@@ -37,6 +37,8 @@ graph::Document DecodeGraph(std::string_view bytes) {
     document.revision_ = message.revision();
     document.output_ = message.output();
     detail::DecodeControls(message.controls(), document);
+    if (message.schema_version() < 5 && !document.control_cues_.empty())
+        throw std::invalid_argument("project.cue_schema");
     if (message.has_canvas())
         document.canvas_ = {message.canvas().width(), message.canvas().height()};
     for (const auto& record : message.nodes())
@@ -66,7 +68,8 @@ std::string EncodeGraph(const graph::Document& document) {
     schema::GraphProject message;
     if (!document.extensions_.empty() && !message.ParseFromString(document.extensions_))
         throw std::invalid_argument("project.extensions");
-    message.set_schema_version(!document.components_.empty()                             ? 4
+    message.set_schema_version(!document.control_cues_.empty()                           ? 5
+                               : !document.components_.empty()                           ? 4
                                : document.signals_.empty() && document.bindings_.empty() ? 2
                                                                                          : 3);
     message.mutable_canvas()->set_width(document.canvas_.width_);

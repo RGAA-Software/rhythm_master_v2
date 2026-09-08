@@ -283,9 +283,9 @@ class Studio::Impl final {
         }
         shader_panel_.Draw(history_->Current(), canvas_.Selection(), project_ / "assets",
                            catalogs_.at(locale_));
-        auto result =
-                inspector_.Draw(history_->Current(), canvas_.Selection(), registry_, presets_,
-                                catalogs_.at(locale_), locale_, *prepared_resources_->models_);
+        auto result = inspector_.Draw(history_->Current(), canvas_.Selection(), registry_, presets_,
+                                      catalogs_.at(locale_), locale_, *prepared_resources_->models_,
+                                      evaluated_seconds_.value_or(0));
         if (result.diagnostic_) status_ = Text(result.diagnostic_->code_);
         if (result.committed_)
             Apply(std::move(*result.committed_));
@@ -466,6 +466,7 @@ class Studio::Impl final {
                 preview_inputs_.audio_ = audio_frame.features_;
             }
             frame.external_ = preview_inputs_;
+            frame.external_.controls_ = inspector_.LiveControls(plan_->controls_);
             if (reuse_textures_)
                 frame.retained_textures_ =
                         std::vector<graph::NodeId>(active_viewers.begin(), active_viewers.end());

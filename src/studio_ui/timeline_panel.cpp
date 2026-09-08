@@ -98,6 +98,7 @@ TimelineEdit TimelinePanel::Draw(const editor::Snapshot& base, bool seekable,
 #else
     (void)music;
 #endif
-    return tracks_.Draw(base, clock_.Seconds(), duration_, text, reserve_id);
+    return tracks_.Draw(base, clock_.Seconds(), duration_, text, reserve_id, "timeline.add_section",
+                        bpm_);
 }
 }  // namespace rhythm::studio

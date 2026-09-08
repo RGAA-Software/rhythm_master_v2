@@ -7,6 +7,8 @@
 
 namespace rhythm::control_ui {
 struct Edit {
+    // Sliders publish only changed IDs; snapshot recall/blend publishes all IDs.
+    // Hosts merge these overrides, leaving other controls on cue automation.
     std::optional<parameters::ControlValues> values_{};
     bool committed_ = false;
     std::string capture_{};

@@ -40,7 +40,8 @@ int main() {
                          ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
             origin = ImGui::GetCursorScreenPos();
             auto edit = panel.Draw(bank, values, {}, true);
-            if (edit.values_) values = std::move(*edit.values_);
+            if (edit.values_)
+                for (const auto& [id, value] : *edit.values_) values[id] = value;
             if (edit.committed_) ++commits;
             if (!edit.capture_.empty()) captured = edit.capture_;
             const auto a = ImGui::GetItemRectMin();

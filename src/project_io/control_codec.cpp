@@ -4,7 +4,7 @@
 
 namespace rhythm::project::detail {
 void DecodeControls(const schema::ControlMetadata& record, graph::Document& document) {
-    if (record.titles_size() > 64 || record.snapshots_size() > 64)
+    if (record.titles_size() > 64 || record.snapshots_size() > 64 || record.cues_size() > 256)
         throw std::length_error("control.budget");
     for (const auto& [id, title] : record.titles()) document.control_titles_.emplace(id, title);
     for (const auto& snapshot : record.snapshots()) {
@@ -13,8 +13,27 @@ void DecodeControls(const schema::ControlMetadata& record, graph::Document& docu
         for (const auto& [id, scalar] : snapshot.values()) value.values_.emplace(id, scalar);
         document.control_snapshots_.push_back(std::move(value));
     }
+    for (const auto& cue : record.cues())
+        document.control_cues_.push_back(
+                {cue.id(), cue.title(), cue.seconds(), cue.snapshot(), cue.fade(), cue.smooth()});
 }
 void EncodeControls(const graph::Document& document, schema::ControlMetadata& record) {
+    const auto old_cues = record.cues();
+    record.clear_cues();
+    for (const auto& cue : document.control_cues_) {
+        auto& value = *record.add_cues();
+        for (const auto& previous : old_cues)
+            if (previous.id() == cue.id_) {
+                value = previous;
+                break;
+            }
+        value.set_id(cue.id_);
+        value.set_title(cue.title_);
+        value.set_seconds(cue.seconds_);
+        value.set_snapshot(cue.snapshot_);
+        value.set_fade(cue.fade_);
+        value.set_smooth(cue.smooth_);
+    }
     record.clear_titles();
     for (const auto& [id, title] : document.control_titles_) (*record.mutable_titles())[id] = title;
     auto original = record.snapshots();

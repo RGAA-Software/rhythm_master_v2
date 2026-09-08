@@ -30,7 +30,9 @@ Crystal Choir now also ships on both platforms, with real PCM and MP4 checks.
 R4 functionality is delivered within the documented profiles; R5/R6 continue.
 R5 adds [public macros and parameter snapshots](docs/public_controls.md): Studio history,
 Windows/Android live controls, manual A/B blending and an 86-node Crystal Choir with
-four exposed controls. Cue/media arrangement and scene transitions remain in progress.
+four exposed controls. [Snapshot cue arrangement](docs/cue_arrangement.md) now provides
+named timeline cues, interrupted fades, beat snapping and seek/export consistency.
+Media source intervals, multitrack arrangement and scene transitions continue.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

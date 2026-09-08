@@ -79,6 +79,15 @@ message ControlSnapshot {
 message ControlMetadata {
   map<uint64, string> titles = 1;
   repeated ControlSnapshot snapshots = 2;
+  repeated ControlCue cues = 3;
+}
+message ControlCue {
+  uint64 id = 1;
+  string title = 2;
+  double seconds = 3;
+  uint64 snapshot = 4;
+  double fade = 5;
+  bool smooth = 6;
 }
 message ComponentInput {
   string key = 1;

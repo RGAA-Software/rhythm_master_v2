@@ -14,18 +14,37 @@ void TimeTrackEditor::Reset() {
     sections_.Reset();
     curve_editor_.Reset();
     curve_draft_ = false;
+    cue_draft_ = false;
+    cues_.Reset();
     section_error_.clear();
 }
 TimelineEdit TimeTrackEditor::Draw(const editor::Snapshot& base, double playhead, double duration,
                                    const std::map<std::string, std::string>& text,
                                    const std::function<graph::NodeId()>& reserve_id,
-                                   const std::string& section_action) {
+                                   const std::string& section_action, double bpm) {
     TimelineEdit edit;
     if (draft_ && (draft_->document_.revision_ != base.document_.revision_ ||
                    draft_->document_.id_ != base.document_.id_)) {
         Reset();
         edit.preview_changed_ = true;
     }
+    ImGui::BeginDisabled(draft_ && !cue_draft_);
+    const auto cue_edit =
+            cues_.Draw((draft_ ? *draft_ : base).document_, playhead, duration, bpm, text);
+    ImGui::EndDisabled();
+    if (cue_edit.cues_) {
+        if (!draft_) draft_ = base;
+        draft_->document_.control_cues_ = *cue_edit.cues_;
+        cue_draft_ = true;
+        edit.preview_changed_ = true;
+    }
+    if (cue_edit.committed_ && draft_ && cue_draft_) {
+        edit.committed_ = std::move(draft_);
+        draft_.reset();
+        cue_draft_ = false;
+        return edit;
+    }
+    if (draft_ && cue_draft_) return edit;
     ImGui::Separator();
     ImGui::BeginDisabled(draft_ && curve_draft_);
     const auto section =

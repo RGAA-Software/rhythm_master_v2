@@ -53,6 +53,15 @@ void Session::Restart() {
     external_ = {};
     ReleaseGraphics();
 }
+const std::optional<parameters::ControlSequence>& Session::ControlSequence() const {
+    static const std::optional<parameters::ControlSequence> kEmpty;
+    return package_ ? package_->program_.control_sequence_ : kEmpty;
+}
+parameters::ControlValues Session::CurrentControls() const {
+    return external_.controls_.empty()
+                   ? parameters::EvaluateControls(Controls(), ControlSequence(), Seconds())
+                   : external_.controls_;
+}
 void Session::ReleaseGraphics() {
     frame_ = {};
     runtime_.Reset();
@@ -75,7 +84,8 @@ runtime::FrameResult Session::Tick(double monotonic_seconds, bool suspended, ren
         frame_ = {};
     }
     if (!package_ || suspended || !extent.width_ || !extent.height_) return {};
-    const auto controls = Controls().Resolve(inputs.controls_);
+    const auto controls = parameters::EvaluateControls(Controls(), ControlSequence(), Seconds(),
+                                                       inputs.controls_);
     const auto controls_changed = controls != external_.controls_;
     if (!Paused() || controls_changed || media_position_changed || extent != extent_ ||
         !renderer.IsValid(frame_.final_) || !resources_->videos_.empty()) {

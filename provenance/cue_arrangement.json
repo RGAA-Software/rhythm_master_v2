@@ -1,0 +1,30 @@
+{
+    "sources": [
+        {
+            "source_url": "https://github.com/tixl3d/tixl",
+            "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+            "source_file": "Core/Animation/Playback.cs",
+            "sha256": "0f38129cbe71690f6d9ba04ef8698a46013d030d2f0089ff590f364849dd53e5",
+            "license": "MIT",
+            "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+            "imported_files": [],
+            "usage": "Study playback/local/effect time distinctions and seconds/bar conversion. No source copied.",
+            "target": "src/parameters/control_sequence.cpp; src/player_core/session.cpp",
+            "modifications": ["Use existing work time in seconds and immutable snapshot transitions; no global Playback instance or second clock."]
+        },
+        {
+            "source_url": "https://github.com/tixl3d/tixl",
+            "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+            "source_file": "Core/Animation/TimeClip.cs",
+            "sha256": "6975e9dfca1353e72895bffaac8831539a1247c6eb5600ad3534df80a96968d2",
+            "license": "MIT",
+            "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+            "imported_files": [],
+            "usage": "Study typed source units and explicit parent/source time mapping. Cue timing remains seconds; beat snapping is an editor conversion. No source copied.",
+            "target": "src/studio_ui/cue_editor.cpp",
+            "modifications": ["Bounded named snapshot cues and existing Studio value transactions; source media intervals remain a separate next increment."]
+        }
+    ],
+    "first_party_reuse": ["src/parameters/controls.cpp", "src/runtime/playback_clock.cpp", "src/studio_ui/time_track_editor.cpp"],
+    "outbound_license": "Unselected; no third-party source relicensed."
+}

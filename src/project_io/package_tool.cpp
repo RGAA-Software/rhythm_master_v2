@@ -29,8 +29,9 @@ int main(int argc, char* argv[]) {
         }
         rhythm::project::PublishSnapshot(output, loaded.snapshot_, input / "assets");
         const auto verified = rhythm::project::LoadPackage(output);
-        std::cout << "Published runtime ABI 2, " << verified.program_.instructions_.size()
-                  << " instructions, " << verified.assets_.size() << " assets\n";
+        std::cout << "Published runtime ABI " << (verified.program_.control_sequence_ ? 3 : 2)
+                  << ", " << verified.program_.instructions_.size() << " instructions, "
+                  << verified.assets_.size() << " assets\n";
         return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

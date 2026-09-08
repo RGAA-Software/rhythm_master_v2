@@ -14,6 +14,10 @@ void PruneControls(Document& document) {
         std::erase_if(snapshot.values_,
                       [&](const auto& item) { return !ids.contains(item.first); });
     if (ids.empty()) document.control_snapshots_.clear();
+    std::set<std::uint64_t> snapshots;
+    for (const auto& snapshot : document.control_snapshots_) snapshots.insert(snapshot.id_);
+    std::erase_if(document.control_cues_,
+                  [&](const auto& cue) { return !snapshots.contains(cue.snapshot_); });
 }
 parameters::ControlBank DescribeControls(const Document& document) {
     if (document.control_titles_.size() > parameters::ControlBank::kMaximumControls)

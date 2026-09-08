@@ -130,10 +130,23 @@ int main(int argc, char* argv[]) {
             ImGui::SameLine();
             ImGui::Text("%.2f s", session.Seconds());
             audio_panel.Draw(catalogs.at(chinese ? "zh-CN" : "en-US"));
-            if (auto edit = control_panel.Draw(session.Controls(), control_values,
+            if (auto edit = control_panel.Draw(session.Controls(), session.CurrentControls(),
                                                catalogs.at(chinese ? "zh-CN" : "en-US"));
                 edit.values_)
-                control_values = std::move(*edit.values_);
+                for (const auto& [id, value] : *edit.values_) control_values[id] = value;
+            if (session.ControlSequence()) {
+                if (ImGui::Button(chinese ? "回到自动编排##follow_cues"
+                                          : "Follow cues##follow_cues")) {
+                    control_values.clear();
+                    control_panel.Reset();
+                }
+                if (const auto active = session.ControlSequence()->Active(session.Seconds()))
+                    for (const auto& cue : session.ControlSequence()->Cues())
+                        if (cue.id_ == *active) {
+                            ImGui::SameLine();
+                            ImGui::TextUnformatted(cue.title_.c_str());
+                        }
+            }
             ImGui::SetNextItemWidth(-140);
             ImGui::InputText(chinese ? "运行包路径##path" : "Package path##path", path.data(),
                              path.size());

@@ -54,6 +54,8 @@ CompileResult Compile(const Document& document, const Registry& registry,
     parameters::ControlBank controls;
     try {
         controls = DescribeControls(document);
+        if (!document.control_cues_.empty())
+            (void)parameters::ControlSequence(controls, document.control_cues_);
     } catch (const std::exception&) {
         fail("graph.controls");
         return diagnostics;
@@ -153,6 +155,8 @@ CompileResult Compile(const Document& document, const Registry& registry,
     if (const auto budget = ValidatePointBudget(plan)) return std::vector<Diagnostic>{*budget};
     if (const auto budget = ValidateSceneBudget(plan)) return std::vector<Diagnostic>{*budget};
     plan.controls_ = SelectControls(controls, plan.instructions_);
+    if (!plan.controls_.Definitions().empty() && !document.control_cues_.empty())
+        plan.control_sequence_.emplace(plan.controls_, document.control_cues_);
     return plan;
 }
 }  // namespace rhythm::graph

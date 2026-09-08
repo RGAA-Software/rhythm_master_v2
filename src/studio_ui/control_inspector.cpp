@@ -7,29 +7,64 @@
 #include "rhythm/graph/controls.h"
 
 namespace rhythm::studio {
+parameters::ControlValues PropertyInspector::LiveControls(
+        const parameters::ControlBank& bank) const {
+    parameters::ControlValues result;
+    for (const auto& control : bank.Definitions())
+        if (const auto found = live_controls_.find(control.id_);
+            found != live_controls_.end() && found->second >= control.minimum_ &&
+            found->second <= control.maximum_)
+            result.emplace(*found);
+    return result;
+}
 bool PropertyInspector::DrawControls(const editor::Snapshot& snapshot,
                                      const std::map<std::string, std::string>& text,
-                                     InspectorResult& result) {
+                                     InspectorResult& result, double seconds) {
     try {
         const auto bank = graph::DescribeControls(snapshot.document_);
-        auto edit = controls_.Draw(bank, {}, text, true);
+        live_controls_ = LiveControls(bank);
+        std::erase_if(live_controls_, [&](const auto& item) {
+            return std::none_of(
+                    bank.Definitions().begin(), bank.Definitions().end(), [&](const auto& control) {
+                        return control.id_ == item.first && control.value_ == item.second;
+                    });
+        });
+        if (sequence_bank_ != bank || sequence_cues_ != snapshot.document_.control_cues_) {
+            std::optional<parameters::ControlSequence> sequence;
+            if (!snapshot.document_.control_cues_.empty())
+                sequence.emplace(bank, snapshot.document_.control_cues_);
+            control_sequence_ = std::move(sequence);
+            sequence_bank_ = bank;
+            sequence_cues_ = snapshot.document_.control_cues_;
+        }
+        const auto current =
+                parameters::EvaluateControls(bank, control_sequence_, seconds, LiveControls(bank));
+        auto edit = controls_.Draw(bank, current, text, true);
+        if (control_sequence_) {
+            const auto found = text.find("cue.follow");
+            const auto title =
+                    (found == text.end() ? "cue.follow" : found->second) + "###cue.follow";
+            if (ImGui::Button(title.c_str())) live_controls_.clear();
+        }
         if (edit.values_ || !edit.capture_.empty() || edit.remove_) {
             auto next = snapshot;
             if (edit.values_)
+                for (const auto& [id, value] : *edit.values_) live_controls_[id] = value;
+            if (edit.values_)
                 for (auto& node : next.document_.nodes_)
-                    if (node.type_ == "control.scalar")
+                    if (node.type_ == "control.scalar" && edit.values_->contains(node.id_))
                         node.properties_["value"] = edit.values_->at(node.id_);
             if (edit.remove_)
                 std::erase_if(next.document_.control_snapshots_,
                               [&](const auto& item) { return item.id_ == edit.remove_; });
+            graph::PruneControls(next.document_);
             if (!edit.capture_.empty()) {
                 std::uint64_t id = 1;
                 while (std::any_of(next.document_.control_snapshots_.begin(),
                                    next.document_.control_snapshots_.end(),
                                    [&](const auto& item) { return item.id_ == id; }))
                     ++id;
-                next.document_.control_snapshots_.push_back(
-                        {id, edit.capture_, graph::DescribeControls(next.document_).Resolve()});
+                next.document_.control_snapshots_.push_back({id, edit.capture_, current});
             }
             (void)graph::DescribeControls(next.document_);
             draft_ = std::move(next);

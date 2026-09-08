@@ -64,7 +64,7 @@ int main(int, char**) {
         apply_soundtrack();
 #endif
         android_host::PublishScene(session.Canvas(), session.Title());
-        android_host::PublishControls(session.Controls());
+        android_host::PublishControls(session.Controls(), session.ControlSequence());
         std::uint64_t frames = 0;
         std::uint64_t devices = 0;
         std::uint64_t surface_generation = 0;
@@ -124,7 +124,7 @@ int main(int, char**) {
                 if (loaded->package_) {
                     const bool paused = session.Paused();
                     session.LoadPrepared(std::move(*loaded->package_));
-                    android_host::PublishControls(session.Controls());
+                    android_host::PublishControls(session.Controls(), session.ControlSequence());
                     session.SetPaused(paused);
                     android_host::PublishScene(session.Canvas(), session.Title());
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
@@ -159,6 +159,7 @@ int main(int, char**) {
             const auto output = session.Tick(seconds, false, extent, *renderer, inputs);
 #endif
             renderer->Submit({}, Present(output.final_, size, session.Canvas()), 0x111822ff);
+            android_host::PublishControlTime(session.Seconds());
             renderer->EndFrame();
             ++frames;
             if (frames % 30 == 0) {

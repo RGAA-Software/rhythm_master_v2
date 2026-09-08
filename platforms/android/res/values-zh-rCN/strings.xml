@@ -27,4 +27,6 @@
     <string name="controls_second">快照 B</string>
     <string name="controls_recall">召回 A</string>
     <string name="controls_blend">A / B 混合</string>
+    <string name="controls_follow">回到自动编排</string>
+    <string name="controls_override">手动覆盖</string>
 </resources>

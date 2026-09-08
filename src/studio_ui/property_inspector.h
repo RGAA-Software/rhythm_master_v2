@@ -21,7 +21,8 @@ class PropertyInspector final {
     InspectorResult Draw(const editor::Snapshot& base, graph::NodeId selected,
                          const graph::Registry& registry, std::span<const content::Preset> presets,
                          const std::map<std::string, std::string>& text, const std::string& locale,
-                         const scene::Resources& models = {});
+                         const scene::Resources& models = {}, double seconds = 0);
+    parameters::ControlValues LiveControls(const parameters::ControlBank& bank) const;
     const std::optional<editor::Snapshot>& Preview() const { return draft_; }
     void Reset() {
         draft_.reset();
@@ -29,15 +30,24 @@ class PropertyInspector final {
         binding_editor_.Reset();
         curve_editor_.Reset();
         controls_.Reset();
+        live_controls_.clear();
+        control_sequence_.reset();
+        sequence_bank_ = {};
+        sequence_cues_.clear();
     }
 
    private:
     bool DrawControls(const editor::Snapshot& snapshot,
-                      const std::map<std::string, std::string>& text, InspectorResult& result);
+                      const std::map<std::string, std::string>& text, InspectorResult& result,
+                      double seconds);
     std::optional<editor::Snapshot> draft_{};
     ExpressionEditor expression_editor_{};
     BindingEditor binding_editor_{};
     CurveEditor curve_editor_{};
     control_ui::ControlPanel controls_{};
+    parameters::ControlValues live_controls_{};
+    parameters::ControlBank sequence_bank_{};
+    std::vector<parameters::ControlCue> sequence_cues_{};
+    std::optional<parameters::ControlSequence> control_sequence_{};
 };
 }  // namespace rhythm::studio

@@ -2,6 +2,8 @@ package org.rhythmmaster.player;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -22,9 +24,19 @@ final class PerformanceControls {
     private final ArrayList<TextView> labels_ = new ArrayList<>();
     private long generation_ = 0;
     private AlertDialog dialog_ = null;
+    private TextView cue_ = null;
+    private final Handler handler_ = new Handler(Looper.getMainLooper());
+    private final Runnable update_ = new Runnable() {
+        @Override public void run() {
+            if (dialog_ == null || !dialog_.isShowing()) return;
+            Refresh();
+            if (dialog_.isShowing()) handler_.postDelayed(this, 200);
+        }
+    };
     private static native String nativeDescribe();
     private static native boolean nativeValue(long generation, long id, double value);
     private static native boolean nativeBlend(long generation, long first, long second, double amount);
+    private static native boolean nativeFollow(long generation);
 
     private PerformanceControls(Activity activity) { activity_ = activity; }
     static void Show(Activity activity) { new PerformanceControls(activity).Open(); }
@@ -37,6 +49,8 @@ final class PerformanceControls {
         try {
             JSONObject data = new JSONObject(nativeDescribe());
             if (data.getLong("generation") != generation_) { Stale(); return; }
+            if (cue_ != null) cue_.setText(data.optString("cue") +
+                    (data.optBoolean("overridden") ? " · " + activity_.getString(R.string.controls_override) : ""));
             JSONArray controls = data.getJSONArray("controls");
             for (int i = 0; i < controls.length(); ++i) {
                 JSONObject control = controls.getJSONObject(i);
@@ -60,6 +74,17 @@ final class PerformanceControls {
             LinearLayout content = new LinearLayout(activity_);
             content.setOrientation(LinearLayout.VERTICAL);
             content.setPadding(24, 8, 24, 8);
+            if (data.optBoolean("automated")) {
+                cue_ = new TextView(activity_);
+                content.addView(cue_);
+                Button follow = new Button(activity_);
+                follow.setText(R.string.controls_follow);
+                follow.setOnClickListener(view -> {
+                    if (!nativeFollow(generation_)) Stale();
+                    else Refresh();
+                });
+                content.addView(follow);
+            }
             for (int i = 0; i < controls.length(); ++i) {
                 JSONObject control = controls.getJSONObject(i);
                 final long id = Long.parseUnsignedLong(control.getString("id"));
@@ -127,7 +152,9 @@ final class PerformanceControls {
             dialog_ = new AlertDialog.Builder(activity_).setTitle(R.string.performance_controls)
                     .setView(scroll).setPositiveButton(android.R.string.ok, null).create();
             dialog_.show();
+            dialog_.setOnDismissListener(ignored -> handler_.removeCallbacks(update_));
             Refresh();
+            handler_.postDelayed(update_, 200);
         } catch (Exception error) { Stale(); }
     }
     private Spinner SnapshotPicker(LinearLayout content, String[] names, int title) {
