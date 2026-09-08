@@ -238,7 +238,8 @@ class Studio::Impl final {
         if (ImGui::Button(Label("reset").c_str())) timeline_.Restart();
         ImGui::SameLine();
         if (const auto selected =
-                    semantic_palette_.Draw(semantics_, locale_, catalogs_.at(locale_))) {
+                    semantic_palette_.Draw(semantics_, locale_, catalogs_.at(locale_), host,
+                                           renderer, seconds, preview_inputs_)) {
             CommitEdits();
             const auto id = history_->ReserveNodeId();
             auto edit = content::AddSemantic(history_->Current(), semantics_.at(*selected),

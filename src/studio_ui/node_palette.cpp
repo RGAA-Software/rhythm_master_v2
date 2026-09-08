@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <array>
 
+#include "operator_help.h"
+
 namespace rhythm::studio {
 namespace {
 std::string_view Category(graph::Operation operation) {
@@ -152,7 +154,14 @@ std::optional<std::string> NodePalette::Draw(std::span<const graph::OperatorDesc
                 if (!matches(entry)) continue;
                 if (ImGui::Selectable((label(entry.type_) + "###" + entry.type_).c_str()))
                     selected = entry.type_;
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", entry.type_.c_str());
+                if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal)) {
+                    ImGui::SetNextWindowSizeConstraints({320, 0}, {440, 500});
+                    ImGui::BeginTooltip();
+                    ImGui::PushTextWrapPos(400);
+                    DrawOperatorHelp(entry, text, false);
+                    ImGui::PopTextWrapPos();
+                    ImGui::EndTooltip();
+                }
             }
         }
         if (!any_match) ImGui::TextDisabled("%s", label("palette.empty").c_str());

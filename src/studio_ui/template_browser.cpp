@@ -50,42 +50,6 @@ render::TextureHandle TemplateBrowser::Thumbnail(std::size_t index,
     thumbnails_.emplace(index, std::move(texture));
     return handle;
 }
-void TemplateBrowser::UpdatePreview(std::span<const project::ContentEntry> entries,
-                                    render::Renderer& renderer, double seconds,
-                                    const runtime::ExternalInputs& inputs) {
-    if (auto loaded = loader_.Take()) {
-        if (requested_ == selected_) {
-            if (loaded->package_) {
-                // Take() returns ownership to the host thread; workers never touch GPU state.
-                auto result = std::move(*loaded);
-                preview_.LoadPrepared(std::move(*result.package_));
-                playing_ = selected_;
-            } else
-                failed_ = true;
-        }
-        requested_.reset();
-    }
-    if (selected_ != playing_) {
-        preview_ = {};
-        live_ = {};
-        playing_.reset();
-        if (selected_ && !loader_.Busy() && !failed_) {
-            const auto& entry = entries[*selected_];
-            auto name = entry.directory_.filename();
-            name += ".rhythmpack";
-            if (loader_.StartFile(entry.directory_.parent_path().parent_path() / "packages" / name))
-                requested_ = selected_;
-        }
-    }
-    if (preview_.Ready()) {
-        const auto fit = render::AspectFit(preview_.Canvas(), {0, 0, 256, 144});
-        live_extent_ = {static_cast<std::uint16_t>(fit.width_),
-                        static_cast<std::uint16_t>(fit.height_)};
-        const auto output = preview_.Tick(seconds, false, live_extent_, renderer, inputs);
-        live_ = output.final_;
-        failed_ = output.budget_.has_value();
-    }
-}
 std::optional<std::size_t> TemplateBrowser::Draw(std::span<const project::ContentEntry> entries,
                                                  const std::string& locale,
                                                  const std::map<std::string, std::string>& text,
@@ -100,16 +64,9 @@ std::optional<std::size_t> TemplateBrowser::Draw(std::span<const project::Conten
     ImGui::SetNextWindowSize({std::min(1040.0f, std::max(1.0f, available.x - 16)),
                               std::min(710.0f, std::max(1.0f, available.y - 16))});
     if (!ImGui::BeginPopup("templates.popup")) {
-        loader_.Cancel();
-        // Drain a cancelled request; it cannot replace a later selection.
-        loader_.Take();
-        requested_.reset();
-        preview_ = {};
-        playing_.reset();
-        live_ = {};
+        preview_.Close();
         return {};
     }
-    UpdatePreview(entries, renderer, seconds, inputs);
     ImGui::SetNextItemWidth(330);
     ImGui::InputTextWithHint("###template.search", text.at("catalog.search").c_str(),
                              filter_.data(), filter_.size());
@@ -159,16 +116,13 @@ std::optional<std::size_t> TemplateBrowser::Draw(std::span<const project::Conten
         if (const auto texture = Thumbnail(index, entry, renderer); texture.device_) {
             if (ImGui::ImageButton("image", host.RegisterTexture(texture), {256, 144})) {
                 selected_ = index;
-                failed_ = false;
             }
         } else if (ImGui::Button(text.at("catalog.preview").c_str(), {264, 152})) {
             selected_ = index;
-            failed_ = false;
         }
         if (ImGui::Selectable((entry.titles_.at(locale) + "###title").c_str(), selected_ == index,
                               ImGuiSelectableFlags_NoAutoClosePopups, {264, 0})) {
             selected_ = index;
-            failed_ = false;
         }
         ImGui::TextDisabled("%s", Label(text, "tier." + entry.tier_).c_str());
         ImGui::EndGroup();
@@ -178,20 +132,25 @@ std::optional<std::size_t> TemplateBrowser::Draw(std::span<const project::Conten
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("catalog.detail", {0, 0});
+    if (selected_ && *selected_ < entries.size()) {
+        const auto& directory = entries[*selected_].directory_;
+        auto name = directory.filename();
+        name += ".rhythmpack";
+        preview_.Select(directory.parent_path().parent_path() / "packages" / name);
+    }
+    preview_.Update(renderer, seconds, inputs);
     std::optional<std::size_t> result;
     if (selected_) {
         const auto& entry = entries[*selected_];
         ImGui::TextWrapped("%s", entry.titles_.at(locale).c_str());
-        if (live_.device_ && playing_ == selected_) {
-            const auto fit = render::AspectFit(live_extent_, {0, 0, 320, 180});
-            ImGui::Image(host.RegisterTexture(live_), {fit.width_, fit.height_});
+        if (preview_.Texture().device_) {
+            const auto fit = render::AspectFit(preview_.Extent(), {0, 0, 320, 180});
+            ImGui::Image(host.RegisterTexture(preview_.Texture()), {fit.width_, fit.height_});
         } else
-            ImGui::TextWrapped("%s",
-                               text.at(failed_ ? "catalog.failed" : "catalog.loading").c_str());
-        if (failed_ && preview_.Ready() && ImGui::Button(text.at("render.retry").c_str())) {
-            preview_.Restart();
-            failed_ = false;
-        }
+            ImGui::TextWrapped(
+                    "%s",
+                    text.at(preview_.Failed() ? "catalog.failed" : "catalog.loading").c_str());
+        if (preview_.Failed() && ImGui::Button(text.at("render.retry").c_str())) preview_.Retry();
         if (const auto found = entry.descriptions_.find(locale); found != entry.descriptions_.end())
             ImGui::TextWrapped("%s", found->second.c_str());
         ImGui::TextWrapped("%s", text.at("catalog.live_help").c_str());

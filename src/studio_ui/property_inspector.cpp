@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include "curve_editor.h"
+#include "operator_help.h"
 
 namespace rhythm::studio {
 namespace {
@@ -89,6 +90,8 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
     if (node.type_ == "geometry.morph") ImGui::TextWrapped("%s", Text(text, "morph.help").c_str());
     const auto descriptor = registry.Find(node.type_, snapshot.document_.components_);
     if (!descriptor) return result;
+    if (ImGui::CollapsingHeader((Text(text, "help.node") + "###help.node").c_str()))
+        DrawOperatorHelp(*descriptor, text);
     if (!registry.ValidateNode(node, snapshot.document_.components_).empty()) {
         ImGui::TextWrapped("%s", Text(text, "graph.property_type").c_str());
         return result;

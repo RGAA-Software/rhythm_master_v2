@@ -1,0 +1,33 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "license": "MIT",
+    "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+    "source_files": [
+        {
+            "path": "Editor/Gui/Windows/SymbolLib/SymbolLibrary.cs",
+            "sha256": "04783e84830d8bdd45a69d661b2a28889d251d52b202d5211981255a4289f603"
+        },
+        {
+            "path": "Editor/Gui/Help/DocumentationButton.cs",
+            "sha256": "a1e13ae958a8863e8478bfeb490b571431291d2104fc4c8bf3def17b1efe7ea6"
+        }
+    ],
+    "imported_files": [],
+    "usage": "Study namespace grouping, search/reveal without insertion, and contextual local help. No C# source copied.",
+    "modifications": [
+        "Reuse first-party catalog package loader/session for one live selection.",
+        "Render typed inputs, output and public properties from the validated registry.",
+        "Use local bilingual help; no external wiki or engine-specific UI dependency."
+    ],
+    "target_modules": [
+        "studio_ui",
+        "semantic_content"
+    ],
+    "first_party_reuse": [
+        "src/studio_ui/template_browser.cpp",
+        "src/player_core/package_loader.cpp",
+        "tools/compile-runtime-package.py"
+    ],
+    "outbound_license": "Unselected; no third-party source relicensed."
+}

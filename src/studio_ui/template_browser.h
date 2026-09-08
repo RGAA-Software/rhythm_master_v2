@@ -4,9 +4,8 @@
 #include <map>
 #include <set>
 
+#include "catalog_preview.h"
 #include "rhythm/platform/host.h"
-#include "rhythm/player/package_loader.h"
-#include "rhythm/player/session.h"
 #include "rhythm/project/store.h"
 
 namespace rhythm::studio {
@@ -20,22 +19,14 @@ class TemplateBrowser final {
                                     double seconds, const runtime::ExternalInputs& inputs = {});
 
    private:
-    void UpdatePreview(std::span<const project::ContentEntry> entries, render::Renderer& renderer,
-                       double seconds, const runtime::ExternalInputs& inputs);
     render::TextureHandle Thumbnail(std::size_t index, const project::ContentEntry& entry,
                                     render::Renderer& renderer);
     std::array<char, 129> filter_{};
     std::string tier_{};
     std::string category_{};
     std::optional<std::size_t> selected_{};
-    std::optional<std::size_t> requested_{};
-    std::optional<std::size_t> playing_{};
     std::map<std::size_t, render::Texture> thumbnails_{};
     std::set<std::size_t> missing_thumbnails_{};
-    player::PackageLoader loader_{};
-    player::Session preview_{};
-    render::TextureHandle live_{};
-    render::Extent live_extent_{};
-    bool failed_ = false;
+    CatalogPreview preview_{};
 };
 }  // namespace rhythm::studio

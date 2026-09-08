@@ -25,6 +25,8 @@ if(RHYTHM_BUILD_MEDIA)
 endif()
 file(GLOB semantic_manifests CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/content/semantic/*/manifest.json")
 set(semantic_products)
+set(semantic_packages)
+set(previous_semantic_package)
 foreach(manifest IN LISTS semantic_manifests)
     get_filename_component(source_dir "${manifest}" DIRECTORY)
     get_filename_component(semantic_name "${source_dir}" NAME)
@@ -35,8 +37,19 @@ foreach(manifest IN LISTS semantic_manifests)
             "${RHYTHM_PROTOC}" "${PROJECT_SOURCE_DIR}/src/project_io/schema/graph.proto" "${source_dir}" "${output_dir}"
         DEPENDS "${PROJECT_SOURCE_DIR}/src/project_io/schema/graph.proto" "${source_dir}/graph.textproto"
             "${manifest}" "${source_dir}/editor.json" "${source_dir}/presets.json" "${PROJECT_SOURCE_DIR}/tools/compile-content.py" VERBATIM)
+    if(NOT CMAKE_CROSSCOMPILING)
+        set(package "${PROJECT_BINARY_DIR}/content/semantic_packages/${semantic_name}.rhythmpack")
+        add_custom_command(OUTPUT "${package}"
+            COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/compile-runtime-package.py"
+                --publisher "$<TARGET_FILE:rhythm_package>" --sdk "${RHYTHM_IO_SDK}"
+                --media-sdk "${RHYTHM_MEDIA_SDK}" --template "${output_dir}" --output "${package}"
+            DEPENDS rhythm_package "${output_dir}/graph.pb" "${output_dir}/manifest.json"
+                "${PROJECT_SOURCE_DIR}/tools/compile-runtime-package.py" ${previous_semantic_package} VERBATIM)
+        list(APPEND semantic_packages "${package}")
+        set(previous_semantic_package "${package}")
+    endif()
 endforeach()
-add_custom_target(semantic_content ALL DEPENDS ${semantic_products})
+add_custom_target(semantic_content ALL DEPENDS ${semantic_products} ${semantic_packages})
 add_custom_command(OUTPUT "${PROJECT_BINARY_DIR}/content/audio/resonance_demo.wav"
     COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/create-music-fixture.py"
         --output "${PROJECT_BINARY_DIR}/content/audio"
