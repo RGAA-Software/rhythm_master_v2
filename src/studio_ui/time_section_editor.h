@@ -29,5 +29,6 @@ class TimeSectionEditor final {
     std::string document_{};
     std::uint64_t revision_ = 0;
     bool property_active_ = false;
+    std::string error_{};
 };
 }  // namespace rhythm::studio

@@ -81,6 +81,8 @@ int main(int argc, char** argv) {
         Check(rejected, "offline canceled demand rejects without replacing current frame");
         Frame(playback.Snapshot(), 1.2, 120);
         Frame(playback.Resolve(0.2, 53, false), 0.2, 20);
+        Frame(playback.Resolve(std::nextafter(1.8, 0.0), 54, false, {}, 1.8), 1.6, 160);
+        Frame(playback.Resolve(1.8, 54, false), 1.8, 180);
         std::cout << "Video timestamp hold, VFR, seek supersession, loops, EOF and independent "
                      "embedded sources passed\n";
     } catch (const std::exception& error) {

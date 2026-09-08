@@ -29,7 +29,14 @@ def main():
             for x in range(128):
                 if any(abs(a-b) > 2 for a, b in zip(rows[y][x], (red, 80, 200))):
                     raise AssertionError(f"Video timestamp/pixel case {scenario}: {rows[y][x]}, {output}")
-    print(f"Independent video blend, dynamic upload, loop and seek pixels passed: {output}")
+    for scenario, expected in enumerate(((0, 0, 0), (30, 40, 100), (36, 48, 120),
+                                          (160, 80, 200), (0, 0, 0), (40, 80, 200))):
+        rows = capture.read_tga(output / f"clip-{scenario}.tga")
+        for row in rows:
+            for pixel in row:
+                if any(abs(a-b) > 2 for a, b in zip(pixel, expected)):
+                    raise AssertionError(f"Clip trim/fade case {scenario}: {pixel}, {output}")
+    print(f"Video blend, source trim, blank/hold/loop and changing fade pixels passed: {output}")
 
 
 if __name__ == "__main__":

@@ -841,5 +841,14 @@
     "cue.smooth": "平滑过渡",
     "cue.target": "目标快照",
     "cue.remove": "删除 Cue",
-    "cue.follow": "回到自动编排"
+    "cue.follow": "回到自动编排",
+    "texture.video_clip": "视频片段",
+    "source_in": "源入点（秒）",
+    "source_out": "源出点（秒）",
+    "clip_rate": "片段速度",
+    "clip_end": "源区间结束后",
+    "clip.blank": "透明",
+    "clip.interval": "片段区间无效：出点必须大于入点，摆放区间须在七天以内。",
+    "clip.source_range": "片段源出点超过了视频素材时长。",
+    "clip.timeline_help": "每行对应一个视频节点。拖动条块移动片段，拖动边缘调整摆放时长；下方编辑源区间。请在节点属性中选择素材，将视频连接到图层合成节点决定叠放顺序。"
 }

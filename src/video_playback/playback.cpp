@@ -17,6 +17,7 @@ struct Demand {
     std::uint64_t epoch_ = 0;
     std::uint64_t revision_ = 0;
     bool loop_ = false;
+    std::optional<double> source_out_{};
     std::stop_token cancel_{};
 };
 }  // namespace
@@ -38,15 +39,20 @@ class Playback::Impl final {
         }
         wake_.notify_all();
     }
-    std::uint64_t Request(double seconds, std::uint64_t generation, bool loop) {
+    std::uint64_t Request(double seconds, std::uint64_t generation, bool loop,
+                          std::optional<double> source_out) {
         if (!std::isfinite(seconds) || seconds < 0 || seconds > 86400 * 7)
             throw std::invalid_argument("video request time");
+        if (source_out && (!std::isfinite(*source_out) || *source_out <= seconds ||
+                           *source_out > 86400 * 7 || loop))
+            throw std::invalid_argument("video source out");
         std::lock_guard lock(mutex_);
         if (demand_.revision_ && demand_.seconds_ == seconds && demand_.generation_ == generation &&
-            demand_.loop_ == loop)
+            demand_.loop_ == loop && demand_.source_out_ == source_out)
             return demand_.revision_;
         if (!demand_.revision_ || demand_.generation_ != generation || seconds < demand_.seconds_ ||
-            seconds - demand_.seconds_ > 0.5 || loop != demand_.loop_) {
+            seconds - demand_.seconds_ > 0.5 || loop != demand_.loop_ ||
+            source_out != demand_.source_out_) {
             cancel_.request_stop();
             cancel_ = {};
             demand_.cancel_ = cancel_.get_token();
@@ -56,6 +62,7 @@ class Playback::Impl final {
         demand_.seconds_ = seconds;
         demand_.generation_ = generation;
         demand_.loop_ = loop;
+        demand_.source_out_ = source_out;
         ++demand_.revision_;
         snapshot_.pending_ = true;
         snapshot_.generation_ = generation;
@@ -68,9 +75,9 @@ class Playback::Impl final {
         return snapshot_;
     }
     PlaybackSnapshot Resolve(double seconds, std::uint64_t generation, bool loop,
-                             std::stop_token stop) {
+                             std::stop_token stop, std::optional<double> source_out) {
         if (stop.stop_requested()) throw std::runtime_error("video.resolve_canceled");
-        const auto revision = Request(seconds, generation, loop);
+        const auto revision = Request(seconds, generation, loop, source_out);
         std::unique_lock lock(mutex_);
         resolved_.wait(lock, stop,
                        [&] { return demand_.revision_ != revision || !snapshot_.pending_; });
@@ -136,7 +143,8 @@ class Playback::Impl final {
                         else
                             eof = true;
                     }
-                    if (next && next->seconds_ <= target + 1e-9) {
+                    if (next && next->seconds_ <= target + 1e-9 &&
+                        (!demand.source_out_ || next->seconds_ < *demand.source_out_)) {
                         current = std::move(next);
                         ++frame_revision;
                         continue;
@@ -188,12 +196,13 @@ Playback::Playback(const std::filesystem::path& path) : impl_(std::make_unique<I
 Playback::Playback(std::shared_ptr<const std::vector<std::uint8_t>> bytes)
     : impl_(std::make_unique<Impl>(std::move(bytes))) {}
 Playback::~Playback() = default;
-void Playback::Request(double seconds, std::uint64_t generation, bool loop) {
-    impl_->Request(seconds, generation, loop);
+void Playback::Request(double seconds, std::uint64_t generation, bool loop,
+                       std::optional<double> source_out) {
+    impl_->Request(seconds, generation, loop, source_out);
 }
 PlaybackSnapshot Playback::Snapshot() const { return impl_->Snapshot(); }
 PlaybackSnapshot Playback::Resolve(double seconds, std::uint64_t generation, bool loop,
-                                   std::stop_token stop) {
-    return impl_->Resolve(seconds, generation, loop, stop);
+                                   std::stop_token stop, std::optional<double> source_out) {
+    return impl_->Resolve(seconds, generation, loop, stop, source_out);
 }
 }  // namespace rhythm::video

@@ -5,6 +5,8 @@
 #include <numbers>
 #include <stdexcept>
 
+#include "rhythm/parameters/clip_interval.h"
+
 namespace rhythm::runtime::detail {
 namespace {
 constexpr double kScalarLimit = 1.0e12;
@@ -197,22 +199,9 @@ double EvaluateScalar(const graph::Instruction& instruction, std::span<const Nod
         case graph::Operation::kTimeEnvelope: {
             const auto time = Bounded(input(0, "", 0)) - graph::Scalar(node, "clip_start", 0);
             const auto duration = graph::Scalar(node, "clip_duration", 4);
-            if (time < 0 || time >= duration) return 0;
-            auto fade_in = graph::Scalar(node, "fade_in", 0.25);
-            auto fade_out = graph::Scalar(node, "fade_out", 0.25);
-            const auto sum = fade_in + fade_out;
-            if (sum > duration) {
-                fade_in *= duration / sum;
-                fade_out *= duration / sum;
-            }
-            auto value = fade_in > 0 ? std::min(1.0, time / fade_in) : 1.0;
-            if (fade_out > 0) value = std::min(value, (duration - time) / fade_out);
-            if (graph::Scalar(node, "fade_shape", 1) == 0) return value;
-            // Reuse the same interpolation as editable curves. No per-frame
-            // curve construction or hidden clock: time is an explicit graph input.
-            static const parameters::Curve ramp({{0, 0, parameters::Interpolation::kSmooth},
-                                                 {1, 1, parameters::Interpolation::kLinear}});
-            return ramp.Evaluate(value);
+            return parameters::EnvelopeGain(time, duration, graph::Scalar(node, "fade_in", 0.25),
+                                            graph::Scalar(node, "fade_out", 0.25),
+                                            graph::Scalar(node, "fade_shape", 1) != 0);
         }
         default:
             throw std::invalid_argument("runtime.scalar_operator");

@@ -12,6 +12,105 @@ namespace {
 void Check(bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
 }
+void RunClips(const std::vector<rhythm::project::PackagedAsset>& assets,
+              const std::filesystem::path& directory) {
+    using namespace rhythm;
+    graph::Registry registry;
+    editor::Snapshot authored;
+    authored.title_ = "Overlapping trimmed clips";
+    authored.assets_ = {assets.front().record_};
+    auto& document = authored.document_;
+    document.id_ = "video.clips.player";
+    document.nodes_ = {
+            registry.MakeNode(1, "texture.video_clip"), registry.MakeNode(2, "texture.video_clip"),
+            registry.MakeNode(3, "texture.stack"), registry.MakeNode(4, "output.texture")};
+    for (std::size_t index = 0; index < 2; ++index)
+        document.nodes_[index].properties_["asset"] = assets.front().record_.id_;
+    auto& first = document.nodes_[0];
+    first.properties_["clip_start"] = 1.0;
+    first.properties_["clip_duration"] = 4.0;
+    first.properties_["source_in"] = 0.4;
+    first.properties_["source_out"] = 1.2;
+    first.properties_["clip_end"] = 2.0;
+    first.properties_["fade_in"] = 0.5;
+    auto& second = document.nodes_[1];
+    second.properties_["clip_start"] = 2.0;
+    second.properties_["clip_duration"] = 2.0;
+    second.properties_["source_in"] = 1.2;
+    second.properties_["source_out"] = 1.8;
+    second.properties_["clip_end"] = 1.0;
+    document.edges_ = {{1, 1, 3, "layer_1"}, {2, 2, 3, "layer_2"}, {3, 3, 4, "source"}};
+    document.output_ = 4;
+    const auto plan = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+    const auto resources = prepared_assets::Prepare(plan, assets);
+    video_sources::Streams streams;
+    Check(streams.Resolve(plan, *resources, 0, 1).empty(), "no clip before placement");
+    const auto a = streams.Resolve(plan, *resources, 1.1, 1);
+    const auto b = streams.Resolve(plan, *resources, 1.15, 1);
+    Check(a.size() == 1 && b.size() == 1 && a[0].revision_ == b[0].revision_ &&
+                  std::abs(a[0].frame_->seconds_ - 0.4) < 0.001 &&
+                  std::abs(a[0].gain_ - 0.104) < 0.001 && b[0].gain_ > a[0].gain_,
+          "fade advances while decoded source frame is unchanged");
+    auto renderer = render::Renderer::CreateNull();
+    runtime::Runtime runtime;
+    const auto evaluate = [&](const std::vector<runtime::VideoInput>& samples) {
+        runtime::FrameContext context{1.1, 1, {128, 128}, false};
+        context.videos_ = samples;
+        renderer.BeginFrame();
+        const auto result = runtime.Evaluate(plan, context, renderer);
+        renderer.EndFrame();
+        return result;
+    };
+    evaluate(a);
+    Check(evaluate(a).evaluated_ == 0, "paused clip cached");
+    const auto bytes = renderer.Stats().texture_bytes_;
+    Check(evaluate(b).evaluated_ > 0 && renderer.Stats().texture_bytes_ == bytes,
+          "gain invalidates output without allocating another upload");
+    Check(std::abs(streams.Resolve(plan, *resources, 1.9, 1)[0].frame_->seconds_ - 0.4) < 0.001,
+          "loop wraps selected source range");
+    const auto overlap = streams.Resolve(plan, *resources, 2.4, 1);
+    Check(overlap.size() == 2 && std::abs(overlap[1].frame_->seconds_ - 1.6) < 0.001,
+          "overlapping tracks have independent local times");
+    Check(std::abs(streams.Resolve(plan, *resources, 3.9, 1)[1].frame_->seconds_ - 1.6) < 0.001,
+          "hold clamps before source out");
+    Check(streams.Resolve(plan, *resources, 4, 1).size() == 1 &&
+                  streams.Resolve(plan, *resources, 5, 1).empty(),
+          "half-open placement ends remove video input");
+    const auto rewound = streams.Resolve(plan, *resources, 1.1, 2);
+    Check(rewound.size() == 1 && rewound[0].generation_ == 2 &&
+                  std::abs(rewound[0].frame_->seconds_ - 0.4) < 0.001,
+          "seek restores trimmed source deterministically");
+    assets::Store clip_assets(directory / "clips.rhythmproj" / "assets");
+    clip_assets.CopyFrom(assets::Store(directory / "video.rhythmproj" / "assets"),
+                         assets.front().record_);
+    project::Save(directory / "clips.rhythmproj", authored);
+    const auto reopened = project::Load(directory / "clips.rhythmproj");
+    Check(reopened.snapshot_.document_.nodes_.size() == document.nodes_.size(),
+          "clip nodes survive project save");
+    for (std::size_t index = 0; index < document.nodes_.size(); ++index)
+        Check(reopened.snapshot_.document_.nodes_[index].properties_ ==
+                      document.nodes_[index].properties_,
+              "trim survives project save");
+    project::PublishSnapshot(directory / "clips.rhythmpack", reopened.snapshot_,
+                             directory / "video.rhythmproj" / "assets");
+    player::Session session;
+    session.Open(directory / "clips.rhythmpack");
+    session.SetPaused(true);
+    session.Seek(2.4);
+    renderer.BeginFrame();
+    Check(renderer.IsValid(session.Tick(0, false, {128, 128}, renderer).final_),
+          "published clip program plays");
+    renderer.EndFrame();
+    first.properties_["source_out"] = 3.0;
+    const auto invalid = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+    bool rejected = false;
+    try {
+        (void)streams.Resolve(invalid, *resources, 1.2, 3);
+    } catch (const std::invalid_argument&) {
+        rejected = true;
+    }
+    Check(rejected, "source out beyond actual footage is diagnosed");
+}
 }  // namespace
 int main(int argc, char** argv) {
     using namespace rhythm;
@@ -116,7 +215,9 @@ int main(int argc, char** argv) {
         Check(renderer.IsValid(session.Tick(0, false, {128, 128}, renderer).final_),
               "Player video device recreation");
         renderer.EndFrame();
-        std::cout << "Video nodes: independent source time, seek/loop, cache, bounded uploads, "
+        RunClips(assets, directory);
+        std::cout << "Video nodes and clips: independent source time, seek/loop, cache, fades, "
+                     "bounded uploads, "
                      "save/publish and Player passed\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

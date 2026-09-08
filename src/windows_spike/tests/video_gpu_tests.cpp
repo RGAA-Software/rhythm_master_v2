@@ -72,7 +72,44 @@ int main(int argc, char** argv) {
                 renderer.EndFrame();
             }
         }
-        std::cout << "Video D3D11 capture: independent times, loop and seek\n";
+        document.nodes_ = {registry.MakeNode(1, "texture.video_clip"),
+                           registry.MakeNode(2, "output.texture")};
+        auto& clip = document.nodes_[0];
+        clip.properties_["asset"] = asset.id_;
+        clip.properties_["image_fill"] = 1.0;
+        clip.properties_["clip_start"] = 1.0;
+        clip.properties_["clip_duration"] = 4.0;
+        clip.properties_["source_in"] = 0.4;
+        clip.properties_["source_out"] = 1.8;
+        clip.properties_["clip_end"] = 1.0;
+        clip.properties_["fade_in"] = 0.5;
+        clip.properties_["fade_shape"] = 0.0;
+        document.edges_ = {{1, 1, 2, "source"}};
+        document.output_ = 2;
+        constexpr std::array kClipTimes{0.0, 1.25, 1.3, 2.5, 5.0, 2.5};
+        runtime.Reset();
+        streams.Reset();
+        for (std::size_t scenario = 0; scenario < kClipTimes.size(); ++scenario) {
+            if (scenario == 5) clip.properties_["clip_end"] = 2.0;
+            const auto clip_plan =
+                    std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+            runtime::FrameContext context{kClipTimes[scenario], 3, {128, 128}, false};
+            context.videos_ = streams.Resolve(clip_plan, *resources, context.seconds_, 3);
+            const auto capture = (output / ("clip-" + std::to_string(scenario))).string();
+            for (int frame = 0; frame < 8; ++frame) {
+                renderer.BeginFrame();
+                const auto rendered = runtime.Evaluate(clip_plan, context, renderer);
+                render::DrawList draw;
+                draw.width_ = draw.height_ = 128;
+                draw.vertices_ = {{0, 0, 0, 0}, {128, 0, 1, 0}, {128, 128, 1, 1}, {0, 128, 0, 1}};
+                draw.indices_ = {0, 1, 2, 0, 2, 3};
+                draw.commands_ = {{rendered.final_, 0, 6, {0, 0, 128, 128}}};
+                renderer.Submit({}, draw, 0x000000ff);
+                if (frame == 3) bgfx::requestScreenShot(BGFX_INVALID_HANDLE, capture.c_str());
+                renderer.EndFrame();
+            }
+        }
+        std::cout << "Video D3D11 capture: independent times, loop, source out, fades and seek\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

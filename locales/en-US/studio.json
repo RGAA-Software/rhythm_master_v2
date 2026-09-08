@@ -841,5 +841,14 @@
     "cue.smooth": "Smooth transition",
     "cue.target": "Target snapshot",
     "cue.remove": "Delete cue",
-    "cue.follow": "Follow cue automation"
+    "cue.follow": "Follow cue automation",
+    "texture.video_clip": "Video clip",
+    "source_in": "Source in (seconds)",
+    "source_out": "Source out (seconds)",
+    "clip_rate": "Clip rate",
+    "clip_end": "After source interval",
+    "clip.blank": "Blank",
+    "clip.interval": "Invalid clip interval: source out must follow source in, and placement must fit within seven days.",
+    "clip.source_range": "The clip source out exceeds the video's duration.",
+    "clip.timeline_help": "Each row represents a video node. Drag the bar to move it or its edges to resize placement; edit source trim below. Select footage in node properties and connect clips to a layer stack to choose compositing order."
 }

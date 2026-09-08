@@ -134,6 +134,9 @@ Android APK 已接入相同 vcpkg FFmpeg 播放核心，实际应用验收与原
 
 ## 8. 官方资料
 
+R5 实施增量见 [视频片段源区间与时间线](media_clip_arrangement.md)：四路视频图合成、
+trim/摆放/淡入淡出与严格源出点已通过两端功能检查；多轨音频混合继续开发。
+
 - [libavformat](https://ffmpeg.org/libavformat.html)
 - [libavcodec](https://ffmpeg.org/libavcodec.html)
 - [libswresample](https://ffmpeg.org/libswresample.html)

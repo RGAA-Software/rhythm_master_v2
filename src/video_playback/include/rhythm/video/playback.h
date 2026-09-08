@@ -30,13 +30,16 @@ class Playback final {
     // Generation changes denote seek/restart. Loop uses source duration; with
     // no loop, EOF holds the final frame. Selection holds the most recent PTS
     // at/before demand, so VFR frames are never presented before their timestamp.
-    void Request(double seconds, std::uint64_t generation, bool loop);
+    // A source out point is exclusive, including at a PTS within comparison
+    // tolerance of the demand. Bounded demands use caller-controlled looping.
+    void Request(double seconds, std::uint64_t generation, bool loop,
+                 std::optional<double> source_out = {});
     PlaybackSnapshot Snapshot() const;
     // Offline worker only: wait for this exact demand, or throw on cancellation
     // or supersession. Uses the same decoder/PTS selection as realtime playback.
     // Cancellation stops waiting; destruction also cancels and joins decoding.
     PlaybackSnapshot Resolve(double seconds, std::uint64_t generation, bool loop,
-                             std::stop_token stop = {});
+                             std::stop_token stop = {}, std::optional<double> source_out = {});
 
    private:
     class Impl;

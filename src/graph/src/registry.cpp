@@ -8,6 +8,7 @@
 #include "depth_descriptors.h"
 #include "point_descriptors.h"
 #include "rhythm/graph/components.h"
+#include "rhythm/graph/video_clip.h"
 #include "scene_descriptors.h"
 
 namespace rhythm::graph {
@@ -36,6 +37,21 @@ Registry::Registry() {
               {"video_speed", 1.0, 0, 4},
               {"video_offset", 0.0, 0, 3600},
               {"video_loop", 1.0, 0, 1, {"video.hold", "video.repeat"}, true},
+              {"image_fill", 0.0, 0, 1, {"image.fit", "image.fill"}, true}}},
+            {"texture.video_clip",
+             Operation::kTextureVideo,
+             Type::kTexture,
+             {},
+             {{"asset", assets::AssetId{}},
+              {"clip_start", 0.0, 0, 604800},
+              {"clip_duration", 1.0, 0.001, 604800},
+              {"source_in", 0.0, 0, 604800},
+              {"source_out", 1.0, 0.001, 604800},
+              {"clip_rate", 1.0, 0.125, 8},
+              {"clip_end", 0.0, 0, 2, {"clip.blank", "video.hold", "video.repeat"}, true},
+              {"fade_in", 0.0, 0, 604800},
+              {"fade_out", 0.0, 0, 604800},
+              {"fade_shape", 1.0, 0, 1, {"curve.linear", "curve.smooth"}, true},
               {"image_fill", 0.0, 0, 1, {"image.fit", "image.fill"}, true}}},
             {"signal.oscillator",
              Operation::kOscillator,
@@ -396,6 +412,13 @@ std::vector<Diagnostic> Registry::ValidateNode(
             valid = asset.sha256_.empty() || assets::ValidId(asset);
         }
         if (!valid) diagnostics.push_back({"graph.property_range", node.id_, key});
+    }
+    if (diagnostics.empty() && node.type_ == "texture.video_clip") {
+        try {
+            (void)DescribeVideoClip(node);
+        } catch (const std::exception&) {
+            diagnostics.push_back({"clip.interval", node.id_});
+        }
     }
     return diagnostics;
 }

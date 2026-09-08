@@ -1854,6 +1854,17 @@
             },
             "reset": true,
             "properties": {}
+        },
+        {
+            "id": "official.texture.video_clip.default",
+            "version": "1.0.0",
+            "operator": "texture.video_clip",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
         }
     ]
 }

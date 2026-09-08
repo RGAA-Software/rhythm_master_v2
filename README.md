@@ -32,7 +32,9 @@ R5 adds [public macros and parameter snapshots](docs/public_controls.md): Studio
 Windows/Android live controls, manual A/B blending and an 86-node Crystal Choir with
 four exposed controls. [Snapshot cue arrangement](docs/cue_arrangement.md) now provides
 named timeline cues, interrupted fades, beat snapping and seek/export consistency.
-Media source intervals, multitrack arrangement and scene transitions continue.
+[Video clip source intervals](docs/media_clip_arrangement.md) add trimmed, faded,
+overlapping video tracks with timeline editing and shared FFmpeg playback/export.
+Multitrack audio mixing and scene transitions continue.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

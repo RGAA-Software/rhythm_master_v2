@@ -10,6 +10,7 @@ namespace rhythm::studio {
 void TimeSectionEditor::Reset() {
     drag_.reset();
     property_active_ = false;
+    error_.clear();
 }
 TimeSectionEdit TimeSectionEditor::Draw(const graph::Document& document, double duration,
                                         bool can_add,
@@ -24,7 +25,8 @@ TimeSectionEdit TimeSectionEditor::Draw(const graph::Document& document, double 
     }
     std::vector<graph::NodeId> sections;
     for (const auto& node : document.nodes_)
-        if (node.type_ == "time.envelope") sections.push_back(node.id_);
+        if (node.type_ == "time.envelope" || node.type_ == "texture.video_clip")
+            sections.push_back(node.id_);
     ImGui::BeginDisabled(!can_add);
     edit.add_ = ImGui::Button((text.at(action) + "###timeline.add_section").c_str());
     ImGui::EndDisabled();
@@ -36,7 +38,7 @@ TimeSectionEdit TimeSectionEditor::Draw(const graph::Document& document, double 
         return *std::find_if(document.nodes_.begin(), document.nodes_.end(),
                              [&](const auto& node) { return node.id_ == id; });
     };
-    const auto range = std::clamp(std::isfinite(duration) ? duration : 10.0, 0.01, 86400.0);
+    const auto range = std::clamp(std::isfinite(duration) ? duration : 10.0, 0.01, 604800.0);
     const float row_height = 32 + ImGui::GetStyle().ItemSpacing.y;
     const float padding =
             2 * (ImGui::GetStyle().WindowPadding.y + ImGui::GetStyle().ChildBorderSize);
@@ -78,21 +80,25 @@ TimeSectionEdit TimeSectionEditor::Draw(const graph::Document& document, double 
                         const auto initial_start = graph::Scalar(drag_->origin_, "clip_start", 0);
                         const auto initial_length =
                                 graph::Scalar(drag_->origin_, "clip_duration", 4);
+                        const bool video = node.type_ == "texture.video_clip";
+                        const double limit = video ? 604800.0 : 86400.0;
                         auto changed = drag_->origin_;
                         if (drag_->mode_ == 0)
                             changed.properties_["clip_start"] =
-                                    std::clamp(initial_start + delta, 0.0, 86400.0);
+                                    std::clamp(initial_start + delta, 0.0,
+                                               video ? limit - initial_length : limit);
                         else if (drag_->mode_ < 0) {
                             const auto next = std::clamp(
                                     initial_start + delta,
-                                    std::max(0.0, initial_start + initial_length - 86400),
-                                    std::min(86400.0, initial_start + initial_length - 0.001));
+                                    std::max(0.0, initial_start + initial_length - limit),
+                                    std::min(limit, initial_start + initial_length - 0.001));
                             changed.properties_["clip_start"] = next;
                             changed.properties_["clip_duration"] =
                                     initial_start + initial_length - next;
                         } else {
                             changed.properties_["clip_duration"] =
-                                    std::clamp(initial_length + delta, 0.001, 86400.0);
+                                    std::clamp(initial_length + delta, 0.001,
+                                               video ? limit - initial_start : limit);
                         }
                         if (changed != node) {
                             edit.changed_ = std::move(changed);
@@ -116,7 +122,7 @@ TimeSectionEdit TimeSectionEditor::Draw(const graph::Document& document, double 
                 for (const auto edge : {left, right})
                     draw.AddLine({edge, origin.y + 4}, {edge, origin.y + 24},
                                  ImGui::GetColorU32(ImGuiCol_Text));
-                const auto label = text.at("time.envelope") + " #" + std::to_string(node.id_);
+                const auto label = text.at(node.type_) + " #" + std::to_string(node.id_);
                 draw.AddText({origin.x + 6, origin.y + 6}, ImGui::GetColorU32(ImGuiCol_Text),
                              label.c_str());
                 ImGui::PopID();
@@ -133,12 +139,18 @@ TimeSectionEdit TimeSectionEditor::Draw(const graph::Document& document, double 
     }
     if (edit.changed_ || edit.committed_) return edit;
     auto node = find(selected_);
-    static const auto kDescriptor = graph::Registry{}.Find("time.envelope").value();
+    static const graph::Registry kRegistry;
+    static const auto kEnvelope = kRegistry.Find("time.envelope").value();
+    static const auto kVideo = kRegistry.Find("texture.video_clip").value();
+    const auto& descriptor = node.type_ == "texture.video_clip" ? kVideo : kEnvelope;
+    if (node.type_ == "texture.video_clip")
+        ImGui::TextWrapped("%s", text.at("clip.timeline_help").c_str());
     ImGui::PushID("section.properties");
     ImGui::PushID(std::to_string(selected_).c_str());
     ImGui::BeginDisabled(drag_.has_value());
     property_active_ = false;
-    for (const auto& property : kDescriptor.properties_) {
+    for (const auto& property : descriptor.properties_) {
+        if (!std::holds_alternative<double>(property.default_)) continue;
         auto value = graph::Scalar(node, property.key_, std::get<double>(property.default_));
         ImGui::SetNextItemWidth(140);
         bool changed = false;
@@ -158,16 +170,24 @@ TimeSectionEdit TimeSectionEditor::Draw(const graph::Document& document, double 
             ImGui::EndCombo();
         }
         if (changed) {
-            node.properties_[property.key_] =
+            auto candidate = node;
+            candidate.properties_[property.key_] =
                     std::isfinite(value) ? std::clamp(value, property.minimum_, property.maximum_)
                                          : std::get<double>(property.default_);
-            edit.changed_ = node;
+            if (kRegistry.ValidateNode(candidate).empty()) {
+                node = std::move(candidate);
+                edit.changed_ = node;
+                error_.clear();
+            } else {
+                error_ = "clip.interval";
+            }
         }
         property_active_ |= ImGui::IsItemActive();
     }
     ImGui::EndDisabled();
     ImGui::PopID();
     ImGui::PopID();
+    if (!error_.empty()) ImGui::TextWrapped("%s", text.at(error_).c_str());
     return edit;
 }
 }  // namespace rhythm::studio

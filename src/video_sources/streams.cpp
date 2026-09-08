@@ -6,6 +6,8 @@
 #include <set>
 #include <stdexcept>
 
+#include "rhythm/graph/video_clip.h"
+
 #if defined(RHYTHM_HAS_VIDEO_PLAYBACK)
 #include "rhythm/video/playback.h"
 #endif
@@ -32,6 +34,10 @@ class Streams::Impl final {
                                             [&](const auto& source) { return source.id_ == id; });
             if (found == resources.videos_.end())
                 throw std::invalid_argument("video.asset_missing");
+            const bool is_clip = node.type_ == "texture.video_clip";
+            const auto clip = is_clip ? graph::DescribeVideoClip(node) : parameters::ClipInterval{};
+            const auto sample = is_clip ? clip.Sample(seconds) : parameters::ClipSample{};
+            if (is_clip && !sample.active_) continue;
 #if defined(RHYTHM_HAS_VIDEO_PLAYBACK)
             auto& entry = entries_[node.id_];
             if (!entry.playback_ || entry.source_ != id) {
@@ -39,17 +45,27 @@ class Streams::Impl final {
                 entry.source_ = id;
                 entry.playback_ = std::make_unique<video::Playback>(found->bytes_);
             }
-            const double target = std::clamp(seconds * graph::Scalar(node, "video_speed", 1) +
-                                                     graph::Scalar(node, "video_offset", 0),
-                                             0.0, 86400.0 * 7);
-            const bool loop = graph::Scalar(node, "video_loop", 1) != 0;
-            if (!resolve) entry.playback_->Request(target, generation, loop);
-            const auto snapshot = resolve ? entry.playback_->Resolve(target, generation, loop, stop)
-                                          : entry.playback_->Snapshot();
+            const double target =
+                    is_clip ? sample.source_seconds_
+                            : std::clamp(seconds * graph::Scalar(node, "video_speed", 1) +
+                                                 graph::Scalar(node, "video_offset", 0),
+                                         0.0, 86400.0 * 7);
+            const bool loop = !is_clip && graph::Scalar(node, "video_loop", 1) != 0;
+            const auto source_out =
+                    is_clip ? std::optional<double>(clip.Timing().source_out_) : std::nullopt;
+            if (!resolve) entry.playback_->Request(target, generation, loop, source_out);
+            const auto snapshot =
+                    resolve ? entry.playback_->Resolve(target, generation, loop, stop, source_out)
+                            : entry.playback_->Snapshot();
             if (!snapshot.error_.empty()) error_ = snapshot.error_;
             if (resolve && !error_.empty()) throw std::runtime_error(error_);
             if (!snapshot.frame_) continue;
             const auto duration = snapshot.duration_seconds_;
+            if (is_clip && duration && clip.Timing().source_out_ > *duration + 1e-6) {
+                error_ = "clip.source_range";
+                if (resolve) throw std::invalid_argument(error_);
+                continue;
+            }
             const double local =
                     loop && duration && *duration > 0 ? std::fmod(target, *duration) : target;
             // A loop may advance on the host before the worker has rewound.
@@ -62,7 +78,8 @@ class Streams::Impl final {
                 entry.generation_ = generation;
                 entry.revision_ = next_revision_++;
             }
-            result.push_back({node.id_, id, snapshot.frame_, entry.revision_, generation});
+            result.push_back({node.id_, id, snapshot.frame_, entry.revision_, generation,
+                              is_clip ? sample.gain_ : 1});
 #else
             static_cast<void>(generation);
             static_cast<void>(resolve);

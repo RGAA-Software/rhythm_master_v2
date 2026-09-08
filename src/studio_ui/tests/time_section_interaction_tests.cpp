@@ -154,7 +154,29 @@ int main(int argc, char* argv[]) {
         frame();
         Check(commits == before + 1 && !panel.Preview(),
               "offscreen row release closes transaction");
-        std::cout << "time section UI add/move/trim and one-command undo pass\n";
+        scroll_to_end = false;
+        auto clips = initial;
+        clips.document_.nodes_[0] = registry.MakeNode(1, "texture.video_clip");
+        clips.document_.nodes_[0].properties_["clip_start"] = 2.0;
+        clips.document_.nodes_[0].properties_["clip_duration"] = 4.0;
+        clips.document_.nodes_[0].properties_["source_in"] = 0.2;
+        clips.document_.nodes_[0].properties_["source_out"] = 0.8;
+        Check(history.Apply(clips, history.Current().document_.revision_), "replace with clip");
+        panel.ResetEdit();
+        frame();
+        frame();
+        drag(4, 5);
+        const auto& moved = history.Current().document_.nodes_[0];
+        Check(std::abs(graph::Scalar(moved, "clip_start", -1) - 3) < tolerance &&
+                      graph::Scalar(moved, "source_in", -1) == 0.2 &&
+                      graph::Scalar(moved, "source_out", -1) == 0.8,
+              "clip placement drag preserves source trim");
+        Check(history.Undo(), "one undo restores clip placement");
+        panel.ResetEdit();
+        frame();
+        Check(graph::Scalar(history.Current().document_.nodes_[0], "clip_start", -1) == 2,
+              "clip undo restores original start");
+        std::cout << "time section and video clip UI add/move/trim and one-command undo pass\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

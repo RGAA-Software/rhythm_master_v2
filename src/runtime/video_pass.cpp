@@ -29,12 +29,16 @@ void VideoUploads::Prepare(const graph::ExecutionPlan& plan, std::span<const Vid
             std::uint64_t(info.width_) * info.height_ > 2073600 ||
             image.rgba_.size() != std::size_t(info.width_) * info.height_ * 4 ||
             !std::isfinite(info.pixel_aspect_) || info.pixel_aspect_ <= 0 ||
-            info.pixel_aspect_ > 100 || !std::isfinite(info.clockwise_rotation_))
+            info.pixel_aspect_ > 100 || !std::isfinite(info.clockwise_rotation_) ||
+            !std::isfinite(input->gain_) || input->gain_ < 0 || input->gain_ > 1)
             throw std::invalid_argument("video.invalid_frame");
         auto& entry = entries_[input->node_];
         const render::Extent extent{static_cast<std::uint16_t>(info.width_),
                                     static_cast<std::uint16_t>(info.height_)};
         if (entry.source_ != source || entry.placement_.source_ != extent) entry = {};
+        if (!entry.output_revision_ || entry.revision_ != input->revision_ ||
+            entry.generation_ != input->generation_ || entry.gain_ != input->gain_)
+            entry.output_revision_ = next_revision_++;
         if (!renderer.IsValid(entry.texture_.Handle()))
             entry.texture_ = renderer.CreateTexture(extent, image.rgba_);
         else if (entry.revision_ != input->revision_ || entry.generation_ != input->generation_)
@@ -42,13 +46,14 @@ void VideoUploads::Prepare(const graph::ExecutionPlan& plan, std::span<const Vid
         entry.source_ = source;
         entry.revision_ = input->revision_;
         entry.generation_ = input->generation_;
+        entry.gain_ = input->gain_;
         entry.placement_ = {extent, info.pixel_aspect_, info.clockwise_rotation_, false};
     }
     std::erase_if(entries_, [&](const auto& item) { return !active.contains(item.first); });
 }
 std::uint64_t VideoUploads::Revision(graph::NodeId node) const {
     const auto found = entries_.find(node);
-    return found == entries_.end() ? 0 : found->second.revision_;
+    return found == entries_.end() ? 0 : found->second.output_revision_;
 }
 render::DrawList VideoUploads::Draw(const graph::Node& node, render::Extent extent) const {
     const auto found = entries_.find(node.id_);
@@ -60,6 +65,9 @@ render::DrawList VideoUploads::Draw(const graph::Node& node, render::Extent exte
     }
     auto placement = found->second.placement_;
     placement.fill_ = graph::Scalar(node, "image_fill", 0) != 0;
-    return FramedImageDraw(found->second.texture_.Handle(), extent, placement);
+    auto draw = FramedImageDraw(found->second.texture_.Handle(), extent, placement);
+    const auto alpha = static_cast<std::uint32_t>(found->second.gain_ * 255 + 0.5);
+    for (auto& vertex : draw.vertices_) vertex.color_ = 0x00ffffff | (alpha << 24);
+    return draw;
 }
 }  // namespace rhythm::runtime::detail

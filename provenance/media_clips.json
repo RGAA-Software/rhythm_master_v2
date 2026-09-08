@@ -1,0 +1,16 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "license": "MIT",
+    "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+    "source_files": [
+        {"path": "Operators/Video/Symbols/lib/io/video/VideoClip.cs", "sha256": "f1273c78fa15a82b8c9afa6e46bd3f63eddfaf803d4bf279c805d275b543f306"},
+        {"path": "Editor/Gui/Windows/TimeLine/TimeClips/MediaClipSourceRegion.cs", "sha256": "c19f4c0ea46d696f5f6321c69b06f400c07b3d5b04ea370a50ba7d153c0f7828"}
+    ],
+    "imported_files": [],
+    "usage": "Design study: explicit source time ranges and decode/compositor separation; no source copied.",
+    "modifications": ["Project-owned seconds-based ClipInterval, bounded FFmpeg demand with exclusive source out, existing Studio transactions and layer graph. No C# services or audio graph imported."],
+    "target_modules": ["parameters", "graph_domain", "video_playback", "video_sources", "graph_runtime", "studio_ui"],
+    "first_party_reuse": ["src/parameters/curve.cpp", "src/studio_ui/time_section_editor.cpp", "src/video_playback/playback.cpp", "src/runtime/image_pass.cpp"],
+    "outbound_license": "Unselected; no third-party source relicensed."
+}
