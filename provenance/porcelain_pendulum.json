@@ -1,0 +1,29 @@
+{
+    "ownership": "first-party",
+    "baseline": "2ce4ec2",
+    "imported_third_party_files": [],
+    "source_files": [
+        "tools/author-resonance-gate.py",
+        "tools/author-torque-garden.py",
+        "tools/author-sonic-enamel.py",
+        "tools/author-luminous-concerto.py"
+    ],
+    "modifications": [
+        "New ceramic clock composition using existing geometry/deformation/light contracts.",
+        "Reuse original pulse/chime bytes and their existing four-clip arrangement.",
+        "Add three exposed macros, three snapshots and four cues."
+    ],
+    "music_assets": [
+        {
+            "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+            "bytes": 240627,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+            "bytes": 160293,
+            "media_type": "audio/flac"
+        }
+    ],
+    "target": "content/templates/porcelain_pendulum"
+}

@@ -44,6 +44,8 @@ background integrity checks and original-file recovery through Studio to publish
 insertion and offline typed connection guidance. [Preview groups](docs/preview_navigation.md)
 make every visible demand reachable within the shared eight-preview budget.
 The independent content quality targets continue.
+[Porcelain Pendulum](docs/validation/porcelain_pendulum_2026-09-09.md) adds a ceramic/brass
+music work with editable cues, bound music, Windows export and Android built-in playback.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

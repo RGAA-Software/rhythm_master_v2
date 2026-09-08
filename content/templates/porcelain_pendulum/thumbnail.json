@@ -1,0 +1,14 @@
+{
+    "template": "porcelain_pendulum",
+    "package_sha256": "ce30662a75694253a267ef730ed563f5938311464d29e9fac56bf873420227c9",
+    "thumbnail_sha256": "35c66942ac4c76c82120440af82e7f371cf85a8914b6bf97f2df1554edc704db",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}
