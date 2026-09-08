@@ -7,6 +7,7 @@
 #include "bgfx_scene_environment.h"
 #include "bgfx_scene_instances.h"
 #include "bgfx_scene_lights.h"
+#include "bgfx_scene_morph.h"
 #include "bgfx_scene_shadow.h"
 #include "bgfx_scene_skin.h"
 #include "bgfx_scene_textures.h"
@@ -26,7 +27,7 @@ class BgfxScene final {
    public:
     explicit BgfxScene(std::uint64_t device);
     MeshHandle Create(std::span<const MeshVertex> vertices, std::span<const std::uint32_t> indices,
-                      std::span<const SkinWeights> skin);
+                      std::span<const SkinWeights> skin, std::span<const MorphTarget> morphs);
     void Release(MeshHandle mesh) noexcept;
     bool IsValid(MeshHandle mesh) const { return meshes_.IsValid(mesh); }
     void Validate(const SceneDrawList& list) const { meshes_.Validate(list); }
@@ -44,6 +45,7 @@ class BgfxScene final {
         GpuHandle<bgfx::VertexBufferHandle> vertices_{};
         GpuHandle<bgfx::IndexBufferHandle> indices_{};
         GpuHandle<bgfx::VertexBufferHandle> skin_{};
+        MorphGeometry morph_{};
     };
     struct DepthTarget {
         TextureHandle observer_{};
@@ -58,6 +60,7 @@ class BgfxScene final {
     GpuHandle<bgfx::ProgramHandle> program_{};
     BgfxSceneInstances instances_{};
     std::unique_ptr<BgfxSceneSkin> skin_{};
+    std::unique_ptr<BgfxSceneMorph> morph_{};
     GpuHandle<bgfx::UniformHandle> color_{};
     GpuHandle<bgfx::UniformHandle> normal_{};
     GpuHandle<bgfx::UniformHandle> material_{};

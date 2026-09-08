@@ -19,9 +19,14 @@ def main():
     if args.media_sdk and args.media_sdk.is_dir():
         environment["PATH"] = os.pathsep.join(
             [str(args.media_sdk / "bin"), environment["PATH"]])
-    subprocess.run([str(args.publisher.resolve()), str(args.template.resolve()), str(args.output.resolve())],
-                   env=environment, check=True, timeout=60,
-                   creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
+    result = subprocess.run(
+        [str(args.publisher.resolve()), str(args.template.resolve()), str(args.output.resolve())],
+        env=environment, capture_output=True, timeout=60,
+        creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
+    # Explicit pipes preserve native diagnostics when Windows has no console.
+    print(result.stdout.decode('utf-8', errors='replace'), end='')
+    print(result.stderr.decode('utf-8', errors='replace'), end='')
+    result.check_returncode()
 
 
 if __name__ == "__main__":

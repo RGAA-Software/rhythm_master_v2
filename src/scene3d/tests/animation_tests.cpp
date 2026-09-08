@@ -114,10 +114,55 @@ void Run() {
     weights.components_ = 5;
     Reject([&] { AnimationClip("weight budget", {weights}); });
 }
+void MorphModel() {
+    using namespace rhythm::scene;
+    auto model = Cube();
+    auto& mesh = model.meshes_[0];
+    mesh.morphs_.resize(1);
+    for (const auto& vertex : mesh.vertices_)
+        mesh.morphs_[0].deltas_.push_back({{vertex.x_ * 0.2f, 0, 0}});
+    model.nodes_[0].local_ = Compose({2, 0, 0}, {}, {1, 1, 1});
+    model.rest_pose_ = {{1, {}}};
+    model.rest_pose_.at(1).matrix_ = model.nodes_[0].local_;
+    model.animations_.emplace_back("matrix morph",
+                                   std::vector<AnimationTrack>{{1,
+                                                                AnimationProperty::kWeights,
+                                                                AnimationInterpolation::kLinear,
+                                                                1,
+                                                                {0, 1},
+                                                                {{0, 0, 0, 0}, {1, 0, 0, 0}}}});
+    Validate(model);
+    const auto pose = Sample(model.animations_[0], model.rest_pose_, 0.5, false);
+    Near(pose.at(1).weights_[0], 0.5);
+    Near(WorldTransforms(model, pose).at(1).transform_.values_[12], 2);
+    Near(Blend(model.rest_pose_, pose, 0.5).at(1).weights_[0], 0.25);
+    GenerateTangents(mesh);
+    Validate(model);
+    for (std::size_t i = 0; i < mesh.vertices_.size(); ++i)
+        Require(mesh.morphs_[0].deltas_[i].position_[0] == mesh.vertices_[i].x_ * 0.2f,
+                "tangent seam splitting retains morph deltas by source vertex");
+    auto bad = model;
+    bad.meshes_[0].morphs_[0].deltas_.pop_back();
+    Reject([&] { Validate(bad); });
+    bad = model;
+    bad.rest_pose_.clear();
+    Reject([&] { Validate(bad); });
+    auto other = pose;
+    other.at(1).matrix_ = Matrix{};
+    Reject([&] { Blend(pose, other, 0.5); });
+    const AnimationClip translation("invalid matrix track", {{1,
+                                                              AnimationProperty::kTranslation,
+                                                              AnimationInterpolation::kLinear,
+                                                              3,
+                                                              {0},
+                                                              {{0, 0, 0, 0}}}});
+    Reject([&] { Sample(translation, pose, 0, false); });
+}
 }  // namespace
 int main() {
     try {
         Run();
+        MorphModel();
         std::cout << "animation interpolation, seek, loop, blend and admission passed\n";
         return 0;
     } catch (const std::exception& error) {

@@ -1,0 +1,36 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.crystal_choir",
+    "content_version": "0.1.0",
+    "project_id": "official-crystal-choir",
+    "graph_revision": 0,
+    "title": "晶瓣合唱 / Crystal Choir",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "晶瓣合唱",
+        "en-US": "Crystal Choir"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "十二片带光脊的三骨骼晶瓣组成双层音乐花冠。低中高频分别混合舒展与脉冲动画，控制四路 GPU 形变及发光。共享模型、双点光与环境反射、近景光环和真实频谱均可在节点图中编辑。",
+        "en-US": "Twelve ribbed articulated petals form a layered music crown. Bass, mids and treble blend two skeletal clips and drive four GPU morph targets and emission. Edit the shared GLB, twin lights, environment reflections, halo and live spectrum in the graph."
+    },
+    "assets": [
+        {
+            "sha256": "39e5e388f5834063acee9cba0e5c688f01f23b2b07d03b292981c69dddec0fc1",
+            "bytes": 109712,
+            "media_type": "model/gltf-binary"
+        }
+    ]
+}

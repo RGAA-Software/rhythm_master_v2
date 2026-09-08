@@ -241,6 +241,9 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                     detail::EvaluateAnimation(instruction, result.outputs_, state.output_,
                                               frame.seconds_);
                     break;
+                case graph::Operation::kGeometryMorph:
+                    detail::EvaluateMorph(instruction, result.outputs_, state.output_);
+                    break;
                 case graph::Operation::kGeometryCube:
                 case graph::Operation::kGeometryTorus:
                 case graph::Operation::kGeometrySphere:

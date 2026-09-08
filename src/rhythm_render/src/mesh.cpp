@@ -24,10 +24,10 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
     return *this;
 }
 Mesh Renderer::CreateMesh(std::span<const MeshVertex> vertices,
-                          std::span<const std::uint32_t> indices,
-                          std::span<const SkinWeights> skin) {
+                          std::span<const std::uint32_t> indices, std::span<const SkinWeights> skin,
+                          std::span<const MorphTarget> morphs) {
     if (!backend_) throw std::logic_error("render.moved_from");
-    return Mesh(backend_, backend_->CreateMesh(vertices, indices, skin));
+    return Mesh(backend_, backend_->CreateMesh(vertices, indices, skin, morphs));
 }
 bool Renderer::IsValid(MeshHandle handle) const { return backend_ && backend_->IsValid(handle); }
 bool Renderer::SupportsScenes() const { return backend_ && backend_->SupportsScenes(); }

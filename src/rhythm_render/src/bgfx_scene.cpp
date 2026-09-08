@@ -30,11 +30,15 @@ BgfxScene::BgfxScene(std::uint64_t device) : meshes_(device) {
 }
 MeshHandle BgfxScene::Create(std::span<const MeshVertex> vertices,
                              std::span<const std::uint32_t> indices,
-                             std::span<const SkinWeights> skin) {
-    const auto handle = meshes_.Allocate(vertices, indices, skin);
+                             std::span<const SkinWeights> skin,
+                             std::span<const MorphTarget> morphs) {
+    const auto handle = meshes_.Allocate(vertices, indices, skin, morphs);
     try {
         Geometry geometry;
-        if (!skin.empty()) {
+        if (!morphs.empty()) {
+            if (!morph_) morph_ = std::make_unique<BgfxSceneMorph>();
+            geometry.morph_ = morph_->Create(vertices.size(), skin, morphs);
+        } else if (!skin.empty()) {
             if (!skin_) skin_ = std::make_unique<BgfxSceneSkin>();
             geometry.skin_ = skin_->Create(skin);
         }
@@ -122,7 +126,9 @@ std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std:
         const auto& mesh = geometry_.at(draw.mesh_.slot_);
         bgfx::setTransform(draw.model_.data());
         bgfx::setVertexBuffer(0, mesh.vertices_.Get());
-        if (!draw.bones_.empty()) {
+        if (mesh.morph_.targets_) {
+            morph_->Bind(mesh.morph_, draw);
+        } else if (!draw.bones_.empty()) {
             bgfx::setVertexBuffer(1, mesh.skin_.Get());
             skin_->Bind(draw.bones_);
         }
@@ -159,7 +165,8 @@ std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std:
             state |= context.invert_ != Mirrored(draw.model_) ? BGFX_STATE_CULL_CCW
                                                               : BGFX_STATE_CULL_CW;
         bgfx::setState(state);
-        bgfx::submit(view, !draw.bones_.empty()
+        bgfx::submit(view, mesh.morph_.targets_ ? morph_->Program(count > 1)
+                           : !draw.bones_.empty()
                                    ? skin_->Program(count > 1)
                                    : (count > 1 ? instances_.Program() : program_.Get()));
         index += count;

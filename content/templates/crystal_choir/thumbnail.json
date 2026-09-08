@@ -1,0 +1,14 @@
+{
+    "template": "crystal_choir",
+    "package_sha256": "165f675b4a4d397b339e484a3502767ec5d849242c5ecd9619ee8ea88fba1cec",
+    "thumbnail_sha256": "196ab67e7a342bd92f3f647e77108d3c9784045f7ec2935497fd8126d35e09e7",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

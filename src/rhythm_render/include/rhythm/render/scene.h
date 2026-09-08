@@ -33,6 +33,14 @@ struct SkinWeights {
     std::array<float, 4> weights_{1, 0, 0, 0};
 };
 inline constexpr std::size_t kMaximumSkinBones = 48;
+struct MorphVertex {
+    std::array<float, 3> position_{};
+    std::array<float, 3> normal_{};
+    std::array<float, 3> tangent_{};
+};
+struct MorphTarget {
+    std::vector<MorphVertex> deltas_{};
+};
 inline constexpr Matrix4 kIdentityMatrix{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
 struct MaterialTextures {
     // base color, tangent-space +Y normal, occlusion/roughness/metallic, emission.
@@ -66,6 +74,7 @@ struct MeshDraw {
     MaterialTextures textures_{};
     std::vector<MeshDeformation> deformations_{};  // At most four.
     std::vector<Matrix4> bones_{};                 // Mesh-local skin matrices, at most 48.
+    std::array<float, 4> morph_weights_{};
 };
 struct DirectionalLight {
     // Unit vector from the surface toward the light; linear RGB radiance.

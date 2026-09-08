@@ -23,6 +23,8 @@ void ValidateAnimations(const Model& model) {
         for (const auto& track : clip.Tracks()) {
             require(model.rest_pose_.contains(track.node_) &&
                     track.values_.size() <= 262144 - values);
+            require(!model.rest_pose_.at(track.node_).matrix_ ||
+                    track.property_ == AnimationProperty::kWeights);
             values += track.values_.size();
         }
     }

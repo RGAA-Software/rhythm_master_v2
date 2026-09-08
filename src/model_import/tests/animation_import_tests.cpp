@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "animation_fixture.h"
+#include "morph_fixture.h"
 #include "rhythm/model_import/gltf.h"
 #include "skin_fixture.h"
 
@@ -77,10 +78,61 @@ void Run() {
             Glb(Replace(skinned.json_, ",\"inverseBindMatrices\":4", ""), skinned.extra_));
     Require(no_bind.skins_[0].inverse_bind_[0] == scene::Matrix{});
 }
+void MorphImport() {
+    using namespace rhythm;
+    using namespace model_import::test;
+    const auto fixture = MorphFixture();
+    const auto model = model_import::ReadGlb(Glb(fixture.json_, fixture.extra_));
+    Require(model.meshes_[0].morphs_.size() == 2 && model.animations_.size() == 2);
+    Require(std::abs(model.rest_pose_.at(1).weights_[0] - 0.3) < 1e-6);
+    const auto pose = scene::Sample(model.animations_[0], model.rest_pose_, 1, false);
+    Require(pose.at(1).weights_[0] == 0.5 && pose.at(1).weights_[1] == 0.25);
+    const auto mesh_default = model_import::ReadGlb(
+            Glb(Replace(fixture.json_, ",\"weights\":[0.3,0.4]", ""), fixture.extra_));
+    Require(std::abs(mesh_default.rest_pose_.at(1).weights_[0] - 0.1) < 1e-6);
+    const auto matrix_model =
+            model_import::ReadGlb(Glb(Replace(fixture.json_, "\"translation\":[1,0,0]",
+                                              "\"matrix\":[1,0,0,0,0,1,0,0,0,0,1,0,4,0,0,1]"),
+                                      fixture.extra_));
+    const auto matrix_pose =
+            scene::Sample(matrix_model.animations_[0], matrix_model.rest_pose_, 1, false);
+    Require(scene::WorldTransforms(matrix_model, matrix_pose).at(1).transform_.values_[12] == 4);
+    auto cubic_json = Replace(fixture.json_, "\"byteLength\":288", "\"byteLength\":320");
+    cubic_json = Replace(cubic_json, "\"byteOffset\":272,\"byteLength\":16",
+                         "\"byteOffset\":272,\"byteLength\":48");
+    cubic_json = Replace(cubic_json, "\"bufferView\":9,\"componentType\":5126,\"count\":4",
+                         "\"bufferView\":9,\"componentType\":5126,\"count\":12");
+    cubic_json =
+            Replace(cubic_json, "\"output\":9", "\"output\":9,\"interpolation\":\"CUBICSPLINE\"");
+    auto cubic_bin = fixture.extra_;
+    cubic_bin.resize(cubic_bin.size() - 16);
+    for (const float value :
+         {0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.0f})
+        Word(cubic_bin, std::bit_cast<std::uint32_t>(value));
+    const auto cubic = model_import::ReadGlb(Glb(cubic_json, cubic_bin));
+    Require(std::abs(scene::Sample(cubic.animations_[0], cubic.rest_pose_, 0.5, false)
+                             .at(1)
+                             .weights_[0] -
+                     0.4375) < 1e-9);
+    const auto reject = [&](const std::string& json) {
+        try {
+            (void)model_import::ReadGlb(Glb(json, fixture.extra_));
+        } catch (const std::invalid_argument&) {
+            return;
+        }
+        throw std::runtime_error("invalid morph GLB accepted");
+    };
+    reject(Replace(fixture.json_, "\"weights\":[0.3,0.4]", "\"weights\":[0.3]"));
+    reject(Replace(fixture.json_, "\"POSITION\":7", "\"NORMAL\":7"));
+    reject(Replace(fixture.json_, "\"POSITION\":7", "\"TANGENT\":7"));
+    reject(Replace(fixture.json_, "\"output\":9", "\"output\":6"));
+    std::cout << "GLB morph: defaults, weight tracks, cubic ordering and fixed matrices passed\n";
+}
 }  // namespace
 int main() {
     try {
         Run();
+        MorphImport();
         std::cout << "GLB owned animation, hierarchy sampling and malformed input passed\n";
         return 0;
     } catch (const std::exception& error) {

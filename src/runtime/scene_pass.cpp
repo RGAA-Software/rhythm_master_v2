@@ -131,7 +131,15 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                 weights.reserve(mesh.skin_.size());
                 for (const auto& vertex : mesh.skin_)
                     weights.push_back({vertex.joints_, vertex.weights_});
-                upload.meshes_.push_back(renderer.CreateMesh(vertices, mesh.indices_, weights));
+                std::vector<render::MorphTarget> morphs(mesh.morphs_.size());
+                for (std::size_t i = 0; i < morphs.size(); ++i) {
+                    auto& deltas = morphs[i].deltas_;
+                    deltas.reserve(mesh.vertices_.size());
+                    for (const auto& delta : mesh.morphs_[i].deltas_)
+                        deltas.push_back({delta.position_, delta.normal_, delta.tangent_});
+                }
+                upload.meshes_.push_back(
+                        renderer.CreateMesh(vertices, mesh.indices_, weights, morphs));
             }
             uploads_.emplace(key, std::move(upload));
         }
@@ -159,6 +167,12 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                                          {color.red_, color.green_, color.blue_, color.alpha_},
                                          material.double_sided_});
                 auto& draw = result.draws_.back();
+                if (!mesh.morphs_.empty()) {
+                    const auto& pose = geometry.pose_ ? *geometry.pose_ : upload.model_->rest_pose_;
+                    const auto& weights = pose.at(node.id_).weights_;
+                    for (std::size_t i = 0; i < mesh.morphs_.size(); ++i)
+                        draw.morph_weights_[i] = static_cast<float>(weights[i]);
+                }
                 if (node.skin_) {
                     const auto& bones = matrices.skins_.at(node.id_);
                     if (bones.size() > 65536 - draw_bones)

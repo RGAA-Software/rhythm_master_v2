@@ -793,5 +793,14 @@
     "render.skin_weights": "Vertex joint indices or weights are invalid.",
     "render.skin_vertices": "Joint attributes do not match the vertex count.",
     "render.skin_program": "The device could not create the skinning program.",
-    "render.skin_buffer": "The device could not allocate joint data."
+    "render.skin_buffer": "The device could not allocate joint data.",
+    "geometry.morph": "Model morph weights",
+    "morph.help": "Four weights control all morph meshes. Connect music signals for live control. Preserves upstream skeletal poses and overrides morph weights, clamped to -4 through 4.",
+    "runtime.morph_input": "Connect a model with morph targets.",
+    "runtime.morph_weight": "Morph weights must be finite.",
+    "scene.morph": "Invalid model morph targets, default pose or weight animation.",
+    "morph_weight_1": "Morph weight 1",
+    "morph_weight_2": "Morph weight 2",
+    "morph_weight_3": "Morph weight 3",
+    "morph_weight_4": "Morph weight 4"
 }

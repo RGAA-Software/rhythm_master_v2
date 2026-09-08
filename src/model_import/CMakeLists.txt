@@ -1,6 +1,6 @@
 add_library(cgltf_backend STATIC cgltf_impl.c)
 target_include_directories(cgltf_backend SYSTEM PUBLIC "${RHYTHM_CGLTF_INCLUDE}")
-add_library(model_import STATIC gltf_import.cpp gltf_validation.cpp gltf_mesh.cpp gltf_images.cpp gltf_animation.cpp gltf_skin.cpp)
+add_library(model_import STATIC gltf_import.cpp gltf_validation.cpp gltf_mesh.cpp gltf_images.cpp gltf_animation.cpp gltf_skin.cpp gltf_morph.cpp)
 target_include_directories(model_import PUBLIC include)
 target_link_libraries(model_import PUBLIC scene3d PRIVATE cgltf_backend)
 if(RHYTHM_BUILD_MEDIA)

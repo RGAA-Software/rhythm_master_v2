@@ -46,7 +46,9 @@ std::map<NodeId, WorldNode> WorldTransforms(const Model& model, const AnimationP
             auto local = source.local_;
             if (const auto found = pose.find(id); found != pose.end()) {
                 const auto& animated = found->second;
-                local = Compose(animated.translation_, animated.rotation_, animated.scale_);
+                local = animated.matrix_ ? *animated.matrix_
+                                         : Compose(animated.translation_, animated.rotation_,
+                                                   animated.scale_);
             }
             WorldNode value{Multiply(parent.transform_, local), parent.visible_ && source.visible_};
             Require(ValidAffine(value.transform_));
@@ -60,6 +62,7 @@ void Validate(const Model& model) {
     Require(!model.nodes_.empty() && model.nodes_.size() <= 2048 && !model.materials_.empty() &&
             model.materials_.size() <= 128 && model.meshes_.size() <= 512);
     ValidateAnimations(model);
+    ValidateMorphs(model);
     ValidateSkins(model);
     Require(model.images_.size() <= 192);
     std::size_t image_bytes = 0;

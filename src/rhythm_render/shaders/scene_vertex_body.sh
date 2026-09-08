@@ -1,5 +1,8 @@
 #include <bgfx_shader.sh>
 #include "mesh_deformation.sh"
+#ifdef RHYTHM_MORPH
+#include "mesh_morph.sh"
+#endif
 #ifdef RHYTHM_SKIN
 #include "mesh_skinning.sh"
 #endif
@@ -8,9 +11,15 @@ uniform vec4 u_scene_color;
 void main()
 {
     vec3 position = a_position, normal = a_normal, tangent = a_tangent.xyz;
+#ifdef RHYTHM_MORPH
+    MorphMesh(position, normal, tangent, a_texcoord1);
+#endif
     float skin_orientation = 1.0;
 #ifdef RHYTHM_SKIN
-    skin_orientation = SkinMesh(position, normal, tangent, a_indices, a_weight);
+#ifdef RHYTHM_MORPH
+    if (u_morph_info.w > 0.5)
+#endif
+        skin_orientation = SkinMesh(position, normal, tangent, a_indices, a_weight);
 #endif
     DeformMesh(position, normal, tangent);
     gl_Position = mul(u_modelViewProj, vec4(position, 1.0));

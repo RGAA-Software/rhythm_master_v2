@@ -114,6 +114,8 @@ scene::Model ReadGlb(std::span<const std::uint8_t> bytes, std::stop_token stop) 
         if (source.mesh) node.meshes_ = meshes.at(cgltf_mesh_index(&data, source.mesh));
         if (source.skin)
             node.skin_ = static_cast<std::uint32_t>(cgltf_skin_index(&data, source.skin));
+        if (detail::MorphCount(source))
+            model.rest_pose_.emplace(node.id_, detail::ReadNodePose(source));
         model.nodes_.push_back(std::move(node));
     }
     detail::ReadAnimations(data, model, stop);

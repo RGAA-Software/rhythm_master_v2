@@ -262,7 +262,8 @@ class Renderer final {
     [[nodiscard]] bool IsValid(TextureHandle handle) const;
     TexturePrecision Precision(TextureHandle handle) const;
     Mesh CreateMesh(std::span<const MeshVertex> vertices, std::span<const std::uint32_t> indices,
-                    std::span<const SkinWeights> skin = {});
+                    std::span<const SkinWeights> skin = {},
+                    std::span<const MorphTarget> morphs = {});
     [[nodiscard]] bool IsValid(MeshHandle handle) const;
     [[nodiscard]] bool SupportsScenes() const;
     [[nodiscard]] bool SupportsGpuPoints() const;

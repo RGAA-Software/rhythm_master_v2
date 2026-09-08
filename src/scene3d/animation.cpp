@@ -107,6 +107,7 @@ void Validate(const AnimationPose& pose) {
     Require(pose.size() <= 2048);
     for (const auto& [id, node] : pose) {
         Require(id != 0);
+        Require(!node.matrix_ || ValidAffine(*node.matrix_));
         for (const auto value : {node.translation_.x_, node.translation_.y_, node.translation_.z_,
                                  node.scale_.x_, node.scale_.y_, node.scale_.z_})
             Require(Bounded(value));
@@ -128,6 +129,7 @@ AnimationPose Sample(const AnimationClip& clip, const AnimationPose& rest, doubl
     for (const auto& track : clip.Tracks()) {
         Require(result.contains(track.node_));
         auto& node = result.at(track.node_);
+        Require(!node.matrix_ || track.property_ == AnimationProperty::kWeights);
         const auto value = SampleTrack(track, seconds);
         switch (track.property_) {
             case AnimationProperty::kTranslation:
@@ -155,6 +157,7 @@ AnimationPose Blend(const AnimationPose& first, const AnimationPose& second, dou
     for (auto& [id, node] : result) {
         Require(second.contains(id));
         const auto& other = second.at(id);
+        Require(node.matrix_ == other.matrix_);
         node.translation_ = MixVector(node.translation_, other.translation_, amount);
         node.rotation_ = MixRotation(node.rotation_, other.rotation_, amount);
         node.scale_ = MixVector(node.scale_, other.scale_, amount);

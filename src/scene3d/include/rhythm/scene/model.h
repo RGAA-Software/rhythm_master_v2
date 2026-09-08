@@ -58,6 +58,15 @@ struct Mesh {
         std::array<float, 4> weights_{1, 0, 0, 0};
     };
     std::vector<JointWeights> skin_{};
+    struct MorphVertex {
+        std::array<float, 3> position_{};
+        std::array<float, 3> normal_{};
+        std::array<float, 3> tangent_{};
+    };
+    struct MorphTarget {
+        std::vector<MorphVertex> deltas_{};
+    };
+    std::vector<MorphTarget> morphs_{};
 };
 struct Node {
     NodeId id_ = 0;
@@ -99,6 +108,7 @@ void Validate(const Model& model);
 std::map<NodeId, WorldNode> WorldTransforms(const Model& model, const AnimationPose& pose = {});
 void ValidateAnimations(const Model& model);
 void ValidateSkins(const Model& model);
+void ValidateMorphs(const Model& model);
 // Skin palettes are relative to each bound mesh node; model/instance transforms
 // are applied separately at drawing. Non-joint ancestors remain in the hierarchy.
 std::map<NodeId, std::vector<Matrix>> SkinPalettes(const Model& model,

@@ -50,7 +50,7 @@ class Backend {
     }
     virtual void CancelReadback(std::uint64_t) noexcept {}
     virtual MeshHandle CreateMesh(std::span<const MeshVertex>, std::span<const std::uint32_t>,
-                                  std::span<const SkinWeights>) {
+                                  std::span<const SkinWeights>, std::span<const MorphTarget>) {
         throw std::logic_error("render.scene_unsupported");
     }
     virtual void ReleaseMesh(MeshHandle) noexcept {}

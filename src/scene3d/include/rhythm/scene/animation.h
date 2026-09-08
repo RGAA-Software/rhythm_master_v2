@@ -3,6 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <map>
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
@@ -42,6 +43,9 @@ struct NodePose {
     Quaternion rotation_{};
     Vector3 scale_{1, 1, 1};
     std::array<double, 4> weights_{};
+    // A fixed local matrix permits morph-only animation on non-TRS nodes.
+    // Transform channels cannot target such a pose; mixing must retain the matrix.
+    std::optional<Matrix> matrix_{};
 };
 using AnimationPose = std::map<std::uint64_t, NodePose>;
 void Validate(const AnimationPose& pose);

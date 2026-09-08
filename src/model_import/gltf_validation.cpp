@@ -49,7 +49,7 @@ void ValidateProfile(const cgltf_data& data) {
             "gltf.image_count");
     Require(data.skins_count <= 64 && data.animations_count <= 64 && !data.variants_count &&
                     !data.cameras_count && !data.lights_count,
-            "gltf.static_profile");
+            "gltf.scene_profile");
     for (std::size_t i = 0; i < data.extensions_required_count; ++i)
         Require(data.extensions_required[i] &&
                         std::string_view(data.extensions_required[i]) == "KHR_materials_unlit",
@@ -78,19 +78,21 @@ void ValidateProfile(const cgltf_data& data) {
     std::size_t primitives = 0;
     for (std::size_t i = 0; i < data.meshes_count; ++i) {
         Require(data.meshes[i].primitives_count <= 512 - primitives &&
-                        !data.meshes[i].weights_count,
+                        data.meshes[i].weights_count <= 4,
                 "gltf.mesh_limit");
         primitives += data.meshes[i].primitives_count;
         for (std::size_t j = 0; j < data.meshes[i].primitives_count; ++j) {
             const auto& primitive = data.meshes[i].primitives[j];
-            Require(primitive.type == cgltf_primitive_type_triangles && !primitive.targets_count &&
-                            !primitive.has_draco_mesh_compression && !primitive.mappings_count &&
-                            primitive.attributes_count > 0 && primitive.attributes_count <= 6,
+            Require(primitive.type == cgltf_primitive_type_triangles &&
+                            primitive.targets_count <= 4 && !primitive.has_draco_mesh_compression &&
+                            !primitive.mappings_count && primitive.attributes_count > 0 &&
+                            primitive.attributes_count <= 6,
                     "gltf.primitive_profile");
         }
     }
     for (std::size_t i = 0; i < data.nodes_count; ++i)
-        Require(!data.nodes[i].has_mesh_gpu_instancing && !data.nodes[i].weights_count,
+        Require(!data.nodes[i].has_mesh_gpu_instancing && data.nodes[i].weights_count <= 4 &&
+                        (!data.nodes[i].weights_count || data.nodes[i].mesh),
                 "gltf.node_profile");
 }
 }  // namespace rhythm::model_import::detail

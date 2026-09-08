@@ -88,6 +88,7 @@ scene::Mesh ReadMesh(const cgltf_data& data, const cgltf_primitive& primitive,
     if (!normal) scene::GenerateNormals(mesh);
     mesh.has_tangents_ = tangent.has_value();
     mesh.skin_ = ReadSkinWeights(primitive, positions.count, stop);
+    ReadMorphs(primitive, mesh, normal.has_value(), tangent.has_value(), stop);
     return mesh;
 }
 }  // namespace rhythm::model_import::detail

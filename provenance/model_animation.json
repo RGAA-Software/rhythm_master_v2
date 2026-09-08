@@ -7,13 +7,16 @@
             "sha256": "be5cd97ad0530eef4597240daa9012eed23847b39d8ebc8cc5333161ccb6951e",
             "license": "MIT",
             "notice": "third_party/notices/godot/LICENSE.txt",
-            "usage": "Local source study and adaptation of glTF key interval, endpoint, and duration-scaled tangent conventions; no engine types or copied translation unit. Also inspected skin joint order, optional inverse-bind identity defaults and non-joint ancestor preservation.",
+            "usage": "Local source study and adaptation of glTF key interval, endpoint, and duration-scaled tangent conventions; no engine types or copied translation unit. Also inspected skin joint order, optional inverse-bind identity defaults and non-joint ancestor preservation. Morph POSITION/NORMAL/TANGENT relative deltas and tangent handedness were inspected in the same glTF importer.",
             "target": "src/scene3d/animation.cpp",
             "modifications": [
                 "Binary search replaces linear key search.",
                 "GLM implements vector interpolation, Hermite and shortest-arc quaternion slerp.",
                 "Cubic quaternion tracks use component Hermite then normalization, rather than upstream 4.5.1 spherical fallback.",
-                "Immutable validated clips, bounded value poses and external unified transport time replace engine resources and animation player."
+                "Immutable validated clips, bounded value poses and external unified transport time replace engine resources and animation player.",
+                "Retain relative deltas in bounded project values rather than expanded engine blend-shape meshes.",
+                "Store up to four immutable targets in RGBA32F vertex textures; morph before linear skinning, then existing twist/taper.",
+                "Preserve node-over-mesh default weights and support SCALAR weight animation, including duration-scaled cubic tangents. Fixed-matrix nodes accept weight-only animation."
             ]
         },
         {
@@ -43,6 +46,17 @@
                 "UNORM8 indices reconstructed in the shader unify D3D11 and GLES float attributes.",
                 "Separate ordinary and instanced skin programs; validated 48-bone palette on Windows D3D11 and Adreno 650 GLES."
             ]
+        },
+        {
+            "source_url": "https://github.com/tixl3d/tixl",
+            "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+            "source_file": "Operators/Lib/Assets/shaders/3d/mesh/fx/mesh-BlendVertices.hlsl",
+            "sha256": "288da942e81bfb6b7e357823f23432d2aa6e097bedfdb9ee8b5adeb6b10b1c85",
+            "license": "MIT",
+            "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+            "imported_files": [],
+            "usage": "Local study of position/normal/tangent interpolation; no shader source copied. Its two-buffer compute output and index pairing do not match our glTF relative-target and immutable mesh contracts.",
+            "target": "src/rhythm_render/shaders/mesh_morph.sh"
         }
     ]
 }

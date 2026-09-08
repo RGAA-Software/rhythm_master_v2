@@ -36,7 +36,9 @@ std::vector<std::string> AnimationNames(const graph::Document& document, graph::
                 }
             return {};
         }
-        if (node->type_ != "geometry.animate" && node->type_ != "geometry.deform") return {};
+        if (node->type_ != "geometry.animate" && node->type_ != "geometry.deform" &&
+            node->type_ != "geometry.morph")
+            return {};
         const auto edge = std::find_if(
                 document.edges_.begin(), document.edges_.end(), [selected](const auto& value) {
                     return value.to_ == selected && value.input_ == "geometry";
@@ -82,6 +84,7 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
     ImGui::TextUnformatted(title.c_str());
     if (node.type_ == "geometry.animate")
         ImGui::TextWrapped("%s", Text(text, "animation.help").c_str());
+    if (node.type_ == "geometry.morph") ImGui::TextWrapped("%s", Text(text, "morph.help").c_str());
     const auto descriptor = registry.Find(node.type_, snapshot.document_.components_);
     if (!descriptor) return result;
     if (!registry.ValidateNode(node, snapshot.document_.components_).empty()) {

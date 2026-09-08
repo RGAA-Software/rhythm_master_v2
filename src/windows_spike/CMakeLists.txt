@@ -161,6 +161,16 @@ if(BUILD_TESTING)
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
             "${PROJECT_BINARY_DIR}/phase-loom-export")
         set_tests_properties(phase_loom_export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME crystal_choir_export_gpu COMMAND export_gpu_tests
+            "${PROJECT_BINARY_DIR}/content/packages/crystal_choir.rhythmpack"
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
+            "${PROJECT_BINARY_DIR}/crystal-choir-export")
+        set_tests_properties(crystal_choir_export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME crystal_choir_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
+            --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/crystal_choir.rhythmpack"
+            --expected-nodes 79 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --output "${PROJECT_BINARY_DIR}/crystal-choir-music-captures")
+        set_tests_properties(crystal_choir_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME torque_garden_export_gpu COMMAND export_gpu_tests
             "${PROJECT_BINARY_DIR}/content/packages/torque_garden.rhythmpack"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"

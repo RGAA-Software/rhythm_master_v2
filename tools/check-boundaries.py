@@ -23,6 +23,7 @@ RENDER_ADAPTERS = {
         "bgfx_scene_textures.h", "bgfx_scene_textures.cpp",
         "bgfx_scene_shadow.h", "bgfx_scene_shadow.cpp",
         "bgfx_scene_skin.h", "bgfx_scene_skin.cpp",
+        "bgfx_scene_morph.h", "bgfx_scene_morph.cpp",
         "bgfx_scene_environment.h", "bgfx_scene_environment.cpp",
         "bgfx_gpu_points.h", "bgfx_gpu_points.cpp",
         "bgfx_texture_programs.h", "bgfx_texture_programs.cpp")

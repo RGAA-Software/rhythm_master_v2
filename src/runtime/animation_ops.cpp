@@ -5,6 +5,50 @@
 #include "scene_ops.h"
 
 namespace rhythm::runtime::detail {
+void EvaluateMorph(const graph::Instruction& instruction, std::span<const NodeOutput> outputs,
+                   NodeOutput& output) {
+    const auto input = [&](std::size_t port) -> const NodeOutput& {
+        if (port >= instruction.inputs_.size() || !instruction.inputs_[port] ||
+            *instruction.inputs_[port] >= outputs.size())
+            throw std::invalid_argument("runtime.morph_input");
+        return outputs[*instruction.inputs_[port]];
+    };
+    if (!input(0).geometry_ || !input(0).geometry_->model_)
+        throw std::invalid_argument("runtime.morph_input");
+    auto geometry = *input(0).geometry_;
+    const auto& model = *geometry.model_;
+    auto pose = geometry.pose_ ? *geometry.pose_ : model.rest_pose_;
+    constexpr std::array<std::string_view, 4> kKeys{"morph_weight_1", "morph_weight_2",
+                                                    "morph_weight_3", "morph_weight_4"};
+    std::array<double, 4> weights{};
+    for (std::size_t i = 0; i < weights.size(); ++i) {
+        const auto value = instruction.inputs_.at(i + 1)
+                                   ? input(i + 1).scalar_
+                                   : graph::Scalar(instruction.node_, kKeys[i], 0);
+        if (!std::isfinite(value)) throw std::invalid_argument("runtime.morph_weight");
+        weights[i] = std::clamp(value, -4.0, 4.0);
+    }
+    bool found = false;
+    for (const auto& node : model.nodes_) {
+        std::size_t count = 0;
+        for (const auto index : node.meshes_)
+            count = std::max(count, model.meshes_.at(index).morphs_.size());
+        if (!count) continue;
+        found = true;
+        auto& target = pose.at(node.id_).weights_;
+        target = {};
+        std::copy_n(weights.begin(), count, target.begin());
+    }
+    if (!found) throw std::invalid_argument("runtime.morph_input");
+    if (!geometry.upload_id_) {
+        geometry.upload_id_ = geometry.id_;
+        geometry.upload_revision_ = geometry.revision_;
+    }
+    geometry.id_ = instruction.node_.id_;
+    geometry.revision_ = output.version_;
+    geometry.pose_ = std::make_shared<const scene::AnimationPose>(std::move(pose));
+    output.geometry_ = std::make_shared<const scene::Geometry>(std::move(geometry));
+}
 void EvaluateAnimation(const graph::Instruction& instruction, std::span<const NodeOutput> outputs,
                        NodeOutput& output, double seconds) {
     const auto& node = instruction.node_;

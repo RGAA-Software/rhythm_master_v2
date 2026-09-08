@@ -1,5 +1,8 @@
 #include <bgfx_shader.sh>
 #include "mesh_deformation.sh"
+#ifdef RHYTHM_MORPH
+#include "mesh_morph.sh"
+#endif
 #ifdef RHYTHM_SKIN
 #include "mesh_skinning.sh"
 #endif
@@ -8,9 +11,15 @@ void main()
     mat4 model = mtxFromCols(i_data0, i_data1, i_data2, i_data3);
     mat4 normal = mtxFromCols(i_data4, i_data5, i_data6, i_data7);
     vec3 position = a_position, local_normal = a_normal, tangent = a_tangent.xyz;
+#ifdef RHYTHM_MORPH
+    MorphMesh(position, local_normal, tangent, a_texcoord1);
+#endif
     float skin_orientation = 1.0;
 #ifdef RHYTHM_SKIN
-    skin_orientation = SkinMesh(position, local_normal, tangent, a_indices, a_weight);
+#ifdef RHYTHM_MORPH
+    if (u_morph_info.w > 0.5)
+#endif
+        skin_orientation = SkinMesh(position, local_normal, tangent, a_indices, a_weight);
 #endif
     DeformMesh(position, local_normal, tangent);
     vec4 world = mul(model, vec4(position, 1.0));

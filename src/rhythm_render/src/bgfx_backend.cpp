@@ -295,11 +295,11 @@ class BgfxBackend final : public Backend {
         return scenes_supported_;
     }
     MeshHandle CreateMesh(std::span<const MeshVertex> vertices,
-                          std::span<const std::uint32_t> indices,
-                          std::span<const SkinWeights> skin) override {
+                          std::span<const std::uint32_t> indices, std::span<const SkinWeights> skin,
+                          std::span<const MorphTarget> morphs) override {
         resources_.CheckReady();
         if (!scene_) scene_ = std::make_unique<BgfxScene>(resources_.DeviceId());
-        return scene_->Create(vertices, indices, skin);
+        return scene_->Create(vertices, indices, skin, morphs);
     }
     void ReleaseMesh(MeshHandle mesh) noexcept override {
         resources_.CheckThread();

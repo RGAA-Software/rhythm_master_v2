@@ -25,7 +25,9 @@ now shares mesh/image uploads across music changes and includes Torque Garden.
 immutable hot replacement, undo/redo and the editable Phase Loom work on Windows/Android.
 [Model animation](docs/model_animation.md) now includes GLB node tracks, unified time and
 music-driven clip mixing with shared uploads. 48-bone GPU skinning passes Windows/Android
-checks; morph rendering and complete animated works are in progress.
+checks. Four-target GPU morph, weight animation/music controls and the editable
+79-node Crystal Choir now also ship on both platforms, with real PCM and MP4 checks.
+R4 functionality is delivered within the documented profiles; R5/R6 continue.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.
@@ -235,12 +237,11 @@ Select a node to edit properties, and use the toolbar to add
 nodes, save/reopen, undo/redo or switch language. The output continues to use the
 last valid compiled graph while an incomplete edit is diagnosed.
 
-Shared Android validation uses `tools/build-android.ps1` and
-`tools/test-android.ps1`; these build/run native contracts and install no APK.
-The Player APK is built with `python tools/build-android-player.py` and placed
-at `out/android-arm64/apk/rhythm-player-debug.apk`. Native Player builds also
-invoke Python packaging automatically. USB installation is pending a phone-side
-installation restriction; the APK is a local debug build, not a completed release.
+Shared Android development uses `python tools/build-android.py` for incremental
+native builds and automatic Python APK packaging. The current local acceptance APK
+is `out/android-arm64-release/apk/rhythm-player-release.apk`; install with `adb install -r`.
+USB overlay installation and built-in effect selection are verified on the attached
+Redmi K40S; broader lifecycle/endurance acceptance remains separately tracked.
 SDK paths are script parameters, and target libraries are separate from host
 protoc. The SDK is an audited experiment snapshot rather than a release lock;
 see [dependency records](third_party/README.md).

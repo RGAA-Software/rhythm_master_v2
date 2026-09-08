@@ -10,6 +10,10 @@ void Preflight(std::span<const std::uint8_t> bytes);
 void ValidateProfile(const cgltf_data& data);
 void ReadAnimations(const cgltf_data& data, scene::Model& model, std::stop_token stop);
 void ReadSkins(const cgltf_data& data, scene::Model& model, std::stop_token stop);
+std::size_t MorphCount(const cgltf_node& node);
+scene::NodePose ReadNodePose(const cgltf_node& node);
+void ReadMorphs(const cgltf_primitive& primitive, scene::Mesh& mesh, bool normal, bool tangent,
+                std::stop_token stop);
 std::vector<scene::Mesh::JointWeights> ReadSkinWeights(const cgltf_primitive& primitive,
                                                        std::size_t count, std::stop_token stop);
 std::vector<scene::TextureImage> ReadImages(const cgltf_data& data, std::stop_token stop);

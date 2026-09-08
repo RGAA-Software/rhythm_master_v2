@@ -14,7 +14,8 @@ bool ValidMatrix(const Matrix4& matrix) {
 }  // namespace
 MeshHandle MeshStore::Allocate(std::span<const MeshVertex> vertices,
                                std::span<const std::uint32_t> indices,
-                               std::span<const SkinWeights> skin) {
+                               std::span<const SkinWeights> skin,
+                               std::span<const MorphTarget> morphs) {
     if (lost_) throw std::logic_error("render.device_lost");
     if (vertices.empty() || vertices.size() > 250000 || indices.empty() ||
         indices.size() > 750000 || indices.size() % 3)
@@ -33,7 +34,22 @@ MeshHandle MeshStore::Allocate(std::span<const MeshVertex> vertices,
         }
         if (std::abs(sum - 1) > 1e-4f) throw std::invalid_argument("render.skin_weights");
     }
-    const auto bytes = vertices.size_bytes() + indices.size_bytes() + skin.size_bytes();
+    if (morphs.size() > 4) throw std::invalid_argument("render.morph_count");
+    for (const auto& target : morphs) {
+        if (target.deltas_.size() != vertices.size())
+            throw std::invalid_argument("render.morph_vertices");
+        for (const auto& delta : target.deltas_)
+            for (const auto& values : {delta.position_, delta.normal_, delta.tangent_})
+                if (!std::all_of(values.begin(), values.end(), Finite))
+                    throw std::invalid_argument("render.morph_delta");
+    }
+    // RGBA32F: three texels per target vertex, rows padded to 1024; lookup/joint
+    // stream: 24 bytes per vertex. Both allocations count against mesh storage.
+    const auto extra_bytes =
+            morphs.empty() ? skin.size_bytes()
+                           : ((vertices.size() * morphs.size() * 3 + 1023) / 1024) * 1024 * 16 +
+                                     vertices.size() * 24;
+    const auto bytes = vertices.size_bytes() + indices.size_bytes() + extra_bytes;
     const bool tangents = std::all_of(vertices.begin(), vertices.end(), [](const auto& v) {
         const auto& t = v.tangent_;
         const auto length = std::hypot(t[0], t[1], t[2]);
@@ -59,6 +75,7 @@ MeshHandle MeshStore::Allocate(std::span<const MeshVertex> vertices,
     slot->live_ = true;
     slot->tangents_ = tangents;
     slot->bones_ = bones;
+    slot->morphs_ = static_cast<std::uint8_t>(morphs.size());
     slot->bytes_ = bytes;
     slot->indices_ = static_cast<std::uint32_t>(indices.size());
     bytes_ += bytes;
@@ -153,6 +170,10 @@ void MeshStore::Validate(const SceneDrawList& list) const {
             throw std::invalid_argument("render.scene_draw");
         indices += slots_[draw.mesh_.slot_].indices_;
         const auto required_bones = slots_[draw.mesh_.slot_].bones_;
+        for (std::size_t i = 0; i < draw.morph_weights_.size(); ++i)
+            if (!std::isfinite(draw.morph_weights_[i]) || std::abs(draw.morph_weights_[i]) > 100 ||
+                (i >= slots_[draw.mesh_.slot_].morphs_ && draw.morph_weights_[i] != 0))
+                throw std::invalid_argument("render.morph_weights");
         bone_matrices += draw.bones_.size();
         if (bone_matrices > 65536) throw std::length_error("render.skin_draw_budget");
         if ((required_bones == 0) != draw.bones_.empty() || draw.bones_.size() < required_bones ||

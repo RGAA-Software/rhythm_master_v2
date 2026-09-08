@@ -34,7 +34,8 @@ std::optional<Diagnostic> ValidateSceneBudget(
             return counts[*instruction.inputs_[port]];
         };
         switch (instruction.operation_) {
-            case Operation::kGeometryAnimate: {
+            case Operation::kGeometryAnimate:
+            case Operation::kGeometryMorph: {
                 const auto geometry_source = source(0);
                 if (!geometry_source || ++animated_geometries > 32) return fail();
                 count = *geometry_source;

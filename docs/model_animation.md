@@ -24,8 +24,8 @@ R4–R6 尚未全部完成。
 - 时间必须非负、严格递增、有限，最长 24 小时；单帧片段有效。循环支持负时间。
   缺失通道保持模型默认 TRS；不同片段混合时也以同一默认姿态补齐。
 - 每模型最多 64 片段、8192 通道、262144 个四分量值（含三次切线），姿态最多
-  2048 节点。图最多 32 个动画求值节点，场景姿态层级缓存最多 65536 节点。
-- 当前 glTF 通道只开放平移、旋转、缩放；矩阵节点不接受动画通道，稀疏访问器和
+  2048 节点。图最多 32 个动画/形变求值节点合计，场景姿态层级缓存最多 65536 节点。
+- 当前 glTF 通道开放平移、旋转、缩放与形变权重；矩阵节点只接受权重通道，稀疏访问器和
   压缩动画不在当前范围。零长度四元数、非有限结果、接近零的缩放拒绝。
 - `Geometry` 共享不可变 `Model` 和基础上传 ID，另持有小型不可变姿态。
   动画/原始实例共用网格和内嵌图像上传；每实例层级姿态分别生成绘制矩阵。
@@ -59,8 +59,7 @@ Windows D3D11、手机 Adreno 650 GLES：48 骨骼、四影响、平移/旋转/�
 画面逐字节一致，始终只有一个网格上传。`scene_skinning`、`skin_render_contracts`
 和扩展的模型导入测试通过。
 
-本增量为共享核心和两端原生验证；完整新作品与 Studio/Android APK 交付会在 morph
-接入后一并完成，没有把原生测试当作完整产品交付。
+骨架原生验证之后，完整新作品与 Studio/Android APK 已随下述 morph 增量交付。
 
 按 [来源记录](../provenance/model_animation.json) 阅读固定版本 Godot glTF 插值实现，
 使用已经验证的 vcpkg GLM `slerp`、`mix`、`hermite`，沿用 cgltf 解析；没有引入新引擎
@@ -71,5 +70,50 @@ Windows：`scene_animation`、`scene_math`、`model_animation_import`、`model_i
 `graph_contracts`、`scene_graph`、`animation_runtime`、`deformation_runtime` 通过。
 USB Redmi K40S：原生采样、GLB 导入和动画 Runtime 三个测试通过，包括暂停/跳转、
 音乐混合、不可变快照、预览和共享网格/图像句柄。Windows Studio/Player 增量编译与
-Python 自动部署通过（TRS 增量）。此记录没有宣称新动画作品、morph GPU 或 Android
-APK 动画交付完成；继续补齐这些环节，再进行整体品质和长稳验收。
+Python 自动部署通过（TRS 增量）；随后的完整动画交付见下节。
+
+## Morph 共享能力增量
+
+每个网格支持 1..4 个相对形变目标，POSITION/NORMAL/TANGENT 为 float VEC3，
+元素数量必须与基础网格相同。法线/切线目标必须存在对应基础属性，切线手性保持。
+模型最多 100 万个目标顶点；切线生成分裂顶点时同步复制全部目标。
+节点默认权重覆盖 mesh 默认权重；没有设置时为零。动画权重支持 STEP、LINEAR、
+CUBICSPLINE，保持 glTF 的标量展平顺序。矩阵节点可做权重动画，固定矩阵不丢失。
+
+`geometry.morph` 提供四路可连接标量的权重，作用于所有含目标的网格节点；保留上游
+TRS/骨骼姿态、覆盖原形变权重，未使用槽清零。属性与连接值范围 -4..4，连接值截取
+到此范围；不是按节点名称匹配的重定向系统。可将 `geometry.animate` 接在其前面，
+同时用音乐控制片段混合与模型形状。原始 GLB 的动画/默认权重校验范围为 ±100。
+
+GPU 顺序为 morph → skin → twist/taper → 实例变换；目标仅上传一次，实时修改权重。
+目标保存在宽 1024 的 RGBA32F 点采样纹理中，每顶点/目标三个 texel；额外索引和
+关节属性流为 24 字节/顶点。纹理含行填充和属性流全部计入 128 MiB 网格预算。
+普通实例程序最多占用 16 个顶点属性，相同 morph 权重也参与实例兼容比较。
+
+已固定的 bgfx GLES 后端没有设置 FORMAT_TEXTURE_VERTEX 标志；该适配器对 GLES 3.1
+检查 RGBA32F 二维格式、尺寸和实际程序，再以实机渲染验证顶点采样。其他后端仍检查
+顶点纹理格式标志。这不是对所有 Android GPU 的支持承诺。
+
+Windows D3D11 / USB Adreno 650：3721 顶点、四目标、正负权重、48 骨骼、非均匀缩放、
+法线贴图、普通与实例化的八组 CPU/GPU 对照均为 0 平均像素误差。RGBA32F 高范围数据
+和多行寻址参与测试。运行包 → GLB 导入 → 默认/动画/音乐 → GPU 的三组测试均通过，
+动画与音乐位移分别 4.5、9 像素，重复跳转图像一致且只保留一个网格上传。
+两端 `scene_animation`、`model_animation_import`、`morph_runtime` 均通过。
+
+新作品“晶瓣合唱”79 节点 / 106 连接，模型、生成脚本与节点图均为项目自有创作。
+Windows Studio/Player 完整 deploy（各 20 DLL）、部署启动检查、新作品真实 PCM
+与 MP4 检查通过；USB 手机覆盖安装成功，内置目录可直接选择，演示音乐与循环
+播放时已检查形变画面。Windows/Android 完整 GPU 回归通过。视觉品质和长稳
+验收继续单独记录，尚不代表与 TiXL/TouchDesigner 整体对等。
+
+
+交付证据：`out/r4-morph-app-build.log`、`out/r4-morph-apk-build.log`、
+`out/r4-crystal-delivery-tests.log`（导出和部署通过；其中旧音乐测试类型识别失败）、
+`out/r4-crystal-music-test.log`（新增动画识别后的最终音乐测试通过）、
+`out/r4-morph-windows-full-gpu.log`、`out/r4-morph-android-full-gpu.log`。
+真实 PCM 与静音的 RGB 平均差为 1.757，低频 2.078，高频 5.163，低高频差 6.798。
+手机实际播放截图 `out/r4-crystal-android-playing.png`，16 秒演示音乐已播放且 RMS
+非零；作品按 1280×720 横屏布局。内置目录现在 39 个示例，品质目标仍单列。
+
+作品包 SHA-256：`165f675b4a4d397b339e484a3502767ec5d849242c5ecd9619ee8ea88fba1cec`，手机选择文件一致。
+APK SHA-256：`1351fdb2311b9bbd712d3c8e3c07bc9b98fe186689c82fc8c5e34cb1766bee3f`。

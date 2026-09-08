@@ -793,5 +793,14 @@
     "render.skin_weights": "顶点关节索引或权重无效。",
     "render.skin_vertices": "关节属性数量与顶点不匹配。",
     "render.skin_program": "当前设备无法创建骨架渲染程序。",
-    "render.skin_buffer": "当前设备无法创建关节数据缓冲。"
+    "render.skin_buffer": "当前设备无法创建关节数据缓冲。",
+    "geometry.morph": "模型形变权重",
+    "morph.help": "四路权重作用于模型中所有形变网格；连接音乐信号可实时驱动。保留上游骨骼姿态，覆盖原形变权重，范围 -4 到 4。",
+    "runtime.morph_input": "请连接包含形变目标的模型。",
+    "runtime.morph_weight": "形变权重必须是有限数值。",
+    "scene.morph": "模型形变目标、默认姿态或动画权重无效。",
+    "morph_weight_1": "形变权重 1",
+    "morph_weight_2": "形变权重 2",
+    "morph_weight_3": "形变权重 3",
+    "morph_weight_4": "形变权重 4"
 }
