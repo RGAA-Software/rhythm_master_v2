@@ -26,6 +26,13 @@ struct MeshVertex {
     std::array<float, 4> tangent_{1, 0, 0, 1};
 };
 using Matrix4 = std::array<float, 16>;
+// Separate optional vertex stream; ordinary meshes retain their 48-byte layout.
+// Four normalized influences, indices address the draw's local bone palette.
+struct SkinWeights {
+    std::array<std::uint8_t, 4> joints_{};
+    std::array<float, 4> weights_{1, 0, 0, 0};
+};
+inline constexpr std::size_t kMaximumSkinBones = 48;
 inline constexpr Matrix4 kIdentityMatrix{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
 struct MaterialTextures {
     // base color, tangent-space +Y normal, occlusion/roughness/metallic, emission.
@@ -58,6 +65,7 @@ struct MeshDraw {
     bool unlit_ = true;
     MaterialTextures textures_{};
     std::vector<MeshDeformation> deformations_{};  // At most four.
+    std::vector<Matrix4> bones_{};                 // Mesh-local skin matrices, at most 48.
 };
 struct DirectionalLight {
     // Unit vector from the surface toward the light; linear RGB radiance.

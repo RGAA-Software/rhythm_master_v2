@@ -27,6 +27,9 @@ scene::Mesh ReadMesh(const cgltf_data& data, const cgltf_primitive& primitive,
         } else if (attribute.type == cgltf_attribute_type_tangent) {
             Require(!tangent);
             tangent = *attribute.data;
+        } else if (attribute.type == cgltf_attribute_type_joints ||
+                   attribute.type == cgltf_attribute_type_weights) {
+            // Dedicated checked conversion after the ordinary vertex stream.
         } else
             Require(false, "gltf.attribute_profile");
     }
@@ -84,6 +87,7 @@ scene::Mesh ReadMesh(const cgltf_data& data, const cgltf_primitive& primitive,
     }
     if (!normal) scene::GenerateNormals(mesh);
     mesh.has_tangents_ = tangent.has_value();
+    mesh.skin_ = ReadSkinWeights(primitive, positions.count, stop);
     return mesh;
 }
 }  // namespace rhythm::model_import::detail

@@ -30,6 +30,20 @@ Vector3 Normalize(Vector3 value) {
 Matrix Multiply(const Matrix& a, const Matrix& b) {
     return Value(glm::make_mat4(a.values_.data()) * glm::make_mat4(b.values_.data()));
 }
+Matrix InverseAffine(const Matrix& matrix) {
+    if (!ValidAffine(matrix)) throw std::invalid_argument("scene.transform");
+    const auto native = glm::make_mat4(matrix.values_.data());
+    const auto determinant = glm::determinant(glm::dmat3(native));
+    if (!std::isfinite(determinant) || std::abs(determinant) < 1e-12)
+        throw std::invalid_argument("scene.singular_transform");
+    auto result = Value(glm::inverse(native));
+    // Affine structure is exact in the public contract; discard roundoff only
+    // in the constant homogeneous row, not in the transformation basis.
+    result.values_[3] = result.values_[7] = result.values_[11] = 0;
+    result.values_[15] = 1;
+    if (!ValidAffine(result)) throw std::invalid_argument("scene.transform");
+    return result;
+}
 Matrix Compose(Vector3 translation, Quaternion rotation, Vector3 scale) {
     const glm::dquat quaternion(rotation.w_, rotation.x_, rotation.y_, rotation.z_);
     const auto length = glm::length(quaternion);

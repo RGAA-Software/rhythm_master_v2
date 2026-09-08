@@ -24,6 +24,7 @@ double Dot(Vector3 first, Vector3 second);
 Vector3 Cross(Vector3 first, Vector3 second);
 Vector3 Normalize(Vector3 vector);
 Matrix Multiply(const Matrix& first, const Matrix& second);
+Matrix InverseAffine(const Matrix& matrix);
 Matrix Compose(Vector3 translation, Quaternion rotation, Vector3 scale);
 Vector3 TransformPoint(const Matrix& transform, Vector3 point);
 Vector3 TransformNormal(const Matrix& transform, Vector3 normal);

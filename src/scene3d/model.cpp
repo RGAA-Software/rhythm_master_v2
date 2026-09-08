@@ -57,9 +57,10 @@ std::map<NodeId, WorldNode> WorldTransforms(const Model& model, const AnimationP
     return worlds;
 }
 void Validate(const Model& model) {
-    ValidateAnimations(model);
     Require(!model.nodes_.empty() && model.nodes_.size() <= 2048 && !model.materials_.empty() &&
             model.materials_.size() <= 128 && model.meshes_.size() <= 512);
+    ValidateAnimations(model);
+    ValidateSkins(model);
     Require(model.images_.size() <= 192);
     std::size_t image_bytes = 0;
     for (const auto& image : model.images_) {
@@ -109,7 +110,7 @@ void Validate(const Model& model) {
         Require(references <= 4096);
         for (const auto mesh : node.meshes_) Require(mesh < model.meshes_.size());
     }
-    (void)WorldTransforms(model);
+    (void)SkinPalettes(model, WorldTransforms(model));
 }
 void GenerateNormals(Mesh& mesh) {
     mesh.has_tangents_ = false;

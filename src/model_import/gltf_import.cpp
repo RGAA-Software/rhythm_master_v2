@@ -112,9 +112,12 @@ scene::Model ReadGlb(std::span<const std::uint8_t> bytes, std::stop_token stop) 
         cgltf_node_transform_local(&source, local.data());
         std::copy(local.begin(), local.end(), node.local_.values_.begin());
         if (source.mesh) node.meshes_ = meshes.at(cgltf_mesh_index(&data, source.mesh));
+        if (source.skin)
+            node.skin_ = static_cast<std::uint32_t>(cgltf_skin_index(&data, source.skin));
         model.nodes_.push_back(std::move(node));
     }
     detail::ReadAnimations(data, model, stop);
+    detail::ReadSkins(data, model, stop);
     scene::Validate(model);
     return model;
 }

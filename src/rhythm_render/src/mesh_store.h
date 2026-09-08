@@ -9,7 +9,8 @@ class MeshStore final {
    public:
     explicit MeshStore(std::uint64_t device) : device_(device) {}
     MeshHandle Allocate(std::span<const MeshVertex> vertices,
-                        std::span<const std::uint32_t> indices);
+                        std::span<const std::uint32_t> indices,
+                        std::span<const SkinWeights> skin = {});
     void Release(MeshHandle handle) noexcept;
     bool Owns(MeshHandle handle) const;
     bool IsValid(MeshHandle handle) const { return !lost_ && Owns(handle); }
@@ -24,6 +25,7 @@ class MeshStore final {
         std::uint64_t bytes_ = 0;
         bool live_ = false;
         bool tangents_ = false;
+        std::uint8_t bones_ = 0;
     };
     std::uint64_t device_ = 0;
     std::vector<Slot> slots_{};

@@ -24,7 +24,8 @@ now shares mesh/image uploads across music changes and includes Torque Garden.
 [Image shader authoring](docs/image_shader.md) now supports dual-target compilation,
 immutable hot replacement, undo/redo and the editable Phase Loom work on Windows/Android.
 [Model animation](docs/model_animation.md) now includes GLB node tracks, unified time and
-music-driven clip mixing with shared uploads. Skinning and morph rendering are in progress.
+music-driven clip mixing with shared uploads. 48-bone GPU skinning passes Windows/Android
+checks; morph rendering and complete animated works are in progress.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

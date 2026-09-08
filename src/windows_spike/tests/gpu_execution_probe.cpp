@@ -9,6 +9,13 @@ int main(int argc, char* argv[]) {
         std::array<std::uint8_t, 32 * 16 * 4> pixels{};
         rhythm::platform::Host host(true);
         auto renderer = host.CreateRenderer();
+        if (argc == 2 && std::string_view(argv[1]) == "--skinning") {
+            rhythm::validation::VerifyMeshSkinning(renderer);
+#if defined(RHYTHM_MODEL_IMAGE_PROBE)
+            rhythm::validation::VerifyModelSkin(renderer);
+#endif
+            return 0;
+        }
         if (argc == 3 && std::string_view(argv[1]) == "--image-program") {
             rhythm::validation::VerifyImageProgram(renderer, std::filesystem::path(argv[2]));
             return 0;
@@ -23,8 +30,10 @@ int main(int argc, char* argv[]) {
         rhythm::validation::VerifySceneShadows(renderer);
         rhythm::validation::VerifyEnvironmentLighting(renderer);
         rhythm::validation::VerifyMeshDeformation(renderer);
+        rhythm::validation::VerifyMeshSkinning(renderer);
 #if defined(RHYTHM_MODEL_IMAGE_PROBE)
         rhythm::validation::VerifyModelImages(renderer);
+        rhythm::validation::VerifyModelSkin(renderer);
 #endif
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

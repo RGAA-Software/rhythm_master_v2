@@ -17,6 +17,8 @@ void VerifyMaterialTextures(render::Renderer& renderer);
 void VerifyModelImages(render::Renderer& renderer);
 void VerifyEnvironmentLighting(render::Renderer& renderer);
 void VerifyMeshDeformation(render::Renderer& renderer);
+void VerifyMeshSkinning(render::Renderer& renderer);
+void VerifyModelSkin(render::Renderer& renderer);
 void VerifyImageProgram(render::Renderer& renderer, const std::filesystem::path& path);
 void VerifySceneShadows(render::Renderer& renderer);
 void VerifyColorPipeline(render::Renderer& renderer);

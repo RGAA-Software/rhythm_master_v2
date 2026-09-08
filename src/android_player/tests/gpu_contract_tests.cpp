@@ -341,6 +341,14 @@ void VerifyAffine(rhythm::render::Renderer& renderer) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+        if (argc == 2 && std::string_view(argv[1]) == "--skinning") {
+            auto renderer = platform::Host::CreateRenderer();
+            validation::VerifyMeshSkinning(renderer);
+#if defined(RHYTHM_MODEL_IMAGE_PROBE)
+            validation::VerifyModelSkin(renderer);
+#endif
+            return 0;
+        }
         if (argc == 3 && std::string_view(argv[1]) == "--image-program") {
             auto renderer = platform::Host::CreateRenderer();
             validation::VerifyImageProgram(renderer, std::filesystem::path(argv[2]));
@@ -359,8 +367,10 @@ int main(int argc, char* argv[]) {
             validation::VerifySceneShadows(renderer);
             validation::VerifyEnvironmentLighting(renderer);
             validation::VerifyMeshDeformation(renderer);
+            validation::VerifyMeshSkinning(renderer);
 #if defined(RHYTHM_MODEL_IMAGE_PROBE)
             validation::VerifyModelImages(renderer);
+            validation::VerifyModelSkin(renderer);
 #endif
             return 0;
         }

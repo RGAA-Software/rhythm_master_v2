@@ -13,12 +13,27 @@ bool ValidMatrix(const Matrix4& matrix) {
 }
 }  // namespace
 MeshHandle MeshStore::Allocate(std::span<const MeshVertex> vertices,
-                               std::span<const std::uint32_t> indices) {
+                               std::span<const std::uint32_t> indices,
+                               std::span<const SkinWeights> skin) {
     if (lost_) throw std::logic_error("render.device_lost");
     if (vertices.empty() || vertices.size() > 250000 || indices.empty() ||
         indices.size() > 750000 || indices.size() % 3)
         throw std::invalid_argument("render.mesh_size");
-    const auto bytes = vertices.size_bytes() + indices.size_bytes();
+    if (!skin.empty() && skin.size() != vertices.size())
+        throw std::invalid_argument("render.skin_vertices");
+    std::uint8_t bones = 0;
+    for (const auto& vertex : skin) {
+        float sum = 0;
+        for (std::size_t i = 0; i < 4; ++i) {
+            if (vertex.joints_[i] >= kMaximumSkinBones || !std::isfinite(vertex.weights_[i]) ||
+                vertex.weights_[i] < 0 || vertex.weights_[i] > 1)
+                throw std::invalid_argument("render.skin_weights");
+            bones = std::max(bones, static_cast<std::uint8_t>(vertex.joints_[i] + 1));
+            sum += vertex.weights_[i];
+        }
+        if (std::abs(sum - 1) > 1e-4f) throw std::invalid_argument("render.skin_weights");
+    }
+    const auto bytes = vertices.size_bytes() + indices.size_bytes() + skin.size_bytes();
     const bool tangents = std::all_of(vertices.begin(), vertices.end(), [](const auto& v) {
         const auto& t = v.tangent_;
         const auto length = std::hypot(t[0], t[1], t[2]);
@@ -43,6 +58,7 @@ MeshHandle MeshStore::Allocate(std::span<const MeshVertex> vertices,
     }
     slot->live_ = true;
     slot->tangents_ = tangents;
+    slot->bones_ = bones;
     slot->bytes_ = bytes;
     slot->indices_ = static_cast<std::uint32_t>(indices.size());
     bytes_ += bytes;
@@ -95,7 +111,7 @@ void MeshStore::Validate(const SceneDrawList& list) const {
             !bounded(light.cone_decay_, 0.1f, 16))
             throw std::invalid_argument("render.positional_light");
     }
-    std::uint64_t indices = 0;
+    std::uint64_t indices = 0, bone_matrices = 0;
     if (list.shadow_) {
         const auto& shadow = *list.shadow_;
         if (!ValidMatrix(shadow.world_to_clip_) ||
@@ -136,6 +152,16 @@ void MeshStore::Validate(const SceneDrawList& list) const {
                          [](float v) { return std::isfinite(v) && v >= 0 && v <= 1; }))
             throw std::invalid_argument("render.scene_draw");
         indices += slots_[draw.mesh_.slot_].indices_;
+        const auto required_bones = slots_[draw.mesh_.slot_].bones_;
+        bone_matrices += draw.bones_.size();
+        if (bone_matrices > 65536) throw std::length_error("render.skin_draw_budget");
+        if ((required_bones == 0) != draw.bones_.empty() || draw.bones_.size() < required_bones ||
+            draw.bones_.size() > kMaximumSkinBones)
+            throw std::invalid_argument("render.skin_palette");
+        for (const auto& bone : draw.bones_)
+            if (!ValidMatrix(bone) || bone[3] != 0 || bone[7] != 0 || bone[11] != 0 ||
+                bone[15] != 1)
+                throw std::invalid_argument("render.skin_matrix");
         if (draw.textures_.slots_[1].device_ && !slots_[draw.mesh_.slot_].tangents_)
             throw std::invalid_argument("render.material_tangents");
         if (indices > 3000000) throw std::length_error("render.scene_index_budget");

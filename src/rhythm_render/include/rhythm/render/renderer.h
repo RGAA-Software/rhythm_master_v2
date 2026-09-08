@@ -261,7 +261,8 @@ class Renderer final {
     void UpdateTexture(TextureHandle texture, std::span<const std::uint8_t> rgba);
     [[nodiscard]] bool IsValid(TextureHandle handle) const;
     TexturePrecision Precision(TextureHandle handle) const;
-    Mesh CreateMesh(std::span<const MeshVertex> vertices, std::span<const std::uint32_t> indices);
+    Mesh CreateMesh(std::span<const MeshVertex> vertices, std::span<const std::uint32_t> indices,
+                    std::span<const SkinWeights> skin = {});
     [[nodiscard]] bool IsValid(MeshHandle handle) const;
     [[nodiscard]] bool SupportsScenes() const;
     [[nodiscard]] bool SupportsGpuPoints() const;

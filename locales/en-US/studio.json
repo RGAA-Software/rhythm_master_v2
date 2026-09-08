@@ -785,5 +785,13 @@
     "runtime.animation_blend": "Animation blend input must be finite.",
     "runtime.animation_budget": "Animation poses exceed the current budget.",
     "scene.animation": "Animation keys or the sampled pose are invalid.",
-    "scene.model_animation": "Model animation channels or resource limits are invalid."
+    "scene.model_animation": "Model animation channels or resource limits are invalid.",
+    "scene.skin": "Model skin, bind matrices or joint weights are invalid.",
+    "render.skin_palette": "The bone palette does not match mesh joints.",
+    "render.skin_matrix": "A bone transform is invalid.",
+    "render.skin_draw_budget": "Bone matrices exceed the frame budget.",
+    "render.skin_weights": "Vertex joint indices or weights are invalid.",
+    "render.skin_vertices": "Joint attributes do not match the vertex count.",
+    "render.skin_program": "The device could not create the skinning program.",
+    "render.skin_buffer": "The device could not allocate joint data."
 }

@@ -47,7 +47,7 @@ void ValidateProfile(const cgltf_data& data) {
             "gltf.model_limit");
     Require(data.images_count <= 64 && data.textures_count <= 128 && data.samplers_count <= 128,
             "gltf.image_count");
-    Require(!data.skins_count && data.animations_count <= 64 && !data.variants_count &&
+    Require(data.skins_count <= 64 && data.animations_count <= 64 && !data.variants_count &&
                     !data.cameras_count && !data.lights_count,
             "gltf.static_profile");
     for (std::size_t i = 0; i < data.extensions_required_count; ++i)
@@ -85,7 +85,7 @@ void ValidateProfile(const cgltf_data& data) {
             const auto& primitive = data.meshes[i].primitives[j];
             Require(primitive.type == cgltf_primitive_type_triangles && !primitive.targets_count &&
                             !primitive.has_draco_mesh_compression && !primitive.mappings_count &&
-                            primitive.attributes_count > 0 && primitive.attributes_count <= 4,
+                            primitive.attributes_count > 0 && primitive.attributes_count <= 6,
                     "gltf.primitive_profile");
         }
     }

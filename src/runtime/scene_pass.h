@@ -16,16 +16,22 @@ class ScenePass final {
                                 std::span<const NodeOutput> outputs = {});
 
    private:
+    struct PoseMatrices {
+        std::map<scene::NodeId, scene::WorldNode> worlds_{};
+        std::map<scene::NodeId, std::vector<render::Matrix4>> skins_{};
+    };
+    static PoseMatrices PreparePose(const scene::Model& model,
+                                    const scene::AnimationPose& pose = {});
     struct Uploaded {
         std::shared_ptr<const scene::Model> model_{};
-        std::map<scene::NodeId, scene::WorldNode> worlds_{};
+        PoseMatrices rest_{};
         std::vector<render::Mesh> meshes_{};
         std::vector<render::Texture> images_{};
     };
     using Key = std::tuple<std::uint64_t, std::uint64_t, bool>;
     std::map<Key, Uploaded> uploads_{};
     using PoseKey = std::pair<std::uint64_t, std::uint64_t>;
-    std::map<PoseKey, std::map<scene::NodeId, scene::WorldNode>> poses_{};
+    std::map<PoseKey, PoseMatrices> poses_{};
     ShadowPass shadow_{};
     EnvironmentPass environment_{};
 };

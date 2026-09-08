@@ -53,6 +53,11 @@ struct Mesh {
     std::vector<std::uint32_t> indices_{};
     std::uint32_t material_ = 0;
     bool has_tangents_ = false;
+    struct JointWeights {
+        std::array<std::uint8_t, 4> joints_{};
+        std::array<float, 4> weights_{1, 0, 0, 0};
+    };
+    std::vector<JointWeights> skin_{};
 };
 struct Node {
     NodeId id_ = 0;
@@ -61,6 +66,7 @@ struct Node {
     std::vector<std::uint32_t> meshes_{};
     bool visible_ = true;
     std::string name_{};
+    std::optional<std::uint32_t> skin_{};
 };
 // Immutable after publication. Mesh/material indices address these owned arrays;
 // hierarchy uses stable value IDs. GPU and parser resources are not retained.
@@ -71,6 +77,11 @@ struct TextureImage {
     std::vector<std::uint8_t> rgba_{};
 };
 inline constexpr std::size_t kMaximumModelImageBytes = 64 * 1024 * 1024;
+struct Skin {
+    std::vector<NodeId> joints_{};
+    std::vector<Matrix> inverse_bind_{};
+};
+inline constexpr std::size_t kMaximumModelSkinBones = 48;
 struct Model {
     std::vector<Mesh> meshes_{};
     std::vector<Material> materials_{};
@@ -78,6 +89,7 @@ struct Model {
     std::vector<TextureImage> images_{};
     AnimationPose rest_pose_{};
     std::vector<AnimationClip> animations_{};
+    std::vector<Skin> skins_{};
 };
 struct WorldNode {
     Matrix transform_{};
@@ -86,6 +98,11 @@ struct WorldNode {
 void Validate(const Model& model);
 std::map<NodeId, WorldNode> WorldTransforms(const Model& model, const AnimationPose& pose = {});
 void ValidateAnimations(const Model& model);
+void ValidateSkins(const Model& model);
+// Skin palettes are relative to each bound mesh node; model/instance transforms
+// are applied separately at drawing. Non-joint ancestors remain in the hierarchy.
+std::map<NodeId, std::vector<Matrix>> SkinPalettes(const Model& model,
+                                                   const std::map<NodeId, WorldNode>& worlds);
 void GenerateNormals(Mesh& mesh);
 // Synchronous, bounded MikkTSpace generation. Splits incompatible corner frames;
 // publishes the replacement only on success. Input must have unit normals/UVs.

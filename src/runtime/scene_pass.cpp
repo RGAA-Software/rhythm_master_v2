@@ -14,6 +14,16 @@ render::Matrix4 Matrix(const scene::Matrix& source) {
     return result;
 }
 }  // namespace
+ScenePass::PoseMatrices ScenePass::PreparePose(const scene::Model& model,
+                                               const scene::AnimationPose& pose) {
+    PoseMatrices result;
+    result.worlds_ = scene::WorldTransforms(model, pose);
+    for (const auto& [node, palette] : scene::SkinPalettes(model, result.worlds_)) {
+        auto& converted = result.skins_[node];
+        for (const auto& matrix : palette) converted.push_back(Matrix(matrix));
+    }
+    return result;
+}
 render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::Camera& camera,
                                        render::Extent extent, render::Renderer& renderer,
                                        std::span<const NodeOutput> outputs) {
@@ -55,6 +65,16 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
     std::set<Key> active;
     std::set<PoseKey> active_poses;
     std::size_t pose_nodes = 0;
+    std::size_t palette_matrices = 0;
+    const auto count_palette = [&](const scene::Model& model) {
+        for (const auto& node : model.nodes_) {
+            if (!node.skin_) continue;
+            const auto count = model.skins_.at(*node.skin_).joints_.size();
+            if (count > 65536 - palette_matrices)
+                throw std::length_error("runtime.animation_budget");
+            palette_matrices += count;
+        }
+    };
     const auto needs_tangents = [](const scene::Instance& instance) {
         if (instance.material_)
             return instance.material_->textures_.nodes_[1] != 0 ||
@@ -71,17 +91,21 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
             throw std::invalid_argument("runtime.geometry");
         const auto& geometry = *instance.geometry_;
         if (geometry.pose_ && active_poses.emplace(geometry.id_, geometry.revision_).second) {
+            count_palette(*geometry.model_);
             if (geometry.model_->nodes_.size() > 65536 - pose_nodes)
                 throw std::length_error("runtime.animation_budget");
             pose_nodes += geometry.model_->nodes_.size();
         }
-        active.emplace(geometry.upload_id_ ? geometry.upload_id_ : geometry.id_,
-                       geometry.upload_id_ ? geometry.upload_revision_ : geometry.revision_,
-                       needs_tangents(instance));
+        if (active.emplace(geometry.upload_id_ ? geometry.upload_id_ : geometry.id_,
+                           geometry.upload_id_ ? geometry.upload_revision_ : geometry.revision_,
+                           needs_tangents(instance))
+                    .second)
+            count_palette(*geometry.model_);
     }
     std::erase_if(uploads_, [&](const auto& item) { return !active.contains(item.first); });
     std::erase_if(poses_, [&](const auto& item) { return !active_poses.contains(item.first); });
     std::uint64_t index_count = 0;
+    std::size_t draw_bones = 0;
     for (const auto& instance : scene.instances_) {
         const auto& geometry = *instance.geometry_;
         const Key key{geometry.upload_id_ ? geometry.upload_id_ : geometry.id_,
@@ -92,7 +116,7 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
             Uploaded upload;
             upload.model_ = geometry.model_;
             upload.images_.resize(geometry.model_->images_.size());
-            upload.worlds_ = scene::WorldTransforms(*geometry.model_);
+            upload.rest_ = PreparePose(*geometry.model_);
             std::size_t tangent_vertices = 0;
             for (auto mesh : geometry.model_->meshes_) {
                 if (std::get<2>(key) && !mesh.has_tangents_) scene::GenerateTangents(mesh);
@@ -103,17 +127,21 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                 for (const auto& v : mesh.vertices_)
                     vertices.push_back({v.x_, v.y_, v.z_, v.normal_x_, v.normal_y_, v.normal_z_,
                                         v.u_, v.v_, v.tangent_});
-                upload.meshes_.push_back(renderer.CreateMesh(vertices, mesh.indices_));
+                std::vector<render::SkinWeights> weights;
+                weights.reserve(mesh.skin_.size());
+                for (const auto& vertex : mesh.skin_)
+                    weights.push_back({vertex.joints_, vertex.weights_});
+                upload.meshes_.push_back(renderer.CreateMesh(vertices, mesh.indices_, weights));
             }
             uploads_.emplace(key, std::move(upload));
         }
         auto& upload = uploads_.at(key);
         const PoseKey pose_key{geometry.id_, geometry.revision_};
         if (geometry.pose_ && !poses_.contains(pose_key))
-            poses_.emplace(pose_key, scene::WorldTransforms(*upload.model_, *geometry.pose_));
-        const auto& worlds = geometry.pose_ ? poses_.at(pose_key) : upload.worlds_;
+            poses_.emplace(pose_key, PreparePose(*upload.model_, *geometry.pose_));
+        const auto& matrices = geometry.pose_ ? poses_.at(pose_key) : upload.rest_;
         for (const auto& node : upload.model_->nodes_) {
-            const auto& world = worlds.at(node.id_);
+            const auto& world = matrices.worlds_.at(node.id_);
             if (!world.visible_) continue;
             const auto transform = scene::Multiply(instance.transform_, world.transform_);
             if (!scene::ValidAffine(transform))
@@ -131,6 +159,13 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                                          {color.red_, color.green_, color.blue_, color.alpha_},
                                          material.double_sided_});
                 auto& draw = result.draws_.back();
+                if (node.skin_) {
+                    const auto& bones = matrices.skins_.at(node.id_);
+                    if (bones.size() > 65536 - draw_bones)
+                        throw std::length_error("runtime.animation_budget");
+                    draw_bones += bones.size();
+                    draw.bones_ = bones;
+                }
                 for (const auto& modifier : geometry.deformations_)
                     draw.deformations_.push_back(
                             {float(modifier.twist_),

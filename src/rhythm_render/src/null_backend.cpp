@@ -93,9 +93,10 @@ class NullBackend final : public Backend {
         ++draws_;
     }
     MeshHandle CreateMesh(std::span<const MeshVertex> vertices,
-                          std::span<const std::uint32_t> indices) override {
+                          std::span<const std::uint32_t> indices,
+                          std::span<const SkinWeights> skin) override {
         resources_.CheckReady();
-        return meshes_.Allocate(vertices, indices);
+        return meshes_.Allocate(vertices, indices, skin);
     }
     void ReleaseMesh(MeshHandle handle) noexcept override {
         resources_.CheckThread();

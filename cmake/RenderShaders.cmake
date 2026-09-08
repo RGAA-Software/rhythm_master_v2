@@ -58,6 +58,11 @@ add_custom_command(OUTPUT "${scene_shader_header}"
         "${PROJECT_SOURCE_DIR}/tools/compile-shader.py"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_vertex.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/mesh_deformation.sh"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/mesh_skinning.sh"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_vertex_body.sh"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_instance_body.sh"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_skin_vertex.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_skin_instance.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_instance.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_fragment.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/godot_brdf.sh"
@@ -73,6 +78,7 @@ target_sources(render_bgfx PRIVATE "${scene_shader_header}"
 target_sources(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_scene_lights.cpp")
 target_sources(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_scene_textures.cpp")
 target_sources(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_scene_shadow.cpp")
+target_sources(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_scene_skin.cpp")
 
 target_sources(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_texture_programs.cpp")
 set(mapping_shader_header "${PROJECT_BINARY_DIR}/generated/render/texture_mapping_shader.h")
@@ -125,6 +131,7 @@ if(BUILD_TESTING)
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/shadows_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/environment_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/deformation_gpu.cpp"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/skinning_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/image_program_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_particles_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/scene_instances_gpu.cpp"
@@ -136,6 +143,7 @@ if(BUILD_TESTING)
     target_include_directories(gpu_execution_probe SYSTEM PRIVATE "${RHYTHM_GLM_INCLUDE}")
     if(RHYTHM_BUILD_MEDIA)
         target_sources(gpu_execution_probe PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/model_images_gpu.cpp")
+        target_sources(gpu_execution_probe PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/model_skin_gpu.cpp")
         target_include_directories(gpu_execution_probe PRIVATE
             "${PROJECT_SOURCE_DIR}/src/model_import/tests" "${PROJECT_SOURCE_DIR}/third_party/sources/picosha2")
         target_link_libraries(gpu_execution_probe PRIVATE model_assets graph_runtime)

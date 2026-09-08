@@ -785,5 +785,13 @@
     "runtime.animation_blend": "动画混合输入必须是有限数值。",
     "runtime.animation_budget": "动画姿态超过当前预算。",
     "scene.animation": "动画关键帧或当前姿态无效。",
-    "scene.model_animation": "模型动画通道或资源预算无效。"
+    "scene.model_animation": "模型动画通道或资源预算无效。",
+    "scene.skin": "模型骨架、绑定矩阵或关节权重无效。",
+    "render.skin_palette": "骨骼调色板与网格关节不匹配。",
+    "render.skin_matrix": "骨骼变换矩阵无效。",
+    "render.skin_draw_budget": "本帧骨骼矩阵超过预算。",
+    "render.skin_weights": "顶点关节索引或权重无效。",
+    "render.skin_vertices": "关节属性数量与顶点不匹配。",
+    "render.skin_program": "当前设备无法创建骨架渲染程序。",
+    "render.skin_buffer": "当前设备无法创建关节数据缓冲。"
 }

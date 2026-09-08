@@ -42,6 +42,8 @@ def main():
     elif args.group == "scene":
         programs = [("scene_vertex.sc", "vertex", "scene_varying.def.sc", "kSceneVertexShader"),
                     ("scene_instance.sc", "vertex", "scene_varying.def.sc", "kSceneInstanceShader"),
+                    ("scene_skin_vertex.sc", "vertex", "scene_varying.def.sc", "kSceneSkinVertexShader"),
+                    ("scene_skin_instance.sc", "vertex", "scene_varying.def.sc", "kSceneSkinInstanceShader"),
                     ("scene_fragment.sc", "fragment", "scene_varying.def.sc", "kSceneFragmentShader")]
     elif args.group == "filter":
         programs = [("texture_filter.sc", "fragment", "varying.def.sc", "kTextureFilterShader")]

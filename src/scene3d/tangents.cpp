@@ -54,6 +54,7 @@ void Require(bool condition) {
 }
 }  // namespace
 void GenerateTangents(Mesh& mesh) {
+    Require(mesh.skin_.empty() || mesh.skin_.size() == mesh.vertices_.size());
     Require(!mesh.vertices_.empty() && mesh.vertices_.size() <= 250000 && !mesh.indices_.empty() &&
             mesh.indices_.size() <= 750000 && mesh.indices_.size() % 3 == 0);
     for (const auto index : mesh.indices_) Require(index < mesh.vertices_.size());
@@ -100,6 +101,7 @@ void GenerateTangents(Mesh& mesh) {
             auto vertex = v;
             vertex.tangent_ = tangent;
             result.vertices_.push_back(vertex);
+            if (!mesh.skin_.empty()) result.skin_.push_back(mesh.skin_[source]);
         }
         result.indices_.push_back(entry->second);
     }
