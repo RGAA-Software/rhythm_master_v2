@@ -1,0 +1,14 @@
+{
+    "template": "chromatic_loom",
+    "package_sha256": "a7c16c63efa5a4b15c09d5c9a23cb250692625f5d9f8c26accf4813649863b38",
+    "thumbnail_sha256": "5a843dbc3a18d08409d4404d07f9ddcf93bc255cc0901cabeeee55a5c2468d5e",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

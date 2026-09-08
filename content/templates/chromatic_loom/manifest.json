@@ -1,0 +1,113 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 3,
+    "kind": "template",
+    "content_id": "official.templates.chromatic_loom",
+    "content_version": "0.1.0",
+    "project_id": "official-chromatic-loom",
+    "graph_revision": 0,
+    "title": "织光机 / Chromatic Loom",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "织光机",
+        "en-US": "Chromatic Loom"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "assets": [
+        {
+            "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+            "bytes": 240627,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+            "bytes": 160293,
+            "media_type": "audio/flac"
+        }
+    ],
+    "soundtrack": {
+        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+        "title": "Luminous Concerto",
+        "gain": 0.75,
+        "loop": true,
+        "clips": [
+            {
+                "id": 1,
+                "title": "Pulse foundation",
+                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                "start": 0,
+                "duration": 16,
+                "source_in": 0,
+                "source_out": 8,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.85,
+                "pan": 0,
+                "muted": false
+            },
+            {
+                "id": 2,
+                "title": "Chimes entrance",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 4,
+                "duration": 8,
+                "source_in": 0,
+                "source_out": 8,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.75,
+                "pan": -0.25,
+                "muted": false
+            },
+            {
+                "id": 3,
+                "title": "Chimes release",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 12,
+                "duration": 4,
+                "source_in": 0,
+                "source_out": 4,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.6,
+                "pan": 0.25,
+                "muted": false
+            },
+            {
+                "id": 4,
+                "title": "Answering chimes",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 8,
+                "duration": 8,
+                "source_in": 2,
+                "source_out": 6,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.35,
+                "pan": 0.6,
+                "muted": false
+            }
+        ]
+    },
+    "descriptions": {
+        "zh-CN": "青蓝经线与金色纬线在立体织面中前后交错，两枚光梭在四十个金属线扣之间游走。低中频拧动经纬、高频点亮织线并改变朝向；路径网格、材质、灯光、三个宏和四段 16 秒音乐编排均可编辑。",
+        "en-US": "Teal warp and golden weft interlace while two luminous shuttles roam inside forty metal clasps. Bass and mids twist the strands; highs brighten the weave and turn its framing. Edit shared path meshes, materials, lighting, three macros and four cues with 16-second music."
+    }
+}
