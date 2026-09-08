@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.self_relief",
+    "content_version": "0.1.1",
+    "project_id": "semantic-self_relief",
+    "graph_revision": 0,
+    "title": "自形浮雕 / Self relief",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Self relief",
+        "zh-CN": "自形浮雕"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Bend your image using its own softened brightness gradients. Bass pushes the relief and highs pull it back; edit the depth, sampling radius and edge smoothing.",
+        "zh-CN": "用输入画面自身的柔化亮度梯度折射原图。低频推出浮雕、高频反向收回，可编辑深度、采样范围和边缘平滑。"
+    }
+}

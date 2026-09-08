@@ -1,0 +1,97 @@
+schema_version: 4
+id: "semantic-mirrored_duet"
+canvas { width: 640 height: 360 }
+output: 4
+nodes { id: 1 type_key: "texture.gradient" schema_version: 1
+    properties { key: "color_a" value { color { r: 0 g: 0 b: 0 a: 1 } } }
+    properties { key: "color_b" value { color { r: 1 g: 1 b: 1 a: 1 } } }
+}
+nodes { id: 2 type_key: "texture.contours" schema_version: 1
+    properties { key: "contour_count" value { scalar: 6 } }
+    properties { key: "line_width" value { scalar: 0.16 } }
+    properties { key: "color_a" value { color { r: 0.95 g: 0.56 b: 0.12 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.008 g: 0.04 b: 0.09 a: 1 } } }
+}
+nodes { id: 3 type_key: "component.official.mirrored_duet" schema_version: 1
+}
+nodes { id: 4 type_key: "output.texture" schema_version: 1
+}
+edges { id: 1 from: 1 to: 2 input: "source" }
+edges { id: 2 from: 2 to: 3 input: "source" }
+edges { id: 3 from: 3 to: 4 input: "source" }
+components { type_key: "component.official.mirrored_duet" schema_version: 1 title: "Mirrored duet" output: 16
+nodes { id: 1 type_key: "core.time" schema_version: 1
+}
+nodes { id: 2 type_key: "scalar.constant" schema_version: 1
+    properties { key: "value" value { scalar: 8 } }
+}
+nodes { id: 3 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "time * a" } }
+}
+nodes { id: 4 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 12 } }
+}
+nodes { id: 5 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 48 } }
+}
+nodes { id: 6 type_key: "scalar.constant" schema_version: 1
+    properties { key: "value" value { scalar: 1 } }
+}
+nodes { id: 7 type_key: "scalar.constant" schema_version: 1
+    properties { key: "value" value { scalar: 0.22 } }
+}
+nodes { id: 8 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "time + (a * 60 - b * 85) * c" } }
+}
+nodes { id: 9 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "-a" } }
+}
+nodes { id: 10 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "time + (a * 0.22 - b * 0.12) * c" } }
+}
+nodes { id: 11 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "-a" } }
+}
+nodes { id: 12 type_key: "texture.affine" schema_version: 1
+}
+nodes { id: 13 type_key: "texture.affine" schema_version: 1
+    properties { key: "scale" value { scalar: 0.65 } }
+}
+nodes { id: 14 type_key: "texture.affine" schema_version: 1
+    properties { key: "scale" value { scalar: 0.65 } }
+    properties { key: "scale_x" value { scalar: -1 } }
+}
+nodes { id: 15 type_key: "texture.composite" schema_version: 1
+    properties { key: "amount" value { scalar: 0.8 } }
+}
+nodes { id: 16 type_key: "texture.fxaa" schema_version: 1
+}
+edges { id: 1 from: 1 to: 3 input: "time" }
+edges { id: 2 from: 2 to: 3 input: "a" }
+edges { id: 3 from: 3 to: 8 input: "time" }
+edges { id: 4 from: 4 to: 8 input: "a" }
+edges { id: 5 from: 5 to: 8 input: "b" }
+edges { id: 6 from: 6 to: 8 input: "c" }
+edges { id: 7 from: 8 to: 9 input: "a" }
+edges { id: 8 from: 7 to: 10 input: "time" }
+edges { id: 9 from: 4 to: 10 input: "a" }
+edges { id: 10 from: 5 to: 10 input: "b" }
+edges { id: 11 from: 6 to: 10 input: "c" }
+edges { id: 12 from: 10 to: 11 input: "a" }
+edges { id: 13 from: 12 to: 13 input: "source" }
+edges { id: 14 from: 8 to: 13 input: "rotation" }
+edges { id: 15 from: 11 to: 13 input: "translate_x" }
+edges { id: 16 from: 12 to: 14 input: "source" }
+edges { id: 17 from: 9 to: 14 input: "rotation" }
+edges { id: 18 from: 10 to: 14 input: "translate_x" }
+edges { id: 19 from: 13 to: 15 input: "a" }
+edges { id: 20 from: 14 to: 15 input: "b" }
+edges { id: 21 from: 15 to: 16 input: "source" }
+inputs { key: "source" node: 12 input: "source" }
+parameters { key: "pace" node: 2 property: "value" group: "component.pattern" minimum: -45 maximum: 45 }
+parameters { key: "response" node: 6 property: "value" group: "component.pattern" minimum: 0 maximum: 2 }
+parameters { key: "gap" node: 7 property: "value" group: "component.pattern" minimum: 0 maximum: 0.8 }
+parameters { key: "left_scale" node: 13 property: "scale" group: "component.pattern" }
+parameters { key: "right_scale" node: 14 property: "scale" group: "component.pattern" }
+parameters { key: "overlap" node: 15 property: "amount" group: "component.pattern" }
+}

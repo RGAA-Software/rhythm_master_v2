@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.beat_shutters",
+    "content_version": "0.1.1",
+    "project_id": "semantic-beat_shutters",
+    "graph_revision": 0,
+    "title": "节拍百叶 / Beat shutters",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Beat shutters",
+        "zh-CN": "节拍百叶"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Reveal any input through moving diagonal bands. Bass and highs sweep the shutters in opposite directions; edit stripe count, width, slant and feathering.",
+        "zh-CN": "透过移动的斜向条带显示输入图像。低频与高频沿相反方向推动百叶，可调条数、宽度、倾角与柔边。"
+    }
+}

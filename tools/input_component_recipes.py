@@ -130,7 +130,82 @@ def luma_windows(graph):
                             ('feather', feather, 'blur_radius'), ('inverse', output, 'mask_mode')]
 
 
+def self_relief(graph):
+    node = graph.node
+    phase, bass, high, pace, response = controls(graph, 18)
+    depth = node('scalar.constant', 340, 1300, value=0.28)
+    strength = node('scalar.expression', 680, 400,
+                    dict(a=bass, b=high, c=response, time=depth),
+                    expression='time * (0.2 + a * 3 - b * 2) * c')
+    source = node('texture.affine', 680, 0)
+    height = node('texture.blur', 1020, 400, dict(source=source), blur_radius=4)
+    relief = node('texture.displace', 1360, 0,
+                  dict(source=source, displace_map=height, rotation=phase, displace_strength=strength),
+                  sample_radius=12)
+    output = node('texture.fxaa', 1700, 0, dict(source=relief))
+    return source, output, [('pace', pace, 'value'), ('response', response, 'value'),
+                            ('depth', depth, 'value'), ('radius', relief, 'sample_radius'),
+                            ('softness', height, 'blur_radius'), ('smoothing', output, 'fxaa_strength')]
+
+
+def beat_shutters(graph):
+    node = graph.node
+    phase, bass, high, pace, response = controls(graph, 0.08)
+    sweep = node('scalar.expression', 680, 0, dict(time=phase, a=bass, b=high, c=response),
+                 expression='time + (a * 0.9 - b * 0.7) * c')
+    ramp = node('texture.gradient', 680, 400, color_a=(0, 0, 0, 1), color_b=(1, 1, 1, 1))
+    bands = node('texture.contours', 1020, 400, dict(source=ramp, phase=sweep),
+                 contour_count=8, line_width=0.3, color_a=(1, 1, 1, 1), color_b=(0, 0, 0, 0))
+    slant = node('texture.affine', 1360, 400, dict(source=bands), rotation=24, scale=2.1)
+    feather = node('texture.blur', 1700, 400, dict(source=slant), blur_radius=1.5)
+    source = node('texture.affine', 1360, 0)
+    output = node('texture.mask', 2040, 0, dict(source=source, mask=feather))
+    return source, output, [('pace', pace, 'value'), ('response', response, 'value'),
+                            ('stripes', bands, 'contour_count'), ('width', bands, 'line_width'),
+                            ('slant', slant, 'rotation'), ('feather', feather, 'blur_radius')]
+
+
+def mirrored_duet(graph):
+    node = graph.node
+    phase, bass, high, pace, response = controls(graph, 8)
+    gap = node('scalar.constant', 340, 1300, value=0.22)
+    angle = node('scalar.expression', 680, 0, dict(time=phase, a=bass, b=high, c=response),
+                 expression='time + (a * 60 - b * 85) * c')
+    counter = node('scalar.expression', 1020, 0, dict(a=angle), expression='-a')
+    spread = node('scalar.expression', 680, 400, dict(time=gap, a=bass, b=high, c=response),
+                  expression='time + (a * 0.22 - b * 0.12) * c')
+    opposite = node('scalar.expression', 1020, 400, dict(a=spread), expression='-a')
+    source = node('texture.affine', 1020, 800)
+    left = node('texture.affine', 1360, 0, dict(source=source, rotation=angle, translate_x=opposite),
+                scale=0.65)
+    right = node('texture.affine', 1360, 500, dict(source=source, rotation=counter, translate_x=spread),
+                 scale=0.65, scale_x=-1)
+    combined = node('texture.composite', 1700, 0, dict(a=left, b=right), amount=0.8)
+    output = node('texture.fxaa', 2040, 0, dict(source=combined))
+    return source, output, [('pace', pace, 'value'), ('response', response, 'value'),
+                            ('gap', gap, 'value'), ('left_scale', left, 'scale'),
+                            ('right_scale', right, 'scale'), ('overlap', combined, 'amount')]
+
+
 RECIPES = [
+    dict(name='self_relief', build=self_relief, titles=('Self relief', '自形浮雕'),
+         fixture_rotation=32, fixture_lines=9, fixture_noise=True,
+         descriptions=('Bend your image using its own softened brightness gradients. Bass pushes the relief and highs pull it back; edit the depth, sampling radius and edge smoothing.',
+                       '用输入画面自身的柔化亮度梯度折射原图。低频推出浮雕、高频反向收回，可编辑深度、采样范围和边缘平滑。'),
+         variant_titles=('Fine emboss', '细纹压印'),
+         variant=dict(pace=-12, response=1.6, depth=0.6, radius=4, softness=1.2, smoothing=0.8)),
+    dict(name='beat_shutters', build=beat_shutters, titles=('Beat shutters', '节拍百叶'),
+         fixture_lines=6, fixture_rotation=-32,
+         descriptions=('Reveal any input through moving diagonal bands. Bass and highs sweep the shutters in opposite directions; edit stripe count, width, slant and feathering.',
+                       '透过移动的斜向条带显示输入图像。低频与高频沿相反方向推动百叶，可调条数、宽度、倾角与柔边。'),
+         variant_titles=('Vertical gates', '垂直栅门'),
+         variant=dict(pace=-0.045, response=1.5, stripes=5, width=0.42, slant=90, feather=4)),
+    dict(name='mirrored_duet', build=mirrored_duet, titles=('Mirrored duet', '镜像对舞'),
+         fixture_lines=6,
+         descriptions=('Arrange your image as two counter-rotating mirrored panels. Bass opens the spacing and highs draw the panels inward; resize each side and tune their overlap.',
+                       '将输入图像排成反向转动的双路镜像。低频拉开间距、高频聚拢画面，两侧缩放及叠合强度均可编辑。'),
+         variant_titles=('Interlocked fans', '交叠折扇'),
+         variant=dict(pace=-6, response=1.4, gap=0.05, left_scale=0.8, right_scale=0.55, overlap=0.65)),
     dict(name='prism_fold', build=prism_fold, titles=('Prism fold', '棱镜折叠'),
          descriptions=('Fold your texture into a rotating prism. Bass and high bands steer opposite turns; the preview stripes are not inserted.',
                        '把输入纹理折叠成旋转棱镜。低频与高频驱动相反方向的转动，预览条纹不会插入工程。'),

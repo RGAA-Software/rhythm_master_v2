@@ -55,7 +55,7 @@ analytic seeking. A meaningful default is not a claim that all effects contain
 geometry at time zero. Windows runtime and playback checks apply; Android
 compilation is established, new actual device acceptance is outstanding.
 
-The inventory now contains 25 semantic components and 50 component preset records,
+The inventory now contains 28 semantic components and 56 component preset records,
 alongside 133 native preset records and 44 complete-project examples. The six R6
 extractions are reusable layers, not six additional complete works. This remains
 below 40 semantic components and does not establish 120 visually independent
@@ -72,3 +72,6 @@ The next four processing chains have
 Polar vortex, Audio iris and Luma windows add music-driven spatial mapping,
 polygon apertures and luminance cutouts; see their
 [controls and device evidence](../../docs/validation/aperture_components_2026-09-09.md).
+Self relief, Beat shutters and Mirrored duet add source-driven refraction,
+independent stripe masks and paired image composition; see
+[the processing batch](../../docs/validation/self_patterns_2026-09-09.md).

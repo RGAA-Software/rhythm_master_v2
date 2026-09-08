@@ -1,0 +1,83 @@
+schema_version: 4
+id: "semantic-self_relief"
+canvas { width: 640 height: 360 }
+output: 5
+nodes { id: 1 type_key: "texture.noise" schema_version: 1
+    properties { key: "noise_scale" value { scalar: 2.4 } }
+    properties { key: "contrast" value { scalar: 1.4 } }
+    properties { key: "seed" value { scalar: 371 } }
+    properties { key: "color_a" value { color { r: 0 g: 0 b: 0 a: 1 } } }
+    properties { key: "color_b" value { color { r: 1 g: 1 b: 1 a: 1 } } }
+}
+nodes { id: 2 type_key: "texture.contours" schema_version: 1
+    properties { key: "contour_count" value { scalar: 9 } }
+    properties { key: "line_width" value { scalar: 0.16 } }
+    properties { key: "color_a" value { color { r: 0.95 g: 0.56 b: 0.12 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.008 g: 0.04 b: 0.09 a: 1 } } }
+}
+nodes { id: 3 type_key: "texture.affine" schema_version: 1
+    properties { key: "rotation" value { scalar: 32 } }
+    properties { key: "scale" value { scalar: 1.4 } }
+}
+nodes { id: 4 type_key: "component.official.self_relief" schema_version: 1
+}
+nodes { id: 5 type_key: "output.texture" schema_version: 1
+}
+edges { id: 1 from: 1 to: 2 input: "source" }
+edges { id: 2 from: 2 to: 3 input: "source" }
+edges { id: 3 from: 3 to: 4 input: "source" }
+edges { id: 4 from: 4 to: 5 input: "source" }
+components { type_key: "component.official.self_relief" schema_version: 1 title: "Self relief" output: 12
+nodes { id: 1 type_key: "core.time" schema_version: 1
+}
+nodes { id: 2 type_key: "scalar.constant" schema_version: 1
+    properties { key: "value" value { scalar: 18 } }
+}
+nodes { id: 3 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "time * a" } }
+}
+nodes { id: 4 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 12 } }
+}
+nodes { id: 5 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 48 } }
+}
+nodes { id: 6 type_key: "scalar.constant" schema_version: 1
+    properties { key: "value" value { scalar: 1 } }
+}
+nodes { id: 7 type_key: "scalar.constant" schema_version: 1
+    properties { key: "value" value { scalar: 0.28 } }
+}
+nodes { id: 8 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "time * (0.2 + a * 3 - b * 2) * c" } }
+}
+nodes { id: 9 type_key: "texture.affine" schema_version: 1
+}
+nodes { id: 10 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 4 } }
+}
+nodes { id: 11 type_key: "texture.displace" schema_version: 1
+    properties { key: "sample_radius" value { scalar: 12 } }
+}
+nodes { id: 12 type_key: "texture.fxaa" schema_version: 1
+}
+edges { id: 1 from: 1 to: 3 input: "time" }
+edges { id: 2 from: 2 to: 3 input: "a" }
+edges { id: 3 from: 4 to: 8 input: "a" }
+edges { id: 4 from: 5 to: 8 input: "b" }
+edges { id: 5 from: 6 to: 8 input: "c" }
+edges { id: 6 from: 7 to: 8 input: "time" }
+edges { id: 7 from: 9 to: 10 input: "source" }
+edges { id: 8 from: 9 to: 11 input: "source" }
+edges { id: 9 from: 10 to: 11 input: "displace_map" }
+edges { id: 10 from: 3 to: 11 input: "rotation" }
+edges { id: 11 from: 8 to: 11 input: "displace_strength" }
+edges { id: 12 from: 11 to: 12 input: "source" }
+inputs { key: "source" node: 9 input: "source" }
+parameters { key: "pace" node: 2 property: "value" group: "component.pattern" minimum: -45 maximum: 45 }
+parameters { key: "response" node: 6 property: "value" group: "component.pattern" minimum: 0 maximum: 2 }
+parameters { key: "depth" node: 7 property: "value" group: "component.pattern" minimum: 0 maximum: 1 }
+parameters { key: "radius" node: 11 property: "sample_radius" group: "component.pattern" }
+parameters { key: "softness" node: 10 property: "blur_radius" group: "component.pattern" }
+parameters { key: "smoothing" node: 12 property: "fxaa_strength" group: "component.pattern" }
+}

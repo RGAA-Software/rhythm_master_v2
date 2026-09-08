@@ -1,0 +1,88 @@
+schema_version: 4
+id: "semantic-beat_shutters"
+canvas { width: 640 height: 360 }
+output: 5
+nodes { id: 1 type_key: "texture.gradient" schema_version: 1
+    properties { key: "color_a" value { color { r: 0 g: 0 b: 0 a: 1 } } }
+    properties { key: "color_b" value { color { r: 1 g: 1 b: 1 a: 1 } } }
+}
+nodes { id: 2 type_key: "texture.contours" schema_version: 1
+    properties { key: "contour_count" value { scalar: 6 } }
+    properties { key: "line_width" value { scalar: 0.16 } }
+    properties { key: "color_a" value { color { r: 0.95 g: 0.56 b: 0.12 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.008 g: 0.04 b: 0.09 a: 1 } } }
+}
+nodes { id: 3 type_key: "texture.affine" schema_version: 1
+    properties { key: "rotation" value { scalar: -32 } }
+    properties { key: "scale" value { scalar: 1.4 } }
+}
+nodes { id: 4 type_key: "component.official.beat_shutters" schema_version: 1
+}
+nodes { id: 5 type_key: "output.texture" schema_version: 1
+}
+edges { id: 1 from: 1 to: 2 input: "source" }
+edges { id: 2 from: 2 to: 3 input: "source" }
+edges { id: 3 from: 3 to: 4 input: "source" }
+edges { id: 4 from: 4 to: 5 input: "source" }
+components { type_key: "component.official.beat_shutters" schema_version: 1 title: "Beat shutters" output: 13
+nodes { id: 1 type_key: "core.time" schema_version: 1
+}
+nodes { id: 2 type_key: "scalar.constant" schema_version: 1
+    properties { key: "value" value { scalar: 0.08 } }
+}
+nodes { id: 3 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "time * a" } }
+}
+nodes { id: 4 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 12 } }
+}
+nodes { id: 5 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 48 } }
+}
+nodes { id: 6 type_key: "scalar.constant" schema_version: 1
+    properties { key: "value" value { scalar: 1 } }
+}
+nodes { id: 7 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "time + (a * 0.9 - b * 0.7) * c" } }
+}
+nodes { id: 8 type_key: "texture.gradient" schema_version: 1
+    properties { key: "color_a" value { color { r: 0 g: 0 b: 0 a: 1 } } }
+    properties { key: "color_b" value { color { r: 1 g: 1 b: 1 a: 1 } } }
+}
+nodes { id: 9 type_key: "texture.contours" schema_version: 1
+    properties { key: "contour_count" value { scalar: 8 } }
+    properties { key: "line_width" value { scalar: 0.3 } }
+    properties { key: "color_a" value { color { r: 1 g: 1 b: 1 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0 g: 0 b: 0 a: 0 } } }
+}
+nodes { id: 10 type_key: "texture.affine" schema_version: 1
+    properties { key: "rotation" value { scalar: 24 } }
+    properties { key: "scale" value { scalar: 2.1 } }
+}
+nodes { id: 11 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 1.5 } }
+}
+nodes { id: 12 type_key: "texture.affine" schema_version: 1
+}
+nodes { id: 13 type_key: "texture.mask" schema_version: 1
+}
+edges { id: 1 from: 1 to: 3 input: "time" }
+edges { id: 2 from: 2 to: 3 input: "a" }
+edges { id: 3 from: 3 to: 7 input: "time" }
+edges { id: 4 from: 4 to: 7 input: "a" }
+edges { id: 5 from: 5 to: 7 input: "b" }
+edges { id: 6 from: 6 to: 7 input: "c" }
+edges { id: 7 from: 8 to: 9 input: "source" }
+edges { id: 8 from: 7 to: 9 input: "phase" }
+edges { id: 9 from: 9 to: 10 input: "source" }
+edges { id: 10 from: 10 to: 11 input: "source" }
+edges { id: 11 from: 12 to: 13 input: "source" }
+edges { id: 12 from: 11 to: 13 input: "mask" }
+inputs { key: "source" node: 12 input: "source" }
+parameters { key: "pace" node: 2 property: "value" group: "component.pattern" minimum: -0.25 maximum: 0.25 }
+parameters { key: "response" node: 6 property: "value" group: "component.pattern" minimum: 0 maximum: 2 }
+parameters { key: "stripes" node: 9 property: "contour_count" group: "component.pattern" }
+parameters { key: "width" node: 9 property: "line_width" group: "component.pattern" }
+parameters { key: "slant" node: 10 property: "rotation" group: "component.pattern" }
+parameters { key: "feather" node: 11 property: "blur_radius" group: "component.pattern" }
+}

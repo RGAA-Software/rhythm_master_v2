@@ -1,0 +1,34 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.beat_shutters",
+            "reset": true,
+            "id": "official.semantic.beat_shutters.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.beat_shutters",
+            "reset": true,
+            "id": "official.semantic.beat_shutters.variant",
+            "titles": {
+                "en-US": "Vertical gates",
+                "zh-CN": "垂直栅门"
+            },
+            "properties": {
+                "pace": -0.045,
+                "response": 1.5,
+                "stripes": 5,
+                "width": 0.42,
+                "slant": 90,
+                "feather": 4
+            }
+        }
+    ]
+}

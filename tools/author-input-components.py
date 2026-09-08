@@ -51,8 +51,10 @@ def component_definition(recipe):
     text = [f'components {{ type_key: "{component}" schema_version: 1 title: "{recipe["titles"][0]}" output: {output}',
             *graph.nodes, *graph.edges, f'inputs {{ key: "source" node: {input_node} input: "source" }}']
     for key, identity, property_name in parameters:
-        bounds = {'response': (0, 2), 'flow': (-0.5, 0.5), 'opening': (0.2, 1.2),
-                  'pace': (-0.25, 0.25) if name in ('contour_engraving', 'polar_vortex', 'luma_windows') else (-45, 45)}
+        bounds = {'response': (0, 2), 'flow': (-0.5, 0.5), 'opening': (0.2, 1.2), 'gap': (0, 0.8),
+                  'pace': (-0.25, 0.25) if name in ('contour_engraving', 'polar_vortex', 'luma_windows', 'beat_shutters') else (-45, 45)}
+        if name == 'self_relief':
+            bounds['depth'] = (0, 1)
         limits = f' minimum: {bounds[key][0]} maximum: {bounds[key][1]}' if key in bounds else ''
         text.append(f'parameters {{ key: "{key}" node: {identity} property: "{property_name}" group: "component.pattern"{limits} }}')
     return graph, text + ['}'], dict(type=component, positions=graph.positions)
@@ -67,8 +69,12 @@ def write_component(recipe):
     # The four-node harness provides a visible fixture only. Insertion keeps
     # the component and asks the author to wire their own texture to source.
     harness = WRITER.Graph()
-    fixture = harness.node('texture.gradient', 20, 80,
-                           color_a=(0, 0, 0, 1), color_b=(1, 1, 1, 1))
+    if recipe.get('fixture_noise'):
+        fixture = harness.node('texture.noise', 20, 80, noise_scale=2.4, contrast=1.4, seed=371,
+                               color_a=(0, 0, 0, 1), color_b=(1, 1, 1, 1))
+    else:
+        fixture = harness.node('texture.gradient', 20, 80,
+                               color_a=(0, 0, 0, 1), color_b=(1, 1, 1, 1))
     fixture = harness.node('texture.contours', 360, 80, dict(source=fixture),
                            contour_count=recipe.get('fixture_lines', 14), line_width=0.16,
                            color_a=(0.95, 0.56, 0.12, 1), color_b=(0.008, 0.04, 0.09, 1))

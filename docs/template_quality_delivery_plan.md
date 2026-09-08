@@ -17,8 +17,8 @@ This replaces the earlier 24-template minimum. The independent requirements of
 40 semantic nodes and 120 visually distinct presets remain. Counts measure
 distinct accepted compositions, not recolors, aspect ratios or device variants.
 
-After Ink Tide, the inventory contains 42 runnable examples,
-17 semantic components and 166 preset records (132 native plus 34 semantic). The user rejected the earlier examples' visual quality. No accepted
+The 2026-09-09 inventory contains 44 runnable examples,
+28 semantic components and 189 preset records (133 native plus 56 semantic). The user rejected the earlier examples' visual quality. No accepted
 Basic/Advanced allocation has been established. Functional test results remain
 valid for the behavior they cover; they do not establish visual acceptance.
 

@@ -1,9 +1,9 @@
 {
     "ownership": "first-party",
     "authoring_tool": "tools/author-input-components.py",
-    "authoring_tool_sha256": "02b0525158fb30529ad977dd8a1739760403c08f9d5d7136547b068994d65c32",
+    "authoring_tool_sha256": "722a8678b4f8af0ba4667f47d3630ba3ffdd84a3063ecda41399fec3b16459f5",
     "recipes": "tools/input_component_recipes.py",
-    "recipes_sha256": "29d09c818743a333d1b5a56cb06c288558e0611acbbb8fd61ef37c1bdca5277c",
+    "recipes_sha256": "5db0dec08bdb2562c195ee05c3cb8bc30e9aebcfbf0cda981bc6a19d39acf753",
     "reused_graph_writer": "tools/author-resonance-gate.py",
     "existing_adapters": "provenance/tixl_effects.json",
     "imported_third_party_files": [],
@@ -13,6 +13,24 @@
             "nodes": 11,
             "input": "texture",
             "composition": "Connect your image to source. Animated noise bends it like flowing glass; bass/high bands increase refraction, and a soft glow follows the image. The preview stripes are not inserted."
+        },
+        {
+            "id": "self_relief",
+            "nodes": 12,
+            "input": "texture",
+            "composition": "Bend your image using its own softened brightness gradients. Bass pushes the relief and highs pull it back; edit the depth, sampling radius and edge smoothing."
+        },
+        {
+            "id": "beat_shutters",
+            "nodes": 13,
+            "input": "texture",
+            "composition": "Reveal any input through moving diagonal bands. Bass and highs sweep the shutters in opposite directions; edit stripe count, width, slant and feathering."
+        },
+        {
+            "id": "mirrored_duet",
+            "nodes": 16,
+            "input": "texture",
+            "composition": "Arrange your image as two counter-rotating mirrored panels. Bass opens the spacing and highs draw the panels inward; resize each side and tune their overlap."
         },
         {
             "id": "prism_fold",

@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.mirrored_duet",
+    "content_version": "0.1.1",
+    "project_id": "semantic-mirrored_duet",
+    "graph_revision": 0,
+    "title": "镜像对舞 / Mirrored duet",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Mirrored duet",
+        "zh-CN": "镜像对舞"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Arrange your image as two counter-rotating mirrored panels. Bass opens the spacing and highs draw the panels inward; resize each side and tune their overlap.",
+        "zh-CN": "将输入图像排成反向转动的双路镜像。低频拉开间距、高频聚拢画面，两侧缩放及叠合强度均可编辑。"
+    }
+}

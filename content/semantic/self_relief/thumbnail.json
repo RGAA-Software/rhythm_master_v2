@@ -1,0 +1,14 @@
+{
+    "template": "self_relief",
+    "package_sha256": "8d5621ed5982d8df00f3c2bdab65f61cd0decd8348efeb1f550eebdf860a13ab",
+    "thumbnail_sha256": "01bd3484d787a3da77ad395f8962a9123a564f07e369307af5ddf935fdb10966",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

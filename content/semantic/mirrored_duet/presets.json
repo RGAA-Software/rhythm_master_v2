@@ -1,0 +1,34 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.mirrored_duet",
+            "reset": true,
+            "id": "official.semantic.mirrored_duet.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.mirrored_duet",
+            "reset": true,
+            "id": "official.semantic.mirrored_duet.variant",
+            "titles": {
+                "en-US": "Interlocked fans",
+                "zh-CN": "交叠折扇"
+            },
+            "properties": {
+                "pace": -6,
+                "response": 1.4,
+                "gap": 0.05,
+                "left_scale": 0.8,
+                "right_scale": 0.55,
+                "overlap": 0.65
+            }
+        }
+    ]
+}

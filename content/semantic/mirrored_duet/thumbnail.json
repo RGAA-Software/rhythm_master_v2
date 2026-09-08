@@ -1,0 +1,14 @@
+{
+    "template": "mirrored_duet",
+    "package_sha256": "3184e5e91c673fd9cef212723728dd2f655a1235cb42a2b5c7fb3b18f58e4dc4",
+    "thumbnail_sha256": "1ed63a39faf98e34aaaf44c9e97607113a6645004a71e64d78dae8875e541715",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

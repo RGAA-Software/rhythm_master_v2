@@ -1,0 +1,14 @@
+{
+    "template": "beat_shutters",
+    "package_sha256": "defc79c75b4b57e0f995bf0624a2773e556b91fc15e57d63539ec0bd639e981c",
+    "thumbnail_sha256": "575221deac17c294e0a838299f3ca83a2c121472cde8f929cbf354e9ad4f7998",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}
