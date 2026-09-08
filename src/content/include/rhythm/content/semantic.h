@@ -19,6 +19,8 @@ std::vector<Semantic> LoadSemantics(const std::filesystem::path& root,
                                     const graph::Registry& registry);
 // Embed immutable-by-default definitions and layout as one undoable edit. An
 // existing locally edited definition is never silently overwritten by a catalog.
+// Asset-bearing entries must first use LoadOfficialComponent on a worker, then
+// InsertComponent to merge prepared records atomically with the graph edit.
 editor::EditResult AddSemantic(const editor::Snapshot& snapshot, const Semantic& semantic,
                                const graph::Registry& registry, editor::Position position,
                                graph::NodeId id);

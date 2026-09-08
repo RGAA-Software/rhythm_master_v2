@@ -1,0 +1,14 @@
+{
+    "template": "ink_cartography",
+    "package_sha256": "5b3ed808aac5acae4800e3918ef3529aebc1d9e55e5f161eae4b0fe6462254e9",
+    "thumbnail_sha256": "41258104b4b1f9fd99138296602c8e422e6615a0c1e9fbf844754eaec49d319b",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

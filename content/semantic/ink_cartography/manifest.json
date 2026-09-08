@@ -1,0 +1,42 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.ink_cartography",
+    "content_version": "0.1.1",
+    "project_id": "semantic-ink_cartography",
+    "graph_revision": 0,
+    "title": "墨绘地形 / Ink cartography",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Ink cartography",
+        "zh-CN": "墨绘地形"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Connect an image as a height field. Editable pigment and gold coastline shaders turn it into an ink map; bass moves the shoreline and highs animate the contour etching. Shader assets travel with insertion; preview inputs do not.",
+        "zh-CN": "把图像连接为高度场。可编辑的墨色与金色岸线 Shader 将它绘成地图；低频推动海岸，高频改变等高刻线。插入时自动携带 Shader 资源，预览输入不会进入工程。"
+    },
+    "assets": [
+        {
+            "sha256": "18c55484fac8fb9bf262a135d655c0a1fefb5e15dac6f5d5442a4f91f2492001",
+            "bytes": 4282,
+            "media_type": "application/x-rhythm-image-shader"
+        },
+        {
+            "sha256": "1d7409bc2408c2a896574e531e43462db7005670871a31e94a76b155a8e17bfb",
+            "bytes": 3667,
+            "media_type": "application/x-rhythm-image-shader"
+        }
+    ]
+}

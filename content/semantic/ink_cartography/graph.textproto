@@ -1,0 +1,93 @@
+schema_version: 4
+id: "semantic-ink_cartography"
+canvas { width: 640 height: 360 }
+output: 3
+nodes { id: 1 type_key: "texture.noise" schema_version: 1
+    properties { key: "noise_scale" value { scalar: 2.4 } }
+    properties { key: "contrast" value { scalar: 1.4 } }
+    properties { key: "seed" value { scalar: 371 } }
+    properties { key: "color_a" value { color { r: 0 g: 0 b: 0 a: 1 } } }
+    properties { key: "color_b" value { color { r: 1 g: 1 b: 1 a: 1 } } }
+}
+nodes { id: 2 type_key: "component.official.ink_cartography" schema_version: 1
+}
+nodes { id: 3 type_key: "output.texture" schema_version: 1
+}
+edges { id: 1 from: 1 to: 2 input: "source" }
+edges { id: 2 from: 2 to: 3 input: "source" }
+components { type_key: "component.official.ink_cartography" schema_version: 1 title: "Ink cartography" output: 15
+nodes { id: 1 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 2 } }
+}
+nodes { id: 2 type_key: "core.time" schema_version: 1
+}
+nodes { id: 3 type_key: "scalar.constant" schema_version: 1
+    properties { key: "value" value { scalar: 0.7 } }
+}
+nodes { id: 4 type_key: "scalar.constant" schema_version: 1
+    properties { key: "value" value { scalar: 1 } }
+}
+nodes { id: 5 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "time * a" } }
+}
+nodes { id: 6 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 12 } }
+}
+nodes { id: 7 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 48 } }
+}
+nodes { id: 8 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * b" } }
+}
+nodes { id: 9 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * b" } }
+}
+nodes { id: 10 type_key: "texture.shader" schema_version: 1
+    properties { key: "asset" value { asset_sha256: "18c55484fac8fb9bf262a135d655c0a1fefb5e15dac6f5d5442a4f91f2492001" } }
+}
+nodes { id: 11 type_key: "texture.shader" schema_version: 1
+    properties { key: "asset" value { asset_sha256: "1d7409bc2408c2a896574e531e43462db7005670871a31e94a76b155a8e17bfb" } }
+}
+nodes { id: 12 type_key: "texture.contours" schema_version: 1
+    properties { key: "contour_count" value { scalar: 16 } }
+    properties { key: "line_width" value { scalar: 0.035 } }
+    properties { key: "color_a" value { color { r: 0.1 g: 0.2 b: 0.15 a: 0.6 } } }
+    properties { key: "color_b" value { color { r: 0.6 g: 0.4 b: 0.15 a: 0.7 } } }
+}
+nodes { id: 13 type_key: "texture.composite" schema_version: 1
+    properties { key: "amount" value { scalar: 0.4 } }
+}
+nodes { id: 14 type_key: "texture.composite" schema_version: 1
+    properties { key: "amount" value { scalar: 1 } }
+}
+nodes { id: 15 type_key: "texture.fxaa" schema_version: 1
+}
+edges { id: 1 from: 2 to: 5 input: "time" }
+edges { id: 2 from: 3 to: 5 input: "a" }
+edges { id: 3 from: 6 to: 8 input: "a" }
+edges { id: 4 from: 4 to: 8 input: "b" }
+edges { id: 5 from: 7 to: 9 input: "a" }
+edges { id: 6 from: 4 to: 9 input: "b" }
+edges { id: 7 from: 1 to: 10 input: "source" }
+edges { id: 8 from: 5 to: 10 input: "time" }
+edges { id: 9 from: 8 to: 10 input: "a" }
+edges { id: 10 from: 9 to: 10 input: "b" }
+edges { id: 11 from: 1 to: 11 input: "source" }
+edges { id: 12 from: 5 to: 11 input: "time" }
+edges { id: 13 from: 8 to: 11 input: "a" }
+edges { id: 14 from: 9 to: 11 input: "b" }
+edges { id: 15 from: 1 to: 12 input: "source" }
+edges { id: 16 from: 9 to: 12 input: "phase" }
+edges { id: 17 from: 10 to: 13 input: "a" }
+edges { id: 18 from: 12 to: 13 input: "b" }
+edges { id: 19 from: 13 to: 14 input: "a" }
+edges { id: 20 from: 11 to: 14 input: "b" }
+edges { id: 21 from: 14 to: 15 input: "source" }
+inputs { key: "source" node: 1 input: "source" }
+parameters { key: "pace" node: 3 property: "value" group: "component.pattern" minimum: -45 maximum: 45 }
+parameters { key: "response" node: 4 property: "value" group: "component.pattern" minimum: 0 maximum: 2 }
+parameters { key: "softness" node: 1 property: "blur_radius" group: "component.pattern" }
+parameters { key: "stripes" node: 12 property: "contour_count" group: "component.pattern" }
+parameters { key: "overlap" node: 13 property: "amount" group: "component.pattern" }
+parameters { key: "glow" node: 14 property: "amount" group: "component.pattern" }
+}

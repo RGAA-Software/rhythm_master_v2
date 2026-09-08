@@ -18,7 +18,7 @@ This replaces the earlier 24-template minimum. The independent requirements of
 distinct accepted compositions, not recolors, aspect ratios or device variants.
 
 The 2026-09-09 inventory contains 45 runnable examples,
-28 semantic components and 189 preset records (133 native plus 56 semantic). The user rejected the earlier examples' visual quality. No accepted
+29 semantic components and 191 preset records (133 native plus 58 semantic). The user rejected the earlier examples' visual quality. No accepted
 Basic/Advanced allocation has been established. Functional test results remain
 valid for the behavior they cover; they do not establish visual acceptance.
 

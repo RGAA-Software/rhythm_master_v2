@@ -1,7 +1,9 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "rhythm/content/semantic.h"
+#include "rhythm/assets/store.h"
+#include "rhythm/content/user_components.h"
+#include "rhythm/prepared_assets/prepare.h"
 #include "rhythm/project/package.h"
 #include "rhythm/runtime/runtime.h"
 
@@ -16,7 +18,11 @@ int main(int argc, char* argv[]) {
         Check(argc == 2 || argc == 3, "catalog path and optional variant output directory");
         graph::Registry registry;
         const auto catalog = content::LoadSemantics(argv[1], registry);
-        Check(catalog.size() == 28, "semantic catalog coverage");
+        Check(catalog.size() == 29, "semantic catalog coverage");
+        const auto asset_directory =
+                (argc == 3 ? std::filesystem::path(argv[2])
+                           : std::filesystem::path(argv[1]).parent_path() / "semantic-tests") /
+                "assets";
         editor::Snapshot original;
         original.document_.id_ = "semantic.test";
         original.document_.nodes_ = {registry.MakeNode(1, "texture.gradient"),
@@ -26,7 +32,16 @@ int main(int argc, char* argv[]) {
         for (const auto& semantic : catalog) {
             editor::History history(original);
             const auto id = history.ReserveNodeId();
-            auto added = content::AddSemantic(original, semantic, registry, {300, 100}, id);
+            std::optional<editor::Snapshot> prepared;
+            if (!semantic.content_.assets_.empty())
+                prepared = content::LoadOfficialComponent(semantic, asset_directory);
+            const auto insert = [&](const editor::Snapshot& snapshot, graph::NodeId identity) {
+                return prepared ? content::InsertComponent(snapshot, *prepared, registry,
+                                                           {300, 100}, identity)
+                                : content::AddSemantic(snapshot, semantic, registry, {300, 100},
+                                                       identity);
+            };
+            auto added = insert(original, id);
             Check(std::holds_alternative<editor::Snapshot>(added), "semantic insertion");
             const auto next = std::get<editor::Snapshot>(added);
             Check(next.document_.nodes_.size() == 3 &&
@@ -57,41 +72,56 @@ int main(int argc, char* argv[]) {
             root = content::ApplyPreset(root, semantic.presets_[0], registry, definitions);
             Check(root == initial, "default restores the entire exposed configuration");
             const auto roundtrip = project::DecodeGraph(project::EncodeGraph(connected.document_));
+            std::vector<project::PackagedAsset> assets;
+            if (prepared) {
+                const assets::Store store(asset_directory);
+                for (const auto& record : connected.assets_)
+                    assets.push_back({record, store.Read(record)});
+                Check(!assets.empty(), "inserted component publishes its prepared asset closure");
+            }
             const auto package =
-                    project::DecodePackage(project::EncodePackage(roundtrip, "semantic"));
+                    project::DecodePackage(project::EncodePackage(roundtrip, "semantic", assets));
+            const auto resources = prepared_assets::Prepare(package.program_, package.assets_);
             auto renderer = render::Renderer::CreateNull();
             runtime::Runtime runtime;
             for (int frame = 0; frame < 60; ++frame) {
                 renderer.BeginFrame();
-                const auto result =
-                        runtime.Evaluate(package.program_, {frame / 60.0, 0, {640, 360}}, renderer);
+                runtime::FrameContext context{frame / 60.0, 0, {640, 360}};
+                context.images_ = resources->images_;
+                context.resources_ = resources->models_;
+                context.shaders_ = resources->shaders_;
+                const auto result = runtime.Evaluate(package.program_, context, renderer);
                 Check(renderer.IsValid(result.final_), "semantic runtime output");
                 renderer.EndFrame();
             }
             root = content::ApplyPreset(root, semantic.presets_[1], registry, definitions);
-            const auto variant_package =
-                    project::DecodePackage(project::EncodePackage(connected.document_, "variant"));
+            const auto variant_package = project::DecodePackage(
+                    project::EncodePackage(connected.document_, "variant", assets));
             if (argc == 3) {
                 auto name = semantic.metadata_.directory_.filename();
                 name += ".rhythmpack";
-                project::PublishSnapshot(std::filesystem::path(argv[2]) / name, connected);
+                project::PublishSnapshot(std::filesystem::path(argv[2]) / name, connected,
+                                         asset_directory);
             }
             runtime.Reset();
             for (int frame = 0; frame < 60; ++frame) {
                 renderer.BeginFrame();
-                const auto result = runtime.Evaluate(variant_package.program_,
-                                                     {frame / 60.0, 0, {640, 360}}, renderer);
+                runtime::FrameContext context{frame / 60.0, 0, {640, 360}};
+                context.images_ = resources->images_;
+                context.resources_ = resources->models_;
+                context.shaders_ = resources->shaders_;
+                const auto result = runtime.Evaluate(variant_package.program_, context, renderer);
                 Check(renderer.IsValid(result.final_), "variant runtime output");
                 renderer.EndFrame();
             }
             auto changed = next;
             changed.document_.components_.front().title_ += " edited";
-            const auto conflict = content::AddSemantic(changed, semantic, registry, {}, id + 1);
+            const auto conflict = insert(changed, id + 1);
             Check(std::holds_alternative<graph::Diagnostic>(conflict) &&
                           std::get<graph::Diagnostic>(conflict).code_ ==
                                   "content.semantic_conflict",
                   "catalog never overwrites a locally modified component");
-            auto again = content::AddSemantic(next, semantic, registry, {}, id + 1);
+            auto again = insert(next, id + 1);
             Check(std::get<editor::Snapshot>(again).document_.components_.size() ==
                           next.document_.components_.size(),
                   "identical definitions are shared by inserted instances");

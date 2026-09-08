@@ -35,7 +35,7 @@ void CopyAssets(const editor::Snapshot& component, const std::filesystem::path& 
     }
 }
 }  // namespace
-editor::Snapshot CaptureComponent(const editor::Snapshot& snapshot, graph::NodeId instance,
+editor::Snapshot ExtractComponent(const editor::Snapshot& snapshot, graph::NodeId instance,
                                   const graph::Registry& registry) {
     const auto& document = snapshot.document_;
     const auto root = std::find_if(document.nodes_.begin(), document.nodes_.end(),
@@ -88,11 +88,19 @@ editor::Snapshot CaptureComponent(const editor::Snapshot& snapshot, graph::NodeI
         result.assets_.push_back(*asset);
     }
     Validate(result, registry);
+    return result;
+}
+editor::Snapshot CaptureComponent(const editor::Snapshot& snapshot, graph::NodeId instance,
+                                  const graph::Registry& registry) {
+    auto result = ExtractComponent(snapshot, instance, registry);
+    const auto root_type = result.document_.nodes_.front().type_;
+    std::vector<std::string> pending;
+    for (const auto& definition : result.document_.components_) pending.push_back(definition.type_);
     auto canonical = result.document_;
     std::map<std::string, std::string> canonical_names;
     for (std::size_t index = 0; index < pending.size(); ++index)
         canonical_names[pending[index]] = "component.user.capture." + std::to_string(index);
-    canonical.nodes_.front().type_ = canonical_names.at(root->type_);
+    canonical.nodes_.front().type_ = canonical_names.at(root_type);
     for (auto& definition : canonical.components_) {
         definition.type_ = canonical_names.at(definition.type_);
         for (auto& node : definition.nodes_)
@@ -103,7 +111,7 @@ editor::Snapshot CaptureComponent(const editor::Snapshot& snapshot, graph::NodeI
     std::map<std::string, std::string> names;
     for (std::size_t index = 0; index < pending.size(); ++index)
         names[pending[index]] = prefix + "." + std::to_string(index);
-    result.document_.nodes_.front().type_ = names.at(root->type_);
+    result.document_.nodes_.front().type_ = names.at(root_type);
     for (auto& definition : result.document_.components_) {
         definition.type_ = names.at(definition.type_);
         for (auto& node : definition.nodes_)
@@ -127,6 +135,9 @@ editor::EditResult InsertComponent(const editor::Snapshot& snapshot,
         Validate(component, registry);
         Semantic semantic;
         semantic.content_ = component;
+        // Definitions are embedded first. Asset metadata is merged below after
+        // the caller has prepared immutable blobs on its library worker.
+        semantic.content_.assets_.clear();
         semantic.root_ = component.document_.nodes_.front();
         auto result = AddSemantic(snapshot, semantic, registry, position, id);
         if (!std::holds_alternative<editor::Snapshot>(result)) return result;
@@ -162,5 +173,14 @@ editor::Snapshot LoadComponent(const std::filesystem::path& directory,
     Validate(loaded.snapshot_, graph::Registry{});
     CopyAssets(loaded.snapshot_, directory / "assets", destination_assets);
     return std::move(loaded.snapshot_);
+}
+editor::Snapshot LoadOfficialComponent(const Semantic& semantic,
+                                       const std::filesystem::path& destination_assets) {
+    if (!semantic.root_.type_.starts_with("component.official."))
+        throw std::invalid_argument("content.semantic_root");
+    auto result = ExtractComponent(semantic.content_, semantic.root_.id_, graph::Registry{});
+    CopyAssets(result, semantic.metadata_.directory_ / "assets", destination_assets);
+    result.document_ = project::DecodeGraph(project::EncodeGraph(result.document_));
+    return result;
 }
 }  // namespace rhythm::content

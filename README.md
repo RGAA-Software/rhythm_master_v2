@@ -47,6 +47,9 @@ background integrity checks and original-file recovery through Studio to publish
 insertion and offline typed connection guidance. [Preview groups](docs/preview_navigation.md)
 make every visible demand reachable within the shared eight-preview budget.
 The independent content quality targets continue.
+[Official component assets](docs/validation/official_component_assets_2026-09-09.md)
+now travel through the existing bounded library worker; Ink cartography includes
+two editable shaders and passes Windows authoring and USB Android package checks.
 [Porcelain Pendulum](docs/validation/porcelain_pendulum_2026-09-09.md) adds a ceramic/brass
 music work with editable cues, bound music, Windows export and Android built-in playback.
 [Android catalog search](docs/android_catalog_navigation.md) filters bilingual names/descriptions,

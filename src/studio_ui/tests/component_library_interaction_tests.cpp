@@ -102,6 +102,36 @@ int main(int argc, char* argv[]) {
                       content::InsertComponent(snapshot, *insertion->result_.component_, registry,
                                                insertion->position_, 20)),
               "UI completion cannot be applied as an ordinary editor transaction");
+        content::Semantic official;
+        official.content_ = snapshot;
+        official.content_.document_.components_.front().type_ = "component.official.ui";
+        official.content_.document_.nodes_.front().type_ = "component.official.ui";
+        official.root_ = official.content_.document_.nodes_.front();
+        insertion.reset();
+        Check(panel.StartOfficial(official, snapshot, directory / "official-assets", {500, 300}) &&
+                      !panel.StartOfficial(official, snapshot, directory / "official-assets", {}),
+              "official preparation shares the panel's existing bounded operation");
+        const auto official_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+        while (!insertion && std::chrono::steady_clock::now() < official_deadline) {
+            frame();
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        }
+        Check(insertion && insertion->result_.component_ &&
+                      insertion->result_.expected_document_ == snapshot.document_.id_ &&
+                      insertion->result_.expected_revision_ == snapshot.document_.revision_ &&
+                      insertion->position_ == editor::Position{500, 300},
+              "official completion preserves revision and the accepted insertion position");
+        official.root_.type_ = "invalid.official";
+        insertion.reset();
+        Check(panel.StartOfficial(official, snapshot, directory / "official-assets", {}),
+              "failing official preparation is queued");
+        const auto failure_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+        while (!insertion && std::chrono::steady_clock::now() < failure_deadline) {
+            frame();
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        }
+        Check(insertion && !insertion->result_.component_ && !insertion->result_.error_.empty(),
+              "failure reaches the main editor status even when the library panel is closed");
         std::cout << "component library UI: open, save, refresh and insert through real ImGui "
                      "activation passed\n";
     } catch (const std::exception& error) {

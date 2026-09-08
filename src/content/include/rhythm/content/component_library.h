@@ -29,6 +29,8 @@ class ComponentLibrary final {
               std::filesystem::path source_assets);
     bool Load(std::filesystem::path directory, std::filesystem::path destination_assets,
               std::string expected_document, std::uint64_t expected_revision);
+    bool LoadOfficial(Semantic semantic, std::filesystem::path destination_assets,
+                      std::string expected_document, std::uint64_t expected_revision);
     bool Busy() const { return pending_.valid(); }
     std::optional<LibraryResult> Take();
     const std::filesystem::path& Directory() const { return directory_; }

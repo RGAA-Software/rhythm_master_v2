@@ -75,9 +75,10 @@ def write_component(recipe):
     else:
         fixture = harness.node('texture.gradient', 20, 80,
                                color_a=(0, 0, 0, 1), color_b=(1, 1, 1, 1))
-    fixture = harness.node('texture.contours', 360, 80, dict(source=fixture),
-                           contour_count=recipe.get('fixture_lines', 14), line_width=0.16,
-                           color_a=(0.95, 0.56, 0.12, 1), color_b=(0.008, 0.04, 0.09, 1))
+    if recipe.get('fixture_lines', 14):
+        fixture = harness.node('texture.contours', 360, 80, dict(source=fixture),
+                               contour_count=recipe.get('fixture_lines', 14), line_width=0.16,
+                               color_a=(0.95, 0.56, 0.12, 1), color_b=(0.008, 0.04, 0.09, 1))
     if recipe.get('fixture_rotation'):
         fixture = harness.node('texture.affine', 530, 380, dict(source=fixture),
                                rotation=recipe['fixture_rotation'], scale=1.4)

@@ -243,15 +243,23 @@ class Studio::Impl final {
                     semantic_palette_.Draw(semantics_, locale_, catalogs_.at(locale_), host,
                                            renderer, seconds, preview_inputs_)) {
             CommitEdits();
-            const auto id = history_->ReserveNodeId();
-            auto edit = content::AddSemantic(history_->Current(), semantics_.at(*selected),
-                                             registry_, canvas_.InsertionPoint(), id);
-            if (std::holds_alternative<editor::Snapshot>(edit)) {
-                Apply(std::get<editor::Snapshot>(std::move(edit)));
-                canvas_.RestoreLayout();
-                canvas_.Select(id);
-            } else
-                status_ = Text(std::get<graph::Diagnostic>(edit).code_);
+            const auto& semantic = semantics_.at(*selected);
+            if (!semantic.content_.assets_.empty()) {
+                const bool accepted = component_library_.StartOfficial(
+                        semantic, history_->Current(), project_ / "assets",
+                        canvas_.InsertionPoint());
+                status_ = Text(accepted ? "component.library_preparing" : "component.library_busy");
+            } else {
+                const auto id = history_->ReserveNodeId();
+                auto edit = content::AddSemantic(history_->Current(), semantic, registry_,
+                                                 canvas_.InsertionPoint(), id);
+                if (std::holds_alternative<editor::Snapshot>(edit)) {
+                    Apply(std::get<editor::Snapshot>(std::move(edit)));
+                    canvas_.RestoreLayout();
+                    canvas_.Select(id);
+                } else
+                    status_ = Text(std::get<graph::Diagnostic>(edit).code_);
+            }
         }
         ImGui::SameLine();
         if (const auto type = node_palette_.Draw(registry_.Operators(), catalogs_.at(locale_),
@@ -386,10 +394,12 @@ class Studio::Impl final {
         }
         if (const auto insertion = component_library_.Take()) {
             const auto& result = insertion->result_;
-            if (history_->Current().document_.id_ != result.expected_document_ ||
-                history_->Current().document_.revision_ != result.expected_revision_ ||
-                inspector_.Preview() || timeline_.Preview() ||
-                std::string(title_.data()) != history_->Current().title_) {
+            if (!result.error_.empty()) {
+                status_ = Text(result.error_);
+            } else if (history_->Current().document_.id_ != result.expected_document_ ||
+                       history_->Current().document_.revision_ != result.expected_revision_ ||
+                       inspector_.Preview() || timeline_.Preview() ||
+                       std::string(title_.data()) != history_->Current().title_) {
                 status_ = Text("load_conflict");
             } else {
                 const auto id = history_->ReserveNodeId();

@@ -1,7 +1,7 @@
 {
     "ownership": "first-party",
     "authoring_tool": "tools/author-input-components.py",
-    "authoring_tool_sha256": "722a8678b4f8af0ba4667f47d3630ba3ffdd84a3063ecda41399fec3b16459f5",
+    "authoring_tool_sha256": "eae7425752fd7dd0d010fe9f32fcbd058c7aa260da3e948bd15443c2dea13bdc",
     "recipes": "tools/input_component_recipes.py",
     "recipes_sha256": "5db0dec08bdb2562c195ee05c3cb8bc30e9aebcfbf0cda981bc6a19d39acf753",
     "reused_graph_writer": "tools/author-resonance-gate.py",

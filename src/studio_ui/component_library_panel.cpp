@@ -23,7 +23,8 @@ std::optional<LibraryInsertion> ComponentLibraryPanel::Take() {
     if (!completed->saved_.empty()) saved_ = completed->saved_;
     status_ = completed->error_;
     if (!status_.empty()) std::cerr << "component library: " << status_ << '\n';
-    if (completed->component_) return LibraryInsertion{std::move(*completed), insertion_};
+    if (completed->component_ || !completed->error_.empty())
+        return LibraryInsertion{std::move(*completed), insertion_};
     return {};
 }
 std::optional<LibraryRequest> ComponentLibraryPanel::Draw(
@@ -97,5 +98,16 @@ void ComponentLibraryPanel::Start(const LibraryRequest& request, const editor::S
         if (accepted) insertion_ = insertion;
     }
     status_ = accepted ? std::string{} : "component.library_busy";
+}
+bool ComponentLibraryPanel::StartOfficial(const content::Semantic& semantic,
+                                          const editor::Snapshot& snapshot,
+                                          const std::filesystem::path& project_assets,
+                                          editor::Position insertion) {
+    const bool accepted =
+            library_ && library_->LoadOfficial(semantic, project_assets, snapshot.document_.id_,
+                                               snapshot.document_.revision_);
+    if (accepted) insertion_ = insertion;
+    status_ = accepted ? std::string{} : "component.library_busy";
+    return accepted;
 }
 }  // namespace rhythm::studio

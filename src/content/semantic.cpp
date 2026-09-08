@@ -15,8 +15,8 @@ std::vector<Semantic> LoadSemantics(const std::filesystem::path& root,
     for (const auto& entry : entries) {
         auto loaded = project::LoadRevision(entry.directory_);
         const auto& document = loaded.snapshot_.document_;
-        if (!loaded.warnings_.empty() || !loaded.snapshot_.assets_.empty() ||
-            document.nodes_.size() < 2 || document.nodes_.size() > 32 || document.edges_.empty() ||
+        if (!loaded.warnings_.empty() || document.nodes_.size() < 2 ||
+            document.nodes_.size() > 32 || document.edges_.empty() ||
             document.edges_.size() > 128 || !document.signals_.empty() ||
             !document.bindings_.empty() ||
             !std::holds_alternative<graph::ExecutionPlan>(graph::Compile(document, registry)))
@@ -61,6 +61,8 @@ std::vector<Semantic> LoadSemantics(const std::filesystem::path& root,
 editor::EditResult AddSemantic(const editor::Snapshot& snapshot, const Semantic& semantic,
                                const graph::Registry& registry, editor::Position position,
                                graph::NodeId id) {
+    if (!semantic.content_.assets_.empty())
+        return graph::Diagnostic{"content.semantic_assets_required"};
     auto next = snapshot;
     for (const auto& definition : semantic.content_.document_.components_) {
         const auto found =

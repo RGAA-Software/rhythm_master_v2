@@ -25,6 +25,8 @@ class ComponentLibraryPanel final {
                                        const std::map<std::string, std::string>& text);
     void Start(const LibraryRequest& request, const editor::Snapshot& snapshot,
                const std::filesystem::path& project_assets, editor::Position insertion);
+    bool StartOfficial(const content::Semantic& semantic, const editor::Snapshot& snapshot,
+                       const std::filesystem::path& project_assets, editor::Position insertion);
 
    private:
     std::optional<content::ComponentLibrary> library_{};

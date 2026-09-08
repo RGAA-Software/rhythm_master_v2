@@ -31,13 +31,14 @@ foreach(manifest IN LISTS semantic_manifests)
     get_filename_component(source_dir "${manifest}" DIRECTORY)
     get_filename_component(semantic_name "${source_dir}" NAME)
     set(output_dir "${PROJECT_BINARY_DIR}/content/semantic/${semantic_name}")
+    file(GLOB semantic_assets CONFIGURE_DEPENDS "${source_dir}/assets/sha256/*/*")
     file(GLOB semantic_thumbnails CONFIGURE_DEPENDS "${source_dir}/thumbnail.rgba" "${source_dir}/thumbnail.json")
     list(APPEND semantic_products "${output_dir}/graph.pb" "${output_dir}/manifest.json" "${output_dir}/editor.json" "${output_dir}/presets.json")
     add_custom_command(OUTPUT "${output_dir}/graph.pb" "${output_dir}/manifest.json" "${output_dir}/editor.json" "${output_dir}/presets.json"
         COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/compile-content.py"
             "${RHYTHM_PROTOC}" "${PROJECT_SOURCE_DIR}/src/project_io/schema/graph.proto" "${source_dir}" "${output_dir}"
         DEPENDS "${PROJECT_SOURCE_DIR}/src/project_io/schema/graph.proto" "${source_dir}/graph.textproto"
-            "${manifest}" "${source_dir}/editor.json" "${source_dir}/presets.json" ${semantic_thumbnails} "${PROJECT_SOURCE_DIR}/tools/compile-content.py" VERBATIM)
+            "${manifest}" "${source_dir}/editor.json" "${source_dir}/presets.json" ${semantic_thumbnails} ${semantic_assets} "${PROJECT_SOURCE_DIR}/tools/compile-content.py" VERBATIM)
     if(NOT CMAKE_CROSSCOMPILING)
         set(package "${PROJECT_BINARY_DIR}/content/semantic_packages/${semantic_name}.rhythmpack")
         add_custom_command(OUTPUT "${package}"
@@ -78,7 +79,7 @@ if(BUILD_TESTING)
             "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_IO_SDK}/debug/bin")
     endif()
     add_executable(semantic_tests tests/semantic_tests.cpp)
-    target_link_libraries(semantic_tests PRIVATE semantic_catalog runtime_package graph_runtime)
+    target_link_libraries(semantic_tests PRIVATE semantic_catalog runtime_package graph_runtime prepared_assets asset_store)
     add_dependencies(semantic_tests semantic_content)
     rhythm_project_target(semantic_tests)
     add_test(NAME semantic_catalog COMMAND semantic_tests "${PROJECT_BINARY_DIR}/content/semantic"

@@ -127,8 +127,69 @@ int main(int argc, char* argv[]) {
         Check(ready.component_ && ready.expected_document_ == "another-project" &&
                       ready.expected_revision_ == 17,
               "worker completion carries the optimistic edit boundary");
+        content::Semantic official;
+        official.metadata_.directory_ = root / "source";
+        official.content_ = source;
+        auto& official_picture = official.content_.document_.components_.back();
+        official_picture.type_ = "component.official.picture";
+        official.content_.document_.nodes_.back().type_ = official_picture.type_;
+        official.root_ = official.content_.document_.nodes_.back();
+        // The catalog harness can own independent assets. They must not enter
+        // the author's project when only the component instance is inserted.
+        auto unused_asset = image;
+        unused_asset.id_.sha256_ = std::string(64, 'f');
+        official.content_.assets_.push_back(unused_asset);
+        Check(std::holds_alternative<graph::Diagnostic>(
+                      content::AddSemantic(destination, official, registry, {}, 103)),
+              "direct catalog insertion requires prepared assets");
+        Check(library.LoadOfficial(official, root / "official/assets", "another-project", 18) &&
+                      !library.Refresh(),
+              "official asset preparation shares the bounded library worker");
+        const auto official_ready = completion();
+        Check(official_ready.component_ && official_ready.expected_document_ == "another-project" &&
+                      official_ready.expected_revision_ == 18,
+              "official preparation carries the optimistic edit boundary");
+        const auto& prepared = *official_ready.component_;
+        Check(prepared.document_.nodes_.size() == 1 && prepared.document_.components_.size() == 1 &&
+                      prepared.document_.nodes_.front().type_ == official_picture.type_ &&
+                      prepared.document_.components_.front().type_ == official_picture.type_ &&
+                      prepared.assets_ == std::vector{image} &&
+                      assets::Store(root / "official/assets").Verify(image),
+              "official identities and only referenced immutable assets travel together");
+        const auto official_inserted =
+                content::InsertComponent(destination, prepared, registry, {420, 240}, 103);
+        Check(std::holds_alternative<editor::Snapshot>(official_inserted),
+              "prepared official component inserts");
+        const auto& official_next = std::get<editor::Snapshot>(official_inserted);
+        editor::History official_history(destination);
+        Check(official_next.assets_ == std::vector{image} &&
+                      official_history.Apply(official_next, destination.document_.revision_) &&
+                      official_history.Undo(),
+              "one undo restores graph and assets atomically");
+        auto undone = official_history.Current();
+        undone.document_.revision_ = destination.document_.revision_;
+        Check(undone == destination, "undo restores every field except the monotonic revision");
+        auto conflicting = destination;
+        conflicting.assets_ = {image};
+        ++conflicting.assets_.front().bytes_;
+        Check(std::holds_alternative<graph::Diagnostic>(
+                      content::InsertComponent(conflicting, prepared, registry, {}, 104)),
+              "conflicting asset metadata cannot partially insert a graph");
+        official.metadata_.directory_ = root / "absent-official-source";
+        Check(library.LoadOfficial(official, root / "failed/assets", "another-project", 18),
+              "missing official source is checked by the worker");
+        const auto failed_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+        bool failed = false;
+        while (std::chrono::steady_clock::now() < failed_deadline) {
+            if (auto result = library.Take()) {
+                failed = !result->error_.empty() && !result->component_;
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        }
+        Check(failed, "missing asset reports failure without returning an insertion");
         std::cout << "user components: nested capture, collision isolation, persistence/assets, "
-                     "insertion and undo passed\n";
+                     "official preparation, insertion and undo passed\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

@@ -32,6 +32,7 @@ graph; Detach creates an independent copy for the selected instance.
 | Contour engraving / 轮廓刻线 | Source luminance slices; pace, response, levels, width, contrast and glow | Broad cuts |
 | Motion echo / 运动回声 | Source image history; pace, response, scale, decay, expansion and echo turning | Tight spiral |
 | Soft glow / 柔光合成 | Source image with two blur radii; response, exposure, radius mix and saturation | Wide halo |
+| Ink cartography / 墨绘地形 | Image height field to editable pigment/coastline shaders; music response, softening and contour mix; shader assets included | Fine atlas |
 
 These first eight entries reuse project-owned template graphs and existing
 operators. Four existing components are extracted directly; the medallion,
@@ -44,8 +45,9 @@ nodes (at most 32 root nodes/128 edges); the component connects directly to the
 final texture output. The library inserts only the component, its embedded
 definition closure and internal layout. It does not replace the current graph.
 Demonstration nodes are not inserted. Connect your own texture to a processing
-component's required input after insertion. Catalog-owned asset payloads remain
-unsupported here; this does not change the separate user component asset workflow.
+component's required input after insertion. Catalog-owned assets now use the existing
+user-library worker to copy only the component's referenced immutable blobs before
+inserting its graph and asset records as one undoable edit.
 An existing edited definition with the same identity is preserved and reports a
 conflict. Add the project-library version or detach its existing instances before
 adopting a different definition. Compatible-version migration remains pending.
@@ -55,7 +57,7 @@ analytic seeking. A meaningful default is not a claim that all effects contain
 geometry at time zero. Windows runtime and playback checks apply; Android
 compilation is established, new actual device acceptance is outstanding.
 
-The inventory now contains 28 semantic components and 56 component preset records,
+The inventory now contains 29 semantic components and 58 component preset records,
 alongside 133 native preset records and 45 complete-project examples. The six R6
 extractions are reusable layers, not six additional complete works. This remains
 below 40 semantic components and does not establish 120 visually independent
@@ -75,3 +77,5 @@ polygon apertures and luminance cutouts; see their
 Self relief, Beat shutters and Mirrored duet add source-driven refraction,
 independent stripe masks and paired image composition; see
 [the processing batch](../../docs/validation/self_patterns_2026-09-09.md).
+Official asset preparation and Ink cartography have
+[Windows/Android evidence](../../docs/validation/official_component_assets_2026-09-09.md).

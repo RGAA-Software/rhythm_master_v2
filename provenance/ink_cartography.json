@@ -1,0 +1,38 @@
+{
+    "ownership": "first-party",
+    "source_commit": "646e9e4",
+    "source_files": [
+        "tools/author-ink-tide.py",
+        "tools/author-input-components.py",
+        "content/templates/ink_tide/manifest.json"
+    ],
+    "authoring_tool": "tools/author-ink-component.py",
+    "authoring_tool_sha256": "12490e992bc13101f10750ae3f2f7d17635c784cca2788ea5edab68af150f299",
+    "assets": [
+        {
+            "sha256": "18c55484fac8fb9bf262a135d655c0a1fefb5e15dac6f5d5442a4f91f2492001",
+            "bytes": 4282,
+            "media_type": "application/x-rhythm-image-shader"
+        },
+        {
+            "sha256": "1d7409bc2408c2a896574e531e43462db7005670871a31e94a76b155a8e17bfb",
+            "bytes": 3667,
+            "media_type": "application/x-rhythm-image-shader"
+        }
+    ],
+    "imported_third_party_files": [],
+    "existing_renderer_provenance": [
+        "provenance/tixl_effects.json"
+    ],
+    "modifications": [
+        "Reuse both existing shader bundles unchanged; expose image input and six controls.",
+        "Compose shared music signals, contour etching and FXAA from existing nodes."
+    ],
+    "component": {
+        "id": "ink_cartography",
+        "nodes": 15,
+        "input": "texture",
+        "composition": "Connect an image as a height field. Editable pigment and gold coastline shaders turn it into an ink map; bass moves the shoreline and highs animate the contour etching. Shader assets travel with insertion; preview inputs do not."
+    },
+    "target": "content/semantic/ink_cartography"
+}

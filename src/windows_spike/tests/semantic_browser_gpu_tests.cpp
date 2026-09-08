@@ -8,6 +8,7 @@
 #include <nlohmann/json.hpp>
 
 #include "catalog_preview.h"
+#include "component_library_panel.h"
 #include "semantic_palette.h"
 
 namespace {
@@ -67,6 +68,21 @@ int main(int argc, char* argv[]) {
         const auto baseline = renderer.Stats().texture_bytes_;
         int ready = -1;
         int inserted = -1;
+        std::optional<studio::ComponentLibraryPanel> library;
+        std::optional<std::size_t> requested;
+        bool preparing = false;
+        editor::Snapshot graph;
+        graph.document_.id_ = "browser-insertion";
+        const auto apply = [&](const editor::EditResult& edit) {
+            Check(std::holds_alternative<editor::Snapshot>(edit), "semantic insertion command");
+            editor::History history(graph);
+            Check(history.Apply(std::get<editor::Snapshot>(edit), graph.document_.revision_),
+                  "semantic history apply");
+            Check(history.Current().document_.nodes_.size() == 1 && history.Undo() &&
+                          history.Current().document_.nodes_.empty() &&
+                          history.Current().assets_.empty(),
+                  "semantic graph and assets insertion undo");
+        };
         std::optional<ImVec2> size;
         for (int frame = 0; frame < 300; ++frame) {
             Check(host.Poll(), "semantic host closed");
@@ -86,25 +102,38 @@ int main(int argc, char* argv[]) {
                 Check(ready >= 0 && frame >= ready + 30 && frame <= ready + 32 &&
                               *selection == selected,
                       "selection only inserts after explicit button");
-                editor::Snapshot graph;
-                graph.document_.id_ = "browser-insertion";
-                const auto edit =
-                        content::AddSemantic(graph, entries[*selection], registry, {0, 0}, 1);
-                Check(std::holds_alternative<editor::Snapshot>(edit), "semantic insertion command");
-                editor::History history(graph);
-                Check(history.Apply(std::get<editor::Snapshot>(edit), graph.document_.revision_),
-                      "semantic history apply");
-                Check(history.Current().document_.nodes_.size() == 1 && history.Undo() &&
-                              history.Current().document_.nodes_.empty(),
-                      "semantic insertion undo");
-                inserted = frame;
+                requested = *selection;
+                if (entries[*selection].content_.assets_.empty()) {
+                    apply(content::AddSemantic(graph, entries[*selection], registry, {0, 0}, 1));
+                    inserted = frame;
+                } else {
+                    library.emplace();
+                    library->Initialize(output / "Library");
+                }
+            }
+            if (library && inserted < 0) {
+                if (const auto completion = library->Take()) {
+                    const auto& result = completion->result_;
+                    Check(result.error_.empty() && result.component_ &&
+                                  result.expected_document_ == graph.document_.id_ &&
+                                  result.expected_revision_ == graph.document_.revision_,
+                          "official asset insertion returns a valid prepared transaction");
+                    apply(content::InsertComponent(graph, *result.component_, registry,
+                                                   completion->position_, 1));
+                    inserted = frame;
+                }
+                if (!preparing && !library->Busy()) {
+                    preparing = library->StartOfficial(entries[*requested], graph,
+                                                       output / "assets", {0, 0});
+                    Check(preparing, "browser queues official assets through the library panel");
+                }
             }
             if (frame > 8 && ready < 0 && renderer.Stats().passes_ > 0) {
                 ready = frame;
                 CheckWorkerCapacity();
             }
             if (frame == 5) size = PopupSize();
-            if (frame > 5 && inserted < 0) {
+            if (frame > 5 && !requested) {
                 const auto current = PopupSize();
                 Check(current.x == size->x && current.y == size->y, "stable semantic popup");
             }

@@ -91,4 +91,17 @@ std::optional<LibraryResult> ComponentLibrary::Take() {
         return {};
     return pending_.get();
 }
+bool ComponentLibrary::LoadOfficial(Semantic semantic, std::filesystem::path destination_assets,
+                                    std::string expected_document,
+                                    std::uint64_t expected_revision) {
+    return Submit([semantic = std::move(semantic),
+                   destination_assets = std::move(destination_assets),
+                   expected_document = std::move(expected_document), expected_revision] {
+        LibraryResult result;
+        result.component_ = LoadOfficialComponent(semantic, destination_assets);
+        result.expected_document_ = expected_document;
+        result.expected_revision_ = expected_revision;
+        return result;
+    });
+}
 }  // namespace rhythm::content
