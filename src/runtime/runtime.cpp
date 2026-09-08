@@ -212,6 +212,12 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                                                                renderer, precision);
                     break;
                 }
+                case graph::Operation::kPathHelix:
+                case graph::Operation::kPathFromPoints:
+                case graph::Operation::kPathResample:
+                case graph::Operation::kGeometryTube:
+                    detail::EvaluatePath(instruction, result.outputs_, state.output_);
+                    break;
                 case graph::Operation::kGeometryCube:
                 case graph::Operation::kGeometryTorus:
                 case graph::Operation::kGeometrySphere:

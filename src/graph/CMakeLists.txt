@@ -1,6 +1,6 @@
 add_library(graph_domain STATIC src/depth_descriptors.cpp src/color_descriptors.cpp src/registry.cpp src/compiler.cpp src/bindings.cpp
     src/component_description.cpp src/component_expansion.cpp src/point_descriptors.cpp src/point_budget.cpp
-    src/scene_descriptors.cpp src/scene_budget.cpp)
+    src/scene_descriptors.cpp src/scene_budget.cpp src/path_descriptors.cpp)
 add_library(Rhythm::Graph ALIAS graph_domain)
 target_include_directories(graph_domain PUBLIC include)
 target_link_libraries(graph_domain PUBLIC parameters asset_types)

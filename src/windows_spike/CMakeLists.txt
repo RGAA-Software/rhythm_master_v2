@@ -139,6 +139,11 @@ if(BUILD_TESTING)
         target_link_libraries(export_gpu_tests PRIVATE export_core platform_sdl media_video)
         rhythm_project_target(export_gpu_tests)
         add_dependencies(export_gpu_tests runtime_builtin_content)
+        add_test(NAME aurora_braid_export_gpu COMMAND export_gpu_tests
+            "${PROJECT_BINARY_DIR}/content/packages/aurora_braid.rhythmpack"
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
+            "${PROJECT_BINARY_DIR}/aurora-braid-export")
+        set_tests_properties(aurora_braid_export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME sonic_enamel_export_gpu COMMAND export_gpu_tests
             "${PROJECT_BINARY_DIR}/content/packages/sonic_enamel.rhythmpack"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
@@ -215,6 +220,11 @@ if(BUILD_TESTING)
             --expected-nodes 63 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/sonic-enamel-music-captures")
         set_tests_properties(sonic_enamel_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME aurora_braid_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
+            --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/aurora_braid.rhythmpack"
+            --expected-nodes 76 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --output "${PROJECT_BINARY_DIR}/aurora-braid-music-captures")
+        set_tests_properties(aurora_braid_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME spectral_foundry_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
             --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/spectral_foundry.rhythmpack"
             --expected-nodes 39 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"

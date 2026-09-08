@@ -11,7 +11,7 @@ import zlib
 
 
 ROOT = Path(__file__).resolve().parents[1]
-FEATURED = ("sonic_enamel", "spectral_nebula", "spectral_foundry", "resonance_gate", "harmonic_city", "resonance_live", "resonance_arrangement",
+FEATURED = ("aurora_braid", "sonic_enamel", "spectral_nebula", "spectral_foundry", "resonance_gate", "harmonic_city", "resonance_live", "resonance_arrangement",
             "prismatic_lotus", "stellar_currents", "music_sculpture", "scene_particle_echo")
 
 

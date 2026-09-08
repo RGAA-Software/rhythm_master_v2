@@ -258,6 +258,7 @@ Registry::Registry() {
                            {"layer_8", Type::kTexture, false}},
                           {{"composite_mode", 0.0, 0, 1, {"composite.over", "composite.add"}}}});
     AppendSceneDescriptors(operators_);
+    AppendPathDescriptors(operators_);
     operators_.push_back({"texture.noise",
                           Operation::kTextureNoise,
                           Type::kTexture,

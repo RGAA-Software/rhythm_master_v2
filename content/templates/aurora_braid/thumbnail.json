@@ -1,0 +1,14 @@
+{
+    "template": "aurora_braid",
+    "package_sha256": "e9fa5c72cbdfe4aaf3488a831fddece57c3875adcbffcf20e241212a023b03e4",
+    "thumbnail_sha256": "153444990b06d97ede3dc16fa847de857097df6451c7b5ecf17e880a647f578b",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

@@ -18,6 +18,15 @@ int main(int argc, char* argv[]) {
         const auto loaded = std::filesystem::exists(input / "CURRENT")
                                     ? rhythm::project::Load(input)
                                     : rhythm::project::LoadRevision(input);
+        const auto compiled =
+                rhythm::graph::Compile(loaded.snapshot_.document_, rhythm::graph::Registry{});
+        if (std::holds_alternative<std::vector<rhythm::graph::Diagnostic>>(compiled)) {
+            for (const auto& diagnostic :
+                 std::get<std::vector<rhythm::graph::Diagnostic>>(compiled))
+                std::cerr << diagnostic.code_ << " node=" << diagnostic.node_
+                          << " field=" << diagnostic.field_ << '\n';
+            return 1;
+        }
         rhythm::project::PublishSnapshot(output, loaded.snapshot_, input / "assets");
         const auto verified = rhythm::project::LoadPackage(output);
         std::cout << "Published runtime ABI 2, " << verified.program_.instructions_.size()

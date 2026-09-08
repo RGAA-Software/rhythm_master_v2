@@ -1,0 +1,40 @@
+{
+    "sources": [
+        {
+            "source_url": "https://github.com/tixl3d/tixl",
+            "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+            "source_file": "Operators/Lib/Assets/shaders/points/onmesh/ExtrudeCurves.hlsl",
+            "imported_file": "third_party/sources/tixl-effects/ExtrudeCurves.hlsl",
+            "sha256": "11de0e98f646246c474cb3e1db8f6a1f801be228c659ba498bc2abc377d02124",
+            "license": "MIT",
+            "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+            "symbols": [
+                "rail/profile extrusion",
+                "triangle grid topology"
+            ],
+            "target": "src/scene3d/tube.cpp",
+            "modifications": [
+                "Adapt rail/profile extrusion into bounded CPU Scene3D mesh values; circular profile with exact radial UV seam.",
+                "Replace upstream point quaternion inputs with GLM rotation-minimizing frames; distribute closed-loop residual rotation, add flat end caps.",
+                "Retain grid triangle topology using cyclically equivalent CCW winding; no D3D buffers or shader resources in public APIs."
+            ]
+        },
+        {
+            "source_url": "https://github.com/g-truc/glm",
+            "revision": "bf71a834948186f4097caa076cd2663c69a10e1e",
+            "license": "MIT",
+            "notice": "third_party/notices/glm/LICENSE.txt",
+            "source_files": [
+                "glm/gtx/spline.inl",
+                "glm/gtx/quaternion.inl",
+                "glm/gtx/vector_angle.inl"
+            ],
+            "symbols": [
+                "catmullRom",
+                "rotation",
+                "orientedAngle"
+            ],
+            "usage": "Direct private calls to existing vcpkg GLM 0.9.9.8#2, no reimplementation."
+        }
+    ]
+}

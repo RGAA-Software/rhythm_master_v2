@@ -10,6 +10,7 @@
 #include "rhythm/runtime/inputs.h"
 #include "rhythm/runtime/video_inputs.h"
 #include "rhythm/scene/camera.h"
+#include "rhythm/scene/path.h"
 #include "rhythm/scene/resources.h"
 #include "rhythm/scene/scene.h"
 
@@ -58,6 +59,7 @@ struct NodeOutput {
     render::GpuPointHandle gpu_points_{};
     std::optional<SceneImage> scene_image_{};
     std::optional<DepthView> depth_{};
+    std::shared_ptr<const scene::Path> path_{};
 };
 // Optional host-thread CPU/submission measurements, not GPU timestamp timings.
 struct NodeProfile {

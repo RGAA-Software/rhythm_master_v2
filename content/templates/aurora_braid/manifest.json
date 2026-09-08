@@ -1,0 +1,29 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.aurora_braid",
+    "content_version": "0.1.0",
+    "project_id": "official-aurora-braid",
+    "graph_revision": 0,
+    "title": "极光织带 / Aurora Braid",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "极光织带",
+        "en-US": "Aurora Braid"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "三股交织光带穿过五重悬浮光环，低、中、高频分别改变路径半径、管径与亮度。螺旋路径、曲线重采样、管线网格、金属材质、环境反射、景深与浮点柔光均可在节点上编辑。",
+        "en-US": "Three braided light strands pass through five floating hoops. Bass, mids and treble separately drive path radius, tube thickness and emission. Edit helix paths, curve resampling, tube meshes, metallic materials, environment reflections, depth focus and floating bloom."
+    }
+}

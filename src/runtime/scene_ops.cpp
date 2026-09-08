@@ -283,6 +283,7 @@ std::vector<graph::GeometryBudget> GeometryBudgets(const graph::ExecutionPlan& p
     return result;
 }
 scene::Scene PreviewScene(const NodeOutput& output) {
+    if (output.path_) return PreviewPath(output);
     scene::Scene result;
     if (output.scene_)
         result = *output.scene_;

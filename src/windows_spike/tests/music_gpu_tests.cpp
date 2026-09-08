@@ -54,13 +54,18 @@ int main(int argc, char* argv[]) {
                 instructions.begin(), instructions.end(), [](const auto& instruction) {
                     return instruction.operation_ == graph::Operation::kMaterialTextures;
                 });
+        const auto paths = std::count_if(
+                instructions.begin(), instructions.end(), [](const auto& instruction) {
+                    return instruction.operation_ == graph::Operation::kGeometryTube;
+                });
         if (instructions.size() != expected_nodes ||
             (bands < 24 && instance_fields == 0 &&
-             !((gpu_fields > 0 || materials > 0) && bands >= 2)))
+             !((gpu_fields > 0 || materials > 0 || paths > 0) && bands >= 2)))
             throw std::runtime_error("music.full_graph_not_reachable");
         std::cout << "reachable_instructions=" << instructions.size() << " audio_bands=" << bands
                   << " gpu_particle_fields=" << gpu_fields
-                  << " spectral_instance_fields=" << instance_fields << '\n';
+                  << " spectral_instance_fields=" << instance_fields << " tube_meshes=" << paths
+                  << '\n';
         const std::filesystem::path fixtures(argv[2]), output(argv[3]);
         const std::array<std::string, 4> names{"resonance_demo", "silence", "low", "high"};
         std::array<std::vector<audio::Features>, 4> features;

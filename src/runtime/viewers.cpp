@@ -17,6 +17,8 @@ class ScenePreviews final {
         ScenePass pass_{};
         render::Texture target_{};
         render::Extent extent_{};
+        std::uint64_t version_ = 0;
+        std::optional<scene::Scene> preview_{};
     };
     std::map<graph::NodeId, Entry> entries_{};
 };
@@ -55,7 +57,7 @@ void Viewers::Capture(const FrameResult& frame, std::span<const graph::NodeId> n
         if (source == frame.outputs_.end() ||
             (!source->scene_image_ && !source->depth_ && !renderer.IsValid(source->gpu_points_) &&
              !source->points_ && !source->geometry_ && !source->scene_ && !source->material_ &&
-             !renderer.IsValid(source->texture_)))
+             !source->path_ && !renderer.IsValid(source->texture_)))
             continue;
         if (count == textures_.size()) textures_.push_back(renderer.CreateTexture({256, 144}));
         auto& texture = textures_[count++];
@@ -67,7 +69,7 @@ void Viewers::Capture(const FrameResult& frame, std::span<const graph::NodeId> n
         if (source->scene_image_) source_texture = source->scene_image_->color_;
         if (source->depth_) source_texture = source->depth_->texture_;
         if (renderer.IsValid(source->gpu_points_) || source->geometry_ || source->scene_ ||
-            source->material_) {
+            source->path_ || source->material_) {
             if (!scenes_) scenes_ = std::make_unique<detail::ScenePreviews>();
             auto& entry = scenes_->entries_[node];
             const render::Extent extent{
@@ -81,7 +83,11 @@ void Viewers::Capture(const FrameResult& frame, std::span<const graph::NodeId> n
             if (renderer.IsValid(source->gpu_points_)) {
                 renderer.SubmitGpuPoints(entry.target_.Handle(), source->gpu_points_);
             } else {
-                const auto scene = detail::PreviewScene(*source);
+                if (!entry.preview_ || entry.version_ != source->version_) {
+                    entry.preview_ = detail::PreviewScene(*source);
+                    entry.version_ = source->version_;
+                }
+                const auto& scene = *entry.preview_;
                 const auto list =
                         entry.pass_.Build(scene, scene::Camera{}, extent, renderer, frame.outputs_);
                 renderer.SubmitScene(entry.target_.Handle(), list);

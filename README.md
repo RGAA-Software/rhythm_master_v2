@@ -18,6 +18,9 @@ now adds cached GGX reflections/diffuse on both platforms.
 [Embedded GLB images](docs/glb_material_images.md) also pass package/GPU checks and
 Windows/Android delivery. R3 functionality is closed within its documented profile;
 R4–R6 and visual/endurance acceptance continue.
+R4 starts with [ordered paths and tube geometry](docs/path_geometry.md), live path previews
+and the editable music-driven Aurora Braid work. Deformation, user shaders and model
+animation remain separate R4 increments.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

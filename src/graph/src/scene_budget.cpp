@@ -14,9 +14,11 @@ std::optional<Diagnostic> ValidateSceneBudget(
         std::uint64_t draws_ = 0;
         std::uint64_t shadows_ = 0;
         std::uint64_t environments_ = 0;
+        std::uint64_t path_points_ = 0;
+        bool path_closed_ = false;
     };
     std::vector<Counts> counts(plan.instructions_.size());
-    std::uint64_t vertices = 0, indices = 0, snapshots = 0, draws = 0;
+    std::uint64_t vertices = 0, indices = 0, snapshots = 0, draws = 0, path_snapshots = 0;
     for (std::size_t index = 0; index < plan.instructions_.size(); ++index) {
         const auto& instruction = plan.instructions_[index];
         auto& count = counts[index];
@@ -30,6 +32,39 @@ std::optional<Diagnostic> ValidateSceneBudget(
             return counts[*instruction.inputs_[port]];
         };
         switch (instruction.operation_) {
+            case Operation::kPathHelix:
+            case Operation::kPathFromPoints:
+            case Operation::kPathResample: {
+                const auto samples = Scalar(instruction.node_, "path_samples", 192);
+                if (!std::isfinite(samples) || samples < 3 || samples > 1024 ||
+                    std::floor(samples) != samples)
+                    return fail();
+                count.path_points_ = std::uint64_t(samples);
+                count.path_closed_ = Scalar(instruction.node_, "path_closed", 0) != 0;
+                if (instruction.operation_ == Operation::kPathResample) {
+                    const auto path = source(0);
+                    if (!path || path->path_points_ < 3) return fail();
+                    count.path_closed_ = path->path_closed_;
+                }
+                path_snapshots += count.path_points_;
+                break;
+            }
+            case Operation::kGeometryTube: {
+                const auto path = source(0);
+                const auto sides = Scalar(instruction.node_, "tube_sides", 12);
+                if (!path || path->path_points_ < 3 || !std::isfinite(sides) || sides < 3 ||
+                    sides > 32 || std::floor(sides) != sides)
+                    return fail();
+                const auto rings = path->path_points_ + (path->path_closed_ ? 1 : 0);
+                const auto side_count = std::uint64_t(sides);
+                vertices +=
+                        rings * (side_count + 1) + (path->path_closed_ ? 0 : 2 * (side_count + 2));
+                count.instances_ = count.draws_ = 1;
+                count.indices_ =
+                        (rings - 1) * side_count * 6 + (path->path_closed_ ? 0 : side_count * 6);
+                indices += count.indices_;
+                break;
+            }
             case Operation::kGeometryGlb: {
                 const auto asset = instruction.node_.properties_.find("asset");
                 if (asset == instruction.node_.properties_.end() ||
@@ -143,9 +178,10 @@ std::optional<Diagnostic> ValidateSceneBudget(
             default:
                 break;
         }
-        if (vertices > 250000 || indices > 750000 || count.instances_ > kMaximumSceneInstances ||
-            count.indices_ > 3000000 || snapshots > kMaximumSceneSnapshots || draws > 3000000 ||
-            count.lights_ > 4 || count.draws_ > 16384)
+        if (path_snapshots > 65536 || vertices > 250000 || indices > 750000 ||
+            count.instances_ > kMaximumSceneInstances || count.indices_ > 3000000 ||
+            snapshots > kMaximumSceneSnapshots || draws > 3000000 || count.lights_ > 4 ||
+            count.draws_ > 16384)
             return fail();
     }
     return {};
