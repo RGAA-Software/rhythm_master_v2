@@ -26,13 +26,13 @@ void Run() {
     bad.edges_[1].from_ = 1;
     Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(bad, registry)),
             "geometry cannot connect to material input");
-    for (NodeId id = 8; id <= 16; ++id) {
+    for (NodeId id = 8; id <= 18; ++id) {
         const NodeId previous = id == 8 ? 4 : id - 1;
         document.nodes_.push_back(registry.MakeNode(id, "scene.merge"));
         document.edges_.push_back({id * 2, previous, id, "a"});
         document.edges_.push_back({id * 2 + 1, previous, id, "b"});
     }
-    document.edges_[3].from_ = 16;
+    document.edges_[3].from_ = 18;
     const auto rejected = Compile(document, registry);
     Require(std::holds_alternative<std::vector<Diagnostic>>(rejected) &&
                     std::get<std::vector<Diagnostic>>(rejected).at(0).code_ == "graph.scene_budget",
@@ -50,6 +50,23 @@ void Run() {
                 {registry.MakeNode(i + 1, "scene.merge"), Operation::kSceneMerge, {i - 1, i - 1}});
     Require(ValidateSceneBudget(lights).has_value(),
             "more than four lights rejects before rendering");
+    Document instances;
+    instances.id_ = "point.instances";
+    instances.nodes_ = {registry.MakeNode(1, "geometry.cube"), registry.MakeNode(2, "point.grid"),
+                        registry.MakeNode(3, "scene.point_instances"),
+                        registry.MakeNode(4, "scene.render"),
+                        registry.MakeNode(5, "output.texture")};
+    instances.nodes_[1].properties_["columns"] = 100.0;
+    instances.nodes_[1].properties_["rows"] = 100.0;
+    instances.nodes_[2].properties_["instance_limit"] = 10000.0;
+    instances.edges_ = {
+            {1, 1, 3, "geometry"}, {2, 2, 3, "points"}, {3, 3, 4, "scene"}, {4, 4, 5, "source"}};
+    instances.output_ = 5;
+    Require(std::holds_alternative<ExecutionPlan>(Compile(instances, registry)),
+            "ten thousand low-poly instances fit the bounded batch profile");
+    instances.nodes_[0] = registry.MakeNode(1, "geometry.sphere");
+    Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(instances, registry)),
+            "instancing retains rasterized triangle admission limits");
     std::cout << "Scene graph: typed ports, compilation and bounded merge passed\n";
 }
 }  // namespace

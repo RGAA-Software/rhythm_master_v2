@@ -60,6 +60,7 @@ std::string_view Category(graph::Operation operation) {
         case kGeometryTorus:
         case kGeometryGlb:
         case kSceneInstance:
+        case kPointInstances:
         case kSceneTransform:
         case kSceneMerge:
         case kSceneCamera:

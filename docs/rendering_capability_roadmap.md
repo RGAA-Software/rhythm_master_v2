@@ -6,6 +6,10 @@
 
 R0 实测与 GLES 深度/模板清除修复见 [验证记录](validation/gpu_execution_2026-09-08.md)。
 
+R1 首个增量已交付批量实例与 `scene.point_instances`，包含 4096 音柱作品与
+Windows/Android 验证，见 [实例交付记录](validation/scene_instances_2026-09-08.md)。
+下面差距表保留 `ee0a904` 规划基线；GPU 粒子状态仍待实现，不能与实例提交混同。
+
 ## 1. 对标范围与结论
 
 仅比较实时视觉创作所需的渲染能力，不纳入 TouchDesigner 的设备接入、传感器、

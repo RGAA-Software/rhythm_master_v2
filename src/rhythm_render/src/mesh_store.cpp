@@ -56,7 +56,7 @@ void MeshStore::Release(MeshHandle handle) noexcept {
 }
 void MeshStore::Validate(const SceneDrawList& list) const {
     if (lost_) throw std::logic_error("render.device_lost");
-    if (!ValidMatrix(list.view_) || !ValidMatrix(list.projection_) || list.draws_.size() > 4096)
+    if (!ValidMatrix(list.view_) || !ValidMatrix(list.projection_) || list.draws_.size() > 16384)
         throw std::invalid_argument("render.scene_budget");
     if (list.lights_.size() > 4 ||
         !std::all_of(list.camera_position_.begin(), list.camera_position_.end(), Finite))

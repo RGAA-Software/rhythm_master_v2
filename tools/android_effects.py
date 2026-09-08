@@ -11,7 +11,7 @@ import zlib
 
 
 ROOT = Path(__file__).resolve().parents[1]
-FEATURED = ("resonance_gate", "harmonic_city", "resonance_live", "resonance_arrangement",
+FEATURED = ("spectral_foundry", "resonance_gate", "harmonic_city", "resonance_live", "resonance_arrangement",
             "prismatic_lotus", "stellar_currents", "music_sculpture", "scene_particle_echo")
 
 
@@ -56,7 +56,7 @@ def prepare(package_directory, assets):
         with zipfile.ZipFile(package) as archive:
             runtime = json.loads(archive.read("manifest.json"))
         entry = {"id": effect_id, "titles": authored["titles"], "canvas": runtime["canvas"],
-                 "audio": any(op.startswith("audio.") or op == "texture.spectrum"
+                 "audio": any(op.startswith("audio.") or op in ("texture.spectrum", "scene.point_instances")
                               for op in runtime["operators"]),
                  "package": "effects/" + package.name,
                  "sha256": hashlib.sha256(package.read_bytes()).hexdigest()}

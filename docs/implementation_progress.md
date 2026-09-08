@@ -1,5 +1,16 @@
 # Continuous implementation through Android Player
 
+## R1 first delivery: instance authoring and Android playback, 2026-09-08
+
+Hardware scene batching and `scene.point_instances` are implemented, including
+per-instance colors/normals and real audio band height input. Spectral Foundry
+adds an editable 4096-column example (33 nodes; 4100 total instances). Windows
+and Android pass pixel equivalence and 1k/10k instance checks; decoded music,
+silence and frequency comparison pass. Windows deploy bundles updated and APK
+with 33 direct-select effects overlay-installed on the USB phone.
+[Evidence and limits](validation/scene_instances_2026-09-08.md).
+GPU particle simulation is the next R1 increment; R1 as a whole is not complete.
+
 ## R0 GPU execution gate, 2026-09-08
 
 Windows D3D11 and USB Adreno 650 GLES 3.1 pass instance/compute write-draw-rewrite

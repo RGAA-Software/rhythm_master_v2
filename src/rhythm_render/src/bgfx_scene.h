@@ -3,6 +3,7 @@
 #include <map>
 
 #include "bgfx_handles.h"
+#include "bgfx_scene_instances.h"
 #include "mesh_store.h"
 
 namespace rhythm::render::detail {
@@ -24,7 +25,7 @@ class BgfxScene final {
     void Validate(const SceneDrawList& list) const { meshes_.Validate(list); }
     bgfx::FrameBufferHandle Target(TextureHandle target, bgfx::TextureHandle color, Extent extent);
     void ReleaseTarget(TextureHandle target) noexcept;
-    void Draw(SceneView view, const SceneDrawList& list, std::uint32_t clear);
+    std::uint32_t Draw(SceneView view, const SceneDrawList& list, std::uint32_t clear);
     void AddStats(FrameStats& stats) const { meshes_.AddStats(stats); }
     void Invalidate() { meshes_.Invalidate(); }
 
@@ -43,6 +44,7 @@ class BgfxScene final {
     std::map<std::uint32_t, DepthTarget> targets_{};
     bgfx::VertexLayout layout_{};
     GpuHandle<bgfx::ProgramHandle> program_{};
+    BgfxSceneInstances instances_{};
     GpuHandle<bgfx::UniformHandle> color_{};
     GpuHandle<bgfx::UniformHandle> normal_{};
     GpuHandle<bgfx::UniformHandle> material_{};

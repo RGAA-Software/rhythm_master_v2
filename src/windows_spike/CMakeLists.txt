@@ -190,6 +190,11 @@ if(BUILD_TESTING)
             --expected-nodes 290 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/harmonic-city-music-captures")
         set_tests_properties(harmonic_city_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME spectral_foundry_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
+            --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/spectral_foundry.rhythmpack"
+            --expected-nodes 33 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --output "${PROJECT_BINARY_DIR}/spectral-foundry-music-captures")
+        set_tests_properties(spectral_foundry_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME performance_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
             --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/performance-workflow/performance.rhythmpack"
             --expected-nodes 197 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"

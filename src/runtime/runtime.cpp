@@ -148,7 +148,8 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
             versions.push_back(videos_.Revision(node.id_));
         const auto external_value = detail::ExternalScalar(instruction, frame);
         if (external_value) versions.push_back(std::bit_cast<std::uint64_t>(*external_value));
-        if (operation == graph::Operation::kAudioSpectrum)
+        if (operation == graph::Operation::kAudioSpectrum ||
+            operation == graph::Operation::kPointInstances)
             for (const auto band : detail::SpectrumBands(node, frame.external_))
                 versions.push_back(std::bit_cast<std::uint32_t>(band));
         const bool dirty = redraw || !state.node_ || *state.node_ != node ||
@@ -218,6 +219,10 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                 case graph::Operation::kSceneMerge:
                 case graph::Operation::kSceneCamera:
                     detail::EvaluateScene(instruction, result.outputs_, state.output_, resources);
+                    break;
+                case graph::Operation::kPointInstances:
+                    state.output_.scene_ =
+                            detail::PointInstances(instruction, result.outputs_, frame.external_);
                     break;
                 case graph::Operation::kSceneRender: {
                     if (!input(0).scene_) throw std::invalid_argument("runtime.scene_input");

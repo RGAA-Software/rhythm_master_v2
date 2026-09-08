@@ -55,13 +55,15 @@ add_custom_command(OUTPUT "${scene_shader_header}"
     DEPENDS "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
         "${PROJECT_SOURCE_DIR}/tools/compile-shader.py"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_vertex.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_instance.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_fragment.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/godot_brdf.sh"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_varying.def.sc"
         "${RHYTHM_SHADERC}" ${render_shader_includes}
     VERBATIM)
 target_sources(render_bgfx PRIVATE "${scene_shader_header}"
-    "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_scene.cpp")
+    "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_scene.cpp"
+    "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_scene_instances.cpp")
 
 target_sources(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_texture_programs.cpp")
 set(mapping_shader_header "${PROJECT_BINARY_DIR}/generated/render/texture_mapping_shader.h")
@@ -107,6 +109,7 @@ if(BUILD_TESTING)
             "${RHYTHM_SHADERC}" ${render_shader_includes}
         VERBATIM)
     add_library(gpu_execution_probe STATIC
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/scene_instances_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_execution_probe.cpp" "${probe_shader_header}")
     target_include_directories(gpu_execution_probe PRIVATE
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/src" "${PROJECT_BINARY_DIR}/generated/render")

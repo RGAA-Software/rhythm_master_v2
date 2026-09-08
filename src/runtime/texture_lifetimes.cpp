@@ -15,6 +15,7 @@ bool DynamicSource(graph::Operation operation) {
         case kAudioFeature:
         case kAudioBand:
         case kAudioSpectrum:
+        case kPointInstances:
         case kFeedback:
         case kTextureTrail:
         case kTextureVideo:

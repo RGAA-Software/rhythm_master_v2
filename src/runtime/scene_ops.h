@@ -3,6 +3,9 @@
 #include "rhythm/runtime/runtime.h"
 
 namespace rhythm::runtime::detail {
+std::shared_ptr<const scene::Scene> PointInstances(const graph::Instruction& instruction,
+                                                   std::span<const NodeOutput> outputs,
+                                                   const ExternalInputs& external);
 void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOutput> inputs,
                    NodeOutput& output, const scene::Resources& resources);
 std::vector<graph::GeometryBudget> GeometryBudgets(const graph::ExecutionPlan& plan,

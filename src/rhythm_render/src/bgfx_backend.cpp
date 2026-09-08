@@ -217,8 +217,8 @@ class BgfxBackend final : public Backend {
             throw;
         }
         const auto view = static_cast<bgfx::ViewId>(passes_++);
-        scene_->Draw({view, framebuffer, extent, invert_targets_, homogeneous_depth_}, list, clear);
-        draws_ += static_cast<std::uint32_t>(list.draws_.size());
+        draws_ += scene_->Draw({view, framebuffer, extent, invert_targets_, homogeneous_depth_},
+                               list, clear);
     }
     void BeginFrame() override {
         resources_.CheckReady();

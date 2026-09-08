@@ -1,0 +1,28 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.spectral_foundry",
+    "content_version": "0.1.0",
+    "project_id": "official-spectral-foundry",
+    "graph_revision": 0,
+    "title": "频谱铸场 / Spectral Foundry",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "频谱铸场",
+        "en-US": "Spectral Foundry"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
+    "compatible_players": [
+        "windows"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "4096 根共享网格音柱由一张点阵生成，各列直接响应真实频段，三重铜色轨道环绕。双灯光、金属材质与柔光合成；静音回落，全部节点可编辑。",
+        "en-US": "4096 shared-mesh columns from one point grid respond to real frequency bands, surrounded by three copper orbits. Two lights, metallic shading and bloom; silence lowers the columns. Every node is editable."
+    }
+}

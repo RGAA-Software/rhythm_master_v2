@@ -102,7 +102,8 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
             scene::Scene scene = *input(0).scene_;
             if (instruction.operation_ == Operation::kSceneMerge) {
                 if (!input(1).scene_ ||
-                    scene.instances_.size() + input(1).scene_->instances_.size() > 256 ||
+                    scene.instances_.size() + input(1).scene_->instances_.size() >
+                            graph::kMaximumSceneInstances ||
                     scene.lights_.size() + input(1).scene_->lights_.size() > 4)
                     throw std::length_error("runtime.scene_instances");
                 scene.instances_.insert(scene.instances_.end(), input(1).scene_->instances_.begin(),

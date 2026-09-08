@@ -5,6 +5,9 @@
 
 ## 1. 状态与决策规则
 
+R1 实例批处理及 1 千/1 万实例像素检查已通过 D3D11 与 Adreno 650/GLES 3.1；
+[首批交付](validation/scene_instances_2026-09-08.md) 未引入新依赖，GPU 粒子仍在后续。
+
 R0 已实测 D3D11 与 USB Adreno 650/GLES 3.1 的实例和计算写入/绘制；
 GLES 3.0 编译档位只有实例路径。详见 [GPU 验证](validation/gpu_execution_2026-09-08.md)。
 这确认了现有 bgfx 内的实现路径，不代表所有 Android 设备支持，也未更换后端。

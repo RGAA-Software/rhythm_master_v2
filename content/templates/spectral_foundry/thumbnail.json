@@ -1,0 +1,14 @@
+{
+    "template": "spectral_foundry",
+    "package_sha256": "e5176ded558bd936ef914d44af74c3cc2211b6faccc180f84618fffc4b7f747b",
+    "thumbnail_sha256": "0108781ad754986a730728744efbff8d4ca5963a03ee06ce02068a6f06a85d49",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

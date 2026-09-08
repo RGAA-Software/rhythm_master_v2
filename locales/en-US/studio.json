@@ -630,5 +630,10 @@
     "component.timing_range": "Visible range",
     "component.timing_insert": "Insert at",
     "component.add_section": "Add section at specified time",
-    "scale_z": "Z scale"
+    "scale_z": "Z scale",
+    "scene.point_instances": "Point instances",
+    "instance_limit": "Instance capacity",
+    "instance_span": "World span",
+    "audio_gain": "Audio height gain",
+    "instance_point_color": "Use point colors"
 }

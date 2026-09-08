@@ -1,10 +1,12 @@
 $input a_position, a_normal
-$output v_world_position, v_world_normal
+$output v_world_position, v_world_normal, v_scene_color
 #include <bgfx_shader.sh>
 uniform mat4 u_scene_normal;
+uniform vec4 u_scene_color;
 void main()
 {
     gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
     v_world_position = mul(u_model[0], vec4(a_position, 1.0)).xyz;
     v_world_normal = mul(u_scene_normal, vec4(a_normal, 0.0)).xyz;
+    v_scene_color = u_scene_color;
 }

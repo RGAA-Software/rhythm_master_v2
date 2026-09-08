@@ -30,6 +30,7 @@ def main():
                     ("probe_update.sc", "compute", None, "kProbeComputeShader")]
     elif args.group == "scene":
         programs = [("scene_vertex.sc", "vertex", "scene_varying.def.sc", "kSceneVertexShader"),
+                    ("scene_instance.sc", "vertex", "scene_varying.def.sc", "kSceneInstanceShader"),
                     ("scene_fragment.sc", "fragment", "scene_varying.def.sc", "kSceneFragmentShader")]
     elif args.group == "filter":
         programs = [("texture_filter.sc", "fragment", "varying.def.sc", "kTextureFilterShader")]

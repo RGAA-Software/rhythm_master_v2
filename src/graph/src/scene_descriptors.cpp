@@ -3,6 +3,22 @@
 namespace rhythm::graph {
 void AppendSceneDescriptors(std::vector<OperatorDescriptor>& operators) {
     using Type = ValueType;
+    operators.push_back({"scene.point_instances",
+                         Operation::kPointInstances,
+                         Type::kScene,
+                         {{"geometry", Type::kGeometry},
+                          {"points", Type::kPoints},
+                          {"material", Type::kMaterial, false},
+                          {"scale", Type::kScalar, false},
+                          {"height", Type::kScalar, false},
+                          {"audio_gain", Type::kScalar, false}},
+                         {{"instance_limit", 1024.0, 1, 16384, {}, true},
+                          {"instance_span", 10.0, 0.01, 100},
+                          {"scale", 1.0, 0.001, 100},
+                          {"height", 1.0, 0.001, 100},
+                          {"audio_gain", 12.0, 0, 100},
+                          {"instance_point_color", 0.0, 0, 1, {"option.off", "option.on"}}},
+                         true});
     operators.push_back({"geometry.glb",
                          Operation::kGeometryGlb,
                          Type::kGeometry,

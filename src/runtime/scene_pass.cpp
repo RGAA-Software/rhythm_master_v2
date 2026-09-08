@@ -16,8 +16,9 @@ render::Matrix4 Matrix(const scene::Matrix& source) {
 }  // namespace
 render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::Camera& camera,
                                        render::Extent extent, render::Renderer& renderer) {
-    if (!extent.width_ || !extent.height_ || scene.instances_.size() > 256 ||
-        scene.lights_.size() > 4 || !renderer.SupportsScenes())
+    if (!extent.width_ || !extent.height_ ||
+        scene.instances_.size() > graph::kMaximumSceneInstances || scene.lights_.size() > 4 ||
+        !renderer.SupportsScenes())
         throw std::invalid_argument("runtime.scene");
     const auto view = scene::View(camera);
     render::SceneDrawList result;
@@ -75,7 +76,7 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                 const auto material =
                         instance.material_.value_or(upload.model_->materials_.at(mesh.material_));
                 index_count += mesh.indices_.size();
-                if (result.draws_.size() >= 4096 || index_count > 3000000)
+                if (result.draws_.size() >= 16384 || index_count > 3000000)
                     throw std::length_error("runtime.scene_draw_budget");
                 const auto& color = material.base_color_;
                 result.draws_.push_back({upload.meshes_.at(mesh_index).Handle(),

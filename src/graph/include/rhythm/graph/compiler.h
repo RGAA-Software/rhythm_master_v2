@@ -3,6 +3,10 @@
 #include "rhythm/graph/registry.h"
 
 namespace rhythm::graph {
+// Bounded CPU scene records feeding hardware instance batches; raster index
+// budgets remain independent, so large imported meshes cannot multiply freely.
+inline constexpr std::uint64_t kMaximumSceneInstances = 16384;
+inline constexpr std::uint64_t kMaximumSceneSnapshots = 65536;
 struct Instruction {
     Node node_{};
     Operation operation_ = Operation::kTime;

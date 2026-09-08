@@ -630,5 +630,10 @@
     "component.timing_range": "显示范围",
     "component.timing_insert": "插入位置",
     "component.add_section": "在指定时间添加段落",
-    "scale_z": "Z 轴缩放"
+    "scale_z": "Z 轴缩放",
+    "scene.point_instances": "点阵实例化",
+    "instance_limit": "实例容量",
+    "instance_span": "世界范围",
+    "audio_gain": "音乐高度增益",
+    "instance_point_color": "使用点颜色"
 }

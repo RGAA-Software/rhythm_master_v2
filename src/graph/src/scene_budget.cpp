@@ -85,6 +85,7 @@ std::optional<Diagnostic> ValidateSceneBudget(
                 indices += count.indices_;
                 break;
             }
+            case Operation::kPointInstances:
             case Operation::kSceneInstance:
             case Operation::kSceneTransform:
             case Operation::kSceneMerge:
@@ -92,6 +93,16 @@ std::optional<Diagnostic> ValidateSceneBudget(
                 const auto a = source(0);
                 if (!a) return fail();
                 count = *a;
+                if (instruction.operation_ == Operation::kPointInstances) {
+                    const auto limit = Scalar(instruction.node_, "instance_limit", 1024);
+                    if (!std::isfinite(limit) || limit < 1 || limit > kMaximumSceneInstances ||
+                        std::floor(limit) != limit || instruction.inputs_.size() < 2 ||
+                        !instruction.inputs_[1] || *instruction.inputs_[1] >= index)
+                        return fail();
+                    count.instances_ *= static_cast<std::uint64_t>(limit);
+                    count.indices_ *= static_cast<std::uint64_t>(limit);
+                    count.draws_ *= static_cast<std::uint64_t>(limit);
+                }
                 if (instruction.operation_ == Operation::kSceneMerge) {
                     const auto b = source(1);
                     if (!b) return fail();
@@ -111,9 +122,9 @@ std::optional<Diagnostic> ValidateSceneBudget(
             default:
                 break;
         }
-        if (vertices > 250000 || indices > 750000 || count.instances_ > 256 ||
-            count.indices_ > 3000000 || snapshots > 4096 || draws > 3000000 || count.lights_ > 4 ||
-            count.draws_ > 4096)
+        if (vertices > 250000 || indices > 750000 || count.instances_ > kMaximumSceneInstances ||
+            count.indices_ > 3000000 || snapshots > kMaximumSceneSnapshots || draws > 3000000 ||
+            count.lights_ > 4 || count.draws_ > 16384)
             return fail();
     }
     return {};

@@ -71,7 +71,7 @@ bgfx::FrameBufferHandle BgfxScene::Target(TextureHandle target, bgfx::TextureHan
     return targets_.emplace(target.slot_, std::move(entry)).first->second.framebuffer_.Get();
 }
 void BgfxScene::ReleaseTarget(TextureHandle target) noexcept { targets_.erase(target.slot_); }
-void BgfxScene::Draw(SceneView context, const SceneDrawList& list, std::uint32_t clear) {
+std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std::uint32_t clear) {
     const auto view = context.view_;
     bgfx::setViewMode(view, bgfx::ViewMode::Sequential);
     bgfx::setViewFrameBuffer(view, context.framebuffer_);
@@ -101,7 +101,10 @@ void BgfxScene::Draw(SceneView context, const SceneDrawList& list, std::uint32_t
         directions[i] = {light.direction_[0], light.direction_[1], light.direction_[2], 0};
         colors[i] = {light.radiance_[0], light.radiance_[1], light.radiance_[2], 0};
     }
-    for (const auto& draw : list.draws_) {
+    std::uint32_t submissions = 0;
+    for (std::size_t index = 0; index < list.draws_.size();) {
+        const auto& draw = list.draws_[index];
+        const auto count = instances_.Bind(std::span(list.draws_).subspan(index));
         const auto& mesh = geometry_.at(draw.mesh_.slot_);
         bgfx::setTransform(draw.model_.data());
         bgfx::setVertexBuffer(0, mesh.vertices_.Get());
@@ -123,15 +126,14 @@ void BgfxScene::Draw(SceneView context, const SceneDrawList& list, std::uint32_t
                 BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_LESS |
                 BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_INV_SRC_ALPHA);
         if (draw.color_[3] >= 1) state |= BGFX_STATE_WRITE_Z;
-        const auto& m = draw.model_;
-        const auto determinant = m[0] * (m[5] * m[10] - m[9] * m[6]) -
-                                 m[4] * (m[1] * m[10] - m[9] * m[2]) +
-                                 m[8] * (m[1] * m[6] - m[5] * m[2]);
         if (!draw.double_sided_)
-            state |=
-                    context.invert_ != (determinant < 0) ? BGFX_STATE_CULL_CCW : BGFX_STATE_CULL_CW;
+            state |= context.invert_ != Mirrored(draw.model_) ? BGFX_STATE_CULL_CCW
+                                                              : BGFX_STATE_CULL_CW;
         bgfx::setState(state);
-        bgfx::submit(view, program_.Get());
+        bgfx::submit(view, count > 1 ? instances_.Program() : program_.Get());
+        index += count;
+        ++submissions;
     }
+    return submissions;
 }
 }  // namespace rhythm::render::detail

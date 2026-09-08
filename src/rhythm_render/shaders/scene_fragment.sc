@@ -1,7 +1,6 @@
-$input v_world_position, v_world_normal
+$input v_world_position, v_world_normal, v_scene_color
 #include <bgfx_shader.sh>
 #include "godot_brdf.sh"
-uniform vec4 u_scene_color;
 uniform vec4 u_scene_material;
 uniform vec4 u_scene_emissive;
 uniform vec4 u_scene_camera;
@@ -10,7 +9,7 @@ uniform vec4 u_scene_light_directions[4];
 uniform vec4 u_scene_light_colors[4];
 void main()
 {
-    vec3 color = u_scene_color.rgb;
+    vec3 color = v_scene_color.rgb;
     if (u_scene_material.z < 0.5)
     {
         vec3 view_vector = u_scene_camera.xyz - v_world_position;
@@ -23,9 +22,9 @@ void main()
         {
             if (float(i) < u_scene_camera.w)
                 color += GodotDirectional(normal, u_scene_light_directions[i].xyz, view,
-                    u_scene_light_colors[i].rgb, u_scene_color.rgb,
+                    u_scene_light_colors[i].rgb, v_scene_color.rgb,
                     u_scene_material.x, max(u_scene_material.y, 0.05));
         }
     }
-    gl_FragColor = vec4(color * u_scene_color.a, u_scene_color.a);
+    gl_FragColor = vec4(color * v_scene_color.a, v_scene_color.a);
 }

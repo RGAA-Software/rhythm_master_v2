@@ -345,6 +345,7 @@ int main(int argc, char* argv[]) {
             std::array<std::uint8_t, 32 * 16 * 4> pixels{};
             auto renderer = platform::Host::CreateRenderer();
             validation::VerifyGpuExecution(pixels);
+            validation::VerifySceneInstances(renderer);
             return 0;
         }
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
