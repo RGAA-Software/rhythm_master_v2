@@ -76,10 +76,49 @@ void Run() {
     std::cout << "scene render contracts: mesh ownership, generations, finite input, depth budget "
                  "and device loss passed\n";
 }
+void MaterialTextures() {
+    using namespace rhythm::render;
+    auto renderer = Renderer::CreateNull();
+    auto other = Renderer::CreateNull();
+    const std::array<MeshVertex, 3> vertices{{{-1, -1}, {1, -1}, {0, 1}}};
+    const std::array<std::uint32_t, 3> indices{0, 1, 2};
+    const std::array<std::uint8_t, 4> pixel{128, 128, 255, 255};
+    auto mesh = renderer.CreateMesh(vertices, indices);
+    auto target = renderer.CreateTexture({16, 16});
+    auto depth = renderer.CreateDepthTexture({16, 16});
+    auto texture = renderer.CreateTexture({1, 1}, pixel);
+    auto foreign = other.CreateTexture({1, 1}, pixel);
+    SceneDrawList scene;
+    scene.draws_.push_back({mesh.Handle()});
+    renderer.BeginFrame();
+    auto& slots = scene.draws_[0].textures_.slots_;
+    for (const auto invalid :
+         {foreign.Handle(), depth.Handle(), target.Handle(), TextureHandle{0, 1, 0}}) {
+        slots[0] = invalid;
+        Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+        Reject([&] { renderer.SubmitSceneDepth(target.Handle(), depth.Handle(), scene); });
+    }
+    slots = {texture.Handle(), texture.Handle(), texture.Handle(), texture.Handle()};
+    renderer.SubmitSceneDepth(target.Handle(), depth.Handle(), scene);
+    Reject([&] { renderer.UpdateTexture(texture.Handle(), pixel); });
+    renderer.EndFrame();
+    renderer.BeginFrame();
+    renderer.UpdateTexture(texture.Handle(), pixel);
+    const auto stale = texture.Handle();
+    texture = {};
+    auto replacement = renderer.CreateTexture({1, 1}, pixel);
+    Require(replacement.Handle() != stale, "material texture generations advance on reuse");
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    slots = {};
+    scene.draws_[0].textures_.normal_scale_ = std::numeric_limits<float>::quiet_NaN();
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    renderer.EndFrame();
+}
 }  // namespace
 int main() {
     try {
         Run();
+        MaterialTextures();
         return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

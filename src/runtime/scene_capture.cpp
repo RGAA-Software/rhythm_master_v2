@@ -4,10 +4,10 @@
 namespace rhythm::runtime::detail {
 SceneImage SceneCapture::Draw(const scene::Scene& scene, const scene::Camera& camera,
                               render::Extent extent, render::TexturePrecision precision,
-                              render::Renderer& renderer) {
+                              render::Renderer& renderer, std::span<const NodeOutput> outputs) {
     if (!renderer.SupportsSampleableDepth())
         throw std::runtime_error("render.sampleable_depth_unsupported");
-    const auto list = pass_.Build(scene, camera, extent, renderer);
+    const auto list = pass_.Build(scene, camera, extent, renderer, outputs);
     if (extent_ != extent || precision_ != precision || !renderer.IsValid(color_.Handle()) ||
         !renderer.IsValid(depth_.Handle())) {
         color_ = {};

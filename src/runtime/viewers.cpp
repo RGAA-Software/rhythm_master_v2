@@ -82,7 +82,8 @@ void Viewers::Capture(const FrameResult& frame, std::span<const graph::NodeId> n
                 renderer.SubmitGpuPoints(entry.target_.Handle(), source->gpu_points_);
             } else {
                 const auto scene = detail::PreviewScene(*source);
-                const auto list = entry.pass_.Build(scene, scene::Camera{}, extent, renderer);
+                const auto list =
+                        entry.pass_.Build(scene, scene::Camera{}, extent, renderer, frame.outputs_);
                 renderer.SubmitScene(entry.target_.Handle(), list);
             }
             source_texture = entry.target_.Handle();

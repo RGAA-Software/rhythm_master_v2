@@ -218,7 +218,10 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                 case graph::Operation::kGeometryGlb:
                 case graph::Operation::kMaterialUnlit:
                 case graph::Operation::kMaterialPbr:
+                case graph::Operation::kMaterialTextures:
                 case graph::Operation::kDirectionalLight:
+                case graph::Operation::kPointLight:
+                case graph::Operation::kSpotLight:
                 case graph::Operation::kSceneInstance:
                 case graph::Operation::kSceneTransform:
                 case graph::Operation::kSceneMerge:
@@ -251,8 +254,8 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                     if (!state.capture_) state.capture_ = std::make_unique<detail::SceneCapture>();
                     const auto camera =
                             instruction.inputs_[1] ? input(1).camera_.value() : scene::Camera{};
-                    state.output_.scene_image_ = state.capture_->Draw(*input(0).scene_, camera,
-                                                                      extent, precision, renderer);
+                    state.output_.scene_image_ = state.capture_->Draw(
+                            *input(0).scene_, camera, extent, precision, renderer, result.outputs_);
                     break;
                 }
                 case graph::Operation::kSceneColor:
@@ -268,8 +271,8 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                         state.target_ = renderer.CreateTexture(extent, {}, precision);
                     const auto camera =
                             instruction.inputs_[1] ? input(1).camera_.value() : scene::Camera{};
-                    const auto scene_draw =
-                            state.scene_->Build(*input(0).scene_, camera, extent, renderer);
+                    const auto scene_draw = state.scene_->Build(*input(0).scene_, camera, extent,
+                                                                renderer, result.outputs_);
                     renderer.SubmitScene(state.target_.Handle(), scene_draw);
                     state.output_.texture_ = state.target_.Handle();
                     break;

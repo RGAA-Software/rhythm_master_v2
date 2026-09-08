@@ -51,6 +51,8 @@ std::optional<Diagnostic> ValidateSceneBudget(
                 break;
             }
             case Operation::kDirectionalLight:
+            case Operation::kPointLight:
+            case Operation::kSpotLight:
                 count.lights_ = 1;
                 break;
             case Operation::kGeometryCube:

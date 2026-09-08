@@ -1,0 +1,24 @@
+{
+    "source_url": "https://github.com/mmikk/MikkTSpace",
+    "revision": "3e895b49d05ea07e4c2133156cfa94369e19e409",
+    "vcpkg_version": "2020-10-06#3",
+    "license": "Zlib",
+    "notice": "third_party/notices/mikktspace/copyright",
+    "notice_sha256": "17fc433894f24c73753d548086cc4d8c5c0379f4a6edfb98b5da243e4f0bc3d0",
+    "imported_files": [],
+    "linkage": "Unmodified vcpkg static libraries; x64-windows and arm64-android",
+    "targets": [
+        "src/scene3d/tangents.cpp"
+    ],
+    "modifications": [
+        "No upstream modifications. Private synchronous C callbacks adapt project mesh values.",
+        "Validate bounded inputs and split incompatible per-corner tangent frames, retaining mirrored UV handedness."
+    ],
+    "validation": [
+        "Windows scene_tangents CTest passed",
+        "arm64-android scene_tangent_tests ran successfully on USB e2b3b128"
+    ],
+    "package_abi": {
+        "x64-windows": "1c8d772bc74a930ed79680a1fc0f3b1a519f9cc30f49ffe6d21dd1d3c1024cae"
+    }
+}

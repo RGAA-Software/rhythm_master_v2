@@ -1,4 +1,4 @@
-add_library(scene3d STATIC math.cpp camera.cpp model.cpp sphere.cpp torus.cpp resources.cpp)
+add_library(scene3d STATIC math.cpp camera.cpp model.cpp sphere.cpp torus.cpp resources.cpp tangents.cpp)
 target_link_libraries(scene3d PUBLIC asset_types)
 target_include_directories(scene3d PUBLIC include)
 if(ANDROID)
@@ -9,8 +9,16 @@ endif()
 find_path(RHYTHM_GLM_INCLUDE glm/glm.hpp PATHS "C:/source/vcpkg/installed/${rhythm_math_triplet}/include"
     NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH REQUIRED)
 target_include_directories(scene3d SYSTEM PRIVATE "${RHYTHM_GLM_INCLUDE}")
+find_package(mikktspace CONFIG REQUIRED PATHS
+    "C:/source/vcpkg/installed/${rhythm_math_triplet}/share/mikktspace"
+    NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
+target_link_libraries(scene3d PRIVATE mikktspace::mikktspace)
 rhythm_project_target(scene3d)
 if(BUILD_TESTING)
+    add_executable(scene_tangent_tests tests/tangent_tests.cpp)
+    target_link_libraries(scene_tangent_tests PRIVATE scene3d)
+    rhythm_project_target(scene_tangent_tests)
+    add_test(NAME scene_tangents COMMAND scene_tangent_tests)
     add_executable(scene_math_tests tests/math_tests.cpp)
     target_link_libraries(scene_math_tests PRIVATE scene3d)
     rhythm_project_target(scene_math_tests)

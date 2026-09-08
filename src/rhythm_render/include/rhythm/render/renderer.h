@@ -19,13 +19,6 @@ namespace detail {
 class Backend;
 }
 
-struct TextureHandle {
-    std::uint64_t device_ = 0;
-    std::uint32_t slot_ = 0;
-    std::uint32_t generation_ = 0;
-    bool operator==(const TextureHandle&) const = default;
-};
-
 struct Extent {
     std::uint16_t width_ = 0;
     std::uint16_t height_ = 0;

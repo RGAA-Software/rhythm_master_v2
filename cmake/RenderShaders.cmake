@@ -58,12 +58,15 @@ add_custom_command(OUTPUT "${scene_shader_header}"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_instance.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_fragment.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/godot_brdf.sh"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/godot_lights.sh"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/scene_varying.def.sc"
         "${RHYTHM_SHADERC}" ${render_shader_includes}
     VERBATIM)
 target_sources(render_bgfx PRIVATE "${scene_shader_header}"
     "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_scene.cpp"
     "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_scene_instances.cpp")
+target_sources(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_scene_lights.cpp")
+target_sources(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_scene_textures.cpp")
 
 target_sources(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_texture_programs.cpp")
 set(mapping_shader_header "${PROJECT_BINARY_DIR}/generated/render/texture_mapping_shader.h")
@@ -111,6 +114,8 @@ if(BUILD_TESTING)
     add_library(gpu_execution_probe STATIC
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/color_pipeline_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/depth_gpu.cpp"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/lights_gpu.cpp"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/material_textures_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_particles_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/scene_instances_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_execution_probe.cpp" "${probe_shader_header}")

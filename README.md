@@ -10,7 +10,9 @@ Foundry/Nebula works, node previews, real music and MP4 checks on Windows, and
 Android built-in playback. [Evidence and limits](docs/validation/gpu_particles_2026-09-08.md).
 R2 float/color conversion, explicit sampled depth and music-driven DOF now pass
 Windows/USB Android checks; [R2 evidence](docs/validation/float_depth_2026-09-08.md).
-R3–R6 and visual/endurance acceptance continue.
+R3 now adds texture materials, point/spot lights and the editable Sonic Enamel work,
+with Windows/Android delivery and real PCM/MP4 checks. [First R3 increment](docs/validation/material_textures_2026-09-08.md).
+R3 shadows/IBL, R4–R6 and visual/endurance acceptance continue.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

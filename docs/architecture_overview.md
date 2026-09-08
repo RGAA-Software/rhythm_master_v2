@@ -12,6 +12,10 @@ GPU/platform probes, graph/runtime/render contracts and per-increment deliveries
 It preserves the architecture boundaries below; long-duration soak testing moves
 to final integrated acceptance while focused functional checks remain incremental.
 
+R3 material slots retain graph producer IDs in Scene3D; Runtime resolves frame texture
+handles and pins indirect dependencies through scene capture and previews. Native
+samplers and MikkTSpace callbacks stay in private adapters. [Material contracts](material_pipeline.md).
+
 R2 adds explicit float precision and color-transfer nodes, plus a typed scene-image
 capture with separate color/depth extractors. Depth carries camera metadata;
 native attachment types stay private. [Color](color_pipeline.md) and

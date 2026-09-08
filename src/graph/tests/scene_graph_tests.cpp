@@ -67,6 +67,16 @@ void Run() {
                 {registry.MakeNode(i + 1, "scene.merge"), Operation::kSceneMerge, {i - 1, i - 1}});
     Require(ValidateSceneBudget(lights).has_value(),
             "more than four lights rejects before rendering");
+    for (const auto type : {"scene.point_light", "scene.spot_light"}) {
+        auto mixed = document;
+        mixed.nodes_.push_back(registry.MakeNode(100, type));
+        mixed.nodes_.push_back(registry.MakeNode(101, "scene.merge"));
+        mixed.edges_[3].from_ = 101;
+        mixed.edges_.push_back({100, 4, 101, "a"});
+        mixed.edges_.push_back({101, 100, 101, "b"});
+        Require(std::holds_alternative<ExecutionPlan>(Compile(mixed, registry)),
+                "positional scene light compiles");
+    }
     Document instances;
     instances.id_ = "point.instances";
     instances.nodes_ = {registry.MakeNode(1, "geometry.cube"), registry.MakeNode(2, "point.grid"),

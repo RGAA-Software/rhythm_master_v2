@@ -87,6 +87,18 @@ int main() {
             Reject([&] { renderer.SubmitSceneDepth(depth.Handle(), color.Handle(), {}); });
             const auto bytes = renderer.Stats().texture_bytes_;
             renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), {});
+            SceneDrawList lighting;
+            lighting.positional_lights_ = {PositionalLight{}};
+            renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), lighting);
+            lighting.positional_lights_[0].range_ = 0;
+            Reject([&] { renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), lighting); });
+            lighting.positional_lights_[0] = {};
+            lighting.positional_lights_[0].position_[0] = std::numeric_limits<float>::quiet_NaN();
+            Reject([&] { renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), lighting); });
+            lighting.positional_lights_[0] = {};
+            lighting.positional_lights_.resize(4);
+            lighting.lights_.resize(1);
+            Reject([&] { renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), lighting); });
             Check(renderer.Stats().texture_bytes_ == bytes);
             renderer.SubmitScene(color.Handle(), {});
             Check(renderer.Stats().texture_bytes_ == bytes + 16 * 16 * 4);

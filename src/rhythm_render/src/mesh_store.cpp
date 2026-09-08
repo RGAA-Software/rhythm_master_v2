@@ -19,6 +19,12 @@ MeshHandle MeshStore::Allocate(std::span<const MeshVertex> vertices,
         indices.size() > 750000 || indices.size() % 3)
         throw std::invalid_argument("render.mesh_size");
     const auto bytes = vertices.size_bytes() + indices.size_bytes();
+    const bool tangents = std::all_of(vertices.begin(), vertices.end(), [](const auto& v) {
+        const auto& t = v.tangent_;
+        const auto length = std::hypot(t[0], t[1], t[2]);
+        return std::isfinite(length) && length > 0.99f && length < 1.01f && std::abs(t[3]) == 1 &&
+               std::abs(t[0] * v.normal_x_ + t[1] * v.normal_y_ + t[2] * v.normal_z_) < 0.01f;
+    });
     if (bytes > 128ULL * 1024 * 1024 - bytes_) throw std::length_error("render.mesh_budget");
     for (const auto& vertex : vertices)
         if (!Finite(vertex.x_) || !Finite(vertex.y_) || !Finite(vertex.z_) ||
@@ -36,6 +42,7 @@ MeshHandle MeshStore::Allocate(std::span<const MeshVertex> vertices,
         slot = slots_.end() - 1;
     }
     slot->live_ = true;
+    slot->tangents_ = tangents;
     slot->bytes_ = bytes;
     slot->indices_ = static_cast<std::uint32_t>(indices.size());
     bytes_ += bytes;
@@ -58,7 +65,7 @@ void MeshStore::Validate(const SceneDrawList& list) const {
     if (lost_) throw std::logic_error("render.device_lost");
     if (!ValidMatrix(list.view_) || !ValidMatrix(list.projection_) || list.draws_.size() > 16384)
         throw std::invalid_argument("render.scene_budget");
-    if (list.lights_.size() > 4 ||
+    if (list.lights_.size() + list.positional_lights_.size() > 4 ||
         !std::all_of(list.camera_position_.begin(), list.camera_position_.end(), Finite))
         throw std::invalid_argument("render.scene_lights");
     const auto view_length = std::hypot(list.camera_backward_[0], list.camera_backward_[1],
@@ -73,8 +80,28 @@ void MeshStore::Validate(const SceneDrawList& list) const {
                          [](float v) { return std::isfinite(v) && v >= 0 && v <= 100; }))
             throw std::invalid_argument("render.scene_light");
     }
+    for (const auto& light : list.positional_lights_) {
+        const auto bounded = [](float v, float low, float high) {
+            return std::isfinite(v) && v >= low && v <= high;
+        };
+        const auto length =
+                std::hypot(light.direction_[0], light.direction_[1], light.direction_[2]);
+        if (!std::all_of(light.position_.begin(), light.position_.end(),
+                         [&](float v) { return bounded(v, -1000000, 1000000); }) ||
+            !std::all_of(light.radiance_.begin(), light.radiance_.end(),
+                         [&](float v) { return bounded(v, 0, 100); }) ||
+            !bounded(length, 0.99f, 1.01f) || !bounded(light.range_, 0.01f, 10000) ||
+            !bounded(light.decay_, 0, 4) || !bounded(light.cone_angle_, 0.1f, 89) ||
+            !bounded(light.cone_decay_, 0.1f, 16))
+            throw std::invalid_argument("render.positional_light");
+    }
     std::uint64_t indices = 0;
     for (const auto& draw : list.draws_) {
+        if (!std::isfinite(draw.textures_.normal_scale_) || draw.textures_.normal_scale_ < 0 ||
+            draw.textures_.normal_scale_ > 4 ||
+            !std::all_of(draw.textures_.uv_transform_.begin(), draw.textures_.uv_transform_.end(),
+                         [](float v) { return std::isfinite(v) && std::abs(v) <= 10000; }))
+            throw std::invalid_argument("render.material_texture_options");
         if (!ValidMatrix(draw.normal_) || !std::isfinite(draw.metallic_) || draw.metallic_ < 0 ||
             draw.metallic_ > 1 || !std::isfinite(draw.roughness_) || draw.roughness_ < 0 ||
             draw.roughness_ > 1 ||
@@ -86,6 +113,8 @@ void MeshStore::Validate(const SceneDrawList& list) const {
                          [](float v) { return std::isfinite(v) && v >= 0 && v <= 1; }))
             throw std::invalid_argument("render.scene_draw");
         indices += slots_[draw.mesh_.slot_].indices_;
+        if (draw.textures_.slots_[1].device_ && !slots_[draw.mesh_.slot_].tangents_)
+            throw std::invalid_argument("render.material_tangents");
         if (indices > 3000000) throw std::length_error("render.scene_index_budget");
     }
 }

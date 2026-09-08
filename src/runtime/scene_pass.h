@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+
 #include "rhythm/runtime/runtime.h"
 
 namespace rhythm::runtime::detail {
@@ -8,7 +10,8 @@ namespace rhythm::runtime::detail {
 class ScenePass final {
    public:
     render::SceneDrawList Build(const scene::Scene& scene, const scene::Camera& camera,
-                                render::Extent extent, render::Renderer& renderer);
+                                render::Extent extent, render::Renderer& renderer,
+                                std::span<const NodeOutput> outputs = {});
 
    private:
     struct Uploaded {
@@ -16,7 +19,7 @@ class ScenePass final {
         std::map<scene::NodeId, scene::WorldNode> worlds_{};
         std::vector<render::Mesh> meshes_{};
     };
-    using Key = std::pair<std::uint64_t, std::uint64_t>;
+    using Key = std::tuple<std::uint64_t, std::uint64_t, bool>;
     std::map<Key, Uploaded> uploads_{};
 };
 }  // namespace rhythm::runtime::detail

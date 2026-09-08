@@ -1,0 +1,29 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.sonic_enamel",
+    "content_version": "0.1.0",
+    "project_id": "official-sonic-enamel",
+    "graph_revision": 0,
+    "title": "音律珐琅 / Sonic Enamel",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "音律珐琅",
+        "en-US": "Sonic Enamel"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "青金色流纹雕塑与四重金属轨道：动态图内贴图驱动颜色、法线、金属度和自发光。低频控制点光，高频点亮纹路，响度驱动呼吸；聚光、景深和浮点柔光全部可编辑。",
+        "en-US": "Teal-and-gold enamel sculpture inside four metallic orbits. Live graph textures drive color, normals, metal and emission. Bass controls the point light, treble illuminates veins and loudness drives breathing. Edit the spot light, depth focus and floating bloom."
+    }
+}

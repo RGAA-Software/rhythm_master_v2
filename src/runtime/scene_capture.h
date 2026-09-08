@@ -6,7 +6,8 @@ namespace rhythm::runtime::detail {
 class SceneCapture final {
    public:
     SceneImage Draw(const scene::Scene& scene, const scene::Camera& camera, render::Extent extent,
-                    render::TexturePrecision precision, render::Renderer& renderer);
+                    render::TexturePrecision precision, render::Renderer& renderer,
+                    std::span<const NodeOutput> outputs = {});
 
    private:
     ScenePass pass_{};

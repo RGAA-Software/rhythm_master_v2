@@ -1,5 +1,7 @@
 vec3 a_position : POSITION;
 vec3 a_normal : NORMAL;
+vec2 a_texcoord0 : TEXCOORD0;
+vec4 a_tangent : TANGENT;
 vec4 i_data0 : TEXCOORD31;
 vec4 i_data1 : TEXCOORD30;
 vec4 i_data2 : TEXCOORD29;
@@ -12,3 +14,6 @@ vec4 i_data8 : TEXCOORD23;
 vec4 v_scene_color : COLOR0;
 vec3 v_world_position : TEXCOORD0;
 vec3 v_world_normal : TEXCOORD1;
+vec2 v_scene_uv : TEXCOORD2;
+vec3 v_world_tangent : TEXCOORD3;
+vec3 v_world_bitangent : TEXCOORD4;

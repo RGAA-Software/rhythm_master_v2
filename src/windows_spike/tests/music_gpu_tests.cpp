@@ -50,8 +50,13 @@ int main(int argc, char* argv[]) {
                 instructions.begin(), instructions.end(), [](const auto& instruction) {
                     return instruction.operation_ == graph::Operation::kGpuParticleEmitter;
                 });
+        const auto materials = std::count_if(
+                instructions.begin(), instructions.end(), [](const auto& instruction) {
+                    return instruction.operation_ == graph::Operation::kMaterialTextures;
+                });
         if (instructions.size() != expected_nodes ||
-            (bands < 24 && instance_fields == 0 && !(gpu_fields > 0 && bands >= 2)))
+            (bands < 24 && instance_fields == 0 &&
+             !((gpu_fields > 0 || materials > 0) && bands >= 2)))
             throw std::runtime_error("music.full_graph_not_reachable");
         std::cout << "reachable_instructions=" << instructions.size() << " audio_bands=" << bands
                   << " gpu_particle_fields=" << gpu_fields

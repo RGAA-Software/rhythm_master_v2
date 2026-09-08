@@ -3,6 +3,45 @@
 namespace rhythm::graph {
 void AppendSceneDescriptors(std::vector<OperatorDescriptor>& operators) {
     using Type = ValueType;
+    operators.push_back({"material.textures",
+                         Operation::kMaterialTextures,
+                         Type::kMaterial,
+                         {{"material", Type::kMaterial},
+                          {"base_texture", Type::kTexture, false},
+                          {"normal_texture", Type::kTexture, false},
+                          {"orm_texture", Type::kTexture, false},
+                          {"emission_texture", Type::kTexture, false}},
+                         {{"material_srgb", 1.0, 0, 1, {}, true},
+                          {"normal_scale", 1.0, 0, 4},
+                          {"uv_scale_x", 1.0, -100, 100},
+                          {"uv_scale_y", 1.0, -100, 100},
+                          {"uv_offset_x", 0.0, -10000, 10000},
+                          {"uv_offset_y", 0.0, -10000, 10000}}});
+    for (bool spot : {false, true}) {
+        OperatorDescriptor light{spot ? "scene.spot_light" : "scene.point_light",
+                                 spot ? Operation::kSpotLight : Operation::kPointLight,
+                                 Type::kScene,
+                                 {{"light_energy", Type::kScalar, false},
+                                  {"translate_x", Type::kScalar, false},
+                                  {"translate_y", Type::kScalar, false},
+                                  {"translate_z", Type::kScalar, false}},
+                                 {{"light_energy", 8.0, 0, 100},
+                                  {"color_a", Color{1, 1, 1, 1}},
+                                  {"translate_x", 0.0, -10000, 10000},
+                                  {"translate_y", 2.0, -10000, 10000},
+                                  {"translate_z", 3.0, -10000, 10000},
+                                  {"light_range", 10.0, 0.01, 10000},
+                                  {"light_decay", 2.0, 0, 4}}};
+        if (spot) {
+            light.inputs_.push_back({"spot_angle", Type::kScalar, false});
+            light.properties_.insert(light.properties_.end(), {{"light_x", 0.0, -1, 1},
+                                                               {"light_y", -0.5, -1, 1},
+                                                               {"light_z", -1.0, -1, 1},
+                                                               {"spot_angle", 45.0, 0.1, 89},
+                                                               {"spot_decay", 1.0, 0.1, 16}});
+        }
+        operators.push_back(std::move(light));
+    }
     operators.push_back({"scene.point_instances",
                          Operation::kPointInstances,
                          Type::kScene,

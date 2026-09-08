@@ -1,0 +1,28 @@
+{
+    "source_url": "https://github.com/godotengine/godot",
+    "revision": "f62fdbde15035c5576dad93e586201f4d41ef0cb",
+    "tag": "4.5.1-stable",
+    "license": "MIT",
+    "notice": "third_party/notices/godot/LICENSE.txt",
+    "source_file": "drivers/gles3/shaders/scene.glsl",
+    "sha256": "741d48c937836dd443b4526544648194588d0349e88472a0f54c1b140a9cdf31",
+    "reference_location": "out/reference/godot-4.5.1/drivers/gles3/shaders/scene.glsl",
+    "symbols": [
+        "get_omni_spot_attenuation",
+        "light_process_spot cone falloff",
+        "NORMAL_MAP_USED tangent-space interpolation"
+    ],
+    "targets": [
+        "src/rhythm_render/shaders/godot_lights.sh",
+        "src/rhythm_render/shaders/scene_fragment.sc",
+        "src/rhythm_render/shaders/scene_vertex.sc",
+        "src/rhythm_render/shaders/scene_instance.sc"
+    ],
+    "modifications": [
+        "Keep Godot smooth range cutoff, distance decay and cone shaping in project world units.",
+        "Adapt to project-owned typed light records, fixed four-light total budget and bgfx shader bindings.",
+        "Omit Godot RID/UBO/engine light lifecycle and area-light size terms.",
+        "Clamp final color to finite half range; existing BRDF and explicit R2 display transfer remain shared.",
+        "Adapt unnormalized interpolated TBN normal mapping to RGB signed-Z maps with XY strength, project UVs, inverse-transpose normals and mirrored model handedness."
+    ]
+}

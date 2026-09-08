@@ -9,6 +9,64 @@ namespace {
 void Require(bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
 }
+void Lights() {
+    using namespace rhythm;
+    graph::Registry registry;
+    for (bool spot : {false, true}) {
+        graph::Document document;
+        document.id_ = "scene.lights";
+        document.nodes_ = {
+                registry.MakeNode(1, spot ? "scene.spot_light" : "scene.point_light"),
+                registry.MakeNode(2, "scene.transform"), registry.MakeNode(3, "scene.render"),
+                registry.MakeNode(4, "output.texture"), registry.MakeNode(5, "scalar.constant")};
+        document.nodes_[0].properties_["translate_x"] = 1.0;
+        document.nodes_[0].properties_["translate_y"] = 0.0;
+        if (spot) {
+            document.nodes_[0].properties_["light_x"] = 1.0;
+            document.nodes_[0].properties_["light_y"] = 0.0;
+            document.nodes_[0].properties_["light_z"] = 0.0;
+        }
+        document.nodes_[1].properties_["rotation_z"] = 90.0;
+        document.nodes_[1].properties_["scale"] = 2.0;
+        document.nodes_[1].properties_["translate_x"] = 3.0;
+        document.nodes_[4].properties_["value"] = 12.0;
+        document.edges_ = {{1, 1, 2, "scene"},
+                           {2, 2, 3, "scene"},
+                           {3, 3, 4, "source"},
+                           {4, 5, 1, "light_energy"}};
+        if (spot) document.edges_.push_back({5, 5, 1, "spot_angle"});
+        document.output_ = 4;
+        auto renderer = render::Renderer::CreateNull();
+        runtime::Runtime runtime;
+        const auto plan = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+        renderer.BeginFrame();
+        const auto frame = runtime.Evaluate(plan, {0, 0, {64, 64}}, renderer);
+        const auto find = [&](graph::NodeId id) -> const scene::Scene& {
+            return *std::find_if(frame.outputs_.begin(), frame.outputs_.end(),
+                                 [id](const auto& item) { return item.node_ == id; })
+                            ->scene_;
+        };
+        const auto& source = find(1).positional_lights_.at(0);
+        const auto& transformed = find(2).positional_lights_.at(0);
+        Require(source.radiance_.x_ == 12 && source.position_.x_ == 1 &&
+                        transformed.range_ == source.range_,
+                "wired energy and world-unit range survive immutable scene transform");
+        Require(std::abs(transformed.position_.x_ - 3) < 1e-6 &&
+                        std::abs(transformed.position_.y_ - 2) < 1e-6 &&
+                        std::abs(transformed.position_.z_ - 6) < 1e-6,
+                "positional light follows scene scale rotation and translation");
+        if (spot)
+            Require(std::abs(transformed.direction_.y_ - 1) < 1e-6 && transformed.cone_angle_ == 12,
+                    "spot axis rotates and a wired cone angle overrides its property");
+        runtime::Viewers viewers;
+        viewers.BeginFrame(0, true, 0);
+        const std::array<graph::NodeId, 1> demand{1};
+        viewers.Capture(frame, demand, renderer);
+        Require(viewers.Outputs().size() == 1 && renderer.Stats().live_meshes_ == 1,
+                "a local-light-only node gets bounded sphere preview geometry");
+        renderer.EndFrame();
+    }
+}
 void Run() {
     using namespace rhythm;
     graph::Registry registry;
@@ -145,6 +203,7 @@ void Run() {
 int main() {
     try {
         Run();
+        Lights();
         return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

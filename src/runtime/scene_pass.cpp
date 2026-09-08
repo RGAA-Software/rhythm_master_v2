@@ -15,12 +15,16 @@ render::Matrix4 Matrix(const scene::Matrix& source) {
 }
 }  // namespace
 render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::Camera& camera,
-                                       render::Extent extent, render::Renderer& renderer) {
+                                       render::Extent extent, render::Renderer& renderer,
+                                       std::span<const NodeOutput> outputs) {
     if (!extent.width_ || !extent.height_ ||
-        scene.instances_.size() > graph::kMaximumSceneInstances || scene.lights_.size() > 4 ||
-        !renderer.SupportsScenes())
+        scene.instances_.size() > graph::kMaximumSceneInstances ||
+        scene.lights_.size() + scene.positional_lights_.size() > 4 || !renderer.SupportsScenes())
         throw std::invalid_argument("runtime.scene");
     const auto view = scene::View(camera);
+    std::map<graph::NodeId, render::TextureHandle> textures;
+    for (const auto& output : outputs)
+        if (output.texture_.device_) textures.emplace(output.node_, output.texture_);
     render::SceneDrawList result;
     result.view_ = Matrix(view);
     result.camera_backward_ = {static_cast<float>(view.values_[2]),
@@ -37,29 +41,51 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                   static_cast<float>(light.direction_.z_)},
                  {static_cast<float>(light.radiance_.x_), static_cast<float>(light.radiance_.y_),
                   static_cast<float>(light.radiance_.z_)}});
+    for (const auto& light : scene.positional_lights_)
+        result.positional_lights_.push_back(
+                {{float(light.position_.x_), float(light.position_.y_), float(light.position_.z_)},
+                 {float(light.radiance_.x_), float(light.radiance_.y_), float(light.radiance_.z_)},
+                 {float(light.direction_.x_), float(light.direction_.y_),
+                  float(light.direction_.z_)},
+                 float(light.range_),
+                 float(light.decay_),
+                 light.spot_,
+                 float(light.cone_angle_),
+                 float(light.cone_decay_)});
     std::set<Key> active;
+    const auto needs_tangents = [](const scene::Instance& instance) {
+        if (instance.material_) return instance.material_->textures_.nodes_[1] != 0;
+        return std::any_of(instance.geometry_->model_->materials_.begin(),
+                           instance.geometry_->model_->materials_.end(),
+                           [](const auto& material) { return material.textures_.nodes_[1] != 0; });
+    };
     for (const auto& instance : scene.instances_) {
         if (!instance.geometry_ || !instance.geometry_->model_ || !instance.geometry_->id_ ||
             !scene::ValidAffine(instance.transform_))
             throw std::invalid_argument("runtime.geometry");
-        active.emplace(instance.geometry_->id_, instance.geometry_->revision_);
+        active.emplace(instance.geometry_->id_, instance.geometry_->revision_,
+                       needs_tangents(instance));
     }
     std::erase_if(uploads_, [&](const auto& item) { return !active.contains(item.first); });
     std::uint64_t index_count = 0;
     for (const auto& instance : scene.instances_) {
         const auto& geometry = *instance.geometry_;
-        const Key key{geometry.id_, geometry.revision_};
+        const Key key{geometry.id_, geometry.revision_, needs_tangents(instance)};
         if (!uploads_.contains(key)) {
             scene::Validate(*geometry.model_);
             Uploaded upload;
             upload.model_ = geometry.model_;
             upload.worlds_ = scene::WorldTransforms(*geometry.model_);
-            for (const auto& mesh : geometry.model_->meshes_) {
+            std::size_t tangent_vertices = 0;
+            for (auto mesh : geometry.model_->meshes_) {
+                if (std::get<2>(key) && !mesh.has_tangents_) scene::GenerateTangents(mesh);
+                tangent_vertices += mesh.vertices_.size();
+                if (tangent_vertices > 250000) throw std::length_error("runtime.tangent_budget");
                 std::vector<render::MeshVertex> vertices;
                 vertices.reserve(mesh.vertices_.size());
                 for (const auto& v : mesh.vertices_)
-                    vertices.push_back(
-                            {v.x_, v.y_, v.z_, v.normal_x_, v.normal_y_, v.normal_z_, v.u_, v.v_});
+                    vertices.push_back({v.x_, v.y_, v.z_, v.normal_x_, v.normal_y_, v.normal_z_,
+                                        v.u_, v.v_, v.tangent_});
                 upload.meshes_.push_back(renderer.CreateMesh(vertices, mesh.indices_));
             }
             uploads_.emplace(key, std::move(upload));
@@ -85,6 +111,17 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                                          material.double_sided_});
                 auto& draw = result.draws_.back();
                 draw.unlit_ = material.unlit_;
+                draw.textures_.color_srgb_ = material.textures_.color_srgb_;
+                draw.textures_.normal_scale_ = material.textures_.normal_scale_;
+                draw.textures_.uv_transform_ = material.textures_.uv_transform_;
+                for (std::size_t slot = 0; slot < 4; ++slot) {
+                    const auto texture_node = material.textures_.nodes_[slot];
+                    if (!texture_node) continue;
+                    const auto found = textures.find(texture_node);
+                    if (found == textures.end() || !renderer.IsValid(found->second))
+                        throw std::invalid_argument("runtime.material_texture");
+                    draw.textures_.slots_[slot] = found->second;
+                }
                 draw.metallic_ = material.metallic_;
                 draw.roughness_ = material.roughness_;
                 draw.emissive_ = {static_cast<float>(material.emissive_.x_),

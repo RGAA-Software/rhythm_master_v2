@@ -108,7 +108,8 @@ void TextureLifetimes::Prepare(const graph::ExecutionPlan& plan,
             // of downstream demand, including zero-radius blur and zero-life trail.
             if (instruction.operation_ == graph::Operation::kOutput ||
                 instruction.operation_ == graph::Operation::kGaussianBlur ||
-                instruction.operation_ == graph::Operation::kTextureTrail)
+                instruction.operation_ == graph::Operation::kTextureTrail ||
+                instruction.operation_ == graph::Operation::kMaterialTextures)
                 pinned.at(*input) = true;
         }
     }

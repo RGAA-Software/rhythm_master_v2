@@ -4,6 +4,8 @@
 
 #include "bgfx_handles.h"
 #include "bgfx_scene_instances.h"
+#include "bgfx_scene_lights.h"
+#include "bgfx_scene_textures.h"
 #include "mesh_store.h"
 
 namespace rhythm::render::detail {
@@ -27,7 +29,8 @@ class BgfxScene final {
                                    TextureHandle depth_observer = {},
                                    bgfx::TextureHandle depth = BGFX_INVALID_HANDLE);
     void ReleaseTarget(TextureHandle target) noexcept;
-    std::uint32_t Draw(SceneView view, const SceneDrawList& list, std::uint32_t clear);
+    std::uint32_t Draw(SceneView view, const SceneDrawList& list, std::uint32_t clear,
+                       const SceneTextureResolver& resolve);
     void AddStats(FrameStats& stats) const { meshes_.AddStats(stats); }
     void Invalidate() { meshes_.Invalidate(); }
 
@@ -54,7 +57,7 @@ class BgfxScene final {
     GpuHandle<bgfx::UniformHandle> emissive_{};
     GpuHandle<bgfx::UniformHandle> camera_{};
     GpuHandle<bgfx::UniformHandle> camera_view_{};
-    GpuHandle<bgfx::UniformHandle> light_directions_{};
-    GpuHandle<bgfx::UniformHandle> light_colors_{};
+    BgfxSceneLights lights_{};
+    BgfxSceneTextures textures_{};
 };
 }  // namespace rhythm::render::detail

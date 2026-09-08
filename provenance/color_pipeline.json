@@ -33,5 +33,13 @@
         "Convert unpremultiplied RGB only, preserve coverage, explicitly choose transfer and exposure.",
         "Do not adapt other TiXL filmic/AgX/ACES routines or GLM lowp approximation.",
         "Clamp output to finite half range; display transfer clamps SDR."
-    ]
+    ],
+    "material_extension": {
+        "target": "src/rhythm_render/shaders/scene_fragment.sc",
+        "symbols": [
+            "MaterialLinear"
+        ],
+        "source_index": 0,
+        "modifications": "Apply the same GLM piecewise sRGB decoding to unpremultiplied color/emission material samples; raw normal/ORM slots do not decode."
+    }
 }

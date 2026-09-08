@@ -54,6 +54,20 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
                                     std::make_shared<const scene::Model>(std::move(model))});
             break;
         }
+        case Operation::kMaterialTextures: {
+            if (!input(0).material_) throw std::invalid_argument("runtime.material_input");
+            auto material = *input(0).material_;
+            for (std::size_t slot = 0; slot < 4; ++slot)
+                if (instruction.inputs_.at(slot + 1))
+                    material.textures_.nodes_[slot] = input(slot + 1).node_;
+            material.textures_.color_srgb_ = scalar("material_srgb", 1) != 0;
+            material.textures_.normal_scale_ = float(scalar("normal_scale", 1));
+            material.textures_.uv_transform_ = {
+                    float(scalar("uv_scale_x", 1)), float(scalar("uv_scale_y", 1)),
+                    float(scalar("uv_offset_x", 0)), float(scalar("uv_offset_y", 0))};
+            output.material_ = material;
+            break;
+        }
         case Operation::kMaterialUnlit:
         case Operation::kMaterialPbr: {
             const auto color = graph::ColorValue(node, "color_a",
@@ -85,6 +99,29 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
             output.scene_ = std::make_shared<const scene::Scene>(std::move(scene));
             break;
         }
+        case Operation::kPointLight:
+        case Operation::kSpotLight: {
+            scene::Scene result;
+            scene::Scene::PositionalLight light;
+            const auto energy = control(0, "light_energy", 8, 0, 100);
+            const auto color = graph::ColorValue(node, "color_a", {1, 1, 1, 1});
+            light.radiance_ = {color.r_ * energy, color.g_ * energy, color.b_ * energy};
+            light.position_ = {control(1, "translate_x", 0, -10000, 10000),
+                               control(2, "translate_y", 2, -10000, 10000),
+                               control(3, "translate_z", 3, -10000, 10000)};
+            light.range_ = scalar("light_range", 10);
+            light.decay_ = scalar("light_decay", 2);
+            light.spot_ = instruction.operation_ == Operation::kSpotLight;
+            if (light.spot_) {
+                light.direction_ = scene::Normalize(
+                        {scalar("light_x", 0), scalar("light_y", -0.5), scalar("light_z", -1)});
+                light.cone_angle_ = control(4, "spot_angle", 45, 0.1, 89);
+                light.cone_decay_ = scalar("spot_decay", 1);
+            }
+            result.positional_lights_.push_back(light);
+            output.scene_ = std::make_shared<const scene::Scene>(std::move(result));
+            break;
+        }
         case Operation::kDirectionalLight: {
             const auto direction = scene::Normalize(
                     {scalar("light_x", 1), scalar("light_y", 1), scalar("light_z", 1)});
@@ -104,12 +141,18 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
                 if (!input(1).scene_ ||
                     scene.instances_.size() + input(1).scene_->instances_.size() >
                             graph::kMaximumSceneInstances ||
-                    scene.lights_.size() + input(1).scene_->lights_.size() > 4)
+                    scene.lights_.size() + scene.positional_lights_.size() +
+                                    input(1).scene_->lights_.size() +
+                                    input(1).scene_->positional_lights_.size() >
+                            4)
                     throw std::length_error("runtime.scene_instances");
                 scene.instances_.insert(scene.instances_.end(), input(1).scene_->instances_.begin(),
                                         input(1).scene_->instances_.end());
                 scene.lights_.insert(scene.lights_.end(), input(1).scene_->lights_.begin(),
                                      input(1).scene_->lights_.end());
+                scene.positional_lights_.insert(scene.positional_lights_.end(),
+                                                input(1).scene_->positional_lights_.begin(),
+                                                input(1).scene_->positional_lights_.end());
             } else {
                 const auto angle = [&](std::size_t port, std::string_view key) {
                     return control(port, key, 0, -36000, 36000) * std::numbers::pi / 360;
@@ -132,6 +175,13 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
                                                 control(7, "translate_z", 0, -1000, 1000)},
                                                {0, 0, std::sin(z), std::cos(z)}, {1, 1, 1});
                 const auto transform = scene::Multiply(rz, scene::Multiply(ry, rx));
+                for (auto& light : scene.positional_lights_) {
+                    light.position_ = scene::TransformPoint(transform, light.position_);
+                    const auto tip = scene::TransformPoint(transform, light.direction_);
+                    const auto origin = scene::TransformPoint(transform, {});
+                    light.direction_ = scene::Normalize(
+                            {tip.x_ - origin.x_, tip.y_ - origin.y_, tip.z_ - origin.z_});
+                }
                 for (auto& light : scene.lights_) {
                     const auto position = scene::TransformPoint(transform, light.direction_);
                     const auto origin = scene::TransformPoint(transform, {});
@@ -185,8 +235,8 @@ scene::Scene PreviewScene(const NodeOutput& output) {
         result = *output.scene_;
     else if (output.geometry_)
         result.instances_.push_back({output.geometry_});
-    if (output.material_ ||
-        (output.scene_ && result.instances_.empty() && !result.lights_.empty())) {
+    if (output.material_ || (output.scene_ && result.instances_.empty() &&
+                             (!result.lights_.empty() || !result.positional_lights_.empty()))) {
         static const auto kSphere = std::make_shared<const scene::Model>(scene::Sphere());
         auto geometry =
                 std::make_shared<const scene::Geometry>(scene::Geometry{output.node_, 0, kSphere});
@@ -195,7 +245,8 @@ scene::Scene PreviewScene(const NodeOutput& output) {
         result.instances_.push_back({std::move(geometry), {}, output.material_.value_or(material)});
     }
     // Neutral preview lighting never changes the authored graph or final output.
-    if (result.lights_.empty()) result.lights_.push_back({scene::Normalize({1, 1, 2}), {3, 3, 3}});
+    if (result.lights_.empty() && result.positional_lights_.empty())
+        result.lights_.push_back({scene::Normalize({1, 1, 2}), {3, 3, 3}});
     return result;
 }
 }  // namespace rhythm::runtime::detail

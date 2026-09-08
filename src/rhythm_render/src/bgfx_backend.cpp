@@ -176,6 +176,8 @@ class BgfxBackend final : public Backend {
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         if (!scene_) scene_ = std::make_unique<BgfxScene>(resources_.DeviceId());
         scene_->Validate(list);
+        resources_.ValidateSceneMaterials(color, list);
+        resources_.RecordSceneSamples(list);
         if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
         const auto extent = resources_.Size(color);
         const auto framebuffer =
@@ -184,7 +186,9 @@ class BgfxBackend final : public Backend {
         resources_.DropDepth(color);
         draws_ += scene_->Draw({static_cast<bgfx::ViewId>(passes_++), framebuffer, extent,
                                 invert_targets_, homogeneous_depth_},
-                               list, clear);
+                               list, clear, [this](TextureHandle handle) {
+                                   return textures_.at(handle.slot_).texture_.Get();
+                               });
     }
     void Release(TextureHandle handle) noexcept override {
         if (!resources_.Owns(handle)) return;
@@ -289,6 +293,8 @@ class BgfxBackend final : public Backend {
         if (!resources_.IsRenderTarget(target)) throw std::invalid_argument("render.scene_target");
         if (!scene_) scene_ = std::make_unique<BgfxScene>(resources_.DeviceId());
         scene_->Validate(list);
+        resources_.ValidateSceneMaterials(target, list);
+        resources_.RecordSceneSamples(list);
         if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
         const auto extent = resources_.Size(target);
         const bool allocated = resources_.ReserveDepth(target);
@@ -300,8 +306,9 @@ class BgfxBackend final : public Backend {
             throw;
         }
         const auto view = static_cast<bgfx::ViewId>(passes_++);
-        draws_ += scene_->Draw({view, framebuffer, extent, invert_targets_, homogeneous_depth_},
-                               list, clear);
+        draws_ += scene_->Draw(
+                {view, framebuffer, extent, invert_targets_, homogeneous_depth_}, list, clear,
+                [this](TextureHandle handle) { return textures_.at(handle.slot_).texture_.Get(); });
     }
     void BeginFrame() override {
         resources_.CheckReady();

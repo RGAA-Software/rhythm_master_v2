@@ -1,0 +1,14 @@
+{
+    "template": "sonic_enamel",
+    "package_sha256": "f0fba9e755f57534aca6c196823f7cebfd1476a9238646e749fdac496c11b180",
+    "thumbnail_sha256": "9910c90f4a37bf029c0c1f58dc7d6ddc2960a1a80f97c35d09eb48fad703a5b7",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

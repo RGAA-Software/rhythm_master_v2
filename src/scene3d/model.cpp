@@ -71,6 +71,14 @@ void Validate(const Model& model) {
                     Bounded(v.v_));
             const auto length = std::hypot(v.normal_x_, v.normal_y_, v.normal_z_);
             Require(std::isfinite(length) && length > 0.99f && length < 1.01f);
+            if (mesh.has_tangents_) {
+                const auto& t = v.tangent_;
+                const auto tangent_length = std::hypot(t[0], t[1], t[2]);
+                Require(std::isfinite(tangent_length) && tangent_length > 0.99f &&
+                        tangent_length < 1.01f && std::abs(t[3]) == 1 &&
+                        std::abs(t[0] * v.normal_x_ + t[1] * v.normal_y_ + t[2] * v.normal_z_) <
+                                0.01f);
+            }
         }
         for (const auto index : mesh.indices_) Require(index < mesh.vertices_.size());
     }
@@ -83,6 +91,7 @@ void Validate(const Model& model) {
     (void)WorldTransforms(model);
 }
 void GenerateNormals(Mesh& mesh) {
+    mesh.has_tangents_ = false;
     Require(mesh.vertices_.size() <= 250000 && mesh.indices_.size() <= 750000 &&
             mesh.indices_.size() % 3 == 0);
     std::vector<Vector3> normals(mesh.vertices_.size());

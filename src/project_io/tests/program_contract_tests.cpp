@@ -26,6 +26,26 @@ int main() {
     using namespace rhythm;
     try {
         graph::Registry registry;
+        for (const auto type : {"scene.point_light", "scene.spot_light"}) {
+            graph::Document document;
+            document.id_ = "local-light-publication";
+            document.nodes_ = {registry.MakeNode(1, type), registry.MakeNode(2, "scene.render"),
+                               registry.MakeNode(3, "output.texture")};
+            document.nodes_[0].properties_["light_range"] = 27.0;
+            document.edges_ = {{1, 1, 2, "scene"}, {2, 2, 3, "source"}};
+            document.output_ = 3;
+            const auto plan = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+            const auto restored = project::DecodeProgram(project::EncodeProgram(plan));
+            auto renderer = render::Renderer::CreateNull();
+            runtime::Runtime runtime;
+            renderer.BeginFrame();
+            const auto frame = runtime.Evaluate(restored, {0, 0, {16, 16}}, renderer);
+            renderer.EndFrame();
+            const auto& light = frame.outputs_[0].scene_->positional_lights_.at(0);
+            Check(light.range_ == 27 &&
+                          light.spot_ == (std::string_view(type) == "scene.spot_light"),
+                  "local light type and properties survive publication and playback");
+        }
         {
             graph::Document gpu;
             gpu.id_ = "gpu-program";

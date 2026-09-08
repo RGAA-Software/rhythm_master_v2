@@ -5,6 +5,12 @@
 
 ## 1. 状态与决策规则
 
+R3 已验证 vcpkg `mikktspace 2020-10-06#3`（Zlib，静态链接），仅新增
+`x64-windows` 与 `arm64-android` 包，没有升级共享安装的其他依赖。Windows 与
+USB 手机通过基本几何、镜像 UV 接缝和异常输入检查，采用其切线生成；C 类型仅留在
+Scene3D 私有同步适配器。版本、许可和安装 ABI 见 `provenance/mikktspace.json`。
+点光/聚光和四槽材质的后端像素检查也已通过两端；R3 节点/作品、阴影和 IBL 仍在推进。
+
 R2 的 RGBA16F、sRGB/线性转换、可采样 D24S8 与景深已通过 D3D11 和 USB
 Adreno 650/GLES 3.1 的实际像素检查。色彩适配参考已安装 vcpkg GLM 的 MIT 分支，
 Reinhard 和景深参考本地 TiXL MIT 源码；未新增解码器、Qt 或渲染后端。

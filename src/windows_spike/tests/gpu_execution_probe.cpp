@@ -14,6 +14,8 @@ int main() {
         rhythm::validation::VerifyGpuParticles(renderer);
         rhythm::validation::VerifyColorPipeline(renderer);
         rhythm::validation::VerifySampleableDepth(renderer);
+        rhythm::validation::VerifyPositionalLights(renderer);
+        rhythm::validation::VerifyMaterialTextures(renderer);
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

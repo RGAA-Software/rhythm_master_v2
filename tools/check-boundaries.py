@@ -19,6 +19,8 @@ RENDER_ADAPTERS = {
         "bgfx_readbacks.h", "bgfx_readbacks.cpp",
         "bgfx_scene.h", "bgfx_scene.cpp",
         "bgfx_scene_instances.h", "bgfx_scene_instances.cpp",
+        "bgfx_scene_lights.h", "bgfx_scene_lights.cpp",
+        "bgfx_scene_textures.h", "bgfx_scene_textures.cpp",
         "bgfx_gpu_points.h", "bgfx_gpu_points.cpp",
         "bgfx_texture_programs.h", "bgfx_texture_programs.cpp")
 }

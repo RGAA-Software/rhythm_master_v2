@@ -23,6 +23,7 @@ class MeshStore final {
         std::uint32_t indices_ = 0;
         std::uint64_t bytes_ = 0;
         bool live_ = false;
+        bool tangents_ = false;
     };
     std::uint64_t device_ = 0;
     std::vector<Slot> slots_{};

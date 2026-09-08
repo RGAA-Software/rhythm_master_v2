@@ -10,6 +10,7 @@ BgfxScene::BgfxScene(std::uint64_t device) : meshes_(device) {
             .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
             .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
             .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
+            .add(bgfx::Attrib::Tangent, 4, bgfx::AttribType::Float)
             .end();
     GpuHandle vertex(
             bgfx::createShader(bgfx::copy(kSceneVertexShader, sizeof(kSceneVertexShader))));
@@ -22,10 +23,6 @@ BgfxScene::BgfxScene(std::uint64_t device) : meshes_(device) {
     emissive_ = GpuHandle(bgfx::createUniform("u_scene_emissive", bgfx::UniformType::Vec4));
     camera_ = GpuHandle(bgfx::createUniform("u_scene_camera", bgfx::UniformType::Vec4));
     camera_view_ = GpuHandle(bgfx::createUniform("u_scene_view", bgfx::UniformType::Vec4));
-    light_directions_ =
-            GpuHandle(bgfx::createUniform("u_scene_light_directions", bgfx::UniformType::Vec4, 4));
-    light_colors_ =
-            GpuHandle(bgfx::createUniform("u_scene_light_colors", bgfx::UniformType::Vec4, 4));
 }
 MeshHandle BgfxScene::Create(std::span<const MeshVertex> vertices,
                              std::span<const std::uint32_t> indices) {
@@ -82,7 +79,8 @@ void BgfxScene::ReleaseTarget(TextureHandle target) noexcept {
         return entry.second.observer_ == target || entry.second.depth_observer_ == target;
     });
 }
-std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std::uint32_t clear) {
+std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std::uint32_t clear,
+                              const SceneTextureResolver& resolve) {
     const auto view = context.view_;
     bgfx::setViewMode(view, bgfx::ViewMode::Sequential);
     bgfx::setViewFrameBuffer(view, context.framebuffer_);
@@ -104,14 +102,10 @@ std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std:
     }
     bgfx::setViewTransform(view, list.view_.data(), projection.data());
     if (list.draws_.empty()) bgfx::touch(view);
-    const std::array camera{list.camera_position_[0], list.camera_position_[1],
-                            list.camera_position_[2], static_cast<float>(list.lights_.size())};
-    std::array<std::array<float, 4>, 4> directions{}, colors{};
-    for (std::size_t i = 0; i < list.lights_.size(); ++i) {
-        const auto& light = list.lights_[i];
-        directions[i] = {light.direction_[0], light.direction_[1], light.direction_[2], 0};
-        colors[i] = {light.radiance_[0], light.radiance_[1], light.radiance_[2], 0};
-    }
+    const std::array camera{
+            list.camera_position_[0], list.camera_position_[1], list.camera_position_[2],
+            static_cast<float>(list.lights_.size() + list.positional_lights_.size())};
+    lights_.Set(list);
     std::uint32_t submissions = 0;
     for (std::size_t index = 0; index < list.draws_.size();) {
         const auto& draw = list.draws_[index];
@@ -131,8 +125,8 @@ std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std:
         const std::array camera_view{list.camera_backward_[0], list.camera_backward_[1],
                                      list.camera_backward_[2], list.orthographic_ ? 1.0f : 0.0f};
         bgfx::setUniform(camera_view_.Get(), camera_view.data());
-        bgfx::setUniform(light_directions_.Get(), directions.data(), 4);
-        bgfx::setUniform(light_colors_.Get(), colors.data(), 4);
+        lights_.Bind();
+        textures_.Bind(draw.textures_, resolve);
         std::uint64_t state =
                 BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_LESS |
                 BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_INV_SRC_ALPHA);

@@ -108,6 +108,19 @@ void ResourceTable::BeginFrame() {
     CheckReady();
     for (auto& slot : slots_) slot.sampled_ = false;
 }
+void ResourceTable::ValidateSceneMaterials(TextureHandle target, const SceneDrawList& list) const {
+    CheckReady();
+    for (const auto& draw : list.draws_)
+        for (const auto texture : draw.textures_.slots_)
+            if (texture != TextureHandle{} &&
+                (!IsValid(texture) || IsDepth(texture) || texture == target))
+                throw std::invalid_argument("render.material_texture");
+}
+void ResourceTable::RecordSceneSamples(const SceneDrawList& list) {
+    for (const auto& draw : list.draws_)
+        for (const auto texture : draw.textures_.slots_)
+            if (IsValid(texture)) slots_[texture.slot_].sampled_ = true;
+}
 void ResourceTable::RecordSamples(const DrawList& list) {
     const auto sample = [&](TextureHandle handle) {
         if (IsValid(handle)) slots_[handle.slot_].sampled_ = true;

@@ -24,5 +24,18 @@ struct Scene {
         Vector3 radiance_{1, 1, 1};
     };
     std::vector<DirectionalLight> lights_{};
+    struct PositionalLight {
+        Vector3 position_{0, 0, 3};
+        Vector3 radiance_{1, 1, 1};
+        Vector3 direction_{0, 0, -1};
+        double range_ = 10;
+        double decay_ = 2;
+        bool spot_ = false;
+        double cone_angle_ = 45;
+        double cone_decay_ = 1;
+    };
+    // All light kinds share the four-light budget. Range is in world units;
+    // scene transforms change positions/axes but do not rescale that range.
+    std::vector<PositionalLight> positional_lights_{};
 };
 }  // namespace rhythm::scene

@@ -1,5 +1,13 @@
 # Continuous implementation through Android Player
 
+## R3 first material/light delivery, 2026-09-08
+
+Four texture slots, MikkTSpace normals, point/spot lights and Sonic Enamel are
+implemented and checked on Windows/USB Android. Real music, deterministic MP4,
+full Windows deploy and 35-effect Android overlay installation pass. Shadows,
+IBL and embedded GLB textures remain in R3; R4–R6 continue afterward.
+[Evidence](validation/material_textures_2026-09-08.md).
+
 ## R2 float/color/depth delivery, 2026-09-08
 
 Explicit float precision, linear/SDR conversion, typed scene capture/depth and
