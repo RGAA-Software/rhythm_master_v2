@@ -278,6 +278,9 @@ native builds and automatic Python APK packaging. The current local acceptance A
 is `out/android-arm64-release/apk/rhythm-player-release.apk`; install with `adb install -r`.
 USB overlay installation and built-in effect selection are verified on the attached
 Redmi K40S; broader lifecycle/endurance acceptance remains separately tracked.
+Android **Full screen** hides the control panel and system bars while preserving
+scene orientation. Tap the image to reveal **Show controls**, or press Back to
+return. See [presentation behavior and device checks](docs/android_presentation.md).
 SDK paths are script parameters, and target libraries are separate from host
 protoc. The SDK is an audited experiment snapshot rather than a release lock;
 see [dependency records](third_party/README.md).

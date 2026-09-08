@@ -54,4 +54,7 @@
     <string name="scene_help">最多 16 场，依次预备。暂停会冻结转场。带配乐作品接管时切换音乐。队列仅用于本次演出。</string>
     <string name="scene_budget">下一场超过资源预算，保留当前画面。</string>
     <string name="scene_interrupted">转场已中断或失败，保留当前场景。</string>
+    <string name="fullscreen">全屏演出</string>
+    <string name="exit_fullscreen">显示控制区</string>
+    <string name="fullscreen_help">轻触画面显示控制按钮，返回键退出全屏。</string>
 </resources>

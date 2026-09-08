@@ -54,4 +54,7 @@
     <string name="scene_help">Up to 16 works, prepared in order. Pause freezes transitions. Bound music switches on takeover. Queue lasts for this performance.</string>
     <string name="scene_budget">Next work exceeds resource budget. Current scene retained.</string>
     <string name="scene_interrupted">Transition interrupted or failed. Current scene retained.</string>
+    <string name="fullscreen">Full screen</string>
+    <string name="exit_fullscreen">Show controls</string>
+    <string name="fullscreen_help">Tap the image to reveal controls. Back leaves full screen.</string>
 </resources>

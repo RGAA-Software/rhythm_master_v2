@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.View;
 import android.widget.Button;
@@ -19,7 +21,6 @@ import android.widget.Toast;
 import android.widget.SeekBar;
 import android.widget.CheckBox;
 import android.widget.ScrollView;
-import android.widget.RelativeLayout;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -53,6 +54,7 @@ public final class PlayerActivity extends SDLActivity {
     private ScrollView controls_container_ = null;
     private EffectCatalog effects_ = null;
     private TextView effect_title_ = null;
+    private PlayerPresentation presentation_ = null;
     private static native void nativeCommand(int command);
     private static native boolean nativeOpen(String path);
     private static native String nativeStatus();
@@ -130,6 +132,7 @@ public final class PlayerActivity extends SDLActivity {
         AddButton(settings, R.string.performance_controls, () -> PerformanceControls.Show(this));
         LinearLayout scenes = new LinearLayout(this);
         AddButton(scenes, R.string.scene_queue, () -> SceneQueueDialog.Show(this, () -> ChooseQueuedEffect()));
+        AddButton(scenes, R.string.fullscreen, () -> presentation_.Enter());
         controls.addView(settings);
         controls.addView(scenes);
         LinearLayout music = new LinearLayout(this);
@@ -169,7 +172,7 @@ public final class PlayerActivity extends SDLActivity {
         controls_container_.setBackgroundColor(0xff172230);
         controls_container_.addView(controls);
         mLayout.addView(controls_container_);
-        ApplyControlLayout();
+        presentation_ = new PlayerPresentation(this, mLayout, mSurface, controls_container_);
         boolean chinese = getResources().getConfiguration().getLocales().get(0).getLanguage().equals("zh");
         importer_.execute(() -> {
             try {
@@ -219,24 +222,24 @@ public final class PlayerActivity extends SDLActivity {
             super.setOrientationBis(0, 0, true, hint);
     }
 
-    private void ApplyControlLayout() {
-        if (controls_container_ == null || mSurface == null) return;
-        android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
-        boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-        RelativeLayout.LayoutParams controls = new RelativeLayout.LayoutParams(
-                landscape ? Math.min((int) (280 * metrics.density), metrics.widthPixels / 2) : ViewGroup.LayoutParams.MATCH_PARENT,
-                landscape ? ViewGroup.LayoutParams.MATCH_PARENT : Math.min((int) (240 * metrics.density), metrics.heightPixels / 2));
-        controls.addRule(landscape ? RelativeLayout.ALIGN_PARENT_RIGHT : RelativeLayout.ALIGN_PARENT_BOTTOM);
-        controls_container_.setLayoutParams(controls);
-        RelativeLayout.LayoutParams surface = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        surface.addRule(landscape ? RelativeLayout.LEFT_OF : RelativeLayout.ABOVE, controls_container_.getId());
-        mSurface.setLayoutParams(surface);
-    }
-
     @Override public void onConfigurationChanged(Configuration configuration) {
         super.onConfigurationChanged(configuration);
-        ApplyControlLayout();
+        if (presentation_ != null) presentation_.ApplyLayout();
+    }
+
+    @Override public void onBackPressed() {
+        if (presentation_ != null && presentation_.Exit()) return;
+        super.onBackPressed();
+    }
+
+    @Override public boolean dispatchKeyEvent(KeyEvent event) {
+        if (presentation_ != null && presentation_.HandleBack(event)) return true;
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override public boolean dispatchTouchEvent(MotionEvent event) {
+        if (presentation_ != null) presentation_.ObserveTouch(event);
+        return super.dispatchTouchEvent(event);
     }
 
     private void AddButton(LinearLayout row, int label, Runnable action) {
@@ -334,12 +337,14 @@ public final class PlayerActivity extends SDLActivity {
     @Override protected void onResume() {
         super.onResume();
         active_ = true;
+        if (presentation_ != null) presentation_.Resume();
         handler_.post(update_);
     }
 
     @Override protected void onPause() {
         active_ = false;
         handler_.removeCallbacks(update_);
+        if (presentation_ != null) presentation_.Pause();
         super.onPause();
     }
 
@@ -347,6 +352,7 @@ public final class PlayerActivity extends SDLActivity {
         active_ = false;
         handler_.removeCallbacks(update_);
         importer_.shutdownNow();
+        if (presentation_ != null) presentation_.Pause();
         if (audio_manager_ != null && audio_focus_ != null) audio_manager_.abandonAudioFocusRequest(audio_focus_);
         super.onDestroy();
     }
