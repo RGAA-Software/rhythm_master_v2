@@ -1,0 +1,41 @@
+{
+    "ownership": "first-party",
+    "baseline": "b5d36dd",
+    "source_files": [
+        "tools/author-phase-loom.py",
+        "tools/author-porcelain-pendulum.py",
+        "tools/author-resonance-gate.py",
+        "tools/author-luminous-concerto.py"
+    ],
+    "imported_third_party_files": [],
+    "renderer_provenance": [
+        "provenance/tixl_effects.json"
+    ],
+    "modifications": [
+        "New editable pigment/coastline expressions and framed contour composition.",
+        "Reuse original music arrangement, bounded image-shader compiler and native effect operators."
+    ],
+    "assets": [
+        {
+            "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+            "bytes": 240627,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+            "bytes": 160293,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "18c55484fac8fb9bf262a135d655c0a1fefb5e15dac6f5d5442a4f91f2492001",
+            "bytes": 4282,
+            "media_type": "application/x-rhythm-image-shader"
+        },
+        {
+            "sha256": "1d7409bc2408c2a896574e531e43462db7005670871a31e94a76b155a8e17bfb",
+            "bytes": 3667,
+            "media_type": "application/x-rhythm-image-shader"
+        }
+    ],
+    "target": "content/templates/ink_tide"
+}

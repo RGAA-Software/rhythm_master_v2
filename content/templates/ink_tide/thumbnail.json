@@ -1,0 +1,14 @@
+{
+    "template": "ink_tide",
+    "package_sha256": "ca7f0f85bb37a054cef819a7be38eeabe75580e447715b51e94843d23451fdaf",
+    "thumbnail_sha256": "26c638ff8d4d2ec3b3a804a9110b3e95cb6315c124bcea144a8e615756d98610",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

@@ -48,6 +48,8 @@ The independent content quality targets continue.
 music work with editable cues, bound music, Windows export and Android built-in playback.
 [Android catalog search](docs/android_catalog_navigation.md) filters bilingual names/descriptions,
 template levels and canvas orientation before direct playback or queue insertion.
+[Ink Tide](docs/validation/ink_tide_2026-09-09.md) adds an editable music-driven pigment,
+coastline and contour composition with desktop export and Android selection.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

@@ -4,11 +4,12 @@ Reuses our Graph writer, procedural geometry/material/shadow contracts and the
 original pulse/chime media authored for Luminous Concerto. No external artwork.
 """
 
-import hashlib
 import importlib.util
 import json
 import math
 from pathlib import Path
+
+import music_work
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('gate', ROOT / 'tools/author-resonance-gate.py')
@@ -143,20 +144,7 @@ def main():
         f'schema_version: 5\nid: "official-porcelain-pendulum"\noutput: {final}\ncanvas {{ width: 1280 height: 720 }}\n' +
         '\n'.join(graph.nodes + graph.edges + metadata) + '\n', encoding='utf-8')
     (destination / 'editor.json').write_text(json.dumps(dict(version=2, positions=graph.positions), indent=4)+'\n', encoding='utf-8')
-    source = ROOT / 'content/templates/luminous_concerto'
-    original = json.loads((source / 'manifest.json').read_text(encoding='utf-8'))
-    soundtrack = original['soundtrack']
-    used = {clip['sha256'] for clip in soundtrack['clips']}
-    records = [record for record in original['assets'] if record['sha256'] in used]
-    for record in records:
-        digest = record['sha256']
-        relative = Path('assets/sha256') / digest[:2] / digest
-        data = (source / relative).read_bytes()
-        if hashlib.sha256(data).hexdigest() != digest or len(data) != record['bytes']:
-            raise ValueError('Original music integrity')
-        target = destination / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(data)
+    records, soundtrack = music_work.original_arrangement(destination)
     manifest = dict(format='rhythm.project', manifest_version=3, kind='template',
                     content_id='official.templates.porcelain_pendulum', content_version='0.1.0',
                     project_id='official-porcelain-pendulum', graph_revision=0,

@@ -1,0 +1,123 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 3,
+    "kind": "template",
+    "content_id": "official.templates.ink_tide",
+    "content_version": "0.1.0",
+    "project_id": "official-ink-tide",
+    "graph_revision": 0,
+    "title": "墨潮 / Ink Tide",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "墨潮",
+        "en-US": "Ink Tide"
+    },
+    "category": "audio",
+    "tier": "basic",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "assets": [
+        {
+            "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+            "bytes": 240627,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+            "bytes": 160293,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "18c55484fac8fb9bf262a135d655c0a1fefb5e15dac6f5d5442a4f91f2492001",
+            "bytes": 4282,
+            "media_type": "application/x-rhythm-image-shader"
+        },
+        {
+            "sha256": "1d7409bc2408c2a896574e531e43462db7005670871a31e94a76b155a8e17bfb",
+            "bytes": 3667,
+            "media_type": "application/x-rhythm-image-shader"
+        }
+    ],
+    "soundtrack": {
+        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+        "title": "Luminous Concerto",
+        "gain": 0.75,
+        "loop": true,
+        "clips": [
+            {
+                "id": 1,
+                "title": "Pulse foundation",
+                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                "start": 0,
+                "duration": 16,
+                "source_in": 0,
+                "source_out": 8,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.85,
+                "pan": 0,
+                "muted": false
+            },
+            {
+                "id": 2,
+                "title": "Chimes entrance",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 4,
+                "duration": 8,
+                "source_in": 0,
+                "source_out": 8,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.75,
+                "pan": -0.25,
+                "muted": false
+            },
+            {
+                "id": 3,
+                "title": "Chimes release",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 12,
+                "duration": 4,
+                "source_in": 0,
+                "source_out": 4,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.6,
+                "pan": 0.25,
+                "muted": false
+            },
+            {
+                "id": 4,
+                "title": "Answering chimes",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 8,
+                "duration": 8,
+                "source_in": 2,
+                "source_out": 6,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.35,
+                "pan": 0.6,
+                "muted": false
+            }
+        ]
+    },
+    "descriptions": {
+        "zh-CN": "墨绿潮汐在纸色留白中展开，金色岸线与细密等高纹理随音乐流动。低频改变墨量，中频驱动空间扭曲，高频推进金线和谱带。三个公开宏、四段 Cue 和 16 秒配乐均可编辑；两个图像 Shader 可直接修改。",
+        "en-US": "Deep teal tides cross warm paper, traced by fine contour etching and a metallic coastline. Bass changes pigment coverage, mids warp the field, highs advance the gold edge and spectrum. Edit three macros, four cues, 16-second music and both image shaders."
+    }
+}
