@@ -56,6 +56,10 @@ int main(int argc, char* argv[]) {
             studio.Frame(host, renderer, elapsed);
             const auto draw = host.EndUi();
             renderer.Submit({}, draw, 0x111822ff);
+            if (frame == 60) {
+                const auto capture = (root / "export-start").string();
+                bgfx::requestScreenShot(BGFX_INVALID_HANDLE, capture.c_str());
+            }
             if (completed_frame >= 0 && frame == completed_frame + 10) {
                 const auto capture = (root / "export-ui").string();
                 bgfx::requestScreenShot(BGFX_INVALID_HANDLE, capture.c_str());

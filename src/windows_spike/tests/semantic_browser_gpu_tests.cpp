@@ -6,11 +6,21 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
+#include "catalog_preview.h"
 #include "semantic_palette.h"
 
 namespace {
 void Check(bool value, const char* message) {
     if (!value) throw std::runtime_error(message);
+}
+void CheckWorkerCapacity() {
+    // The existing global budget is eight pools. Idle catalog objects and a
+    // prepared preview must leave these slots available for authoring/export.
+    std::vector<std::unique_ptr<rhythm::foundation::BlockingExecutor>> pools;
+    for (int index = 0; index < 8; ++index)
+        pools.push_back(std::make_unique<rhythm::foundation::BlockingExecutor>(
+                rhythm::foundation::BlockingOptions{1, 1}));
+    rhythm::studio::CatalogPreview first, second;
 }
 void ChildAction(std::string_view child, const std::string& item) {
     // Checked borrowed ImGui window, confined to the synchronous test boundary.
@@ -44,6 +54,7 @@ int main(int argc, char* argv[]) {
         auto renderer = host.CreateRenderer();
         auto font = host.CreateFontTexture(renderer);
         studio::SemanticPalette browser;
+        CheckWorkerCapacity();
         const auto baseline = renderer.Stats().texture_bytes_;
         int ready = -1;
         int inserted = -1;
@@ -77,7 +88,10 @@ int main(int argc, char* argv[]) {
                       "semantic insertion undo");
                 inserted = frame;
             }
-            if (frame > 8 && ready < 0 && renderer.Stats().passes_ > 0) ready = frame;
+            if (frame > 8 && ready < 0 && renderer.Stats().passes_ > 0) {
+                ready = frame;
+                CheckWorkerCapacity();
+            }
             if (frame == 5) size = PopupSize();
             if (frame > 5 && inserted < 0) {
                 const auto current = PopupSize();

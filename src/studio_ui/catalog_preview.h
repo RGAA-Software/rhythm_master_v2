@@ -5,7 +5,8 @@
 
 namespace rhythm::studio {
 // One immutable catalog selection, one preparation worker and one live GPU session.
-// UI/host thread only; closing drains late results and releases preview resources.
+// UI/host thread only. A worker exists only during package preparation; completed
+// previews hold no pool lease. Closing cancels pending work and releases GPU state.
 class CatalogPreview final {
    public:
     void Select(std::filesystem::path package);
@@ -19,7 +20,7 @@ class CatalogPreview final {
    private:
     std::filesystem::path selected_{};
     std::filesystem::path requested_{};
-    player::PackageLoader loader_{};
+    std::optional<player::PackageLoader> loader_{};
     player::Session session_{};
     render::TextureHandle texture_{};
     render::Extent extent_{};
