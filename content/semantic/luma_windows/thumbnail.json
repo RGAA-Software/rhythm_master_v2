@@ -1,0 +1,14 @@
+{
+    "template": "luma_windows",
+    "package_sha256": "52e989159ab895432f8fe7a994957ea6e96c0089fe7e1d63ae63e08be88a2744",
+    "thumbnail_sha256": "8af6e7b769daa844c29d161251f25cab7f4c683f788dc67faf424493b10bce97",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.audio_iris",
+    "content_version": "0.1.1",
+    "project_id": "semantic-audio_iris",
+    "graph_revision": 0,
+    "title": "音乐光阑 / Audio iris",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Audio iris",
+        "zh-CN": "音乐光阑"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Reveal your source through a rotating polygon aperture. Bass opens it and highs turn it; feather the boundary or invert the mask. The output retains transparency.",
+        "zh-CN": "通过旋转多边形光阑显示输入图像。低频打开孔径，高频驱动转动；边缘可柔化，也可反转遮罩。输出保留透明区域。"
+    }
+}

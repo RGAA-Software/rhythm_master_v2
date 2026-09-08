@@ -1,0 +1,14 @@
+{
+    "template": "audio_iris",
+    "package_sha256": "130397dcd6f8bedfbd6cee67927a0abe259cec77c52c7533fc33bb114cd0ab8c",
+    "thumbnail_sha256": "8ea39a7530961a302add5d0c9f9a6f9a6da9679c0eddff682c35b656ebe3f22c",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

@@ -57,7 +57,9 @@ coastline and contour composition with desktop export and Android selection.
 with demonstration inputs and insert only the editable component. Flow glass adds
 music-driven refraction for the author's own source texture.
 [Four further processing chains](docs/validation/processing_components_2026-09-09.md)
-add prism folding, contour engraving, motion history and dual-radius glow; the catalog has 22 components.
+add prism folding, contour engraving, motion history and dual-radius glow.
+[Spiral and aperture components](docs/validation/aperture_components_2026-09-09.md)
+bring the catalog to 25 editable components, including input-image masks.
 [Resonant Arcade](docs/validation/resonant_arcade_2026-09-09.md) uses an embedded editable
 Prism fold component on musical architectural screens, with cues, desktop export and Android playback.
 

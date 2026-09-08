@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.luma_windows",
+    "content_version": "0.1.1",
+    "project_id": "semantic-luma_windows",
+    "graph_revision": 0,
+    "title": "亮度开窗 / Luma windows",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Luma windows",
+        "zh-CN": "亮度开窗"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Cut transparent windows along source luminance bands while keeping the original image colors. Bass/high bands sweep the slices; set density, width, feather and inversion.",
+        "zh-CN": "沿输入图像亮度带开出透明窗口，并保留原图颜色。低频和高频移动切片，可调密度、宽度、柔边与反转。"
+    }
+}

@@ -75,6 +75,61 @@ def soft_glow(graph):
                            ('spread_mix', glow, 'amount'), ('saturation', image, 'saturation')]
 
 
+def polar_vortex(graph):
+    node = graph.node
+    phase, bass, high, pace, response = controls(graph, 0.08)
+    travel = node('scalar.expression', 680, 0, dict(time=phase, a=bass, b=response),
+                  expression='time + a * b * 0.7')
+    curl = node('scalar.expression', 680, 350, dict(a=bass, b=high, c=response),
+                expression='(a * 1.7 - b * 2.4) * c + 0.25')
+    # The existing polar sampler uses mirrored addressing. A fourfold input is
+    # symmetric in U, so the two angular seam samples remain equal as it twists.
+    folded = node('texture.mapping', 680, 800, sectors=4, scale=1)
+    tunnel = node('texture.mapping', 1020, 0, dict(source=folded, travel=travel, twist=curl),
+                  mapping_mode=1, radial_power=-0.65, scale=1.1)
+    blur = node('texture.blur', 1360, 350, dict(source=tunnel), blur_radius=4)
+    output = node('texture.composite', 1700, 0, dict(a=tunnel, b=blur), composite_mode=1, amount=0.14)
+    return folded, output, [('pace', pace, 'value'), ('response', response, 'value'),
+                            ('depth', tunnel, 'radial_power'), ('scale', tunnel, 'scale'),
+                            ('softness', blur, 'blur_radius'), ('glow', output, 'amount')]
+
+
+def audio_iris(graph):
+    node = graph.node
+    phase, bass, high, pace, response = controls(graph, 11)
+    opening = node('scalar.constant', 340, 1300, value=0.75)
+    size = node('scalar.expression', 680, 350, dict(a=bass, b=response, c=opening),
+                expression='c * (0.65 + a * b * 1.8)')
+    angle = node('scalar.expression', 680, 0, dict(time=phase, a=high, b=response),
+                 expression='time + a * b * 95')
+    shape = node('texture.shape', 1020, 800, shape_type=3, sides=6,
+                 shape_width=0.9, shape_height=0.9)
+    iris = node('texture.affine', 1360, 350, dict(source=shape, scale=size, rotation=angle))
+    feather = node('texture.blur', 1700, 350, dict(source=iris), blur_radius=2)
+    source = node('texture.color_adjust', 1360, 0)
+    output = node('texture.mask', 2040, 0, dict(source=source, mask=feather))
+    return source, output, [('pace', pace, 'value'), ('response', response, 'value'),
+                            ('opening', opening, 'value'), ('sides', shape, 'sides'),
+                            ('feather', feather, 'blur_radius'), ('inverse', output, 'mask_mode')]
+
+
+def luma_windows(graph):
+    node = graph.node
+    phase, bass, high, pace, response = controls(graph, 0.025)
+    sweep = node('scalar.expression', 680, 0, dict(time=phase, a=bass, b=high, c=response),
+                 expression='time + (a * 0.9 - b * 0.6) * c')
+    source = node('texture.affine', 680, 400)
+    luminance = node('texture.color_adjust', 1020, 400, dict(source=source), saturation=0)
+    windows = node('texture.contours', 1360, 0, dict(source=luminance, phase=sweep),
+                   contour_count=6, line_width=0.18,
+                   color_a=(1, 1, 1, 1), color_b=(0, 0, 0, 0))
+    feather = node('texture.blur', 1700, 350, dict(source=windows), blur_radius=1.5)
+    output = node('texture.mask', 2040, 0, dict(source=source, mask=feather))
+    return source, output, [('pace', pace, 'value'), ('response', response, 'value'),
+                            ('levels', windows, 'contour_count'), ('width', windows, 'line_width'),
+                            ('feather', feather, 'blur_radius'), ('inverse', output, 'mask_mode')]
+
+
 RECIPES = [
     dict(name='prism_fold', build=prism_fold, titles=('Prism fold', '棱镜折叠'),
          descriptions=('Fold your texture into a rotating prism. Bass and high bands steer opposite turns; the preview stripes are not inserted.',
@@ -96,4 +151,21 @@ RECIPES = [
                        '为自己的画面叠加窄幅和宽幅模糊光晕。低频与高频改变辉光能量，保留输入原有运动。'),
          variant_titles=('Wide halo', '宽幅光晕'),
          variant=dict(response=1.5, exposure=-0.6, near_radius=6, wide_radius=30, spread_mix=0.8, saturation=0.7)),
+    dict(name='polar_vortex', build=polar_vortex, titles=('Polar vortex', '极坐标旋涡'),
+         fixture_rotation=32,
+         descriptions=('Mirror your image before wrapping it into a traveling spiral tunnel, keeping its angular seam continuous. Bass moves the depth and highs countertwist it; depth power and source scale are editable.',
+                       '先镜像折叠输入，再卷入前进的螺旋隧道，保持角度接缝连续。低频推动纵深，高频反向扭转；可编辑深度幂次、源缩放和柔光。'),
+         variant_titles=('Open spiral', '展开螺旋'),
+         variant=dict(pace=-0.035, response=1.5, depth=0.65, scale=2.2, softness=2, glow=0.08)),
+    dict(name='audio_iris', build=audio_iris, titles=('Audio iris', '音乐光阑'),
+         fixture_lines=6,
+         descriptions=('Reveal your source through a rotating polygon aperture. Bass opens it and highs turn it; feather the boundary or invert the mask. The output retains transparency.',
+                       '通过旋转多边形光阑显示输入图像。低频打开孔径，高频驱动转动；边缘可柔化，也可反转遮罩。输出保留透明区域。'),
+         variant_titles=('Triangular cutout', '三角镂空'),
+         variant=dict(pace=-7, response=1.4, opening=1, sides=3, feather=6, inverse=1)),
+    dict(name='luma_windows', build=luma_windows, titles=('Luma windows', '亮度开窗'),
+         descriptions=('Cut transparent windows along source luminance bands while keeping the original image colors. Bass/high bands sweep the slices; set density, width, feather and inversion.',
+                       '沿输入图像亮度带开出透明窗口，并保留原图颜色。低频和高频移动切片，可调密度、宽度、柔边与反转。'),
+         variant_titles=('Broad openings', '宽幅开窗'),
+         variant=dict(pace=-0.02, response=1.6, levels=3, width=0.32, feather=5, inverse=1)),
 ]

@@ -51,8 +51,8 @@ def component_definition(recipe):
     text = [f'components {{ type_key: "{component}" schema_version: 1 title: "{recipe["titles"][0]}" output: {output}',
             *graph.nodes, *graph.edges, f'inputs {{ key: "source" node: {input_node} input: "source" }}']
     for key, identity, property_name in parameters:
-        bounds = {'response': (0, 2), 'flow': (-0.5, 0.5),
-                  'pace': (-0.25, 0.25) if name == 'contour_engraving' else (-45, 45)}
+        bounds = {'response': (0, 2), 'flow': (-0.5, 0.5), 'opening': (0.2, 1.2),
+                  'pace': (-0.25, 0.25) if name in ('contour_engraving', 'polar_vortex', 'luma_windows') else (-45, 45)}
         limits = f' minimum: {bounds[key][0]} maximum: {bounds[key][1]}' if key in bounds else ''
         text.append(f'parameters {{ key: "{key}" node: {identity} property: "{property_name}" group: "component.pattern"{limits} }}')
     return graph, text + ['}'], dict(type=component, positions=graph.positions)
@@ -70,8 +70,11 @@ def write_component(recipe):
     fixture = harness.node('texture.gradient', 20, 80,
                            color_a=(0, 0, 0, 1), color_b=(1, 1, 1, 1))
     fixture = harness.node('texture.contours', 360, 80, dict(source=fixture),
-                           contour_count=14, line_width=0.16,
+                           contour_count=recipe.get('fixture_lines', 14), line_width=0.16,
                            color_a=(0.95, 0.56, 0.12, 1), color_b=(0.008, 0.04, 0.09, 1))
+    if recipe.get('fixture_rotation'):
+        fixture = harness.node('texture.affine', 530, 380, dict(source=fixture),
+                               rotation=recipe['fixture_rotation'], scale=1.4)
     instance = harness.node(component, 700, 80, dict(source=fixture))
     final = harness.node('output.texture', 1040, 80, dict(source=instance))
     text = ['schema_version: 4', f'id: "semantic-{name}"', 'canvas { width: 640 height: 360 }',
@@ -94,7 +97,7 @@ def write_component(recipe):
         dict(common, id='official.semantic.'+name+'.variant',
              titles=dict(zip(('en-US', 'zh-CN'), recipe['variant_titles'])),
              properties=recipe['variant'])]))
-    print(f'{name}: {len(graph.nodes)} internal nodes; {len(graph.nodes)+3} preview instructions')
+    print(f'{name}: {len(graph.nodes)} internal nodes; {len(graph.nodes)+len(harness.nodes)-1} preview instructions')
     return dict(id=name, nodes=len(graph.nodes), input='texture',
                 composition=recipe['descriptions'][0])
 

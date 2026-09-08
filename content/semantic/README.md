@@ -55,7 +55,7 @@ analytic seeking. A meaningful default is not a claim that all effects contain
 geometry at time zero. Windows runtime and playback checks apply; Android
 compilation is established, new actual device acceptance is outstanding.
 
-The inventory now contains 22 semantic components and 44 component preset records,
+The inventory now contains 25 semantic components and 50 component preset records,
 alongside 132 native preset records and 43 complete-project examples. The six R6
 extractions are reusable layers, not six additional complete works. This remains
 below 40 semantic components and does not establish 120 visually independent
@@ -69,3 +69,6 @@ Input-processing support and Flow glass have
 [separate evidence](../../docs/validation/input_components_2026-09-09.md).
 The next four processing chains have
 [music and Android evidence](../../docs/validation/processing_components_2026-09-09.md).
+Polar vortex, Audio iris and Luma windows add music-driven spatial mapping,
+polygon apertures and luminance cutouts; see their
+[controls and device evidence](../../docs/validation/aperture_components_2026-09-09.md).

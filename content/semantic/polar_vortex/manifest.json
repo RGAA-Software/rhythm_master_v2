@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.polar_vortex",
+    "content_version": "0.1.1",
+    "project_id": "semantic-polar_vortex",
+    "graph_revision": 0,
+    "title": "极坐标旋涡 / Polar vortex",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Polar vortex",
+        "zh-CN": "极坐标旋涡"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Mirror your image before wrapping it into a traveling spiral tunnel, keeping its angular seam continuous. Bass moves the depth and highs countertwist it; depth power and source scale are editable.",
+        "zh-CN": "先镜像折叠输入，再卷入前进的螺旋隧道，保持角度接缝连续。低频推动纵深，高频反向扭转；可编辑深度幂次、源缩放和柔光。"
+    }
+}

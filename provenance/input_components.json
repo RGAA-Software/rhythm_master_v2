@@ -1,9 +1,9 @@
 {
     "ownership": "first-party",
     "authoring_tool": "tools/author-input-components.py",
-    "authoring_tool_sha256": "36f0052d216a3dfdd352b13d280f9e46e4d8d5acf5e7afeb1144f07b1796b938",
+    "authoring_tool_sha256": "02b0525158fb30529ad977dd8a1739760403c08f9d5d7136547b068994d65c32",
     "recipes": "tools/input_component_recipes.py",
-    "recipes_sha256": "737268ef596bedbd1bf3d3c2ff66d2c84379ba1b5a36ce6cfc0b1db55e51160b",
+    "recipes_sha256": "29d09c818743a333d1b5a56cb06c288558e0611acbbb8fd61ef37c1bdca5277c",
     "reused_graph_writer": "tools/author-resonance-gate.py",
     "existing_adapters": "provenance/tixl_effects.json",
     "imported_third_party_files": [],
@@ -37,6 +37,24 @@
             "nodes": 9,
             "input": "texture",
             "composition": "Add narrow and wide blurred halos to your source. Bass and high bands change their combined energy without replacing source motion."
+        },
+        {
+            "id": "polar_vortex",
+            "nodes": 12,
+            "input": "texture",
+            "composition": "Mirror your image before wrapping it into a traveling spiral tunnel, keeping its angular seam continuous. Bass moves the depth and highs countertwist it; depth power and source scale are editable."
+        },
+        {
+            "id": "audio_iris",
+            "nodes": 14,
+            "input": "texture",
+            "composition": "Reveal your source through a rotating polygon aperture. Bass opens it and highs turn it; feather the boundary or invert the mask. The output retains transparency."
+        },
+        {
+            "id": "luma_windows",
+            "nodes": 12,
+            "input": "texture",
+            "composition": "Cut transparent windows along source luminance bands while keeping the original image colors. Bass/high bands sweep the slices; set density, width, feather and inversion."
         }
     ]
 }

@@ -1,0 +1,14 @@
+{
+    "template": "polar_vortex",
+    "package_sha256": "fc035cd8b35c44afc0f254330dbdbe5719e446ddd66ca1ad631a6f571dd04628",
+    "thumbnail_sha256": "8bdf966c205d35737566d871c27e9c90f427eab001b23c19195529888a8e5ff9",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

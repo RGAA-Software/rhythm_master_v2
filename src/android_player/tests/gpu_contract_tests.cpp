@@ -500,10 +500,14 @@ int main(int argc, char* argv[]) {
             // Static source/audio graphs may reuse all offscreen textures on
             // later frames. Require real composition during this run, not
             // redundant composition on the last frame; still verify its pixels.
-            if (glGetError() != GL_NO_ERROR || !visible || peak_passes < 2 ||
+            const auto pixel_error = glGetError();
+            if (pixel_error != GL_NO_ERROR || !visible || peak_passes < 2 ||
                 (legacy_fixture && (pixels[top + 2] <= pixels[top] + 50 ||
                                     pixels[bottom] <= pixels[bottom + 2] + 10 || peak_passes < 4)))
-                throw std::runtime_error("probe.published_package_output");
+                throw std::runtime_error(
+                        "probe.published_package_pixels visible=" + std::to_string(visible) +
+                        " gl_error=" + std::to_string(pixel_error) +
+                        " peak_passes=" + std::to_string(peak_passes));
             std::cout << "Published Windows package: 60 Android GPU frames, time="
                       << session.Seconds() << " canvas=" << session.Canvas().width_ << "x"
                       << session.Canvas().height_ << " peak_passes=" << peak_passes

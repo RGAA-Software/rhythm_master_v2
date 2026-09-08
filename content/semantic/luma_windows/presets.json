@@ -1,0 +1,34 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.luma_windows",
+            "reset": true,
+            "id": "official.semantic.luma_windows.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.luma_windows",
+            "reset": true,
+            "id": "official.semantic.luma_windows.variant",
+            "titles": {
+                "en-US": "Broad openings",
+                "zh-CN": "宽幅开窗"
+            },
+            "properties": {
+                "pace": -0.02,
+                "response": 1.6,
+                "levels": 3,
+                "width": 0.32,
+                "feather": 5,
+                "inverse": 1
+            }
+        }
+    ]
+}
