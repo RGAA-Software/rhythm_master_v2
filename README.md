@@ -62,6 +62,8 @@ add prism folding, contour engraving, motion history and dual-radius glow.
 bring the catalog to 25 editable components, including input-image masks.
 [Resonant Arcade](docs/validation/resonant_arcade_2026-09-09.md) uses an embedded editable
 Prism fold component on musical architectural screens, with cues, desktop export and Android playback.
+[Daylight Mobile](docs/validation/daylight_mobile_2026-09-09.md) adds a pastel hanging
+sculpture with editable music-driven beams, pendants, shadows and a bound arrangement.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

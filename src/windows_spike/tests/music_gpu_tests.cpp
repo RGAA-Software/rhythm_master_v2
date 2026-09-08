@@ -59,6 +59,10 @@ int main(int argc, char* argv[]) {
                 instructions.begin(), instructions.end(), [](const auto& instruction) {
                     return instruction.operation_ == graph::Operation::kMaterialTextures;
                 });
+        const auto scene_instances = std::count_if(
+                instructions.begin(), instructions.end(), [](const auto& instruction) {
+                    return instruction.operation_ == graph::Operation::kSceneInstance;
+                });
         const auto paths = std::count_if(
                 instructions.begin(), instructions.end(), [](const auto& instruction) {
                     return instruction.operation_ == graph::Operation::kGeometryTube;
@@ -87,8 +91,8 @@ int main(int argc, char* argv[]) {
                 });
         if (instructions.size() != expected_nodes ||
             (bands < 24 && instance_fields == 0 &&
-             !((videos || gpu_fields > 0 || materials > 0 || paths > 0 || deformations > 0 ||
-                shaders > 0 || animated_models > 0 || image_filters > 0) &&
+             !((videos || gpu_fields > 0 || materials > 0 || scene_instances > 0 || paths > 0 ||
+                deformations > 0 || shaders > 0 || animated_models > 0 || image_filters > 0) &&
                bands >= 2)))
             throw std::runtime_error("music.full_graph_not_reachable");
         std::cout << "reachable_instructions=" << instructions.size() << " audio_bands=" << bands

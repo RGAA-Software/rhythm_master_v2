@@ -1,0 +1,26 @@
+{
+    "ownership": "first-party",
+    "baseline": "782a294",
+    "imported_third_party_files": [],
+    "authoring_tool": "tools/author-daylight-mobile.py",
+    "authoring_tool_sha256": "3232adda934cf8f8395fc69f38839fb88d990821ee8adb070bacc670189c8f04",
+    "reused_sources": [
+        "tools/author-resonance-gate.py",
+        "tools/music_work.py",
+        "tools/author-porcelain-pendulum.py"
+    ],
+    "composition": "Original asymmetric hanging arrangement of six pendants and two pivoted branches; existing geometry, PBR, shadow and music contracts.",
+    "assets": [
+        {
+            "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+            "bytes": 240627,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+            "bytes": 160293,
+            "media_type": "audio/flac"
+        }
+    ],
+    "target": "content/templates/daylight_mobile"
+}

@@ -1,0 +1,14 @@
+{
+    "template": "daylight_mobile",
+    "package_sha256": "e0688179f072e2101d5d4c67b4da708ded630bd956f0df387acae51a2ed511e1",
+    "thumbnail_sha256": "448f684142136cdb86ce7cbbed8f070129c299564796f9738867ba296a5c118e",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}
