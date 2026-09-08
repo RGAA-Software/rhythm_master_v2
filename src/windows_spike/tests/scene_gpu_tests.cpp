@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
             }
         }
         rhythm::validation::SceneGraphFixture graph_fixture;
-        for (int scenario = 0; scenario < 9; ++scenario) {
+        for (int scenario = 0; scenario < 11; ++scenario) {
             const auto path =
                     (std::filesystem::path(argv[1]) / ("graph-" + std::to_string(scenario)))
                             .string();

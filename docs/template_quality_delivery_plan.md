@@ -17,8 +17,8 @@ This replaces the earlier 24-template minimum. The independent requirements of
 40 semantic nodes and 120 visually distinct presets remain. Counts measure
 distinct accepted compositions, not recolors, aspect ratios or device variants.
 
-The inventory currently contains 28 runnable examples, 11 semantic components
-and 126 preset records. The user rejected the earlier examples' visual quality. No accepted
+The inventory currently contains 32 runnable examples, 11 semantic components
+and 128 preset records (106 native plus 22 semantic). The user rejected the earlier examples' visual quality. No accepted
 Basic/Advanced allocation has been established. Functional test results remain
 valid for the behavior they cover; they do not establish visual acceptance.
 

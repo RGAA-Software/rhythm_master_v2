@@ -27,6 +27,41 @@ int main() {
     try {
         graph::Registry registry;
         {
+            graph::Document scene;
+            scene.id_ = "legacy-scene-scale";
+            scene.nodes_ = {
+                    registry.MakeNode(1, "geometry.cube"), registry.MakeNode(2, "scene.instance"),
+                    registry.MakeNode(3, "scene.transform"), registry.MakeNode(4, "scene.render"),
+                    registry.MakeNode(5, "output.texture")};
+            scene.nodes_[2].properties_["scale"] = 2.0;
+            for (const auto key : {"scale_x", "scale_y", "scale_z"})
+                scene.nodes_[2].properties_.erase(key);
+            scene.edges_ = {{1, 1, 2, "geometry"},
+                            {2, 2, 3, "scene"},
+                            {3, 3, 4, "scene"},
+                            {4, 4, 5, "source"}};
+            scene.output_ = 5;
+            const auto plan = std::get<graph::ExecutionPlan>(graph::Compile(scene, registry));
+            schema::CompiledProgram legacy;
+            Check(legacy.ParseFromString(project::EncodeProgram(plan)), "Scene program");
+            auto& slots = *legacy.mutable_instructions(2)->mutable_input_slots();
+            while (slots.size() > 8) slots.RemoveLast();
+            const auto restored = project::DecodeProgram(legacy.SerializeAsString());
+            Check(restored.instructions_[2].inputs_.size() == 11 &&
+                          !restored.instructions_[2].inputs_[8] &&
+                          !restored.instructions_[2].inputs_[9] &&
+                          !restored.instructions_[2].inputs_[10],
+                  "Legacy scene gains three neutral optional axis inputs");
+            auto renderer = render::Renderer::CreateNull();
+            runtime::Runtime runtime;
+            renderer.BeginFrame();
+            const auto frame = runtime.Evaluate(restored, {0, 0, {16, 16}}, renderer);
+            renderer.EndFrame();
+            Check(frame.outputs_[2].scene_->instances_[0].transform_ ==
+                          scene::Compose({}, {}, {2, 2, 2}),
+                  "Legacy scene with absent axis properties preserves uniform scaling");
+        }
+        {
             graph::Document particles;
             particles.id_ = "legacy-particle-inputs";
             particles.nodes_ = {registry.MakeNode(1, "point.emitter"),

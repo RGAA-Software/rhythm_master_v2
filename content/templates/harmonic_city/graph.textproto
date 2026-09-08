@@ -1,0 +1,1611 @@
+schema_version: 4
+id: "official-harmonic-city"
+output: 290
+canvas { width: 1280 height: 720 }
+nodes { id: 1 type_key: "core.time" schema_version: 1
+}
+nodes { id: 2 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "sin(time * 0.12) * 18" } }
+}
+nodes { id: 3 type_key: "audio.feature" schema_version: 1
+    properties { key: "audio_feature" value { scalar: 1 } }
+}
+nodes { id: 4 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.35 } }
+    properties { key: "output_min" value { scalar: 0.35 } }
+    properties { key: "output_max" value { scalar: 1.8 } }
+}
+nodes { id: 5 type_key: "geometry.cube" schema_version: 1
+}
+nodes { id: 6 type_key: "material.pbr" schema_version: 1
+    properties { key: "color_a" value { color { r: 0.02 g: 0.48 b: 0.75 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.02 g: 0.48 b: 0.75 a: 1 } } }
+    properties { key: "metallic" value { scalar: 0.4 } }
+    properties { key: "roughness" value { scalar: 0.32 } }
+}
+nodes { id: 7 type_key: "scene.instance" schema_version: 1
+}
+nodes { id: 8 type_key: "material.pbr" schema_version: 1
+    properties { key: "color_a" value { color { r: 0.24 g: 0.07 b: 0.65 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.24 g: 0.07 b: 0.65 a: 1 } } }
+    properties { key: "metallic" value { scalar: 0.4 } }
+    properties { key: "roughness" value { scalar: 0.32 } }
+}
+nodes { id: 9 type_key: "scene.instance" schema_version: 1
+}
+nodes { id: 10 type_key: "material.pbr" schema_version: 1
+    properties { key: "color_a" value { color { r: 0.8 g: 0.1 b: 0.32 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.8 g: 0.1 b: 0.32 a: 1 } } }
+    properties { key: "metallic" value { scalar: 0.4 } }
+    properties { key: "roughness" value { scalar: 0.32 } }
+}
+nodes { id: 11 type_key: "scene.instance" schema_version: 1
+}
+nodes { id: 12 type_key: "material.pbr" schema_version: 1
+    properties { key: "color_a" value { color { r: 0.85 g: 0.38 b: 0.05 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.85 g: 0.38 b: 0.05 a: 1 } } }
+    properties { key: "metallic" value { scalar: 0.4 } }
+    properties { key: "roughness" value { scalar: 0.32 } }
+}
+nodes { id: 13 type_key: "scene.instance" schema_version: 1
+}
+nodes { id: 14 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 0 } }
+}
+nodes { id: 15 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 16 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 17 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 2 } }
+}
+nodes { id: 18 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 19 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 20 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 4 } }
+}
+nodes { id: 21 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 22 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 23 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 6 } }
+}
+nodes { id: 24 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 25 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 26 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 8 } }
+}
+nodes { id: 27 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 28 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 29 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 10 } }
+}
+nodes { id: 30 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 31 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 32 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 12 } }
+}
+nodes { id: 33 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 34 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 35 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 14 } }
+}
+nodes { id: 36 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 37 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 38 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 16 } }
+}
+nodes { id: 39 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 40 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 41 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 18 } }
+}
+nodes { id: 42 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 43 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 44 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 20 } }
+}
+nodes { id: 45 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 46 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 47 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 22 } }
+}
+nodes { id: 48 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 49 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 50 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 24 } }
+}
+nodes { id: 51 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 52 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 53 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 26 } }
+}
+nodes { id: 54 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 55 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 56 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 28 } }
+}
+nodes { id: 57 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 58 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 59 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 30 } }
+}
+nodes { id: 60 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 61 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 62 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 32 } }
+}
+nodes { id: 63 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 64 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 65 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 34 } }
+}
+nodes { id: 66 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 67 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 68 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 36 } }
+}
+nodes { id: 69 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 70 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 71 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 38 } }
+}
+nodes { id: 72 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 73 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 74 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 40 } }
+}
+nodes { id: 75 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 76 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 77 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 42 } }
+}
+nodes { id: 78 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 79 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 80 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 44 } }
+}
+nodes { id: 81 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 82 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 83 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 46 } }
+}
+nodes { id: 84 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 85 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 86 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 48 } }
+}
+nodes { id: 87 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 88 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 89 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 50 } }
+}
+nodes { id: 90 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 91 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 92 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 52 } }
+}
+nodes { id: 93 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 94 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 95 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 54 } }
+}
+nodes { id: 96 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 97 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 98 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 56 } }
+}
+nodes { id: 99 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 100 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 101 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 58 } }
+}
+nodes { id: 102 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 103 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 104 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 60 } }
+}
+nodes { id: 105 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 106 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 107 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 62 } }
+}
+nodes { id: 108 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.1 } }
+    properties { key: "output_min" value { scalar: 0.18 } }
+    properties { key: "output_max" value { scalar: 3.7 } }
+}
+nodes { id: 109 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.5" } }
+}
+nodes { id: 110 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -3.15 } }
+    properties { key: "translate_z" value { scalar: -3.15 } }
+}
+nodes { id: 111 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -2.25 } }
+    properties { key: "translate_z" value { scalar: -3.15 } }
+}
+nodes { id: 112 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -1.35 } }
+    properties { key: "translate_z" value { scalar: -3.15 } }
+}
+nodes { id: 113 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -0.45 } }
+    properties { key: "translate_z" value { scalar: -3.15 } }
+}
+nodes { id: 114 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 0.45 } }
+    properties { key: "translate_z" value { scalar: -3.15 } }
+}
+nodes { id: 115 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 1.35 } }
+    properties { key: "translate_z" value { scalar: -3.15 } }
+}
+nodes { id: 116 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 2.25 } }
+    properties { key: "translate_z" value { scalar: -3.15 } }
+}
+nodes { id: 117 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 3.15 } }
+    properties { key: "translate_z" value { scalar: -3.15 } }
+}
+nodes { id: 118 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -3.15 } }
+    properties { key: "translate_z" value { scalar: -2.25 } }
+}
+nodes { id: 119 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -2.25 } }
+    properties { key: "translate_z" value { scalar: -2.25 } }
+}
+nodes { id: 120 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -1.35 } }
+    properties { key: "translate_z" value { scalar: -2.25 } }
+}
+nodes { id: 121 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -0.45 } }
+    properties { key: "translate_z" value { scalar: -2.25 } }
+}
+nodes { id: 122 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 0.45 } }
+    properties { key: "translate_z" value { scalar: -2.25 } }
+}
+nodes { id: 123 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 1.35 } }
+    properties { key: "translate_z" value { scalar: -2.25 } }
+}
+nodes { id: 124 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 2.25 } }
+    properties { key: "translate_z" value { scalar: -2.25 } }
+}
+nodes { id: 125 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 3.15 } }
+    properties { key: "translate_z" value { scalar: -2.25 } }
+}
+nodes { id: 126 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -3.15 } }
+    properties { key: "translate_z" value { scalar: -1.35 } }
+}
+nodes { id: 127 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -2.25 } }
+    properties { key: "translate_z" value { scalar: -1.35 } }
+}
+nodes { id: 128 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -1.35 } }
+    properties { key: "translate_z" value { scalar: -1.35 } }
+}
+nodes { id: 129 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -0.45 } }
+    properties { key: "translate_z" value { scalar: -1.35 } }
+}
+nodes { id: 130 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 0.45 } }
+    properties { key: "translate_z" value { scalar: -1.35 } }
+}
+nodes { id: 131 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 1.35 } }
+    properties { key: "translate_z" value { scalar: -1.35 } }
+}
+nodes { id: 132 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 2.25 } }
+    properties { key: "translate_z" value { scalar: -1.35 } }
+}
+nodes { id: 133 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 3.15 } }
+    properties { key: "translate_z" value { scalar: -1.35 } }
+}
+nodes { id: 134 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -3.15 } }
+    properties { key: "translate_z" value { scalar: -0.45 } }
+}
+nodes { id: 135 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -2.25 } }
+    properties { key: "translate_z" value { scalar: -0.45 } }
+}
+nodes { id: 136 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -1.35 } }
+    properties { key: "translate_z" value { scalar: -0.45 } }
+}
+nodes { id: 137 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -0.45 } }
+    properties { key: "translate_z" value { scalar: -0.45 } }
+}
+nodes { id: 138 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 0.45 } }
+    properties { key: "translate_z" value { scalar: -0.45 } }
+}
+nodes { id: 139 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 1.35 } }
+    properties { key: "translate_z" value { scalar: -0.45 } }
+}
+nodes { id: 140 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 2.25 } }
+    properties { key: "translate_z" value { scalar: -0.45 } }
+}
+nodes { id: 141 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 3.15 } }
+    properties { key: "translate_z" value { scalar: -0.45 } }
+}
+nodes { id: 142 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -3.15 } }
+    properties { key: "translate_z" value { scalar: 0.45 } }
+}
+nodes { id: 143 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -2.25 } }
+    properties { key: "translate_z" value { scalar: 0.45 } }
+}
+nodes { id: 144 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -1.35 } }
+    properties { key: "translate_z" value { scalar: 0.45 } }
+}
+nodes { id: 145 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -0.45 } }
+    properties { key: "translate_z" value { scalar: 0.45 } }
+}
+nodes { id: 146 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 0.45 } }
+    properties { key: "translate_z" value { scalar: 0.45 } }
+}
+nodes { id: 147 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 1.35 } }
+    properties { key: "translate_z" value { scalar: 0.45 } }
+}
+nodes { id: 148 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 2.25 } }
+    properties { key: "translate_z" value { scalar: 0.45 } }
+}
+nodes { id: 149 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 3.15 } }
+    properties { key: "translate_z" value { scalar: 0.45 } }
+}
+nodes { id: 150 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -3.15 } }
+    properties { key: "translate_z" value { scalar: 1.35 } }
+}
+nodes { id: 151 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -2.25 } }
+    properties { key: "translate_z" value { scalar: 1.35 } }
+}
+nodes { id: 152 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -1.35 } }
+    properties { key: "translate_z" value { scalar: 1.35 } }
+}
+nodes { id: 153 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -0.45 } }
+    properties { key: "translate_z" value { scalar: 1.35 } }
+}
+nodes { id: 154 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 0.45 } }
+    properties { key: "translate_z" value { scalar: 1.35 } }
+}
+nodes { id: 155 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 1.35 } }
+    properties { key: "translate_z" value { scalar: 1.35 } }
+}
+nodes { id: 156 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 2.25 } }
+    properties { key: "translate_z" value { scalar: 1.35 } }
+}
+nodes { id: 157 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 3.15 } }
+    properties { key: "translate_z" value { scalar: 1.35 } }
+}
+nodes { id: 158 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -3.15 } }
+    properties { key: "translate_z" value { scalar: 2.25 } }
+}
+nodes { id: 159 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -2.25 } }
+    properties { key: "translate_z" value { scalar: 2.25 } }
+}
+nodes { id: 160 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -1.35 } }
+    properties { key: "translate_z" value { scalar: 2.25 } }
+}
+nodes { id: 161 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -0.45 } }
+    properties { key: "translate_z" value { scalar: 2.25 } }
+}
+nodes { id: 162 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 0.45 } }
+    properties { key: "translate_z" value { scalar: 2.25 } }
+}
+nodes { id: 163 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 1.35 } }
+    properties { key: "translate_z" value { scalar: 2.25 } }
+}
+nodes { id: 164 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 2.25 } }
+    properties { key: "translate_z" value { scalar: 2.25 } }
+}
+nodes { id: 165 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 3.15 } }
+    properties { key: "translate_z" value { scalar: 2.25 } }
+}
+nodes { id: 166 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -3.15 } }
+    properties { key: "translate_z" value { scalar: 3.15 } }
+}
+nodes { id: 167 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -2.25 } }
+    properties { key: "translate_z" value { scalar: 3.15 } }
+}
+nodes { id: 168 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -1.35 } }
+    properties { key: "translate_z" value { scalar: 3.15 } }
+}
+nodes { id: 169 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: -0.45 } }
+    properties { key: "translate_z" value { scalar: 3.15 } }
+}
+nodes { id: 170 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 0.45 } }
+    properties { key: "translate_z" value { scalar: 3.15 } }
+}
+nodes { id: 171 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 1.35 } }
+    properties { key: "translate_z" value { scalar: 3.15 } }
+}
+nodes { id: 172 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 2.25 } }
+    properties { key: "translate_z" value { scalar: 3.15 } }
+}
+nodes { id: 173 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.62 } }
+    properties { key: "scale_z" value { scalar: 0.62 } }
+    properties { key: "translate_x" value { scalar: 3.15 } }
+    properties { key: "translate_z" value { scalar: 3.15 } }
+}
+nodes { id: 174 type_key: "material.pbr" schema_version: 1
+    properties { key: "color_a" value { color { r: 0.045 g: 0.07 b: 0.12 a: 1 } } }
+    properties { key: "metallic" value { scalar: 0.35 } }
+    properties { key: "roughness" value { scalar: 0.65 } }
+}
+nodes { id: 175 type_key: "scene.instance" schema_version: 1
+}
+nodes { id: 176 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 8 } }
+    properties { key: "scale_y" value { scalar: 0.12 } }
+    properties { key: "scale_z" value { scalar: 8 } }
+    properties { key: "translate_y" value { scalar: -0.08 } }
+}
+nodes { id: 177 type_key: "material.unlit" schema_version: 1
+    properties { key: "color_a" value { color { r: 0.015 g: 0.15 b: 0.24 a: 1 } } }
+}
+nodes { id: 178 type_key: "scene.instance" schema_version: 1
+}
+nodes { id: 179 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 7.2 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 0.018 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_z" value { scalar: -3.6 } }
+}
+nodes { id: 180 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.018 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 7.2 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_x" value { scalar: -3.6 } }
+}
+nodes { id: 181 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 7.2 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 0.018 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_z" value { scalar: -2.7 } }
+}
+nodes { id: 182 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.018 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 7.2 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_x" value { scalar: -2.7 } }
+}
+nodes { id: 183 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 7.2 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 0.018 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_z" value { scalar: -1.8 } }
+}
+nodes { id: 184 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.018 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 7.2 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_x" value { scalar: -1.8 } }
+}
+nodes { id: 185 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 7.2 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 0.018 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_z" value { scalar: -0.9 } }
+}
+nodes { id: 186 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.018 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 7.2 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_x" value { scalar: -0.9 } }
+}
+nodes { id: 187 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 7.2 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 0.018 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_z" value { scalar: 0.0 } }
+}
+nodes { id: 188 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.018 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 7.2 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_x" value { scalar: 0.0 } }
+}
+nodes { id: 189 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 7.2 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 0.018 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_z" value { scalar: 0.9 } }
+}
+nodes { id: 190 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.018 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 7.2 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_x" value { scalar: 0.9 } }
+}
+nodes { id: 191 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 7.2 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 0.018 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_z" value { scalar: 1.8 } }
+}
+nodes { id: 192 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.018 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 7.2 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_x" value { scalar: 1.8 } }
+}
+nodes { id: 193 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 7.2 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 0.018 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_z" value { scalar: 2.7 } }
+}
+nodes { id: 194 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.018 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 7.2 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_x" value { scalar: 2.7 } }
+}
+nodes { id: 195 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 7.2 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 0.018 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_z" value { scalar: 3.6 } }
+}
+nodes { id: 196 type_key: "scene.transform" schema_version: 1
+    properties { key: "scale_x" value { scalar: 0.018 } }
+    properties { key: "scale_y" value { scalar: 0.015 } }
+    properties { key: "scale_z" value { scalar: 7.2 } }
+    properties { key: "translate_y" value { scalar: 0.002 } }
+    properties { key: "translate_x" value { scalar: 3.6 } }
+}
+nodes { id: 197 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 198 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 199 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 200 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 201 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 202 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 203 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 204 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 205 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 206 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 207 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 208 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 209 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 210 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 211 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 212 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 213 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 214 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 215 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 216 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 217 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 218 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 219 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 220 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 221 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 222 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 223 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 224 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 225 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 226 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 227 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 228 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 229 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 230 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 231 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 232 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 233 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 234 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 235 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 236 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 237 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 238 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 239 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 240 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 241 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 242 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 243 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 244 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 245 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 246 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 247 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 248 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 249 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 250 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 251 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 252 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 253 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 254 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 255 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 256 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 257 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 258 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 259 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 260 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 261 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 262 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 263 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 264 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 265 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 266 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 267 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 268 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 269 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 270 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 271 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 272 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 273 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 274 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 275 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 276 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 277 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 278 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 279 type_key: "scene.transform" schema_version: 1
+}
+nodes { id: 280 type_key: "scene.directional_light" schema_version: 1
+    properties { key: "light_x" value { scalar: -0.6 } }
+    properties { key: "light_y" value { scalar: 0.9 } }
+    properties { key: "light_z" value { scalar: 0.7 } }
+    properties { key: "light_energy" value { scalar: 3.0 } }
+    properties { key: "color_a" value { color { r: 0.6 g: 0.8 b: 1 a: 1 } } }
+}
+nodes { id: 281 type_key: "scene.directional_light" schema_version: 1
+    properties { key: "light_x" value { scalar: 0.8 } }
+    properties { key: "light_y" value { scalar: 0.5 } }
+    properties { key: "light_z" value { scalar: -0.6 } }
+    properties { key: "light_energy" value { scalar: 1.8 } }
+    properties { key: "color_a" value { color { r: 1 g: 0.3 b: 0.2 a: 1 } } }
+}
+nodes { id: 282 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 283 type_key: "scene.merge" schema_version: 1
+}
+nodes { id: 284 type_key: "scene.camera" schema_version: 1
+    properties { key: "eye_x" value { scalar: 8 } }
+    properties { key: "eye_y" value { scalar: 7 } }
+    properties { key: "eye_z" value { scalar: 10 } }
+    properties { key: "target_y" value { scalar: 0.7 } }
+    properties { key: "field_of_view" value { scalar: 43 } }
+}
+nodes { id: 285 type_key: "scene.render" schema_version: 1
+}
+nodes { id: 286 type_key: "texture.gradient" schema_version: 1
+    properties { key: "color_a" value { color { r: 0.004 g: 0.01 b: 0.028 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.025 g: 0.006 b: 0.035 a: 1 } } }
+}
+nodes { id: 287 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+}
+nodes { id: 288 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 8 } }
+}
+nodes { id: 289 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 0.25 } }
+}
+nodes { id: 290 type_key: "output.texture" schema_version: 1
+}
+edges { id: 1 from: 1 to: 2 input: "time" }
+edges { id: 2 from: 3 to: 4 input: "value" }
+edges { id: 3 from: 4 to: 6 input: "emission" }
+edges { id: 4 from: 5 to: 7 input: "geometry" }
+edges { id: 5 from: 6 to: 7 input: "material" }
+edges { id: 6 from: 4 to: 8 input: "emission" }
+edges { id: 7 from: 5 to: 9 input: "geometry" }
+edges { id: 8 from: 8 to: 9 input: "material" }
+edges { id: 9 from: 4 to: 10 input: "emission" }
+edges { id: 10 from: 5 to: 11 input: "geometry" }
+edges { id: 11 from: 10 to: 11 input: "material" }
+edges { id: 12 from: 4 to: 12 input: "emission" }
+edges { id: 13 from: 5 to: 13 input: "geometry" }
+edges { id: 14 from: 12 to: 13 input: "material" }
+edges { id: 15 from: 14 to: 15 input: "value" }
+edges { id: 16 from: 15 to: 16 input: "a" }
+edges { id: 17 from: 17 to: 18 input: "value" }
+edges { id: 18 from: 18 to: 19 input: "a" }
+edges { id: 19 from: 20 to: 21 input: "value" }
+edges { id: 20 from: 21 to: 22 input: "a" }
+edges { id: 21 from: 23 to: 24 input: "value" }
+edges { id: 22 from: 24 to: 25 input: "a" }
+edges { id: 23 from: 26 to: 27 input: "value" }
+edges { id: 24 from: 27 to: 28 input: "a" }
+edges { id: 25 from: 29 to: 30 input: "value" }
+edges { id: 26 from: 30 to: 31 input: "a" }
+edges { id: 27 from: 32 to: 33 input: "value" }
+edges { id: 28 from: 33 to: 34 input: "a" }
+edges { id: 29 from: 35 to: 36 input: "value" }
+edges { id: 30 from: 36 to: 37 input: "a" }
+edges { id: 31 from: 38 to: 39 input: "value" }
+edges { id: 32 from: 39 to: 40 input: "a" }
+edges { id: 33 from: 41 to: 42 input: "value" }
+edges { id: 34 from: 42 to: 43 input: "a" }
+edges { id: 35 from: 44 to: 45 input: "value" }
+edges { id: 36 from: 45 to: 46 input: "a" }
+edges { id: 37 from: 47 to: 48 input: "value" }
+edges { id: 38 from: 48 to: 49 input: "a" }
+edges { id: 39 from: 50 to: 51 input: "value" }
+edges { id: 40 from: 51 to: 52 input: "a" }
+edges { id: 41 from: 53 to: 54 input: "value" }
+edges { id: 42 from: 54 to: 55 input: "a" }
+edges { id: 43 from: 56 to: 57 input: "value" }
+edges { id: 44 from: 57 to: 58 input: "a" }
+edges { id: 45 from: 59 to: 60 input: "value" }
+edges { id: 46 from: 60 to: 61 input: "a" }
+edges { id: 47 from: 62 to: 63 input: "value" }
+edges { id: 48 from: 63 to: 64 input: "a" }
+edges { id: 49 from: 65 to: 66 input: "value" }
+edges { id: 50 from: 66 to: 67 input: "a" }
+edges { id: 51 from: 68 to: 69 input: "value" }
+edges { id: 52 from: 69 to: 70 input: "a" }
+edges { id: 53 from: 71 to: 72 input: "value" }
+edges { id: 54 from: 72 to: 73 input: "a" }
+edges { id: 55 from: 74 to: 75 input: "value" }
+edges { id: 56 from: 75 to: 76 input: "a" }
+edges { id: 57 from: 77 to: 78 input: "value" }
+edges { id: 58 from: 78 to: 79 input: "a" }
+edges { id: 59 from: 80 to: 81 input: "value" }
+edges { id: 60 from: 81 to: 82 input: "a" }
+edges { id: 61 from: 83 to: 84 input: "value" }
+edges { id: 62 from: 84 to: 85 input: "a" }
+edges { id: 63 from: 86 to: 87 input: "value" }
+edges { id: 64 from: 87 to: 88 input: "a" }
+edges { id: 65 from: 89 to: 90 input: "value" }
+edges { id: 66 from: 90 to: 91 input: "a" }
+edges { id: 67 from: 92 to: 93 input: "value" }
+edges { id: 68 from: 93 to: 94 input: "a" }
+edges { id: 69 from: 95 to: 96 input: "value" }
+edges { id: 70 from: 96 to: 97 input: "a" }
+edges { id: 71 from: 98 to: 99 input: "value" }
+edges { id: 72 from: 99 to: 100 input: "a" }
+edges { id: 73 from: 101 to: 102 input: "value" }
+edges { id: 74 from: 102 to: 103 input: "a" }
+edges { id: 75 from: 104 to: 105 input: "value" }
+edges { id: 76 from: 105 to: 106 input: "a" }
+edges { id: 77 from: 107 to: 108 input: "value" }
+edges { id: 78 from: 108 to: 109 input: "a" }
+edges { id: 79 from: 7 to: 110 input: "scene" }
+edges { id: 80 from: 15 to: 110 input: "scale_y" }
+edges { id: 81 from: 16 to: 110 input: "translate_y" }
+edges { id: 82 from: 7 to: 111 input: "scene" }
+edges { id: 83 from: 27 to: 111 input: "scale_y" }
+edges { id: 84 from: 28 to: 111 input: "translate_y" }
+edges { id: 85 from: 9 to: 112 input: "scene" }
+edges { id: 86 from: 39 to: 112 input: "scale_y" }
+edges { id: 87 from: 40 to: 112 input: "translate_y" }
+edges { id: 88 from: 9 to: 113 input: "scene" }
+edges { id: 89 from: 51 to: 113 input: "scale_y" }
+edges { id: 90 from: 52 to: 113 input: "translate_y" }
+edges { id: 91 from: 11 to: 114 input: "scene" }
+edges { id: 92 from: 63 to: 114 input: "scale_y" }
+edges { id: 93 from: 64 to: 114 input: "translate_y" }
+edges { id: 94 from: 11 to: 115 input: "scene" }
+edges { id: 95 from: 75 to: 115 input: "scale_y" }
+edges { id: 96 from: 76 to: 115 input: "translate_y" }
+edges { id: 97 from: 13 to: 116 input: "scene" }
+edges { id: 98 from: 87 to: 116 input: "scale_y" }
+edges { id: 99 from: 88 to: 116 input: "translate_y" }
+edges { id: 100 from: 13 to: 117 input: "scene" }
+edges { id: 101 from: 99 to: 117 input: "scale_y" }
+edges { id: 102 from: 100 to: 117 input: "translate_y" }
+edges { id: 103 from: 7 to: 118 input: "scene" }
+edges { id: 104 from: 18 to: 118 input: "scale_y" }
+edges { id: 105 from: 19 to: 118 input: "translate_y" }
+edges { id: 106 from: 7 to: 119 input: "scene" }
+edges { id: 107 from: 30 to: 119 input: "scale_y" }
+edges { id: 108 from: 31 to: 119 input: "translate_y" }
+edges { id: 109 from: 9 to: 120 input: "scene" }
+edges { id: 110 from: 42 to: 120 input: "scale_y" }
+edges { id: 111 from: 43 to: 120 input: "translate_y" }
+edges { id: 112 from: 9 to: 121 input: "scene" }
+edges { id: 113 from: 54 to: 121 input: "scale_y" }
+edges { id: 114 from: 55 to: 121 input: "translate_y" }
+edges { id: 115 from: 11 to: 122 input: "scene" }
+edges { id: 116 from: 66 to: 122 input: "scale_y" }
+edges { id: 117 from: 67 to: 122 input: "translate_y" }
+edges { id: 118 from: 11 to: 123 input: "scene" }
+edges { id: 119 from: 78 to: 123 input: "scale_y" }
+edges { id: 120 from: 79 to: 123 input: "translate_y" }
+edges { id: 121 from: 13 to: 124 input: "scene" }
+edges { id: 122 from: 90 to: 124 input: "scale_y" }
+edges { id: 123 from: 91 to: 124 input: "translate_y" }
+edges { id: 124 from: 13 to: 125 input: "scene" }
+edges { id: 125 from: 102 to: 125 input: "scale_y" }
+edges { id: 126 from: 103 to: 125 input: "translate_y" }
+edges { id: 127 from: 7 to: 126 input: "scene" }
+edges { id: 128 from: 21 to: 126 input: "scale_y" }
+edges { id: 129 from: 22 to: 126 input: "translate_y" }
+edges { id: 130 from: 7 to: 127 input: "scene" }
+edges { id: 131 from: 33 to: 127 input: "scale_y" }
+edges { id: 132 from: 34 to: 127 input: "translate_y" }
+edges { id: 133 from: 9 to: 128 input: "scene" }
+edges { id: 134 from: 45 to: 128 input: "scale_y" }
+edges { id: 135 from: 46 to: 128 input: "translate_y" }
+edges { id: 136 from: 9 to: 129 input: "scene" }
+edges { id: 137 from: 57 to: 129 input: "scale_y" }
+edges { id: 138 from: 58 to: 129 input: "translate_y" }
+edges { id: 139 from: 11 to: 130 input: "scene" }
+edges { id: 140 from: 69 to: 130 input: "scale_y" }
+edges { id: 141 from: 70 to: 130 input: "translate_y" }
+edges { id: 142 from: 11 to: 131 input: "scene" }
+edges { id: 143 from: 81 to: 131 input: "scale_y" }
+edges { id: 144 from: 82 to: 131 input: "translate_y" }
+edges { id: 145 from: 13 to: 132 input: "scene" }
+edges { id: 146 from: 93 to: 132 input: "scale_y" }
+edges { id: 147 from: 94 to: 132 input: "translate_y" }
+edges { id: 148 from: 13 to: 133 input: "scene" }
+edges { id: 149 from: 105 to: 133 input: "scale_y" }
+edges { id: 150 from: 106 to: 133 input: "translate_y" }
+edges { id: 151 from: 7 to: 134 input: "scene" }
+edges { id: 152 from: 24 to: 134 input: "scale_y" }
+edges { id: 153 from: 25 to: 134 input: "translate_y" }
+edges { id: 154 from: 7 to: 135 input: "scene" }
+edges { id: 155 from: 36 to: 135 input: "scale_y" }
+edges { id: 156 from: 37 to: 135 input: "translate_y" }
+edges { id: 157 from: 9 to: 136 input: "scene" }
+edges { id: 158 from: 48 to: 136 input: "scale_y" }
+edges { id: 159 from: 49 to: 136 input: "translate_y" }
+edges { id: 160 from: 9 to: 137 input: "scene" }
+edges { id: 161 from: 60 to: 137 input: "scale_y" }
+edges { id: 162 from: 61 to: 137 input: "translate_y" }
+edges { id: 163 from: 11 to: 138 input: "scene" }
+edges { id: 164 from: 72 to: 138 input: "scale_y" }
+edges { id: 165 from: 73 to: 138 input: "translate_y" }
+edges { id: 166 from: 11 to: 139 input: "scene" }
+edges { id: 167 from: 84 to: 139 input: "scale_y" }
+edges { id: 168 from: 85 to: 139 input: "translate_y" }
+edges { id: 169 from: 13 to: 140 input: "scene" }
+edges { id: 170 from: 96 to: 140 input: "scale_y" }
+edges { id: 171 from: 97 to: 140 input: "translate_y" }
+edges { id: 172 from: 13 to: 141 input: "scene" }
+edges { id: 173 from: 108 to: 141 input: "scale_y" }
+edges { id: 174 from: 109 to: 141 input: "translate_y" }
+edges { id: 175 from: 7 to: 142 input: "scene" }
+edges { id: 176 from: 15 to: 142 input: "scale_y" }
+edges { id: 177 from: 16 to: 142 input: "translate_y" }
+edges { id: 178 from: 7 to: 143 input: "scene" }
+edges { id: 179 from: 27 to: 143 input: "scale_y" }
+edges { id: 180 from: 28 to: 143 input: "translate_y" }
+edges { id: 181 from: 9 to: 144 input: "scene" }
+edges { id: 182 from: 39 to: 144 input: "scale_y" }
+edges { id: 183 from: 40 to: 144 input: "translate_y" }
+edges { id: 184 from: 9 to: 145 input: "scene" }
+edges { id: 185 from: 51 to: 145 input: "scale_y" }
+edges { id: 186 from: 52 to: 145 input: "translate_y" }
+edges { id: 187 from: 11 to: 146 input: "scene" }
+edges { id: 188 from: 63 to: 146 input: "scale_y" }
+edges { id: 189 from: 64 to: 146 input: "translate_y" }
+edges { id: 190 from: 11 to: 147 input: "scene" }
+edges { id: 191 from: 75 to: 147 input: "scale_y" }
+edges { id: 192 from: 76 to: 147 input: "translate_y" }
+edges { id: 193 from: 13 to: 148 input: "scene" }
+edges { id: 194 from: 87 to: 148 input: "scale_y" }
+edges { id: 195 from: 88 to: 148 input: "translate_y" }
+edges { id: 196 from: 13 to: 149 input: "scene" }
+edges { id: 197 from: 99 to: 149 input: "scale_y" }
+edges { id: 198 from: 100 to: 149 input: "translate_y" }
+edges { id: 199 from: 7 to: 150 input: "scene" }
+edges { id: 200 from: 18 to: 150 input: "scale_y" }
+edges { id: 201 from: 19 to: 150 input: "translate_y" }
+edges { id: 202 from: 7 to: 151 input: "scene" }
+edges { id: 203 from: 30 to: 151 input: "scale_y" }
+edges { id: 204 from: 31 to: 151 input: "translate_y" }
+edges { id: 205 from: 9 to: 152 input: "scene" }
+edges { id: 206 from: 42 to: 152 input: "scale_y" }
+edges { id: 207 from: 43 to: 152 input: "translate_y" }
+edges { id: 208 from: 9 to: 153 input: "scene" }
+edges { id: 209 from: 54 to: 153 input: "scale_y" }
+edges { id: 210 from: 55 to: 153 input: "translate_y" }
+edges { id: 211 from: 11 to: 154 input: "scene" }
+edges { id: 212 from: 66 to: 154 input: "scale_y" }
+edges { id: 213 from: 67 to: 154 input: "translate_y" }
+edges { id: 214 from: 11 to: 155 input: "scene" }
+edges { id: 215 from: 78 to: 155 input: "scale_y" }
+edges { id: 216 from: 79 to: 155 input: "translate_y" }
+edges { id: 217 from: 13 to: 156 input: "scene" }
+edges { id: 218 from: 90 to: 156 input: "scale_y" }
+edges { id: 219 from: 91 to: 156 input: "translate_y" }
+edges { id: 220 from: 13 to: 157 input: "scene" }
+edges { id: 221 from: 102 to: 157 input: "scale_y" }
+edges { id: 222 from: 103 to: 157 input: "translate_y" }
+edges { id: 223 from: 7 to: 158 input: "scene" }
+edges { id: 224 from: 21 to: 158 input: "scale_y" }
+edges { id: 225 from: 22 to: 158 input: "translate_y" }
+edges { id: 226 from: 7 to: 159 input: "scene" }
+edges { id: 227 from: 33 to: 159 input: "scale_y" }
+edges { id: 228 from: 34 to: 159 input: "translate_y" }
+edges { id: 229 from: 9 to: 160 input: "scene" }
+edges { id: 230 from: 45 to: 160 input: "scale_y" }
+edges { id: 231 from: 46 to: 160 input: "translate_y" }
+edges { id: 232 from: 9 to: 161 input: "scene" }
+edges { id: 233 from: 57 to: 161 input: "scale_y" }
+edges { id: 234 from: 58 to: 161 input: "translate_y" }
+edges { id: 235 from: 11 to: 162 input: "scene" }
+edges { id: 236 from: 69 to: 162 input: "scale_y" }
+edges { id: 237 from: 70 to: 162 input: "translate_y" }
+edges { id: 238 from: 11 to: 163 input: "scene" }
+edges { id: 239 from: 81 to: 163 input: "scale_y" }
+edges { id: 240 from: 82 to: 163 input: "translate_y" }
+edges { id: 241 from: 13 to: 164 input: "scene" }
+edges { id: 242 from: 93 to: 164 input: "scale_y" }
+edges { id: 243 from: 94 to: 164 input: "translate_y" }
+edges { id: 244 from: 13 to: 165 input: "scene" }
+edges { id: 245 from: 105 to: 165 input: "scale_y" }
+edges { id: 246 from: 106 to: 165 input: "translate_y" }
+edges { id: 247 from: 7 to: 166 input: "scene" }
+edges { id: 248 from: 24 to: 166 input: "scale_y" }
+edges { id: 249 from: 25 to: 166 input: "translate_y" }
+edges { id: 250 from: 7 to: 167 input: "scene" }
+edges { id: 251 from: 36 to: 167 input: "scale_y" }
+edges { id: 252 from: 37 to: 167 input: "translate_y" }
+edges { id: 253 from: 9 to: 168 input: "scene" }
+edges { id: 254 from: 48 to: 168 input: "scale_y" }
+edges { id: 255 from: 49 to: 168 input: "translate_y" }
+edges { id: 256 from: 9 to: 169 input: "scene" }
+edges { id: 257 from: 60 to: 169 input: "scale_y" }
+edges { id: 258 from: 61 to: 169 input: "translate_y" }
+edges { id: 259 from: 11 to: 170 input: "scene" }
+edges { id: 260 from: 72 to: 170 input: "scale_y" }
+edges { id: 261 from: 73 to: 170 input: "translate_y" }
+edges { id: 262 from: 11 to: 171 input: "scene" }
+edges { id: 263 from: 84 to: 171 input: "scale_y" }
+edges { id: 264 from: 85 to: 171 input: "translate_y" }
+edges { id: 265 from: 13 to: 172 input: "scene" }
+edges { id: 266 from: 96 to: 172 input: "scale_y" }
+edges { id: 267 from: 97 to: 172 input: "translate_y" }
+edges { id: 268 from: 13 to: 173 input: "scene" }
+edges { id: 269 from: 108 to: 173 input: "scale_y" }
+edges { id: 270 from: 109 to: 173 input: "translate_y" }
+edges { id: 271 from: 5 to: 175 input: "geometry" }
+edges { id: 272 from: 174 to: 175 input: "material" }
+edges { id: 273 from: 175 to: 176 input: "scene" }
+edges { id: 274 from: 5 to: 178 input: "geometry" }
+edges { id: 275 from: 177 to: 178 input: "material" }
+edges { id: 276 from: 178 to: 179 input: "scene" }
+edges { id: 277 from: 178 to: 180 input: "scene" }
+edges { id: 278 from: 178 to: 181 input: "scene" }
+edges { id: 279 from: 178 to: 182 input: "scene" }
+edges { id: 280 from: 178 to: 183 input: "scene" }
+edges { id: 281 from: 178 to: 184 input: "scene" }
+edges { id: 282 from: 178 to: 185 input: "scene" }
+edges { id: 283 from: 178 to: 186 input: "scene" }
+edges { id: 284 from: 178 to: 187 input: "scene" }
+edges { id: 285 from: 178 to: 188 input: "scene" }
+edges { id: 286 from: 178 to: 189 input: "scene" }
+edges { id: 287 from: 178 to: 190 input: "scene" }
+edges { id: 288 from: 178 to: 191 input: "scene" }
+edges { id: 289 from: 178 to: 192 input: "scene" }
+edges { id: 290 from: 178 to: 193 input: "scene" }
+edges { id: 291 from: 178 to: 194 input: "scene" }
+edges { id: 292 from: 178 to: 195 input: "scene" }
+edges { id: 293 from: 178 to: 196 input: "scene" }
+edges { id: 294 from: 110 to: 197 input: "a" }
+edges { id: 295 from: 111 to: 197 input: "b" }
+edges { id: 296 from: 112 to: 198 input: "a" }
+edges { id: 297 from: 113 to: 198 input: "b" }
+edges { id: 298 from: 114 to: 199 input: "a" }
+edges { id: 299 from: 115 to: 199 input: "b" }
+edges { id: 300 from: 116 to: 200 input: "a" }
+edges { id: 301 from: 117 to: 200 input: "b" }
+edges { id: 302 from: 118 to: 201 input: "a" }
+edges { id: 303 from: 119 to: 201 input: "b" }
+edges { id: 304 from: 120 to: 202 input: "a" }
+edges { id: 305 from: 121 to: 202 input: "b" }
+edges { id: 306 from: 122 to: 203 input: "a" }
+edges { id: 307 from: 123 to: 203 input: "b" }
+edges { id: 308 from: 124 to: 204 input: "a" }
+edges { id: 309 from: 125 to: 204 input: "b" }
+edges { id: 310 from: 126 to: 205 input: "a" }
+edges { id: 311 from: 127 to: 205 input: "b" }
+edges { id: 312 from: 128 to: 206 input: "a" }
+edges { id: 313 from: 129 to: 206 input: "b" }
+edges { id: 314 from: 130 to: 207 input: "a" }
+edges { id: 315 from: 131 to: 207 input: "b" }
+edges { id: 316 from: 132 to: 208 input: "a" }
+edges { id: 317 from: 133 to: 208 input: "b" }
+edges { id: 318 from: 134 to: 209 input: "a" }
+edges { id: 319 from: 135 to: 209 input: "b" }
+edges { id: 320 from: 136 to: 210 input: "a" }
+edges { id: 321 from: 137 to: 210 input: "b" }
+edges { id: 322 from: 138 to: 211 input: "a" }
+edges { id: 323 from: 139 to: 211 input: "b" }
+edges { id: 324 from: 140 to: 212 input: "a" }
+edges { id: 325 from: 141 to: 212 input: "b" }
+edges { id: 326 from: 142 to: 213 input: "a" }
+edges { id: 327 from: 143 to: 213 input: "b" }
+edges { id: 328 from: 144 to: 214 input: "a" }
+edges { id: 329 from: 145 to: 214 input: "b" }
+edges { id: 330 from: 146 to: 215 input: "a" }
+edges { id: 331 from: 147 to: 215 input: "b" }
+edges { id: 332 from: 148 to: 216 input: "a" }
+edges { id: 333 from: 149 to: 216 input: "b" }
+edges { id: 334 from: 150 to: 217 input: "a" }
+edges { id: 335 from: 151 to: 217 input: "b" }
+edges { id: 336 from: 152 to: 218 input: "a" }
+edges { id: 337 from: 153 to: 218 input: "b" }
+edges { id: 338 from: 154 to: 219 input: "a" }
+edges { id: 339 from: 155 to: 219 input: "b" }
+edges { id: 340 from: 156 to: 220 input: "a" }
+edges { id: 341 from: 157 to: 220 input: "b" }
+edges { id: 342 from: 158 to: 221 input: "a" }
+edges { id: 343 from: 159 to: 221 input: "b" }
+edges { id: 344 from: 160 to: 222 input: "a" }
+edges { id: 345 from: 161 to: 222 input: "b" }
+edges { id: 346 from: 162 to: 223 input: "a" }
+edges { id: 347 from: 163 to: 223 input: "b" }
+edges { id: 348 from: 164 to: 224 input: "a" }
+edges { id: 349 from: 165 to: 224 input: "b" }
+edges { id: 350 from: 166 to: 225 input: "a" }
+edges { id: 351 from: 167 to: 225 input: "b" }
+edges { id: 352 from: 168 to: 226 input: "a" }
+edges { id: 353 from: 169 to: 226 input: "b" }
+edges { id: 354 from: 170 to: 227 input: "a" }
+edges { id: 355 from: 171 to: 227 input: "b" }
+edges { id: 356 from: 172 to: 228 input: "a" }
+edges { id: 357 from: 173 to: 228 input: "b" }
+edges { id: 358 from: 176 to: 229 input: "a" }
+edges { id: 359 from: 179 to: 229 input: "b" }
+edges { id: 360 from: 180 to: 230 input: "a" }
+edges { id: 361 from: 181 to: 230 input: "b" }
+edges { id: 362 from: 182 to: 231 input: "a" }
+edges { id: 363 from: 183 to: 231 input: "b" }
+edges { id: 364 from: 184 to: 232 input: "a" }
+edges { id: 365 from: 185 to: 232 input: "b" }
+edges { id: 366 from: 186 to: 233 input: "a" }
+edges { id: 367 from: 187 to: 233 input: "b" }
+edges { id: 368 from: 188 to: 234 input: "a" }
+edges { id: 369 from: 189 to: 234 input: "b" }
+edges { id: 370 from: 190 to: 235 input: "a" }
+edges { id: 371 from: 191 to: 235 input: "b" }
+edges { id: 372 from: 192 to: 236 input: "a" }
+edges { id: 373 from: 193 to: 236 input: "b" }
+edges { id: 374 from: 194 to: 237 input: "a" }
+edges { id: 375 from: 195 to: 237 input: "b" }
+edges { id: 376 from: 197 to: 238 input: "a" }
+edges { id: 377 from: 198 to: 238 input: "b" }
+edges { id: 378 from: 199 to: 239 input: "a" }
+edges { id: 379 from: 200 to: 239 input: "b" }
+edges { id: 380 from: 201 to: 240 input: "a" }
+edges { id: 381 from: 202 to: 240 input: "b" }
+edges { id: 382 from: 203 to: 241 input: "a" }
+edges { id: 383 from: 204 to: 241 input: "b" }
+edges { id: 384 from: 205 to: 242 input: "a" }
+edges { id: 385 from: 206 to: 242 input: "b" }
+edges { id: 386 from: 207 to: 243 input: "a" }
+edges { id: 387 from: 208 to: 243 input: "b" }
+edges { id: 388 from: 209 to: 244 input: "a" }
+edges { id: 389 from: 210 to: 244 input: "b" }
+edges { id: 390 from: 211 to: 245 input: "a" }
+edges { id: 391 from: 212 to: 245 input: "b" }
+edges { id: 392 from: 213 to: 246 input: "a" }
+edges { id: 393 from: 214 to: 246 input: "b" }
+edges { id: 394 from: 215 to: 247 input: "a" }
+edges { id: 395 from: 216 to: 247 input: "b" }
+edges { id: 396 from: 217 to: 248 input: "a" }
+edges { id: 397 from: 218 to: 248 input: "b" }
+edges { id: 398 from: 219 to: 249 input: "a" }
+edges { id: 399 from: 220 to: 249 input: "b" }
+edges { id: 400 from: 221 to: 250 input: "a" }
+edges { id: 401 from: 222 to: 250 input: "b" }
+edges { id: 402 from: 223 to: 251 input: "a" }
+edges { id: 403 from: 224 to: 251 input: "b" }
+edges { id: 404 from: 225 to: 252 input: "a" }
+edges { id: 405 from: 226 to: 252 input: "b" }
+edges { id: 406 from: 227 to: 253 input: "a" }
+edges { id: 407 from: 228 to: 253 input: "b" }
+edges { id: 408 from: 229 to: 254 input: "a" }
+edges { id: 409 from: 230 to: 254 input: "b" }
+edges { id: 410 from: 231 to: 255 input: "a" }
+edges { id: 411 from: 232 to: 255 input: "b" }
+edges { id: 412 from: 233 to: 256 input: "a" }
+edges { id: 413 from: 234 to: 256 input: "b" }
+edges { id: 414 from: 235 to: 257 input: "a" }
+edges { id: 415 from: 236 to: 257 input: "b" }
+edges { id: 416 from: 237 to: 258 input: "a" }
+edges { id: 417 from: 196 to: 258 input: "b" }
+edges { id: 418 from: 238 to: 259 input: "a" }
+edges { id: 419 from: 239 to: 259 input: "b" }
+edges { id: 420 from: 240 to: 260 input: "a" }
+edges { id: 421 from: 241 to: 260 input: "b" }
+edges { id: 422 from: 242 to: 261 input: "a" }
+edges { id: 423 from: 243 to: 261 input: "b" }
+edges { id: 424 from: 244 to: 262 input: "a" }
+edges { id: 425 from: 245 to: 262 input: "b" }
+edges { id: 426 from: 246 to: 263 input: "a" }
+edges { id: 427 from: 247 to: 263 input: "b" }
+edges { id: 428 from: 248 to: 264 input: "a" }
+edges { id: 429 from: 249 to: 264 input: "b" }
+edges { id: 430 from: 250 to: 265 input: "a" }
+edges { id: 431 from: 251 to: 265 input: "b" }
+edges { id: 432 from: 252 to: 266 input: "a" }
+edges { id: 433 from: 253 to: 266 input: "b" }
+edges { id: 434 from: 254 to: 267 input: "a" }
+edges { id: 435 from: 255 to: 267 input: "b" }
+edges { id: 436 from: 256 to: 268 input: "a" }
+edges { id: 437 from: 257 to: 268 input: "b" }
+edges { id: 438 from: 259 to: 269 input: "a" }
+edges { id: 439 from: 260 to: 269 input: "b" }
+edges { id: 440 from: 261 to: 270 input: "a" }
+edges { id: 441 from: 262 to: 270 input: "b" }
+edges { id: 442 from: 263 to: 271 input: "a" }
+edges { id: 443 from: 264 to: 271 input: "b" }
+edges { id: 444 from: 265 to: 272 input: "a" }
+edges { id: 445 from: 266 to: 272 input: "b" }
+edges { id: 446 from: 267 to: 273 input: "a" }
+edges { id: 447 from: 268 to: 273 input: "b" }
+edges { id: 448 from: 269 to: 274 input: "a" }
+edges { id: 449 from: 270 to: 274 input: "b" }
+edges { id: 450 from: 271 to: 275 input: "a" }
+edges { id: 451 from: 272 to: 275 input: "b" }
+edges { id: 452 from: 273 to: 276 input: "a" }
+edges { id: 453 from: 258 to: 276 input: "b" }
+edges { id: 454 from: 274 to: 277 input: "a" }
+edges { id: 455 from: 275 to: 277 input: "b" }
+edges { id: 456 from: 277 to: 278 input: "a" }
+edges { id: 457 from: 276 to: 278 input: "b" }
+edges { id: 458 from: 278 to: 279 input: "scene" }
+edges { id: 459 from: 2 to: 279 input: "rotation_y" }
+edges { id: 460 from: 279 to: 282 input: "a" }
+edges { id: 461 from: 280 to: 282 input: "b" }
+edges { id: 462 from: 282 to: 283 input: "a" }
+edges { id: 463 from: 281 to: 283 input: "b" }
+edges { id: 464 from: 283 to: 285 input: "scene" }
+edges { id: 465 from: 284 to: 285 input: "camera" }
+edges { id: 466 from: 286 to: 287 input: "a" }
+edges { id: 467 from: 285 to: 287 input: "b" }
+edges { id: 468 from: 285 to: 288 input: "source" }
+edges { id: 469 from: 287 to: 289 input: "a" }
+edges { id: 470 from: 288 to: 289 input: "b" }
+edges { id: 471 from: 289 to: 290 input: "source" }

@@ -128,5 +128,19 @@ void VerifyPointPixels(render::Renderer& renderer) {
     }
     std::cout << "Published scene graph GPU pixels: geometry, transform, material, camera and node "
                  "preview passed\n";
+    for (int scenario = 9; scenario <= 10; ++scenario) {
+        for (int frame = 0; frame < 4; ++frame) graph_fixture.Draw(renderer, scenario);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+        glReadPixels(0, 0, 16, 16, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+        if (glGetError() != GL_NO_ERROR) throw std::runtime_error("probe.axis_readback");
+        for (int y = 0; y < 16; ++y)
+            for (int x = 0; x < 16; ++x) {
+                const auto offset = static_cast<std::size_t>((y * 16 + x) * 4);
+                const auto green = x >= 9 && x < 13 && y >= 4 && y < 12 ? 255 : 0;
+                if (pixels[offset] != 0 || pixels[offset + 1] != green || pixels[offset + 2] != 0)
+                    throw std::runtime_error("probe.axis_pixels");
+            }
+    }
+    std::cout << "Independent axis property/wired input: exact projected bounds passed\n";
 }
 }  // namespace rhythm::validation

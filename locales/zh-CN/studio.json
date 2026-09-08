@@ -193,8 +193,8 @@
     "spectrum.linear": "直线",
     "spectrum.radial": "环形",
     "texture.affine": "二维变换",
-    "scale_x": "水平缩放 / 镜像",
-    "scale_y": "垂直缩放 / 镜像",
+    "scale_x": "X 轴缩放",
+    "scale_y": "Y 轴缩放",
     "rotation": "旋转（度）",
     "translate_x": "水平位移（画布比例）",
     "translate_y": "垂直位移（画布比例）",
@@ -629,5 +629,6 @@
     "component.timing_help": "编辑组件内部的曲线和段落，进度由连接的时间输入决定。新增段落使用组件内时间节点，可改接局部时间。播放控制仍在主时间线。",
     "component.timing_range": "显示范围",
     "component.timing_insert": "插入位置",
-    "component.add_section": "在指定时间添加段落"
+    "component.add_section": "在指定时间添加段落",
+    "scale_z": "Z 轴缩放"
 }

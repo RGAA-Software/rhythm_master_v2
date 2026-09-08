@@ -1,0 +1,42 @@
+{
+    "kind": "first-party composition and graph adapter extension",
+    "source_revision": "f294b14",
+    "reused_files": [
+        "tools/author-resonance-gate.py: Graph",
+        "src/scene3d/math.cpp: Compose, Multiply, NormalTransform",
+        "src/scene3d/model.cpp: Cube",
+        "src/rhythm_render/shaders/godot_brdf.sh"
+    ],
+    "changes": [
+        "Append neutral optional scene.transform axis controls; preserve legacy eight-slot programs.",
+        "Compose 64 band-driven columns, 18 grid lines and one floor using shared cube geometry.",
+        "Use balanced merges and existing PBR, camera, lights and blur/composite contracts."
+    ],
+    "target_files": [
+        "src/graph/src/scene_descriptors.cpp",
+        "src/runtime/scene_ops.cpp",
+        "tools/author-harmonic-city.py",
+        "content/templates/harmonic_city"
+    ],
+    "third_party_records": [
+        "provenance/glm.json",
+        "provenance/godot_3d.json"
+    ],
+    "dependencies": [
+        {
+            "source_url": "https://github.com/g-truc/glm",
+            "revision": "bf71a834948186f4097caa076cd2663c69a10e1e",
+            "license": "MIT alternative; complete notice retained",
+            "use": "Existing vcpkg 0.9.9.8#2 private adapter, unchanged"
+        },
+        {
+            "source_url": "https://github.com/godotengine/godot",
+            "revision": "f62fdbde15035c5576dad93e586201f4d41ef0cb",
+            "license": "MIT",
+            "use": "Existing attributed projection/BRDF adapters, unchanged"
+        }
+    ],
+    "new_third_party_imports": [],
+    "outbound_license": "not selected; existing notices and terms retained",
+    "visual_acceptance": "pending; automated behavior and native-device checks are separate"
+}

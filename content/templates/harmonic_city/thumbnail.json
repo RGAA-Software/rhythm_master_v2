@@ -1,0 +1,14 @@
+{
+    "template": "harmonic_city",
+    "package_sha256": "5cb1a6182d9abc847807b92c5e92e31c3bed2e10db2f638a6850f61b9d1d9ad6",
+    "thumbnail_sha256": "efc4bc90705776988e744f9799a4d32665c1cafda2ad570cb4978bba90601efd",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

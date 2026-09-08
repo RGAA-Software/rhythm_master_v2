@@ -193,8 +193,8 @@
     "spectrum.linear": "Linear",
     "spectrum.radial": "Radial",
     "texture.affine": "2D transform",
-    "scale_x": "Horizontal scale / mirror",
-    "scale_y": "Vertical scale / mirror",
+    "scale_x": "X scale",
+    "scale_y": "Y scale",
     "rotation": "Rotation (degrees)",
     "translate_x": "Horizontal offset (canvas fraction)",
     "translate_y": "Vertical offset (canvas fraction)",
@@ -629,5 +629,6 @@
     "component.timing_help": "Edit curves and sections inside this component. The connected time input controls their progress. Added sections use the component clock; wire a local time node when needed. Playback controls remain in the main timeline.",
     "component.timing_range": "Visible range",
     "component.timing_insert": "Insert at",
-    "component.add_section": "Add section at specified time"
+    "component.add_section": "Add section at specified time",
+    "scale_z": "Z scale"
 }

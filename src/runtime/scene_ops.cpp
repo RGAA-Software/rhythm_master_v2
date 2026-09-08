@@ -116,9 +116,15 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
                 const auto x = angle(1, "rotation_x"), y = angle(2, "rotation_y"),
                            z = angle(3, "rotation_z");
                 const auto scale = control(4, "scale", 1, 0.001, 100);
+                // Axis factors multiply uniform scale. Bound the product as well so a
+                // single transform retains the existing invertible scale range.
+                const auto axis = [&](std::size_t port, std::string_view key) {
+                    return std::clamp(scale * control(port, key, 1, 0.001, 100), 0.001, 100.0);
+                };
                 // Intrinsic X, then Y, then Z; GLM-backed Compose/Multiply own all matrix math.
-                const auto rx =
-                        scene::Compose({}, {std::sin(x), 0, 0, std::cos(x)}, {scale, scale, scale});
+                const auto rx = scene::Compose(
+                        {}, {std::sin(x), 0, 0, std::cos(x)},
+                        {axis(8, "scale_x"), axis(9, "scale_y"), axis(10, "scale_z")});
                 const auto ry = scene::Compose({}, {0, std::sin(y), 0, std::cos(y)}, {1, 1, 1});
                 const auto rz = scene::Compose({control(5, "translate_x", 0, -1000, 1000),
                                                 control(6, "translate_y", 0, -1000, 1000),

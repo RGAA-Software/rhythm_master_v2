@@ -1,0 +1,28 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.harmonic_city",
+    "content_version": "0.1.0",
+    "project_id": "official-harmonic-city",
+    "graph_revision": 0,
+    "title": "律动之城 / Harmonic City",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "律动之城",
+        "en-US": "Harmonic City"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
+    "compatible_players": [
+        "windows"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "32 个真实频段控制 64 根三维音柱，独立轴缩放、双色灯光和柔光合成。音柱底部固定在地台，静音回落；一个共享网格、四种柱体材质及平衡场景合并树。所有节点均可编辑。",
+        "en-US": "32 real audio bands animate 64 grounded 3D columns, with independent axis scale, two lights and soft glow. Silence lowers the columns. One shared mesh, four pillar materials and a balanced scene merge tree; every node remains editable."
+    }
+}

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 
@@ -50,6 +51,45 @@ void Run() {
     Require(frame.outputs_[3].scene_->instances_.at(0).transform_.values_[12] == 0.5 &&
                     frame.outputs_[2].scene_->instances_.at(0).transform_ == scene::Matrix{},
             "transform publishes an immutable scene snapshot");
+    document.nodes_[3].properties_["scale"] = 2.0;
+    document.nodes_[3].properties_["scale_x"] = 0.25;
+    document.nodes_[3].properties_["scale_y"] = 3.0;
+    document.nodes_[3].properties_["scale_z"] = 0.5;
+    frame = evaluate();
+    const auto& matrix = frame.outputs_[3].scene_->instances_.at(0).transform_;
+    const auto expected = scene::Multiply(
+            scene::Compose({0.5, 0, 0},
+                           {0, std::sin(std::acos(-1.0) / 8), 0, std::cos(std::acos(-1.0) / 8)},
+                           {1, 1, 1}),
+            scene::Compose({}, {0, 0, 0, 1}, {0.5, 6, 1}));
+    for (std::size_t index = 0; index < matrix.values_.size(); ++index)
+        Require(std::abs(matrix.values_[index] - expected.values_[index]) < 1e-6,
+                "axis scaling precedes rotation and translation");
+    const auto normal = scene::NormalTransform(matrix);
+    Require(std::abs(normal.values_[5] - 1.0 / 6) < 1e-6 &&
+                    frame.outputs_[0].geometry_ == geometry &&
+                    renderer.Stats().mesh_bytes_ == bytes,
+            "nonuniform scaling preserves inverse-transpose normals and shared geometry");
+    document.nodes_.push_back(registry.MakeNode(7, "scalar.constant"));
+    document.nodes_.back().properties_["value"] = 0.75;
+    document.edges_.push_back({6, 7, 4, "scale_y"});
+    frame = evaluate();
+    const auto transformed = std::find_if(frame.outputs_.begin(), frame.outputs_.end(),
+                                          [](const auto& item) { return item.node_ == 4; });
+    Require(transformed != frame.outputs_.end() &&
+                    std::abs(transformed->scene_->instances_[0].transform_.values_[5] - 1.5) < 1e-6,
+            "wired axis overrides the property and multiplies uniform scale");
+    document.edges_.pop_back();
+    document.nodes_.pop_back();
+    document.nodes_[3].properties_["scale"] = 0.001;
+    document.nodes_[3].properties_["scale_x"] = 0.001;
+    document.nodes_[3].properties_["scale_y"] = 0.001;
+    document.nodes_[3].properties_["scale_z"] = 0.001;
+    frame = evaluate();
+    Require(scene::ValidAffine(
+                    scene::NormalTransform(frame.outputs_[3].scene_->instances_[0].transform_)),
+            "minimum axis products retain an invertible transform");
+    document.nodes_[3] = registry.MakeNode(4, "scene.transform");
     document.nodes_[0] = registry.MakeNode(1, "geometry.sphere");
     frame = evaluate();
     Require(frame.outputs_[0].geometry_->revision_ != geometry->revision_ &&

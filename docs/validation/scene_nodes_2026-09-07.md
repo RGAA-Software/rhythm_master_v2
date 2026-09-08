@@ -27,7 +27,9 @@ The procedural graph profile bounds source geometry to 250,000 vertices / 750,00
 indices, each scene to 256 instances / four directional lights, intermediate
 instance snapshots to 4096, and final scene rendering to 3,000,000 indices per
 evaluation. Merge growth rejects before runtime allocation. Transform Euler order
-is X then Y then Z; translation follows rotation and uniform scale. Camera uses
+is X then Y then Z; translation follows rotation and scale. The
+[axis-scale increment](harmonic_city_2026-09-08.md) adds neutral optional X/Y/Z
+factors to uniform scale and verifies legacy packages. Camera uses
 vertical field of view or orthographic height, with canonical depth conversion.
 Lit normals use the GLM inverse transpose, including nonuniform model hierarchy
 scales. Orthographic lighting uses parallel view directions.

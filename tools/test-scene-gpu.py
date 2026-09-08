@@ -9,7 +9,7 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def read_tga(path):
+def read_tga(path, point=(8, 8)):
     data = path.read_bytes()
     if len(data) < 18:
         raise ValueError("truncated TGA")
@@ -32,7 +32,7 @@ def read_tga(path):
                 raise ValueError("truncated pixels")
             offset += stride
             pixels.extend([tuple(reversed(pixel[:3]))] * (count if packet & 128 else 1))
-    x, y = 8, 8
+    x, y = point
     if not flags & 32:
         y = height - 1 - y
     if flags & 16:
@@ -66,6 +66,14 @@ def main():
         if any(abs(a - b) > 2 for a, b in zip(actual, value)):
             raise RuntimeError(f"graph {scenario}: expected {value}, got {actual}; evidence {output}")
     print("Published scene graph pixels: cube/sphere, translation, material, cameras and node preview passed")
+    for scenario in (9, 10):
+        for y in range(16):
+            for x in range(16):
+                expected = (0, 255, 0) if 9 <= x < 13 and 4 <= y < 12 else (0, 0, 0)
+                actual = read_tga(output / f"graph-{scenario}.tga", (x, y))
+                if actual != expected:
+                    raise RuntimeError(f"Axis scale {scenario} at {x},{y}: {actual} != {expected}")
+    print("Independent axis property/wired input: exact projected bounds passed")
     for scenario, value in enumerate([(0, 255, 0), (0, 255, 0), (0, 0, 0)]):
         actual = read_tga(output / f"model-{scenario}.tga")
         if any(abs(a - b) > 2 for a, b in zip(actual, value)):

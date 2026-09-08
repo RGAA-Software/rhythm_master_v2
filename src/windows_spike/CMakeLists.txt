@@ -106,6 +106,10 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/resonance_arrangement"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/arrangement-studio")
         set_tests_properties(arrangement_studio_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 60 RUN_SERIAL TRUE)
+        add_test(NAME harmonic_city_studio_gpu COMMAND soundtrack_studio_gpu_tests
+            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/harmonic_city"
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/harmonic-city-studio")
+        set_tests_properties(harmonic_city_studio_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 60 RUN_SERIAL TRUE)
         target_link_libraries(export_ui_gpu_tests PRIVATE studio_ui platform_sdl media_video project_io spike_bgfx spike_imgui)
         rhythm_project_target(export_ui_gpu_tests)
         add_dependencies(export_ui_gpu_tests studio_deploy)
@@ -117,6 +121,10 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/resonance_arrangement"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/arrangement-export")
         set_tests_properties(arrangement_export_ui_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME harmonic_city_export_ui_gpu COMMAND export_ui_gpu_tests
+            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/harmonic_city"
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/harmonic-city-export")
+        set_tests_properties(harmonic_city_export_ui_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_executable(export_gpu_tests tests/export_gpu_tests.cpp)
         target_link_libraries(export_gpu_tests PRIVATE export_core platform_sdl media_video)
         rhythm_project_target(export_gpu_tests)
@@ -167,6 +175,11 @@ if(BUILD_TESTING)
             --expected-nodes 197 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/resonance-live-music-captures")
         set_tests_properties(resonance_live_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME harmonic_city_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
+            --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/harmonic_city.rhythmpack"
+            --expected-nodes 290 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --output "${PROJECT_BINARY_DIR}/harmonic-city-music-captures")
+        set_tests_properties(harmonic_city_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME performance_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
             --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/performance-workflow/performance.rhythmpack"
             --expected-nodes 197 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"

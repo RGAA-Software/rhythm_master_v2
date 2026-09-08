@@ -30,7 +30,7 @@ class SceneGraphFixture final {
             document.edges_ = {{1, 1, 3, "geometry"}, {2, 2, 3, "material"}, {3, 3, 4, "scene"},
                                {4, 4, 6, "scene"},    {5, 5, 6, "camera"},   {6, 6, 7, "source"}};
             document.output_ = 7;
-            if (scenario >= 7) {
+            if (scenario == 7 || scenario == 8) {
                 document.nodes_[0] = registry.MakeNode(1, "geometry.cube");
                 document.nodes_[1] = registry.MakeNode(2, "material.pbr");
                 document.nodes_[1].properties_["color_a"] = graph::Color{1, 1, 1, 1};
@@ -44,6 +44,18 @@ class SceneGraphFixture final {
                 document.edges_[3].from_ = 9;
                 document.edges_.push_back({7, 4, 9, "a"});
                 document.edges_.push_back({8, 8, 9, "b"});
+            }
+            if (scenario >= 9) {
+                document.nodes_[0] = registry.MakeNode(1, "geometry.cube");
+                document.nodes_[3].properties_["scale_x"] = scenario == 9 ? 0.5 : 2.0;
+                document.nodes_[3].properties_["scale_z"] = 0.75;
+                document.nodes_[3].properties_["translate_x"] = 0.375;
+                document.nodes_[4].properties_["projection"] = 1.0;
+                if (scenario == 10) {
+                    document.nodes_.push_back(registry.MakeNode(8, "scalar.constant"));
+                    document.nodes_.back().properties_["value"] = 0.5;
+                    document.edges_.push_back({7, 8, 4, "scale_x"});
+                }
             }
             const auto plan = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
             plan_ = project::DecodeProgram(project::EncodeProgram(plan));
