@@ -82,6 +82,12 @@ add_custom_command(TARGET rhythm_master POST_BUILD COMMAND ${rhythm_deploy_comma
 add_custom_target(studio_deploy ALL COMMAND ${rhythm_deploy_command}
     DEPENDS rhythm_master studio_resources VERBATIM)
 if(BUILD_TESTING)
+    add_executable(scene_compositor_gpu_tests tests/scene_compositor_gpu_tests.cpp)
+    target_link_libraries(scene_compositor_gpu_tests PRIVATE platform_sdl scene_compositor_probe)
+    rhythm_project_target(scene_compositor_gpu_tests)
+    add_test(NAME scene_compositor_gpu COMMAND scene_compositor_gpu_tests)
+    set_tests_properties(scene_compositor_gpu PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE ENVIRONMENT_MODIFICATION
+        "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     add_executable(readback_gpu_tests tests/readback_gpu_tests.cpp
         ../rhythm_render/tests/readback_gpu_contracts.cpp)
     target_link_libraries(readback_gpu_tests PRIVATE platform_sdl)

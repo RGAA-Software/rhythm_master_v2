@@ -864,5 +864,22 @@
     "audio.clip_pan": "Stereo balance",
     "audio.clip_mute": "Mute clip",
     "audio.clip_smooth": "Smooth fades",
-    "audio.clip_loop": "Loop trimmed source"
+    "audio.clip_loop": "Loop trimmed source",
+    "scene.queue": "Performance queue",
+    "scene.queue_help": "Prepare the next work in order. Go starts the transition; pause freezes it. Bound music switches on takeover.",
+    "scene.builtin": "Built-in work",
+    "scene.enqueue": "Add to queue",
+    "scene.queue_full": "Queue full: up to 16 works.",
+    "scene.waiting": "Waiting",
+    "scene.loading": "Preparing",
+    "scene.ready": "Ready",
+    "scene.failed": "Preparation failed",
+    "scene.remove": "Remove selected",
+    "scene.clear": "Clear queue",
+    "scene.retry": "Retry",
+    "scene.duration": "Transition duration",
+    "scene.go": "Go to next",
+    "scene.cancel": "Cancel transition",
+    "scene.budget": "Next work exceeds resource budget. Current scene retained.",
+    "scene.transition_failed": "Transition interrupted or failed. Current scene retained."
 }

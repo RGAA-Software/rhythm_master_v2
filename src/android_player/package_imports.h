@@ -1,5 +1,6 @@
 #pragma once
 
+#include "import_file.h"
 #include "rhythm/player/package_loader.h"
 
 namespace rhythm::android_host {
@@ -14,19 +15,11 @@ class PackageImports final {
     bool Busy() const { return loader_.Busy() || pending_.has_value(); }
 
    private:
-    struct FileLease {
-        explicit FileLease(std::filesystem::path path) : path_(std::move(path)) {}
-        ~FileLease();
-        FileLease(FileLease&& other) noexcept;
-        FileLease(const FileLease&) = delete;
-        FileLease& operator=(const FileLease&) = delete;
-        std::filesystem::path path_{};
-    };
     bool StartPending();
     std::filesystem::path installed_{};
     std::filesystem::path cache_{};
-    std::optional<FileLease> active_{};
-    std::optional<FileLease> pending_{};
+    std::optional<ImportFile> active_{};
+    std::optional<ImportFile> pending_{};
     // Destroyed first: stops/joins worker before either file lease is released.
     player::PackageLoader loader_{};
 };

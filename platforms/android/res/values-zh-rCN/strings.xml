@@ -29,4 +29,19 @@
     <string name="controls_blend">A / B 混合</string>
     <string name="controls_follow">回到自动编排</string>
     <string name="controls_override">手动覆盖</string>
+    <string name="scene_queue">演出队列</string>
+    <string name="scene_enqueue">添加内置作品</string>
+    <string name="scene_waiting">等待</string>
+    <string name="scene_loading">预备中</string>
+    <string name="scene_ready">已就绪</string>
+    <string name="scene_failed">预备失败</string>
+    <string name="scene_remove">移除所选</string>
+    <string name="scene_clear">清空</string>
+    <string name="scene_retry">重试</string>
+    <string name="scene_go">切换下一场</string>
+    <string name="scene_cancel">取消转场</string>
+    <string name="scene_duration">转场时长：%1$.2f 秒</string>
+    <string name="scene_help">最多 16 场，依次预备。暂停会冻结转场。带配乐作品接管时切换音乐。队列仅用于本次演出。</string>
+    <string name="scene_budget">下一场超过资源预算，保留当前画面。</string>
+    <string name="scene_interrupted">转场已中断或失败，保留当前场景。</string>
 </resources>

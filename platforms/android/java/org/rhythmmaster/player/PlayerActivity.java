@@ -128,7 +128,10 @@ public final class PlayerActivity extends SDLActivity {
         AddButton(settings, R.string.render_quality, () -> ChooseQuality());
         AddButton(settings, R.string.open_package, () -> OpenPackage());
         AddButton(settings, R.string.performance_controls, () -> PerformanceControls.Show(this));
+        LinearLayout scenes = new LinearLayout(this);
+        AddButton(scenes, R.string.scene_queue, () -> SceneQueueDialog.Show(this, () -> ChooseQueuedEffect()));
         controls.addView(settings);
+        controls.addView(scenes);
         LinearLayout music = new LinearLayout(this);
         AddButton(music, R.string.open_music, () -> OpenMusic());
         AddButton(music, R.string.demo_music, () -> StartImport(null, true));
@@ -184,6 +187,14 @@ public final class PlayerActivity extends SDLActivity {
             return;
         }
         effects_.Show(this, asset -> StartImport(null, false, asset));
+    }
+
+    private void ChooseQueuedEffect() {
+        if (effects_ == null || importing_) {
+            Toast.makeText(this, R.string.loading_effects, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        effects_.Show(this, asset -> StartImport(null, false, asset, effects_.Title(asset)));
     }
 
     private void ApplySceneOrientation() {
@@ -280,6 +291,10 @@ public final class PlayerActivity extends SDLActivity {
     }
 
     private void StartImport(Uri uri, boolean music, String asset) {
+        StartImport(uri, music, asset, null);
+    }
+
+    private void StartImport(Uri uri, boolean music, String asset, String queue_title) {
         if (importing_ || (music && !RequestAudioFocus())) return;
         importing_ = true;
         importer_.execute(() -> {
@@ -302,9 +317,11 @@ public final class PlayerActivity extends SDLActivity {
                     }
                     output.getFD().sync();
                 }
-                boolean accepted = music ? nativeMusic(staging.getAbsolutePath()) : nativeOpen(staging.getAbsolutePath());
+                boolean accepted = queue_title != null ? SceneQueueDialog.Enqueue(staging.getAbsolutePath(), queue_title) :
+                        music ? nativeMusic(staging.getAbsolutePath()) : nativeOpen(staging.getAbsolutePath());
                 if (!accepted) throw new java.io.IOException("Import queue full");
             } catch (Exception error) {
+                android.util.Log.w("RhythmImport", "Import failed", error);
                 if (staging != null) staging.delete();
                 handler_.post(() -> Toast.makeText(this, music ? R.string.audio_error : R.string.package_error,
                         Toast.LENGTH_LONG).show());

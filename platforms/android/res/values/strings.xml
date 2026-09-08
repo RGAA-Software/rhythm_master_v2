@@ -29,4 +29,19 @@
     <string name="controls_blend">A / B blend</string>
     <string name="controls_follow">Follow cue automation</string>
     <string name="controls_override">Manual override</string>
+    <string name="scene_queue">Performance queue</string>
+    <string name="scene_enqueue">Add built-in work</string>
+    <string name="scene_waiting">Waiting</string>
+    <string name="scene_loading">Preparing</string>
+    <string name="scene_ready">Ready</string>
+    <string name="scene_failed">Failed</string>
+    <string name="scene_remove">Remove selected</string>
+    <string name="scene_clear">Clear</string>
+    <string name="scene_retry">Retry</string>
+    <string name="scene_go">Go to next</string>
+    <string name="scene_cancel">Cancel transition</string>
+    <string name="scene_duration">Transition: %1$.2f s</string>
+    <string name="scene_help">Up to 16 works, prepared in order. Pause freezes transitions. Bound music switches on takeover. Queue lasts for this performance.</string>
+    <string name="scene_budget">Next work exceeds resource budget. Current scene retained.</string>
+    <string name="scene_interrupted">Transition interrupted or failed. Current scene retained.</string>
 </resources>

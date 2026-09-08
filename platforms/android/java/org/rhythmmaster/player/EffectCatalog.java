@@ -65,6 +65,11 @@ final class EffectCatalog {
         return catalog;
     }
 
+    String Title(String asset) {
+        for (Entry entry : entries_) if (entry.asset_.equals(asset)) return entry.title_;
+        return asset;
+    }
+
     void Show(Activity activity, Selection selection) {
         final int preview_width = (int) (96 * activity.getResources().getDisplayMetrics().density);
         BaseAdapter adapter = new BaseAdapter() {

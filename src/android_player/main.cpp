@@ -8,10 +8,12 @@
 #include "control_bridge.h"
 #include "host.h"
 #include "package_imports.h"
+#include "queued_imports.h"
+#include "scene_bridge.h"
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
 #include "music_playback.h"
 #endif
-#include "rhythm/player/session.h"
+#include "rhythm/player/scene_deck.h"
 #include "rhythm/render/layout.h"
 
 namespace {
@@ -39,32 +41,34 @@ int main(int, char**) {
     try {
         platform::Host host;
         std::optional<render::Renderer> renderer;
-        player::Session session;
+        player::SceneDeck deck;
+        android_host::QueuedImports queued_imports(host.CacheDirectory());
+        auto& scene_queue = queued_imports.Queue();
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         android_host::MusicPlayback music(host.CacheDirectory());
 #endif
         auto render_quality = player::RenderQuality::kBalanced;
-        session.Load(host.ReadAsset("signal_texture.rhythmpack"));
+        deck.LoadPrepared(player::PreparedPackage(host.ReadAsset("signal_texture.rhythmpack")));
         const auto installed = host.DataDirectory() / "selected.rhythmpack";
         android_host::PackageImports imports(installed, host.CacheDirectory());
         if (std::filesystem::exists(installed)) {
             try {
-                session.Open(installed);
+                deck.Open(installed);
             } catch (const std::exception&) {
                 SDL_Log("player stored package rejected; using builtin");
             }
         }
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         const auto apply_soundtrack = [&] {
-            if (const auto track = session.Soundtrack())
+            if (const auto track = deck.Current().Soundtrack())
                 music.Open(*track);
             else
                 music.Clear();
         };
         apply_soundtrack();
 #endif
-        android_host::PublishScene(session.Canvas(), session.Title());
-        android_host::PublishControls(session.Controls(), session.ControlSequence());
+        android_host::PublishScene(deck.Current().Canvas(), deck.Current().Title());
+        android_host::PublishControls(deck.Current().Controls(), deck.Current().ControlSequence());
         std::uint64_t frames = 0;
         std::uint64_t devices = 0;
         std::uint64_t surface_generation = 0;
@@ -75,14 +79,14 @@ int main(int, char**) {
             if (host.Suspended()) music.SetSuspended(true);
 #endif
             if (renderer && surface_generation != host.SurfaceGeneration()) {
-                session.Tick(seconds, true, {}, *renderer);
-                session.ReleaseGraphics();
+                deck.Tick(seconds, true, render_quality, *renderer);
+                deck.ReleaseGraphics();
                 renderer.reset();
             }
             if (host.Suspended()) {
                 if (renderer) {
-                    session.Tick(seconds, true, {}, *renderer);
-                    session.ReleaseGraphics();
+                    deck.Tick(seconds, true, render_quality, *renderer);
+                    deck.ReleaseGraphics();
                     renderer.reset();
                     SDL_Log("player suspended frames=%llu",
                             static_cast<unsigned long long>(frames));
@@ -99,12 +103,12 @@ int main(int, char**) {
             }
             const auto commands = android_host::TakeCommands();
             runtime::PlaybackCommand playback;
-            if (commands.toggle_pause_) playback.paused_ = !session.Paused();
+            if (commands.toggle_pause_) playback.paused_ = !deck.Current().Paused();
             if (commands.focus_pause_) playback.paused_ = true;
             if (commands.restart_) playback.seek_ = 0;
             if (commands.seek_seconds_) playback.seek_ = commands.seek_seconds_;
-            if (playback.paused_) session.SetPaused(*playback.paused_);
-            if (playback.seek_) session.Seek(*playback.seek_);
+            if (playback.paused_) deck.SetPaused(*playback.paused_);
+            if (playback.seek_) deck.Seek(*playback.seek_);
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
             if (!commands.music_path_.empty()) {
                 if (music.Open(commands.music_path_))
@@ -122,15 +126,17 @@ int main(int, char**) {
             }
             if (auto loaded = imports.Take()) {
                 if (loaded->package_) {
-                    const bool paused = session.Paused();
-                    session.LoadPrepared(std::move(*loaded->package_));
-                    android_host::PublishControls(session.Controls(), session.ControlSequence());
-                    session.SetPaused(paused);
-                    android_host::PublishScene(session.Canvas(), session.Title());
+                    scene_queue.Clear();
+                    const bool paused = deck.Current().Paused();
+                    deck.LoadPrepared(std::move(*loaded->package_));
+                    android_host::PublishControls(deck.Current().Controls(),
+                                                  deck.Current().ControlSequence());
+                    deck.SetPaused(paused);
+                    android_host::PublishScene(deck.Current().Canvas(), deck.Current().Title());
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
                     // Visual-only effects keep the current music and its clock.
                     // A published work with a bound soundtrack replaces it.
-                    if (const auto track = session.Soundtrack()) {
+                    if (const auto track = deck.Current().Soundtrack()) {
                         music.Open(*track);
                         music.Apply({paused, {}});
                     }
@@ -140,36 +146,66 @@ int main(int, char**) {
                     error = "package_error";
                 }
             }
+            const auto scene_commands = android_host::TakeSceneCommands();
+            if (!scene_commands.path_.empty() &&
+                !queued_imports.Request(scene_commands.path_, scene_commands.title_))
+                error = "package_error";
+            queued_imports.Pump(deck.CanPrepareNext());
+            if (scene_commands.action_ == 1 && deck.CanPrepareNext() &&
+                !scene_queue.Items().empty() &&
+                scene_queue.Items().front().id_ == scene_commands.id_) {
+                if (auto ready = scene_queue.TakeReady())
+                    deck.StartTransition(std::move(*ready), scene_commands.duration_);
+            }
+            if (scene_commands.action_ == 2) scene_queue.Remove(scene_commands.id_);
+            if (scene_commands.action_ == 3) scene_queue.Clear();
+            if (scene_commands.action_ == 4) scene_queue.Retry();
+            if (scene_commands.action_ == 5) deck.CancelTransition();
             const auto size = host.Size();
             if (!size.width_ || !size.height_) {
                 SDL_Delay(16);
                 continue;
             }
             renderer->BeginFrame();
-            const auto extent = player::PlaybackExtent(session.Canvas(), render_quality);
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
             auto music_frame = music.Frame();
             music_frame.inputs_.controls_ = android_host::CurrentControls();
-            const auto output = session.Tick(seconds, false, extent, *renderer, music_frame.inputs_,
-                                             music_frame.playback_);
+            const auto frame = deck.Tick(seconds, false, render_quality, *renderer,
+                                         music_frame.inputs_, music_frame.playback_);
             if (music_frame.failed_) error = "audio_error";
             android_host::PublishPlayback(
-                    session.Seconds(),
+                    music_frame.playback_ ? music_frame.playback_->seconds_
+                                          : deck.Current().Seconds(),
                     music_frame.playback_ ? music_frame.playback_->duration_ : std::nullopt,
                     music.Loop());
 #else
             runtime::ExternalInputs inputs;
             inputs.controls_ = android_host::CurrentControls();
-            const auto output = session.Tick(seconds, false, extent, *renderer, inputs);
+            const auto frame = deck.Tick(seconds, false, render_quality, *renderer, inputs);
 #endif
-            renderer->Submit({}, Present(output.final_, size, session.Canvas()), 0x111822ff);
-            android_host::PublishControlTime(session.Seconds());
+            if (frame.switched_) {
+                android_host::PublishControls(deck.Current().Controls(),
+                                              deck.Current().ControlSequence());
+                android_host::PublishScene(deck.Current().Canvas(), deck.Current().Title());
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+                if (const auto track = deck.Current().Soundtrack()) {
+                    music.Open(*track);
+                    music.Apply({deck.Current().Paused(), frame.entry_seconds_});
+                    if (const auto sample = music.Frame().playback_) deck.AdoptMedia(*sample);
+                }
+#endif
+            }
+            const auto& output = frame.output_;
+            if (frames % 12 == 0) android_host::PublishSceneQueue(scene_queue, deck);
+            renderer->Submit({}, Present(output.final_, size, deck.Current().Canvas()), 0x111822ff);
+            android_host::PublishControlTime(deck.Current().Seconds());
             renderer->EndFrame();
             ++frames;
             if (frames % 30 == 0) {
                 std::ostringstream status;
-                status << (session.Paused() ? "paused" : "playing") << " " << session.Seconds()
-                       << " s | frames=" << frames << " devices=" << devices << " " << error;
+                status << (deck.Current().Paused() ? "paused" : "playing") << " "
+                       << deck.Current().Seconds() << " s | frames=" << frames
+                       << " devices=" << devices << " " << error;
                 if (imports.Busy()) status << " loading";
                 if (output.budget_) status << " render.resource_budget";
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
@@ -180,10 +216,10 @@ int main(int, char**) {
             }
             if (frames % 300 == 0)
                 SDL_Log("player frames=%llu time=%.3f devices=%llu",
-                        static_cast<unsigned long long>(frames), session.Seconds(),
+                        static_cast<unsigned long long>(frames), deck.Current().Seconds(),
                         static_cast<unsigned long long>(devices));
         }
-        session.ReleaseGraphics();
+        deck.ReleaseGraphics();
         renderer.reset();
     } catch (const std::exception& error) {
         android_host::PublishStatus(std::string("error: ") + error.what());

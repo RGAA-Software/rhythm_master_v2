@@ -4,6 +4,7 @@
 #include <thread>
 
 #include "package_imports.h"
+#include "queued_imports.h"
 #include "rhythm/player/session.h"
 
 int main(int argc, char* argv[]) {
@@ -61,6 +62,33 @@ int main(int argc, char* argv[]) {
         check(project::LoadPackage(selected).title_ == "incoming-latest" ||
               project::LoadPackage(selected).title_ == "exit");
         check(std::filesystem::exists(outside) && std::filesystem::exists(ordinary));
+        const auto queued = cache / "incoming-queued.rhythmpack";
+        const auto cancelled = cache / "incoming-cancelled.rhythmpack";
+        const auto retained_title = project::LoadPackage(selected).title_;
+        project::PublishPackage(queued, graph, "Queued work");
+        project::PublishPackage(cancelled, graph, "Cancelled work");
+        {
+            android_host::QueuedImports performance(cache);
+            check(!performance.Request(outside, "Outside"));
+            check(performance.Request(cancelled, "Cancel"));
+            performance.Pump(true);
+            performance.Queue().Clear();
+            check(performance.Request(queued, "Next"));
+            const auto ready_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+            while (performance.Queue().Items().front().state_ != player::ScenePreparation::kReady &&
+                   std::chrono::steady_clock::now() < ready_deadline) {
+                performance.Pump(true);
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
+            auto ready = performance.Queue().TakeReady();
+            check(ready.has_value());
+            session.LoadPrepared(std::move(*ready));
+            check(session.Title() == "Queued work");
+            performance.Pump(false);
+            check(!std::filesystem::exists(cancelled) && !std::filesystem::exists(queued));
+            check(project::LoadPackage(selected).title_ == retained_title);
+        }
+        check(std::filesystem::exists(outside));
         std::cout << "package import contracts passed: private cache boundary, active/latest "
                      "queue, worker-before-file cleanup, exit\n";
     } catch (const std::exception& error) {

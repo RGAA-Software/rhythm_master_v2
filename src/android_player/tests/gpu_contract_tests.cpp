@@ -10,6 +10,7 @@
 #include "rhythm/player/render_quality.h"
 #include "rhythm/player/session.h"
 #include "rhythm/render/renderer.h"
+#include "scene_compositor_probe.h"
 
 namespace rhythm::validation {
 void VerifyPointPixels(render::Renderer& renderer);
@@ -341,6 +342,16 @@ void VerifyAffine(rhythm::render::Renderer& renderer) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+        if (argc == 4 && std::string_view(argv[1]) == "--scene-deck") {
+            auto renderer = platform::Host::CreateRenderer();
+            rhythm::validation::VerifySceneDeck(renderer, argv[2], argv[3]);
+            return 0;
+        }
+        if (argc == 2 && std::string_view(argv[1]) == "--scene-transition") {
+            auto renderer = platform::Host::CreateRenderer();
+            validation::VerifySceneCompositor(renderer);
+            return 0;
+        }
         if (argc == 2 && std::string_view(argv[1]) == "--morph") {
             auto renderer = platform::Host::CreateRenderer();
             validation::VerifyMeshMorph(renderer);

@@ -13,8 +13,9 @@
 #include "rhythm/control_ui/control_panel.h"
 #include "rhythm/platform/host.h"
 #include "rhythm/player/package_loader.h"
-#include "rhythm/player/session.h"
+#include "rhythm/project/store.h"
 #include "rhythm/render/layout.h"
+#include "scene_queue_panel.h"
 
 // Native process arguments are borrowed at the entry boundary only.
 #ifdef _WIN32
@@ -43,18 +44,26 @@ int main(int argc, char* argv[]) {
         rhythm::platform::Host host(smoke);
         auto renderer = host.CreateRenderer();
         auto font = host.CreateFontTexture(renderer);
-        rhythm::player::Session session;
+        rhythm::player::SceneDeck deck;
+        rhythm::player::SceneQueue scene_queue;
+        rhythm::player_ui::SceneQueuePanel scene_panel;
+        std::vector<rhythm::player_ui::SceneChoice> scene_choices;
+        for (const auto& entry :
+             rhythm::project::ScanTemplates(host.ResourceDirectory() / "content/templates"))
+            scene_choices.push_back({host.ResourceDirectory() / "content/packages" /
+                                             (entry.directory_.filename().string() + ".rhythmpack"),
+                                     entry.titles_});
         rhythm::player::PackageLoader package_loader;
         rhythm::audio_ui::AudioPanel audio_panel;
         rhythm::control_ui::ControlPanel control_panel;
         rhythm::parameters::ControlValues control_values;
         const auto set_paused = [&](bool paused) {
             audio_panel.ApplyPlayback({paused, {}});
-            session.SetPaused(paused);
+            deck.SetPaused(paused);
         };
         const auto restart = [&] {
             audio_panel.ApplyPlayback({{}, 0});
-            session.Restart();
+            deck.Restart();
         };
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         if (smoke) audio_panel.SetVolume(0);
@@ -66,11 +75,11 @@ int main(int argc, char* argv[]) {
             catalogs[locale] =
                     nlohmann::json::parse(file).get<std::map<std::string, std::string>>();
         }
-        session.Open(requested_package.value_or(host.ResourceDirectory() /
-                                                "content/packages/signal_texture.rhythmpack"));
+        deck.Open(requested_package.value_or(host.ResourceDirectory() /
+                                             "content/packages/signal_texture.rhythmpack"));
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         const auto apply_soundtrack = [&] {
-            if (const auto track = session.Soundtrack())
+            if (const auto track = deck.Current().Soundtrack())
                 audio_panel.LoadSoundtrack(*track);
             else
                 audio_panel.ClearFile();
@@ -90,7 +99,7 @@ int main(int argc, char* argv[]) {
                     std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
             if (host.IsSuspended()) {
                 audio_panel.SetSuspended(true);
-                session.Tick(elapsed, true, {}, renderer);
+                deck.Tick(elapsed, true, rhythm::player::RenderQuality::kOriginal, renderer);
                 continue;
             }
             audio_panel.SetSuspended(false);
@@ -99,7 +108,8 @@ int main(int argc, char* argv[]) {
             // Runtime changes happen before this frame borrows any texture handles.
             if (auto result = package_loader.Take()) {
                 if (result->package_) {
-                    session.LoadPrepared(std::move(*result->package_));
+                    deck.LoadPrepared(std::move(*result->package_));
+                    scene_queue.Clear();
                     control_values.clear();
                     control_panel.Reset();
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
@@ -110,8 +120,9 @@ int main(int argc, char* argv[]) {
                     error = "package_error";
                 }
             }
+            scene_queue.Pump(deck.CanPrepareNext());
             if (!ImGui::GetIO().WantTextInput) {
-                if (ImGui::IsKeyPressed(ImGuiKey_Space)) set_paused(!session.Paused());
+                if (ImGui::IsKeyPressed(ImGuiKey_Space)) set_paused(!deck.Current().Paused());
                 if (ImGui::IsKeyPressed(ImGuiKey_R)) restart();
             }
             ImGui::SetNextWindowPos({0, 0});
@@ -119,29 +130,31 @@ int main(int argc, char* argv[]) {
             ImGui::Begin("Player", nullptr,
                          ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
                                  ImGuiWindowFlags_NoSavedSettings);
-            ImGui::TextUnformatted(session.Title().c_str());
+            ImGui::TextUnformatted(deck.Current().Title().c_str());
             ImGui::SameLine();
             if (ImGui::Button(chinese ? "English" : "简体中文")) chinese = !chinese;
-            if (ImGui::Button(session.Paused() ? (chinese ? "继续##play" : "Resume##play")
-                                               : (chinese ? "暂停##play" : "Pause##play")))
-                set_paused(!session.Paused());
+            if (ImGui::Button(deck.Current().Paused() ? (chinese ? "继续##play" : "Resume##play")
+                                                      : (chinese ? "暂停##play" : "Pause##play")))
+                set_paused(!deck.Current().Paused());
             ImGui::SameLine();
             if (ImGui::Button(chinese ? "重新播放##restart" : "Restart##restart")) restart();
             ImGui::SameLine();
-            ImGui::Text("%.2f s", session.Seconds());
+            ImGui::Text("%.2f s", deck.Current().Seconds());
             audio_panel.Draw(catalogs.at(chinese ? "zh-CN" : "en-US"));
-            if (auto edit = control_panel.Draw(session.Controls(), session.CurrentControls(),
+            if (auto edit = control_panel.Draw(deck.Current().Controls(),
+                                               deck.Current().CurrentControls(),
                                                catalogs.at(chinese ? "zh-CN" : "en-US"));
                 edit.values_)
                 for (const auto& [id, value] : *edit.values_) control_values[id] = value;
-            if (session.ControlSequence()) {
+            if (deck.Current().ControlSequence()) {
                 if (ImGui::Button(chinese ? "回到自动编排##follow_cues"
                                           : "Follow cues##follow_cues")) {
                     control_values.clear();
                     control_panel.Reset();
                 }
-                if (const auto active = session.ControlSequence()->Active(session.Seconds()))
-                    for (const auto& cue : session.ControlSequence()->Cues())
+                if (const auto active =
+                            deck.Current().ControlSequence()->Active(deck.Current().Seconds()))
+                    for (const auto& cue : deck.Current().ControlSequence()->Cues())
                         if (cue.id_ == *active) {
                             ImGui::SameLine();
                             ImGui::TextUnformatted(cue.title_.c_str());
@@ -174,6 +187,8 @@ int main(int argc, char* argv[]) {
                 ImGui::TextUnformatted(
                         chinese ? "无法打开运行包，继续播放当前内容。"
                                 : "Cannot open package. Current playback is retained.");
+            scene_panel.Draw(scene_queue, deck, scene_choices, chinese ? "zh-CN" : "en-US",
+                             catalogs.at(chinese ? "zh-CN" : "en-US"));
             const auto available = ImGui::GetContentRegionAvail();
             const auto width = std::max(1.0f, available.x);
             const auto height = std::max(1.0f, available.y);
@@ -182,16 +197,30 @@ int main(int argc, char* argv[]) {
             const auto audio_frame = audio_panel.Frame();
             inputs.audio_ = audio_frame.features_;
             observed_audio |= inputs.audio_ && inputs.audio_->valid_ && inputs.audio_->rms_ > 0;
-            const auto output =
-                    session.Tick(smoke ? frames / 60.0 : elapsed, false, session.Canvas(), renderer,
-                                 inputs, audio_frame.playback_);
+            const auto frame = deck.Tick(smoke ? frames / 60.0 : elapsed, false,
+                                         rhythm::player::RenderQuality::kOriginal, renderer, inputs,
+                                         audio_frame.playback_);
+            if (frame.switched_) {
+                control_values.clear();
+                control_panel.Reset();
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+                if (const auto track = deck.Current().Soundtrack()) {
+                    audio_panel.LoadSoundtrack(*track);
+                    audio_panel.ApplyPlayback({deck.Current().Paused(), frame.entry_seconds_});
+                    if (const auto sample = audio_panel.Frame().playback_) deck.AdoptMedia(*sample);
+                    if (smoke) audio_panel.SetVolume(0);
+                }
+#endif
+            }
+            const auto& output = frame.output_;
             host.ClearViewerTextures();
             if (output.budget_)
                 ImGui::TextWrapped("%s", catalogs.at(chinese ? "zh-CN" : "en-US")
                                                  .at("render.resource_budget")
                                                  .c_str());
             if (renderer.IsValid(output.final_)) {
-                const auto fit = rhythm::render::AspectFit(session.Canvas(), {0, 0, width, height});
+                const auto fit =
+                        rhythm::render::AspectFit(deck.Current().Canvas(), {0, 0, width, height});
                 const auto cursor = ImGui::GetCursorPos();
                 ImGui::SetCursorPos({cursor.x + fit.x_, cursor.y + fit.y_});
                 ImGui::Image(host.RegisterTexture(output.final_), {fit.width_, fit.height_});
@@ -204,9 +233,9 @@ int main(int argc, char* argv[]) {
         }
         if (smoke && (frames != 30 || !observed_gpu_output))
             throw std::runtime_error("player.no_gpu_output");
-        if (smoke && (requested_audio || session.Soundtrack()) && !observed_audio)
+        if (smoke && (requested_audio || deck.Current().Soundtrack()) && !observed_audio)
             throw std::runtime_error("player.no_file_audio_features");
-        std::cout << "player_gpu_frames=" << frames << " package_loaded=" << session.Ready()
+        std::cout << "player_gpu_frames=" << frames << " package_loaded=" << deck.Current().Ready()
                   << '\n';
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

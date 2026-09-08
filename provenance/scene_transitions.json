@@ -1,0 +1,39 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "license": "MIT",
+    "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+    "source_files": [
+        {
+            "path": "Operators/Lib/Assets/shaders/img/fx/Blend.hlsl",
+            "sha256": "3574eeaaa2d21c811edd70cb091a43a78560c16c7c2ac6702abe6a6043fd4690"
+        },
+        {
+            "path": "Operators/Lib/Assets/shaders/img/fx/TriangleGridTransition.hlsl",
+            "sha256": "23108a53ca8c5eb9b5427dbb84af5aa0d3a09f38336f8ae16d562ed011db08d2"
+        }
+    ],
+    "imported_files": [],
+    "usage": "Study dual-image blends, alpha choices, aspect handling and transition effects in local source. No shader source copied.",
+    "modifications": [
+        "Reuse the project's validated premultiplied additive DrawList path and AspectFit instead of duplicating TiXL HLSL constants/samplers and straight-alpha blend modes.",
+        "Use complementary UNORM8 weights into one SDR target. Backend-wide texture/pass budgets remain unchanged.",
+        "Reuse PackageLoader and PreparedPackage for bounded FIFO preparation, cancellation and move-only host handoff. No second loader, render backend or device is introduced."
+    ],
+    "target_modules": [
+        "player_core",
+        "windows_player",
+        "android_player"
+    ],
+    "first_party_reuse": [
+        "src/player_core/package_loader.cpp",
+        "src/player_core/prepared_package.cpp",
+        "src/rhythm_render/src/layout.cpp",
+        "src/rhythm_render/src/bgfx_backend.cpp",
+        "src/rhythm_render/tests/readback_gpu_contracts.cpp",
+        "src/android_player/package_imports.cpp",
+        "src/android_player/control_bridge.cpp",
+        "platforms/android/java/org/rhythmmaster/player/EffectCatalog.java"
+    ],
+    "outbound_license": "Unselected; no third-party source relicensed."
+}

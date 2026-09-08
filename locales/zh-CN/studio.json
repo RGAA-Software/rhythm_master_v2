@@ -864,5 +864,22 @@
     "audio.clip_pan": "左右平衡",
     "audio.clip_mute": "静音片段",
     "audio.clip_smooth": "平滑淡入淡出",
-    "audio.clip_loop": "循环源区间"
+    "audio.clip_loop": "循环源区间",
+    "scene.queue": "演出场景队列",
+    "scene.queue_help": "依次预备下一场。点击切换开始转场；暂停会冻结转场。带配乐作品在接管后切换音乐。",
+    "scene.builtin": "内置作品",
+    "scene.enqueue": "加入队列",
+    "scene.queue_full": "队列已满，最多 16 场。",
+    "scene.waiting": "等待",
+    "scene.loading": "正在预备",
+    "scene.ready": "已就绪",
+    "scene.failed": "预备失败",
+    "scene.remove": "移除所选",
+    "scene.clear": "清空队列",
+    "scene.retry": "重试",
+    "scene.duration": "转场时长",
+    "scene.go": "切换下一场",
+    "scene.cancel": "取消转场",
+    "scene.budget": "下一场超过资源预算，已保留当前场景。",
+    "scene.transition_failed": "转场已中断或失败，当前场景继续播放。"
 }
