@@ -12,6 +12,7 @@ namespace rhythm::studio {
 void TimeTrackEditor::Reset() {
     draft_.reset();
     sections_.Reset();
+    curve_editor_.Reset();
     curve_draft_ = false;
     section_error_.clear();
 }
@@ -97,7 +98,7 @@ TimelineEdit TimeTrackEditor::Draw(const editor::Snapshot& base, double playhead
                          ? std::get<parameters::Curve>(found->properties_.at("curve"))
                          : parameters::Curve{};
     const auto curve_edit =
-            DrawCurveEditor(curve, "timeline.curve." + std::to_string(track_), text);
+            curve_editor_.Draw(curve, "timeline.curve." + std::to_string(track_), text);
     if (curve_edit.changed_) {
         if (!draft_) draft_ = base;
         curve_draft_ = true;

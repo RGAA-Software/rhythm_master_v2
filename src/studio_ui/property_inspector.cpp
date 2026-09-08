@@ -191,7 +191,7 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
             }
         } else if (std::holds_alternative<parameters::Curve>(value)) {
             auto curve = std::get<parameters::Curve>(value);
-            const auto curve_edit = DrawCurveEditor(curve, label, text);
+            const auto curve_edit = curve_editor_.Draw(curve, label, text);
             changed = curve_edit.changed_;
             committed = curve_edit.committed_;
             edited = std::move(curve);

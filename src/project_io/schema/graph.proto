@@ -26,11 +26,14 @@ message Curve {
     INTERPOLATION_STEP = 1;
     INTERPOLATION_LINEAR = 2;
     INTERPOLATION_SMOOTH = 3;
+    INTERPOLATION_HERMITE = 4;
   }
   message Keyframe {
     double seconds = 1;
     double value = 2;
     Interpolation interpolation = 3;
+    double in_slope = 4; // Value units per second; used by incoming Hermite segments.
+    double out_slope = 5; // Value units per second; used by outgoing Hermite segments.
   }
   repeated Keyframe keys = 1;
 }

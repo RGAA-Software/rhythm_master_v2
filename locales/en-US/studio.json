@@ -802,5 +802,18 @@
     "morph_weight_1": "Morph weight 1",
     "morph_weight_2": "Morph weight 2",
     "morph_weight_3": "Morph weight 3",
-    "morph_weight_4": "Morph weight 4"
+    "morph_weight_4": "Morph weight 4",
+    "curve.hermite": "Tangent / Hermite",
+    "curve.in_slope": "Incoming slope / s",
+    "curve.out_slope": "Outgoing slope / s",
+    "curve.batch": "Edit selected keys",
+    "curve.select_all": "Select all keys",
+    "curve.clear_selection": "Clear selection",
+    "curve.time_offset": "Time offset",
+    "curve.time_scale": "Time scale",
+    "curve.time_pivot": "Time pivot",
+    "curve.value_offset": "Value offset",
+    "curve.value_scale": "Value scale",
+    "curve.value_pivot": "Value pivot",
+    "curve.apply_selection": "Apply to selected keys"
 }

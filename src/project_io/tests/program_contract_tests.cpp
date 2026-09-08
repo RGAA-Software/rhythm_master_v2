@@ -141,7 +141,8 @@ int main() {
                            {7, 7, 6, "source"}, {8, 7, 8, "source"}, {9, 1, 9, "time"},
                            {10, 3, 11, "a"},    {11, 10, 11, "b"},   {12, 9, 12, "time"}};
         document.nodes_[11].properties_["curve"] =
-                parameters::Curve({{0, 0.2, parameters::Interpolation::kSmooth}, {1, 1}});
+                parameters::Curve({{0, 0.2, parameters::Interpolation::kHermite, -0.5, 2.5},
+                                   {1, 1, parameters::Interpolation::kLinear, 0.75, -1}});
         document.nodes_[8].properties_["time_mode"] = 1.0;
         document.nodes_[10].properties_["math_mode"] = 2.0;
         document.nodes_.push_back(registry.MakeNode(13, "signal.noise"));

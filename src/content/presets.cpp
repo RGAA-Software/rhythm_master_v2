@@ -88,13 +88,16 @@ std::vector<Preset> DecodePresets(std::string_view bytes, const graph::Registry&
                 std::vector<parameters::Keyframe> curve_keys;
                 for (const auto& keyframe : value.at("curve")) {
                     const auto mode = keyframe.at("interpolation").get<std::string>();
-                    if (mode != "step" && mode != "linear" && mode != "smooth")
+                    if (mode != "step" && mode != "linear" && mode != "smooth" && mode != "hermite")
                         throw std::invalid_argument("curve.interpolation");
                     curve_keys.push_back({keyframe.at("seconds").get<double>(),
                                           keyframe.at("value").get<double>(),
-                                          mode == "step"     ? parameters::Interpolation::kStep
-                                          : mode == "smooth" ? parameters::Interpolation::kSmooth
-                                                             : parameters::Interpolation::kLinear});
+                                          mode == "step"      ? parameters::Interpolation::kStep
+                                          : mode == "smooth"  ? parameters::Interpolation::kSmooth
+                                          : mode == "hermite" ? parameters::Interpolation::kHermite
+                                                              : parameters::Interpolation::kLinear,
+                                          keyframe.value("in_slope", 0.0),
+                                          keyframe.value("out_slope", 0.0)});
                 }
                 preset.properties_[key] = parameters::Curve(std::move(curve_keys));
             } else

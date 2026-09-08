@@ -24,11 +24,32 @@ int main() {
         io.DeltaTime = 1.0f / 60;
         Check(io.Fonts->Build());
         const std::map<std::string, std::string> text{
-                {"key_time", "Time"},       {"value", "Value"},          {"curve.step", "Step"},
-                {"curve.linear", "Linear"}, {"curve.smooth", "Smooth"},  {"add_key", "Add"},
-                {"remove_key", "Remove"},   {"invalid_curve", "Invalid"}};
+                {"key_time", "Time"},
+                {"value", "Value"},
+                {"curve.step", "Step"},
+                {"curve.linear", "Linear"},
+                {"curve.smooth", "Smooth"},
+                {"curve.hermite", "Tangent / Hermite"},
+                {"curve.in_slope", "Incoming slope / s"},
+                {"curve.out_slope", "Outgoing slope / s"},
+                {"curve.batch", "Edit selected keys"},
+                {"curve.select_all", "Select all keys"},
+                {"curve.clear_selection", "Clear selection"},
+                {"curve.time_offset", "Time offset"},
+                {"curve.time_scale", "Time scale"},
+                {"curve.time_pivot", "Time pivot"},
+                {"curve.value_offset", "Value offset"},
+                {"curve.value_scale", "Value scale"},
+                {"curve.value_pivot", "Value pivot"},
+                {"curve.apply_selection", "Apply to selected keys"},
+                {"add_key", "Add"},
+                {"remove_key", "Remove"},
+                {"invalid_curve", "Invalid"}};
         parameters::Curve curve;
+        studio::CurveEditor editor;
         ImVec2 add_center{};
+        ImVec2 plot_origin{};
+        float plot_width = 0;
         int committed = 0;
         const auto frame = [&] {
             ImGui::NewFrame();
@@ -36,8 +57,10 @@ int main() {
             ImGui::SetNextWindowSize({500, 500});
             ImGui::Begin("Curve test", nullptr,
                          ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
-            const auto edit = studio::DrawCurveEditor(curve, "curve", text);
-            if (edit.changed_ && edit.committed_) ++committed;
+            plot_origin = ImGui::GetCursorScreenPos();
+            plot_width = ImGui::GetContentRegionAvail().x;
+            const auto edit = editor.Draw(curve, "curve", text);
+            if (edit.committed_) ++committed;
             const auto minimum = ImGui::GetItemRectMin();
             const auto maximum = ImGui::GetItemRectMax();
             add_center = {(minimum.x + maximum.x) / 2, (minimum.y + maximum.y) / 2};
@@ -64,6 +87,28 @@ int main() {
         io.AddMouseButtonEvent(0, false);
         frame();
         Check(curve.Keys().size() == parameters::Curve::kMaximumKeys && committed == 1);
+        curve = parameters::Curve({{0, 0, parameters::Interpolation::kHermite}, {1, 1}});
+        frame();
+        const auto click = [&](ImVec2 from, ImVec2 to) {
+            io.AddMousePosEvent(from.x, from.y);
+            frame();
+            io.AddMouseButtonEvent(0, true);
+            frame();
+            io.AddMousePosEvent(to.x, to.y);
+            frame();
+            io.AddMouseButtonEvent(0, false);
+            frame();
+        };
+        const auto first_y = plot_origin.y + 130 - 120 * 0.2f / 1.4f;
+        click({plot_origin.x + 10, first_y}, {plot_origin.x + 50, first_y - 20});
+        Check(committed == 2 && curve.Keys()[0].seconds_ > 0 && curve.Keys()[0].value_ > 0);
+        curve = parameters::Curve({{0, 0, parameters::Interpolation::kHermite}, {1, 1}});
+        frame();
+        click({plot_origin.x + 10, first_y}, {plot_origin.x + 10, first_y});
+        const auto handle_x = plot_origin.x + 10 + (plot_width - 20) / 3;
+        click({handle_x, first_y}, {handle_x, first_y - 20});
+        Check(committed == 3 && curve.Keys()[0].out_slope_ > 0.5 && curve.Keys()[0].seconds_ == 0 &&
+              curve.Keys()[0].value_ == 0);
         std::cout << "curve UI contracts passed: one-command add, key limit and clipped large "
                      "curve\n";
     } catch (const std::exception& error) {

@@ -2,6 +2,7 @@
 
 #include <functional>
 
+#include "curve_editor.h"
 #include "rhythm/editor/history.h"
 #include "time_section_editor.h"
 
@@ -25,6 +26,7 @@ class TimeTrackEditor final {
    private:
     std::optional<editor::Snapshot> draft_{};
     TimeSectionEditor sections_{};
+    CurveEditor curve_editor_{};
     std::string section_error_{};
     bool curve_draft_ = false;
     graph::NodeId track_ = 0;

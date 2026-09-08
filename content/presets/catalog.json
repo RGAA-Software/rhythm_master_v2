@@ -1579,6 +1579,270 @@
             },
             "reset": true,
             "properties": {}
+        },
+        {
+            "id": "official.texture.feedback.default",
+            "version": "1.0.0",
+            "operator": "texture.feedback",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.time.envelope.default",
+            "version": "1.0.0",
+            "operator": "time.envelope",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.gpu.particles.default",
+            "version": "1.0.0",
+            "operator": "gpu.particles",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.gpu.render.default",
+            "version": "1.0.0",
+            "operator": "gpu.render",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.scene.environment.default",
+            "version": "1.0.0",
+            "operator": "scene.environment",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.scene.shadow.default",
+            "version": "1.0.0",
+            "operator": "scene.shadow",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.material.textures.default",
+            "version": "1.0.0",
+            "operator": "material.textures",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.scene.point_light.default",
+            "version": "1.0.0",
+            "operator": "scene.point_light",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.scene.spot_light.default",
+            "version": "1.0.0",
+            "operator": "scene.spot_light",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.scene.point_instances.default",
+            "version": "1.0.0",
+            "operator": "scene.point_instances",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.scene.render.default",
+            "version": "1.0.0",
+            "operator": "scene.render",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.geometry.deform.default",
+            "version": "1.0.0",
+            "operator": "geometry.deform",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.path.helix.default",
+            "version": "1.0.0",
+            "operator": "path.helix",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.path.from_points.default",
+            "version": "1.0.0",
+            "operator": "path.from_points",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.path.resample.default",
+            "version": "1.0.0",
+            "operator": "path.resample",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.geometry.tube.default",
+            "version": "1.0.0",
+            "operator": "geometry.tube",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.geometry.animate.default",
+            "version": "1.0.0",
+            "operator": "geometry.animate",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.geometry.morph.default",
+            "version": "1.0.0",
+            "operator": "geometry.morph",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.texture.shader.default",
+            "version": "1.0.0",
+            "operator": "texture.shader",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.scene.capture.default",
+            "version": "1.0.0",
+            "operator": "scene.capture",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.depth.linearize.default",
+            "version": "1.0.0",
+            "operator": "depth.linearize",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.texture.dof.default",
+            "version": "1.0.0",
+            "operator": "texture.dof",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.texture.linearize.default",
+            "version": "1.0.0",
+            "operator": "texture.linearize",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
+            "id": "official.texture.display.default",
+            "version": "1.0.0",
+            "operator": "texture.display",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
         }
     ]
 }

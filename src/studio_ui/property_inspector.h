@@ -1,6 +1,7 @@
 #pragma once
 
 #include "binding_editor.h"
+#include "curve_editor.h"
 #include "expression_editor.h"
 #include "rhythm/content/presets.h"
 #include "rhythm/editor/history.h"
@@ -25,11 +26,13 @@ class PropertyInspector final {
         draft_.reset();
         expression_editor_.Reset();
         binding_editor_.Reset();
+        curve_editor_.Reset();
     }
 
    private:
     std::optional<editor::Snapshot> draft_{};
     ExpressionEditor expression_editor_{};
     BindingEditor binding_editor_{};
+    CurveEditor curve_editor_{};
 };
 }  // namespace rhythm::studio

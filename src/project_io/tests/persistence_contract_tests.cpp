@@ -75,11 +75,16 @@ int main(int argc, char* argv[]) {
             auto& curve = *(*curve_message.mutable_nodes(8)->mutable_properties())["curve"]
                                    .mutable_curve();
             auto& key = *curve.mutable_keys(0);
+            key.set_interpolation(schema::Curve::INTERPOLATION_HERMITE);
+            key.set_in_slope(-2);
+            key.set_out_slope(3);
             key.GetReflection()->MutableUnknownFields(&key)->AddVarint(100, 99);
             const auto decoded_curve = project::DecodeGraph(curve_message.SerializeAsString());
             Check(curve_message.ParseFromString(project::EncodeGraph(decoded_curve)));
             const auto& retained = curve_message.nodes(8).properties().at("curve").curve().keys(0);
             Check(retained.GetReflection()->GetUnknownFields(retained).field_count() == 1);
+            Check(retained.interpolation() == schema::Curve::INTERPOLATION_HERMITE &&
+                  retained.in_slope() == -2 && retained.out_slope() == 3);
             auto& invalid = *(*curve_message.mutable_nodes(8)->mutable_properties())["curve"]
                                      .mutable_curve();
             invalid.mutable_keys(1)->set_seconds(0);

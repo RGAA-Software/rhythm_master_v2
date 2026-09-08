@@ -23,10 +23,11 @@ graph::Property DecodeProperty(const schema::Property& property, bool preserve_u
         std::vector<parameters::Keyframe> keys;
         for (const auto& key : encoded.keys()) {
             if (key.interpolation() < schema::Curve::INTERPOLATION_STEP ||
-                key.interpolation() > schema::Curve::INTERPOLATION_SMOOTH)
+                key.interpolation() > schema::Curve::INTERPOLATION_HERMITE)
                 throw std::invalid_argument("curve.interpolation");
             keys.push_back({key.seconds(), key.value(),
-                            static_cast<parameters::Interpolation>(key.interpolation() - 1)});
+                            static_cast<parameters::Interpolation>(key.interpolation() - 1),
+                            key.in_slope(), key.out_slope()});
         }
         return parameters::Curve(std::move(keys));
     }
@@ -66,6 +67,8 @@ void EncodeProperty(const graph::Property& value, schema::Property& property) {
             encoded.set_value(key.value_);
             encoded.set_interpolation(static_cast<schema::Curve::Interpolation>(
                     static_cast<int>(key.interpolation_) + 1));
+            encoded.set_in_slope(key.in_slope_);
+            encoded.set_out_slope(key.out_slope_);
         }
     } else if (!property.ParseFromString(std::get<graph::UnknownProperty>(value).encoded_))
         throw std::invalid_argument("project.extensions");

@@ -1,0 +1,20 @@
+{
+    "sources": [
+        {
+            "source_url": "https://github.com/tixl3d/tixl",
+            "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+            "source_file": "Core/Animation/SplineInterpolator.cs",
+            "sha256": "308c2d9595f48b9e55afd403122d621ca9dd9383004a9b942a9733cc69ba53ff",
+            "license": "MIT",
+            "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+            "target": "src/parameters/curve.cpp",
+            "imported_files": [],
+            "usage": "Adapt Interpolate cubic Hermite segment evaluation after local source inspection.",
+            "modifications": [
+                "Store direct value-per-second slopes instead of angle/tension pairs; avoid tan conversion.",
+                "Retain existing Step/Linear/Smooth behavior; expose manual Hermite as a new mode.",
+                "Value-owned bounded keys and atomic transformations; no upstream engine cache or mutable parent references."
+            ]
+        }
+    ]
+}

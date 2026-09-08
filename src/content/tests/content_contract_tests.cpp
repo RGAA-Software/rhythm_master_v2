@@ -16,8 +16,11 @@ int main(int argc, char* argv[]) {
     try {
         if (argc != 2) throw std::invalid_argument("test.arguments");
         graph::Registry registry;
+        std::ifstream file(argv[1]);
+        const auto catalog = nlohmann::json::parse(file);
         const auto presets = content::LoadPresets(argv[1], registry);
-        Check(presets.size() == 106);
+        Check(presets.size() == catalog.at("presets").size());
+        bool complete_defaults = true;
         for (const auto& descriptor : registry.Operators()) {
             if (descriptor.properties_.empty()) continue;
             bool has_default = false;
@@ -27,7 +30,30 @@ int main(int argc, char* argv[]) {
                     const auto node = registry.MakeNode(1, descriptor.type_);
                     Check(content::ApplyPreset(node, preset, registry) == node);
                 }
-            Check(has_default);
+            if (!has_default) {
+                std::cerr << "Missing default preset: " << descriptor.type_ << '\n';
+                complete_defaults = false;
+            }
+        }
+        Check(complete_defaults);
+        {
+            auto hermite = catalog;
+            auto entry = catalog.at("presets").at(0);
+            entry["operator"] = "scalar.curve";
+            entry["properties"] = {{"curve",
+                                    {{"curve",
+                                      {{{"seconds", 0},
+                                        {"value", 0},
+                                        {"interpolation", "hermite"},
+                                        {"out_slope", 1}},
+                                       {{"seconds", 2},
+                                        {"value", 1},
+                                        {"interpolation", "linear"},
+                                        {"in_slope", 0}}}}}}};
+            hermite["presets"] = nlohmann::json::array({entry});
+            const auto decoded = content::DecodePresets(hermite.dump(), registry);
+            const auto& curve = std::get<parameters::Curve>(decoded[0].properties_.at("curve"));
+            Check(curve.Evaluate(0.5) == 0.4375 && curve.Keys()[0].out_slope_ == 1);
         }
         editor::Snapshot original;
         original.document_.id_ = "content.test";
@@ -50,8 +76,6 @@ int main(int argc, char* argv[]) {
             rejected = true;
         }
         Check(rejected);
-        std::ifstream file(argv[1]);
-        const auto catalog = nlohmann::json::parse(file);
         for (int mutation = 0; mutation < 4; ++mutation) {
             auto bad = catalog;
             if (mutation == 0) bad["presets"].push_back(bad["presets"][0]);

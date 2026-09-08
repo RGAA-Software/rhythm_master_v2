@@ -802,5 +802,18 @@
     "morph_weight_1": "形变权重 1",
     "morph_weight_2": "形变权重 2",
     "morph_weight_3": "形变权重 3",
-    "morph_weight_4": "形变权重 4"
+    "morph_weight_4": "形变权重 4",
+    "curve.hermite": "切线 / Hermite",
+    "curve.in_slope": "入切线 / 秒",
+    "curve.out_slope": "出切线 / 秒",
+    "curve.batch": "批量编辑关键帧",
+    "curve.select_all": "全选关键帧",
+    "curve.clear_selection": "清空选择",
+    "curve.time_offset": "时间平移",
+    "curve.time_scale": "时间缩放",
+    "curve.time_pivot": "时间基点",
+    "curve.value_offset": "数值平移",
+    "curve.value_scale": "数值缩放",
+    "curve.value_pivot": "数值基点",
+    "curve.apply_selection": "应用到所选关键帧"
 }
