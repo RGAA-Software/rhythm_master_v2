@@ -1,0 +1,34 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.soft_glow",
+            "reset": true,
+            "id": "official.semantic.soft_glow.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.soft_glow",
+            "reset": true,
+            "id": "official.semantic.soft_glow.variant",
+            "titles": {
+                "en-US": "Wide halo",
+                "zh-CN": "宽幅光晕"
+            },
+            "properties": {
+                "response": 1.5,
+                "exposure": -0.6,
+                "near_radius": 6,
+                "wide_radius": 30,
+                "spread_mix": 0.8,
+                "saturation": 0.7
+            }
+        }
+    ]
+}

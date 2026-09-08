@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.contour_engraving",
+    "content_version": "0.1.1",
+    "project_id": "semantic-contour_engraving",
+    "graph_revision": 0,
+    "title": "轮廓刻线 / Contour engraving",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Contour engraving",
+        "zh-CN": "轮廓刻线"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Convert source luminance into fine colored contour lines. Music moves the height slices; adjust levels and line width for your image.",
+        "zh-CN": "将输入亮度转为细密彩色等高线。音乐移动切片位置，可根据自己的图像调整层数和线宽。"
+    }
+}

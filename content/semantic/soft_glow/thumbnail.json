@@ -1,0 +1,14 @@
+{
+    "template": "soft_glow",
+    "package_sha256": "6c4e470ee783b1806e8ceb7a1b36f87f7e64dd80913f4b3ebb01ee5f114f3dcf",
+    "thumbnail_sha256": "0ffabbcf22e6b59f53529503f190ea3c28855765af4744c258f378e50e749969",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

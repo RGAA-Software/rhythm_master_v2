@@ -1,0 +1,68 @@
+schema_version: 4
+id: "semantic-soft_glow"
+canvas { width: 640 height: 360 }
+output: 4
+nodes { id: 1 type_key: "texture.gradient" schema_version: 1
+    properties { key: "color_a" value { color { r: 0 g: 0 b: 0 a: 1 } } }
+    properties { key: "color_b" value { color { r: 1 g: 1 b: 1 a: 1 } } }
+}
+nodes { id: 2 type_key: "texture.contours" schema_version: 1
+    properties { key: "contour_count" value { scalar: 14 } }
+    properties { key: "line_width" value { scalar: 0.16 } }
+    properties { key: "color_a" value { color { r: 0.95 g: 0.56 b: 0.12 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.008 g: 0.04 b: 0.09 a: 1 } } }
+}
+nodes { id: 3 type_key: "component.official.soft_glow" schema_version: 1
+}
+nodes { id: 4 type_key: "output.texture" schema_version: 1
+}
+edges { id: 1 from: 1 to: 2 input: "source" }
+edges { id: 2 from: 2 to: 3 input: "source" }
+edges { id: 3 from: 3 to: 4 input: "source" }
+components { type_key: "component.official.soft_glow" schema_version: 1 title: "Soft glow" output: 9
+nodes { id: 1 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 12 } }
+}
+nodes { id: 2 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 48 } }
+}
+nodes { id: 3 type_key: "scalar.constant" schema_version: 1
+    properties { key: "value" value { scalar: 1 } }
+}
+nodes { id: 4 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "(0.12 + a * 1.2 + b * 0.65) * c" } }
+}
+nodes { id: 5 type_key: "texture.color_adjust" schema_version: 1
+    properties { key: "exposure" value { scalar: -0.25 } }
+}
+nodes { id: 6 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 3 } }
+}
+nodes { id: 7 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 18 } }
+}
+nodes { id: 8 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 0.45 } }
+}
+nodes { id: 9 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+}
+edges { id: 1 from: 1 to: 4 input: "a" }
+edges { id: 2 from: 2 to: 4 input: "b" }
+edges { id: 3 from: 3 to: 4 input: "c" }
+edges { id: 4 from: 5 to: 6 input: "source" }
+edges { id: 5 from: 5 to: 7 input: "source" }
+edges { id: 6 from: 6 to: 8 input: "a" }
+edges { id: 7 from: 7 to: 8 input: "b" }
+edges { id: 8 from: 5 to: 9 input: "a" }
+edges { id: 9 from: 8 to: 9 input: "b" }
+edges { id: 10 from: 4 to: 9 input: "amount" }
+inputs { key: "source" node: 5 input: "source" }
+parameters { key: "response" node: 3 property: "value" group: "component.pattern" minimum: 0 maximum: 2 }
+parameters { key: "exposure" node: 5 property: "exposure" group: "component.pattern" }
+parameters { key: "near_radius" node: 6 property: "blur_radius" group: "component.pattern" }
+parameters { key: "wide_radius" node: 7 property: "blur_radius" group: "component.pattern" }
+parameters { key: "spread_mix" node: 8 property: "amount" group: "component.pattern" }
+parameters { key: "saturation" node: 5 property: "saturation" group: "component.pattern" }
+}

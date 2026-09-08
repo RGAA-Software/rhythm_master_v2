@@ -55,7 +55,9 @@ template levels and canvas orientation before direct playback or queue insertion
 coastline and contour composition with desktop export and Android selection.
 [Input-processing components](docs/validation/input_components_2026-09-09.md) now preview
 with demonstration inputs and insert only the editable component. Flow glass adds
-music-driven refraction for the author's own source texture; the catalog has 18 components.
+music-driven refraction for the author's own source texture.
+[Four further processing chains](docs/validation/processing_components_2026-09-09.md)
+add prism folding, contour engraving, motion history and dual-radius glow; the catalog has 22 components.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

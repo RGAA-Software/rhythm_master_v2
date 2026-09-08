@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.motion_echo",
+    "content_version": "0.1.1",
+    "project_id": "semantic-motion_echo",
+    "graph_revision": 0,
+    "title": "运动回声 / Motion echo",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Motion echo",
+        "zh-CN": "运动回声"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Rotate the source through a fading, expanding image history. Bass/high bands steer motion. Restart after seeking when a deterministic history is required.",
+        "zh-CN": "让输入画面留下逐渐衰减、扩展的旋转历史。低频与高频驱动运动；需要确定历史时，在定位后重新开始演算。"
+    }
+}

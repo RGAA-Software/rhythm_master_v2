@@ -1,0 +1,14 @@
+{
+    "template": "prism_fold",
+    "package_sha256": "6c4178188644571e6520e0fea370abf63d21c63567ac7d920f9a1658df0170b1",
+    "thumbnail_sha256": "711b2017033e1848a5ff3c87d8e6b16a43f1bf667f4b48e69c3d781b8101aa9d",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

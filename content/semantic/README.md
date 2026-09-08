@@ -28,6 +28,10 @@ graph; Detach creates an independent copy for the selected instance.
 | Dual-population mist / 双群星雾 | Two GPU populations; radius, flow, folds, scale and exposure | Fourfold cloud |
 | Band city / 频段城景 | 64 pillars driven by 32 bands; material and camera controls | Overhead city |
 | Flow glass / 流纹玻璃 | Connect a source texture; animated refraction, bass/high response, direction, softness and glow | Broad ripples |
+| Prism fold / 棱镜折叠 | Source texture to mirrored sectors; pace, music response, folds, scale, saturation and glow | Triangular sweep |
+| Contour engraving / 轮廓刻线 | Source luminance slices; pace, response, levels, width, contrast and glow | Broad cuts |
+| Motion echo / 运动回声 | Source image history; pace, response, scale, decay, expansion and echo turning | Tight spiral |
+| Soft glow / 柔光合成 | Source image with two blur radii; response, exposure, radius mix and saturation | Wide halo |
 
 These first eight entries reuse project-owned template graphs and existing
 operators. Four existing components are extracted directly; the medallion,
@@ -51,7 +55,7 @@ analytic seeking. A meaningful default is not a claim that all effects contain
 geometry at time zero. Windows runtime and playback checks apply; Android
 compilation is established, new actual device acceptance is outstanding.
 
-The inventory now contains 18 semantic components and 36 component preset records,
+The inventory now contains 22 semantic components and 44 component preset records,
 alongside 132 native preset records and 42 complete-project examples. The six R6
 extractions are reusable layers, not six additional complete works. This remains
 below 40 semantic components and does not establish 120 visually independent
@@ -63,3 +67,5 @@ status paragraphs describe the original eight-entry increment. Current browser
 and help behavior is documented in [catalog authoring](../../docs/catalog_authoring_plan.md).
 Input-processing support and Flow glass have
 [separate evidence](../../docs/validation/input_components_2026-09-09.md).
+The next four processing chains have
+[music and Android evidence](../../docs/validation/processing_components_2026-09-09.md).

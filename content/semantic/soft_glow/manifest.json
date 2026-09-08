@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.soft_glow",
+    "content_version": "0.1.1",
+    "project_id": "semantic-soft_glow",
+    "graph_revision": 0,
+    "title": "柔光合成 / Soft glow",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Soft glow",
+        "zh-CN": "柔光合成"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Add narrow and wide blurred halos to your source. Bass and high bands change their combined energy without replacing source motion.",
+        "zh-CN": "为自己的画面叠加窄幅和宽幅模糊光晕。低频与高频改变辉光能量，保留输入原有运动。"
+    }
+}

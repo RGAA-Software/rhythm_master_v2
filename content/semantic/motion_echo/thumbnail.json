@@ -1,0 +1,14 @@
+{
+    "template": "motion_echo",
+    "package_sha256": "54d5b7c83c7862a51d6a3301eaa2fcc2c4986d512a648e345266ff5946e404ea",
+    "thumbnail_sha256": "0efbe4d2fdf4fa5fc3e34e89785bc8c96ca461edda25cf31b439f0202692f5fa",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

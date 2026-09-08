@@ -1,7 +1,9 @@
 {
     "ownership": "first-party",
     "authoring_tool": "tools/author-input-components.py",
-    "authoring_tool_sha256": "156317d6a70a905b6ccfe52b8494a5b6e4f3ba3a40c95628392ad99665ea1ce7",
+    "authoring_tool_sha256": "06d647e9684ecd6601167d7af0f6c0fed1559cdeeac5783bf85c5429dfd69b90",
+    "recipes": "tools/input_component_recipes.py",
+    "recipes_sha256": "737268ef596bedbd1bf3d3c2ff66d2c84379ba1b5a36ce6cfc0b1db55e51160b",
     "reused_graph_writer": "tools/author-resonance-gate.py",
     "existing_adapters": "provenance/tixl_effects.json",
     "imported_third_party_files": [],
@@ -10,7 +12,31 @@
             "id": "flow_glass",
             "nodes": 11,
             "input": "texture",
-            "composition": "Noise/displace from the existing Ink Tide layer and existing blur/additive glow; exposed as an input-processing graph."
+            "composition": "Connect your image to source. Animated noise bends it like flowing glass; bass/high bands increase refraction, and a soft glow follows the image. The preview stripes are not inserted."
+        },
+        {
+            "id": "prism_fold",
+            "nodes": 11,
+            "input": "texture",
+            "composition": "Fold your texture into a rotating prism. Bass and high bands steer opposite turns; the preview stripes are not inserted."
+        },
+        {
+            "id": "contour_engraving",
+            "nodes": 11,
+            "input": "texture",
+            "composition": "Convert source luminance into fine colored contour lines. Music moves the height slices; adjust levels and line width for your image."
+        },
+        {
+            "id": "motion_echo",
+            "nodes": 10,
+            "input": "texture",
+            "composition": "Rotate the source through a fading, expanding image history. Bass/high bands steer motion. Restart after seeking when a deterministic history is required."
+        },
+        {
+            "id": "soft_glow",
+            "nodes": 9,
+            "input": "texture",
+            "composition": "Add narrow and wide blurred halos to your source. Bass and high bands change their combined energy without replacing source motion."
         }
     ]
 }

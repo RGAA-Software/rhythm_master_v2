@@ -5,6 +5,8 @@ import importlib.util
 import json
 from pathlib import Path
 
+import input_component_recipes
+
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('graph_writer', ROOT / 'tools/author-resonance-gate.py')
 WRITER = importlib.util.module_from_spec(SPEC)
@@ -38,9 +40,13 @@ def flow_glass():
     return graph, displaced, output, parameters
 
 
-def main():
-    graph, input_node, output, parameters = flow_glass()
-    name = 'flow_glass'
+def write_component(recipe):
+    if recipe.get('build'):
+        graph = WRITER.Graph()
+        input_node, output, parameters = recipe['build'](graph)
+    else:
+        graph, input_node, output, parameters = flow_glass()
+    name = recipe['name']
     component = 'component.official.' + name
     destination = ROOT / 'content/semantic' / name
     destination.mkdir(parents=True, exist_ok=True)
@@ -56,36 +62,51 @@ def main():
     final = harness.node('output.texture', 1040, 80, dict(source=instance))
     text = ['schema_version: 4', f'id: "semantic-{name}"', 'canvas { width: 640 height: 360 }',
             f'output: {final}', *harness.nodes, *harness.edges,
-            f'components {{ type_key: "{component}" schema_version: 1 title: "Flow glass" output: {output}',
+            f'components {{ type_key: "{component}" schema_version: 1 title: "{recipe["titles"][0]}" output: {output}',
             *graph.nodes, *graph.edges, f'inputs {{ key: "source" node: {input_node} input: "source" }}']
     for key, identity, property_name in parameters:
-        text.append(f'parameters {{ key: "{key}" node: {identity} property: "{property_name}" group: "component.pattern" }}')
+        bounds = {'response': (0, 2), 'flow': (-0.5, 0.5),
+                  'pace': (-0.25, 0.25) if name == 'contour_engraving' else (-45, 45)}
+        limits = f' minimum: {bounds[key][0]} maximum: {bounds[key][1]}' if key in bounds else ''
+        text.append(f'parameters {{ key: "{key}" node: {identity} property: "{property_name}" group: "component.pattern"{limits} }}')
     (destination / 'graph.textproto').write_text('\n'.join(text + ['}']) + '\n', encoding='utf-8')
     write_json(destination / 'editor.json', dict(version=2, positions=harness.positions,
                                                 components=[dict(type=component, positions=graph.positions)]))
     write_json(destination / 'manifest.json', dict(format='rhythm.project', manifest_version=1,
-               kind='template', content_id='official.semantic.'+name, content_version='0.1.0',
-               project_id='semantic-'+name, graph_revision=0, title='流纹玻璃 / Flow glass',
-               default_locale='zh-CN', titles={'en-US':'Flow glass', 'zh-CN':'流纹玻璃'},
+               kind='template', content_id='official.semantic.'+name, content_version='0.1.1',
+               project_id='semantic-'+name, graph_revision=0, title=' / '.join(reversed(recipe['titles'])),
+               default_locale='zh-CN', titles=dict(zip(('en-US', 'zh-CN'), recipe['titles'])),
                category='compositing', maturity='visual-review-pending', author='Rhythm Master',
                license_status='First-party composition using existing attributed operators; outbound license pending',
                compatible_players=['windows', 'android'], external_assets=[], semantic=True, default=False,
-               descriptions={'en-US':'Connect your image to source. Animated noise bends it like flowing glass; bass/high bands increase refraction, and a soft glow follows the image. The preview stripes are not inserted.',
-                             'zh-CN':'把自己的图像连接到 source。动态噪声形成流动玻璃折射，低频和高频增强形变，柔光跟随输入画面。预览条纹不会插入工程。'}))
+               descriptions=dict(zip(('en-US', 'zh-CN'), recipe['descriptions']))))
     common = dict(version='1.0.0', operator=component, reset=True)
     write_json(destination / 'presets.json', dict(schema_version=1, presets=[
-        dict(common, id='official.semantic.flow_glass.default',
+        dict(common, id='official.semantic.'+name+'.default',
              titles={'en-US':'Default', 'zh-CN':'默认参数'}, properties={}),
-        dict(common, id='official.semantic.flow_glass.variant',
-             titles={'en-US':'Broad ripples', 'zh-CN':'宽幅涟漪'},
-             properties=dict(flow=0.06, response=1.8, pattern_scale=1.8, direction=115, softness=12, glow=0.3))]))
+        dict(common, id='official.semantic.'+name+'.variant',
+             titles=dict(zip(('en-US', 'zh-CN'), recipe['variant_titles'])),
+             properties=recipe['variant'])]))
+    print(f'{name}: {len(graph.nodes)} internal nodes; {len(graph.nodes)+3} preview instructions')
+    return dict(id=name, nodes=len(graph.nodes), input='texture',
+                composition=recipe['descriptions'][0])
+
+
+def main():
+    flow = dict(name='flow_glass', titles=('Flow glass', '流纹玻璃'),
+                descriptions=('Connect your image to source. Animated noise bends it like flowing glass; bass/high bands increase refraction, and a soft glow follows the image. The preview stripes are not inserted.',
+                              '把自己的图像连接到 source。动态噪声形成流动玻璃折射，低频和高频增强形变，柔光跟随输入画面。预览条纹不会插入工程。'),
+                variant_titles=('Broad ripples', '宽幅涟漪'),
+                variant=dict(flow=0.06, response=1.8, pattern_scale=1.8, direction=115, softness=12, glow=0.3))
+    entries = [write_component(recipe) for recipe in [flow, *input_component_recipes.RECIPES]]
     write_json(ROOT / 'provenance/input_components.json', dict(ownership='first-party',
                authoring_tool='tools/author-input-components.py',
                authoring_tool_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+               recipes='tools/input_component_recipes.py',
+               recipes_sha256=hashlib.sha256(Path(input_component_recipes.__file__).read_bytes()).hexdigest(),
                reused_graph_writer='tools/author-resonance-gate.py',
                existing_adapters='provenance/tixl_effects.json', imported_third_party_files=[],
-               components=[dict(id=name, nodes=len(graph.nodes), input='texture',
-                                composition='Noise/displace from the existing Ink Tide layer and existing blur/additive glow; exposed as an input-processing graph.')]))
+               components=entries))
 
 
 if __name__ == '__main__':

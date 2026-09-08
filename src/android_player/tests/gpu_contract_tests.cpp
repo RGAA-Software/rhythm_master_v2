@@ -1,6 +1,7 @@
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include <stdexcept>
@@ -477,11 +478,15 @@ int main(int argc, char* argv[]) {
             auto renderer = platform::Host::CreateRenderer();
             player::Session session;
             session.Open(argv[1]);
+            std::uint32_t peak_passes = 0;
             for (int frame = 0; frame < 60; ++frame) {
                 renderer.BeginFrame();
                 const auto output = session.Tick(frame / 60.0, false, session.Canvas(), renderer);
+                if (output.budget_ || !renderer.IsValid(output.final_))
+                    throw std::runtime_error("probe.published_package_output");
                 renderer.Submit({}, Quad(output.final_));
                 renderer.EndFrame();
+                peak_passes = std::max(peak_passes, renderer.Stats().passes_);
             }
             std::array<std::uint8_t, 16 * 16 * 4> pixels{};
             glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
@@ -492,14 +497,17 @@ int main(int argc, char* argv[]) {
             for (std::size_t index = 0; index < pixels.size(); index += 4)
                 visible |= pixels[index] > 20 || pixels[index + 1] > 20 || pixels[index + 2] > 20;
             const bool legacy_fixture = argc == 2;
-            if (glGetError() != GL_NO_ERROR || !visible || renderer.Stats().passes_ < 2 ||
-                (legacy_fixture &&
-                 (pixels[top + 2] <= pixels[top] + 50 ||
-                  pixels[bottom] <= pixels[bottom + 2] + 10 || renderer.Stats().passes_ < 4)))
+            // Static source/audio graphs may reuse all offscreen textures on
+            // later frames. Require real composition during this run, not
+            // redundant composition on the last frame; still verify its pixels.
+            if (glGetError() != GL_NO_ERROR || !visible || peak_passes < 2 ||
+                (legacy_fixture && (pixels[top + 2] <= pixels[top] + 50 ||
+                                    pixels[bottom] <= pixels[bottom + 2] + 10 || peak_passes < 4)))
                 throw std::runtime_error("probe.published_package_output");
             std::cout << "Published Windows package: 60 Android GPU frames, time="
                       << session.Seconds() << " canvas=" << session.Canvas().width_ << "x"
-                      << session.Canvas().height_ << '\n';
+                      << session.Canvas().height_ << " peak_passes=" << peak_passes
+                      << " final_passes=" << renderer.Stats().passes_ << '\n';
         }
         std::cout << "Android GLES multipass pixels and device recreation passed\n";
     } catch (const std::exception& error) {

@@ -70,9 +70,14 @@ int main(int argc, char* argv[]) {
                 instructions.begin(), instructions.end(), [](const auto& instruction) {
                     return instruction.operation_ == graph::Operation::kTextureShader;
                 });
-        const auto displacement_filters = std::count_if(
+        const auto image_filters = std::count_if(
                 instructions.begin(), instructions.end(), [](const auto& instruction) {
-                    return instruction.operation_ == graph::Operation::kTextureDisplace;
+                    using enum graph::Operation;
+                    return instruction.operation_ == kTextureDisplace ||
+                           instruction.operation_ == kTextureMapping ||
+                           instruction.operation_ == kTextureContours ||
+                           instruction.operation_ == kTextureTrail ||
+                           instruction.operation_ == kGaussianBlur;
                 });
         const auto animated_models = std::count_if(
                 instructions.begin(), instructions.end(), [](const auto& instruction) {
@@ -82,7 +87,7 @@ int main(int argc, char* argv[]) {
         if (instructions.size() != expected_nodes ||
             (bands < 24 && instance_fields == 0 &&
              !((videos || gpu_fields > 0 || materials > 0 || paths > 0 || deformations > 0 ||
-                shaders > 0 || animated_models > 0 || displacement_filters > 0) &&
+                shaders > 0 || animated_models > 0 || image_filters > 0) &&
                bands >= 2)))
             throw std::runtime_error("music.full_graph_not_reachable");
         std::cout << "reachable_instructions=" << instructions.size() << " audio_bands=" << bands

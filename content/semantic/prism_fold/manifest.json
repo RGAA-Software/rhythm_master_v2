@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.prism_fold",
+    "content_version": "0.1.1",
+    "project_id": "semantic-prism_fold",
+    "graph_revision": 0,
+    "title": "棱镜折叠 / Prism fold",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Prism fold",
+        "zh-CN": "棱镜折叠"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Fold your texture into a rotating prism. Bass and high bands steer opposite turns; the preview stripes are not inserted.",
+        "zh-CN": "把输入纹理折叠成旋转棱镜。低频与高频驱动相反方向的转动，预览条纹不会插入工程。"
+    }
+}

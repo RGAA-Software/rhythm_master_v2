@@ -1,0 +1,14 @@
+{
+    "template": "contour_engraving",
+    "package_sha256": "37217b628e6a31bbca498d5148d01009a81505650415b152bd0228957b06e002",
+    "thumbnail_sha256": "ea6f76440b45b257954f498735f3bee55ae2417e2e35319677b7d0f7b98b56a0",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

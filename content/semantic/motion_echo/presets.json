@@ -1,0 +1,34 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.motion_echo",
+            "reset": true,
+            "id": "official.semantic.motion_echo.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.motion_echo",
+            "reset": true,
+            "id": "official.semantic.motion_echo.variant",
+            "titles": {
+                "en-US": "Tight spiral",
+                "zh-CN": "紧密旋迹"
+            },
+            "properties": {
+                "pace": -11,
+                "response": 0.7,
+                "scale": 0.65,
+                "decay": 0.9,
+                "expansion": -0.045,
+                "echo_turn": 24
+            }
+        }
+    ]
+}
