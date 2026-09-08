@@ -41,7 +41,7 @@ def main():
                                         '-frames:v', '1', '-pix_fmt', 'rgb24', '-f', 'rawvideo', '-'],
                                        check=True, capture_output=True).stdout
             if pixels != reference:
-                raise AssertionError(f'Component transformation changed rendered pixels: {name}')
+                raise AssertionError(f'Rendered pixels differ from the reference: {name}')
         print('All four decoded-PCM images exactly match the reference project')
     print(differences)
 

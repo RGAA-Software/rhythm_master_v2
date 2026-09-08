@@ -41,3 +41,8 @@ APK：`out/android-arm64-release/apk/rhythm-player-release.apk`。
 本地日志：`out/r5-audio-*.log`；MP4 在 `out/luminous-concerto-export`，
 同刻图像在 `out/luminous-concerto-music`，手机截图在 `out/r5-audio-phone-*.png`。
 这些短检查不构成长稳、热稳定或最终视觉品质验收。
+
+R6 复核：普通视频与 `texture.video_clip` 均编译为 `kTextureVideo`，现有音乐测试
+已走同步 `Streams::Resolve`。本次明确日志并移除离线视频分支未使用的 Player 会话，
+重新执行四组 PCM 对照后，全部画面与原记录逐像素一致；这不是视频播放路径修复。
+日志 `out/r6-video-music-confirmed.log`，稳定纹理仍为 38,278,660 B。

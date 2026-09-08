@@ -40,6 +40,7 @@ int main(int argc, char* argv[]) {
         const auto& instructions = package.program_.instructions_;
         const bool videos =
                 std::any_of(instructions.begin(), instructions.end(), [](const auto& instruction) {
+                    // Both texture.video and texture.video_clip compile to this operation.
                     return instruction.operation_ == graph::Operation::kTextureVideo;
                 });
         const auto bands = std::count_if(
@@ -93,7 +94,8 @@ int main(int argc, char* argv[]) {
         std::cout << "reachable_instructions=" << instructions.size() << " audio_bands=" << bands
                   << " gpu_particle_fields=" << gpu_fields
                   << " spectral_instance_fields=" << instance_fields << " tube_meshes=" << paths
-                  << " animated_model_nodes=" << animated_models << '\n';
+                  << " animated_model_nodes=" << animated_models << " synchronous_video=" << videos
+                  << '\n';
         const std::filesystem::path fixtures(argv[2]), output(argv[3]);
         const std::array<std::string, 4> names{"resonance_demo", "silence", "low", "high"};
         std::array<std::vector<audio::Features>, 4> features;
@@ -107,7 +109,7 @@ int main(int argc, char* argv[]) {
         auto renderer = host.CreateRenderer();
         for (std::size_t scenario = 0; scenario < names.size(); ++scenario) {
             player::Session session;
-            session.Open(argv[1]);
+            if (!videos) session.Open(argv[1]);
             // Resolve video on this offline test worker so comparisons hold
             // source frames fixed; decoder scheduling cannot mimic audio response.
             const auto resources =
