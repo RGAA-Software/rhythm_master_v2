@@ -56,7 +56,7 @@ geometry at time zero. Windows runtime and playback checks apply; Android
 compilation is established, new actual device acceptance is outstanding.
 
 The inventory now contains 22 semantic components and 44 component preset records,
-alongside 132 native preset records and 42 complete-project examples. The six R6
+alongside 132 native preset records and 43 complete-project examples. The six R6
 extractions are reusable layers, not six additional complete works. This remains
 below 40 semantic components and does not establish 120 visually independent
 accepted presets or the required 50 Basic + 50 Advanced quality works.

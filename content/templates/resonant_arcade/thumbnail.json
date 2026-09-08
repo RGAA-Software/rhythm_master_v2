@@ -1,0 +1,14 @@
+{
+    "template": "resonant_arcade",
+    "package_sha256": "89546a0f58403ae4f6e929cf51e733bafdf4516129b6c1bab5746b8d2dbf335f",
+    "thumbnail_sha256": "04ccf546113bebdc1513572bffe9baa18d03f755e191c98c6964fec0865ecd88",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

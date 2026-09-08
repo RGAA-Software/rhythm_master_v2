@@ -40,7 +40,7 @@ def flow_glass():
     return graph, displaced, output, parameters
 
 
-def write_component(recipe):
+def component_definition(recipe):
     if recipe.get('build'):
         graph = WRITER.Graph()
         input_node, output, parameters = recipe['build'](graph)
@@ -48,6 +48,20 @@ def write_component(recipe):
         graph, input_node, output, parameters = flow_glass()
     name = recipe['name']
     component = 'component.official.' + name
+    text = [f'components {{ type_key: "{component}" schema_version: 1 title: "{recipe["titles"][0]}" output: {output}',
+            *graph.nodes, *graph.edges, f'inputs {{ key: "source" node: {input_node} input: "source" }}']
+    for key, identity, property_name in parameters:
+        bounds = {'response': (0, 2), 'flow': (-0.5, 0.5),
+                  'pace': (-0.25, 0.25) if name == 'contour_engraving' else (-45, 45)}
+        limits = f' minimum: {bounds[key][0]} maximum: {bounds[key][1]}' if key in bounds else ''
+        text.append(f'parameters {{ key: "{key}" node: {identity} property: "{property_name}" group: "component.pattern"{limits} }}')
+    return graph, text + ['}'], dict(type=component, positions=graph.positions)
+
+
+def write_component(recipe):
+    graph, definition, layout = component_definition(recipe)
+    name = recipe['name']
+    component = layout['type']
     destination = ROOT / 'content/semantic' / name
     destination.mkdir(parents=True, exist_ok=True)
     # The four-node harness provides a visible fixture only. Insertion keeps
@@ -61,17 +75,10 @@ def write_component(recipe):
     instance = harness.node(component, 700, 80, dict(source=fixture))
     final = harness.node('output.texture', 1040, 80, dict(source=instance))
     text = ['schema_version: 4', f'id: "semantic-{name}"', 'canvas { width: 640 height: 360 }',
-            f'output: {final}', *harness.nodes, *harness.edges,
-            f'components {{ type_key: "{component}" schema_version: 1 title: "{recipe["titles"][0]}" output: {output}',
-            *graph.nodes, *graph.edges, f'inputs {{ key: "source" node: {input_node} input: "source" }}']
-    for key, identity, property_name in parameters:
-        bounds = {'response': (0, 2), 'flow': (-0.5, 0.5),
-                  'pace': (-0.25, 0.25) if name == 'contour_engraving' else (-45, 45)}
-        limits = f' minimum: {bounds[key][0]} maximum: {bounds[key][1]}' if key in bounds else ''
-        text.append(f'parameters {{ key: "{key}" node: {identity} property: "{property_name}" group: "component.pattern"{limits} }}')
-    (destination / 'graph.textproto').write_text('\n'.join(text + ['}']) + '\n', encoding='utf-8')
+            f'output: {final}', *harness.nodes, *harness.edges, *definition]
+    (destination / 'graph.textproto').write_text('\n'.join(text) + '\n', encoding='utf-8')
     write_json(destination / 'editor.json', dict(version=2, positions=harness.positions,
-                                                components=[dict(type=component, positions=graph.positions)]))
+                                                components=[layout]))
     write_json(destination / 'manifest.json', dict(format='rhythm.project', manifest_version=1,
                kind='template', content_id='official.semantic.'+name, content_version='0.1.1',
                project_id='semantic-'+name, graph_revision=0, title=' / '.join(reversed(recipe['titles'])),

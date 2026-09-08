@@ -32,7 +32,7 @@ def original_arrangement(destination):
 
 
 def write(name, graph, output, controls, snapshots, cues, titles, descriptions,
-          tier='basic', platforms=('windows',), extra_assets=()):
+          tier='basic', platforms=('windows',), extra_assets=(), components=()):
     destination = ROOT / 'content/templates' / name
     destination.mkdir(parents=True, exist_ok=True)
     metadata = ['controls {']
@@ -49,10 +49,14 @@ def write(name, graph, output, controls, snapshots, cues, titles, descriptions,
         metadata.append(f'    cues {{ id: {identity} title: {json.dumps(title, ensure_ascii=False)} seconds: {seconds} snapshot: {target} fade: {fade} smooth: true }}')
     metadata.append('}')
     identity = 'official-' + name.replace('_', '-')
+    definitions = [line for text, _ in components for line in text]
     (destination / 'graph.textproto').write_text(
         f'schema_version: 5\nid: "{identity}"\noutput: {output}\ncanvas {{ width: 1280 height: 720 }}\n' +
-        '\n'.join(graph.nodes + graph.edges + metadata) + '\n', encoding='utf-8')
-    write_json(destination / 'editor.json', dict(version=2, positions=graph.positions))
+        '\n'.join(graph.nodes + graph.edges + definitions + metadata) + '\n', encoding='utf-8')
+    editor = dict(version=2, positions=graph.positions)
+    if components:
+        editor['components'] = [layout for _, layout in components]
+    write_json(destination / 'editor.json', editor)
     records, soundtrack = original_arrangement(destination)
     manifest = dict(format='rhythm.project', manifest_version=3, kind='template',
                     content_id='official.templates.'+name, content_version='0.1.0',

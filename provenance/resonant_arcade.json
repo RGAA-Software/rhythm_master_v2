@@ -1,0 +1,32 @@
+{
+    "ownership": "first-party",
+    "baseline": "cef5e04",
+    "imported_third_party_files": [],
+    "authoring_tool": "tools/author-resonant-arcade.py",
+    "authoring_tool_sha256": "73c2546f7864bbcf69cbac8b2192249d6ef2fbeeae1cea581608cb93f8dcfa59",
+    "reused_sources": [
+        "tools/author-resonance-gate.py",
+        "tools/music_work.py",
+        "tools/author-input-components.py",
+        "tools/input_component_recipes.py"
+    ],
+    "composition": "Original architectural arrangement of shared arch geometry, textured PBR screens, inlaid floor, three lights and music-driven framing.",
+    "embedded_component": {
+        "type": "component.official.prism_fold",
+        "nodes": 11,
+        "source": "content/semantic/prism_fold/graph.textproto"
+    },
+    "assets": [
+        {
+            "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+            "bytes": 240627,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+            "bytes": 160293,
+            "media_type": "audio/flac"
+        }
+    ],
+    "target": "content/templates/resonant_arcade"
+}
