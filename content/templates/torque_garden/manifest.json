@@ -1,0 +1,29 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.torque_garden",
+    "content_version": "0.1.0",
+    "project_id": "official-torque-garden",
+    "graph_revision": 0,
+    "title": "扭光庭院 / Torque Garden",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "扭光庭院",
+        "en-US": "Torque Garden"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "六片青金与玫红金属瓣环绕反光核心，三组频段分别控制 GPU 扭转、收缩和亮度。所有瓣共享基础网格，变形同步参与聚光阴影、环境反射和法线光照；景深与浮点柔光完成舞台。",
+        "en-US": "Six teal, gold and rose metallic petals orbit a reflective core. Three frequency bands drive GPU twist, taper and emission. Petals share one base mesh; deformation participates in spot shadows, environment reflections and normal lighting, with depth focus and floating bloom."
+    }
+}

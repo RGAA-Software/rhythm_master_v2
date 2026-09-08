@@ -1,0 +1,16 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "source_file": "Operators/Lib/Assets/shaders/3d/mesh/mesh-Deform.hlsl",
+    "imported_file": "third_party/sources/tixl-effects/mesh-Deform.hlsl",
+    "sha256": "d712c0515ed3819b30e243ee5242b84427e838cf9b0ded82257ba3f31a595592",
+    "license": "MIT",
+    "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+    "target": "src/rhythm_render/shaders/mesh_deformation.sh",
+    "modifications": [
+        "Adapt linear taper and coordinate-dependent axial twist into a bounded four-stage vertex modifier chain.",
+        "Use consistent right-handed axial rotations (upstream Y convention is opposite), before model transforms; pivot applies to both taper and twist.",
+        "Clamp taper scale to [0.05,20]; remove spherize, selection and D3D compute buffer dependencies.",
+        "Replace unchanged upstream normal/tangent forwarding with analytic inverse-transpose normals and Jacobian tangents; preserve material UV and handedness."
+    ]
+}

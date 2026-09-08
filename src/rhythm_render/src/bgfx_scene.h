@@ -59,6 +59,8 @@ class BgfxScene final {
     GpuHandle<bgfx::UniformHandle> emissive_{};
     GpuHandle<bgfx::UniformHandle> camera_{};
     GpuHandle<bgfx::UniformHandle> camera_view_{};
+    GpuHandle<bgfx::UniformHandle> deformations_{};
+    GpuHandle<bgfx::UniformHandle> deformation_pivots_{};
     BgfxSceneLights lights_{};
     BgfxSceneTextures textures_{};
     BgfxSceneShadow shadow_{};

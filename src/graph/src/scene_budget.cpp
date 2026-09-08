@@ -16,6 +16,7 @@ std::optional<Diagnostic> ValidateSceneBudget(
         std::uint64_t environments_ = 0;
         std::uint64_t path_points_ = 0;
         bool path_closed_ = false;
+        std::uint32_t deformations_ = 0;
     };
     std::vector<Counts> counts(plan.instructions_.size());
     std::uint64_t vertices = 0, indices = 0, snapshots = 0, draws = 0, path_snapshots = 0;
@@ -32,6 +33,13 @@ std::optional<Diagnostic> ValidateSceneBudget(
             return counts[*instruction.inputs_[port]];
         };
         switch (instruction.operation_) {
+            case Operation::kGeometryDeform: {
+                const auto geometry_source = source(0);
+                if (!geometry_source) return fail();
+                count = *geometry_source;
+                if (++count.deformations_ > 4) return fail();
+                break;
+            }
             case Operation::kPathHelix:
             case Operation::kPathFromPoints:
             case Operation::kPathResample: {

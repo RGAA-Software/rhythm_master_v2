@@ -5,12 +5,23 @@
 #include "rhythm/scene/model.h"
 
 namespace rhythm::scene {
+struct Deformation {
+    double twist_ = 0;  // Degrees per local unit; right-handed rotation.
+    double taper_ = 0;
+    std::uint32_t axis_ = 1;
+    Vector3 pivot_{};
+};
 // Stable identity belongs to the publishing graph/runtime generation. Geometry is
 // immutable and shared by instances; transforms never duplicate mesh arrays.
 struct Geometry {
     std::uint64_t id_ = 0;
     std::uint64_t revision_ = 0;
     std::shared_ptr<const Model> model_{};
+    // Modifiers share the immutable base model and its upload identity. Zero
+    // selects id_/revision_ for an ordinary, unmodified source geometry.
+    std::uint64_t upload_id_ = 0;
+    std::uint64_t upload_revision_ = 0;
+    std::vector<Deformation> deformations_{};
 };
 struct Instance {
     std::shared_ptr<const Geometry> geometry_{};

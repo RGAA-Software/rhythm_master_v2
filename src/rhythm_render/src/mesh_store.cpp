@@ -111,6 +111,15 @@ void MeshStore::Validate(const SceneDrawList& list) const {
             throw std::invalid_argument("render.point_shadow_unsupported");
     }
     for (const auto& draw : list.draws_) {
+        if (draw.deformations_.size() > 4) throw std::invalid_argument("render.deformation_limit");
+        for (const auto& deformation : draw.deformations_)
+            if (!std::isfinite(deformation.twist_) || std::abs(deformation.twist_) > 720 ||
+                !std::isfinite(deformation.taper_) || std::abs(deformation.taper_) > 4 ||
+                deformation.axis_ > 2 ||
+                !std::all_of(deformation.pivot_.begin(), deformation.pivot_.end(), [](float value) {
+                    return std::isfinite(value) && std::abs(value) <= 10000;
+                }))
+                throw std::invalid_argument("render.deformation_parameters");
         if (!std::isfinite(draw.textures_.normal_scale_) || draw.textures_.normal_scale_ < 0 ||
             draw.textures_.normal_scale_ > 4 ||
             !std::all_of(draw.textures_.uv_transform_.begin(), draw.textures_.uv_transform_.end(),

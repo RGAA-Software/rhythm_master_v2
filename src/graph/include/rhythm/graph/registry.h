@@ -81,7 +81,8 @@ enum class Operation : std::uint8_t {
     kPathHelix,
     kPathFromPoints,
     kPathResample,
-    kGeometryTube
+    kGeometryTube,
+    kGeometryDeform
 };
 struct PortDescriptor {
     std::string key_{};

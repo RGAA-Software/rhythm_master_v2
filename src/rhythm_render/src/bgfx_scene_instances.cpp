@@ -10,7 +10,7 @@ bool Compatible(const MeshDraw& a, const MeshDraw& b) {
     return a.mesh_ == b.mesh_ && b.color_[3] >= 1 && a.unlit_ == b.unlit_ &&
            a.double_sided_ == b.double_sided_ && a.metallic_ == b.metallic_ &&
            a.roughness_ == b.roughness_ && a.emissive_ == b.emissive_ &&
-           a.textures_ == b.textures_ &&
+           a.textures_ == b.textures_ && a.deformations_ == b.deformations_ &&
            (a.double_sided_ || Mirrored(a.model_) == Mirrored(b.model_));
 }
 }  // namespace

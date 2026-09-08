@@ -1,6 +1,7 @@
 #include "bgfx_scene.h"
 
 #include <array>
+#include <numbers>
 
 #include "scene_shader.h"
 
@@ -23,6 +24,9 @@ BgfxScene::BgfxScene(std::uint64_t device) : meshes_(device) {
     emissive_ = GpuHandle(bgfx::createUniform("u_scene_emissive", bgfx::UniformType::Vec4));
     camera_ = GpuHandle(bgfx::createUniform("u_scene_camera", bgfx::UniformType::Vec4));
     camera_view_ = GpuHandle(bgfx::createUniform("u_scene_view", bgfx::UniformType::Vec4));
+    deformations_ = GpuHandle(bgfx::createUniform("u_scene_deform", bgfx::UniformType::Vec4, 4));
+    deformation_pivots_ =
+            GpuHandle(bgfx::createUniform("u_scene_deform_pivot", bgfx::UniformType::Vec4, 4));
 }
 MeshHandle BgfxScene::Create(std::span<const MeshVertex> vertices,
                              std::span<const std::uint32_t> indices) {
@@ -116,6 +120,15 @@ std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std:
         bgfx::setIndexBuffer(mesh.indices_.Get());
         bgfx::setUniform(color_.Get(), draw.color_.data());
         bgfx::setUniform(normal_.Get(), draw.normal_.data());
+        std::array<std::array<float, 4>, 4> deformations{}, pivots{};
+        for (std::size_t modifier = 0; modifier < draw.deformations_.size(); ++modifier) {
+            const auto& source = draw.deformations_[modifier];
+            deformations[modifier] = {source.twist_ * std::numbers::pi_v<float> / 180,
+                                      source.taper_, float(source.axis_), 1};
+            pivots[modifier] = {source.pivot_[0], source.pivot_[1], source.pivot_[2], 0};
+        }
+        bgfx::setUniform(deformations_.Get(), deformations.data(), 4);
+        bgfx::setUniform(deformation_pivots_.Get(), pivots.data(), 4);
         const std::array material{draw.metallic_, draw.roughness_, draw.unlit_ ? 1.0f : 0.0f,
                                   draw.double_sided_ ? 1.0f : 0.0f};
         const std::array emissive{draw.emissive_[0], draw.emissive_[1], draw.emissive_[2], 0.0f};

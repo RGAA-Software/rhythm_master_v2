@@ -3,6 +3,18 @@
 namespace rhythm::graph {
 void AppendPathDescriptors(std::vector<OperatorDescriptor>& operators) {
     using Type = ValueType;
+    operators.push_back({"geometry.deform",
+                         Operation::kGeometryDeform,
+                         Type::kGeometry,
+                         {{"geometry", Type::kGeometry},
+                          {"deform_twist", Type::kScalar, false},
+                          {"deform_taper", Type::kScalar, false}},
+                         {{"deform_twist", 45.0, -720, 720},
+                          {"deform_taper", 0.0, -4, 4},
+                          {"deform_axis", 1.0, 0, 2, {"axis.x", "axis.y", "axis.z"}},
+                          {"deform_pivot_x", 0.0, -10000, 10000},
+                          {"deform_pivot_y", 0.0, -10000, 10000},
+                          {"deform_pivot_z", 0.0, -10000, 10000}}});
     operators.push_back({"path.helix",
                          Operation::kPathHelix,
                          Type::kPath,

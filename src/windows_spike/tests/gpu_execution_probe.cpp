@@ -18,6 +18,7 @@ int main() {
         rhythm::validation::VerifyMaterialTextures(renderer);
         rhythm::validation::VerifySceneShadows(renderer);
         rhythm::validation::VerifyEnvironmentLighting(renderer);
+        rhythm::validation::VerifyMeshDeformation(renderer);
 #if defined(RHYTHM_MODEL_IMAGE_PROBE)
         rhythm::validation::VerifyModelImages(renderer);
 #endif

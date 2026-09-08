@@ -57,6 +57,16 @@ void Run() {
     bad = list;
     bad.draws_[0].roughness_ = std::numeric_limits<float>::quiet_NaN();
     Reject([&] { renderer.SubmitScene(target.Handle(), bad); });
+    bad = list;
+    bad.draws_[0].deformations_.resize(5);
+    Reject([&] { renderer.SubmitScene(target.Handle(), bad); });
+    for (const MeshDeformation modifier :
+         {MeshDeformation{721}, MeshDeformation{0, 5}, MeshDeformation{0, 0, 3},
+          MeshDeformation{0, 0, 1, {10001, 0, 0}},
+          MeshDeformation{std::numeric_limits<float>::quiet_NaN()}}) {
+        bad.draws_[0].deformations_ = {modifier};
+        Reject([&] { renderer.SubmitScene(target.Handle(), bad); });
+    }
     renderer.EndFrame();
     moved = {};
     Require(!renderer.IsValid(handle) && renderer.Stats().live_meshes_ == 0,

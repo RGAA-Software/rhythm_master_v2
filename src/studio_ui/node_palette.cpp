@@ -71,6 +71,7 @@ std::string_view Category(graph::Operation operation) {
         case kPathFromPoints:
         case kPathResample:
         case kGeometryTube:
+        case kGeometryDeform:
         case kSceneTransform:
         case kSceneMerge:
         case kSceneCamera:

@@ -218,6 +218,9 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                 case graph::Operation::kGeometryTube:
                     detail::EvaluatePath(instruction, result.outputs_, state.output_);
                     break;
+                case graph::Operation::kGeometryDeform:
+                    detail::EvaluateDeformation(instruction, result.outputs_, state.output_);
+                    break;
                 case graph::Operation::kGeometryCube:
                 case graph::Operation::kGeometryTorus:
                 case graph::Operation::kGeometrySphere:

@@ -353,6 +353,7 @@ int main(int argc, char* argv[]) {
             validation::VerifyMaterialTextures(renderer);
             validation::VerifySceneShadows(renderer);
             validation::VerifyEnvironmentLighting(renderer);
+            validation::VerifyMeshDeformation(renderer);
 #if defined(RHYTHM_MODEL_IMAGE_PROBE)
             validation::VerifyModelImages(renderer);
 #endif

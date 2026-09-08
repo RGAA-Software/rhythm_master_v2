@@ -1,0 +1,14 @@
+{
+    "template": "torque_garden",
+    "package_sha256": "cd753642c7fa45f24509e1a3bb77ea9877a2fbb272178f6b7bd9877903ab30e5",
+    "thumbnail_sha256": "c57d75a9fc7bac514e7d25d14ed39651902155cc6e833e1aa2e988f62d8e1b4e",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

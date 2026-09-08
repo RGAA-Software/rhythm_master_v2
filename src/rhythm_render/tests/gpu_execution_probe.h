@@ -15,6 +15,7 @@ void VerifyPositionalLights(render::Renderer& renderer);
 void VerifyMaterialTextures(render::Renderer& renderer);
 void VerifyModelImages(render::Renderer& renderer);
 void VerifyEnvironmentLighting(render::Renderer& renderer);
+void VerifyMeshDeformation(render::Renderer& renderer);
 void VerifySceneShadows(render::Renderer& renderer);
 void VerifyColorPipeline(render::Renderer& renderer);
 void VerifyGpuParticles(render::Renderer& renderer);

@@ -37,6 +37,15 @@ struct MaterialTextures {
     std::array<float, 4> uv_transform_{1, 1, 0, 0};
     bool operator==(const MaterialTextures&) const = default;
 };
+// Vertex-local modifiers execute in order, before model/hierarchy transforms.
+// Taper scale clamps to [0.05, 20] to preserve invertible normals and winding.
+struct MeshDeformation {
+    float twist_ = 0;  // Degrees per unit along the selected axis.
+    float taper_ = 0;
+    std::uint32_t axis_ = 1;  // X, Y, Z.
+    std::array<float, 3> pivot_{};
+    bool operator==(const MeshDeformation&) const = default;
+};
 struct MeshDraw {
     MeshHandle mesh_{};
     Matrix4 model_ = kIdentityMatrix;
@@ -48,6 +57,7 @@ struct MeshDraw {
     std::array<float, 3> emissive_{};
     bool unlit_ = true;
     MaterialTextures textures_{};
+    std::vector<MeshDeformation> deformations_{};  // At most four.
 };
 struct DirectionalLight {
     // Unit vector from the surface toward the light; linear RGB radiance.

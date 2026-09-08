@@ -67,14 +67,18 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
         if (!instance.geometry_ || !instance.geometry_->model_ || !instance.geometry_->id_ ||
             !scene::ValidAffine(instance.transform_))
             throw std::invalid_argument("runtime.geometry");
-        active.emplace(instance.geometry_->id_, instance.geometry_->revision_,
+        const auto& geometry = *instance.geometry_;
+        active.emplace(geometry.upload_id_ ? geometry.upload_id_ : geometry.id_,
+                       geometry.upload_id_ ? geometry.upload_revision_ : geometry.revision_,
                        needs_tangents(instance));
     }
     std::erase_if(uploads_, [&](const auto& item) { return !active.contains(item.first); });
     std::uint64_t index_count = 0;
     for (const auto& instance : scene.instances_) {
         const auto& geometry = *instance.geometry_;
-        const Key key{geometry.id_, geometry.revision_, needs_tangents(instance)};
+        const Key key{geometry.upload_id_ ? geometry.upload_id_ : geometry.id_,
+                      geometry.upload_id_ ? geometry.upload_revision_ : geometry.revision_,
+                      needs_tangents(instance)};
         if (!uploads_.contains(key)) {
             scene::Validate(*geometry.model_);
             Uploaded upload;
@@ -115,6 +119,13 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                                          {color.red_, color.green_, color.blue_, color.alpha_},
                                          material.double_sided_});
                 auto& draw = result.draws_.back();
+                for (const auto& modifier : geometry.deformations_)
+                    draw.deformations_.push_back(
+                            {float(modifier.twist_),
+                             float(modifier.taper_),
+                             modifier.axis_,
+                             {float(modifier.pivot_.x_), float(modifier.pivot_.y_),
+                              float(modifier.pivot_.z_)}});
                 draw.unlit_ = material.unlit_;
                 draw.textures_.color_srgb_ = material.textures_.color_srgb_;
                 draw.textures_.normal_scale_ = material.textures_.normal_scale_;
