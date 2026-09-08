@@ -44,11 +44,11 @@ bool AsyncStore::SaveProject(std::filesystem::path path, editor::Snapshot snapsh
         return result;
     });
 }
-bool AsyncStore::LoadProject(std::filesystem::path path) {
-    return Submit([path = std::move(path)] {
+bool AsyncStore::LoadProject(std::filesystem::path path, AssetValidation validation) {
+    return Submit([path = std::move(path), validation] {
         StoreCompletion result;
         try {
-            result.loaded_ = Load(path);
+            result.loaded_ = Load(path, validation);
         } catch (const std::exception& error) {
             result.error_ = error.what();
         }

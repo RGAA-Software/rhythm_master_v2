@@ -36,7 +36,11 @@ named timeline cues, interrupted fades, beat snapping and seek/export consistenc
 overlapping video tracks with timeline editing and shared FFmpeg playback/export.
 [Multitrack audio arrangement](docs/audio_arrangement.md) adds shared playback/export PCM,
 editable audio clips and the built-in Luminous Concerto media performance.
-Scene preparation/transitions and R6 continue.
+[Scene preparation and transitions](docs/scene_transition_plan.md) now provide a bounded
+performance queue and shared-clock two-scene fades on Windows and Android.
+R6 [asset maintenance](docs/asset_maintenance_plan.md) adds reference replacement/undo,
+background integrity checks and original-file recovery through Studio to published Player.
+Content browsing, authoring help and the independent content quality targets continue.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

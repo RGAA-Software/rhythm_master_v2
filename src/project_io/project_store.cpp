@@ -165,7 +165,7 @@ LoadResult LoadRevision(const std::filesystem::path& directory) {
     }
     return result;
 }
-LoadResult Load(const std::filesystem::path& project) {
+LoadResult Load(const std::filesystem::path& project, AssetValidation validation) {
     const auto revision = Read(project / "CURRENT", 96);
     if (!SafeRevision(revision) || std::filesystem::is_symlink(project / "revisions"))
         throw std::invalid_argument("project.current");
@@ -174,7 +174,24 @@ LoadResult Load(const std::filesystem::path& project) {
     if (manifest.at("revision_id") != revision)
         throw std::invalid_argument("project.revision_mismatch");
     auto result = LoadRevision(directory);
-    VerifyAssets(project, result.snapshot_.assets_);
+    if (validation == AssetValidation::kStrict) {
+        VerifyAssets(project, result.snapshot_.assets_);
+    } else if (!result.snapshot_.assets_.empty()) {
+        const auto assets = project / "assets";
+        if (std::filesystem::is_symlink(assets) ||
+            (std::filesystem::exists(assets) && !std::filesystem::is_directory(assets)))
+            throw std::invalid_argument("project.asset_directory");
+        if (!std::filesystem::exists(assets)) {
+            for (const auto& record : result.snapshot_.assets_)
+                result.unavailable_assets_.push_back(record.id_);
+        } else {
+            const rhythm::assets::Store store(assets);
+            for (const auto& record : result.snapshot_.assets_)
+                if (!store.Verify(record)) result.unavailable_assets_.push_back(record.id_);
+        }
+        if (!result.unavailable_assets_.empty())
+            result.warnings_.push_back({"project.assets_need_repair"});
+    }
     return result;
 }
 void Save(const std::filesystem::path& project, const editor::Snapshot& snapshot,

@@ -17,7 +17,8 @@ class AsyncStore final {
    public:
     ~AsyncStore();
     bool SaveProject(std::filesystem::path path, editor::Snapshot snapshot);
-    bool LoadProject(std::filesystem::path path);
+    bool LoadProject(std::filesystem::path path,
+                     AssetValidation validation = AssetValidation::kStrict);
     bool LoadTemplate(std::filesystem::path directory, std::filesystem::path asset_directory);
     bool PublishProject(std::filesystem::path path, editor::Snapshot snapshot,
                         std::filesystem::path asset_directory = {});

@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include <algorithm>
 #include <set>
 
 #include "rhythm/media/audio_mixer.h"
@@ -50,7 +51,27 @@ std::optional<editor::Snapshot> SoundtrackPanel::Take(const editor::Snapshot& cu
     return std::move(result->snapshot_);
 }
 void SoundtrackPanel::Sync(const editor::Snapshot& snapshot, const std::filesystem::path& assets,
-                           audio_ui::AudioPanel& audio) {
+                           audio_ui::AudioPanel& audio,
+                           std::span<const assets::AssetId> unavailable) {
+    const bool blocked =
+            snapshot.soundtrack_ &&
+            std::any_of(unavailable.begin(), unavailable.end(), [&](const auto& id) {
+                return snapshot.soundtrack_->asset_ == id ||
+                       std::any_of(snapshot.soundtrack_->clips_.begin(),
+                                   snapshot.soundtrack_->clips_.end(),
+                                   [&](const auto& clip) { return clip.asset_ == id; });
+            });
+    if (blocked) {
+        if (!blocked_) audio.ClearFile();
+        blocked_ = true;
+        status_ = "asset.music_unavailable";
+        return;
+    }
+    if (blocked_) {
+        blocked_ = false;
+        active_.reset();
+        document_.clear();
+    }
     if (document_ == snapshot.document_.id_ && active_ == snapshot.soundtrack_) return;
     if (snapshot.soundtrack_) {
         const auto& next = *snapshot.soundtrack_;
@@ -92,8 +113,10 @@ std::optional<SoundtrackAction> SoundtrackPanel::Draw(
         action = SoundtrackAction::kAppend;
     ImGui::EndDisabled();
     ImGui::BeginDisabled(!snapshot.soundtrack_);
-    if (ImGui::Button((text.at("music.load") + "###music.load").c_str()))
+    ImGui::BeginDisabled(blocked_);
+    if (ImGui::Button((text.at("music.load") + "###music.load").c_str()) && !blocked_)
         action = SoundtrackAction::kLoad;
+    ImGui::EndDisabled();
     ImGui::SameLine();
     if (ImGui::Button((text.at("music.clear") + "###music.clear").c_str()))
         action = SoundtrackAction::kClear;
@@ -117,6 +140,7 @@ std::optional<editor::Snapshot> SoundtrackPanel::Start(SoundtrackAction action,
             return content::UnbindSoundtrack(snapshot);
         }
         if (action == SoundtrackAction::kLoad) {
+            if (blocked_) return {};
             if (snapshot.soundtrack_) {
                 LoadBinding(*snapshot.soundtrack_, assets, audio);
             }

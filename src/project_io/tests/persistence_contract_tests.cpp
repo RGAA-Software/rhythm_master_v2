@@ -14,6 +14,7 @@
 #include "rhythm/project/async_store.h"
 #include "rhythm/project/package.h"
 #include "rhythm/project/store.h"
+#include "rhythm/storage/atomic_file.h"
 
 namespace {
 void Check(bool condition, std::source_location location = std::source_location::current()) {
@@ -150,6 +151,31 @@ int main(int argc, char* argv[]) {
             missing = with_asset;
             missing.assets_.push_back(missing.assets_.front());
             Reject([&] { project::Save(asset_project, missing); });
+            const auto repair_source = std::filesystem::path(argv[2]) / "asset-original.bin";
+            storage::WriteDurable(repair_source, "abc");
+            const auto saved_asset_snapshot = project::Load(asset_project).snapshot_;
+            const auto original = with_asset.assets_.front();
+            const auto blob = asset_project / "assets/sha256" / original.id_.sha256_.substr(0, 2) /
+                              original.id_.sha256_;
+            storage::WriteDurable(blob, "bad");
+            Reject([&] { project::Load(asset_project); });
+            const auto repairable =
+                    project::Load(asset_project, project::AssetValidation::kAllowRepair);
+            Check(repairable.snapshot_ == saved_asset_snapshot &&
+                  repairable.unavailable_assets_.size() == 1 &&
+                  repairable.unavailable_assets_.front() == original.id_ &&
+                  !repairable.warnings_.empty());
+            Reject([&] { project::Save(asset_project, repairable.snapshot_); });
+            Reject([&] {
+                project::PublishSnapshot(published, repairable.snapshot_, asset_project / "assets");
+            });
+            assets.Restore(repair_source, original);
+            Check(project::Load(asset_project).unavailable_assets_.empty());
+            std::filesystem::remove(blob);
+            Check(project::Load(asset_project, project::AssetValidation::kAllowRepair)
+                          .unavailable_assets_.size() == 1);
+            assets.Restore(repair_source, original);
+            Check(project::Load(asset_project).snapshot_ == saved_asset_snapshot);
         }
         {
             project::AsyncStore worker;

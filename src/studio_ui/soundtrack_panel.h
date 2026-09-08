@@ -11,7 +11,7 @@ class SoundtrackPanel final {
     std::optional<editor::Snapshot> Take(const editor::Snapshot& current, bool pending_edit,
                                          const audio_ui::AudioPanel& audio);
     void Sync(const editor::Snapshot& snapshot, const std::filesystem::path& assets,
-              audio_ui::AudioPanel& audio);
+              audio_ui::AudioPanel& audio, std::span<const assets::AssetId> unavailable = {});
     std::optional<SoundtrackAction> Draw(const editor::Snapshot& snapshot, bool selected,
                                          const std::map<std::string, std::string>& text);
     std::optional<editor::Snapshot> Start(SoundtrackAction action, const editor::Snapshot& snapshot,
@@ -24,6 +24,7 @@ class SoundtrackPanel final {
     std::string document_{};
     std::string status_{};
     std::optional<std::filesystem::path> import_source_{};
+    bool blocked_ = false;
     float import_gain_ = 1;
     bool import_loop_ = false;
 };

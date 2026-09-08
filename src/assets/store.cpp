@@ -64,6 +64,29 @@ std::filesystem::path Store::BlobPath(const AssetId& id) const {
 }
 AssetRecord Store::Import(const std::filesystem::path& source, std::string media_type,
                           std::uint64_t maximum_bytes, std::stop_token cancellation) {
+    return ImportChecked(source, std::move(media_type), maximum_bytes, cancellation, {});
+}
+void Store::Restore(const std::filesystem::path& source, const AssetRecord& expected,
+                    std::stop_token cancellation) {
+    if (!ValidId(expected.id_) || !ValidMediaType(expected.media_type_))
+        throw std::invalid_argument("asset.repair_record");
+    (void)ImportChecked(source, expected.media_type_, expected.bytes_, cancellation, expected);
+}
+AssetHealth Store::Inspect(const AssetRecord& asset, std::stop_token cancellation) const {
+    if (cancellation.stop_requested()) throw std::runtime_error("asset.cancelled");
+    try {
+        const auto path = BlobPath(asset.id_);
+        if (!std::filesystem::exists(path)) return AssetHealth::kMissing;
+        (void)Open(asset, 1024ULL * 1024 * 1024, cancellation);
+        return AssetHealth::kValid;
+    } catch (const std::exception&) {
+        if (cancellation.stop_requested()) throw std::runtime_error("asset.cancelled");
+        return AssetHealth::kCorrupt;
+    }
+}
+AssetRecord Store::ImportChecked(const std::filesystem::path& source, std::string media_type,
+                                 std::uint64_t maximum_bytes, std::stop_token cancellation,
+                                 const std::optional<AssetRecord>& expected) {
     if (!ValidMediaType(media_type)) throw std::invalid_argument("asset.media_type");
     if (maximum_bytes > 1024ull * 1024 * 1024) throw std::length_error("asset.import_budget");
     const auto expected_bytes = std::filesystem::file_size(source);
@@ -97,10 +120,11 @@ AssetRecord Store::Import(const std::filesystem::path& source, std::string media
     if (!input.eof() || bytes != expected_bytes) throw std::runtime_error("asset.source_changed");
     hash.finish();
     const AssetRecord asset{{picosha2::get_hash_hex_string(hash)}, bytes, std::move(media_type)};
+    if (expected && asset != *expected) throw std::runtime_error("asset.repair_mismatch");
     const auto destination = BlobPath(asset.id_);
     if (std::filesystem::exists(destination)) {
-        if (!Verify(asset)) throw std::runtime_error("asset.existing_corrupt");
-        return asset;
+        if (Verify(asset)) return asset;
+        if (!expected) throw std::runtime_error("asset.existing_corrupt");
     }
     storage::SyncFile(pending.Path());
     if (HashFile(storage::FileBytes::Open(pending.Path(), bytes), cancellation) !=

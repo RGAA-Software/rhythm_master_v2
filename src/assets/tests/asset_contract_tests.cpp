@@ -100,7 +100,37 @@ int main(int argc, char* argv[]) {
         Check(copied.Read(asset) == "abc");
         Reject([&] { copied.CopyFrom(store, asset); });
         Reject([&] { store.Read(asset); });
-        storage::WriteDurable(blob, "abc");
+        Check(store.Inspect(asset) == assets::AssetHealth::kCorrupt);
+        const auto repair = root / "repair.bin";
+        storage::WriteDurable(repair, "xyz");
+        Reject([&] { store.Restore(repair, asset); });
+        Check(!store.Verify(asset));
+        storage::WriteDurable(repair, "abc");
+        Reject([&] { store.Restore(repair, asset, cancelled.get_token()); });
+        Check(!store.Verify(asset));
+        store.Restore(repair, asset);
+        Check(store.Read(asset) == "abc" && store.Inspect(asset) == assets::AssetHealth::kValid);
+        {
+            assets::Importer maintenance;
+            Check(maintenance.StartInspect(root / "assets", {asset}));
+            auto review = Await(maintenance);
+            Check(review.error_.empty() && review.checks_.size() == 1 &&
+                  review.checks_[0].health_ == assets::AssetHealth::kValid);
+            storage::WriteDurable(blob, "bad");
+            Check(maintenance.StartInspect(root / "assets", {asset}));
+            Check(Await(maintenance).checks_[0].health_ == assets::AssetHealth::kCorrupt);
+            Check(maintenance.StartRestore(root / "assets", repair, asset));
+            Check(Await(maintenance).restored_ == asset && store.Verify(asset));
+            Check(!maintenance.StartInspect(root / "assets",
+                                            std::vector<assets::AssetRecord>(65, asset)));
+        }
+        const auto restored_time = std::filesystem::last_write_time(blob);
+        store.Restore(repair, asset);
+        Check(std::filesystem::last_write_time(blob) == restored_time);
+        std::filesystem::remove(blob);
+        Check(store.Inspect(asset) == assets::AssetHealth::kMissing);
+        store.Restore(repair, asset);
+        Check(store.Read(asset) == "abc");
         {
             const auto large = root / "cancel.bin";
             storage::WriteDurable(large, std::string(8 * 1024 * 1024, 'x'));

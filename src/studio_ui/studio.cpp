@@ -64,12 +64,15 @@ class Studio::Impl final {
                                             [](const auto& item) { return item.default_; });
         const auto template_path =
                 (preferred == templates_.end() ? templates_.front() : *preferred).directory_;
-        const auto loaded = std::filesystem::exists(project_ / "CURRENT")
-                                    ? project::Load(project_)
-                                    : project::PrepareTemplate(template_path, project_ / "assets");
+        const auto loaded =
+                std::filesystem::exists(project_ / "CURRENT")
+                        ? project::Load(project_, project::AssetValidation::kAllowRepair)
+                        : project::PrepareTemplate(template_path, project_ / "assets");
         history_.emplace(loaded.snapshot_);
+        unavailable_assets_ = loaded.unavailable_assets_;
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
-        soundtrack_panel_.Sync(history_->Current(), project_ / "assets", audio_panel_);
+        soundtrack_panel_.Sync(history_->Current(), project_ / "assets", audio_panel_,
+                               unavailable_assets_);
 #endif
         presets_ = content::LoadPresets(resources / "content/presets/catalog.json", registry_);
         semantics_ = content::LoadSemantics(resources / "content/semantic", registry_);
@@ -134,7 +137,7 @@ class Studio::Impl final {
             QueueCompile();
     }
     void Toolbar(platform::Host& host, render::Renderer& renderer, double seconds) {
-        bool busy = store_.Busy();
+        bool busy = store_.Busy() || assets_.Busy();
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         busy |= soundtrack_panel_.Busy();
 #endif
@@ -169,7 +172,7 @@ class Studio::Impl final {
         ImGui::SameLine();
         if (ImGui::Button(Label("reopen").c_str())) {
             load_revision_ = history_->Current().document_.revision_;
-            store_.LoadProject(project_);
+            store_.LoadProject(project_, project::AssetValidation::kAllowRepair);
         }
         ImGui::SameLine();
         if (const auto selected =
@@ -182,23 +185,44 @@ class Studio::Impl final {
         ImGui::EndDisabled();
         ImGui::SameLine();
         const auto asset_edit =
-                assets_.Draw(project_ / "assets", history_->Current().assets_,
-                             catalogs_.at(locale_), history_->Current().soundtrack_);
+                assets_.Draw(project_ / "assets", history_->Current(), catalogs_.at(locale_));
         if (asset_edit.added_ || asset_edit.removed_) {
             CommitEdits();
-            auto next = history_->Current();
-            if (asset_edit.removed_)
-                std::erase_if(next.assets_,
-                              [&](const auto& asset) { return asset.id_ == *asset_edit.removed_; });
-            if (asset_edit.removed_ && next.soundtrack_ &&
-                next.soundtrack_->asset_ == *asset_edit.removed_)
-                next.soundtrack_.reset();
-            if (asset_edit.added_ &&
-                std::none_of(next.assets_.begin(), next.assets_.end(), [&](const auto& asset) {
-                    return asset.id_ == asset_edit.added_->id_;
-                }))
-                next.assets_.push_back(*asset_edit.added_);
-            Apply(std::move(next));
+            if (asset_edit.added_) std::erase(unavailable_assets_, asset_edit.added_->id_);
+            editor::EditResult result = history_->Current();
+            if (asset_edit.replaced_ && asset_edit.added_)
+                result = editor::ReplaceAsset(history_->Current(), *asset_edit.replaced_,
+                                              *asset_edit.added_);
+            else if (asset_edit.removed_)
+                result = editor::RemoveUnusedAsset(history_->Current(), *asset_edit.removed_);
+            else if (asset_edit.added_) {
+                auto next = history_->Current();
+                if (std::none_of(next.assets_.begin(), next.assets_.end(), [&](const auto& asset) {
+                        return asset.id_ == asset_edit.added_->id_;
+                    }))
+                    next.assets_.push_back(*asset_edit.added_);
+                result = std::move(next);
+            }
+            if (std::holds_alternative<editor::Snapshot>(result)) {
+                Apply(std::get<editor::Snapshot>(std::move(result)));
+                if (asset_edit.replaced_) assets_.Report("asset.replaced", asset_edit.added_->id_);
+            } else {
+                const auto code = std::get<graph::Diagnostic>(result).code_;
+                status_ = Text(code);
+                assets_.Report(code, asset_edit.replaced_.value_or(assets::AssetId{}));
+            }
+        }
+        if (asset_edit.checked_) {
+            for (const auto& check : *asset_edit.checked_) {
+                std::erase(unavailable_assets_, check.asset_.id_);
+                if (check.health_ != assets::AssetHealth::kValid)
+                    unavailable_assets_.push_back(check.asset_.id_);
+            }
+        }
+        if (asset_edit.restored_) {
+            std::erase(unavailable_assets_, *asset_edit.restored_);
+            force_asset_reload_ = true;
+            QueueCompile();
         }
         ImGui::SameLine();
         if (ImGui::Button(Label("undo").c_str())) MoveHistory(false);
@@ -248,6 +272,12 @@ class Studio::Impl final {
             Apply(std::move(next));
         }
         if (!status_.empty()) ImGui::TextUnformatted(status_.c_str());
+        const auto& current_assets = history_->Current().assets_;
+        if (std::any_of(current_assets.begin(), current_assets.end(), [&](const auto& record) {
+                return std::find(unavailable_assets_.begin(), unavailable_assets_.end(),
+                                 record.id_) != unavailable_assets_.end();
+            }))
+            ImGui::TextWrapped("%s", Text("project.assets_need_repair").c_str());
         if (const auto canvas = DrawCanvasSettings(history_->Current().document_.canvas_,
                                                    catalogs_.at(locale_))) {
             CommitEdits();
@@ -336,6 +366,7 @@ class Studio::Impl final {
                         status_ = Text(std::get<graph::Diagnostic>(result).code_);
                 } else {
                     history_.emplace(completed->loaded_->snapshot_);
+                    unavailable_assets_ = completed->loaded_->unavailable_assets_;
                     diagnostics_ = completed->loaded_->warnings_;
                     SyncTitle();
                     canvas_.RestoreLayout();
@@ -390,7 +421,8 @@ class Studio::Impl final {
                                     records.begin(), records.end(),
                                     [&](const auto& record) { return record.id_ == id; });
                         });
-                if (listed && prepared_assets::Covers(next, *prepared_resources_)) {
+                if (listed && !force_asset_reload_ &&
+                    prepared_assets::Covers(next, *prepared_resources_)) {
                     plan_ = std::move(next);
                     preview_routing_.Commit();
                     diagnostics_.clear();
@@ -414,6 +446,7 @@ class Studio::Impl final {
                 plan_ = std::move(completed->plan_);
                 preview_routing_.Commit();
                 prepared_resources_ = std::move(completed->resources_);
+                force_asset_reload_ = false;
                 diagnostics_.clear();
                 status_.clear();
             } else {
@@ -435,7 +468,8 @@ class Studio::Impl final {
                                    instruction.operation_ == graph::Operation::kGpuParticleEmitter;
                         });
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
-        soundtrack_panel_.Sync(history_->Current(), project_ / "assets", audio_panel_);
+        soundtrack_panel_.Sync(history_->Current(), project_ / "assets", audio_panel_,
+                               unavailable_assets_);
 #endif
         audio_panel_.ApplyPlayback(timeline_.TakePlaybackCommand());
         const auto audio_frame = audio_panel_.Frame();
@@ -644,6 +678,8 @@ class Studio::Impl final {
     editor::CompilerWorker compiler_{};
     project::AsyncStore store_{};
     prepared_assets::Loader asset_loader_{};
+    bool force_asset_reload_ = false;
+    std::vector<assets::AssetId> unavailable_assets_{};
     std::shared_ptr<const prepared_assets::Resources> prepared_resources_ =
             std::make_shared<const prepared_assets::Resources>();
     AssetPanel assets_{};

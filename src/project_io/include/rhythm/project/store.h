@@ -20,9 +20,11 @@ enum class CommitStep {
 std::string EncodeGraph(const graph::Document& document);
 graph::Document DecodeGraph(std::string_view bytes);
 std::string Digest(std::string_view bytes);
+enum class AssetValidation { kStrict, kAllowRepair };
 struct LoadResult {
     editor::Snapshot snapshot_{};
     std::vector<graph::Diagnostic> warnings_{};
+    std::vector<assets::AssetId> unavailable_assets_{};
 };
 struct ContentEntry {
     std::string id_{};
@@ -36,7 +38,10 @@ struct ContentEntry {
 };
 std::vector<ContentEntry> ScanTemplates(const std::filesystem::path& root);
 LoadResult LoadRevision(const std::filesystem::path& directory);
-LoadResult Load(const std::filesystem::path& project);
+// Repair mode preserves authored records and reports unavailable content.
+// Structural/path validation remains strict; save/publish never use this mode.
+LoadResult Load(const std::filesystem::path& project,
+                AssetValidation validation = AssetValidation::kStrict);
 LoadResult PrepareTemplate(const std::filesystem::path& directory,
                            const std::filesystem::path& asset_directory);
 // Resolves immutable blobs on the calling worker; no source paths enter the package.

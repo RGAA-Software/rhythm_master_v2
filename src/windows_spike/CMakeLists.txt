@@ -82,6 +82,14 @@ add_custom_command(TARGET rhythm_master POST_BUILD COMMAND ${rhythm_deploy_comma
 add_custom_target(studio_deploy ALL COMMAND ${rhythm_deploy_command}
     DEPENDS rhythm_master studio_resources VERBATIM)
 if(BUILD_TESTING)
+    add_executable(asset_recovery_gpu_tests tests/asset_recovery_gpu_tests.cpp)
+    target_link_libraries(asset_recovery_gpu_tests PRIVATE studio_ui platform_sdl player_core project_io asset_store spike_imgui spike_bgfx)
+    rhythm_project_target(asset_recovery_gpu_tests)
+    add_dependencies(asset_recovery_gpu_tests studio_resources)
+    add_test(NAME asset_recovery_gpu COMMAND asset_recovery_gpu_tests "${CMAKE_CURRENT_BINARY_DIR}"
+        "${PROJECT_SOURCE_DIR}/src/media/tests/fixtures/alpha.png" "${PROJECT_BINARY_DIR}/asset-recovery-gpu")
+    set_tests_properties(asset_recovery_gpu PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE ENVIRONMENT_MODIFICATION
+        "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     add_executable(scene_compositor_gpu_tests tests/scene_compositor_gpu_tests.cpp)
     target_link_libraries(scene_compositor_gpu_tests PRIVATE platform_sdl scene_compositor_probe)
     rhythm_project_target(scene_compositor_gpu_tests)

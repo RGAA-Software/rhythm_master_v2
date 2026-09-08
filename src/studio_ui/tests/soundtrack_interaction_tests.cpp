@@ -46,6 +46,7 @@ int main(int argc, char* argv[]) {
         audio.SetLoop(true);
         audio.LoadFile(argv[1]);
         studio::SoundtrackPanel panel;
+        std::vector<assets::AssetId> unavailable;
         const auto assets = root / "work.rhythmproj" / "assets";
         const auto apply = [&](editor::Snapshot next) {
             Check(history.Apply(std::move(next), history.Current().document_.revision_),
@@ -53,7 +54,7 @@ int main(int argc, char* argv[]) {
         };
         const auto frame = [&](const char* activate = nullptr) {
             if (auto edit = panel.Take(history.Current(), false, audio)) apply(std::move(*edit));
-            panel.Sync(history.Current(), assets, audio);
+            panel.Sync(history.Current(), assets, audio, unavailable);
             ImGui::NewFrame();
             ImGui::SetNextWindowPos({0, 0});
             ImGui::SetNextWindowSize({1100, 900});
@@ -84,6 +85,17 @@ int main(int argc, char* argv[]) {
               "visible bind button retains playback settings");
         Check(bound.assets_.size() == 1 && audio.SelectedFile() != std::filesystem::path(argv[1]),
               "binding selects immutable project music");
+        unavailable = {bound.soundtrack_->asset_};
+        frame();
+        Check(!audio.SelectedFile() && !audio.Frame().playback_,
+              "unavailable soundtrack cannot autoplay");
+        frame("###music.load");
+        frame();
+        Check(!audio.SelectedFile() && !audio.Frame().playback_,
+              "load button cannot bypass unavailable content");
+        unavailable.clear();
+        frame();
+        Check(audio.SelectedFile().has_value(), "restored soundtrack can resume loading");
         audio.SetLoop(false);
         frame("###music.bind");
         frame();

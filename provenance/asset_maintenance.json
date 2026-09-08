@@ -1,0 +1,35 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "license": "MIT",
+    "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+    "source_files": [
+        {
+            "path": "Editor/Gui/Windows/AssetLib/AssetLibrary.RelinkFolder.cs",
+            "sha256": "cc4489edb8d1f28e9a2c9492f8d77fab242dcc8fd0cb80dda2e31a9ac54969ff"
+        },
+        {
+            "path": "Editor/Gui/Windows/Utilities/FileAssetsHelper.cs",
+            "sha256": "2283c1307edb5d5d231829b4f23aedf8ec0ccc975bc6f757e21daff00e3da166"
+        }
+    ],
+    "imported_files": [],
+    "usage": "Study explicit relink validation, missing-file status, usage lists, and updating active/default input usages. No C# source copied.",
+    "modifications": [
+        "Use immutable SHA-256 records rather than mutable linked-folder mounts or host paths in graphs.",
+        "Reuse first-party Store staging, hash verification, atomic replacement and the existing single bounded Importer worker.",
+        "Use pure value commands to rewrite typed root/component/soundtrack/clip references with undo; exact-content restore leaves graph identity unchanged."
+    ],
+    "target_modules": [
+        "asset_store",
+        "editor_application",
+        "studio_ui"
+    ],
+    "first_party_reuse": [
+        "src/assets/store.cpp",
+        "src/assets/importer.cpp",
+        "src/editor_application/soundtrack_command.cpp",
+        "src/studio_ui/asset_panel.cpp"
+    ],
+    "outbound_license": "Unselected; no third-party source relicensed."
+}

@@ -10,20 +10,51 @@ Importer::~Importer() {
 }
 bool Importer::Start(std::filesystem::path directory, std::filesystem::path source,
                      std::string media_type, std::uint64_t maximum_bytes) {
+    return StartTask([directory = std::move(directory), source = std::move(source),
+                      media_type = std::move(media_type), maximum_bytes](std::stop_token stop) {
+        ImportResult result;
+        result.asset_ = Store(directory).Import(source, media_type, maximum_bytes, stop);
+        return result;
+    });
+}
+bool Importer::StartInspect(std::filesystem::path directory, std::vector<AssetRecord> records) {
+    if (records.size() > 64) return false;
+    std::uint64_t total = 0;
+    for (const auto& record : records) {
+        if (record.bytes_ > 1024ULL * 1024 * 1024 - total) return false;
+        total += record.bytes_;
+    }
+    return StartTask(
+            [directory = std::move(directory), records = std::move(records)](std::stop_token stop) {
+                const Store store(directory);
+                ImportResult result;
+                for (const auto& record : records)
+                    result.checks_.push_back({record, store.Inspect(record, stop)});
+                return result;
+            });
+}
+bool Importer::StartRestore(std::filesystem::path directory, std::filesystem::path source,
+                            AssetRecord expected) {
+    return StartTask([directory = std::move(directory), source = std::move(source),
+                      expected = std::move(expected)](std::stop_token stop) {
+        Store(directory).Restore(source, expected, stop);
+        ImportResult result;
+        result.restored_ = expected;
+        return result;
+    });
+}
+bool Importer::StartTask(std::function<ImportResult(std::stop_token)> operation) {
     if (Busy()) return false;
     cancellation_ = std::stop_source{};
     auto task = std::make_shared<std::packaged_task<ImportResult()>>(
-            [directory = std::move(directory), source = std::move(source),
-             media_type = std::move(media_type), maximum_bytes,
-             cancellation = cancellation_.get_token()] {
-                ImportResult result;
+            [operation = std::move(operation), stop = cancellation_.get_token()] {
                 try {
-                    result.asset_ = Store(directory).Import(source, media_type, maximum_bytes,
-                                                            cancellation);
+                    return operation(stop);
                 } catch (const std::exception& error) {
+                    ImportResult result;
                     result.error_ = error.what();
+                    return result;
                 }
-                return result;
             });
     auto completion = task->get_future();
     if (executor_.TryPost([task] { (*task)(); }) != foundation::SubmitResult::kAccepted)
