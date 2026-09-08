@@ -4,6 +4,8 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "color_descriptors.h"
+#include "depth_descriptors.h"
 #include "point_descriptors.h"
 #include "rhythm/graph/components.h"
 #include "scene_descriptors.h"
@@ -315,6 +317,8 @@ Registry::Registry() {
                            {"trail_zoom_rate", 0.0, -0.5, 0.5},
                            {"trail_rotation_rate", 0.0, -180, 180}},
                           true});
+    AppendDepthDescriptors(operators_);
+    AppendColorDescriptors(operators_);
 }
 std::optional<OperatorDescriptor> Registry::Find(
         std::string_view type, std::span<const ComponentDefinition> components) const {

@@ -30,6 +30,18 @@ Mesh Renderer::CreateMesh(std::span<const MeshVertex> vertices,
 }
 bool Renderer::IsValid(MeshHandle handle) const { return backend_ && backend_->IsValid(handle); }
 bool Renderer::SupportsScenes() const { return backend_ && backend_->SupportsScenes(); }
+bool Renderer::SupportsSampleableDepth() const {
+    return backend_ && backend_->SupportsSampleableDepth();
+}
+Texture Renderer::CreateDepthTexture(Extent extent) {
+    if (!backend_) throw std::logic_error("render.no_backend");
+    return Texture(backend_, backend_->CreateDepth(extent));
+}
+void Renderer::SubmitSceneDepth(TextureHandle color, TextureHandle depth, const SceneDrawList& list,
+                                std::uint32_t clear) {
+    if (!backend_) throw std::logic_error("render.no_backend");
+    backend_->SubmitSceneDepth(color, depth, list, clear);
+}
 void Renderer::SubmitScene(TextureHandle target, const SceneDrawList& list, std::uint32_t clear) {
     if (!backend_) throw std::logic_error("render.moved_from");
     backend_->SubmitScene(target, list, clear);

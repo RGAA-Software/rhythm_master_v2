@@ -89,7 +89,8 @@ std::optional<Diagnostic> ValidateSceneBudget(
             case Operation::kSceneInstance:
             case Operation::kSceneTransform:
             case Operation::kSceneMerge:
-            case Operation::kSceneRender: {
+            case Operation::kSceneRender:
+            case Operation::kSceneCapture: {
                 const auto a = source(0);
                 if (!a) return fail();
                 count = *a;
@@ -111,7 +112,8 @@ std::optional<Diagnostic> ValidateSceneBudget(
                     count.lights_ += b->lights_;
                     count.draws_ += b->draws_;
                 }
-                if (instruction.operation_ == Operation::kSceneRender) {
+                if (instruction.operation_ == Operation::kSceneRender ||
+                    instruction.operation_ == Operation::kSceneCapture) {
                     draws += count.indices_;
                     count = {};
                 } else {

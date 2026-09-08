@@ -144,6 +144,11 @@ if(BUILD_TESTING)
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
             "${PROJECT_BINARY_DIR}/spectral-nebula-export")
         set_tests_properties(spectral_nebula_export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME spectral_foundry_export_gpu COMMAND export_gpu_tests
+            "${PROJECT_BINARY_DIR}/content/packages/spectral_foundry.rhythmpack"
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
+            "${PROJECT_BINARY_DIR}/spectral-foundry-export")
+        set_tests_properties(spectral_foundry_export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME export_gpu COMMAND export_gpu_tests
             "${PROJECT_BINARY_DIR}/content/packages/resonance_live.rhythmpack"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
@@ -197,12 +202,12 @@ if(BUILD_TESTING)
         set_tests_properties(harmonic_city_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME spectral_nebula_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
             --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/spectral_nebula.rhythmpack"
-            --expected-nodes 21 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --expected-nodes 24 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/spectral-nebula-music-captures")
         set_tests_properties(spectral_nebula_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME spectral_foundry_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
             --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/spectral_foundry.rhythmpack"
-            --expected-nodes 33 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --expected-nodes 39 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/spectral-foundry-music-captures")
         set_tests_properties(spectral_foundry_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME performance_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
@@ -249,6 +254,7 @@ if(BUILD_TESTING)
     target_include_directories(windows_effects_gpu_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/runtime")
     target_link_libraries(windows_effects_gpu_tests PRIVATE platform_sdl spike_bgfx graph_runtime player_core)
     rhythm_project_target(windows_effects_gpu_tests)
+    add_dependencies(windows_effects_gpu_tests runtime_builtin_content)
     add_test(NAME windows_effects_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-effects-gpu.py"
         --executable "$<TARGET_FILE:windows_effects_gpu_tests>" --output "${PROJECT_BINARY_DIR}/effects-captures")
     set_tests_properties(windows_effects_gpu PROPERTIES TIMEOUT 90 RUN_SERIAL TRUE)

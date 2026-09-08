@@ -87,16 +87,16 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
         for (const auto retired : lifetimes_.RetireAfter(index)) {
             auto& state = states_.at(plan.instructions_[retired].node_.id_);
             if (!state.target_.Handle().device_) continue;
-            targets_.Recycle(std::move(state.target_), state.extent_);
+            targets_.Recycle(std::move(state.target_), state.extent_, state.precision_);
             state.target_retired_ = true;
             state.output_.texture_ = {};
             result.outputs_[retired].texture_ = {};
             ++result.recycled_textures_;
         }
     };
-    const auto acquire = [&](render::Extent extent) {
-        return lifetimes_.Enabled() ? targets_.Acquire(extent, renderer)
-                                    : renderer.CreateTexture(extent);
+    const auto acquire = [&](render::Extent extent, render::TexturePrecision precision) {
+        return lifetimes_.Enabled() ? targets_.Acquire(extent, renderer, precision)
+                                    : renderer.CreateTexture(extent, {}, precision);
     };
     for (std::size_t index = 0; index < plan.instructions_.size(); ++index) {
         const auto& instruction = plan.instructions_[index];
@@ -120,9 +120,12 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                       static_cast<std::uint16_t>(std::max(1.0f, std::round(fitted.height_)))};
         }
         const auto operation = instruction.operation_;
-        if ((state.node_ && state.node_->type_ != node.type_) || state.extent_ != extent) {
+        const auto precision = detail::OutputPrecision(instruction, result.outputs_, renderer);
+        if ((state.node_ && state.node_->type_ != node.type_) || state.extent_ != extent ||
+            state.precision_ != precision) {
             state = {};
             state.extent_ = extent;
+            state.precision_ = precision;
         }
         const auto input = [&](std::size_t port) -> const NodeOutput& {
             return result.outputs_.at(instruction.inputs_.at(port).value());
@@ -183,14 +186,14 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                 }
                 case graph::Operation::kTextureVideo: {
                     if (!state.target_.Handle().device_)
-                        state.target_ = renderer.CreateTexture(extent);
+                        state.target_ = renderer.CreateTexture(extent, {}, precision);
                     renderer.Submit(state.target_.Handle(), videos_.Draw(node, extent), 0x00000000);
                     state.output_.texture_ = state.target_.Handle();
                     break;
                 }
                 case graph::Operation::kTextureImage: {
                     if (!state.target_.Handle().device_)
-                        state.target_ = renderer.CreateTexture(extent);
+                        state.target_ = renderer.CreateTexture(extent, {}, precision);
                     renderer.Submit(state.target_.Handle(),
                                     images_.Draw(node, extent, images, renderer), 0x00000000);
                     state.output_.texture_ = state.target_.Handle();
@@ -205,8 +208,8 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                     // inline previews and portrait/square profiles keep the same look.
                     const auto radius = static_cast<float>(std::clamp(value, 0.0, 32.0)) *
                                         std::min(extent.width_, extent.height_) / 720.0f;
-                    state.output_.texture_ =
-                            state.blur_->Draw(input(0).texture_, extent, radius, renderer);
+                    state.output_.texture_ = state.blur_->Draw(input(0).texture_, extent, radius,
+                                                               renderer, precision);
                     break;
                 }
                 case graph::Operation::kGeometryCube:
@@ -229,7 +232,7 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                             instruction, result.outputs_, frame, renderer);
                     break;
                 case graph::Operation::kGpuPointRender: {
-                    if (!state.target_.Handle().device_) state.target_ = acquire(extent);
+                    if (!state.target_.Handle().device_) state.target_ = acquire(extent, precision);
                     const auto opacity = instruction.inputs_[1] ? input(1).scalar_
                                                                 : graph::Scalar(node, "opacity", 1);
                     const render::GpuPointStyle style{
@@ -243,11 +246,26 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                     state.output_.scene_ =
                             detail::PointInstances(instruction, result.outputs_, frame.external_);
                     break;
+                case graph::Operation::kSceneCapture: {
+                    if (!input(0).scene_) throw std::invalid_argument("runtime.scene_input");
+                    if (!state.capture_) state.capture_ = std::make_unique<detail::SceneCapture>();
+                    const auto camera =
+                            instruction.inputs_[1] ? input(1).camera_.value() : scene::Camera{};
+                    state.output_.scene_image_ = state.capture_->Draw(*input(0).scene_, camera,
+                                                                      extent, precision, renderer);
+                    break;
+                }
+                case graph::Operation::kSceneColor:
+                    state.output_.texture_ = input(0).scene_image_.value().color_;
+                    break;
+                case graph::Operation::kSceneDepth:
+                    state.output_.depth_ = input(0).scene_image_.value().depth_;
+                    break;
                 case graph::Operation::kSceneRender: {
                     if (!input(0).scene_) throw std::invalid_argument("runtime.scene_input");
                     if (!state.scene_) state.scene_ = std::make_unique<detail::ScenePass>();
                     if (!state.target_.Handle().device_)
-                        state.target_ = renderer.CreateTexture(extent);
+                        state.target_ = renderer.CreateTexture(extent, {}, precision);
                     const auto camera =
                             instruction.inputs_[1] ? input(1).camera_.value() : scene::Camera{};
                     const auto scene_draw =
@@ -287,7 +305,7 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                 }
                 case graph::Operation::kPointRender: {
                     if (!input(0).points_) throw std::invalid_argument("runtime.points");
-                    if (!state.target_.Handle().device_) state.target_ = acquire(extent);
+                    if (!state.target_.Handle().device_) state.target_ = acquire(extent, precision);
                     auto sprite = white_.Handle();
                     if (instruction.inputs_[1])
                         sprite = input(1).texture_;
@@ -333,15 +351,15 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                     break;
                 case graph::Operation::kFeedback:
                     if (!state.target_.Handle().device_) {
-                        state.target_ = renderer.CreateTexture(extent);
-                        state.history_ = renderer.CreateTexture(extent);
+                        state.target_ = renderer.CreateTexture(extent, {}, precision);
+                        state.history_ = renderer.CreateTexture(extent, {}, precision);
                         renderer.Submit(state.target_.Handle(), list, 0x000000ff);
                         renderer.Submit(state.history_.Handle(), list, 0x000000ff);
                     }
                     state.output_.texture_ = state.history_.Handle();
                     break;
                 default:
-                    if (!state.target_.Handle().device_) state.target_ = acquire(extent);
+                    if (!state.target_.Handle().device_) state.target_ = acquire(extent, precision);
                     const auto clear = detail::DrawTexture(instruction, result.outputs_,
                                                            frame.external_, white_.Handle(), list);
                     renderer.Submit(state.target_.Handle(), list, clear);

@@ -22,24 +22,27 @@ def build_graph():
                  particle_capacity=65536, seed=181, emitter_radius=0.34,
                  emission_rate=10000, initial_fill=1, lifetime=7, particle_speed=0.005,
                  flow_frequency=17, flow_evolution=0.19, point_size=0.003,
-                 color_a=(0.06, 0.5, 1, 0.4), color_b=(0.35, 0.95, 1, 0.5))
-    mist = node("gpu.render", 1040, 0, dict(points=cloud, opacity=opacity))
+                 color_a=(0.015, 0.12, 1, 0.4), color_b=(0.04, 0.45, 1, 0.5))
+    mist = node("gpu.render", 1040, 0, dict(points=cloud, opacity=opacity), texture_precision=2)
     lace = node("texture.mapping", 1380, 0, dict(source=mist, rotation=rotation),
-                sectors=6, scale=1.05)
+                sectors=6, scale=1.05, texture_precision=0)
     embers = node("gpu.particles", 700, 650, dict(flow_strength=motion, emission=flux),
                   particle_capacity=32768, seed=891, emitter_radius=0.16,
                   emission_rate=4000, initial_fill=1, lifetime=5, particle_speed=0.026,
                   flow_frequency=29, flow_evolution=0.11, point_size=0.0028,
-                  color_a=(0.8, 0.13, 0.5, 0.25), color_b=(1, 0.7, 0.25, 0.6))
-    sparks = node("gpu.render", 1040, 650, dict(points=embers, opacity=opacity))
+                  color_a=(0.9, 0.015, 0.04, 0.25), color_b=(1, 0.24, 0.015, 0.6))
+    sparks = node("gpu.render", 1040, 650, dict(points=embers, opacity=opacity), texture_precision=2)
     turning = node("scalar.expression", 1380, 650, dict(time=time), expression="-time * 4")
-    spiral = node("texture.mapping", 1720, 650, dict(source=sparks, rotation=turning), sectors=9, scale=0.85)
-    merged = node("texture.composite", 2060, 0, dict(a=lace, b=spiral), composite_mode=1)
-    bloom = node("texture.blur", 2400, 300, dict(source=merged), blur_radius=9)
-    aura = node("texture.composite", 2740, 0, dict(a=merged, b=bloom), composite_mode=1, amount=0.65)
+    spiral = node("texture.mapping", 1720, 650, dict(source=sparks, rotation=turning), sectors=9, scale=0.85, texture_precision=0)
+    merged = node("texture.composite", 2060, 0, dict(a=lace, b=spiral), composite_mode=1, texture_precision=0)
+    energy = node("texture.color_adjust", 2400, 0, dict(source=merged), exposure=-1.5, texture_precision=0)
+    bloom = node("texture.blur", 2740, 300, dict(source=energy), blur_radius=9, texture_precision=0)
+    aura = node("texture.composite", 3080, 0, dict(a=energy, b=bloom), composite_mode=1, amount=0.65, texture_precision=0)
     background = node("texture.gradient", 2400, 650, color_a=(0.002, 0.005, 0.018, 1), color_b=(0.025, 0.002, 0.04, 1))
-    composed = node("texture.composite", 3080, 0, dict(a=background, b=aura), composite_mode=1)
-    final = node("output.texture", 3420, 0, dict(source=composed))
+    linear_background = node("texture.linearize", 2740, 650, dict(source=background))
+    composed = node("texture.composite", 3420, 0, dict(a=linear_background, b=aura), composite_mode=1, texture_precision=0)
+    display = node("texture.display", 3760, 0, dict(source=composed), exposure=-0.5)
+    final = node("output.texture", 4100, 0, dict(source=display))
     return graph, final
 
 def main():

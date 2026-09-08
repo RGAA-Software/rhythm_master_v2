@@ -180,6 +180,8 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
                                    descriptor->output_ == graph::ValueType::kSignal ||
                                    descriptor->output_ == graph::ValueType::kPoints ||
                                    descriptor->output_ == graph::ValueType::kGpuPoints ||
+                                   descriptor->output_ == graph::ValueType::kSceneImage ||
+                                   descriptor->output_ == graph::ValueType::kDepth ||
                                    descriptor->output_ == graph::ValueType::kGeometry ||
                                    descriptor->output_ == graph::ValueType::kMaterial ||
                                    descriptor->output_ == graph::ValueType::kScene);

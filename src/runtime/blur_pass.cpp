@@ -23,14 +23,27 @@ void Filter(render::Renderer& renderer, render::TextureHandle source, render::Te
 }
 }  // namespace
 render::TextureHandle BlurPass::Draw(render::TextureHandle source, render::Extent extent,
-                                     float radius, render::Renderer& renderer) {
+                                     float radius, render::Renderer& renderer,
+                                     render::TexturePrecision precision) {
     if (!std::isfinite(radius) || radius < 0 || radius > 256 || !extent.width_ || !extent.height_)
         throw std::invalid_argument("runtime.blur_parameters");
     if (radius == 0) {
         pyramid_.clear();
         horizontal_ = {};
-        output_ = {};
-        return source;
+        if (renderer.Precision(source) == precision) {
+            output_ = {};
+            return source;
+        }
+        if (extent != extent_ || precision != precision_ || !renderer.IsValid(output_.Handle())) {
+            output_ = {};
+            output_ = renderer.CreateTexture(extent, {}, precision);
+        }
+        extent_ = extent;
+        precision_ = precision;
+        levels_ = 0;
+        Filter(renderer, source, output_.Handle(), extent,
+               {render::TextureFilterKind::kGaussian, 0, 0});
+        return output_.Handle();
     }
     auto reduced = extent;
     auto step = radius;
@@ -40,7 +53,8 @@ render::TextureHandle BlurPass::Draw(render::TextureHandle source, render::Exten
         step *= 0.5f;
         ++levels;
     }
-    if (extent != extent_ || levels != levels_ || !renderer.IsValid(output_.Handle())) {
+    if (extent != extent_ || precision != precision_ || levels != levels_ ||
+        !renderer.IsValid(output_.Handle()) || !renderer.IsValid(horizontal_.Handle())) {
         // Replace intermediate sizes together; no source texture is owned here.
         pyramid_.clear();
         horizontal_ = {};
@@ -48,12 +62,13 @@ render::TextureHandle BlurPass::Draw(render::TextureHandle source, render::Exten
         auto size = extent;
         for (std::size_t index = 0; index < levels; ++index) {
             size = Half(size);
-            pyramid_.push_back(renderer.CreateTexture(size));
+            pyramid_.push_back(renderer.CreateTexture(size, {}, precision));
         }
-        horizontal_ = renderer.CreateTexture(reduced);
-        output_ = renderer.CreateTexture(extent);
+        horizontal_ = renderer.CreateTexture(reduced, {}, precision);
+        output_ = renderer.CreateTexture(extent, {}, precision);
         extent_ = extent;
         levels_ = levels;
+        precision_ = precision;
     }
     auto size = extent;
     for (auto& target : pyramid_) {

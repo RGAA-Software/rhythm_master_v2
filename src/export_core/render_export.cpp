@@ -70,7 +70,10 @@ void RenderExport(const project::RuntimePackage& package, const ExportSettings& 
         if (stop.stop_requested()) throw std::runtime_error("export.canceled");
         // The common runtime evaluates exactly once per output time. Frames
         // used only to advance GPU completion never advance simulation/audio.
-        if (rendered < settings.frames_ && pending.size() < 3) {
+        // Keep one GPU image in flight: the validated D3D11 float-target path can
+        // differ by one channel LSB when several readbacks overlap later frames.
+        // Encoding remains asynchronous with its independently bounded queue.
+        if (rendered < settings.frames_ && pending.empty()) {
             const auto seconds = static_cast<double>(rendered) / encoding.fps_;
             runtime::FrameContext context{seconds, 1, extent, false};
             context.resources_ = resources->models_;

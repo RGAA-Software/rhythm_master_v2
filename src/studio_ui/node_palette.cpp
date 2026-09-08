@@ -36,6 +36,10 @@ std::string_view Category(graph::Operation operation) {
         case kTransform:
         case kAffine:
         case kColorAdjust:
+        case kTextureLinearize:
+        case kTextureDisplay:
+        case kDepthLinearize:
+        case kDepthOfField:
         case kGaussianBlur:
         case kTextureMapping:
         case kTextureDisplace:
@@ -67,6 +71,9 @@ std::string_view Category(graph::Operation operation) {
         case kSceneMerge:
         case kSceneCamera:
         case kSceneRender:
+        case kSceneCapture:
+        case kSceneColor:
+        case kSceneDepth:
             return "palette.scene";
         case kMaterialUnlit:
         case kMaterialPbr:

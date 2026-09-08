@@ -1,5 +1,16 @@
 # Continuous implementation through Android Player
 
+## R2 float/color/depth delivery, 2026-09-08
+
+Explicit float precision, linear/SDR conversion, typed scene capture/depth and
+music-controlled DOF are implemented. D3D11 and USB GLES 3.1 pixel checks pass;
+Spectral Nebula and Foundry pass real PCM, deterministic MP4 and package checks.
+Windows deploy bundles and the 34-effect Android APK are updated; in-app selection
+and demo soundtrack playback verified after overlay installation. Float export
+uses one GPU readback in flight with asynchronous encoding; see the recorded
+limitation. R3 materials/lighting/shadows is next, followed by R4–R6.
+[Evidence and limits](validation/float_depth_2026-09-08.md).
+
 ## R1 GPU particle delivery, 2026-09-08
 
 Typed GPU buffers, compute emission/lifetime/flow, instanced point rendering,

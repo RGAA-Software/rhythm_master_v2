@@ -148,6 +148,44 @@ class BgfxBackend final : public Backend {
                               extent.height_,
                               bgfx::copy(pixels.data(), static_cast<std::uint32_t>(pixels.size())));
     }
+    bool SupportsSampleableDepth() const override {
+        resources_.CheckReady();
+        const auto& caps = *bgfx::getCaps();
+        return (caps.formats[bgfx::TextureFormat::D24S8] & BGFX_CAPS_FORMAT_TEXTURE_2D) != 0 &&
+               bgfx::isTextureValid(0, false, 1, bgfx::TextureFormat::D24S8, BGFX_TEXTURE_RT);
+    }
+    TextureHandle CreateDepth(Extent extent) override {
+        if (!SupportsSampleableDepth())
+            throw std::logic_error("render.sampleable_depth_unsupported");
+        const auto handle = resources_.AllocateDepth(extent);
+        try {
+            if (textures_.size() <= handle.slot_) textures_.resize(handle.slot_ + 1);
+            textures_[handle.slot_].texture_ = GpuHandle(bgfx::createTexture2D(
+                    extent.width_, extent.height_, false, 1, bgfx::TextureFormat::D24S8,
+                    BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP |
+                            BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT));
+            return handle;
+        } catch (...) {
+            resources_.Release(handle);
+            throw;
+        }
+    }
+    void SubmitSceneDepth(TextureHandle color, TextureHandle depth, const SceneDrawList& list,
+                          std::uint32_t clear) override {
+        resources_.ValidateSceneDepth(color, depth);
+        if (!in_frame_) throw std::logic_error("render.frame_not_open");
+        if (!scene_) scene_ = std::make_unique<BgfxScene>(resources_.DeviceId());
+        scene_->Validate(list);
+        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        const auto extent = resources_.Size(color);
+        const auto framebuffer =
+                scene_->Target(color, textures_[color.slot_].texture_.Get(), extent, depth,
+                               textures_[depth.slot_].texture_.Get());
+        resources_.DropDepth(color);
+        draws_ += scene_->Draw({static_cast<bgfx::ViewId>(passes_++), framebuffer, extent,
+                                invert_targets_, homogeneous_depth_},
+                               list, clear);
+    }
     void Release(TextureHandle handle) noexcept override {
         if (!resources_.Owns(handle)) return;
         if (scene_) scene_->ReleaseTarget(handle);
@@ -156,6 +194,9 @@ class BgfxBackend final : public Backend {
         resources_.Release(handle);
     }
     bool IsValid(TextureHandle handle) const override { return resources_.IsValid(handle); }
+    TexturePrecision Precision(TextureHandle handle) const override {
+        return resources_.Precision(handle);
+    }
     bool SupportsReadback() const override {
         resources_.CheckReady();
         return BgfxReadbacks::Supported();
@@ -218,7 +259,8 @@ class BgfxBackend final : public Backend {
         if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
         gpu_points_->Draw(static_cast<bgfx::ViewId>(passes_),
                           textures_.at(target.slot_).framebuffer_.Get(), resources_.Size(target),
-                          invert_targets_, handle, style);
+                          invert_targets_, handle, style,
+                          resources_.Precision(target) == TexturePrecision::kFloat16);
         ++passes_;
         ++draws_;
     }
@@ -347,7 +389,14 @@ class BgfxBackend final : public Backend {
                 case BlendMode::kSourceOver:
                     break;
                 case BlendMode::kAdd:
-                    blending = BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE);
+                    blending =
+                            IsValid(target) && resources_.Precision(target) ==
+                                                       TexturePrecision::kFloat16
+                                    ? BGFX_STATE_BLEND_FUNC_SEPARATE(
+                                              BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE,
+                                              BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_INV_SRC_ALPHA)
+                                    : BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE,
+                                                            BGFX_STATE_BLEND_ONE);
                     break;
                 case BlendMode::kAlphaMask:
                     blending = BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ZERO,
@@ -359,13 +408,15 @@ class BgfxBackend final : public Backend {
                     break;
             }
             bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | blending | BGFX_STATE_MSAA);
-            const auto map = command.texture_trail_      ? command.texture_trail_->history_
+            const auto map = command.depth_of_field_     ? command.depth_of_field_->depth_
+                             : command.texture_trail_    ? command.texture_trail_->history_
                              : command.texture_displace_ ? command.texture_displace_->map_
                                                          : command.texture_;
-            texture_programs_->Submit(view, command, resources_.Size(command.texture_),
-                                      list.width_ / list.height_,
-                                      textures_[command.texture_.slot_].texture_.Get(),
-                                      resources_.Size(map), textures_[map.slot_].texture_.Get());
+            texture_programs_->Submit(
+                    view, command, resources_.Size(command.texture_), list.width_ / list.height_,
+                    textures_[command.texture_.slot_].texture_.Get(), resources_.Size(map),
+                    textures_[map.slot_].texture_.Get(),
+                    IsValid(target) && resources_.Precision(target) == TexturePrecision::kFloat16);
             ++draws_;
         }
     }

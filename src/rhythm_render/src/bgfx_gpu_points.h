@@ -15,7 +15,7 @@ class BgfxGpuPoints final {
         store_.ValidateDraw(handle, style);
     }
     void Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Extent extent, bool invert,
-              GpuPointHandle handle, const GpuPointStyle& style);
+              GpuPointHandle handle, const GpuPointStyle& style, bool float_target);
     void AddStats(FrameStats& stats) const { store_.AddStats(stats); }
     void Invalidate() { store_.Invalidate(); }
 

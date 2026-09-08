@@ -74,7 +74,8 @@ void BgfxGpuPoints::Update(bgfx::ViewId view, GpuPointHandle handle, const GpuPa
     store_.Updated(handle);
 }
 void BgfxGpuPoints::Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Extent extent,
-                         bool invert, GpuPointHandle handle, const GpuPointStyle& style) {
+                         bool invert, GpuPointHandle handle, const GpuPointStyle& style,
+                         bool float_target) {
     store_.ValidateDraw(handle, style);
     bgfx::setViewName(view, "GPU point rendering");
     bgfx::setViewMode(view, bgfx::ViewMode::Sequential);
@@ -88,11 +89,16 @@ void BgfxGpuPoints::Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Exte
     bgfx::setVertexBuffer(0, quad_.Get());
     bgfx::setIndexBuffer(indices_.Get());
     bgfx::setInstanceDataBuffer(buffers_[handle.slot_].Get(), 0, store_.Capacity(handle));
-    bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A |
-                   (style.additive_
-                            ? BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE)
-                            : BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE,
-                                                    BGFX_STATE_BLEND_INV_SRC_ALPHA)));
+    bgfx::setState(
+            BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A |
+            (style.additive_
+                     ? (float_target
+                                ? BGFX_STATE_BLEND_FUNC_SEPARATE(
+                                          BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE,
+                                          BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_INV_SRC_ALPHA)
+                                : BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE))
+                     : BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE,
+                                             BGFX_STATE_BLEND_INV_SRC_ALPHA)));
     bgfx::submit(view, render_.Get());
 }
 }  // namespace rhythm::render::detail

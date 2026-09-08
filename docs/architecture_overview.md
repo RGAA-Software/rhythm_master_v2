@@ -12,6 +12,11 @@ GPU/platform probes, graph/runtime/render contracts and per-increment deliveries
 It preserves the architecture boundaries below; long-duration soak testing moves
 to final integrated acceptance while focused functional checks remain incremental.
 
+R2 adds explicit float precision and color-transfer nodes, plus a typed scene-image
+capture with separate color/depth extractors. Depth carries camera metadata;
+native attachment types stay private. [Color](color_pipeline.md) and
+[depth](depth_pipeline.md) contracts define SDR output and resource ownership.
+
 User priority update: transparent windows/backbuffers and related click-through
 behavior are tentative features deferred to the end of the overall roadmap.
 They do not block Phase A, current acceptance or ordinary-window backend adoption;

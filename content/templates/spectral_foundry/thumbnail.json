@@ -1,7 +1,7 @@
 {
     "template": "spectral_foundry",
-    "package_sha256": "e5176ded558bd936ef914d44af74c3cc2211b6faccc180f84618fffc4b7f747b",
-    "thumbnail_sha256": "0108781ad754986a730728744efbff8d4ca5963a03ee06ce02068a6f06a85d49",
+    "package_sha256": "1a41c69197c90a574af407c81acc19cd5457405103cf411e49062166be8d91e3",
+    "thumbnail_sha256": "d77050b07e2df2fb6f68a1148b8664285997664cd02f4e7b492f8ecf368e059a",
     "extent": [
         256,
         144

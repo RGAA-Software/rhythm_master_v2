@@ -41,6 +41,10 @@ bool OrdinaryTarget(graph::Operation operation) {
         case kColorAdjust:
         case kPointRender:
         case kGpuPointRender:
+        case kTextureLinearize:
+        case kTextureDisplay:
+        case kDepthLinearize:
+        case kDepthOfField:
         case kTextureNoise:
         case kTextureMapping:
         case kTextureContours:
@@ -124,16 +128,19 @@ void TextureLifetimes::Prepare(const graph::ExecutionPlan& plan,
         if (recyclable_[index]) retire_[last[index]].push_back(index);
     }
 }
-render::Texture TexturePool::Acquire(render::Extent extent, render::Renderer& renderer) {
-    const auto found = std::find_if(free_.begin(), free_.end(),
-                                    [&](const auto& entry) { return entry.extent_ == extent; });
-    if (found == free_.end()) return renderer.CreateTexture(extent);
+render::Texture TexturePool::Acquire(render::Extent extent, render::Renderer& renderer,
+                                     render::TexturePrecision precision) {
+    const auto found = std::find_if(free_.begin(), free_.end(), [&](const auto& entry) {
+        return entry.extent_ == extent && entry.precision_ == precision;
+    });
+    if (found == free_.end()) return renderer.CreateTexture(extent, {}, precision);
     auto texture = std::move(found->texture_);
     free_.erase(found);
     return texture;
 }
-void TexturePool::Recycle(render::Texture texture, render::Extent extent) {
-    if (texture.Handle().device_) free_.push_back({std::move(texture), extent, epoch_});
+void TexturePool::Recycle(render::Texture texture, render::Extent extent,
+                          render::TexturePrecision precision) {
+    if (texture.Handle().device_) free_.push_back({std::move(texture), extent, precision, epoch_});
 }
 void TexturePool::EndFrame() {
     std::erase_if(free_, [&](const auto& entry) { return entry.epoch_ != epoch_; });

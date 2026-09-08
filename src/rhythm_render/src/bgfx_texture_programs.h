@@ -9,9 +9,18 @@ class BgfxTexturePrograms final {
    public:
     BgfxTexturePrograms();
     void Submit(std::uint16_t view, const DrawCommand& command, Extent source_size, float aspect,
-                bgfx::TextureHandle source, Extent map_size, bgfx::TextureHandle map) const;
+                bgfx::TextureHandle source, Extent map_size, bgfx::TextureHandle map,
+                bool float_target) const;
 
    private:
+    GpuHandle<bgfx::ProgramHandle> depth_program_{};
+    GpuHandle<bgfx::UniformHandle> depth_settings_{};
+    GpuHandle<bgfx::ProgramHandle> dof_program_{};
+    GpuHandle<bgfx::UniformHandle> dof_settings_{};
+    GpuHandle<bgfx::UniformHandle> dof_domain_{};
+    GpuHandle<bgfx::ProgramHandle> pipeline_program_{};
+    GpuHandle<bgfx::UniformHandle> pipeline_settings_{};
+    GpuHandle<bgfx::UniformHandle> color_limits_{};
     GpuHandle<bgfx::ProgramHandle> trail_program_{};
     GpuHandle<bgfx::UniformHandle> trail_settings_{};
     GpuHandle<bgfx::ProgramHandle> displace_program_{};

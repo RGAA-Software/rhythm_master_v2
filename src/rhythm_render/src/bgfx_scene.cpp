@@ -52,25 +52,36 @@ void BgfxScene::Release(MeshHandle mesh) noexcept {
     meshes_.Release(mesh);
 }
 bgfx::FrameBufferHandle BgfxScene::Target(TextureHandle target, bgfx::TextureHandle color,
-                                          Extent extent) {
+                                          Extent extent, TextureHandle depth_observer,
+                                          bgfx::TextureHandle depth) {
     const auto found = targets_.find(target.slot_);
     if (found != targets_.end()) {
         if (found->second.observer_ != target) throw std::logic_error("render.stale_depth_target");
-        return found->second.framebuffer_.Get();
+        if (found->second.depth_observer_ == depth_observer)
+            return found->second.framebuffer_.Get();
+        targets_.erase(found);
     }
     constexpr auto flags = BGFX_TEXTURE_RT | BGFX_TEXTURE_RT_WRITE_ONLY;
     if (!bgfx::isTextureValid(0, false, 1, bgfx::TextureFormat::D24S8, flags))
         throw std::runtime_error("render.depth_format");
     DepthTarget entry;
     entry.observer_ = target;
-    entry.depth_ = GpuHandle(bgfx::createTexture2D(extent.width_, extent.height_, false, 1,
-                                                   bgfx::TextureFormat::D24S8, flags));
-    const std::array attachments{color, entry.depth_.Get()};
+    entry.depth_observer_ = depth_observer;
+    if (!bgfx::isValid(depth)) {
+        entry.depth_ = GpuHandle(bgfx::createTexture2D(extent.width_, extent.height_, false, 1,
+                                                       bgfx::TextureFormat::D24S8, flags));
+        depth = entry.depth_.Get();
+    }
+    const std::array attachments{color, depth};
     entry.framebuffer_ = GpuHandle(bgfx::createFrameBuffer(
             static_cast<std::uint8_t>(attachments.size()), attachments.data(), false));
     return targets_.emplace(target.slot_, std::move(entry)).first->second.framebuffer_.Get();
 }
-void BgfxScene::ReleaseTarget(TextureHandle target) noexcept { targets_.erase(target.slot_); }
+void BgfxScene::ReleaseTarget(TextureHandle target) noexcept {
+    std::erase_if(targets_, [&](const auto& entry) {
+        return entry.second.observer_ == target || entry.second.depth_observer_ == target;
+    });
+}
 std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std::uint32_t clear) {
     const auto view = context.view_;
     bgfx::setViewMode(view, bgfx::ViewMode::Sequential);

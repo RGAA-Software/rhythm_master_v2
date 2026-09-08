@@ -53,8 +53,9 @@ void Viewers::Capture(const FrameResult& frame, std::span<const graph::NodeId> n
         const auto source = std::find_if(frame.outputs_.begin(), frame.outputs_.end(),
                                          [&](const auto& item) { return item.node_ == node; });
         if (source == frame.outputs_.end() ||
-            (!renderer.IsValid(source->gpu_points_) && !source->points_ && !source->geometry_ &&
-             !source->scene_ && !source->material_ && !renderer.IsValid(source->texture_)))
+            (!source->scene_image_ && !source->depth_ && !renderer.IsValid(source->gpu_points_) &&
+             !source->points_ && !source->geometry_ && !source->scene_ && !source->material_ &&
+             !renderer.IsValid(source->texture_)))
             continue;
         if (count == textures_.size()) textures_.push_back(renderer.CreateTexture({256, 144}));
         auto& texture = textures_[count++];
@@ -63,6 +64,8 @@ void Viewers::Capture(const FrameResult& frame, std::span<const graph::NodeId> n
         draw.height_ = 144;
         const auto fit = render::AspectFit(frame.extent_, {0, 0, 256, 144});
         auto source_texture = source->texture_;
+        if (source->scene_image_) source_texture = source->scene_image_->color_;
+        if (source->depth_) source_texture = source->depth_->texture_;
         if (renderer.IsValid(source->gpu_points_) || source->geometry_ || source->scene_ ||
             source->material_) {
             if (!scenes_) scenes_ = std::make_unique<detail::ScenePreviews>();
@@ -106,6 +109,11 @@ void Viewers::Capture(const FrameResult& frame, std::span<const graph::NodeId> n
                               {fit.x_, fit.y_ + fit.height_, 0, 1}};
             draw.indices_ = {0, 1, 2, 0, 2, 3};
             draw.commands_ = {{source_texture, 0, 6, {0, 0, 256, 144}}};
+            if (source->depth_) {
+                auto projection = source->depth_->projection_;
+                projection.normalize_ = true;
+                draw.commands_[0].depth_linearization_ = projection;
+            }
         }
         renderer.Submit(texture.Handle(), draw, 0x000000ff);
         outputs_.push_back({node, 0, texture.Handle(), source->version_});

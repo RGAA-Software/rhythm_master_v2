@@ -32,6 +32,10 @@ Texture Renderer::CreateTexture(Extent extent, std::span<const std::uint8_t> rgb
     return Texture(backend_, backend_->Create(extent, rgba, precision));
 }
 bool Renderer::IsValid(TextureHandle handle) const { return backend_ && backend_->IsValid(handle); }
+TexturePrecision Renderer::Precision(TextureHandle handle) const {
+    if (!backend_) throw std::logic_error("render.moved_from");
+    return backend_->Precision(handle);
+}
 void Renderer::UpdateTexture(TextureHandle texture, std::span<const std::uint8_t> rgba) {
     if (!backend_) throw std::logic_error("render.moved_from");
     backend_->Update(texture, rgba);

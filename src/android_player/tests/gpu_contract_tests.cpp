@@ -347,6 +347,8 @@ int main(int argc, char* argv[]) {
             validation::VerifyGpuExecution(pixels);
             validation::VerifySceneInstances(renderer);
             validation::VerifyGpuParticles(renderer);
+            validation::VerifyColorPipeline(renderer);
+            validation::VerifySampleableDepth(renderer);
             return 0;
         }
 #ifdef RHYTHM_HAS_LOCAL_MEDIA

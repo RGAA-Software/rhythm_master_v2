@@ -18,11 +18,12 @@
     "author": "Rhythm Master",
     "license_status": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
     "compatible_players": [
-        "windows"
+        "windows",
+        "android"
     ],
     "external_assets": [],
     "descriptions": {
-        "zh-CN": "4096 根共享网格音柱由一张点阵生成，各列直接响应真实频段，三重铜色轨道环绕。双灯光、金属材质与柔光合成；静音回落，全部节点可编辑。",
-        "en-US": "4096 shared-mesh columns from one point grid respond to real frequency bands, surrounded by three copper orbits. Two lights, metallic shading and bloom; silence lowers the columns. Every node is editable."
+        "zh-CN": "4096 根共享网格音柱直接响应真实频段，三重铜色轨道环绕。双灯光、金属材质、浮点柔光与显式 SDR 映射；响度控制焦点，独立深度节点可预览，静音回落，全部节点可编辑。",
+        "en-US": "4096 shared-mesh columns respond to real bands inside three copper orbits. Two lights, metallic shading, floating-point bloom and explicit SDR mapping. Loudness controls focus; inspect captured depth, edit every node and watch silence lower the columns."
     }
 }

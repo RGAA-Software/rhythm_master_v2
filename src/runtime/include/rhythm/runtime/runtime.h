@@ -32,6 +32,16 @@ struct FrameContext {
     bool profile_nodes_ = false;
     bool operator==(const FrameContext&) const = default;
 };
+// Observers of a scene capture, with the exact projection used to write depth.
+// Runtime owns both attachments. Depth is data, never an ordinary color texture.
+struct DepthView {
+    render::TextureHandle texture_{};
+    render::DepthLinearization projection_{};
+};
+struct SceneImage {
+    render::TextureHandle color_{};
+    DepthView depth_{};
+};
 struct NodeOutput {
     graph::NodeId node_ = 0;
     double scalar_ = 0;
@@ -46,6 +56,8 @@ struct NodeOutput {
     std::optional<scene::Camera> camera_{};
     // Borrowed value handle; Runtime owns the mutable GPU state.
     render::GpuPointHandle gpu_points_{};
+    std::optional<SceneImage> scene_image_{};
+    std::optional<DepthView> depth_{};
 };
 // Optional host-thread CPU/submission measurements, not GPU timestamp timings.
 struct NodeProfile {

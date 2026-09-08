@@ -1,7 +1,7 @@
 {
     "template": "spectral_nebula",
-    "package_sha256": "0323b3e260982d4fd5c31362710e195f6c0fdbbe3bc1b7ee6924db98e7f23bdd",
-    "thumbnail_sha256": "797770ca220359fc834cd0f54d22c298de899d981e5321a593a3d66c25d2b084",
+    "package_sha256": "9edada6cde95dc1ab65ea9f04b3b1fb415161839657c139cf0adaa1da9464a92",
+    "thumbnail_sha256": "bebbcbedc1db65225847de6291b130a7cffa00e14f96a37f6b8d67ffab5929bf",
     "extent": [
         256,
         144

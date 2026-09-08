@@ -65,7 +65,14 @@ enum class Operation : std::uint8_t {
     kTimeEnvelope,
     kPointInstances,
     kGpuParticleEmitter,
-    kGpuPointRender
+    kGpuPointRender,
+    kTextureLinearize,
+    kTextureDisplay,
+    kSceneCapture,
+    kSceneColor,
+    kSceneDepth,
+    kDepthLinearize,
+    kDepthOfField
 };
 struct PortDescriptor {
     std::string key_{};

@@ -6,6 +6,7 @@
 #include <span>
 #include <vector>
 
+#include "rhythm/render/color_pipeline.h"
 #include "rhythm/render/gpu_points.h"
 #include "rhythm/render/scene.h"
 
@@ -116,6 +117,22 @@ struct TextureTrail {
     float scale_ = 1;
     float rotation_ = 0;
 };
+// Window depth is [0,1], increasing away from the camera. Distances are positive
+// view-space units; normalized output maps near/far to 0/1 for inspection.
+struct DepthLinearization {
+    float near_ = 0.05f;
+    float far_ = 1000;
+    bool orthographic_ = false;
+    bool normalize_ = false;
+};
+struct DepthOfField {
+    TextureHandle depth_{};
+    DepthLinearization projection_{};
+    float focus_ = 3;
+    float focus_scale_ = 4;
+    float radius_ = 12;
+    std::uint32_t samples_ = 32;
+};
 struct DrawCommand {
     TextureHandle texture_{};
     std::uint32_t first_index_ = 0;
@@ -129,6 +146,9 @@ struct DrawCommand {
     std::optional<TextureContours> texture_contours_{};
     std::optional<TextureDisplace> texture_displace_{};
     std::optional<TextureTrail> texture_trail_{};
+    std::optional<ColorPipeline> color_pipeline_{};
+    std::optional<DepthLinearization> depth_linearization_{};
+    std::optional<DepthOfField> depth_of_field_{};
 };
 
 // Owned frame data; third-party draw buffers never survive their boundary call.
@@ -237,6 +257,7 @@ class Renderer final {
     // and extent. Render targets cannot be overwritten through this operation.
     void UpdateTexture(TextureHandle texture, std::span<const std::uint8_t> rgba);
     [[nodiscard]] bool IsValid(TextureHandle handle) const;
+    TexturePrecision Precision(TextureHandle handle) const;
     Mesh CreateMesh(std::span<const MeshVertex> vertices, std::span<const std::uint32_t> indices);
     [[nodiscard]] bool IsValid(MeshHandle handle) const;
     [[nodiscard]] bool SupportsScenes() const;
@@ -257,6 +278,12 @@ class Renderer final {
     void Submit(TextureHandle target, const DrawList& list, std::uint32_t clear_rgba = 0);
     // Scene output requires an offscreen render target and clears its depth.
     void SubmitScene(TextureHandle target, const SceneDrawList& list, std::uint32_t clear_rgba = 0);
+    [[nodiscard]] bool SupportsSampleableDepth() const;
+    // Depth owns a sampleable attachment. Only scene rendering writes it; use a
+    // depth conversion command to inspect it. Ordinary color drawing is rejected.
+    Texture CreateDepthTexture(Extent extent);
+    void SubmitSceneDepth(TextureHandle color, TextureHandle depth, const SceneDrawList& list,
+                          std::uint32_t clear_rgba = 0);
     void EndFrame();
     [[nodiscard]] FrameStats Stats() const;
     // Host-thread loss notification at a completed-frame boundary. All observer

@@ -13,7 +13,16 @@ class Backend {
     virtual void Release(TextureHandle handle) noexcept = 0;
     virtual void Update(TextureHandle handle, std::span<const std::uint8_t> rgba) = 0;
     virtual bool IsValid(TextureHandle handle) const = 0;
+    virtual TexturePrecision Precision(TextureHandle handle) const = 0;
     virtual bool SupportsScenes() const { return false; }
+    virtual bool SupportsSampleableDepth() const { return false; }
+    virtual TextureHandle CreateDepth(Extent) {
+        throw std::logic_error("render.sampleable_depth_unsupported");
+    }
+    virtual void SubmitSceneDepth(TextureHandle, TextureHandle, const SceneDrawList&,
+                                  std::uint32_t) {
+        throw std::logic_error("render.sampleable_depth_unsupported");
+    }
     virtual bool SupportsGpuPoints() const { return false; }
     virtual GpuPointHandle CreateGpuPoints(std::uint32_t) {
         throw std::logic_error("render.gpu_points_unsupported");

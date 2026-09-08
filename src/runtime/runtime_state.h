@@ -5,6 +5,7 @@
 #include "image_pass.h"
 #include "point_ops.h"
 #include "point_physics.h"
+#include "scene_capture.h"
 #include "scene_pass.h"
 #include "texture_lifetimes.h"
 #include "trail_pass.h"
@@ -46,11 +47,13 @@ class Runtime::Impl final {
         render::Texture target_{};
         render::Texture history_{};
         render::Extent extent_{};
+        render::TexturePrecision precision_ = render::TexturePrecision::kUnorm8;
         bool target_retired_ = false;
         std::unique_ptr<detail::PointState> points_{};
         std::unique_ptr<detail::GpuParticlePass> gpu_particles_{};
         std::unique_ptr<detail::PointPhysics> physics_{};
         std::unique_ptr<detail::ScenePass> scene_{};
+        std::unique_ptr<detail::SceneCapture> capture_{};
         std::unique_ptr<detail::BlurPass> blur_{};
         std::unique_ptr<detail::TrailPass> trail_{};
     };

@@ -30,6 +30,10 @@ ImColor TypeColor(graph::ValueType type) {
             return {146, 157, 239};
         case graph::ValueType::kCamera:
             return {229, 206, 126};
+        case graph::ValueType::kSceneImage:
+            return {145, 205, 239};
+        case graph::ValueType::kDepth:
+            return {177, 189, 199};
     }
     return {170, 180, 195};
 }

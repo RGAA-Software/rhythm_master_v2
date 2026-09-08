@@ -1,0 +1,27 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "license": "MIT",
+    "license_file": "third_party/notices/tixl-effects/LICENSE.txt",
+    "files": [
+        {
+            "source_file": "Operators/Lib/Assets/shaders/img/post-fx/depth-to-linear.hlsl",
+            "imported_file": "third_party/sources/tixl-effects/depth-to-linear.hlsl",
+            "sha256": "360f163094f30ac0e0e16f4a9f1b0543f06756ed11d47e05b551362bd6d19277"
+        },
+        {
+            "source_file": "Operators/Lib/Assets/shaders/img/post-fx/dof.hlsl",
+            "imported_file": "third_party/sources/tixl-effects/dof.hlsl",
+            "sha256": "3fe00a3fa84f7ccf488ddbf9df618e8a694878f0a9bf3c16f39bf9b7ccb6579c"
+        }
+    ],
+    "modifications": [
+        "Adapt perspective window-depth reconstruction to fragment shader; add orthographic and normalized output.",
+        "Use canonical project camera and owned sampleable depth attachment, not TiXL host types.",
+        "Adapt TiXL golden-angle DOF gather to a bounded 1..64 sample fragment pass, raw camera depth, positive distances and premultiplied RGBA; preserve alpha instead of forcing opaque."
+    ],
+    "targets": [
+        "src/rhythm_render/shaders/depth_linear.sc",
+        "src/rhythm_render/shaders/depth_of_field.sc"
+    ]
+}

@@ -11,6 +11,9 @@ class ResourceTable final {
     ResourceTable();
     TextureHandle Allocate(Extent extent, std::span<const std::uint8_t> rgba,
                            TexturePrecision precision);
+    TextureHandle AllocateDepth(Extent extent);
+    bool IsDepth(TextureHandle handle) const;
+    void ValidateSceneDepth(TextureHandle color, TextureHandle depth) const;
     void Release(TextureHandle handle) noexcept;
     bool IsValid(TextureHandle handle) const;
     bool Owns(TextureHandle handle) const;
@@ -36,6 +39,7 @@ class ResourceTable final {
         bool live_ = false;
         bool render_target_ = false;
         bool depth_ = false;
+        bool depth_texture_ = false;
         bool sampled_ = false;
         TexturePrecision precision_ = TexturePrecision::kUnorm8;
     };

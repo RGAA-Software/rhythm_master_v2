@@ -7,7 +7,7 @@ bool SamePlan(const graph::ExecutionPlan& left, const graph::ExecutionPlan& righ
 
 // Host-thread schedule for the current plan. Static caches, history, aliasing
 // operators and explicitly observed outputs remain persistent. Only ordinary
-// dynamic RGBA8 targets may be recycled after their final synchronous consumer.
+// dynamic texture targets may be recycled after their final synchronous consumer.
 class TextureLifetimes final {
    public:
     void Prepare(const graph::ExecutionPlan& plan,
@@ -28,19 +28,22 @@ class TextureLifetimes final {
 };
 
 // Move-only Texture owners circulate between states and the free list. Exact
-// extents and RGBA8 precision are preserved. Unused free entries retire each
+// extents and chosen precision are preserved. Unused free entries retire each
 // evaluated frame, so a previous large scene cannot hold an idle high-water pool.
 class TexturePool final {
    public:
     void BeginFrame() { ++epoch_; }
-    render::Texture Acquire(render::Extent extent, render::Renderer& renderer);
-    void Recycle(render::Texture texture, render::Extent extent);
+    render::Texture Acquire(render::Extent extent, render::Renderer& renderer,
+                            render::TexturePrecision precision);
+    void Recycle(render::Texture texture, render::Extent extent,
+                 render::TexturePrecision precision);
     void EndFrame();
 
    private:
     struct Entry {
         render::Texture texture_{};
         render::Extent extent_{};
+        render::TexturePrecision precision_ = render::TexturePrecision::kUnorm8;
         std::uint64_t epoch_ = 0;
     };
     std::vector<Entry> free_{};

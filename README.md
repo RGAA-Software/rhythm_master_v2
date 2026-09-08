@@ -8,7 +8,9 @@ integrated acceptance. Android follows each supported shared-feature increment.
 R1 now includes hardware scene batches and typed GPU particles, editable Spectral
 Foundry/Nebula works, node previews, real music and MP4 checks on Windows, and
 Android built-in playback. [Evidence and limits](docs/validation/gpu_particles_2026-09-08.md).
-R2–R6 and visual/endurance acceptance continue.
+R2 float/color conversion, explicit sampled depth and music-driven DOF now pass
+Windows/USB Android checks; [R2 evidence](docs/validation/float_depth_2026-09-08.md).
+R3–R6 and visual/endurance acceptance continue.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

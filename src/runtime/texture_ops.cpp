@@ -1,6 +1,7 @@
 #include "texture_ops.h"
 
 #include <algorithm>
+#include <cmath>
 #include <stdexcept>
 
 #include "affine.h"
@@ -39,6 +40,51 @@ std::uint32_t DrawTexture(const graph::Instruction& instruction,
     const auto input = [&](std::size_t port) -> const NodeOutput& {
         return outputs[instruction.inputs_.at(port).value()];
     };
+    if (operation == graph::Operation::kDepthLinearize) {
+        const auto& depth = input(0).depth_.value();
+        AppendTextureQuad(list, depth.texture_, 0xffffffff, 0xffffffff);
+        auto projection = depth.projection_;
+        projection.normalize_ = graph::Scalar(node, "depth_normalize", 1) == 1;
+        list.commands_.back().depth_linearization_ = projection;
+        return 0;
+    }
+    if (operation == graph::Operation::kDepthOfField) {
+        const auto& depth = input(1).depth_.value();
+        AppendTextureQuad(list, input(0).texture_, 0xffffffff, 0xffffffff);
+        render::DepthOfField dof;
+        dof.depth_ = depth.texture_;
+        dof.projection_ = depth.projection_;
+        const auto control = [&](std::size_t port, std::string_view key, double fallback,
+                                 double minimum, double maximum) {
+            const auto value = instruction.inputs_[port] ? input(port).scalar_
+                                                         : graph::Scalar(node, key, fallback);
+            return float(std::isfinite(value) ? std::clamp(value, minimum, maximum) : fallback);
+        };
+        dof.focus_ = control(2, "focus_distance", 3, 0.001, 100000);
+        dof.focus_scale_ = control(3, "focus_scale", 4, 0, 1000);
+        dof.radius_ = float(graph::Scalar(node, "dof_radius", 12));
+        dof.samples_ = static_cast<std::uint32_t>(graph::Scalar(node, "dof_samples", 32));
+        list.commands_.back().depth_of_field_ = dof;
+        return 0;
+    }
+    if (operation == graph::Operation::kTextureLinearize ||
+        operation == graph::Operation::kTextureDisplay) {
+        AppendTextureQuad(list, input(0).texture_, 0xffffffff, 0xffffffff);
+        render::ColorPipeline color;
+        if (operation == graph::Operation::kTextureLinearize) {
+            color.input_ = render::ColorTransfer::kSrgb;
+        } else {
+            color.output_ = render::ColorTransfer::kSrgb;
+            color.tone_mapping_ = graph::Scalar(node, "tone_mapping", 1) == 1
+                                          ? render::ToneMapping::kReinhard
+                                          : render::ToneMapping::kNone;
+            const auto exposure =
+                    instruction.inputs_[1] ? input(1).scalar_ : graph::Scalar(node, "exposure", 0);
+            color.exposure_ = float(std::isfinite(exposure) ? std::clamp(exposure, -8.0, 8.0) : 0);
+        }
+        list.commands_.back().color_pipeline_ = color;
+        return 0;
+    }
     if (operation == graph::Operation::kTextureStack) {
         // Ordered layers share a single target/pass using the existing quad and
         // premultiplied blend path. No full-canvas texture per composition step.

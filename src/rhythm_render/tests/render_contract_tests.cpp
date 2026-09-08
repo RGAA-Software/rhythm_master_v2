@@ -68,9 +68,46 @@ int main() {
         {
             auto history = renderer.CreateTexture({16, 16}, {}, TexturePrecision::kFloat16);
             Check(renderer.Stats().texture_bytes_ == 16 * 16 * 8);
+            Check(renderer.Precision(history.Handle()) == TexturePrecision::kFloat16);
+            Reject([&] { second.Precision(history.Handle()); });
             const std::array<std::uint8_t, 4> pixel{255, 255, 255, 255};
             Reject([&] { renderer.CreateTexture({1, 1}, pixel, TexturePrecision::kFloat16); });
             Reject([&] { renderer.CreateTexture({1, 1}, {}, static_cast<TexturePrecision>(255)); });
+        }
+        {
+            Check(renderer.SupportsSampleableDepth());
+            auto color = renderer.CreateTexture({16, 16});
+            auto depth = renderer.CreateDepthTexture({16, 16});
+            auto wrong_size = renderer.CreateDepthTexture({8, 16});
+            auto foreign = second.CreateDepthTexture({16, 16});
+            Reject([&] { renderer.Precision(depth.Handle()); });
+            renderer.BeginFrame();
+            Reject([&] { renderer.SubmitSceneDepth(color.Handle(), foreign.Handle(), {}); });
+            Reject([&] { renderer.SubmitSceneDepth(color.Handle(), wrong_size.Handle(), {}); });
+            Reject([&] { renderer.SubmitSceneDepth(depth.Handle(), color.Handle(), {}); });
+            const auto bytes = renderer.Stats().texture_bytes_;
+            renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), {});
+            Check(renderer.Stats().texture_bytes_ == bytes);
+            renderer.SubmitScene(color.Handle(), {});
+            Check(renderer.Stats().texture_bytes_ == bytes + 16 * 16 * 4);
+            renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), {});
+            Check(renderer.Stats().texture_bytes_ == bytes);
+            DrawList draw;
+            draw.width_ = draw.height_ = 16;
+            draw.vertices_ = {{0, 0}, {16, 0}, {0, 16}};
+            draw.indices_ = {0, 1, 2};
+            draw.commands_ = {{depth.Handle(), 0, 3, {0, 0, 16, 16}}};
+            Reject([&] { renderer.Submit(color.Handle(), draw); });
+            draw.commands_[0].depth_linearization_ = DepthLinearization{};
+            renderer.Submit(color.Handle(), draw);
+            Reject([&] { renderer.Submit(depth.Handle(), draw); });
+            draw.commands_[0].depth_linearization_->far_ = 0;
+            Reject([&] { renderer.Submit(color.Handle(), draw); });
+            const auto stale = depth.Handle();
+            depth = {};
+            Check(!renderer.IsValid(stale));
+            Reject([&] { renderer.SubmitSceneDepth(color.Handle(), stale, {}); });
+            renderer.EndFrame();
         }
         const auto initial_frame = renderer.Stats().frame_;
         Check(renderer.Stats().texture_bytes_ == 0);

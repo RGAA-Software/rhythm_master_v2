@@ -5,6 +5,11 @@
 
 ## 1. 状态与决策规则
 
+R2 的 RGBA16F、sRGB/线性转换、可采样 D24S8 与景深已通过 D3D11 和 USB
+Adreno 650/GLES 3.1 的实际像素检查。色彩适配参考已安装 vcpkg GLM 的 MIT 分支，
+Reinhard 和景深参考本地 TiXL MIT 源码；未新增解码器、Qt 或渲染后端。
+范围与限制见 [颜色流程](color_pipeline.md) 和 [深度流程](depth_pipeline.md)。
+
 R1 实例批处理及 1 千/1 万实例像素检查已通过 D3D11 与 Adreno 650/GLES 3.1；
 [首批交付](validation/scene_instances_2026-09-08.md) 未引入新依赖。
 GPU 粒子也已通过两端 compute 更新/绘制与实际作品检查，复用 TiXL MIT 粒子代码；

@@ -20,6 +20,9 @@ class NullBackend final : public Backend {
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
     }
     bool IsValid(TextureHandle handle) const override { return resources_.IsValid(handle); }
+    TexturePrecision Precision(TextureHandle handle) const override {
+        return resources_.Precision(handle);
+    }
     bool SupportsScenes() const override {
         resources_.CheckReady();
         return true;
@@ -27,6 +30,21 @@ class NullBackend final : public Backend {
     bool SupportsGpuPoints() const override {
         resources_.CheckReady();
         return true;  // Contract-only backend, no claim of GPU execution.
+    }
+    bool SupportsSampleableDepth() const override {
+        resources_.CheckReady();
+        return true;  // Contract-only backend.
+    }
+    TextureHandle CreateDepth(Extent extent) override { return resources_.AllocateDepth(extent); }
+    void SubmitSceneDepth(TextureHandle color, TextureHandle depth, const SceneDrawList& list,
+                          std::uint32_t) override {
+        resources_.ValidateSceneDepth(color, depth);
+        if (!in_frame_) throw std::logic_error("render.frame_not_open");
+        meshes_.Validate(list);
+        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        resources_.DropDepth(color);
+        ++passes_;
+        draws_ += static_cast<std::uint32_t>(list.draws_.size());
     }
     GpuPointHandle CreateGpuPoints(std::uint32_t capacity) override {
         resources_.CheckReady();

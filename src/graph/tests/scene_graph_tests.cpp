@@ -22,6 +22,23 @@ void Run() {
     document.output_ = 7;
     Require(std::holds_alternative<ExecutionPlan>(Compile(document, registry)),
             "typed scene compiles");
+    {
+        auto captured = document;
+        captured.nodes_[5] = registry.MakeNode(6, "scene.capture");
+        captured.nodes_.push_back(registry.MakeNode(8, "scene.color"));
+        captured.nodes_.push_back(registry.MakeNode(9, "scene.depth"));
+        captured.nodes_.push_back(registry.MakeNode(10, "texture.dof"));
+        captured.edges_.back().from_ = 10;
+        captured.edges_.insert(captured.edges_.end(), {{7, 6, 8, "capture"},
+                                                       {8, 6, 9, "capture"},
+                                                       {9, 8, 10, "source"},
+                                                       {10, 9, 10, "depth"}});
+        Require(std::holds_alternative<ExecutionPlan>(Compile(captured, registry)),
+                "explicit capture color/depth feed depth of field");
+        captured.edges_.back().from_ = 8;
+        Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(captured, registry)),
+                "ordinary color cannot masquerade as depth");
+    }
     auto bad = document;
     bad.edges_[1].from_ = 1;
     Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(bad, registry)),

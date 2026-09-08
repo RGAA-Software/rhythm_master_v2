@@ -1,6 +1,6 @@
 schema_version: 4
 id: "official-spectral-foundry"
-output: 33
+output: 40
 canvas { width: 1280 height: 720 }
 nodes { id: 1 type_key: "core.time" schema_version: 1
 }
@@ -112,23 +112,50 @@ nodes { id: 27 type_key: "scene.camera" schema_version: 1
     properties { key: "eye_z" value { scalar: 20 } }
     properties { key: "target_y" value { scalar: 0.7 } }
     properties { key: "field_of_view" value { scalar: 43 } }
+    properties { key: "near_plane" value { scalar: 1 } }
+    properties { key: "far_plane" value { scalar: 75 } }
 }
-nodes { id: 28 type_key: "scene.render" schema_version: 1
+nodes { id: 28 type_key: "scene.capture" schema_version: 1
 }
-nodes { id: 29 type_key: "texture.gradient" schema_version: 1
+nodes { id: 29 type_key: "scene.color" schema_version: 1
+}
+nodes { id: 30 type_key: "scene.depth" schema_version: 1
+}
+nodes { id: 31 type_key: "depth.linearize" schema_version: 1
+}
+nodes { id: 32 type_key: "scalar.map" schema_version: 1
+    properties { key: "input_max" value { scalar: 0.3 } }
+    properties { key: "output_min" value { scalar: 30 } }
+    properties { key: "output_max" value { scalar: 39 } }
+}
+nodes { id: 33 type_key: "texture.dof" schema_version: 1
+    properties { key: "focus_scale" value { scalar: 60 } }
+    properties { key: "dof_radius" value { scalar: 8 } }
+    properties { key: "dof_samples" value { scalar: 32 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 34 type_key: "texture.gradient" schema_version: 1
     properties { key: "color_a" value { color { r: 0.002 g: 0.006 b: 0.018 a: 1 } } }
     properties { key: "color_b" value { color { r: 0.018 g: 0.004 b: 0.028 a: 1 } } }
 }
-nodes { id: 30 type_key: "texture.composite" schema_version: 1
+nodes { id: 35 type_key: "texture.linearize" schema_version: 1
 }
-nodes { id: 31 type_key: "texture.blur" schema_version: 1
+nodes { id: 36 type_key: "texture.composite" schema_version: 1
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 37 type_key: "texture.blur" schema_version: 1
     properties { key: "blur_radius" value { scalar: 9 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 32 type_key: "texture.composite" schema_version: 1
+nodes { id: 38 type_key: "texture.composite" schema_version: 1
     properties { key: "composite_mode" value { scalar: 1 } }
     properties { key: "amount" value { scalar: 0.4 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 33 type_key: "output.texture" schema_version: 1
+nodes { id: 39 type_key: "texture.display" schema_version: 1
+    properties { key: "exposure" value { scalar: 0.5 } }
+}
+nodes { id: 40 type_key: "output.texture" schema_version: 1
 }
 edges { id: 1 from: 1 to: 2 input: "time" }
 edges { id: 2 from: 3 to: 4 input: "value" }
@@ -160,9 +187,18 @@ edges { id: 27 from: 25 to: 26 input: "a" }
 edges { id: 28 from: 24 to: 26 input: "b" }
 edges { id: 29 from: 26 to: 28 input: "scene" }
 edges { id: 30 from: 27 to: 28 input: "camera" }
-edges { id: 31 from: 29 to: 30 input: "a" }
-edges { id: 32 from: 28 to: 30 input: "b" }
-edges { id: 33 from: 28 to: 31 input: "source" }
-edges { id: 34 from: 30 to: 32 input: "a" }
-edges { id: 35 from: 31 to: 32 input: "b" }
-edges { id: 36 from: 32 to: 33 input: "source" }
+edges { id: 31 from: 28 to: 29 input: "capture" }
+edges { id: 32 from: 28 to: 30 input: "capture" }
+edges { id: 33 from: 30 to: 31 input: "depth" }
+edges { id: 34 from: 3 to: 32 input: "value" }
+edges { id: 35 from: 29 to: 33 input: "source" }
+edges { id: 36 from: 30 to: 33 input: "depth" }
+edges { id: 37 from: 32 to: 33 input: "focus_distance" }
+edges { id: 38 from: 34 to: 35 input: "source" }
+edges { id: 39 from: 35 to: 36 input: "a" }
+edges { id: 40 from: 33 to: 36 input: "b" }
+edges { id: 41 from: 33 to: 37 input: "source" }
+edges { id: 42 from: 36 to: 38 input: "a" }
+edges { id: 43 from: 37 to: 38 input: "b" }
+edges { id: 44 from: 38 to: 39 input: "source" }
+edges { id: 45 from: 39 to: 40 input: "source" }

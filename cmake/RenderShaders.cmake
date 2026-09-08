@@ -109,6 +109,8 @@ if(BUILD_TESTING)
             "${RHYTHM_SHADERC}" ${render_shader_includes}
         VERBATIM)
     add_library(gpu_execution_probe STATIC
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/color_pipeline_gpu.cpp"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/depth_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_particles_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/scene_instances_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_execution_probe.cpp" "${probe_shader_header}")
@@ -134,3 +136,30 @@ add_custom_command(OUTPUT "${gpu_point_shader_header}"
     VERBATIM)
 target_sources(render_bgfx PRIVATE "${gpu_point_shader_header}"
     "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_gpu_points.cpp")
+
+set(color_pipeline_shader_header "${PROJECT_BINARY_DIR}/generated/render/color_pipeline_shader.h")
+add_custom_command(OUTPUT "${color_pipeline_shader_header}"
+    COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        --compiler "${RHYTHM_SHADERC}" --output "${color_pipeline_shader_header}"
+        --platform "${render_shader_platform}" --group color_pipeline
+    DEPENDS "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        "${PROJECT_SOURCE_DIR}/tools/compile-shader.py"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/color_pipeline.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/varying.def.sc"
+        "${RHYTHM_SHADERC}" ${render_shader_includes}
+    VERBATIM)
+target_sources(render_bgfx PRIVATE "${color_pipeline_shader_header}")
+
+set(depth_shader_header "${PROJECT_BINARY_DIR}/generated/render/depth_shader.h")
+add_custom_command(OUTPUT "${depth_shader_header}"
+    COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        --compiler "${RHYTHM_SHADERC}" --output "${depth_shader_header}"
+        --platform "${render_shader_platform}" --group depth
+    DEPENDS "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        "${PROJECT_SOURCE_DIR}/tools/compile-shader.py"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/depth_linear.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/depth_of_field.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/varying.def.sc"
+        "${RHYTHM_SHADERC}" ${render_shader_includes}
+    VERBATIM)
+target_sources(render_bgfx PRIVATE "${depth_shader_header}")

@@ -45,12 +45,27 @@ TextureHandle ResourceTable::Allocate(Extent extent, std::span<const std::uint8_
     slot->live_ = true;
     slot->render_target_ = rgba.empty();
     slot->depth_ = false;
+    slot->depth_texture_ = false;
     slot->sampled_ = false;
     bytes_ += bytes;
     ++live_;
     return {device_, static_cast<std::uint32_t>(slot - slots_.begin()), slot->generation_};
 }
 
+TextureHandle ResourceTable::AllocateDepth(Extent extent) {
+    const auto handle = Allocate(extent, {}, TexturePrecision::kUnorm8);
+    slots_[handle.slot_].depth_texture_ = true;
+    slots_[handle.slot_].render_target_ = false;
+    return handle;
+}
+bool ResourceTable::IsDepth(TextureHandle handle) const {
+    return IsValid(handle) && slots_[handle.slot_].depth_texture_;
+}
+void ResourceTable::ValidateSceneDepth(TextureHandle color, TextureHandle depth) const {
+    CheckReady();
+    if (!IsRenderTarget(color) || !IsDepth(depth) || Size(color) != Size(depth))
+        throw std::invalid_argument("render.scene_depth_target");
+}
 bool ResourceTable::IsValid(TextureHandle handle) const { return Owns(handle) && !lost_; }
 bool ResourceTable::Owns(TextureHandle handle) const {
     CheckThread();
@@ -78,12 +93,14 @@ bool ResourceTable::IsRenderTarget(TextureHandle handle) const {
 }
 TexturePrecision ResourceTable::Precision(TextureHandle handle) const {
     if (!IsValid(handle)) throw std::invalid_argument("render.stale_texture");
+    if (IsDepth(handle)) throw std::invalid_argument("render.depth_not_color");
     return slots_[handle.slot_].precision_;
 }
 void ResourceTable::ValidateUpload(TextureHandle handle, std::span<const std::uint8_t> rgba) const {
     CheckReady();
     const auto extent = Size(handle);
-    if (IsRenderTarget(handle) || rgba.size() != std::size_t(extent.width_) * extent.height_ * 4)
+    if (IsRenderTarget(handle) || IsDepth(handle) ||
+        rgba.size() != std::size_t(extent.width_) * extent.height_ * 4)
         throw std::invalid_argument("render.texture_upload");
     if (slots_[handle.slot_].sampled_) throw std::logic_error("render.upload_after_sample");
 }
@@ -99,6 +116,7 @@ void ResourceTable::RecordSamples(const DrawList& list) {
         sample(command.texture_);
         if (command.texture_displace_) sample(command.texture_displace_->map_);
         if (command.texture_trail_) sample(command.texture_trail_->history_);
+        if (command.depth_of_field_) sample(command.depth_of_field_->depth_);
     }
 }
 bool ResourceTable::ReserveDepth(TextureHandle handle) {
@@ -123,6 +141,7 @@ void ResourceTable::DropDepth(TextureHandle handle) noexcept {
 void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
     CheckReady();
     if (target != TextureHandle{} && !IsValid(target)) throw std::invalid_argument("render.target");
+    if (IsDepth(target)) throw std::invalid_argument("render.depth_not_color");
     if (!std::isfinite(list.width_) || !std::isfinite(list.height_) || list.width_ <= 0 ||
         list.height_ <= 0 || list.width_ > 65535 || list.height_ > 65535 ||
         list.vertices_.size() > 1000000 || list.indices_.size() > 3000000 ||
@@ -138,27 +157,52 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
         if (index >= list.vertices_.size()) throw std::invalid_argument("render.index");
     }
     for (const auto& command : list.commands_) {
-        const auto effects = int(command.texture_noise_.has_value()) +
-                             int(command.texture_filter_.has_value()) +
-                             int(command.color_adjustment_.has_value()) +
-                             int(command.texture_mapping_.has_value()) +
-                             int(command.texture_contours_.has_value()) +
-                             int(command.texture_displace_.has_value()) +
-                             int(command.texture_trail_.has_value());
+        const auto effects =
+                int(command.texture_noise_.has_value()) + int(command.texture_filter_.has_value()) +
+                int(command.color_adjustment_.has_value()) +
+                int(command.texture_mapping_.has_value()) +
+                int(command.texture_contours_.has_value()) +
+                int(command.texture_displace_.has_value()) +
+                int(command.texture_trail_.has_value()) + int(command.color_pipeline_.has_value()) +
+                int(command.depth_linearization_.has_value()) +
+                int(command.depth_of_field_.has_value());
         if (effects > 1) throw std::invalid_argument("render.effect_conflict");
         const auto bounded = [](float value, float minimum, float maximum) {
             return std::isfinite(value) && value >= minimum && value <= maximum;
         };
+        if (IsDepth(command.texture_) != command.depth_linearization_.has_value())
+            throw std::invalid_argument("render.depth_sampling");
+        const auto validate_projection = [&](const DepthLinearization& depth) {
+            if (!bounded(depth.near_, 0.001f, 10000) || !bounded(depth.far_, depth.near_, 100000) ||
+                depth.far_ <= depth.near_)
+                throw std::invalid_argument("render.depth_projection");
+        };
+        if (command.depth_linearization_) validate_projection(*command.depth_linearization_);
+        if (command.depth_of_field_) {
+            const auto& dof = *command.depth_of_field_;
+            validate_projection(dof.projection_);
+            if (!IsDepth(dof.depth_) || dof.depth_ == target || !IsValid(command.texture_) ||
+                Size(dof.depth_) != Size(command.texture_) ||
+                !bounded(dof.focus_, 0.001f, 100000) || !bounded(dof.focus_scale_, 0, 1000) ||
+                !bounded(dof.radius_, 0, 32) || dof.samples_ < 1 || dof.samples_ > 64)
+                throw std::invalid_argument("render.depth_of_field");
+        }
+        if (command.color_pipeline_) {
+            const auto& color = *command.color_pipeline_;
+            if (color.input_ > ColorTransfer::kSrgb || color.output_ > ColorTransfer::kSrgb ||
+                color.tone_mapping_ > ToneMapping::kReinhard || !bounded(color.exposure_, -8, 8))
+                throw std::invalid_argument("render.color_pipeline");
+        }
         if (command.texture_trail_) {
             const auto& trail = *command.texture_trail_;
-            if (!IsValid(trail.history_) || trail.history_ == target ||
+            if (!IsValid(trail.history_) || IsDepth(trail.history_) || trail.history_ == target ||
                 !bounded(trail.retention_, 0, 1) || !bounded(trail.scale_, 0.5f, 2) ||
                 !bounded(trail.rotation_, -180, 180))
                 throw std::invalid_argument("render.texture_trail");
         }
         if (command.texture_displace_) {
             const auto& displace = *command.texture_displace_;
-            if (!IsValid(displace.map_) || displace.map_ == target ||
+            if (!IsValid(displace.map_) || IsDepth(displace.map_) || displace.map_ == target ||
                 displace.kind_ > TextureDisplaceKind::kVectorRg ||
                 !bounded(displace.strength_, -1, 1) || !bounded(displace.radius_, 1, 32) ||
                 !bounded(displace.rotation_, -36000, 36000))

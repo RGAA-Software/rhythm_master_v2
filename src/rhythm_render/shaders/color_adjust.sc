@@ -4,6 +4,7 @@ $input v_color0, v_texcoord0
 
 SAMPLER2D(s_tex, 0);
 uniform vec4 u_color_adjust;
+uniform vec4 u_color_limits;
 
 void main()
 {
@@ -13,5 +14,5 @@ void main()
     rgb = mix(vec3(luminance, luminance, luminance), rgb, u_color_adjust.z);
     rgb = ((rgb - 0.5) * u_color_adjust.y + 0.5) * u_color_adjust.x;
     rgb = mix(rgb, vec3(1.0, 1.0, 1.0) - rgb, u_color_adjust.w);
-    gl_FragColor = vec4(clamp(rgb, 0.0, 1.0) * pixel.a, pixel.a);
+    gl_FragColor = vec4(clamp(rgb, 0.0, u_color_limits.x) * pixel.a, pixel.a);
 }

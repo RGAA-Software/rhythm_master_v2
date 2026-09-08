@@ -23,7 +23,9 @@ class BgfxScene final {
     void Release(MeshHandle mesh) noexcept;
     bool IsValid(MeshHandle mesh) const { return meshes_.IsValid(mesh); }
     void Validate(const SceneDrawList& list) const { meshes_.Validate(list); }
-    bgfx::FrameBufferHandle Target(TextureHandle target, bgfx::TextureHandle color, Extent extent);
+    bgfx::FrameBufferHandle Target(TextureHandle target, bgfx::TextureHandle color, Extent extent,
+                                   TextureHandle depth_observer = {},
+                                   bgfx::TextureHandle depth = BGFX_INVALID_HANDLE);
     void ReleaseTarget(TextureHandle target) noexcept;
     std::uint32_t Draw(SceneView view, const SceneDrawList& list, std::uint32_t clear);
     void AddStats(FrameStats& stats) const { meshes_.AddStats(stats); }
@@ -36,6 +38,7 @@ class BgfxScene final {
     };
     struct DepthTarget {
         TextureHandle observer_{};
+        TextureHandle depth_observer_{};
         GpuHandle<bgfx::TextureHandle> depth_{};
         GpuHandle<bgfx::FrameBufferHandle> framebuffer_{};
     };
