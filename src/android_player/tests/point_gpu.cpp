@@ -1,5 +1,6 @@
 #include <GLES3/gl3.h>
 
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include <stdexcept>
@@ -9,6 +10,23 @@
 #include "scene_graph_fixture.h"
 
 namespace rhythm::validation {
+namespace {
+std::array<std::uint8_t, 16 * 16 * 4> CaptureScene(render::Renderer& renderer,
+                                                   render::Readback ticket) {
+    for (int wait = 0; wait < 16; ++wait) {
+        if (auto image = ticket.Poll()) {
+            std::array<std::uint8_t, 16 * 16 * 4> pixels{};
+            if (image->rgba_.size() != pixels.size())
+                throw std::runtime_error("probe.scene_readback_size");
+            std::copy(image->rgba_.begin(), image->rgba_.end(), pixels.begin());
+            return pixels;
+        }
+        renderer.BeginFrame();
+        renderer.EndFrame();
+    }
+    throw std::runtime_error("probe.scene_readback_timeout");
+}
+}  // namespace
 void VerifyPointPixels(render::Renderer& renderer) {
     graph::Registry registry;
     graph::Document document;
@@ -95,14 +113,17 @@ void VerifyPointPixels(render::Renderer& renderer) {
                                                        {20, 20, 20},
                                                        {64, 128, 255}}};
     for (int scenario = 0; scenario < 13; ++scenario) {
-        for (int frame = 0; frame < 4; ++frame) scene_fixture.Draw(renderer, scenario);
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-        glReadPixels(0, 0, 16, 16, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-        if (glGetError() != GL_NO_ERROR) throw std::runtime_error("probe.scene_readback");
+        pixels = CaptureScene(renderer, scene_fixture.Draw(renderer, scenario, true));
         for (std::size_t channel = 0; channel < 3; ++channel)
             if (std::abs(static_cast<int>(pixels[(8 * 16 + 8) * 4 + channel]) -
-                         expected[scenario][channel]) > 2)
-                throw std::runtime_error("probe.scene_pixels." + std::to_string(scenario));
+                         expected[scenario][channel]) > 2) {
+                throw std::runtime_error(
+                        "probe.scene_pixels." + std::to_string(scenario) +
+                        " channel=" + std::to_string(channel) +
+                        " actual=" + std::to_string(pixels[(8 * 16 + 8) * 4 + channel]) +
+                        " expected=" + std::to_string(expected[scenario][channel]) +
+                        " alpha=" + std::to_string(pixels[(8 * 16 + 8) * 4 + 3]));
+            }
     }
     std::cout << "Scene GPU pixels: depth order, front/back culling, double side and depth clear "
                  "passed\n";
@@ -117,10 +138,7 @@ void VerifyPointPixels(render::Renderer& renderer) {
                                                             {82, 82, 82},
                                                             {20, 20, 20}}};
     for (int scenario = 0; scenario < 9; ++scenario) {
-        for (int frame = 0; frame < 4; ++frame) graph_fixture.Draw(renderer, scenario);
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-        glReadPixels(0, 0, 16, 16, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-        if (glGetError() != GL_NO_ERROR) throw std::runtime_error("probe.scene_graph_readback");
+        pixels = CaptureScene(renderer, graph_fixture.Draw(renderer, scenario, true));
         for (std::size_t channel = 0; channel < 3; ++channel)
             if (std::abs(static_cast<int>(pixels[(8 * 16 + 8) * 4 + channel]) -
                          graph_expected[scenario][channel]) > 2)
@@ -129,10 +147,7 @@ void VerifyPointPixels(render::Renderer& renderer) {
     std::cout << "Published scene graph GPU pixels: geometry, transform, material, camera and node "
                  "preview passed\n";
     for (int scenario = 9; scenario <= 10; ++scenario) {
-        for (int frame = 0; frame < 4; ++frame) graph_fixture.Draw(renderer, scenario);
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-        glReadPixels(0, 0, 16, 16, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-        if (glGetError() != GL_NO_ERROR) throw std::runtime_error("probe.axis_readback");
+        pixels = CaptureScene(renderer, graph_fixture.Draw(renderer, scenario, true));
         for (int y = 0; y < 16; ++y)
             for (int x = 0; x < 16; ++x) {
                 const auto offset = static_cast<std::size_t>((y * 16 + x) * 4);

@@ -24,6 +24,13 @@ valid for the behavior they cover; they do not establish visual acceptance.
 
 ## What to do next
 
+2026-09-08 execution update: the original starting sequence below is historical;
+blur, spatial noise, displacement, reference scenes and media integration already
+have working implementations. Follow the [current rendering/authoring roadmap](rendering_capability_roadmap.md)
+for the next work. Produce editable music-driven content with each feature batch,
+retain the 50 Basic + 50 Advanced quality target, and defer long-duration testing
+to final integrated acceptance. Android overlay installation is now successful.
+
 1. Build the reusable effects needed for richer compositions. Start with bounded
    GPU blur and a composable glow stack, then spatial texture noise, displacement,
    kaleidoscope and controllable temporal feedback. Current signal noise is not a

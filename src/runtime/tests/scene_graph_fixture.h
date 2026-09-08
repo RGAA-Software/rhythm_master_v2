@@ -8,7 +8,7 @@ namespace rhythm::validation {
 // published program codec. Scene resources stay in the ordinary runtime path.
 class SceneGraphFixture final {
    public:
-    void Draw(render::Renderer& renderer, int scenario) {
+    render::Readback Draw(render::Renderer& renderer, int scenario, bool capture = false) {
         if (scenario != scenario_) {
             graph::Registry registry;
             graph::Document document;
@@ -77,7 +77,15 @@ class SceneGraphFixture final {
         draw.indices_ = {0, 1, 2, 0, 2, 3};
         draw.commands_ = {{texture, 0, 6, {0, 0, 16, 16}}};
         renderer.Submit({}, draw);
+        render::Readback ticket;
+        if (capture) {
+            if (!renderer.IsValid(capture_target_.Handle()))
+                capture_target_ = renderer.CreateTexture({16, 16});
+            renderer.Submit(capture_target_.Handle(), draw);
+            ticket = renderer.RequestReadback(capture_target_.Handle());
+        }
         renderer.EndFrame();
+        return ticket;
     }
 
    private:
@@ -86,5 +94,6 @@ class SceneGraphFixture final {
     graph::ExecutionPlan plan_{};
     runtime::Runtime runtime_{};
     runtime::Viewers viewers_{};
+    render::Texture capture_target_{};
 };
 }  // namespace rhythm::validation

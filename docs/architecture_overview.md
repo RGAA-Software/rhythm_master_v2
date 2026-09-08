@@ -6,6 +6,12 @@
 >
 > Date: 2026-09-06
 
+Current functional implementation order (2026-09-08) is recorded in the
+[rendering capability roadmap](rendering_capability_roadmap.md), with code evidence,
+GPU/platform probes, graph/runtime/render contracts and per-increment deliveries.
+It preserves the architecture boundaries below; long-duration soak testing moves
+to final integrated acceptance while focused functional checks remain incremental.
+
 User priority update: transparent windows/backbuffers and related click-through
 behavior are tentative features deferred to the end of the overall roadmap.
 They do not block Phase A, current acceptance or ordinary-window backend adoption;

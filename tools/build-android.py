@@ -15,6 +15,8 @@ def main():
     parser.add_argument("--build", type=Path)
     parser.add_argument("--target", action="append", default=[])
     parser.add_argument("--jobs", type=int, default=20)
+    parser.add_argument("--gles-version", choices=("30", "31"),
+                        help="Explicit backend feature-level experiment; otherwise preserve the configured cache")
     args = parser.parse_args()
     if not 1 <= args.jobs <= 64:
         parser.error("jobs must be 1..64")
@@ -28,6 +30,9 @@ def main():
                "-DRHYTHM_PLAYER_PACKAGE=" + (ROOT / "out/windows-release/content/packages/resonance_gate.rhythmpack").as_posix(),
                "-DCMAKE_FIND_ROOT_PATH=" + args.sdk.as_posix(),
                "-DRHYTHM_PROTOC=C:/source/vcpkg/installed/x64-windows/tools/protobuf/protoc.exe"]
+    if args.gles_version:
+        options.append("-DRHYTHM_ANDROID_GLES_VERSION=" + args.gles_version)
+
     # Reuse only the previously validated shader tool path, not compiler flags or
     # a copied cache that would silently carry Debug performance settings.
     cache = ROOT / "out/android-arm64/CMakeCache.txt"

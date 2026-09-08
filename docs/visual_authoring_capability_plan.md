@@ -1,6 +1,8 @@
 # Visual authoring capability plan
 
-> Status: target product capability; implementation has not started
+> Status: partially implemented; this document describes the target, not completion.
+> Current code-based gaps and feature-first order: [2026-09-08 review](feature_gap_review_2026-09-08.md).
+> Current execution sequence: [rendering roadmap](rendering_capability_roadmap.md).
 >
 > Date: 2026-09-06
 >

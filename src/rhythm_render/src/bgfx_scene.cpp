@@ -80,7 +80,9 @@ void BgfxScene::Draw(SceneView context, const SceneDrawList& list, std::uint32_t
     const auto channel = [&](std::uint32_t shift) {
         return (((clear >> shift) & 255) * alpha + 127) / 255;
     };
-    bgfx::setViewClear(view, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH,
+    // The attachment is packed D24S8. Clear both planes: depth-only clears
+    // intermittently reject geometry on the validated Adreno 650 GLES driver.
+    bgfx::setViewClear(view, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH | BGFX_CLEAR_STENCIL,
                        channel(24) << 24 | channel(16) << 16 | channel(8) << 8 | alpha, 1);
     auto projection = list.projection_;
     for (std::size_t column = 0; column < 4; ++column) {
@@ -90,7 +92,7 @@ void BgfxScene::Draw(SceneView context, const SceneDrawList& list, std::uint32_t
                     (projection[column * 4 + 2] + projection[column * 4 + 3]) * 0.5f;
     }
     bgfx::setViewTransform(view, list.view_.data(), projection.data());
-    bgfx::touch(view);
+    if (list.draws_.empty()) bgfx::touch(view);
     const std::array camera{list.camera_position_[0], list.camera_position_[1],
                             list.camera_position_[2], static_cast<float>(list.lights_.size())};
     std::array<std::array<float, 4>, 4> directions{}, colors{};

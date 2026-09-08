@@ -1,5 +1,25 @@
 # Continuous implementation through Android Player
 
+## R0 GPU execution gate, 2026-09-08
+
+Windows D3D11 and USB Adreno 650 GLES 3.1 pass instance/compute write-draw-rewrite
+pixels. Original GLES 3.0 passes instancing and explicitly reports no compiled
+compute support. Packed D24S8 now clears depth and stencil together, resolving
+observed intermittent Android scene rejection. Existing Windows/Android scene
+regressions pass. [Evidence](validation/gpu_execution_2026-09-08.md).
+R1 production instancing/particles and R2–R6 remain in progress/pending.
+
+## Current execution order, 2026-09-08
+
+The [rendering/authoring roadmap](rendering_capability_roadmap.md) is now the
+current next-work entry point. Start with a short Windows/Android instancing and
+compute probe, then GPU particles/instances, float/depth composition, textured
+materials/lighting, and procedural geometry/shader authoring. Curves, snapshots,
+media arrangement, quality content and Android functionality progress with these
+deliveries. This is planning, not a claim those features were implemented.
+Long-duration and thermal tests move to final integrated acceptance. Earlier
+records below are historical evidence, not the current ordered backlog.
+
 User direction, 2026-09-07: continue implementation without stopping at each
 module delivery, through completion and validation of Android Player. The USB
 device is available for testing. Apple is the final platform stage.

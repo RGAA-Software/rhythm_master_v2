@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "bgfx_backend.h"
+#include "gpu_execution_probe.h"
 #include "rhythm/player/render_quality.h"
 #include "rhythm/player/session.h"
 #include "rhythm/render/renderer.h"
@@ -340,6 +341,12 @@ void VerifyAffine(rhythm::render::Renderer& renderer) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+        if (argc == 2 && std::string_view(argv[1]) == "--execution-probe") {
+            std::array<std::uint8_t, 32 * 16 * 4> pixels{};
+            auto renderer = platform::Host::CreateRenderer();
+            validation::VerifyGpuExecution(pixels);
+            return 0;
+        }
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         if (argc == 3 && (std::string_view(argv[2]) == "--music" ||
                           std::string_view(argv[2]) == "--arrangement")) {

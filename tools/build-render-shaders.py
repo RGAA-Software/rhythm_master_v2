@@ -17,14 +17,18 @@ def main():
     parser.add_argument("--compiler", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--platform", choices=("windows", "android"), required=True)
-    parser.add_argument("--group", choices=("color", "scene", "filter", "noise", "mapping", "displace"), default="color")
+    parser.add_argument("--group", choices=("color", "scene", "filter", "noise", "mapping", "displace", "execution_probe"), default="color")
     args = parser.parse_args()
     output = args.output.resolve()
     if not output.is_relative_to(ROOT / "out"):
         raise ValueError("Generated shader header must remain in the project build output")
     shader = ROOT / "src/rhythm_render/shaders"
     programs = [("color_adjust.sc", "fragment", "varying.def.sc", "kColorAdjustShader")]
-    if args.group == "scene":
+    if args.group == "execution_probe":
+        programs = [("probe_instance.sc", "vertex", "probe_varying.def.sc", "kProbeVertexShader"),
+                    ("probe_color.sc", "fragment", "probe_varying.def.sc", "kProbeFragmentShader"),
+                    ("probe_update.sc", "compute", None, "kProbeComputeShader")]
+    elif args.group == "scene":
         programs = [("scene_vertex.sc", "vertex", "scene_varying.def.sc", "kSceneVertexShader"),
                     ("scene_fragment.sc", "fragment", "scene_varying.def.sc", "kSceneFragmentShader")]
     elif args.group == "filter":
@@ -41,8 +45,9 @@ def main():
     for source, stage, varying, symbol in programs:
         binary = output.with_suffix("." + stage + ".bin")
         compiler_module.compile_shader(args.compiler, shader / source, binary,
-            stage, ROOT / "third_party/sources/bgfx/src", shader / varying,
-            args.platform, "300_es" if args.platform == "android" else "s_5_0")
+            stage, ROOT / "third_party/sources/bgfx/src", shader / varying if varying else None,
+            args.platform, ("310_es" if stage == "compute" else "300_es")
+            if args.platform == "android" else "s_5_0")
         data = binary.read_bytes()
         lines = [", ".join(f"0x{byte:02x}" for byte in data[offset:offset+16])
                  for offset in range(0, len(data), 16)]

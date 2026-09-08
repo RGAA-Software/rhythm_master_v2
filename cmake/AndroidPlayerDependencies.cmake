@@ -1,4 +1,9 @@
 set(rhythm_deps "${PROJECT_SOURCE_DIR}/third_party/sources")
+set(RHYTHM_ANDROID_GLES_VERSION "30" CACHE STRING "Validated Android bgfx GLES feature level (30 or 31)")
+set_property(CACHE RHYTHM_ANDROID_GLES_VERSION PROPERTY STRINGS 30 31)
+if(NOT RHYTHM_ANDROID_GLES_VERSION MATCHES "^(30|31)$")
+    message(FATAL_ERROR "RHYTHM_ANDROID_GLES_VERSION must be 30 or 31")
+endif()
 set(SDL_SHARED ON CACHE BOOL "" FORCE)
 set(SDL_STATIC OFF CACHE BOOL "" FORCE)
 set(SDL_TEST_LIBRARY OFF CACHE BOOL "" FORCE)
@@ -18,7 +23,7 @@ target_include_directories(spike_bgfx SYSTEM PUBLIC "${rhythm_deps}/bgfx/include
 target_include_directories(spike_bgfx PRIVATE "${rhythm_deps}/bgfx/3rdparty" "${rhythm_deps}/bgfx/3rdparty/khronos")
 target_compile_definitions(spike_bgfx PRIVATE
     BGFX_CONFIG_RENDERER_DIRECT3D11=0 BGFX_CONFIG_RENDERER_DIRECT3D12=0
-    BGFX_CONFIG_RENDERER_OPENGL=0 BGFX_CONFIG_RENDERER_OPENGLES=30
+    BGFX_CONFIG_RENDERER_OPENGL=0 BGFX_CONFIG_RENDERER_OPENGLES=${RHYTHM_ANDROID_GLES_VERSION}
     BGFX_CONFIG_RENDERER_VULKAN=0 BGFX_CONFIG_RENDERER_WEBGPU=0
     BGFX_CONFIG_MULTITHREADED=0 BGFX_CONFIG_VIDEO=0)
 target_link_libraries(spike_bgfx PRIVATE spike_bx spike_bimg EGL GLESv3 android log)

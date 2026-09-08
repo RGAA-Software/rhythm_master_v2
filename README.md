@@ -1,5 +1,10 @@
 # Rhythm Master Next
 
+Current development plan: [rendering capabilities and next deliveries](docs/rendering_capability_roadmap.md)
+and [authoring feature gaps](docs/feature_gap_review_2026-09-08.md). Features and
+editable music-driven works come first; long-duration tests are deferred to final
+integrated acceptance. Android follows each supported shared-feature increment.
+
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.
 Windows Studio/Player and USB Android native PCM/GLES validation pass; Android

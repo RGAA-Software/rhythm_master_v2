@@ -16,7 +16,7 @@ class SceneFixture final {
         reversed_ = renderer.CreateMesh(vertices, backward);
         target_ = renderer.CreateTexture({16, 16});
     }
-    void Draw(render::Renderer& renderer, int scenario) {
+    render::Readback Draw(render::Renderer& renderer, int scenario, bool capture = false) {
         render::SceneDrawList scene;
         render::MeshDraw near;
         near.mesh_ = scenario == 2 || scenario == 3 ? reversed_.Handle() : mesh_.Handle();
@@ -53,7 +53,9 @@ class SceneFixture final {
         draw.indices_ = {0, 1, 2, 0, 2, 3};
         draw.commands_ = {{target_.Handle(), 0, 6, {0, 0, 16, 16}}};
         renderer.Submit({}, draw, 0x000000ff);
+        auto ticket = capture ? renderer.RequestReadback(target_.Handle()) : render::Readback{};
         renderer.EndFrame();
+        return ticket;
     }
 
    private:

@@ -139,6 +139,9 @@ ownership is explicitly transferred to the project.
 
 ## Verification
 
+- Prioritize feature delivery. Defer long-duration soak, thermal and endurance
+  tests to the final integrated acceptance stage. Keep affected-target builds,
+  focused regression tests and short functional/device checks during development.
 - Install Android updates with `adb install -r`, preserving application data.
   Do not uninstall the application or clear its data as an installation fallback.
 - Bundle the authored effects in Android and offer direct in-app selection.

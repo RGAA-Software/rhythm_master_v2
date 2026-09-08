@@ -91,3 +91,26 @@ add_custom_command(OUTPUT "${displace_shader_header}"
         "${RHYTHM_SHADERC}" ${render_shader_includes}
     VERBATIM)
 target_sources(render_bgfx PRIVATE "${displace_shader_header}")
+
+if(BUILD_TESTING)
+    set(probe_shader_header "${PROJECT_BINARY_DIR}/generated/render/gpu_execution_probe_shader.h")
+    add_custom_command(OUTPUT "${probe_shader_header}"
+        COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+            --compiler "${RHYTHM_SHADERC}" --output "${probe_shader_header}"
+            --platform "${render_shader_platform}" --group execution_probe
+        DEPENDS "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+            "${PROJECT_SOURCE_DIR}/tools/compile-shader.py"
+            "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/probe_instance.sc"
+            "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/probe_color.sc"
+            "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/probe_update.sc"
+            "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/probe_varying.def.sc"
+            "${RHYTHM_SHADERC}" ${render_shader_includes}
+        VERBATIM)
+    add_library(gpu_execution_probe STATIC
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_execution_probe.cpp" "${probe_shader_header}")
+    target_include_directories(gpu_execution_probe PRIVATE
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/src" "${PROJECT_BINARY_DIR}/generated/render")
+    target_include_directories(gpu_execution_probe PUBLIC "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests")
+    target_link_libraries(gpu_execution_probe PRIVATE Rhythm::Render spike_bgfx)
+    rhythm_project_target(gpu_execution_probe)
+endif()
