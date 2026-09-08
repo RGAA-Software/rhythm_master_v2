@@ -4,6 +4,10 @@
 
 #include <algorithm>
 
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+#include "rhythm/media/audio_mixer.h"
+#endif
+
 namespace rhythm::audio_ui {
 void AudioPanel::SetSuspended(bool suspended) {
     if (suspended_ == suspended) return;
@@ -52,7 +56,11 @@ void AudioPanel::ApplyPlayback(const runtime::PlaybackCommand& command) {
     const auto state = file_.Snapshot().state_;
     if ((state == audio::PlaybackState::kStopped || state == audio::PlaybackState::kEnded) &&
         (command.seek_ || command.paused_ == false)) {
-        if (streamed_.Valid())
+        if (arrangement_files_)
+            file_.Load(*arrangement_files_);
+        else if (arrangement_)
+            file_.Load(*arrangement_);
+        else if (streamed_.Valid())
             file_.Load(streamed_);
         else if (embedded_)
             file_.Load(embedded_);
@@ -112,6 +120,8 @@ std::optional<std::filesystem::path> AudioPanel::SelectedFile() const {
 }
 void AudioPanel::LoadFile(const std::filesystem::path& path) {
     capture_.Stop();
+    arrangement_.reset();
+    arrangement_files_.reset();
     embedded_.reset();
     streamed_ = {};
     loaded_file_ = path;
@@ -129,13 +139,17 @@ void AudioPanel::LoadFile(const std::filesystem::path& path) {
     }
 }
 void AudioPanel::LoadSoundtrack(const media::SoundtrackSource& source) {
-    if (bool(source.bytes_) == source.file_bytes_.Valid())
+    if (!media::ValidSoundtrackSource(source))
         throw std::invalid_argument("project.soundtrack_invalid");
-    if (source.file_bytes_.Valid())
+    if (source.arrangement_)
+        file_.Load(*source.arrangement_);
+    else if (source.file_bytes_.Valid())
         file_.Load(source.file_bytes_);
     else
         file_.Load(source.bytes_);
     capture_.Stop();
+    arrangement_ = source.arrangement_;
+    arrangement_files_.reset();
     embedded_ = source.bytes_;
     streamed_ = source.file_bytes_;
     loaded_file_.clear();
@@ -148,8 +162,25 @@ void AudioPanel::LoadSoundtrack(const media::SoundtrackSource& source) {
         file_.Pause(true);
     }
 }
+void AudioPanel::LoadArrangement(media::AudioArrangementFiles files) {
+    file_.Load(files);
+    capture_.Stop();
+    arrangement_files_ = std::make_shared<const media::AudioArrangementFiles>(std::move(files));
+    arrangement_.reset();
+    embedded_.reset();
+    streamed_ = {};
+    loaded_file_.clear();
+    file_path_.fill(0);
+    media_selected_ = true;
+    if (suspended_) {
+        resume_file_ = true;
+        file_.Pause(true);
+    }
+}
 void AudioPanel::ClearFile() {
     file_.Stop();
+    arrangement_.reset();
+    arrangement_files_.reset();
     embedded_.reset();
     streamed_ = {};
     loaded_file_.clear();

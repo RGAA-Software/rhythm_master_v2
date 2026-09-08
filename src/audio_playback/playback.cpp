@@ -11,17 +11,14 @@
 
 #include "analysis_queue.h"
 #include "rhythm/audio/output.h"
-#include "rhythm/media/audio_decoder.h"
-#include "rhythm/storage/file_bytes.h"
+#include "stream_source.h"
 
 namespace rhythm::audio {
 namespace {
 using Clock = std::chrono::steady_clock;
 struct Request {
     bool loop_ = false;
-    std::optional<std::filesystem::path> path_{};
-    std::shared_ptr<const std::vector<std::uint8_t>> bytes_{};
-    storage::FileBytes file_bytes_{};
+    detail::PlaybackSource source_{};
     std::uint64_t generation_ = 0;
     std::uint64_t first_sample_ = 0;
     std::uint64_t revision_ = 0;
@@ -29,6 +26,7 @@ struct Request {
     float volume_ = 1;
     std::stop_token cancel_{};
 };
+bool HasSource(const Request& request) { return request.source_.index() != 0; }
 }  // namespace
 class FilePlayback::Impl final {
    public:
@@ -41,41 +39,17 @@ class FilePlayback::Impl final {
         }
         wake_.notify_all();
     }
-    void Load(const std::filesystem::path& path) {
+    void Load(detail::PlaybackSource source) {
+        detail::ValidateSource(source);
         std::lock_guard lock(mutex_);
-        request_.path_ = path;
-        request_.bytes_.reset();
-        request_.file_bytes_ = {};
-        request_.first_sample_ = 0;
-        request_.paused_ = false;
-        RestartRequest();
-    }
-    void Load(std::shared_ptr<const std::vector<std::uint8_t>> bytes) {
-        if (!bytes || bytes->empty() || bytes->size() > 16 * 1024 * 1024)
-            throw std::invalid_argument("embedded media byte budget");
-        std::lock_guard lock(mutex_);
-        request_.path_.reset();
-        request_.bytes_ = std::move(bytes);
-        request_.file_bytes_ = {};
-        request_.first_sample_ = 0;
-        request_.paused_ = false;
-        RestartRequest();
-    }
-    void Load(storage::FileBytes bytes) {
-        if (!bytes.Valid() || !bytes.Size()) throw std::invalid_argument("media file range");
-        std::lock_guard lock(mutex_);
-        request_.path_.reset();
-        request_.bytes_.reset();
-        request_.file_bytes_ = std::move(bytes);
+        request_.source_ = std::move(source);
         request_.first_sample_ = 0;
         request_.paused_ = false;
         RestartRequest();
     }
     void Stop() {
         std::lock_guard lock(mutex_);
-        request_.path_.reset();
-        request_.bytes_.reset();
-        request_.file_bytes_ = {};
+        request_.source_ = {};
         request_.first_sample_ = 0;
         RestartRequest();
     }
@@ -84,7 +58,7 @@ class FilePlayback::Impl final {
             throw std::invalid_argument("invalid audio seek time");
         }
         std::lock_guard lock(mutex_);
-        if (!request_.path_ && !request_.bytes_ && !request_.file_bytes_.Valid()) {
+        if (!HasSource(request_)) {
             return;
         }
         request_.first_sample_ = static_cast<std::uint64_t>(seconds * media::kAudioSampleRate);
@@ -130,9 +104,7 @@ class FilePlayback::Impl final {
         snapshot_.generation_ = request_.generation_;
         snapshot_.position_seconds_ =
                 static_cast<double>(request_.first_sample_) / media::kAudioSampleRate;
-        snapshot_.state_ = request_.path_ || request_.bytes_ || request_.file_bytes_.Valid()
-                                   ? PlaybackState::kLoading
-                                   : PlaybackState::kStopped;
+        snapshot_.state_ = HasSource(request_) ? PlaybackState::kLoading : PlaybackState::kStopped;
         Changed();
     }
     Request Desired() const {
@@ -157,13 +129,13 @@ class FilePlayback::Impl final {
     void Repeat(std::uint64_t generation) {
         std::lock_guard lock(mutex_);
         if (request_.generation_ != generation || !request_.loop_ || request_.paused_ ||
-            (!request_.path_ && !request_.bytes_ && !request_.file_bytes_.Valid()))
+            !HasSource(request_))
             return;
         request_.first_sample_ = 0;
         RestartRequest();
     }
     void Run(std::stop_token stop) {
-        std::unique_ptr<media::AudioDecoder> decoder;
+        std::unique_ptr<detail::AudioStream> decoder;
         std::unique_ptr<OutputDevice> device;
         std::unique_ptr<detail::AnalysisQueue> analysis;
         std::optional<Clock::time_point> drain_started;
@@ -191,18 +163,9 @@ class FilePlayback::Impl final {
                     ended_input = false;
                     origin = request.first_sample_;
                     decoded_end = origin;
-                    if (request.path_ || request.bytes_ || request.file_bytes_.Valid()) {
-                        decoder = request.file_bytes_.Valid()
-                                          ? std::make_unique<media::AudioDecoder>(
-                                                    request.file_bytes_, active_generation,
-                                                    request.cancel_)
-                                  : request.bytes_
-                                          ? std::make_unique<media::AudioDecoder>(request.bytes_,
-                                                                                  active_generation,
-                                                                                  request.cancel_)
-                                          : std::make_unique<media::AudioDecoder>(*request.path_,
-                                                                                  active_generation,
-                                                                                  request.cancel_);
+                    if (HasSource(request)) {
+                        decoder = std::make_unique<detail::AudioStream>(
+                                request.source_, active_generation, request.cancel_);
                         if (origin) {
                             decoder->Seek(origin, active_generation, request.cancel_);
                         }
@@ -318,6 +281,12 @@ void FilePlayback::Load(std::shared_ptr<const std::vector<std::uint8_t>> bytes) 
     impl_->Load(std::move(bytes));
 }
 void FilePlayback::Load(storage::FileBytes bytes) { impl_->Load(std::move(bytes)); }
+void FilePlayback::Load(media::AudioArrangementSource arrangement) {
+    impl_->Load(std::make_shared<const media::AudioArrangementSource>(std::move(arrangement)));
+}
+void FilePlayback::Load(media::AudioArrangementFiles files) {
+    impl_->Load(std::make_shared<const media::AudioArrangementFiles>(std::move(files)));
+}
 void FilePlayback::Stop() { impl_->Stop(); }
 void FilePlayback::Seek(double seconds) { impl_->Seek(seconds); }
 void FilePlayback::Pause(bool paused) { impl_->Pause(paused); }

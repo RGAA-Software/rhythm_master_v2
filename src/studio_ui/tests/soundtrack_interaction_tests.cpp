@@ -113,6 +113,27 @@ int main(int argc, char* argv[]) {
         Check(history.Current().document_.revision_ == revision &&
                       history.Current().title_ == "edited during import",
               "stale import cannot overwrite edits");
+        if (std::filesystem::file_size(argv[1]) < 8 * 1024 * 1024) {
+            audio.LoadFile(argv[1]);
+            frame("###music.append");
+            frame();
+            drain();
+            Check(history.Current().soundtrack_->clips_.size() == 2 && !audio.SelectedFile(),
+                  "append converts legacy source and selects arrangement playback");
+            project::Save(root / "work.rhythmproj", history.Current());
+            project::PublishSnapshot(root / "arranged.rhythmpack", history.Current(), assets);
+            frame("###music.load");
+            frame();
+            Check(!audio.SelectedFile(), "load restores full arrangement, not primary asset");
+            frame("###music.clear");
+            frame();
+            Check(!history.Current().soundtrack_ && history.Current().assets_.empty(),
+                  "clear arrangement removes unreferenced audio");
+            Check(history.Undo(), "undo arranged clear");
+            frame();
+            Check(history.Current().soundtrack_->clips_.size() == 2 && !audio.SelectedFile(),
+                  "undo restores arranged playback");
+        }
         std::cout << "music UI bind/settings/clear/undo/save/publish and stale completion pass\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

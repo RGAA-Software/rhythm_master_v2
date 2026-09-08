@@ -22,7 +22,8 @@ enum class PackageProfile {
     kTextureSignalAssetsV1,
     kTextureSignalV2,
     kMusicPerformanceV1,
-    kMusicPerformanceV2
+    kMusicPerformanceV2,
+    kMusicArrangementV1
 };
 struct PackagedAsset {
     assets::AssetRecord record_{};

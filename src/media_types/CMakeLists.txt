@@ -1,3 +1,3 @@
 add_library(media_types INTERFACE)
 target_include_directories(media_types INTERFACE include)
-target_link_libraries(media_types INTERFACE asset_types storage_types)
+target_link_libraries(media_types INTERFACE asset_types storage_types media_arrangement)

@@ -6,6 +6,7 @@
 
 #include "rhythm/assets/store.h"
 #include "rhythm/media/audio_decoder.h"
+#include "rhythm/media/audio_mixer.h"
 #include "rhythm/player/package_loader.h"
 #include "rhythm/player/session.h"
 #include "rhythm/project/store.h"
@@ -114,7 +115,44 @@ int main(int argc, char* argv[]) {
         Check(retained && expected_tail && retained->first_sample_ == 12000 &&
                       retained->samples_ == expected_tail->samples_,
               "old file music remains exact after its package is replaced");
-        std::cout << "saved music -> package -> Player exact PCM, replacement and shared lifetime "
+        if (!streamed) {
+            auto arranged = snapshot;
+            media::AudioClip clip{1, "Trimmed music", record.id_};
+            clip.timing_ = {0.1, 0.4, 0.2, 0.6};
+            arranged.soundtrack_->clips_ = {clip};
+            project::Save(root / "work.rhythmproj", arranged);
+            project::PublishSnapshot(root / "arranged.rhythmpack", arranged, asset_path);
+            session.Open(root / "arranged.rhythmpack");
+            const auto mixed_source = session.Soundtrack();
+            Check(mixed_source && mixed_source->arrangement_ && !mixed_source->bytes_ &&
+                          !mixed_source->file_bytes_.Valid(),
+                  "arrangement is the exclusive source");
+            media::AudioMixer mixed(*mixed_source->arrangement_);
+            mixed.Seek(4800, 15);
+            original.Seek(9600, 15);
+            const auto actual = mixed.Read();
+            const auto expected = original.Read();
+            Check(actual && expected && actual->samples_ == expected->samples_,
+                  "published trim matches original PCM");
+            session.Load(project::EncodePackage(snapshot.document_, "Replacement"));
+            mixed.Seek(4800, 16);
+            Check(mixed.Read()->samples_ == actual->samples_,
+                  "arrangement retains source on replacement");
+            auto invalid_arrangement = arranged;
+            invalid_arrangement.soundtrack_->clips_[0].timing_.source_out_ = 604800;
+            rejected = false;
+            try {
+                project::PublishSnapshot(root / "arranged.rhythmpack", invalid_arrangement,
+                                         asset_path);
+            } catch (const std::exception&) {
+                rejected = true;
+            }
+            Check(rejected && project::LoadPackage(root / "arranged.rhythmpack").soundtrack_ ==
+                                      arranged.soundtrack_,
+                  "invalid media trim preserves published package");
+        }
+        std::cout << "saved music and arrangement -> package -> Player exact PCM, replacement and "
+                     "shared lifetime "
                      "pass\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

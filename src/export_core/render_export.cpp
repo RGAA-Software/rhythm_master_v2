@@ -46,7 +46,12 @@ void RenderExport(const project::RuntimePackage& package, const ExportSettings& 
     const render::Extent extent{static_cast<std::uint16_t>(encoding.width_),
                                 static_cast<std::uint16_t>(encoding.height_)};
     const auto resources = prepared_assets::Prepare(package.program_, package.assets_, stop);
-    detail::Soundtrack soundtrack(settings.music_, settings.gain_, stop);
+    std::optional<media::AudioArrangementSource> arrangement;
+    if (!settings.music_ && package.soundtrack_ && !package.soundtrack_->clips_.empty()) {
+        auto source = prepared_assets::PrepareSoundtrack(package, stop);
+        arrangement = std::move(source->arrangement_);
+    }
+    detail::Soundtrack soundtrack(settings.music_, settings.gain_, stop, std::move(arrangement));
     video_sources::Streams videos;
     runtime::Runtime runtime;
     auto target = renderer.CreateTexture(extent);

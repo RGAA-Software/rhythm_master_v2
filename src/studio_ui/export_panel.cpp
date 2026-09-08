@@ -31,7 +31,7 @@ void ExportPanel::SetPath(std::array<char, 4096>& buffer, const std::filesystem:
 }
 void ExportPanel::Open(const std::filesystem::path& destination,
                        const std::optional<std::filesystem::path>& music, double duration,
-                       float gain, graph::Canvas canvas) {
+                       float gain, graph::Canvas canvas, bool arranged) {
     open_ = true;
     if (Busy(Snapshot().state_)) return;
     error_.clear();
@@ -42,6 +42,7 @@ void ExportPanel::Open(const std::filesystem::path& destination,
                         : 10;
     gain_ = std::clamp(gain, 0.0f, 1.0f);
     canvas_ = canvas;
+    arranged_ = arranged;
 }
 exporting::JobSnapshot ExportPanel::Snapshot() const {
     return jobs_ ? jobs_->Snapshot() : exporting::JobSnapshot{};
@@ -74,6 +75,7 @@ std::optional<ExportRequest> ExportPanel::Draw(const std::map<std::string, std::
         const auto state = Snapshot();
         const auto busy = Busy(state.state_);
         ImGui::TextWrapped("%s", translate("export.help").c_str());
+        if (arranged_) ImGui::TextWrapped("%s", translate("export.arrangement").c_str());
         ImGui::BeginDisabled(busy);
         ImGui::SetNextItemWidth(-180);
         if (ImGui::InputText(label("export.destination").c_str(), destination_.data(),
@@ -129,7 +131,7 @@ std::optional<ExportRequest> ExportPanel::Draw(const std::map<std::string, std::
                     rates[fps_],
                     std::array{4000000U, 8000000U, 16000000U}.at(quality_),
                     codec_ == 0 ? media::VideoCodec::kH264 : media::VideoCodec::kMpeg4,
-                    music_[0] != 0};
+                    music_[0] != 0 || arranged_};
             request->settings_.frames_ = frames;
             request->settings_.gain_ = gain_;
             if (music_[0]) request->settings_.music_ = Path(music_.data());

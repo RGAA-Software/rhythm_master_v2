@@ -15,6 +15,7 @@ std::string status = "Starting";
 Surface surface;
 double playback_seconds = 0;
 double playback_duration = 0;
+bool playback_loop = false;
 // Private JNI value contract: 0 unknown, 1 landscape, 2 portrait, 3 square.
 int scene_orientation = 0;
 std::string scene_title;
@@ -55,10 +56,16 @@ void PublishStatus(std::string value) {
     std::lock_guard lock(mutex);
     status = std::move(value);
 }
-void PublishPlayback(double seconds, std::optional<double> duration) {
+void PublishPlayback(double seconds, std::optional<double> duration, bool loop) {
     std::lock_guard lock(mutex);
     playback_seconds = seconds;
     playback_duration = duration.value_or(0);
+    playback_loop = loop;
+}
+extern "C" JNIEXPORT jboolean JNICALL
+Java_org_rhythmmaster_player_PlayerActivity_nativeMusicLoop(JNIEnv*, jclass) {
+    std::lock_guard lock(mutex);
+    return playback_loop;
 }
 void PublishScene(render::Extent canvas, std::string title) {
     if (!canvas.width_ || !canvas.height_) return;

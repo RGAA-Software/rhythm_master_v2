@@ -7,6 +7,7 @@
 
 #include "curve_editor.h"
 #include "rhythm/editor/commands.h"
+#include "rhythm/editor/soundtrack_command.h"
 
 namespace rhythm::studio {
 void TimeTrackEditor::Reset() {
@@ -15,6 +16,8 @@ void TimeTrackEditor::Reset() {
     curve_editor_.Reset();
     curve_draft_ = false;
     cue_draft_ = false;
+    audio_draft_ = false;
+    audio_clips_.Reset();
     cues_.Reset();
     section_error_.clear();
 }
@@ -27,6 +30,34 @@ TimelineEdit TimeTrackEditor::Draw(const editor::Snapshot& base, double playhead
                    draft_->document_.id_ != base.document_.id_)) {
         Reset();
         edit.preview_changed_ = true;
+    }
+    const auto& source = draft_ ? *draft_ : base;
+    if (source.soundtrack_ && !source.soundtrack_->clips_.empty()) {
+        ImGui::BeginDisabled(draft_ && !audio_draft_);
+        const auto audio =
+                audio_clips_.Draw(source.soundtrack_->clips_, playhead, duration, bpm, text);
+        ImGui::EndDisabled();
+        if (audio.clips_) {
+            if (!draft_) draft_ = base;
+            auto binding = draft_->soundtrack_;
+            if (audio.clips_->empty()) {
+                binding.reset();
+            } else {
+                binding->clips_ = *audio.clips_;
+                binding->asset_ = audio.clips_->front().asset_;
+            }
+            draft_ = editor::WithSoundtrack(std::move(*draft_), std::move(binding));
+            audio_draft_ = true;
+            edit.preview_changed_ = true;
+        }
+        if (audio.committed_ && draft_ && audio_draft_) {
+            edit.committed_ = std::move(draft_);
+            draft_.reset();
+            audio_draft_ = false;
+            return edit;
+        }
+        if (draft_ && audio_draft_) return edit;
+        ImGui::Separator();
     }
     ImGui::BeginDisabled(draft_ && !cue_draft_);
     const auto cue_edit =

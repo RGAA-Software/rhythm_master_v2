@@ -28,6 +28,7 @@ class AudioPanel final {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
     void LoadFile(const std::filesystem::path& path);
     void LoadSoundtrack(const media::SoundtrackSource& source);
+    void LoadArrangement(media::AudioArrangementFiles files);
     void ClearFile();
     void SetLoop(bool loop);
     void SetVolume(float volume);
@@ -54,6 +55,8 @@ class AudioPanel final {
     std::filesystem::path loaded_file_{};
     std::shared_ptr<const std::vector<std::uint8_t>> embedded_{};
     storage::FileBytes streamed_{};
+    std::optional<media::AudioArrangementSource> arrangement_{};
+    std::shared_ptr<const media::AudioArrangementFiles> arrangement_files_{};
     bool media_selected_ = false;
 #endif
 };

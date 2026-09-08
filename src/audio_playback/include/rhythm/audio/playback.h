@@ -10,6 +10,10 @@
 namespace rhythm::storage {
 class FileBytes;
 }
+namespace rhythm::media {
+struct AudioArrangementSource;
+struct AudioArrangementFiles;
+}  // namespace rhythm::media
 
 namespace rhythm::audio {
 enum class PlaybackState { kStopped, kLoading, kPlaying, kPaused, kEnded, kFailed };
@@ -45,6 +49,8 @@ class FilePlayback final {
     void Load(const std::filesystem::path& path);
     void Load(std::shared_ptr<const std::vector<std::uint8_t>> bytes);
     void Load(storage::FileBytes bytes);
+    void Load(media::AudioArrangementSource arrangement);
+    void Load(media::AudioArrangementFiles files);
     void Stop();
     void Seek(double seconds);
     void Pause(bool paused);

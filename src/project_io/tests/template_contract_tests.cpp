@@ -1,9 +1,10 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "rhythm/assets/store.h"
+#include "rhythm/player/session.h"
 #include "rhythm/project/package.h"
 #include "rhythm/project/store.h"
-#include "rhythm/runtime/runtime.h"
 
 int main(int argc, char* argv[]) {
     using namespace rhythm;
@@ -20,8 +21,18 @@ int main(int argc, char* argv[]) {
             const auto& document = source.snapshot_.document_;
             portrait |= document.canvas_.height_ > document.canvas_.width_;
             square |= document.canvas_.height_ == document.canvas_.width_;
-            const auto packaged = project::DecodePackage(
-                    project::EncodePackage(document, source.snapshot_.title_));
+            std::vector<project::PackagedAsset> assets;
+            if (!source.snapshot_.assets_.empty()) {
+                const assets::Store store(entry.directory_ / "assets");
+                for (const auto& record : source.snapshot_.assets_)
+                    assets.push_back(
+                            {record, store.Read(record, project::kMaximumPackageAssetBytes)});
+            }
+            const auto bytes = project::EncodePackage(document, source.snapshot_.title_, assets,
+                                                      source.snapshot_.soundtrack_);
+            const auto packaged = project::DecodePackage(bytes);
+            if (packaged.soundtrack_ != source.snapshot_.soundtrack_)
+                throw std::runtime_error("template.soundtrack");
             // Valid UTF-8 and available glyphs do not detect GBK-decoded mojibake.
             // Check the actual catalog label and published title, not a sample string.
             if (entry.id_ == "official.templates.prismatic_lotus") {
@@ -34,16 +45,11 @@ int main(int argc, char* argv[]) {
             if (packaged.program_.canvas_ != document.canvas_)
                 throw std::runtime_error("template.canvas");
             auto renderer = render::Renderer::CreateNull();
-            runtime::Runtime runtime;
+            player::Session session;
+            session.Load(bytes);
             for (int frame = 0; frame < 60; ++frame) {
                 renderer.BeginFrame();
-                const auto output =
-                        runtime.Evaluate(packaged.program_,
-                                         {frame / 60.0,
-                                          0,
-                                          {static_cast<std::uint16_t>(document.canvas_.width_),
-                                           static_cast<std::uint16_t>(document.canvas_.height_)}},
-                                         renderer);
+                const auto output = session.Tick(frame / 60.0, false, session.Canvas(), renderer);
                 if (!renderer.IsValid(output.final_)) throw std::runtime_error("template.output");
                 renderer.EndFrame();
             }

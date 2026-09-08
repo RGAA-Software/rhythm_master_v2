@@ -23,7 +23,11 @@ class MusicPlayback final {
     void Clear();
     void Apply(const runtime::PlaybackCommand& command);
     void SetSuspended(bool suspended);
-    void SetLoop(bool loop) { file_.SetLoop(loop); }
+    void SetLoop(bool loop) {
+        file_.SetLoop(loop);
+        loop_ = loop;
+    }
+    bool Loop() const { return loop_; }
     void SetVolume(float volume) { file_.SetVolume(volume); }
     MusicFrame Frame();
 
@@ -42,7 +46,9 @@ class MusicPlayback final {
     std::optional<FileLease> retired_{};
     std::shared_ptr<const std::vector<std::uint8_t>> embedded_{};
     storage::FileBytes streamed_{};
+    std::optional<media::AudioArrangementSource> arrangement_{};
     bool selected_ = false;
+    bool loop_ = false;
     std::uint64_t generation_ = 0;
     bool suspended_ = false;
     bool resume_ = false;

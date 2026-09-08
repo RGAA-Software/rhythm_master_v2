@@ -4,7 +4,7 @@
 #include "rhythm/content/music_authoring.h"
 
 namespace rhythm::studio {
-enum class SoundtrackAction { kBind, kClear, kLoad };
+enum class SoundtrackAction { kBind, kAppend, kClear, kLoad };
 class SoundtrackPanel final {
    public:
     bool Busy() const { return importer_ && importer_->Busy(); }

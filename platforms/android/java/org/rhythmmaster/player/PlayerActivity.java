@@ -47,6 +47,7 @@ public final class PlayerActivity extends SDLActivity {
     private SeekBar music_position_ = null;
     private TextView music_time_ = null;
     private boolean seeking_ = false;
+    private CheckBox repeat_ = null;
     private AudioManager audio_manager_ = null;
     private AudioFocusRequest audio_focus_ = null;
     private ScrollView controls_container_ = null;
@@ -60,6 +61,7 @@ public final class PlayerActivity extends SDLActivity {
     private static native void nativeSeek(double seconds);
     private static native double nativePosition();
     private static native double nativeDuration();
+    private static native boolean nativeMusicLoop();
     private static native int nativeSceneOrientation();
     private static native String nativeSceneTitle();
 
@@ -88,6 +90,7 @@ public final class PlayerActivity extends SDLActivity {
             status_.setText(text);
             double duration = nativeDuration();
             double position = nativePosition();
+            repeat_.setChecked(nativeMusicLoop());
             music_position_.setEnabled(duration > 0);
             if (!seeking_ && duration > 0)
                 music_position_.setProgress((int) Math.min(10000, position / duration * 10000));
@@ -129,11 +132,12 @@ public final class PlayerActivity extends SDLActivity {
         LinearLayout music = new LinearLayout(this);
         AddButton(music, R.string.open_music, () -> OpenMusic());
         AddButton(music, R.string.demo_music, () -> StartImport(null, true));
-        CheckBox repeat = new CheckBox(this);
-        repeat.setText(R.string.loop_music);
-        repeat.setTextColor(0xffeeeeee);
-        repeat.setOnCheckedChangeListener((button, checked) -> nativeCommand(checked ? 21 : 20));
-        music.addView(repeat, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        repeat_ = new CheckBox(this);
+        repeat_.setText(R.string.loop_music);
+        repeat_.setTextColor(0xffeeeeee);
+        // Programmatic state refresh never dispatches another playback command.
+        repeat_.setOnClickListener(button -> nativeCommand(repeat_.isChecked() ? 21 : 20));
+        music.addView(repeat_, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         controls.addView(music);
         music_position_ = new SeekBar(this);
         music_position_.setMax(10000);

@@ -1,6 +1,6 @@
-add_library(audio_playback STATIC playback.cpp analysis_queue.cpp)
+add_library(audio_playback STATIC playback.cpp analysis_queue.cpp stream_source.cpp)
 target_include_directories(audio_playback PUBLIC include)
-target_link_libraries(audio_playback PUBLIC audio_types PRIVATE media_audio audio_output audio_analysis)
+target_link_libraries(audio_playback PUBLIC audio_types media_arrangement PRIVATE media_mixer audio_output audio_analysis)
 rhythm_project_target(audio_playback)
 if(BUILD_TESTING)
     add_executable(playback_analysis_tests tests/analysis_queue_tests.cpp analysis_queue.cpp)

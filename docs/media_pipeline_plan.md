@@ -142,3 +142,11 @@ trim/摆放/淡入淡出与严格源出点已通过两端功能检查；多轨�
 - [libswresample](https://ffmpeg.org/libswresample.html)
 - [libswscale](https://ffmpeg.org/libswscale.html)
 - [FFmpeg 许可与分发说明](https://ffmpeg.org/legal.html)
+
+## R5 多轨交付补充（2026-09-09）
+
+[多轨音频](audio_arrangement.md) 与 [视频片段](media_clip_arrangement.md) 已接入统一作品时间。
+音频按 48 kHz 采样编排，最多 32 条片段、同时四路，复用 FFmpeg 与既有输出/分析队列。
+`music-arrangement-v1` 与旧单曲 profile 显式区分；导出共用混音游标。
+Windows/Android 的内置音画作品和短功能记录见 [多轨验收](validation/audio_arrangement_2026-09-09.md)。
+场景准备队列/转场继续，长稳最后。

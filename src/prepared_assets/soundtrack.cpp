@@ -1,5 +1,6 @@
 #include <stdexcept>
 
+#include "audio_arrangement_assets.h"
 #include "rhythm/assets/store.h"
 #include "rhythm/prepared_assets/prepare.h"
 
@@ -19,6 +20,7 @@ std::optional<media::SoundtrackSource> PrepareSoundtrack(const project::RuntimeP
 #ifdef RHYTHM_HAS_IMAGE_DECODER
     const auto& audio = *package.streamed_audio_;
     if (package.profile_ != project::PackageProfile::kMusicPerformanceV2 || !package.soundtrack_ ||
+        !package.soundtrack_->clips_.empty() ||
         !media::ValidSoundtrack(*package.soundtrack_, std::span(&audio.record_, 1)) ||
         audio.record_.bytes_ > project::kMaximumMusicAssetBytes ||
         !assets::VerifyFile(audio.record_, audio.bytes_, stop))
@@ -35,6 +37,7 @@ std::optional<media::SoundtrackSource> PrepareSoundtrack(
         std::span<const project::PackagedAsset> assets, std::stop_token stop) {
     if (!binding) return {};
     if (stop.stop_requested()) throw std::runtime_error("audio.canceled");
+    if (!binding->clips_.empty()) return detail::PrepareArrangement(*binding, assets, stop);
 #ifdef RHYTHM_HAS_IMAGE_DECODER
     for (const auto& asset : assets) {
         if (asset.record_.id_ != binding->asset_) continue;

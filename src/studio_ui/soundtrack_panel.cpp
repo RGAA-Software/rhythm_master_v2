@@ -2,6 +2,10 @@
 
 #include <imgui.h>
 
+#include <set>
+
+#include "rhythm/media/audio_mixer.h"
+
 namespace rhythm::studio {
 namespace {
 std::filesystem::path BlobPath(const std::filesystem::path& assets, const assets::AssetId& id) {
@@ -9,6 +13,21 @@ std::filesystem::path BlobPath(const std::filesystem::path& assets, const assets
     // The project loader/importer validates the immutable store and this ID.
     // Resolving its deterministic name performs no disk access on the UI thread.
     return assets / "sha256" / id.sha256_.substr(0, 2) / id.sha256_;
+}
+void LoadBinding(const media::Soundtrack& binding, const std::filesystem::path& assets,
+                 audio_ui::AudioPanel& audio) {
+    if (binding.clips_.empty()) {
+        audio.LoadFile(BlobPath(assets, binding.asset_));
+    } else {
+        media::AudioArrangementFiles files{media::AudioArrangement(binding.clips_), {}};
+        std::set<std::string> loaded;
+        for (const auto& clip : binding.clips_)
+            if (loaded.insert(clip.asset_.sha256_).second)
+                files.files_.push_back({clip.asset_, BlobPath(assets, clip.asset_)});
+        audio.LoadArrangement(std::move(files));
+    }
+    audio.SetVolume(binding.gain_);
+    audio.SetLoop(binding.loop_);
 }
 }  // namespace
 std::optional<editor::Snapshot> SoundtrackPanel::Take(const editor::Snapshot& current,
@@ -35,8 +54,14 @@ void SoundtrackPanel::Sync(const editor::Snapshot& snapshot, const std::filesyst
     if (document_ == snapshot.document_.id_ && active_ == snapshot.soundtrack_) return;
     if (snapshot.soundtrack_) {
         const auto& next = *snapshot.soundtrack_;
-        if (document_ != snapshot.document_.id_ || !active_ || active_->asset_ != next.asset_)
-            audio.LoadFile(BlobPath(assets, next.asset_));
+        if (document_ != snapshot.document_.id_ || !active_ || active_->asset_ != next.asset_ ||
+            active_->clips_ != next.clips_) {
+            const auto playback = audio.Frame().playback_;
+            const bool preserve = document_ == snapshot.document_.id_ && active_ &&
+                                  active_->asset_ == next.asset_;
+            LoadBinding(next, assets, audio);
+            if (preserve && playback) audio.ApplyPlayback({playback->paused_, playback->seconds_});
+        }
         audio.SetVolume(next.gain_);
         audio.SetLoop(next.loop_);
     } else if (active_) {
@@ -62,6 +87,9 @@ std::optional<SoundtrackAction> SoundtrackPanel::Draw(
     ImGui::BeginDisabled(!selected);
     if (ImGui::Button((text.at("music.bind") + "###music.bind").c_str()))
         action = SoundtrackAction::kBind;
+    ImGui::SameLine();
+    if (ImGui::Button((text.at("music.append") + "###music.append").c_str()))
+        action = SoundtrackAction::kAppend;
     ImGui::EndDisabled();
     ImGui::BeginDisabled(!snapshot.soundtrack_);
     if (ImGui::Button((text.at("music.load") + "###music.load").c_str()))
@@ -90,15 +118,15 @@ std::optional<editor::Snapshot> SoundtrackPanel::Start(SoundtrackAction action,
         }
         if (action == SoundtrackAction::kLoad) {
             if (snapshot.soundtrack_) {
-                audio.LoadFile(BlobPath(assets, snapshot.soundtrack_->asset_));
-                audio.SetVolume(snapshot.soundtrack_->gain_);
-                audio.SetLoop(snapshot.soundtrack_->loop_);
+                LoadBinding(*snapshot.soundtrack_, assets, audio);
             }
             return {};
         }
         const auto source = audio.SelectedFile();
         if (!source) return {};
-        if (snapshot.soundtrack_ && *source == BlobPath(assets, snapshot.soundtrack_->asset_)) {
+        if (action == SoundtrackAction::kBind && snapshot.soundtrack_ &&
+            snapshot.soundtrack_->clips_.empty() &&
+            *source == BlobPath(assets, snapshot.soundtrack_->asset_)) {
             auto next = snapshot;
             next.soundtrack_->gain_ = audio.Volume();
             next.soundtrack_->loop_ = audio.Loop();
@@ -109,7 +137,8 @@ std::optional<editor::Snapshot> SoundtrackPanel::Start(SoundtrackAction action,
         import_source_ = source;
         import_gain_ = audio.Volume();
         import_loop_ = audio.Loop();
-        status_ = importer_->Start(snapshot, assets, *source, audio.Volume(), audio.Loop())
+        status_ = importer_->Start(snapshot, assets, *source, audio.Volume(), audio.Loop(),
+                                   action == SoundtrackAction::kAppend)
                           ? "music.binding"
                           : "music.binding_failed";
     } catch (const std::exception&) {

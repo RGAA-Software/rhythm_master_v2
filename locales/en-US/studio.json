@@ -850,5 +850,19 @@
     "clip.blank": "Blank",
     "clip.interval": "Invalid clip interval: source out must follow source in, and placement must fit within seven days.",
     "clip.source_range": "The clip source out exceeds the video's duration.",
-    "clip.timeline_help": "Each row represents a video node. Drag the bar to move it or its edges to resize placement; edit source trim below. Select footage in node properties and connect clips to a layer stack to choose compositing order."
+    "clip.timeline_help": "Each row represents a video node. Drag the bar to move it or its edges to resize placement; edit source trim below. Select footage in node properties and connect clips to a layer stack to choose compositing order.",
+    "music.append": "Append audio clip",
+    "export.arrangement": "Leave music empty to export the arranged mix, or choose a file to replace it. Audio is silent after the arrangement ends.",
+    "audio.duration_required": "Audio arrangement requires a known valid duration.",
+    "audio.arrangement_help": "Audio arrangement: drag clips or their edges to place them; edit source trim separately. Up to 32 clips, four simultaneous sources, mixed at native speed to drive the visuals.",
+    "audio.arrangement_invalid": "Invalid clip: check trim, duration and the four simultaneous source limit.",
+    "audio.clip_snap": "Snap audio clips to beats",
+    "audio.clip_duplicate": "Duplicate at playhead",
+    "audio.clip_remove": "Remove audio clip",
+    "audio.clip_title": "Clip name",
+    "audio.clip_gain": "Clip gain",
+    "audio.clip_pan": "Stereo balance",
+    "audio.clip_mute": "Mute clip",
+    "audio.clip_smooth": "Smooth fades",
+    "audio.clip_loop": "Loop trimmed source"
 }

@@ -850,5 +850,19 @@
     "clip.blank": "透明",
     "clip.interval": "片段区间无效：出点必须大于入点，摆放区间须在七天以内。",
     "clip.source_range": "片段源出点超过了视频素材时长。",
-    "clip.timeline_help": "每行对应一个视频节点。拖动条块移动片段，拖动边缘调整摆放时长；下方编辑源区间。请在节点属性中选择素材，将视频连接到图层合成节点决定叠放顺序。"
+    "clip.timeline_help": "每行对应一个视频节点。拖动条块移动片段，拖动边缘调整摆放时长；下方编辑源区间。请在节点属性中选择素材，将视频连接到图层合成节点决定叠放顺序。",
+    "music.append": "添加为音频片段",
+    "export.arrangement": "音乐文件留空时导出作品的多轨混音；指定文件可替换配乐。编排结束后输出静音。",
+    "audio.duration_required": "音频需要有效的已知时长才能编排。",
+    "audio.arrangement_help": "多轨音频：拖动片段或两端调整摆放，源入出点单独编辑。最多 32 个片段、同时 4 路；按原速混合并驱动画面。",
+    "audio.arrangement_invalid": "片段无效：检查入出点、时长以及最多同时 4 路的限制。",
+    "audio.clip_snap": "音频片段节拍吸附",
+    "audio.clip_duplicate": "复制到播放位置",
+    "audio.clip_remove": "移除音频片段",
+    "audio.clip_title": "片段名称",
+    "audio.clip_gain": "片段音量",
+    "audio.clip_pan": "左右平衡",
+    "audio.clip_mute": "静音片段",
+    "audio.clip_smooth": "平滑淡入淡出",
+    "audio.clip_loop": "循环源区间"
 }

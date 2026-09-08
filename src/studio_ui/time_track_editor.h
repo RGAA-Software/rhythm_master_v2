@@ -2,6 +2,7 @@
 
 #include <functional>
 
+#include "audio_clip_editor.h"
 #include "cue_editor.h"
 #include "curve_editor.h"
 #include "rhythm/editor/history.h"
@@ -31,6 +32,8 @@ class TimeTrackEditor final {
     std::string section_error_{};
     bool curve_draft_ = false;
     bool cue_draft_ = false;
+    bool audio_draft_ = false;
+    AudioClipEditor audio_clips_{};
     CueEditor cues_{};
     graph::NodeId track_ = 0;
 };

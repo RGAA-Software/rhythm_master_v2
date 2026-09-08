@@ -1,0 +1,51 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "license": "MIT",
+    "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+    "source_files": [
+        {
+            "path": "Core/Audio/TimelineAudioClip.cs",
+            "sha256": "ed0db5ea7ef823dcc1316198ce499e8b9f1c030dbebd18bcc0946e58bbde3ea6"
+        },
+        {
+            "path": "Core/Audio/AudioMixerManager.cs",
+            "sha256": "c1ed5da76c60732b9e855b3bde1a3dcc14f75c96c7ed823ebee2df81a798398b"
+        }
+    ],
+    "imported_files": [],
+    "usage": "Study native-rate timeline clips, per-clip gain/mute/source trim, and shared live/export PCM routing. No source copied.",
+    "modifications": [
+        "TiXL's C#/BASS service and global device ownership do not fit the sole-FFmpeg contract. Reuse the validated project FFmpeg decoder/resampler and existing device/analysis queue; add bounded sample-aligned clip mixing without another player or clock."
+    ],
+    "target_modules": [
+        "media_arrangement",
+        "media_mixer",
+        "audio_playback",
+        "project_io",
+        "prepared_assets",
+        "export_core",
+        "studio_ui",
+        "content"
+    ],
+    "first_party_reuse": [
+        "src/parameters/clip_interval.cpp",
+        "src/media/audio_decoder.cpp",
+        "src/audio_playback/analysis_queue.cpp",
+        "src/audio_playback/playback.cpp",
+        "src/studio_ui/time_section_editor.cpp",
+        "tools/author-resonance-gate.py",
+        "tools/create-music-fixture.py"
+    ],
+    "outbound_license": "Unselected; no third-party source relicensed.",
+    "authored_content": {
+        "project": "content/templates/luminous_concerto",
+        "generator": "tools/author-luminous-concerto.py",
+        "sources": "Original procedural ribbon fields and PCM synthesis; no external samples or imported media.",
+        "tools": [
+            "NumPy 2.5.2 (authoring only)",
+            "Installed vcpkg FFmpeg CLI (FLAC/MPEG4 encoding)"
+        ],
+        "outbound_license": "First-party assets; project license unselected."
+    }
+}

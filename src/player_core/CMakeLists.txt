@@ -9,7 +9,7 @@ if(BUILD_TESTING)
     add_test(NAME control_player COMMAND control_player_tests)
     if(RHYTHM_BUILD_MEDIA)
         add_executable(soundtrack_player_tests tests/soundtrack_player_tests.cpp)
-        target_link_libraries(soundtrack_player_tests PRIVATE player_core asset_store project_io media_audio)
+        target_link_libraries(soundtrack_player_tests PRIVATE player_core asset_store project_io media_mixer)
         rhythm_project_target(soundtrack_player_tests)
         add_test(NAME soundtrack_player COMMAND soundtrack_player_tests
             "${PROJECT_BINARY_DIR}/audio-decoder-tests/tone.flac" "${PROJECT_BINARY_DIR}/soundtrack-player")

@@ -38,6 +38,10 @@ int main(int argc, char* argv[]) {
         const auto expected_nodes = argc == 5 ? std::stoull(argv[4]) : 164;
         const auto package = project::LoadPackage(argv[1]);
         const auto& instructions = package.program_.instructions_;
+        const bool videos =
+                std::any_of(instructions.begin(), instructions.end(), [](const auto& instruction) {
+                    return instruction.operation_ == graph::Operation::kTextureVideo;
+                });
         const auto bands = std::count_if(
                 instructions.begin(), instructions.end(), [](const auto& instruction) {
                     return instruction.operation_ == graph::Operation::kAudioBand;
@@ -73,8 +77,8 @@ int main(int argc, char* argv[]) {
                 });
         if (instructions.size() != expected_nodes ||
             (bands < 24 && instance_fields == 0 &&
-             !((gpu_fields > 0 || materials > 0 || paths > 0 || deformations > 0 || shaders > 0 ||
-                animated_models > 0) &&
+             !((videos || gpu_fields > 0 || materials > 0 || paths > 0 || deformations > 0 ||
+                shaders > 0 || animated_models > 0) &&
                bands >= 2)))
             throw std::runtime_error("music.full_graph_not_reachable");
         std::cout << "reachable_instructions=" << instructions.size() << " audio_bands=" << bands
@@ -95,6 +99,13 @@ int main(int argc, char* argv[]) {
         for (std::size_t scenario = 0; scenario < names.size(); ++scenario) {
             player::Session session;
             session.Open(argv[1]);
+            // Resolve video on this offline test worker so comparisons hold
+            // source frames fixed; decoder scheduling cannot mimic audio response.
+            const auto resources =
+                    videos ? prepared_assets::Prepare(package.program_, package.assets_)
+                           : std::shared_ptr<const prepared_assets::Resources>{};
+            video_sources::Streams video_streams;
+            runtime::Runtime offline;
             runtime::ExternalInputs inputs;
             std::size_t cursor = 0;
             std::uint64_t stable_bytes = 0;
@@ -106,7 +117,23 @@ int main(int argc, char* argv[]) {
                     ++cursor;
                 if (sequence[cursor].center_seconds_ <= seconds) inputs.audio_ = sequence[cursor];
                 renderer.BeginFrame();
-                const auto image = session.Tick(seconds, false, {1280, 720}, renderer, inputs);
+                runtime::FrameResult image;
+                if (videos) {
+                    runtime::FrameContext context{seconds, 1, {1280, 720}, false};
+                    context.resources_ = resources->models_;
+                    context.images_ = resources->images_;
+                    context.shaders_ = resources->shaders_;
+                    context.videos_ =
+                            video_streams.Resolve(package.program_, *resources, seconds, 1);
+                    context.external_ = inputs;
+                    context.external_.controls_ = parameters::EvaluateControls(
+                            package.program_.controls_, package.program_.control_sequence_,
+                            seconds);
+                    context.retained_textures_ = std::vector<graph::NodeId>{};
+                    image = offline.Evaluate(package.program_, context, renderer);
+                } else {
+                    image = session.Tick(seconds, false, {1280, 720}, renderer, inputs);
+                }
                 render::DrawList draw;
                 draw.width_ = 1280;
                 draw.height_ = 720;

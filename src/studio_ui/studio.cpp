@@ -161,7 +161,9 @@ class Studio::Impl final {
             export_panel_.Open(project_.parent_path().parent_path() / "Exports" / name,
                                audio_panel_.SelectedFile(),
                                music && music->duration_ ? *music->duration_ : 10,
-                               audio_panel_.Volume(), history_->Current().document_.canvas_);
+                               audio_panel_.Volume(), history_->Current().document_.canvas_,
+                               history_->Current().soundtrack_ &&
+                                       !history_->Current().soundtrack_->clips_.empty());
         }
 #endif
         ImGui::SameLine();

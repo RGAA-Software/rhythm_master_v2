@@ -14,7 +14,7 @@ class ExportPanel final {
    public:
     void Open(const std::filesystem::path& destination,
               const std::optional<std::filesystem::path>& music, double duration, float gain,
-              graph::Canvas canvas);
+              graph::Canvas canvas, bool arranged = false);
     std::optional<ExportRequest> Draw(const std::map<std::string, std::string>& text);
     void Start(const std::filesystem::path& executable, editor::Snapshot snapshot,
                const std::filesystem::path& assets, ExportRequest request);
@@ -34,5 +34,6 @@ class ExportPanel final {
     int codec_ = 0;
     int quality_ = 1;
     bool open_ = false;
+    bool arranged_ = false;
 };
 }  // namespace rhythm::studio

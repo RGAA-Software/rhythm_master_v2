@@ -8,6 +8,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "rhythm/media/audio_decoder.h"
 #include "rhythm/media/video_decoder.h"
 #include "rhythm/project/store.h"
 #include "rhythm/studio/studio.h"
@@ -37,7 +38,8 @@ int main(int argc, char* argv[]) {
         auto renderer = host.CreateRenderer();
         auto font = host.CreateFontTexture(renderer);
         studio::Studio studio(argv[1], project_path);
-        studio.LoadAudioFile(argv[3], 0);
+        const bool arranged = std::string_view(argv[3]) == "--arranged";
+        if (!arranged) studio.LoadAudioFile(argv[3], 0);
         const auto start = std::chrono::steady_clock::now();
         const auto deadline = start + std::chrono::seconds(80);
         std::vector<double> frame_ms;
@@ -82,6 +84,17 @@ int main(int argc, char* argv[]) {
         }
         if (frames != 480)
             throw std::runtime_error("UI did not adopt the full 16-second music duration");
+        if (arranged) {
+            media::AudioDecoder decoded(output_path);
+            double energy = 0;
+            std::uint64_t samples = 0;
+            while (const auto block = decoded.Read()) {
+                for (const auto sample : block->samples_) energy += sample * sample;
+                samples += block->samples_.size() / 2;
+            }
+            if (samples < 16 * 48000 || samples > 16 * 48000 + 2048 || energy < 100)
+                throw std::runtime_error("arranged MP4 audio missing or silent");
+        }
         std::sort(frame_ms.begin(), frame_ms.end());
         const auto output_utf8 = output_path.u8string();
         std::cout << "Studio export button -> H264 MP4: 480 frames; parent frames="

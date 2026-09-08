@@ -63,7 +63,7 @@ bool RequiresStreamedAudio(std::span<const assets::AssetRecord> records,
         if (!assets::ValidId(record.id_) || !assets::ValidMediaType(record.media_type_) ||
             !identities.insert(record.id_.sha256_).second)
             throw std::invalid_argument("package.asset_record");
-        if (soundtrack && record.id_ == soundtrack->asset_) {
+        if (soundtrack && soundtrack->clips_.empty() && record.id_ == soundtrack->asset_) {
             if (!record.bytes_ || record.bytes_ > kMaximumMusicAssetBytes)
                 throw std::length_error("package.music_bytes");
             music = record.bytes_;
@@ -110,7 +110,9 @@ std::string EncodePackage(const graph::Document& document, std::string_view titl
     Json manifest = {{"format", "rhythm.runtime"},
                      {"manifest_version", 1},
                      {"program_abi", plan.control_sequence_ ? 3 : 2},
-                     {"profile", soundtrack ? "music-performance-v1" : "texture-signal-v2"},
+                     {"profile", soundtrack ? (soundtrack->clips_.empty() ? "music-performance-v1"
+                                                                          : "music-arrangement-v1")
+                                            : "texture-signal-v2"},
                      {"canvas", {{"width", plan.canvas_.width_}, {"height", plan.canvas_.height_}}},
                      {"document_id", plan.document_id_},
                      {"revision", plan.revision_},
@@ -140,7 +142,9 @@ RuntimePackage DecodeEntries(const detail::PackageEntries& entries,
                 return true;
             });
     const bool file_music = manifest.at("profile") == "music-performance-v2";
-    const bool music = file_music || manifest.at("profile") == "music-performance-v1";
+    const bool arranged_music = manifest.at("profile") == "music-arrangement-v1";
+    const bool music =
+            file_music || arranged_music || manifest.at("profile") == "music-performance-v1";
     if (file_music != streamed.has_value()) throw std::invalid_argument("package.media_profile");
     const bool current = music || manifest.at("profile") == "texture-signal-v2";
     if (!manifest.at("program_abi").is_number_unsigned() || manifest.at("program_abi") > 3)
@@ -156,9 +160,10 @@ RuntimePackage DecodeEntries(const detail::PackageEntries& entries,
         manifest.at("program_sha256") != Hash(program))
         throw std::invalid_argument("package.hash");
     RuntimePackage package;
-    package.profile_ = file_music ? PackageProfile::kMusicPerformanceV2
-                       : music    ? PackageProfile::kMusicPerformanceV1
-                       : current  ? PackageProfile::kTextureSignalV2
+    package.profile_ = arranged_music ? PackageProfile::kMusicArrangementV1
+                       : file_music   ? PackageProfile::kMusicPerformanceV2
+                       : music        ? PackageProfile::kMusicPerformanceV1
+                       : current      ? PackageProfile::kTextureSignalV2
                        : manifest.at("profile") == "texture-signal-assets-v1"
                                ? PackageProfile::kTextureSignalAssetsV1
                                : PackageProfile::kTextureSignalV1;
@@ -202,6 +207,8 @@ RuntimePackage DecodeEntries(const detail::PackageEntries& entries,
             package.streamed_audio_ = RuntimePackage::StreamedAudio{audio, streamed->bytes_};
         }
         package.soundtrack_ = detail::DecodeSoundtrack(manifest.at("soundtrack"), records);
+        if (arranged_music != !package.soundtrack_->clips_.empty())
+            throw std::invalid_argument("package.soundtrack_profile");
         if (file_music && package.soundtrack_->asset_ != package.streamed_audio_->record_.id_)
             throw std::invalid_argument("package.media_binding");
     } else if (manifest.contains("soundtrack")) {

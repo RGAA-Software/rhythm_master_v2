@@ -34,7 +34,9 @@ four exposed controls. [Snapshot cue arrangement](docs/cue_arrangement.md) now p
 named timeline cues, interrupted fades, beat snapping and seek/export consistency.
 [Video clip source intervals](docs/media_clip_arrangement.md) add trimmed, faded,
 overlapping video tracks with timeline editing and shared FFmpeg playback/export.
-Multitrack audio mixing and scene transitions continue.
+[Multitrack audio arrangement](docs/audio_arrangement.md) adds shared playback/export PCM,
+editable audio clips and the built-in Luminous Concerto media performance.
+Scene preparation/transitions and R6 continue.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

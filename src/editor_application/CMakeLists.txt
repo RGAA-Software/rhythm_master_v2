@@ -1,5 +1,6 @@
 add_library(editor_application STATIC history.cpp compiler_worker.cpp commands.cpp template_command.cpp binding_commands.cpp component_commands.cpp component_edit.cpp component_detach.cpp component_unpack.cpp time_sections.cpp)
 target_include_directories(editor_application PUBLIC include)
+target_sources(editor_application PRIVATE soundtrack_command.cpp)
 target_link_libraries(editor_application PUBLIC Rhythm::Graph asset_types media_types)
 rhythm_project_target(editor_application)
 if(BUILD_TESTING)

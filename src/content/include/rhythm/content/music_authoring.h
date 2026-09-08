@@ -22,7 +22,7 @@ class MusicAuthoring final {
    public:
     ~MusicAuthoring();
     bool Start(editor::Snapshot snapshot, std::filesystem::path assets,
-               std::filesystem::path source, float gain, bool loop);
+               std::filesystem::path source, float gain, bool loop, bool append = false);
     bool Busy() const { return pending_.valid(); }
     void Cancel();
     std::optional<MusicImportResult> Take();

@@ -20,7 +20,7 @@ struct Commands {
 };
 Commands TakeCommands();
 void PublishStatus(std::string status);
-void PublishPlayback(double seconds, std::optional<double> duration);
+void PublishPlayback(double seconds, std::optional<double> duration, bool loop = false);
 // Publish only a successfully loaded work's authored canvas, never the surface size.
 void PublishScene(render::Extent canvas, std::string title);
 struct Surface {

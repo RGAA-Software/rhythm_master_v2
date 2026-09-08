@@ -70,7 +70,8 @@ void PublishMusicPackage(const std::filesystem::path& path, const graph::Documen
                          const media::Soundtrack& soundtrack, bool fail_before_commit,
                          std::stop_token stop) {
     if (stop.stop_requested()) throw std::runtime_error("package.cancelled");
-    if (!audio.bytes_.Valid() || audio.bytes_.Size() != audio.record_.bytes_ ||
+    if (!soundtrack.clips_.empty() || !audio.bytes_.Valid() ||
+        audio.bytes_.Size() != audio.record_.bytes_ ||
         audio.bytes_.Size() > kMaximumMusicAssetBytes ||
         !assets::ValidMediaType(audio.record_.media_type_) ||
         !media::ValidSoundtrack(soundtrack, std::span(&audio.record_, 1)) ||

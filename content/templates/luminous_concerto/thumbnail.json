@@ -1,0 +1,14 @@
+{
+    "template": "luminous_concerto",
+    "package_sha256": "9c4a0b5ee0b44b8ca32f78d6e165a3f5c8fb030a49c57dfd397911550fd97c6d",
+    "thumbnail_sha256": "1f96ae79ceefb9cb25a926f7bce0e70fe813d08582b40af0e67433c4f5985288",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

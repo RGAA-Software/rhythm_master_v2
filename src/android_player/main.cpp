@@ -130,7 +130,10 @@ int main(int, char**) {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
                     // Visual-only effects keep the current music and its clock.
                     // A published work with a bound soundtrack replaces it.
-                    if (const auto track = session.Soundtrack()) music.Open(*track);
+                    if (const auto track = session.Soundtrack()) {
+                        music.Open(*track);
+                        music.Apply({paused, {}});
+                    }
 #endif
                     error.clear();
                 } else {
@@ -152,7 +155,8 @@ int main(int, char**) {
             if (music_frame.failed_) error = "audio_error";
             android_host::PublishPlayback(
                     session.Seconds(),
-                    music_frame.playback_ ? music_frame.playback_->duration_ : std::nullopt);
+                    music_frame.playback_ ? music_frame.playback_->duration_ : std::nullopt,
+                    music.Loop());
 #else
             runtime::ExternalInputs inputs;
             inputs.controls_ = android_host::CurrentControls();

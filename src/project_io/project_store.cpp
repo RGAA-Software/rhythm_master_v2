@@ -86,7 +86,8 @@ std::vector<ContentEntry> ScanTemplates(const std::filesystem::path& root) {
     for (const auto& entry : std::filesystem::directory_iterator(root)) {
         if (!entry.is_directory() || entry.is_symlink()) continue;
         const auto manifest = ParseMetadata(Read(entry.path() / "manifest.json", 1024 * 1024));
-        if (manifest.at("kind") != "template" || manifest.at("manifest_version") != 1)
+        const auto version = manifest.at("manifest_version");
+        if (manifest.at("kind") != "template" || (version != 1 && version != 2 && version != 3))
             throw std::invalid_argument("content.version");
         ContentEntry content{manifest.at("content_id").get<std::string>(),
                              manifest.at("content_version").get<std::string>(), entry.path()};
@@ -119,7 +120,7 @@ LoadResult LoadRevision(const std::filesystem::path& directory) {
     if (std::filesystem::is_symlink(directory)) throw std::invalid_argument("project.symlink");
     const auto manifest = ParseMetadata(Read(directory / "manifest.json", 1024 * 1024));
     const auto version = manifest.at("manifest_version");
-    if (manifest.at("format") != "rhythm.project" || (version != 1 && version != 2))
+    if (manifest.at("format") != "rhythm.project" || (version != 1 && version != 2 && version != 3))
         throw std::invalid_argument("project.manifest_version");
     const auto bytes = Read(directory / "graph.pb", kMaximumGraphBytes);
     if (manifest.at("graph_sha256") != Digest(bytes))
@@ -144,10 +145,12 @@ LoadResult LoadRevision(const std::filesystem::path& directory) {
         }
         EncodeAssets(result.snapshot_.assets_);
     }
-    if (version == 2)
+    if (version == 2 || version == 3) {
         result.snapshot_.soundtrack_ =
                 detail::DecodeSoundtrack(manifest.at("soundtrack"), result.snapshot_.assets_);
-    else if (manifest.contains("soundtrack"))
+        if ((version == 3) != !result.snapshot_.soundtrack_->clips_.empty())
+            throw std::invalid_argument("project.soundtrack_version");
+    } else if (manifest.contains("soundtrack"))
         throw std::invalid_argument("project.soundtrack_version");
     try {
         const auto layout_bytes = Read(directory / "editor.json", 1024 * 1024);
@@ -204,7 +207,8 @@ void Save(const std::filesystem::path& project, const editor::Snapshot& snapshot
     storage::WriteDurable(directory / "editor.json", editor_bytes);
     Fault(CommitStep::kEditorWritten, fail_after);
     Json manifest = {{"format", "rhythm.project"},
-                     {"manifest_version", snapshot.soundtrack_ ? 2 : 1},
+                     {"manifest_version",
+                      snapshot.soundtrack_ ? (snapshot.soundtrack_->clips_.empty() ? 2 : 3) : 1},
                      {"revision_id", revision},
                      {"project_id", snapshot.document_.id_},
                      {"graph_revision", snapshot.document_.revision_},

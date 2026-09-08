@@ -100,6 +100,33 @@ int main(int argc, char* argv[]) {
         changed = snapshot;
         changed.assets_[0].media_type_ = "image/png";
         Reject([&] { project::Save(project_path, changed); });
+        auto arranged = snapshot;
+        media::AudioClip clip{1, "Bass", record.id_};
+        clip.timing_ = {0.25, 4, 0.1, 1.1, 1, parameters::ClipEnd::kLoop, 0.2, 0.3};
+        auto second = clip;
+        second.id_ = 2;
+        second.title_ = "Echo";
+        second.timing_.start_ = 2;
+        second.pan_ = 0.5F;
+        arranged.soundtrack_->clips_ = {clip, second};
+        project::Save(project_path, arranged);
+        Check(project::Load(project_path).snapshot_ == arranged);
+        const auto arranged_bytes = project::EncodePackage(arranged.document_, arranged.title_,
+                                                           assets, arranged.soundtrack_);
+        const auto arranged_package = project::DecodePackage(arranged_bytes);
+        Check(arranged_package.profile_ == project::PackageProfile::kMusicArrangementV1 &&
+              arranged_package.soundtrack_ == arranged.soundtrack_);
+        auto downgraded = project::detail::ReadArchive(arranged_bytes);
+        auto arranged_metadata = nlohmann::json::parse(downgraded.at("manifest.json"));
+        arranged_metadata["profile"] = "music-performance-v1";
+        downgraded["manifest.json"] = arranged_metadata.dump();
+        Reject([&] { project::DecodePackage(project::detail::WriteArchive(downgraded)); });
+        arranged_metadata["profile"] = "music-arrangement-v1";
+        arranged_metadata["soundtrack"]["clips"][1]["source_out"] = 0;
+        downgraded["manifest.json"] = arranged_metadata.dump();
+        Reject([&] { project::DecodePackage(project::detail::WriteArchive(downgraded)); });
+        arranged.assets_[0].bytes_ = project::kMaximumPackageAssetBytes + 1;
+        Reject([&] { project::RequiresStreamedAudio(arranged.assets_, arranged.soundtrack_); });
         snapshot.soundtrack_.reset();
         project::Save(project_path, snapshot);
         Check(!project::Load(project_path).snapshot_.soundtrack_);
