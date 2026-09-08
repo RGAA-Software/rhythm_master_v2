@@ -6,6 +6,7 @@ import io
 import json
 from pathlib import Path
 import struct
+import re
 import zipfile
 
 
@@ -67,6 +68,37 @@ def verify(apk):
         package = archive.read("assets/signal_texture.rhythmpack")
         with zipfile.ZipFile(io.BytesIO(package)) as runtime_archive:
             runtime_manifest = json.loads(runtime_archive.read("manifest.json"))
+        catalog = json.loads(archive.read("assets/effects/catalog.json"))
+        if not 1 <= len(catalog) <= 256 or len({entry["id"] for entry in catalog}) != len(catalog):
+            raise ValueError("Invalid built-in effect catalog")
+        expected_effects = {"assets/effects/catalog.json"}
+        for entry in catalog:
+            if not re.fullmatch(r"[a-z0-9_]+", entry["id"]) or entry["package"] != "effects/" + entry["id"] + ".rhythmpack":
+                raise ValueError("Invalid built-in effect asset path")
+            asset = "assets/" + entry["package"]
+            expected_effects.add(asset)
+            data = archive.read(asset)
+            if hashlib.sha256(data).hexdigest() != entry["sha256"]:
+                raise ValueError("Built-in effect hash mismatch")
+            with zipfile.ZipFile(io.BytesIO(data)) as effect:
+                manifest = json.loads(effect.read("manifest.json"))
+                if effect.testzip() or manifest["canvas"] != entry["canvas"]:
+                    raise ValueError("Built-in effect canvas/CRC mismatch")
+                if hashlib.sha256(effect.read("runtime/program.pb")).hexdigest() != manifest["program_sha256"]:
+                    raise ValueError("Built-in program hash mismatch")
+            if not all(entry["titles"].get(locale) for locale in ("zh-CN", "en-US")):
+                raise ValueError("Missing built-in effect translations")
+            if "thumbnail" in entry:
+                if entry["thumbnail"] != "effects/" + entry["id"] + ".png":
+                    raise ValueError("Invalid thumbnail path")
+                asset = "assets/" + entry["thumbnail"]
+                expected_effects.add(asset)
+                thumbnail = archive.read(asset)
+                if hashlib.sha256(thumbnail).hexdigest() != entry["thumbnail_sha256"] or struct.unpack_from(
+                        ">II", thumbnail, 16) != (256, 144):
+                    raise ValueError("Built-in thumbnail mismatch")
+        if {name for name in names if name.startswith("assets/effects/")} != expected_effects:
+            raise ValueError("Stale or missing built-in effect assets")
         if not any(name.startswith("assets/notices/miniz/") for name in names):
             raise ValueError("Missing ZIP dependency notice")
         if "assets/resonance_demo.wav" not in names or "assets/notices/ffmpeg/profile.json" not in names:
@@ -80,6 +112,7 @@ def verify(apk):
             "native_alignment": 16384, "profile": "arm64-v8a GLES3", "runtime_profile": runtime_manifest["profile"],
             "runtime_abi": runtime_manifest["program_abi"],
             "media_license": media["license"],
+            "builtin_effects": len(catalog),
             "device_acceptance": "Not established by archive verification"}
 
 

@@ -3,18 +3,23 @@ package org.rhythmmaster.player;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.SeekBar;
 import android.widget.CheckBox;
+import android.widget.ScrollView;
+import android.widget.RelativeLayout;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -44,6 +49,9 @@ public final class PlayerActivity extends SDLActivity {
     private boolean seeking_ = false;
     private AudioManager audio_manager_ = null;
     private AudioFocusRequest audio_focus_ = null;
+    private ScrollView controls_container_ = null;
+    private EffectCatalog effects_ = null;
+    private TextView effect_title_ = null;
     private static native void nativeCommand(int command);
     private static native boolean nativeOpen(String path);
     private static native String nativeStatus();
@@ -52,6 +60,8 @@ public final class PlayerActivity extends SDLActivity {
     private static native void nativeSeek(double seconds);
     private static native double nativePosition();
     private static native double nativeDuration();
+    private static native int nativeSceneOrientation();
+    private static native String nativeSceneTitle();
 
     @Override protected SDLSurface createSDLSurface(Context context) {
         return new SDLSurface(context) {
@@ -69,6 +79,8 @@ public final class PlayerActivity extends SDLActivity {
     private final Runnable update_ = new Runnable() {
         @Override public void run() {
             if (!active_ || status_ == null) return;
+            ApplySceneOrientation();
+            effect_title_.setText(nativeSceneTitle());
             String text = nativeStatus().replace("playing", getString(R.string.playing))
                     .replace("paused", getString(R.string.paused))
                     .replace("audio_error", getString(R.string.audio_error))
@@ -99,14 +111,19 @@ public final class PlayerActivity extends SDLActivity {
         controls.setOrientation(LinearLayout.VERTICAL);
         controls.setBackgroundColor(0xee172230);
         LinearLayout buttons = new LinearLayout(this);
-        AddButton(buttons, R.string.open_package, () -> OpenPackage());
+        AddButton(buttons, R.string.choose_effect, () -> ChooseEffect());
         AddButton(buttons, R.string.pause_resume, () -> {
             if (RequestAudioFocus()) nativeCommand(1);
         });
         AddButton(buttons, R.string.restart, () -> nativeCommand(2));
         controls.addView(buttons);
+        effect_title_ = new TextView(this);
+        effect_title_.setTextColor(0xffeeeeee);
+        effect_title_.setPadding(16, 4, 16, 4);
+        controls.addView(effect_title_);
         LinearLayout settings = new LinearLayout(this);
         AddButton(settings, R.string.render_quality, () -> ChooseQuality());
+        AddButton(settings, R.string.open_package, () -> OpenPackage());
         controls.addView(settings);
         LinearLayout music = new LinearLayout(this);
         AddButton(music, R.string.open_music, () -> OpenMusic());
@@ -115,7 +132,7 @@ public final class PlayerActivity extends SDLActivity {
         repeat.setText(R.string.loop_music);
         repeat.setTextColor(0xffeeeeee);
         repeat.setOnCheckedChangeListener((button, checked) -> nativeCommand(checked ? 21 : 20));
-        music.addView(repeat);
+        music.addView(repeat, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         controls.addView(music);
         music_position_ = new SeekBar(this);
         music_position_.setMax(10000);
@@ -139,10 +156,71 @@ public final class PlayerActivity extends SDLActivity {
         status_.setTextColor(0xffeeeeee);
         status_.setPadding(16, 4, 16, 12);
         controls.addView(status_);
-        android.widget.RelativeLayout.LayoutParams layout = new android.widget.RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layout.addRule(android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM);
-        mLayout.addView(controls, layout);
+        controls_container_ = new ScrollView(this);
+        controls_container_.setId(View.generateViewId());
+        controls_container_.setBackgroundColor(0xff172230);
+        controls_container_.addView(controls);
+        mLayout.addView(controls_container_);
+        ApplyControlLayout();
+        boolean chinese = getResources().getConfiguration().getLocales().get(0).getLanguage().equals("zh");
+        importer_.execute(() -> {
+            try {
+                EffectCatalog catalog = EffectCatalog.Load(getAssets(), chinese);
+                handler_.post(() -> effects_ = catalog);
+            } catch (Exception error) {
+                handler_.post(() -> Toast.makeText(this, R.string.package_error, Toast.LENGTH_LONG).show());
+            }
+        });
+    }
+
+    private void ChooseEffect() {
+        if (effects_ == null || importing_) {
+            Toast.makeText(this, R.string.loading_effects, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        effects_.Show(this, asset -> StartImport(null, false, asset));
+    }
+
+    private void ApplySceneOrientation() {
+        // This is a snapshot of the accepted package, independent of render quality
+        // and the current SurfaceView dimensions. Reuse SDL's orientation policy.
+        int shape = nativeSceneOrientation();
+        int requested;
+        String hint;
+        if (shape == 1) {
+            requested = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE;
+            hint = "LandscapeLeft LandscapeRight";
+        } else if (shape == 2) {
+            requested = ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT;
+            hint = "Portrait PortraitUpsideDown";
+        } else if (shape == 3) {
+            requested = ActivityInfo.SCREEN_ORIENTATION_FULL_USER;
+            hint = "LandscapeLeft LandscapeRight Portrait PortraitUpsideDown";
+        } else {
+            return;
+        }
+        if (getRequestedOrientation() != requested)
+            super.setOrientationBis(0, 0, true, hint);
+    }
+
+    private void ApplyControlLayout() {
+        if (controls_container_ == null || mSurface == null) return;
+        android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
+        boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+        RelativeLayout.LayoutParams controls = new RelativeLayout.LayoutParams(
+                landscape ? Math.min((int) (280 * metrics.density), metrics.widthPixels / 2) : ViewGroup.LayoutParams.MATCH_PARENT,
+                landscape ? ViewGroup.LayoutParams.MATCH_PARENT : Math.min((int) (240 * metrics.density), metrics.heightPixels / 2));
+        controls.addRule(landscape ? RelativeLayout.ALIGN_PARENT_RIGHT : RelativeLayout.ALIGN_PARENT_BOTTOM);
+        controls_container_.setLayoutParams(controls);
+        RelativeLayout.LayoutParams surface = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        surface.addRule(landscape ? RelativeLayout.LEFT_OF : RelativeLayout.ABOVE, controls_container_.getId());
+        mSurface.setLayoutParams(surface);
+    }
+
+    @Override public void onConfigurationChanged(Configuration configuration) {
+        super.onConfigurationChanged(configuration);
+        ApplyControlLayout();
     }
 
     private void AddButton(LinearLayout row, int label, Runnable action) {
@@ -193,6 +271,10 @@ public final class PlayerActivity extends SDLActivity {
     }
 
     private void StartImport(Uri uri, boolean music) {
+        StartImport(uri, music, music ? "resonance_demo.wav" : null);
+    }
+
+    private void StartImport(Uri uri, boolean music, String asset) {
         if (importing_ || (music && !RequestAudioFocus())) return;
         importing_ = true;
         importer_.execute(() -> {
@@ -200,7 +282,7 @@ public final class PlayerActivity extends SDLActivity {
             try {
                 staging = File.createTempFile(music ? "music-" : "incoming-",
                         music ? ".media" : ".rhythmpack", getCacheDir());
-                try (InputStream input = uri == null ? getAssets().open("resonance_demo.wav") :
+                try (InputStream input = uri == null ? getAssets().open(asset) :
                         getContentResolver().openInputStream(uri);
                      FileOutputStream output = new FileOutputStream(staging)) {
                     if (input == null) throw new java.io.IOException("No document stream");

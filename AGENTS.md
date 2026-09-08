@@ -139,6 +139,11 @@ ownership is explicitly transferred to the project.
 
 ## Verification
 
+- Install Android updates with `adb install -r`, preserving application data.
+  Do not uninstall the application or clear its data as an installation fallback.
+- Bundle the authored effects in Android and offer direct in-app selection.
+  Directory picking is not the built-in effects workflow. Choose orientation
+  from the accepted scene canvas: landscape, portrait, or user rotation for square.
 - Specify `encoding="utf-8"` for Python reads/writes of project text. Never
   rewrite UTF-8 content through the Windows default code page. Text validation
   must check expected content as well as valid encoding and glyph availability.

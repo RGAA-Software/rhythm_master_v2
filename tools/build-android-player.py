@@ -10,6 +10,7 @@ import subprocess
 import sys
 import zipfile
 import android_media
+import android_effects
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -77,6 +78,7 @@ def main():
     inputs = sorted(source.rglob("*.java")) + sorted(source.rglob("*.xml")) + natives + [args.package]
     inputs += sorted((ROOT / "third_party/sources/sdl/android-project/app/src/main/java").rglob("*.java"))
     inputs += [Path(__file__), ROOT / "tools/verify-android-apk.py", ROOT / "third_party/README.md"]
+    inputs += [ROOT / "tools/android_effects.py"] + android_effects.sources(args.package.parent)
     inputs += [ROOT / "tools/android_media.py", ROOT / "tools/relink-android-player.py",
                media / "profile.json", media / "COPYING.LGPLv2.1", demo]
     inputs += sorted(path for path in (ROOT / "third_party/notices").rglob("*") if path.is_file())
@@ -92,6 +94,7 @@ def main():
         return
     assets = output / "assets"
     assets.mkdir(exist_ok=True)
+    android_effects.prepare(args.package.parent, assets)
     shutil.copy2(args.package, assets / "signal_texture.rhythmpack")
     shutil.copy2(demo, assets / "resonance_demo.wav")
     shutil.copytree(ROOT / "third_party/notices", assets / "notices", dirs_exist_ok=True)

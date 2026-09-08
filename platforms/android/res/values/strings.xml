@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">Rhythm Master Player</string>
-    <string name="open_package">Open package</string>
+    <string name="open_package">Import work</string>
+    <string name="choose_effect">Choose effect</string>
+    <string name="loading_effects">Loading effects…</string>
+    <string name="landscape_effect">Landscape</string>
+    <string name="portrait_effect">Portrait</string>
+    <string name="square_effect">Square</string>
+    <string name="music_driven">Music driven</string>
     <string name="pause_resume">Pause / Resume</string>
     <string name="restart">Restart</string>
     <string name="package_error">Cannot open package. Current playback is retained.</string>

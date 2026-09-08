@@ -718,3 +718,15 @@ p50/p95 为 16.7/17.2 ms，存在三次约 200 ms 慢帧，不能宣称完全无
 290 节点实际音乐场景最终测得编辑器/图运行 p95 11.52 ms，整帧 p95 23.63 ms，
 八个预览和纹理占用保留，尚不能宣称稳定 60 fps。见
 [测量条件与剩余开销](validation/canvas_frame_work_2026-09-08.md)。
+
+## 2026-09-08 Android 覆盖安装成功
+
+用户要求重试后，最新版 APK 通过 `adb install -r` 安装到 USB 设备 e2b3b128，
+返回 Success；PlayerActivity 冷启动返回 Status: ok，前台 Activity 与应用进程
+均已确认。此前 USB 安装阻塞已解除，完整音乐、前后台、中断与长稳验收继续待做。
+后续更新一律覆盖安装并保留数据，不卸载、不以清除数据作为安装失败的回退；
+规则已写入 AGENTS.md。
+
+## Android built-in effect selection, 2026-09-08
+
+The APK bundles all 32 current authored examples with localized thumbnails and direct UI selection. Visual-only switching preserves running music and pause state; scene canvas determines landscape/portrait, with user rotation for square. Actual USB selection, orientation transitions and selected-work preservation across adb install -r passed. See [device evidence](validation/android_builtin_effects_2026-09-08.md). This completes this usability slice, not the content-quality quota or wider Android roadmap.

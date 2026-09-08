@@ -62,6 +62,7 @@ int main(int, char**) {
         };
         apply_soundtrack();
 #endif
+        android_host::PublishScene(session.Canvas(), session.Title());
         std::uint64_t frames = 0;
         std::uint64_t devices = 0;
         std::uint64_t surface_generation = 0;
@@ -119,9 +120,14 @@ int main(int, char**) {
             }
             if (auto loaded = imports.Take()) {
                 if (loaded->package_) {
+                    const bool paused = session.Paused();
                     session.LoadPrepared(std::move(*loaded->package_));
+                    session.SetPaused(paused);
+                    android_host::PublishScene(session.Canvas(), session.Title());
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
-                    apply_soundtrack();
+                    // Visual-only effects keep the current music and its clock.
+                    // A published work with a bound soundtrack replaces it.
+                    if (const auto track = session.Soundtrack()) music.Open(*track);
 #endif
                     error.clear();
                 } else {

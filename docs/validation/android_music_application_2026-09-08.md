@@ -1,5 +1,11 @@
 # Android music application integration, 2026-09-08
 
+Later update: APK overlay installation now succeeds, and actual built-in effect
+selection, music-driven rendering and scene-based orientation have been exercised
+on the phone. See [built-in effect evidence](android_builtin_effects_2026-09-08.md).
+The historical installation blocker below is resolved; broader lifecycle and
+endurance acceptance remains in progress. Current package import limit is 272 MiB.
+
 The Android acceptance app now links the already validated vcpkg FFmpeg
 6.1.1#11 LGPL profile from `out/vcpkg-media-android/arm64-android`. No FFmpeg
 source build or shared vcpkg SDK upgrade was performed. The shared media,

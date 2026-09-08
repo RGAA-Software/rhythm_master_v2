@@ -15,6 +15,9 @@ std::string status = "Starting";
 Surface surface;
 double playback_seconds = 0;
 double playback_duration = 0;
+// Private JNI value contract: 0 unknown, 1 landscape, 2 portrait, 3 square.
+int scene_orientation = 0;
+std::string scene_title;
 struct NativeDeleter {
     void operator()(ANativeWindow* window) const {
         if (window) ANativeWindow_release(window);
@@ -56,6 +59,12 @@ void PublishPlayback(double seconds, std::optional<double> duration) {
     std::lock_guard lock(mutex);
     playback_seconds = seconds;
     playback_duration = duration.value_or(0);
+}
+void PublishScene(render::Extent canvas, std::string title) {
+    if (!canvas.width_ || !canvas.height_) return;
+    std::lock_guard lock(mutex);
+    scene_orientation = canvas.width_ > canvas.height_ ? 1 : canvas.width_ < canvas.height_ ? 2 : 3;
+    scene_title = std::move(title);
 }
 Surface CurrentSurface() {
     std::lock_guard lock(mutex);
@@ -115,5 +124,15 @@ extern "C" JNIEXPORT jdouble JNICALL
 Java_org_rhythmmaster_player_PlayerActivity_nativeDuration(JNIEnv*, jclass) {
     std::lock_guard lock(mutex);
     return playback_duration;
+}
+extern "C" JNIEXPORT jint JNICALL
+Java_org_rhythmmaster_player_PlayerActivity_nativeSceneOrientation(JNIEnv*, jclass) {
+    std::lock_guard lock(mutex);
+    return scene_orientation;
+}
+extern "C" JNIEXPORT jstring JNICALL
+Java_org_rhythmmaster_player_PlayerActivity_nativeSceneTitle(JNIEnv* env, jclass) {
+    std::lock_guard lock(mutex);
+    return env->NewStringUTF(scene_title.c_str());
 }
 }  // namespace rhythm::android_host

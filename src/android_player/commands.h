@@ -5,6 +5,7 @@
 #include <string>
 
 #include "rhythm/player/render_quality.h"
+#include "rhythm/render/renderer.h"
 
 namespace rhythm::android_host {
 struct Commands {
@@ -20,6 +21,8 @@ struct Commands {
 Commands TakeCommands();
 void PublishStatus(std::string status);
 void PublishPlayback(double seconds, std::optional<double> duration);
+// Publish only a successfully loaded work's authored canvas, never the surface size.
+void PublishScene(render::Extent canvas, std::string title);
 struct Surface {
     std::uintptr_t window_ = 0;
     std::shared_ptr<void> owner_{};
