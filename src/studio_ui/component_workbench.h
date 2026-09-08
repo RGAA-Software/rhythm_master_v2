@@ -6,6 +6,7 @@
 #include "property_inspector.h"
 #include "rhythm/editor/compiler_worker.h"
 #include "rhythm/editor/component_edit.h"
+#include "time_track_editor.h"
 
 namespace rhythm::studio {
 // Owns nested authoring navigation and its draft lifecycle; application history
@@ -26,6 +27,7 @@ class ComponentWorkbench final {
    private:
     void CommitPreview();
     void ResetView();
+    void DrawTiming(const std::map<std::string, std::string>& text);
     void UpdatePreview(const editor::Snapshot& project, const graph::Registry& registry,
                        bool visible);
     std::optional<editor::ComponentEdit> edit_{};
@@ -33,6 +35,9 @@ class ComponentWorkbench final {
     NodePalette node_palette_{};
     PropertyInspector inspector_{};
     ComponentInterface interface_{};
+    TimeTrackEditor timing_{};
+    double timing_duration_ = 16;
+    double timing_insert_ = 0;
     std::string status_{};
     std::vector<graph::NodeId> instance_path_{};
     std::vector<graph::NodeId> preview_nodes_{};

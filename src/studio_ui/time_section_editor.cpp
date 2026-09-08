@@ -13,7 +13,8 @@ void TimeSectionEditor::Reset() {
 }
 TimeSectionEdit TimeSectionEditor::Draw(const graph::Document& document, double duration,
                                         bool can_add,
-                                        const std::map<std::string, std::string>& text) {
+                                        const std::map<std::string, std::string>& text,
+                                        const std::string& action) {
     TimeSectionEdit edit;
     if (document_ != document.id_ || revision_ != document.revision_) {
         if (document_ != document.id_) selected_ = 0;
@@ -25,8 +26,7 @@ TimeSectionEdit TimeSectionEditor::Draw(const graph::Document& document, double 
     for (const auto& node : document.nodes_)
         if (node.type_ == "time.envelope") sections.push_back(node.id_);
     ImGui::BeginDisabled(!can_add);
-    edit.add_ =
-            ImGui::Button((text.at("timeline.add_section") + "###timeline.add_section").c_str());
+    edit.add_ = ImGui::Button((text.at(action) + "###timeline.add_section").c_str());
     ImGui::EndDisabled();
     if (sections.empty()) return edit;
     ImGui::TextWrapped("%s", text.at("timeline.section_help").c_str());

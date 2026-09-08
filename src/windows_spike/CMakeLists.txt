@@ -81,6 +81,9 @@ if(BUILD_TESTING)
     add_test(NAME component_preview_gpu COMMAND component_preview_gpu_tests "${CMAKE_CURRENT_BINARY_DIR}"
         "${PROJECT_BINARY_DIR}/content/templates/resonance_live" "${PROJECT_BINARY_DIR}/component-preview-project")
     set_tests_properties(component_preview_gpu PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE)
+    add_test(NAME component_timing_gpu COMMAND component_preview_gpu_tests "${CMAKE_CURRENT_BINARY_DIR}"
+        "${PROJECT_BINARY_DIR}/content/templates/resonance_live" "${PROJECT_BINARY_DIR}/component-timing-project" --timing)
+    set_tests_properties(component_timing_gpu PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE)
     if(RHYTHM_BUILD_MEDIA)
         add_executable(export_ui_gpu_tests tests/export_ui_gpu_tests.cpp)
         add_executable(soundtrack_studio_gpu_tests tests/soundtrack_studio_gpu_tests.cpp)

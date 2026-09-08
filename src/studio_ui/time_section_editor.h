@@ -13,7 +13,8 @@ struct TimeSectionEdit {
 class TimeSectionEditor final {
    public:
     TimeSectionEdit Draw(const graph::Document& document, double duration, bool can_add,
-                         const std::map<std::string, std::string>& text);
+                         const std::map<std::string, std::string>& text,
+                         const std::string& action = "timeline.add_section");
     void Reset();
 
    private:

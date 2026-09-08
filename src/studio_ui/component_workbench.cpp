@@ -3,6 +3,7 @@
 #include <imgui.h>
 
 #include <algorithm>
+#include <cmath>
 
 #include "rhythm/runtime/viewers.h"
 
@@ -28,10 +29,13 @@ void ComponentWorkbench::Open(const editor::Snapshot& project, std::string type,
 }
 void ComponentWorkbench::CommitPreview() {
     if (edit_ && inspector_.Preview()) edit_->ReplaceBody(*inspector_.Preview());
+    if (edit_ && timing_.Preview()) edit_->ReplaceBody(*timing_.Preview());
     inspector_.Reset();
+    timing_.Reset();
 }
 void ComponentWorkbench::ResetView() {
     inspector_.Reset();
+    timing_.Reset();
     canvas_.RestoreLayout();
     if (edit_ && instance_path_.size() > edit_->Path().size())
         instance_path_.resize(edit_->Path().size());
@@ -45,12 +49,14 @@ void ComponentWorkbench::UpdatePreview(const editor::Snapshot& project,
         preview_nodes_.clear();
         return;
     }
-    const auto body = inspector_.Preview() ? *inspector_.Preview() : edit_->Body();
+    const auto body = inspector_.Preview() ? *inspector_.Preview()
+                      : timing_.Preview()  ? *timing_.Preview()
+                                           : edit_->Body();
     if (instance_path_.size() > edit_->Path().size()) instance_path_.resize(edit_->Path().size());
     if (!preview_body_ || *preview_body_ != body.document_ ||
         source_revision_ != project.document_.revision_ || source_id_ != project.document_.id_) {
         auto preview_edit = *edit_;
-        if (inspector_.Preview()) preview_edit.ReplaceBody(body);
+        if (inspector_.Preview() || timing_.Preview()) preview_edit.ReplaceBody(body);
         const auto finished = preview_edit.Finish(project, registry);
         if (std::holds_alternative<editor::Snapshot>(finished)) {
             preview_document_ = std::get<editor::Snapshot>(finished).document_;
@@ -187,7 +193,7 @@ std::optional<editor::Snapshot> ComponentWorkbench::Draw(
         const auto available = ImGui::GetContentRegionAvail();
         if (ImGui::BeginChild("component.canvas", {std::max(250.0f, available.x * 0.62f), 0})) {
             canvas_visible = true;
-            ImGui::BeginDisabled(inspector_.Preview().has_value());
+            ImGui::BeginDisabled(inspector_.Preview().has_value() || timing_.Preview().has_value());
             const auto current_previews =
                     drawn_path == instance_path_ ? previews : CanvasPreviews{previews.enabled_, {}};
             if (const auto edited = canvas_.Draw(edit_->Body(), registry, text, current_previews)) {
@@ -198,6 +204,15 @@ std::optional<editor::Snapshot> ComponentWorkbench::Draw(
         ImGui::EndChild();
         ImGui::SameLine();
         if (ImGui::BeginChild("component.inspector")) {
+            ImGui::BeginDisabled(inspector_.Preview().has_value());
+            if (ImGui::CollapsingHeader(
+                        (label("component.timing") + "###component.timing").c_str())) {
+                DrawTiming(text);
+            } else if (timing_.Preview()) {
+                CommitPreview();
+            }
+            ImGui::EndDisabled();
+            ImGui::BeginDisabled(timing_.Preview().has_value());
             const auto inspected =
                     inspector_.Draw(edit_->Body(), canvas_.Selection(), registry, {}, text, locale);
             if (inspected.committed_) edit_->ReplaceBody(*inspected.committed_);
@@ -207,6 +222,7 @@ std::optional<editor::Snapshot> ComponentWorkbench::Draw(
                 CommitPreview();
                 edit_->ReplaceInterface(*definition);
             }
+            ImGui::EndDisabled();
         }
         ImGui::EndChild();
     }
@@ -214,8 +230,32 @@ std::optional<editor::Snapshot> ComponentWorkbench::Draw(
     if (!open) {
         edit_.reset();
         inspector_.Reset();
+        timing_.Reset();
     }
     UpdatePreview(project, registry, canvas_visible && previews.enabled_);
     return result;
+}
+void ComponentWorkbench::DrawTiming(const std::map<std::string, std::string>& text) {
+    ImGui::TextWrapped("%s", text.at("component.timing_help").c_str());
+    ImGui::BeginDisabled(timing_.Preview().has_value());
+    const double minimum = 0, maximum = 86400, duration_minimum = 0.01;
+    ImGui::SetNextItemWidth(130);
+    ImGui::DragScalar(text.at("component.timing_range").c_str(), ImGuiDataType_Double,
+                      &timing_duration_, 0.1F, &duration_minimum, &maximum, "%.2f s",
+                      ImGuiSliderFlags_AlwaysClamp);
+    timing_duration_ = std::isfinite(timing_duration_)
+                               ? std::clamp(timing_duration_, duration_minimum, maximum)
+                               : 16;
+    ImGui::SetNextItemWidth(130);
+    ImGui::DragScalar(text.at("component.timing_insert").c_str(), ImGuiDataType_Double,
+                      &timing_insert_, 0.1F, &minimum, &maximum, "%.2f s",
+                      ImGuiSliderFlags_AlwaysClamp);
+    timing_insert_ =
+            std::isfinite(timing_insert_) ? std::clamp(timing_insert_, minimum, maximum) : 0;
+    ImGui::EndDisabled();
+    const auto changed = timing_.Draw(
+            edit_->Body(), timing_insert_, timing_duration_, text,
+            [&] { return edit_->ReserveNodeId(); }, "component.add_section");
+    if (changed.committed_) edit_->ReplaceBody(*changed.committed_);
 }
 }  // namespace rhythm::studio

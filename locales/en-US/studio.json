@@ -624,5 +624,10 @@
     "clip_duration": "Section duration (s)",
     "fade_shape": "Fade curve",
     "timeline.add_section": "Add section at playhead",
-    "timeline.section_help": "Connect the envelope output to a visual parameter. Drag a bar to move it or its ends to resize. Section times use the node time input; overlapping fades scale to fit."
+    "timeline.section_help": "Connect the envelope output to a visual parameter. Drag a bar to move it or its ends to resize. Section times use the node time input; overlapping fades scale to fit.",
+    "component.timing": "Component timing",
+    "component.timing_help": "Edit curves and sections inside this component. The connected time input controls their progress. Added sections use the component clock; wire a local time node when needed. Playback controls remain in the main timeline.",
+    "component.timing_range": "Visible range",
+    "component.timing_insert": "Insert at",
+    "component.add_section": "Add section at specified time"
 }

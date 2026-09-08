@@ -624,5 +624,10 @@
     "clip_duration": "段落时长（秒）",
     "fade_shape": "淡变曲线",
     "timeline.add_section": "在播放位置添加段落",
-    "timeline.section_help": "将包络输出连接到画面参数。拖动条带移动，拖动两端调整起止。段落时间基于节点的时间输入；淡入淡出重叠时会按比例缩短。"
+    "timeline.section_help": "将包络输出连接到画面参数。拖动条带移动，拖动两端调整起止。段落时间基于节点的时间输入；淡入淡出重叠时会按比例缩短。",
+    "component.timing": "组件时间编辑",
+    "component.timing_help": "编辑组件内部的曲线和段落，进度由连接的时间输入决定。新增段落使用组件内时间节点，可改接局部时间。播放控制仍在主时间线。",
+    "component.timing_range": "显示范围",
+    "component.timing_insert": "插入位置",
+    "component.add_section": "在指定时间添加段落"
 }

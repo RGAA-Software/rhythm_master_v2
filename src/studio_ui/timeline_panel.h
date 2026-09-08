@@ -5,16 +5,12 @@
 
 #include "rhythm/editor/history.h"
 #include "rhythm/runtime/playback_clock.h"
-#include "time_section_editor.h"
+#include "time_track_editor.h"
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
 #include "waveform_panel.h"
 #endif
 
 namespace rhythm::studio {
-struct TimelineEdit {
-    std::optional<editor::Snapshot> committed_{};
-    bool preview_changed_ = false;
-};
 // Editor transport and graph curve/section transactions. Graph edits persist;
 // transport/view settings are local to the editing session.
 class TimelinePanel final {
@@ -29,15 +25,12 @@ class TimelinePanel final {
     std::size_t WaveformBins() const;
     void Restart();
     runtime::PlaybackCommand TakePlaybackCommand();
-    void ResetEdit() {
-        draft_.reset();
-        sections_.Reset();
-        curve_draft_ = false;
-        section_error_.clear();
-    }
+    void ResetEdit() { tracks_.Reset(); }
     [[nodiscard]] bool Paused() const { return clock_.Paused(); }
     [[nodiscard]] std::uint64_t Generation() const { return clock_.Generation(); }
-    [[nodiscard]] const std::optional<editor::Snapshot>& Preview() const { return draft_; }
+    [[nodiscard]] const std::optional<editor::Snapshot>& Preview() const {
+        return tracks_.Preview();
+    }
 
    private:
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
@@ -45,11 +38,7 @@ class TimelinePanel final {
 #endif
     runtime::PlaybackClock clock_{};
     runtime::PlaybackCommand command_{};
-    std::optional<editor::Snapshot> draft_{};
-    TimeSectionEditor sections_{};
-    std::string section_error_{};
-    bool curve_draft_ = false;
-    graph::NodeId track_ = 0;
+    TimeTrackEditor tracks_{};
     double duration_ = 10;
     double fps_ = 60;
     double bpm_ = 120;
