@@ -65,3 +65,7 @@ DLLs. Android APK and matching relink materials rebuild; the embedded example
 remains Resonance Gate, with Harmonic City available as an external package.
 USB installation policy still blocks application acceptance. No APK lifecycle
 result is inferred from native tests.
+
+Subsequent canvas work and editor/export remeasurements are recorded in
+[canvas frame work](canvas_frame_work_2026-09-08.md); export UI frame cost remains
+measurable after the snapshot-copy fix.

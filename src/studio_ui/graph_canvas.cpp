@@ -118,8 +118,12 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
         return found == labels.end() ? key : found->second;
     };
     ed::SetCurrentEditor(impl_->context_.get());
-    auto next = snapshot;
-    bool changed = false;
+    std::optional<editor::Snapshot> next;
+    const auto edit = [&]() -> editor::Snapshot& {
+        if (!next) next = snapshot;
+        return *next;
+    };
+    const auto current = [&]() -> const editor::Snapshot& { return next ? *next : snapshot; };
     const auto canvas_size = ImGui::GetContentRegionAvail();
     const auto origin = ImGui::GetCursorScreenPos();
     if (!ImGui::IsMouseDown(ImGuiMouseButton_Right)) impl_->pan_pressed_ = false;
@@ -129,6 +133,9 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
     ed::Begin("graph.canvas", canvas_size);
     std::map<graph::NodeId, graph::ValueType> output_types;
     std::map<graph::NodeId, PreviewBounds> preview_bounds;
+    // Describe each type once per draw. Frame-local storage observes component
+    // interface edits immediately without copying descriptors for every instance.
+    std::map<std::string, std::optional<graph::OperatorDescriptor>> descriptors;
     impl_->drawn_previews_ = 0;
     for (const auto& node : snapshot.document_.nodes_) {
         if (impl_->restore_layout_) {
@@ -137,7 +144,10 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
                 ed::SetNodePosition(ed::NodeId(impl_->Node(node.id_)),
                                     {found->second.x_, found->second.y_});
         }
-        const auto descriptor = registry.Find(node.type_, snapshot.document_.components_);
+        const auto [description, inserted] = descriptors.try_emplace(node.type_);
+        if (inserted)
+            description->second = registry.Find(node.type_, snapshot.document_.components_);
+        const auto& descriptor = description->second;
         NodeVisual visual;
         visual.id_ = impl_->Node(node.id_);
         visual.title_ = text(node.type_);
@@ -194,46 +204,42 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
                 auto candidate =
                         editor::Connect(snapshot, registry, from.first, to.first, to.second);
                 valid = std::holds_alternative<editor::Snapshot>(candidate);
-                if (valid) next = std::get<editor::Snapshot>(std::move(candidate));
+                if (valid && ed::AcceptNewItem())
+                    next = std::get<editor::Snapshot>(std::move(candidate));
             }
-            if (valid) {
-                if (ed::AcceptNewItem()) changed = true;
-            } else
-                ed::RejectNewItem(ImColor(230, 70, 110));
+            if (!valid) ed::RejectNewItem(ImColor(230, 70, 110));
         }
     }
     ed::EndCreate();
-    if (!changed) next = snapshot;
     if (ed::BeginDelete()) {
         ed::LinkId link;
         while (ed::QueryDeletedLink(&link))
             if (ed::AcceptDeletedItem()) {
-                std::erase_if(next.document_.edges_, [&](const auto& edge) {
+                std::erase_if(edit().document_.edges_, [&](const auto& edge) {
                     return edge.id_ == impl_->reverse_links_.at(link.Get());
                 });
-                changed = true;
             }
         ed::NodeId node;
         while (ed::QueryDeletedNode(&node))
             if (ed::AcceptDeletedItem()) {
+                auto& edited = edit();
                 const auto node_id = impl_->reverse_nodes_.at(node.Get());
-                std::erase_if(next.document_.nodes_,
+                std::erase_if(edited.document_.nodes_,
                               [&](const auto& item) { return item.id_ == node_id; });
-                std::erase_if(next.document_.edges_, [&](const auto& edge) {
+                std::erase_if(edited.document_.edges_, [&](const auto& edge) {
                     return edge.from_ == node_id || edge.to_ == node_id;
                 });
-                next.positions_.erase(node_id);
-                std::erase_if(next.document_.bindings_, [&](const auto& binding) {
+                edited.positions_.erase(node_id);
+                std::erase_if(edited.document_.bindings_, [&](const auto& binding) {
                     return binding.node_ == node_id ||
-                           std::any_of(next.document_.signals_.begin(),
-                                       next.document_.signals_.end(), [&](const auto& signal) {
+                           std::any_of(edited.document_.signals_.begin(),
+                                       edited.document_.signals_.end(), [&](const auto& signal) {
                                            return signal.source_ == node_id &&
                                                   signal.name_ == binding.signal_;
                                        });
                 });
-                std::erase_if(next.document_.signals_,
+                std::erase_if(edited.document_.signals_,
                               [&](const auto& signal) { return signal.source_ == node_id; });
-                changed = true;
             }
     }
     ed::EndDelete();
@@ -254,13 +260,12 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
                 impl_->reverse_nodes_.at(selected[static_cast<std::size_t>(index)].Get()));
     if (!impl_->selections_.empty()) impl_->selection_ = impl_->selections_.front();
     if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-        for (const auto& node : next.document_.nodes_) {
+        for (const auto& node : current().document_.nodes_) {
             const auto position = ed::GetNodePosition(ed::NodeId(impl_->Node(node.id_)));
             const editor::Position value{position.x, position.y};
-            if (!next.positions_.contains(node.id_) || next.positions_.at(node.id_) != value) {
-                next.positions_[node.id_] = value;
-                changed = true;
-            }
+            if (!current().positions_.contains(node.id_) ||
+                current().positions_.at(node.id_) != value)
+                edit().positions_[node.id_] = value;
         }
     }
     ed::End();
@@ -307,7 +312,6 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
         }
     }
     ed::SetCurrentEditor(nullptr);
-    if (changed) return next;
-    return std::nullopt;
+    return next;
 }
 }  // namespace rhythm::studio
