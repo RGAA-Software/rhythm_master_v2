@@ -1,0 +1,54 @@
+{
+    "compiler": "out/shader-tool/build/shaderc.exe",
+    "compiler_version": "1.19.157",
+    "compiler_sha256": "6f3d514d12edbde2e0055321a417e86091bc6ed0886f745abb4745ffcf08fa9a",
+    "compiler_bytes": 9918976,
+    "source_build": "provenance/shaderc_source_build.json",
+    "source_build_sha256": "b18033155241b72d2ee0abfc5fb29dece2f19affe552fbf54d729dfa9406f851",
+    "source_archive_sha256": "272adaa5ed2807f22cc0918b6a5d60d7cffa6ac9ea20251a90060483eb0f1b23",
+    "source_origin_and_licenses": "provenance/shaderc_host.json",
+    "upstream_modifications": [],
+    "build_adaptations": [
+        "Pinned upstream Release x64 source lists translated into CMake/Ninja by Python",
+        "Explicit UTF-8 source charset and exception flags without CMake default conflict",
+        "MSVC compiler and linker /Brepro"
+    ],
+    "tools": {
+        "msvc": "14.51.36231",
+        "cmake": "3.28.1",
+        "workers": 20,
+        "configuration": "Release x64 static CRT C++20 AVX"
+    },
+    "build_scripts": {
+        "tools/prepare-shader-tool.py": "633cb7ea97c0fd05c8d14f441dc9e993b4f038fc3436a35704e456140834a01d",
+        "tools/build-shader-tool.py": "af95e0d313f9942df3983384669fa1c3de549bb47a52a91fff1e02574837de76"
+    },
+    "validation": {
+        "render_programs": 48,
+        "render_groups_per_platform": 11,
+        "platforms": [
+            "Windows s_5_0",
+            "Android 300_es/310_es"
+        ],
+        "repeated_shader_bytes": "identical",
+        "legacy_shader_bytes": "identical for all 48 programs",
+        "native_authoring": "dual compilation, diagnostics, cancellation, immutable replacement, save/publish/prepare passed",
+        "gpu": "D3D11 and USB Adreno 650 GLES actual image profile pixels passed",
+        "compiler_failure": "invalid/stale output preserves prior artifact passed"
+    },
+    "evidence": [
+        "out/r4-shader-source-final-build.log",
+        "out/r4-shader-rebuilt/verification.json",
+        "out/r4-rebuilt-authoring.log",
+        "out/r4-rebuilt-windows-gpu.log",
+        "out/r4-rebuilt-android-gpu.log",
+        "out/r4-rebuilt-compiler-contracts.log"
+    ],
+    "upstream_warnings": [
+        "Tint table.cc:553 C4715 ErrAmbiguousOverload",
+        "Tint resolver.cc:1345 C4715 Expression",
+        "Tint decompose_access.cc:986 C4715 MakeVectorLoadF16"
+    ],
+    "reproducibility_limit": "Source-built in this project and identical generated shader bytes established; host executable bit identity across machines/toolchains/checkout paths is not claimed.",
+    "distribution": "Separate host tool for Studio only. Existing component copyright, exact licenses and exceptions retained; no outbound project license selected."
+}

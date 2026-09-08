@@ -7,6 +7,8 @@ import os
 from pathlib import Path
 import subprocess
 
+import shader_tools
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -60,6 +62,9 @@ def main():
         parser.error("Use a separate build directory; changing an existing cache's configuration is refused")
     validated = cache_values(ROOT / "out/windows/CMakeCache.txt")
     validated.update(existing)
+    rebuilt = shader_tools.rebuilt_compiler(ROOT)
+    if rebuilt:
+        validated["RHYTHM_SHADERC"] = rebuilt.as_posix()
     options = ["-DCMAKE_BUILD_TYPE=" + args.configuration, "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
                "-DRHYTHM_BUILD_WINDOWS_SPIKE=ON", "-DRHYTHM_BUILD_MEDIA=ON",
                "-DRHYTHM_MEDIA_SDK=" + (ROOT / "out/vcpkg-media-lgpl/x64-windows").as_posix()]

@@ -65,6 +65,13 @@ Windows Python 部署在 exe 同级及 `deploy/shader_tools` 同时携带编译�
 结尾存储，不修改或升级共享 vcpkg。[精确记录](../provenance/stb_lexer.json)。
 
 现有 bgfx/bx UI 顶点、shaderc 包装、SDL 进程与第一方有界执行器被复用。
+
+2026-09-09 工具更新：项目内源码重建 shaderc 1.19.157 已完成，Windows/Android 构建
+和 Studio 部署统一采用经过哈希校验的 `out/shader-tool/build/shaderc.exe`。
+vcpkg 当前工具已实际构建并因 FSH11 与现有 profile 不兼容而拒绝；没有变更图形后端。
+两端 48 个 Shader 与原工具字节一致，原生编译/发布及实际 D3D11/GLES 像素通过。
+[构建与来源](host_shader_tool_build.md)、[验证记录](validation/host_shader_tool_2026-09-09.md)。
+以下保留首次交付时的来源记录，其“未重建”状态已由本更新取代：
 已检查 vcpkg 的 bgfx tools port；当前 triplet 没有已安装 shaderc，port 与当前 bgfx
 容器兼容性尚未验证。本增量保留实测可用的 1.19.157 工具，读取旧仓库已生成文件，
 不修改旧仓库、不升级 vcpkg。它作为独立工具随本地 Studio 验收目录携带。

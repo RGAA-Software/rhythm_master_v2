@@ -331,4 +331,14 @@ Android application acceptance.
 
 ## R4 图像 Shader 增量验证（2026-09-08）
 
+2026-09-09 更新：已在项目隔离目录构建 vcpkg bgfx tools 1.129.8940-496#1。
+其 shaderc 1.18.129 输出 FSH11，原生图像 profile 拒绝，不能直接替换现有 FSH12 工具。
+因此采用有实测兼容差异依据的源码例外：从已记录快照提取 1,881 文件，Python 准备、
+CMake/Ninja 20 workers 在项目内重建 shaderc 1.19.157。两端全部 48 个 Shader 与原工具
+输出逐字节一致，编译/发布及 D3D11、USB GLES 像素验证通过。共享 vcpkg 安装、
+图形 ABI 和旧仓库保持不变。源码重建待办关闭；跨机器主机 EXE 位级可复现仍未声称。
+详见 [构建流程](host_shader_tool_build.md) 和 [证据](validation/host_shader_tool_2026-09-09.md)。
+
+以下为本次验证前的历史记录：
+
 私有词法适配直接使用 vcpkg 已安装 stb C lexer（两端版本、MIT 选择和兼容差异见 `provenance/stb_lexer.json`）。既有 shaderc 1.19.157 已验证 Windows s_5_0 / Android 300_es 的 FSH12 固定绑定、实际像素和作者编译闭环；本地 Studio 部署携带独立工具与完整已记录通知。当前 triplet 未安装 bgfx tools，已检查 port 1.129.8940-496#1，其与当前后端兼容性未验证，不更换共享包或 graphics ABI。现有工具来源、709 个编译源文件与二进制哈希见 `provenance/shaderc_host.json`；在本项目重建工具及可复现性仍待办。该结果仅确认受约束图像 profile，不确认通用材质/compute 或 Apple 编译。详见 [实现与验证](image_shader.md)。

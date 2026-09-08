@@ -11,6 +11,8 @@ import shutil
 import subprocess
 import sys
 
+import shader_tools
+
 
 def copy_file(source, destination):
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -122,9 +124,7 @@ def deploy(config):
         # Studio authoring uses a separate validated host tool. Player needs only
         # the immutable compiled assets already inside its works.
         shaderc = Path(config["shaderc"])
-        provenance = json.loads((source_root / "provenance/shaderc_host.json").read_text(encoding="utf-8"))
-        if hashlib.sha256(shaderc.read_bytes()).hexdigest() != provenance["compiler_sha256"]:
-            raise RuntimeError("Shader compiler differs from the validated host profile")
+        tool_profile = shader_tools.profile_for(source_root, shaderc)
         compiler_config = dict(config, executable=str(shaderc), runtime_dlls="")
         compiler_dependencies = resolve_dependencies(compiler_config)
         for tool_root in (executable.parent / "shader_tools", destination / "shader_tools"):
@@ -133,7 +133,10 @@ def deploy(config):
                 copy_file(dependency, tool_root / dependency.name)
             copy_file(source_root / "third_party/sources/bgfx/src/bgfx_shader.sh", tool_root / "include/bgfx_shader.sh")
             copy_file(source_root / "src/rhythm_render/shaders/varying.def.sc", tool_root / "varying.def.sc")
-            copy_file(source_root / "provenance/shaderc_host.json", tool_root / "validated-profile.json")
+            copy_file(tool_profile, tool_root / "validated-profile.json")
+            copy_file(source_root / "provenance/shaderc_host.json", tool_root / "source-origin.json")
+            if tool_profile.name == "shaderc_rebuilt_host.json":
+                copy_file(source_root / "provenance/shaderc_source_build.json", tool_root / "source-build.json")
     copy_tree(Path(config["build_root"]) / "content", destination / "content")
     copy_tree(source_root / "locales", destination / "locales")
     copy_tree(source_root / "third_party/notices", destination / "notices")

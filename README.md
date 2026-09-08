@@ -28,6 +28,9 @@ music-driven clip mixing with shared uploads. 48-bone GPU skinning passes Window
 checks. Four-target GPU morph, weight animation/music controls and the editable
 Crystal Choir now also ships on both platforms, with real PCM and MP4 checks.
 R4 functionality is delivered within the documented profiles; R5/R6 continue.
+[The host shader tool now builds from a pinned source archive](docs/host_shader_tool_build.md)
+inside this project. vcpkg's current tool was tested and rejected for container-version
+incompatibility; all 48 shaders from the rebuilt compatible tool match the prior bytes.
 R5 adds [public macros and parameter snapshots](docs/public_controls.md): Studio history,
 Windows/Android live controls, manual A/B blending and an 86-node Crystal Choir with
 four exposed controls. [Snapshot cue arrangement](docs/cue_arrangement.md) now provides

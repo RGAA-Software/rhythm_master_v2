@@ -4,6 +4,8 @@ import argparse
 from pathlib import Path
 import subprocess
 
+import shader_tools
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -35,8 +37,11 @@ def main():
 
     # Reuse only the previously validated shader tool path, not compiler flags or
     # a copied cache that would silently carry Debug performance settings.
+    rebuilt = shader_tools.rebuilt_compiler(ROOT)
     cache = ROOT / "out/android-arm64/CMakeCache.txt"
-    if cache.is_file():
+    if rebuilt:
+        options.append("-DRHYTHM_SHADERC=" + rebuilt.as_posix())
+    elif cache.is_file():
         for line in cache.read_text(encoding="utf-8").splitlines():
             if line.startswith("RHYTHM_SHADERC:FILEPATH="):
                 options.append("-DRHYTHM_SHADERC=" + line.split("=", 1)[1])

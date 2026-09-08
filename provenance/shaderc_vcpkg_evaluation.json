@@ -1,0 +1,50 @@
+{
+    "vcpkg_repository": "https://github.com/microsoft/vcpkg",
+    "vcpkg_revision": "b216ddff25a1f432870e6c340ce79357049ef86e",
+    "package": "bgfx[core,multithreaded,tools]:x64-windows-static-release@1.129.8940-496#1",
+    "port_files": {
+        "ports/bgfx/fix-dependencies.patch": "d9580984d81800611a7d2de501b8fde2d78f46296e11b6efbd1a74a2e7813335",
+        "ports/bgfx/portfile.cmake": "8d130a5cb013ee53a78e34c232024c60881b0a3c7a3f35640c29465849ee7aaf",
+        "ports/bgfx/vcpkg.json": "67d48baac94c51f91e3feda2a3e95d72f1743660e86fe9a5f24d3527c399d8aa"
+    },
+    "source_url": "https://github.com/bkaradzic/bgfx.cmake/releases/download/v1.129.8940-496/bgfx.cmake.v1.129.8940-496.tar.gz",
+    "source_archive_sha512": "520c542b65e76e92eae818e32eeb62bb2347ac89a1e10fc07cd5059a3b8a9a543cadca87d451a3bc157c415f6183b1f0e5031248e38fae704b8efd54679d482b",
+    "compiler_version": "1.18.129",
+    "compiler_sha256": "fa60af0eb39b5f40ac06851d55a261da8377b2f4b2a49ae9031d714b40b9b81c",
+    "compiler_source_sha256": "608ea97a004bbc3d918a317a7537eade2a9bbcaf7531a03397d353b18839b941",
+    "package_abi": "23debfd5f201400d5c79551c419a35875d4554c7ac1d42f2c8de5749e9b7ded5",
+    "installed_packages": [
+        "bgfx:x64-windows-static-release@1.129.8940-496#1 23debfd5f201400d5c79551c419a35875d4554c7ac1d42f2c8de5749e9b7ded5",
+        "cgltf:x64-windows-static-release@1.15 93dac0db2f8cfa1fec467ebb877389fe5b18082350f1b7d077e2367906fdf182",
+        "glslang:x64-windows-static-release@16.3.0#1 319b22160ff9d0452323dd31d162bf87a63cc52725ef786392119283621e0ca2",
+        "libsquish:x64-windows-static-release@1.15#15 b6fa8e887c7230fd90a3c072f6c41a7bca8484326bc62fe3df2fc7ba7a0a1f17",
+        "lodepng:x64-windows-static-release@2021-12-04#1 697dd65cf527cdd067d075bc991906e592ee02ff8e586e6e25f15ab454090c04",
+        "meshoptimizer:x64-windows-static-release@1.1.1 0dd480720b3ee380cb61e83d57a9fde9a0f8d60b029d9f813f077174c1f34e44",
+        "mgnlibs:x64-windows-static-release@2019-09-29#2 9184e0fb8885606cb27b0fa73cfacd90ff7d5b1473d5e67c82e925547b533cb0",
+        "miniz:x64-windows-static-release@3.1.1 3afac5dadac2b2bfcf17e4058c6594a9d9bcf7d222d94e79cfec440be085f7f3",
+        "spirv-cross:x64-windows-static-release@1.4.350.0 c1ca1bd9928ce304132a904238fb7b4e01345cfb96989e8929c46a1a28772213",
+        "spirv-headers:x64-windows-static-release@1.4.350.0 03e5852d13707a6266cfd2a14bb442492a94b80d0a0be9835c9e1e8f91d5d4aa",
+        "spirv-tools:x64-windows-static-release@1.4.350.0 0007e64274d0763945e9b8ba8cecd16fecd76307be8354f689ba2de69c62c748",
+        "stb:x64-windows-static-release@2024-07-29#1 8d622b76465981ae7117b2d3f1e508f783d6000af33ad53f2b570924ab6fd373",
+        "tinyexr:x64-windows-static-release@3.0.0 668ec2c91c81c8e96fa524f1af6caf7eff9622754fd873e90223a2b5f79f3dad"
+    ],
+    "install_arguments": [
+        "C:/source/vcpkg/vcpkg.exe",
+        "install",
+        "bgfx[tools]:x64-windows-static-release",
+        "--x-install-root=C:/source/rhythm_master/out/vcpkg-shader-tools",
+        "--x-buildtrees-root=C:/source/rhythm_master/out/vcpkg-shader-buildtrees",
+        "--x-packages-root=C:/source/rhythm_master/out/vcpkg-shader-packages"
+    ],
+    "environment": {
+        "VCPKG_MAX_CONCURRENCY": "20"
+    },
+    "modifications": "Stock vcpkg port and its recorded patch only; no project edits to imported compiler sources or shared installed packages.",
+    "decision": "Rejected for current render/image profile: actual VSH/FSH/CSH version 11, current bounded profile requires version 12.",
+    "evidence": [
+        "out/r4-vcpkg-shader-install.log",
+        "out/r4-shader-vcpkg-candidate.log",
+        "out/r4-vcpkg-image-profile.log"
+    ],
+    "license_scope": "Evaluation only, no imported sources or binaries distributed in Studio/Player. Port declares BSD-2-Clause AND CC0-1.0, with embedded component-specific terms retained in vcpkg sources. This is not an adopted distribution profile."
+}
