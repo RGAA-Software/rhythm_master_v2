@@ -3,7 +3,7 @@
     "baseline": "cef5e04",
     "imported_third_party_files": [],
     "authoring_tool": "tools/author-resonant-arcade.py",
-    "authoring_tool_sha256": "73c2546f7864bbcf69cbac8b2192249d6ef2fbeeae1cea581608cb93f8dcfa59",
+    "authoring_tool_sha256": "9a1a6ef03646bd3739beb5a5b08e684aeda4014008c209921b7cf833017329fd",
     "reused_sources": [
         "tools/author-resonance-gate.py",
         "tools/music_work.py",

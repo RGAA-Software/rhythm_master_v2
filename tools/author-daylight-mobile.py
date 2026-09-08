@@ -119,7 +119,8 @@ def build_graph():
     background = node('texture.linearize', 9660, 2100, dict(source=background))
     composed = node('texture.composite', 10000, 1200, dict(a=background, b=focused), texture_precision=0)
     display = node('texture.display', 10340, 1200, dict(source=composed, exposure=exposure))
-    final = node('output.texture', 10680, 1200, dict(source=display))
+    display = node('texture.fxaa', 10680, 1200, dict(source=display))
+    final = node('output.texture', 11020, 1200, dict(source=display))
     return graph, final, (response, pace, exposure)
 
 

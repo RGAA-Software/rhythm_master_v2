@@ -1,6 +1,6 @@
 schema_version: 5
 id: "official-daylight-mobile"
-output: 103
+output: 104
 canvas { width: 1280 height: 720 }
 nodes { id: 1 type_key: "control.scalar" schema_version: 1
     properties { key: "value" value { scalar: 1 } }
@@ -392,7 +392,9 @@ nodes { id: 101 type_key: "texture.composite" schema_version: 1
 }
 nodes { id: 102 type_key: "texture.display" schema_version: 1
 }
-nodes { id: 103 type_key: "output.texture" schema_version: 1
+nodes { id: 103 type_key: "texture.fxaa" schema_version: 1
+}
+nodes { id: 104 type_key: "output.texture" schema_version: 1
 }
 edges { id: 1 from: 4 to: 5 input: "time" }
 edges { id: 2 from: 2 to: 5 input: "a" }
@@ -534,6 +536,7 @@ edges { id: 137 from: 98 to: 101 input: "b" }
 edges { id: 138 from: 101 to: 102 input: "source" }
 edges { id: 139 from: 3 to: 102 input: "exposure" }
 edges { id: 140 from: 102 to: 103 input: "source" }
+edges { id: 141 from: 103 to: 104 input: "source" }
 controls {
     titles { key: 1 value: "Music response / 音乐响应" }
     titles { key: 2 value: "Swing pace / 摆动节奏" }

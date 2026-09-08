@@ -131,6 +131,14 @@ struct DepthOfField {
 struct EnvironmentFilter {
     bool source_srgb_ = true;
 };
+// Spatial antialiasing for display-referred color. Alpha and premultiplied RGB
+// are filtered together. No temporal state or implicit color-space conversion.
+struct TextureFxaa {
+    float span_ = 8;
+    float reduce_multiplier_ = 0.125f;
+    float reduce_minimum_ = 0.0078125f;
+    float strength_ = 1;
+};
 inline constexpr Extent kEnvironmentAtlasExtent{780, 66};
 struct DrawCommand {
     TextureHandle texture_{};
@@ -150,6 +158,7 @@ struct DrawCommand {
     std::optional<DepthOfField> depth_of_field_{};
     std::optional<EnvironmentFilter> environment_filter_{};
     std::optional<ImageProgramInput> image_program_{};
+    std::optional<TextureFxaa> texture_fxaa_{};
 };
 
 // Owned frame data; third-party draw buffers never survive their boundary call.

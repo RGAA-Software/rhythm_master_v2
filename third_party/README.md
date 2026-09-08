@@ -194,3 +194,11 @@ R4 lexer reuse: `stb_c_lexer.h` is included privately from installed vcpkg packa
 with the MIT alternative selected and dual notices retained in `notices/stb-lexer`.
 Exact revisions and the bounded identifier compatibility adapter are recorded in
 `provenance/stb_lexer.json`. No stb media decoder is introduced.
+
+R6 FXAA uses the focused `glsl-fxaa` 3.0.0 shader, revision
+`5028eff0bc801aab51b884b27b47c313defa6a0c`. Both the package MIT notice
+(Matt DesLauriers, 2014) and algorithm BSD-3-Clause notice (Armin Ronacher, 2011)
+are retained in `notices/glsl-fxaa` and copied into Windows/Android deployments.
+`provenance/fxaa.json` records the verified archive, exact files and adaptations.
+`tools/prepare-fxaa-source.py` reconstructs the focused reference from that archive;
+the compiled shader adapter is in `src/rhythm_render/shaders/texture_fxaa.sc`.

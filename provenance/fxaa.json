@@ -1,0 +1,58 @@
+{
+    "source_url": "https://github.com/mattdesl/glsl-fxaa",
+    "version": "3.0.0",
+    "revision": "5028eff0bc801aab51b884b27b47c313defa6a0c",
+    "archive_url": "https://registry.npmjs.org/glsl-fxaa/-/glsl-fxaa-3.0.0.tgz",
+    "archive_sha256": "d9e91cef8c62a9ef72e691c4e6ee4f64a6c6387d828dd02739cfcad3dc314eef",
+    "archive_integrity": "sha512-DocLGbKW+YFIynx80X65GENCfLg8skTETH56flJEPEH6ZPRs//hytRmIVU5Q2c4nPkhoz1rZGmkia+ckU6g7YQ==",
+    "license": "MIT AND BSD-3-Clause",
+    "exceptions": [],
+    "files": [
+        {
+            "path": "LICENSE.md",
+            "sha256": "91515553fda3d86e82454bab0eb876a2cb9a31c0dcb8be640870fed624e53697"
+        },
+        {
+            "path": "README.md",
+            "sha256": "4087a47f5e7de558b7c473c2db701c0cf190d0e6eb554245a0fddced60acbd3b"
+        },
+        {
+            "path": "fxaa.glsl",
+            "sha256": "64ce9324771891eb1187e62fb2b7f010f60fe841ae85a722bb4e471b9fd0e86d"
+        },
+        {
+            "path": "index.glsl",
+            "sha256": "b9dc6958cde1283fe165321817ecb0dcd4cc3ecd0a6f1cac6d3782672514aff2"
+        },
+        {
+            "path": "package.json",
+            "sha256": "b61a3b613b598953849791766155faf9ce4f10742664d09ebfc3324e7947204a"
+        },
+        {
+            "path": "texcoords.glsl",
+            "sha256": "caab935bf6faac46ce40111c50ead4de1d54266902880ad4f034beaf166b3b38"
+        }
+    ],
+    "notices": "third_party/notices/glsl-fxaa",
+    "inspected_reference": {
+        "repository": "https://github.com/cables-gl/cables",
+        "revision": "75d9960b75545cbd40037d4b48ccf52ac8c75b63",
+        "files": [
+            "src/ops/base/Ops.Gl.ImageCompose.FXAA/att_fxaa.frag",
+            "src/ops/base/Ops.Gl.ImageCompose.FXAA/Ops.Gl.ImageCompose.FXAA.json"
+        ]
+    },
+    "dependency_decision": "No FXAA/SMAA port in the configured vcpkg checkout or shader in the installed bgfx source snapshots. Focused shader extraction only; no npm runtime or JavaScript dependencies.",
+    "target": "src/rhythm_render/shaders/texture_fxaa.sc",
+    "modifications": [
+        "Adapt sampler and uniforms to bgfx and compute neighbor UVs from actual source extent.",
+        "Filter premultiplied RGBA together; include coverage edges when source alpha varies.",
+        "Keep opaque RGB luminance behavior, bounded span/reduction controls and optional strength.",
+        "Remove glslify and host WebGL interfaces; retain the fixed nine-tap algorithm."
+    ],
+    "artifacts": [
+        "Windows Studio",
+        "Windows Player",
+        "Android Player"
+    ]
+}

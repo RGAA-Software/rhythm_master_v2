@@ -1834,6 +1834,17 @@
             "properties": {}
         },
         {
+            "id": "official.texture.fxaa.default",
+            "version": "1.0.0",
+            "operator": "texture.fxaa",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
+        },
+        {
             "id": "official.texture.display.default",
             "version": "1.0.0",
             "operator": "texture.display",

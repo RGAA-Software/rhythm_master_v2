@@ -9,6 +9,10 @@ int main(int argc, char* argv[]) {
         std::array<std::uint8_t, 32 * 16 * 4> pixels{};
         rhythm::platform::Host host(true);
         auto renderer = host.CreateRenderer();
+        if (argc == 2 && std::string_view(argv[1]) == "--fxaa") {
+            rhythm::validation::VerifyFxaa(renderer);
+            return 0;
+        }
         if (argc == 2 && std::string_view(argv[1]) == "--morph") {
             rhythm::validation::VerifyMeshMorph(renderer);
 #if defined(RHYTHM_MODEL_IMAGE_PROBE)
@@ -31,6 +35,7 @@ int main(int argc, char* argv[]) {
         rhythm::validation::VerifySceneInstances(renderer);
         rhythm::validation::VerifyGpuParticles(renderer);
         rhythm::validation::VerifyColorPipeline(renderer);
+        rhythm::validation::VerifyFxaa(renderer);
         rhythm::validation::VerifySampleableDepth(renderer);
         rhythm::validation::VerifyPositionalLights(renderer);
         rhythm::validation::VerifyMaterialTextures(renderer);

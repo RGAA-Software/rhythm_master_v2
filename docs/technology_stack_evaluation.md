@@ -331,6 +331,12 @@ Android application acceptance.
 
 ## R4 图像 Shader 增量验证（2026-09-08）
 
+R6 2026-09-09：FXAA 采用 `glsl-fxaa` 3.0.0 的独立 shader 源码提取，
+精确版本、MIT AND BSD-3-Clause 通知、vcpkg 缺口和适配见
+[抗锯齿契约](antialiasing.md) 与 `provenance/fxaa.json`。
+已通过 Windows D3D11 / USB Adreno 650 GLES 的真实像素及发布/缓存检查；
+不引入 npm 运行依赖，不冻结 Apple 支持。
+
 2026-09-09 更新：已在项目隔离目录构建 vcpkg bgfx tools 1.129.8940-496#1。
 其 shaderc 1.18.129 输出 FSH11，原生图像 profile 拒绝，不能直接替换现有 FSH12 工具。
 因此采用有实测兼容差异依据的源码例外：从已记录快照提取 1,881 文件，Python 准备、

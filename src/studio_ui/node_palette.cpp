@@ -42,6 +42,7 @@ std::string_view Category(graph::Operation operation) {
         case kColorAdjust:
         case kTextureLinearize:
         case kTextureDisplay:
+        case kTextureFxaa:
         case kDepthLinearize:
         case kDepthOfField:
         case kGaussianBlur:

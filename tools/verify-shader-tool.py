@@ -10,7 +10,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 GROUPS = ("color", "scene", "filter", "noise", "mapping", "displace",
-          "execution_probe", "gpu_points", "color_pipeline", "depth", "environment")
+          "execution_probe", "gpu_points", "color_pipeline", "depth", "environment", "antialias")
 
 
 def verify(compiler, output):

@@ -3,7 +3,7 @@
     "baseline": "782a294",
     "imported_third_party_files": [],
     "authoring_tool": "tools/author-daylight-mobile.py",
-    "authoring_tool_sha256": "3232adda934cf8f8395fc69f38839fb88d990821ee8adb070bacc670189c8f04",
+    "authoring_tool_sha256": "efb66b8a9e8c8f848fccaf5ca37070c2da01be49a78ebddd439e9e55e6eea4b0",
     "reused_sources": [
         "tools/author-resonance-gate.py",
         "tools/music_work.py",

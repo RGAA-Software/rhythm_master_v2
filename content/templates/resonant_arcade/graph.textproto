@@ -577,8 +577,7 @@ nodes { id: 143 type_key: "texture.composite" schema_version: 1
 }
 nodes { id: 144 type_key: "texture.display" schema_version: 1
 }
-nodes { id: 145 type_key: "texture.blur" schema_version: 1
-    properties { key: "blur_radius" value { scalar: 0.35 } }
+nodes { id: 145 type_key: "texture.fxaa" schema_version: 1
 }
 nodes { id: 146 type_key: "output.texture" schema_version: 1
 }

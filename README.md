@@ -299,7 +299,11 @@ completion. Start with that evaluation, then the architecture and relevant
 feature plan; retain the Windows-before-mobile implementation gate.
 
 
-The local Player now supports a bounded performance queue and 0–5 second SDR
+The editor provides an editable FXAA image filter for
+SDR output; Resonant Arcade and Daylight Mobile demonstrate it with music.
+See [antialiasing](docs/antialiasing.md) for the validated profiles and limits.
+
+The performance queue supports 0–5 second SDR
 scene dissolves. On Windows, open **Performance queue**; on Android, use
 **Performance queue → Add built-in work**. Preparation keeps the active work
 playing; pause freezes a transition, while seeking/restarting cancels it.

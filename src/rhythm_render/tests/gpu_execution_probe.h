@@ -24,6 +24,7 @@ void VerifyModelMorph(render::Renderer& renderer);
 void VerifyImageProgram(render::Renderer& renderer, const std::filesystem::path& path);
 void VerifySceneShadows(render::Renderer& renderer);
 void VerifyColorPipeline(render::Renderer& renderer);
+void VerifyFxaa(render::Renderer& renderer);
 void VerifyGpuParticles(render::Renderer& renderer);
 void VerifySceneInstances(render::Renderer& renderer);
 }  // namespace rhythm::validation

@@ -44,6 +44,7 @@ bool OrdinaryTarget(graph::Operation operation) {
         case kGpuPointRender:
         case kTextureLinearize:
         case kTextureDisplay:
+        case kTextureFxaa:
         case kDepthLinearize:
         case kDepthOfField:
         case kTextureNoise:

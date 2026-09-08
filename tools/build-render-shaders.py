@@ -17,7 +17,7 @@ def main():
     parser.add_argument("--compiler", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--platform", choices=("windows", "android"), required=True)
-    parser.add_argument("--group", choices=("color", "scene", "filter", "noise", "mapping", "displace", "execution_probe", "gpu_points", "color_pipeline", "depth", "environment"), default="color")
+    parser.add_argument("--group", choices=("color", "scene", "filter", "noise", "mapping", "displace", "execution_probe", "gpu_points", "color_pipeline", "depth", "environment", "antialias"), default="color")
     args = parser.parse_args()
     output = args.output.resolve()
     if not output.is_relative_to(ROOT / "out"):
@@ -32,6 +32,8 @@ def main():
         programs = [("gpu_point_vertex.sc", "vertex", "gpu_point_varying.def.sc", "kGpuPointVertexShader"),
                     ("gpu_point_fragment.sc", "fragment", "gpu_point_varying.def.sc", "kGpuPointFragmentShader"),
                     ("gpu_particle_update.sc", "compute", None, "kGpuParticleComputeShader")]
+    elif args.group == "antialias":
+        programs = [("texture_fxaa.sc", "fragment", "varying.def.sc", "kTextureFxaaShader")]
     elif args.group == "color_pipeline":
         programs = [("color_pipeline.sc", "fragment", "varying.def.sc", "kColorPipelineShader")]
     elif args.group == "environment":

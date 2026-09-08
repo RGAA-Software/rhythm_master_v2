@@ -2,6 +2,14 @@
 namespace rhythm::graph {
 void AppendColorDescriptors(std::vector<OperatorDescriptor>& operators) {
     using Type = ValueType;
+    operators.push_back({"texture.fxaa",
+                         Operation::kTextureFxaa,
+                         Type::kTexture,
+                         {{"source", Type::kTexture}, {"fxaa_strength", Type::kScalar, false}},
+                         {{"fxaa_strength", 1.0, 0, 1},
+                          {"fxaa_span", 8.0, 1, 16},
+                          {"fxaa_reduce_multiplier", 0.125, 0.01, 1},
+                          {"fxaa_reduce_minimum", 0.0078125, 0.001, 0.25}}});
     operators.push_back({"texture.linearize",
                          Operation::kTextureLinearize,
                          Type::kTexture,

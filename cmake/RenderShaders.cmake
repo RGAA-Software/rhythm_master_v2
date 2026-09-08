@@ -128,6 +128,7 @@ if(BUILD_TESTING)
             "${RHYTHM_SHADERC}" ${render_shader_includes}
         VERBATIM)
     add_library(gpu_execution_probe STATIC
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/fxaa_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/color_pipeline_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/depth_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/lights_gpu.cpp"
@@ -186,6 +187,19 @@ add_custom_command(OUTPUT "${color_pipeline_shader_header}"
         "${RHYTHM_SHADERC}" ${render_shader_includes}
     VERBATIM)
 target_sources(render_bgfx PRIVATE "${color_pipeline_shader_header}")
+
+set(fxaa_shader_header "${PROJECT_BINARY_DIR}/generated/render/texture_fxaa_shader.h")
+add_custom_command(OUTPUT "${fxaa_shader_header}"
+    COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        --compiler "${RHYTHM_SHADERC}" --output "${fxaa_shader_header}"
+        --platform "${render_shader_platform}" --group antialias
+    DEPENDS "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        "${PROJECT_SOURCE_DIR}/tools/compile-shader.py"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/texture_fxaa.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/varying.def.sc"
+        "${RHYTHM_SHADERC}" ${render_shader_includes}
+    VERBATIM)
+target_sources(render_bgfx PRIVATE "${fxaa_shader_header}")
 
 set(depth_shader_header "${PROJECT_BINARY_DIR}/generated/render/depth_shader.h")
 add_custom_command(OUTPUT "${depth_shader_header}"

@@ -343,6 +343,11 @@ void VerifyAffine(rhythm::render::Renderer& renderer) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+        if (argc == 2 && std::string_view(argv[1]) == "--fxaa") {
+            auto renderer = platform::Host::CreateRenderer();
+            validation::VerifyFxaa(renderer);
+            return 0;
+        }
         if (argc == 4 && std::string_view(argv[1]) == "--scene-deck") {
             auto renderer = platform::Host::CreateRenderer();
             rhythm::validation::VerifySceneDeck(renderer, argv[2], argv[3]);
@@ -381,6 +386,7 @@ int main(int argc, char* argv[]) {
             validation::VerifySceneInstances(renderer);
             validation::VerifyGpuParticles(renderer);
             validation::VerifyColorPipeline(renderer);
+            validation::VerifyFxaa(renderer);
             validation::VerifySampleableDepth(renderer);
             validation::VerifyPositionalLights(renderer);
             validation::VerifyMaterialTextures(renderer);

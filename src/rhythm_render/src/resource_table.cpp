@@ -198,7 +198,7 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
                 int(command.depth_linearization_.has_value()) +
                 int(command.depth_of_field_.has_value()) +
                 int(command.environment_filter_.has_value()) +
-                int(command.image_program_.has_value());
+                int(command.image_program_.has_value()) + int(command.texture_fxaa_.has_value());
         if (effects > 1) throw std::invalid_argument("render.effect_conflict");
         const auto bounded = [](float value, float minimum, float maximum) {
             return std::isfinite(value) && value >= minimum && value <= maximum;
@@ -229,6 +229,12 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
             if (color.input_ > ColorTransfer::kSrgb || color.output_ > ColorTransfer::kSrgb ||
                 color.tone_mapping_ > ToneMapping::kReinhard || !bounded(color.exposure_, -8, 8))
                 throw std::invalid_argument("render.color_pipeline");
+        }
+        if (command.texture_fxaa_) {
+            const auto& fxaa = *command.texture_fxaa_;
+            if (!bounded(fxaa.span_, 1, 16) || !bounded(fxaa.reduce_multiplier_, 0.01f, 1) ||
+                !bounded(fxaa.reduce_minimum_, 0.001f, 0.25f) || !bounded(fxaa.strength_, 0, 1))
+                throw std::invalid_argument("render.texture_fxaa");
         }
         if (command.texture_trail_) {
             const auto& trail = *command.texture_trail_;

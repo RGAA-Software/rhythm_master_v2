@@ -136,9 +136,7 @@ def build_graph():
     composed = node('texture.composite', 10340, 0, dict(a=composed, b=bloom),
                     composite_mode=1, amount=0.18, texture_precision=0)
     display = node('texture.display', 10680, 0, dict(source=composed, exposure=exposure))
-    # Restrained optical softness for thin architectural edges. This is a
-    # Gaussian filter, not a claim of MSAA/FXAA or temporal antialiasing support.
-    display = node('texture.blur', 11020, 0, dict(source=display), blur_radius=0.35)
+    display = node('texture.fxaa', 11020, 0, dict(source=display))
     final = node('output.texture', 11360, 0, dict(source=display))
     return graph, final, (response, pace, exposure)
 

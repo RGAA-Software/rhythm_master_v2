@@ -40,6 +40,18 @@ std::uint32_t DrawTexture(const graph::Instruction& instruction,
     const auto input = [&](std::size_t port) -> const NodeOutput& {
         return outputs[instruction.inputs_.at(port).value()];
     };
+    if (operation == graph::Operation::kTextureFxaa) {
+        AppendTextureQuad(list, input(0).texture_, 0xffffffff, 0xffffffff);
+        render::TextureFxaa fxaa;
+        fxaa.span_ = float(graph::Scalar(node, "fxaa_span", 8));
+        fxaa.reduce_multiplier_ = float(graph::Scalar(node, "fxaa_reduce_multiplier", 0.125));
+        fxaa.reduce_minimum_ = float(graph::Scalar(node, "fxaa_reduce_minimum", 0.0078125));
+        const auto strength =
+                instruction.inputs_[1] ? input(1).scalar_ : graph::Scalar(node, "fxaa_strength", 1);
+        fxaa.strength_ = float(std::isfinite(strength) ? std::clamp(strength, 0.0, 1.0) : 1);
+        list.commands_.back().texture_fxaa_ = fxaa;
+        return 0;
+    }
     if (operation == graph::Operation::kDepthLinearize) {
         const auto& depth = input(0).depth_.value();
         AppendTextureQuad(list, depth.texture_, 0xffffffff, 0xffffffff);

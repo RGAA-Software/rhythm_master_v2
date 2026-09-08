@@ -12,6 +12,7 @@
 #include "fs_ocornut_imgui.bin.h"
 #include "texture_displace_shader.h"
 #include "texture_filter_shader.h"
+#include "texture_fxaa_shader.h"
 #include "texture_mapping_shader.h"
 #include "texture_noise_shader.h"
 #include "vs_ocornut_imgui.bin.h"
@@ -30,6 +31,11 @@ BgfxTexturePrograms::BgfxTexturePrograms() {
             bgfx::createShader(bgfx::copy(fs_ocornut_imgui_dxbc, sizeof(fs_ocornut_imgui_dxbc))));
 #endif
     program_ = GpuHandle(bgfx::createProgram(vertex.Get(), fragment.Get(), false));
+    GpuHandle fxaa_fragment(
+            bgfx::createShader(bgfx::copy(kTextureFxaaShader, sizeof(kTextureFxaaShader))));
+    fxaa_program_ = GpuHandle(bgfx::createProgram(vertex.Get(), fxaa_fragment.Get(), false));
+    fxaa_settings_ = GpuHandle(bgfx::createUniform("u_fxaa_settings", bgfx::UniformType::Vec4));
+    fxaa_domain_ = GpuHandle(bgfx::createUniform("u_fxaa_domain", bgfx::UniformType::Vec4));
     GpuHandle environment_fragment(bgfx::createShader(
             bgfx::copy(kEnvironmentFilterShader, sizeof(kEnvironmentFilterShader))));
     environment_program_ =
@@ -101,7 +107,16 @@ void BgfxTexturePrograms::Submit(std::uint16_t view, const DrawCommand& command,
                                  float aspect, bgfx::TextureHandle source, Extent map_size,
                                  bgfx::TextureHandle map, bool float_target) const {
     bgfx::setTexture(0, sampler_.Get(), source);
-    if (command.environment_filter_) {
+    if (command.texture_fxaa_) {
+        const auto& fxaa = *command.texture_fxaa_;
+        const std::array settings{fxaa.span_, fxaa.reduce_multiplier_, fxaa.reduce_minimum_,
+                                  fxaa.strength_};
+        const std::array domain{1.0f / source_size.width_, 1.0f / source_size.height_, 0.0f, 0.0f};
+        bgfx::setTexture(0, sampler_.Get(), source, BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
+        bgfx::setUniform(fxaa_settings_.Get(), settings.data());
+        bgfx::setUniform(fxaa_domain_.Get(), domain.data());
+        bgfx::submit(view, fxaa_program_.Get());
+    } else if (command.environment_filter_) {
         const std::array settings{command.environment_filter_->source_srgb_ ? 1.0f : 0.0f,
                                   0.5f / source_size.height_, 0.0f, 0.0f};
         bgfx::setTexture(0, sampler_.Get(), source, BGFX_SAMPLER_V_CLAMP);
