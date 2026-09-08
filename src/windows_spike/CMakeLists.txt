@@ -38,6 +38,7 @@ if(RHYTHM_BUILD_MEDIA)
     add_subdirectory(../audio_playback "${PROJECT_BINARY_DIR}/src/audio_playback")
 endif()
 add_subdirectory(../audio_ui "${PROJECT_BINARY_DIR}/src/audio_ui")
+add_subdirectory(../control_ui "${PROJECT_BINARY_DIR}/src/control_ui")
 if(RHYTHM_BUILD_MEDIA)
     add_subdirectory(../export_jobs "${PROJECT_BINARY_DIR}/src/export_jobs")
 endif()
@@ -168,7 +169,7 @@ if(BUILD_TESTING)
         set_tests_properties(crystal_choir_export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME crystal_choir_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
             --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/crystal_choir.rhythmpack"
-            --expected-nodes 79 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --expected-nodes 86 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/crystal-choir-music-captures")
         set_tests_properties(crystal_choir_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME torque_garden_export_gpu COMMAND export_gpu_tests

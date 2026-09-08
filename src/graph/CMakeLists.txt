@@ -1,11 +1,15 @@
 add_library(graph_domain STATIC src/depth_descriptors.cpp src/color_descriptors.cpp src/registry.cpp src/compiler.cpp src/bindings.cpp
     src/component_description.cpp src/component_expansion.cpp src/point_descriptors.cpp src/point_budget.cpp
-    src/scene_descriptors.cpp src/scene_budget.cpp src/path_descriptors.cpp src/animation_descriptors.cpp)
+    src/scene_descriptors.cpp src/scene_budget.cpp src/path_descriptors.cpp src/animation_descriptors.cpp src/controls.cpp)
 add_library(Rhythm::Graph ALIAS graph_domain)
 target_include_directories(graph_domain PUBLIC include)
 target_link_libraries(graph_domain PUBLIC parameters asset_types)
 rhythm_project_target(graph_domain)
 if(BUILD_TESTING)
+    add_executable(control_graph_tests tests/control_graph_tests.cpp)
+    target_link_libraries(control_graph_tests PRIVATE Rhythm::Graph)
+    rhythm_project_target(control_graph_tests)
+    add_test(NAME control_graph COMMAND control_graph_tests)
     add_executable(gpu_particle_graph_tests tests/gpu_particle_graph_tests.cpp)
     target_link_libraries(gpu_particle_graph_tests PRIVATE Rhythm::Graph)
     rhythm_project_target(gpu_particle_graph_tests)

@@ -24,14 +24,19 @@ def main():
     blob.write_bytes(model)
     graph = gate.Graph()
     node = graph.node
+    gain = node('control.scalar', -1100, 0, value=1, control_minimum=0, control_maximum=3)
+    speed = node('control.scalar', -1100, 350, value=4, control_minimum=0, control_maximum=16)
+    exposure = node('control.scalar', -1100, 700, value=0.5, control_minimum=-2, control_maximum=2)
+    bloom = node('control.scalar', -1100, 1050, value=0.3, control_minimum=0, control_maximum=1)
     time = node('core.time', 0, 0)
-    turn = node('scalar.expression', 320, 0, dict(time=time), expression='time * 4')
+    turn = node('scalar.expression', 320, 0, dict(time=time, a=speed), expression='time * a')
     mesh = node('geometry.glb', 0, 400)
     graph.nodes[-1] = graph.nodes[-1][:-1] + f'    properties {{ key: "asset" value {{ asset_sha256: "{digest}" }} }}\n}}'
     bodies = []
     for group, color in enumerate(((0.025, 0.7, 0.85, 1), (0.75, 0.08, 0.32, 1), (1, 0.58, 0.10, 1))):
         y = 900 + group * 1400
         band = node('audio.band', 0, y, audio_band=10 + group * 19)
+        band = node('scalar.expression', -500, y, dict(a=band, b=gain), expression='a * b')
         response = node('scalar.map', 320, y, dict(value=band), input_max=0.28, output_max=1)
         flare = node('scalar.map', 320, y + 320, dict(value=band), input_max=0.35,
                      output_min=0.1, output_max=0.8)
@@ -84,17 +89,29 @@ def main():
     back = node('texture.linearize', 5700, 0, dict(source=back))
     combined = node('texture.composite', 6040, 900, dict(a=back, b=rendered), texture_precision=0)
     halo = node('texture.blur', 6040, 1300, dict(source=rendered), blur_radius=12, texture_precision=0)
-    combined = node('texture.composite', 6380, 900, dict(a=combined, b=halo),
+    combined = node('texture.composite', 6380, 900, dict(a=combined, b=halo, amount=bloom),
                     composite_mode=1, amount=0.3, texture_precision=0)
-    display = node('texture.display', 6720, 900, dict(source=combined), exposure=0.5)
+    display = node('texture.display', 6720, 900, dict(source=combined, exposure=exposure), exposure=0.5)
     spectrum = node('texture.spectrum', 6380, 2100, spectrum_layout=1, spectrum_radius=0.40,
                     bar_count=96, spectrum_gain=1.3, bar_gap=0.7,
                     color_a=(0.06, 0.4, 0.55, 0.5), color_b=(0.9, 0.22, 0.12, 0.6))
     display = node('texture.composite', 7060, 900, dict(a=display, b=spectrum), composite_mode=1)
     final = node('output.texture', 7400, 900, dict(source=display))
+    metadata = ['controls {']
+    for control, title in ((gain, 'Music response'), (speed, 'Orbit speed'),
+                           (exposure, 'Exposure'), (bloom, 'Bloom')):
+        metadata.append(f'  titles {{ key: {control} value: "{title}" }}')
+    for index, (title, values) in enumerate((('Quiet', (0.35, 1, 0.2, 0.15)),
+                                            ('Concert', (1, 4, 0.5, 0.3)),
+                                            ('Peak', (2, 10, 1.2, 0.65))), 1):
+        metadata.append(f'  snapshots {{ id: {index} title: "{title}"')
+        for control, value in zip((gain, speed, exposure, bloom), values):
+            metadata.append(f'    values {{ key: {control} value: {value} }}')
+        metadata.append('  }')
+    metadata.append('}')
     (destination / 'graph.textproto').write_text(
         f'schema_version: 4\nid: "official-crystal-choir"\noutput: {final}\n'
-        'canvas { width: 1280 height: 720 }\n' + '\n'.join(graph.nodes + graph.edges) + '\n', encoding='utf-8')
+        'canvas { width: 1280 height: 720 }\n' + '\n'.join(graph.nodes + graph.edges + metadata) + '\n', encoding='utf-8')
     (destination / 'editor.json').write_text(json.dumps(dict(version=2, positions=graph.positions), indent=4) + '\n', encoding='utf-8')
     manifest = json.loads((ROOT / 'content/templates/torque_garden/manifest.json').read_text(encoding='utf-8'))
     manifest.update(content_id='official.templates.crystal_choir', project_id='official-crystal-choir',

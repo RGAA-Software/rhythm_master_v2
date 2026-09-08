@@ -20,4 +20,11 @@
     <string name="demo_music">演示音乐</string>
     <string name="loop_music">循环</string>
     <string name="audio_error">无法播放此音频文件。</string>
+    <string name="performance_controls">演出控件</string>
+    <string name="controls_empty">此作品没有公开宏。请在 Studio 中添加公开宏控件节点。</string>
+    <string name="controls_changed">作品已切换，请重新打开演出控件。</string>
+    <string name="controls_first">快照 A</string>
+    <string name="controls_second">快照 B</string>
+    <string name="controls_recall">召回 A</string>
+    <string name="controls_blend">A / B 混合</string>
 </resources>

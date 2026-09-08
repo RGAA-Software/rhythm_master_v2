@@ -37,6 +37,10 @@ const std::string& Session::Title() const {
     static const std::string kEmpty;
     return package_ ? package_->title_ : kEmpty;
 }
+const parameters::ControlBank& Session::Controls() const {
+    static const parameters::ControlBank kEmpty;
+    return package_ ? package_->program_.controls_ : kEmpty;
+}
 render::Extent Session::Canvas() const {
     const auto canvas = package_ ? package_->program_.canvas_ : graph::Canvas{};
     return {static_cast<std::uint16_t>(canvas.width_), static_cast<std::uint16_t>(canvas.height_)};
@@ -71,7 +75,9 @@ runtime::FrameResult Session::Tick(double monotonic_seconds, bool suspended, ren
         frame_ = {};
     }
     if (!package_ || suspended || !extent.width_ || !extent.height_) return {};
-    if (!Paused() || media_position_changed || extent != extent_ ||
+    const auto controls = Controls().Resolve(inputs.controls_);
+    const auto controls_changed = controls != external_.controls_;
+    if (!Paused() || controls_changed || media_position_changed || extent != extent_ ||
         !renderer.IsValid(frame_.final_) || !resources_->videos_.empty()) {
         runtime::FrameContext context{Seconds(), generation_, extent, false};
         context.resources_ = resources_->models_;
@@ -80,6 +86,7 @@ runtime::FrameResult Session::Tick(double monotonic_seconds, bool suspended, ren
         context.videos_ = videos_.Update(package_->program_, *resources_, Seconds(), generation_);
         context.external_ =
                 Paused() && !discontinuity && !media_position_changed ? external_ : inputs;
+        context.external_.controls_ = controls;
         context.advance_state_ = !Paused() && (!playback || Seconds() != previous_seconds);
         context.retained_textures_ = std::vector<graph::NodeId>{};
         frame_ = runtime_.EvaluateSafely(package_->program_, context, renderer);

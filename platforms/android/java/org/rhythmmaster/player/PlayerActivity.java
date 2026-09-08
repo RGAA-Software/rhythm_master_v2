@@ -124,6 +124,7 @@ public final class PlayerActivity extends SDLActivity {
         LinearLayout settings = new LinearLayout(this);
         AddButton(settings, R.string.render_quality, () -> ChooseQuality());
         AddButton(settings, R.string.open_package, () -> OpenPackage());
+        AddButton(settings, R.string.performance_controls, () -> PerformanceControls.Show(this));
         controls.addView(settings);
         LinearLayout music = new LinearLayout(this);
         AddButton(music, R.string.open_music, () -> OpenMusic());

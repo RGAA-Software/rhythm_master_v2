@@ -3,8 +3,10 @@
 
 #include <stdexcept>
 
+#include "control_codec.h"
 #include "graph.pb.h"
 #include "property_codec.h"
+#include "rhythm/graph/controls.h"
 #include "rhythm/project/package.h"
 #include "wire_limits.h"
 
@@ -22,6 +24,10 @@ void ValidatePlan(const graph::ExecutionPlan& plan) {
     document.revision_ = plan.revision_;
     document.canvas_ = plan.canvas_;
     document.output_ = plan.instructions_[plan.output_].node_.id_;
+    for (const auto& control : plan.controls_.Definitions())
+        document.control_titles_[control.id_] = control.title_;
+    document.control_snapshots_.assign(plan.controls_.Snapshots().begin(),
+                                       plan.controls_.Snapshots().end());
     for (const auto& instruction : plan.instructions_) document.nodes_.push_back(instruction.node_);
     for (const auto& instruction : plan.instructions_) {
         const auto descriptor = registry.Find(instruction.node_.type_);
@@ -43,6 +49,7 @@ void ValidatePlan(const graph::ExecutionPlan& plan) {
     if (!std::holds_alternative<graph::ExecutionPlan>(validation))
         throw std::invalid_argument("package.invalid_program");
     const auto& canonical = std::get<graph::ExecutionPlan>(validation);
+    if (canonical.controls_ != plan.controls_) throw std::invalid_argument("package.controls");
     if (canonical.instructions_.size() != plan.instructions_.size() ||
         canonical.output_ != plan.output_)
         throw std::invalid_argument("package.noncanonical_program");
@@ -62,6 +69,14 @@ std::string EncodeProgram(const graph::ExecutionPlan& plan) {
     message.set_document_id(plan.document_id_);
     message.set_revision(plan.revision_);
     message.set_output_slot(plan.output_);
+    if (!plan.controls_.Definitions().empty()) {
+        graph::Document metadata;
+        for (const auto& control : plan.controls_.Definitions())
+            metadata.control_titles_[control.id_] = control.title_;
+        metadata.control_snapshots_.assign(plan.controls_.Snapshots().begin(),
+                                           plan.controls_.Snapshots().end());
+        detail::EncodeControls(metadata, *message.mutable_controls());
+    }
     for (const auto& instruction : plan.instructions_) {
         auto& encoded = *message.add_instructions();
         encoded.set_operator_type(instruction.node_.type_);
@@ -142,6 +157,10 @@ graph::ExecutionPlan DecodeProgram(std::string_view bytes, std::uint32_t require
             instruction.node_.properties_[key] = detail::DecodeProperty(property, false);
         plan.instructions_.push_back(std::move(instruction));
     }
+    graph::Document metadata;
+    detail::DecodeControls(message.controls(), metadata);
+    for (const auto& instruction : plan.instructions_) metadata.nodes_.push_back(instruction.node_);
+    plan.controls_ = graph::DescribeControls(metadata);
     ValidatePlan(plan);
     return plan;
 }

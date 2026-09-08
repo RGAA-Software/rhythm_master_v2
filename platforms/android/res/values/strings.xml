@@ -20,4 +20,11 @@
     <string name="demo_music">Demo music</string>
     <string name="loop_music">Loop</string>
     <string name="audio_error">Cannot play this audio file.</string>
+    <string name="performance_controls">Controls</string>
+    <string name="controls_empty">This work has no public macros. Add Public macro nodes in Studio.</string>
+    <string name="controls_changed">The work changed. Open its controls again.</string>
+    <string name="controls_first">Snapshot A</string>
+    <string name="controls_second">Snapshot B</string>
+    <string name="controls_recall">Recall A</string>
+    <string name="controls_blend">A / B blend</string>
 </resources>

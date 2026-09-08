@@ -32,6 +32,12 @@ int main() {
     using namespace rhythm::project::detail;
     try {
         std::string graph;
+        std::string controls;
+        for (int i = 0; i < 65; ++i) controls += Message(1, "");
+        Reject(Message(11, controls), WireRoot::kGraph, "codec.repeated_limit");
+        Reject(Message(7, controls), WireRoot::kProgram, "codec.repeated_limit");
+        Reject(Message(11, Message(2, Message(2, std::string(129, 'a')))), WireRoot::kGraph,
+               "codec.string_limit");
         for (int index = 0; index < 10000; ++index) graph += Message(4, "");
         CheckWireLimits(graph, WireRoot::kGraph);
         Reject(graph + Message(4, ""), WireRoot::kGraph, "codec.repeated_limit");

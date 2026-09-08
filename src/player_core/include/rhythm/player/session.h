@@ -20,6 +20,7 @@ class Session final {
     [[nodiscard]] bool Paused() const { return clock_.Paused(); }
     [[nodiscard]] bool Ready() const { return package_.has_value(); }
     [[nodiscard]] const std::string& Title() const;
+    [[nodiscard]] const parameters::ControlBank& Controls() const;
     [[nodiscard]] render::Extent Canvas() const;
     [[nodiscard]] std::optional<media::SoundtrackSource> Soundtrack() const { return soundtrack_; }
     [[nodiscard]] double Seconds() const { return clock_.Seconds(); }
@@ -31,7 +32,8 @@ class Session final {
     // Playback time survives surface replacement, simulation history is reset.
     void ReleaseGraphics();
     // One immutable input snapshot per host-thread frame. Pause/suspension hold
-    // the last evaluated snapshot, including during surface replacement. Missing
+    // the last evaluated audio/session snapshot, including during surface replacement.
+    // Explicit public controls remain editable while paused. Missing
     // external session time selects local playback; Seconds() stays local time.
     runtime::FrameResult Tick(double monotonic_seconds, bool suspended, render::Extent extent,
                               render::Renderer& renderer,

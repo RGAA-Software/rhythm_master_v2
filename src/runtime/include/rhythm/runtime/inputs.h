@@ -6,6 +6,7 @@
 #include <optional>
 
 #include "rhythm/audio/features.h"
+#include "rhythm/parameters/controls.h"
 
 namespace rhythm::runtime {
 struct ParticipantInputs {
@@ -27,9 +28,13 @@ struct ExternalInputs {
     std::optional<double> session_seconds_{};
     ParticipantInputs participant_{};
     std::optional<audio::Features> audio_{};
+    parameters::ControlValues controls_{};
     bool operator==(const ExternalInputs&) const = default;
 };
 inline bool ValidExternalInputs(const ExternalInputs& inputs) {
+    if (inputs.controls_.size() > parameters::ControlBank::kMaximumControls) return false;
+    for (const auto& [id, value] : inputs.controls_)
+        if (!id || !std::isfinite(value) || std::abs(value) > 1e6) return false;
     return ValidInputs(inputs.participant_) &&
            (!inputs.session_seconds_ ||
             (std::isfinite(*inputs.session_seconds_) && *inputs.session_seconds_ >= 0)) &&

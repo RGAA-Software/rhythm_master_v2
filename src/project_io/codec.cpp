@@ -5,6 +5,7 @@
 #include <set>
 #include <stdexcept>
 
+#include "control_codec.h"
 #include "graph.pb.h"
 #include "graph_records.h"
 #include "graph_validation.h"
@@ -35,6 +36,7 @@ graph::Document DecodeGraph(std::string_view bytes) {
     document.id_ = message.id();
     document.revision_ = message.revision();
     document.output_ = message.output();
+    detail::DecodeControls(message.controls(), document);
     if (message.has_canvas())
         document.canvas_ = {message.canvas().width(), message.canvas().height()};
     for (const auto& record : message.nodes())
@@ -104,6 +106,9 @@ std::string EncodeGraph(const graph::Document& document) {
     message.clear_components();
     for (const auto& definition : document.components_)
         detail::EncodeComponent(definition, *message.add_components());
+    if (!document.control_titles_.empty() || !document.control_snapshots_.empty() ||
+        message.has_controls())
+        detail::EncodeControls(document, *message.mutable_controls());
     if (message.ByteSizeLong() > kMaximumGraphBytes) throw std::length_error("project.graph_bytes");
     const auto bytes = detail::SerializeDeterministically(message);
     // Parse validates UTF-8 on the write boundary, including unknown node strings.

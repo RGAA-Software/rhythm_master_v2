@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "commands.h"
+#include "control_bridge.h"
 #include "host.h"
 #include "package_imports.h"
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
@@ -63,6 +64,7 @@ int main(int, char**) {
         apply_soundtrack();
 #endif
         android_host::PublishScene(session.Canvas(), session.Title());
+        android_host::PublishControls(session.Controls());
         std::uint64_t frames = 0;
         std::uint64_t devices = 0;
         std::uint64_t surface_generation = 0;
@@ -122,6 +124,7 @@ int main(int, char**) {
                 if (loaded->package_) {
                     const bool paused = session.Paused();
                     session.LoadPrepared(std::move(*loaded->package_));
+                    android_host::PublishControls(session.Controls());
                     session.SetPaused(paused);
                     android_host::PublishScene(session.Canvas(), session.Title());
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
@@ -142,7 +145,8 @@ int main(int, char**) {
             renderer->BeginFrame();
             const auto extent = player::PlaybackExtent(session.Canvas(), render_quality);
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
-            const auto music_frame = music.Frame();
+            auto music_frame = music.Frame();
+            music_frame.inputs_.controls_ = android_host::CurrentControls();
             const auto output = session.Tick(seconds, false, extent, *renderer, music_frame.inputs_,
                                              music_frame.playback_);
             if (music_frame.failed_) error = "audio_error";
@@ -150,7 +154,9 @@ int main(int, char**) {
                     session.Seconds(),
                     music_frame.playback_ ? music_frame.playback_->duration_ : std::nullopt);
 #else
-            const auto output = session.Tick(seconds, false, extent, *renderer);
+            runtime::ExternalInputs inputs;
+            inputs.controls_ = android_host::CurrentControls();
+            const auto output = session.Tick(seconds, false, extent, *renderer, inputs);
 #endif
             renderer->Submit({}, Present(output.final_, size, session.Canvas()), 0x111822ff);
             renderer->EndFrame();

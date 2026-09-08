@@ -7,8 +7,9 @@
     ],
     "reuse": "Reuses existing first-party Graph authoring helper and validated Godot/cgltf/GLM/TiXL-derived renderer adapters. No third-party model or texture imported.",
     "runtime_sources": "provenance/model_animation.json",
-    "nodes": 79,
-    "edges": 106,
+    "nodes": 86,
+    "edges": 115,
+    "controls": "Four root macros and three named snapshots; reuses first-party public controls. This is the same composition, not another template count.",
     "asset_sha256": "39e5e388f5834063acee9cba0e5c688f01f23b2b07d03b292981c69dddec0fc1",
     "visual_acceptance": "pending"
 }

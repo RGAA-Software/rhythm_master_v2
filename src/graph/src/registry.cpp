@@ -15,6 +15,13 @@ Registry::Registry() {
     using Type = ValueType;
     operators_ = {
             {"core.time", Operation::kTime, Type::kScalar, {}, {}, true},
+            {"control.scalar",
+             Operation::kControlScalar,
+             Type::kScalar,
+             {},
+             {{"value", 0.0, -1e6, 1e6},
+              {"control_minimum", 0.0, -1e6, 1e6},
+              {"control_maximum", 1.0, -1e6, 1e6}}},
             {"texture.image",
              Operation::kTextureImage,
              Type::kTexture,

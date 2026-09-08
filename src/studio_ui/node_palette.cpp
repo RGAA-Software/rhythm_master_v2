@@ -9,6 +9,7 @@ std::string_view Category(graph::Operation operation) {
     using enum graph::Operation;
     switch (operation) {
         case kConstant:
+        case kControlScalar:
         case kMath:
         case kMap:
         case kCompare:

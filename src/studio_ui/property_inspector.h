@@ -4,6 +4,7 @@
 #include "curve_editor.h"
 #include "expression_editor.h"
 #include "rhythm/content/presets.h"
+#include "rhythm/control_ui/control_panel.h"
 #include "rhythm/editor/history.h"
 #include "rhythm/scene/resources.h"
 
@@ -27,12 +28,16 @@ class PropertyInspector final {
         expression_editor_.Reset();
         binding_editor_.Reset();
         curve_editor_.Reset();
+        controls_.Reset();
     }
 
    private:
+    bool DrawControls(const editor::Snapshot& snapshot,
+                      const std::map<std::string, std::string>& text, InspectorResult& result);
     std::optional<editor::Snapshot> draft_{};
     ExpressionEditor expression_editor_{};
     BindingEditor binding_editor_{};
     CurveEditor curve_editor_{};
+    control_ui::ControlPanel controls_{};
 };
 }  // namespace rhythm::studio

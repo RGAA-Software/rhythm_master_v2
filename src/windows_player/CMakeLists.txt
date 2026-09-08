@@ -1,5 +1,5 @@
 add_executable(rhythm_player main.cpp)
-target_link_libraries(rhythm_player PRIVATE platform_sdl player_core audio_ui spike_imgui nlohmann_json::nlohmann_json)
+target_link_libraries(rhythm_player PRIVATE platform_sdl player_core audio_ui control_ui spike_imgui nlohmann_json::nlohmann_json)
 rhythm_project_target(rhythm_player)
 add_dependencies(rhythm_player runtime_builtin_content)
 set(player_deploy_config "${CMAKE_CURRENT_BINARY_DIR}/deploy-config-$<CONFIG>.txt")

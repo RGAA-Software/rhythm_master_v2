@@ -25,6 +25,7 @@ EditResult MakeComponent(const Snapshot& snapshot, const graph::Registry& regist
         return graph::Diagnostic{"graph.component"};
     for (const auto& node : document.nodes_) {
         if (!selected.contains(node.id_)) continue;
+        if (node.type_ == "control.scalar") return graph::Diagnostic{"control.root_only"};
         const auto validation = registry.ValidateNode(node, document.components_);
         if (!validation.empty()) return validation.front();
         definition.nodes_.push_back(node);

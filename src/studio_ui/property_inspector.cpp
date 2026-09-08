@@ -62,6 +62,7 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
         result.preview_changed_ = true;
     }
     const auto& snapshot = draft_ ? *draft_ : base;
+    if (DrawControls(snapshot, text, result)) return result;
     const auto found =
             std::find_if(snapshot.document_.nodes_.begin(), snapshot.document_.nodes_.end(),
                          [&](const auto& node) { return node.id_ == selected; });

@@ -1,0 +1,12 @@
+add_library(control_ui STATIC control_panel.cpp)
+target_include_directories(control_ui PUBLIC include)
+target_link_libraries(control_ui PUBLIC parameters PRIVATE spike_imgui)
+rhythm_project_target(control_ui)
+if(BUILD_TESTING)
+    add_executable(control_interaction_tests tests/control_interaction_tests.cpp)
+    target_link_libraries(control_interaction_tests PRIVATE control_ui spike_imgui)
+    rhythm_project_target(control_interaction_tests)
+    add_test(NAME control_interactions COMMAND control_interaction_tests)
+    set_tests_properties(control_interactions PROPERTIES ENVIRONMENT_MODIFICATION
+        "PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/bin;PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/debug/bin")
+endif()

@@ -1,0 +1,28 @@
+{
+    "sources": [
+        {
+            "source_url": "https://github.com/tixl3d/tixl",
+            "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+            "source_file": "Editor/Gui/Interaction/Variations/BlendActions.cs",
+            "sha256": "04a29694c2dc1cac9c3c3b77c3ef522e6cab217718115ce8abc7ec86b1ae4526",
+            "license": "MIT",
+            "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+            "imported_files": [],
+            "target": "src/parameters/controls.cpp; src/control_ui/control_panel.cpp",
+            "usage": "Study left/right snapshot selection and normalized manual crossfade. No source text imported.",
+            "modifications": ["Validated immutable scalar maps with project IDs; no MIDI or engine-global dependency."]
+        },
+        {
+            "source_url": "https://github.com/tixl3d/tixl",
+            "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+            "source_file": "Editor/Gui/Interaction/Variations/Model/SymbolVariationPool.cs",
+            "sha256": "da62caccf52dc884d73f949b1693cc64d6b62ae02f5802369e428b5d277606d4",
+            "license": "MIT",
+            "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+            "imported_files": [],
+            "target": "src/studio_ui/control_inspector.cpp",
+            "usage": "Study preview-versus-commit lifetime in BeginBlendTowardsSnapshot, ApplyCurrentBlend and StopHover. No source text imported.",
+            "modifications": ["Use the existing value-owned Studio draft/history; commit once on gesture release."]
+        }
+    ]
+}

@@ -815,5 +815,19 @@
     "curve.value_offset": "Value offset",
     "curve.value_scale": "Value scale",
     "curve.value_pivot": "Value pivot",
-    "curve.apply_selection": "Apply to selected keys"
+    "curve.apply_selection": "Apply to selected keys",
+    "control.scalar": "Public macro",
+    "control_minimum": "Control minimum",
+    "control_maximum": "Control maximum",
+    "graph.controls": "Invalid macro range or snapshot reference. Correct it before saving.",
+    "control.root_only": "Keep public macros in the work graph and connect component inputs.",
+    "controls.title": "Performance controls and snapshots",
+    "controls.first": "Snapshot A",
+    "controls.second": "Snapshot B",
+    "controls.recall": "Recall A",
+    "controls.remove": "Delete A",
+    "controls.blend": "A / B blend",
+    "controls.name": "New snapshot name",
+    "controls.capture": "Capture current values",
+    "controls.rename": "Rename controls (Enter to save)"
 }

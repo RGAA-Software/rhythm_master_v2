@@ -23,7 +23,11 @@ enum class Kind {
     kSignalBinding,
     kComponent,
     kComponentInput,
-    kComponentParameter
+    kComponentParameter,
+    kControls,
+    kControlTitle,
+    kControlSnapshot,
+    kControlValue
 };
 struct Budget {
     std::size_t fields_ = 0;
@@ -95,6 +99,11 @@ struct Child {
     std::size_t maximum_ = 1;
 };
 std::optional<Child> Nested(Kind kind, unsigned field) {
+    if ((kind == Kind::kGraph && field == 11) || (kind == Kind::kProgram && field == 7))
+        return Child{Kind::kControls};
+    if (kind == Kind::kControls && field == 1) return Child{Kind::kControlTitle, 64};
+    if (kind == Kind::kControls && field == 2) return Child{Kind::kControlSnapshot, 64};
+    if (kind == Kind::kControlSnapshot && field == 3) return Child{Kind::kControlValue, 64};
     if ((kind == Kind::kGraph && field == 7) || (kind == Kind::kProgram && field == 6))
         return Child{Kind::kCanvas};
     if (kind == Kind::kGraph && field == 4) return Child{Kind::kNode, 10000};
@@ -118,6 +127,7 @@ std::optional<Child> Nested(Kind kind, unsigned field) {
     return std::nullopt;
 }
 std::size_t StringLimit(Kind kind, unsigned field) {
+    if ((kind == Kind::kControlTitle || kind == Kind::kControlSnapshot) && field == 2) return 128;
     if (kind == Kind::kComponent && (field == 1 || field == 10)) return 256;
     if ((kind == Kind::kComponentInput && (field == 1 || field == 3)) ||
         (kind == Kind::kComponentParameter && (field == 1 || field == 3 || field == 4)))
@@ -136,7 +146,7 @@ std::size_t StringLimit(Kind kind, unsigned field) {
 void Scan(std::string_view bytes, Kind kind, unsigned depth, Budget& budget) {
     if (depth > 32 || ++budget.messages_ > 100000) throw std::length_error("codec.message_budget");
     Cursor cursor(bytes);
-    std::array<std::size_t, 11> counts{};
+    std::array<std::size_t, 12> counts{};
     std::size_t slots = 0;
     while (!cursor.Empty()) {
         const auto tag = Tag(cursor, budget);

@@ -39,6 +39,7 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
         throw std::invalid_argument("runtime.frame");
     if (!ValidExternalInputs(frame.external_))
         throw std::invalid_argument("runtime.external_inputs");
+    frame.external_.controls_ = plan.controls_.Resolve(frame.external_.controls_);
     if (graph::ValidatePointBudget(plan)) throw std::length_error("runtime.points_budget");
     static const scene::Resources kNoResources;
     const auto& resources = frame.resources_ ? *frame.resources_ : kNoResources;
@@ -364,6 +365,7 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                 case graph::Operation::kParticipantRole:
                 case graph::Operation::kSharedControl:
                 case graph::Operation::kAudioFeature:
+                case graph::Operation::kControlScalar:
                 case graph::Operation::kAudioBand:
                     state.output_.scalar_ = external_value.value();
                     break;

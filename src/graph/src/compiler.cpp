@@ -8,6 +8,7 @@
 
 #include "rhythm/graph/bindings.h"
 #include "rhythm/graph/components.h"
+#include "rhythm/graph/controls.h"
 
 namespace rhythm::graph {
 CompileResult Compile(const Document& document, const Registry& registry,
@@ -50,6 +51,13 @@ CompileResult Compile(const Document& document, const Registry& registry,
         diagnostics.insert(diagnostics.end(), properties.begin(), properties.end());
     }
     if (!diagnostics.empty()) return diagnostics;
+    parameters::ControlBank controls;
+    try {
+        controls = DescribeControls(document);
+    } catch (const std::exception&) {
+        fail("graph.controls");
+        return diagnostics;
+    }
     std::vector<std::vector<std::optional<std::size_t>>> inputs(descriptors.size());
     for (std::size_t i = 0; i < inputs.size(); ++i) inputs[i].resize(descriptors[i].inputs_.size());
     std::set<std::uint64_t> edge_ids;
@@ -144,6 +152,7 @@ CompileResult Compile(const Document& document, const Registry& registry,
     plan.output_ = remap[index.at(document.output_)];
     if (const auto budget = ValidatePointBudget(plan)) return std::vector<Diagnostic>{*budget};
     if (const auto budget = ValidateSceneBudget(plan)) return std::vector<Diagnostic>{*budget};
+    plan.controls_ = SelectControls(controls, plan.instructions_);
     return plan;
 }
 }  // namespace rhythm::graph

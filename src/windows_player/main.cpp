@@ -10,6 +10,7 @@
 #include <string_view>
 
 #include "rhythm/audio_ui/audio_panel.h"
+#include "rhythm/control_ui/control_panel.h"
 #include "rhythm/platform/host.h"
 #include "rhythm/player/package_loader.h"
 #include "rhythm/player/session.h"
@@ -45,6 +46,8 @@ int main(int argc, char* argv[]) {
         rhythm::player::Session session;
         rhythm::player::PackageLoader package_loader;
         rhythm::audio_ui::AudioPanel audio_panel;
+        rhythm::control_ui::ControlPanel control_panel;
+        rhythm::parameters::ControlValues control_values;
         const auto set_paused = [&](bool paused) {
             audio_panel.ApplyPlayback({paused, {}});
             session.SetPaused(paused);
@@ -97,6 +100,8 @@ int main(int argc, char* argv[]) {
             if (auto result = package_loader.Take()) {
                 if (result->package_) {
                     session.LoadPrepared(std::move(*result->package_));
+                    control_values.clear();
+                    control_panel.Reset();
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
                     apply_soundtrack();
 #endif
@@ -125,6 +130,10 @@ int main(int argc, char* argv[]) {
             ImGui::SameLine();
             ImGui::Text("%.2f s", session.Seconds());
             audio_panel.Draw(catalogs.at(chinese ? "zh-CN" : "en-US"));
+            if (auto edit = control_panel.Draw(session.Controls(), control_values,
+                                               catalogs.at(chinese ? "zh-CN" : "en-US"));
+                edit.values_)
+                control_values = std::move(*edit.values_);
             ImGui::SetNextItemWidth(-140);
             ImGui::InputText(chinese ? "运行包路径##path" : "Package path##path", path.data(),
                              path.size());
@@ -156,6 +165,7 @@ int main(int argc, char* argv[]) {
             const auto width = std::max(1.0f, available.x);
             const auto height = std::max(1.0f, available.y);
             rhythm::runtime::ExternalInputs inputs;
+            inputs.controls_ = control_values;
             const auto audio_frame = audio_panel.Frame();
             inputs.audio_ = audio_frame.features_;
             observed_audio |= inputs.audio_ && inputs.audio_->valid_ && inputs.audio_->rms_ > 0;

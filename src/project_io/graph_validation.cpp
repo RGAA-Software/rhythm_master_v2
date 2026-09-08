@@ -5,9 +5,11 @@
 #include <stdexcept>
 
 #include "rhythm/graph/bindings.h"
+#include "rhythm/graph/controls.h"
 
 namespace rhythm::project::detail {
 void ValidateGraph(const graph::Document& document) {
+    (void)graph::DescribeControls(document);
     if (document.components_.size() > 256) throw std::invalid_argument("project.component_limits");
     std::set<std::string> component_types;
     std::size_t stored_nodes = document.nodes_.size();

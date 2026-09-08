@@ -31,6 +31,8 @@ std::optional<double> ExternalScalar(const graph::Instruction& instruction,
                                      const FrameContext& frame) {
     const auto& node = instruction.node_;
     switch (instruction.operation_) {
+        case graph::Operation::kControlScalar:
+            return frame.external_.controls_.at(node.id_);
         case graph::Operation::kAudioFeature: {
             if (!frame.external_.audio_ || !frame.external_.audio_->valid_) return 0.0;
             const auto& audio = *frame.external_.audio_;

@@ -69,6 +69,16 @@ message GraphProject {
   repeated NamedSignal signals = 8; // Authoring schema 3. Resolved before compilation.
   repeated SignalBinding bindings = 9;
   repeated Component components = 10; // Authoring schema 4: embedded project library.
+  ControlMetadata controls = 11;
+}
+message ControlSnapshot {
+  uint64 id = 1;
+  string title = 2;
+  map<uint64, double> values = 3;
+}
+message ControlMetadata {
+  map<uint64, string> titles = 1;
+  repeated ControlSnapshot snapshots = 2;
 }
 message ComponentInput {
   string key = 1;
@@ -103,6 +113,7 @@ message CompiledProgram {
   string document_id = 4;
   uint64 revision = 5;
   Canvas canvas = 6;
+  ControlMetadata controls = 7;
 }
 message Instruction {
   string operator_type = 1;

@@ -815,5 +815,19 @@
     "curve.value_offset": "数值平移",
     "curve.value_scale": "数值缩放",
     "curve.value_pivot": "数值基点",
-    "curve.apply_selection": "应用到所选关键帧"
+    "curve.apply_selection": "应用到所选关键帧",
+    "control.scalar": "公开宏控件",
+    "control_minimum": "控件最小值",
+    "control_maximum": "控件最大值",
+    "graph.controls": "宏控件范围或快照引用无效，请修正后保存。",
+    "control.root_only": "公开宏保留在作品主图，通过组件输入连接。",
+    "controls.title": "演出控件与快照",
+    "controls.first": "快照 A",
+    "controls.second": "快照 B",
+    "controls.recall": "召回 A",
+    "controls.remove": "删除 A",
+    "controls.blend": "A / B 混合",
+    "controls.name": "新快照名称",
+    "controls.capture": "保存当前快照",
+    "controls.rename": "控件命名（回车保存）"
 }

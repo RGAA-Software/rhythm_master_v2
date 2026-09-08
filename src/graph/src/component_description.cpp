@@ -37,6 +37,8 @@ std::optional<OperatorDescriptor> Describe(std::string_view type, const Registry
     result.type_ = type;
     result.operation_ = Operation::kComponent;
     for (const auto& node : found->nodes_) {
+        // Public controls belong to the work. Components receive typed inputs.
+        if (node.type_ == "control.scalar") return {};
         const auto descriptor = Describe(node.type_, registry, definitions, state);
         if (!node.id_ || node.version_ != 1 || !descriptor ||
             !inner.emplace(node.id_, *descriptor).second)

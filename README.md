@@ -26,8 +26,11 @@ immutable hot replacement, undo/redo and the editable Phase Loom work on Windows
 [Model animation](docs/model_animation.md) now includes GLB node tracks, unified time and
 music-driven clip mixing with shared uploads. 48-bone GPU skinning passes Windows/Android
 checks. Four-target GPU morph, weight animation/music controls and the editable
-79-node Crystal Choir now also ship on both platforms, with real PCM and MP4 checks.
+Crystal Choir now also ships on both platforms, with real PCM and MP4 checks.
 R4 functionality is delivered within the documented profiles; R5/R6 continue.
+R5 adds [public macros and parameter snapshots](docs/public_controls.md): Studio history,
+Windows/Android live controls, manual A/B blending and an 86-node Crystal Choir with
+four exposed controls. Cue/media arrangement and scene transitions remain in progress.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

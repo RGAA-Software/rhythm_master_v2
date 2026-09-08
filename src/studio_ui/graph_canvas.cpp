@@ -9,6 +9,7 @@
 
 #include "node_visual.h"
 #include "rhythm/editor/commands.h"
+#include "rhythm/graph/controls.h"
 
 namespace rhythm::studio {
 namespace ed = ax::NodeEditor;
@@ -234,6 +235,7 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
                     return edge.from_ == node_id || edge.to_ == node_id;
                 });
                 edited.positions_.erase(node_id);
+                graph::PruneControls(edited.document_);
                 std::erase_if(edited.document_.bindings_, [&](const auto& binding) {
                     return binding.node_ == node_id ||
                            std::any_of(edited.document_.signals_.begin(),
