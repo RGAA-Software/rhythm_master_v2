@@ -27,15 +27,21 @@ graph; Detach creates an independent copy for the selected instance.
 | Enamel light body / 珐琅光体 | Procedural material sculpture; pattern scale, veins, UV and normals | Fine veins |
 | Dual-population mist / 双群星雾 | Two GPU populations; radius, flow, folds, scale and exposure | Fourfold cloud |
 | Band city / 频段城景 | 64 pillars driven by 32 bands; material and camera controls | Overhead city |
+| Flow glass / 流纹玻璃 | Connect a source texture; animated refraction, bass/high response, direction, softness and glow | Broad ripples |
 
 These first eight entries reuse project-owned template graphs and existing
 operators. Four existing components are extracted directly; the medallion,
 lattice and 3D entries exclude the template background/compositor so they work
 as layers. Source definitions and layouts live in each entry directory.
 
-The two-node project in each entry is an executable validation harness, using
-the existing project codec. The library inserts only the component, its embedded
+Each entry contains a bounded executable preview harness, using the existing
+project codec. Input-processing entries may include primitive demonstration
+nodes (at most 32 root nodes/128 edges); the component connects directly to the
+final texture output. The library inserts only the component, its embedded
 definition closure and internal layout. It does not replace the current graph.
+Demonstration nodes are not inserted. Connect your own texture to a processing
+component's required input after insertion. Catalog-owned asset payloads remain
+unsupported here; this does not change the separate user component asset workflow.
 An existing edited definition with the same identity is preserved and reports a
 conflict. Add the project-library version or detach its existing instances before
 adopting a different definition. Compatible-version migration remains pending.
@@ -45,7 +51,7 @@ analytic seeking. A meaningful default is not a claim that all effects contain
 geometry at time zero. Windows runtime and playback checks apply; Android
 compilation is established, new actual device acceptance is outstanding.
 
-The inventory now contains 17 semantic components and 34 component preset records,
+The inventory now contains 18 semantic components and 36 component preset records,
 alongside 132 native preset records and 42 complete-project examples. The six R6
 extractions are reusable layers, not six additional complete works. This remains
 below 40 semantic components and does not establish 120 visually independent
@@ -55,3 +61,5 @@ See [R6 layer evidence](../../docs/validation/semantic_layers_2026-09-09.md) for
 the extracted layers' Windows/Android scope and GPU measurements. Earlier device
 status paragraphs describe the original eight-entry increment. Current browser
 and help behavior is documented in [catalog authoring](../../docs/catalog_authoring_plan.md).
+Input-processing support and Flow glass have
+[separate evidence](../../docs/validation/input_components_2026-09-09.md).

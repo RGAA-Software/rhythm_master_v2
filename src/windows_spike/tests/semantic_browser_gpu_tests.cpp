@@ -2,6 +2,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -41,11 +42,19 @@ ImVec2 PopupSize() {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        Check(argc == 4, "semantic_browser resources locale output");
+        Check(argc == 4 || argc == 5, "semantic_browser resources locale output [content id]");
         const std::filesystem::path resources(argv[1]), output(argv[3]);
         graph::Registry registry;
         const auto entries = content::LoadSemantics(resources / "content/semantic", registry);
         Check(!entries.empty(), "semantic catalog required");
+        std::size_t selected = 0;
+        if (argc == 5) {
+            const auto found = std::find_if(entries.begin(), entries.end(), [&](const auto& entry) {
+                return entry.metadata_.id_ == argv[4];
+            });
+            Check(found != entries.end(), "requested semantic entry exists");
+            selected = std::size_t(found - entries.begin());
+        }
         std::ifstream file(resources / "locales" / argv[2] / "studio.json");
         const auto text = nlohmann::json::parse(file).get<std::map<std::string, std::string>>();
         platform::Host host(true);
@@ -68,12 +77,14 @@ int main(int argc, char* argv[]) {
             ImGui::SetNextWindowSize({1200, 900});
             ImGui::Begin("Semantic browser test");
             if (frame == 2) ImGui::OpenPopup("semantic.palette");
-            if (frame == 8) ChildAction("semantic.entries", "###" + entries.front().metadata_.id_);
+            if (frame == 8)
+                ChildAction("semantic.entries", "###" + entries[selected].metadata_.id_);
             if (ready >= 0 && frame == ready + 30)
                 ChildAction("semantic.detail", "###semantic.insert");
             if (const auto selection =
                         browser.Draw(entries, argv[2], text, host, renderer, frame / 60.0, {})) {
-                Check(ready >= 0 && frame >= ready + 30 && frame <= ready + 32 && *selection == 0,
+                Check(ready >= 0 && frame >= ready + 30 && frame <= ready + 32 &&
+                              *selection == selected,
                       "selection only inserts after explicit button");
                 editor::Snapshot graph;
                 graph.document_.id_ = "browser-insertion";

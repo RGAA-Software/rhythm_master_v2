@@ -11,8 +11,9 @@ struct Semantic {
     graph::Node root_{};
     std::vector<Preset> presets_{};
 };
-// Official semantic entries use the existing project codec and a two-node
-// executable harness: one embedded component wired to one texture output.
+// Official entries use a bounded executable harness: one embedded component
+// wired directly to texture output, with optional primitive demonstration inputs.
+// Demonstration nodes remain in the preview; insertion copies the component only.
 // Cold-start loading validates all entries; insertion is an in-memory edit.
 std::vector<Semantic> LoadSemantics(const std::filesystem::path& root,
                                     const graph::Registry& registry);

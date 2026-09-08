@@ -560,6 +560,7 @@
     "category.general": "General",
     "category.audio": "Audio",
     "category.procedural": "Procedural",
+    "category.compositing": "Image processing",
     "category.particles": "Particles",
     "category.scene": "3D scenes",
     "category.physics": "Physics",

@@ -1,0 +1,14 @@
+{
+    "template": "flow_glass",
+    "package_sha256": "7be467df8b5be0e690565d4ad1058f31eb28213a7160895f7ae4cc7ca973e30a",
+    "thumbnail_sha256": "197c93d11aba54ab3c4f5f9cebb3f25f5c4a12e4ffed75a26d194e2d932f38ca",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

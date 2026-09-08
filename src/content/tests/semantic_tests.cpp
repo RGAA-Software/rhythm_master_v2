@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
         Check(argc == 2 || argc == 3, "catalog path and optional variant output directory");
         graph::Registry registry;
         const auto catalog = content::LoadSemantics(argv[1], registry);
-        Check(catalog.size() == 17, "semantic catalog coverage");
+        Check(catalog.size() == 18, "semantic catalog coverage");
         editor::Snapshot original;
         original.document_.id_ = "semantic.test";
         original.document_.nodes_ = {registry.MakeNode(1, "texture.gradient"),
@@ -39,6 +39,15 @@ int main(int argc, char* argv[]) {
                   "whole semantic insertion is undoable");
             auto connected =
                     std::get<editor::Snapshot>(editor::Connect(next, registry, id, 2, "source"));
+            const auto descriptor =
+                    registry.Find(semantic.root_.type_, semantic.content_.document_.components_);
+            for (const auto& input : descriptor->inputs_) {
+                if (!input.required_) continue;
+                Check(input.type_ == graph::ValueType::kTexture,
+                      "input-processing component accepts the user's texture");
+                connected = std::get<editor::Snapshot>(
+                        editor::Connect(connected, registry, 1, id, input.key_));
+            }
             Check(semantic.presets_.size() == 2, "default and curated variant available");
             auto& root = connected.document_.nodes_.back();
             const auto initial = root;

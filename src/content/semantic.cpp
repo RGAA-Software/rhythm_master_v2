@@ -16,16 +16,26 @@ std::vector<Semantic> LoadSemantics(const std::filesystem::path& root,
         auto loaded = project::LoadRevision(entry.directory_);
         const auto& document = loaded.snapshot_.document_;
         if (!loaded.warnings_.empty() || !loaded.snapshot_.assets_.empty() ||
-            document.nodes_.size() != 2 || document.edges_.size() != 1 ||
-            !document.signals_.empty() || !document.bindings_.empty() ||
+            document.nodes_.size() < 2 || document.nodes_.size() > 32 || document.edges_.empty() ||
+            document.edges_.size() > 128 || !document.signals_.empty() ||
+            !document.bindings_.empty() ||
             !std::holds_alternative<graph::ExecutionPlan>(graph::Compile(document, registry)))
             throw std::invalid_argument("content.semantic_graph");
-        const auto& edge = document.edges_.front();
+        const auto output_edge =
+                std::find_if(document.edges_.begin(), document.edges_.end(), [&](const auto& edge) {
+                    return edge.to_ == document.output_ && edge.input_ == "source";
+                });
+        if (output_edge == document.edges_.end())
+            throw std::invalid_argument("content.semantic_root");
+        const auto& edge = *output_edge;
         const auto found = std::find_if(document.nodes_.begin(), document.nodes_.end(),
                                         [&](const auto& node) { return node.id_ == edge.from_; });
         if (found == document.nodes_.end() || edge.to_ != document.output_ ||
             edge.input_ != "source" || !found->type_.starts_with("component.official.") ||
-            !types.insert(found->type_).second)
+            !types.insert(found->type_).second ||
+            std::count_if(document.nodes_.begin(), document.nodes_.end(), [](const auto& node) {
+                return node.type_.starts_with("component.");
+            }) != 1)
             throw std::invalid_argument("content.semantic_root");
         const auto descriptor = registry.Find(found->type_, document.components_);
         if (!descriptor || descriptor->operation_ != graph::Operation::kComponent ||

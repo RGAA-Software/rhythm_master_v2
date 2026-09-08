@@ -560,6 +560,7 @@
     "category.general": "综合",
     "category.audio": "音频",
     "category.procedural": "程序化图像",
+    "category.compositing": "图像处理",
     "category.particles": "粒子",
     "category.scene": "三维场景",
     "category.physics": "物理",

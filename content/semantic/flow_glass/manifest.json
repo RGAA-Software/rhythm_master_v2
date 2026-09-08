@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.flow_glass",
+    "content_version": "0.1.0",
+    "project_id": "semantic-flow_glass",
+    "graph_revision": 0,
+    "title": "流纹玻璃 / Flow glass",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Flow glass",
+        "zh-CN": "流纹玻璃"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Connect your image to source. Animated noise bends it like flowing glass; bass/high bands increase refraction, and a soft glow follows the image. The preview stripes are not inserted.",
+        "zh-CN": "把自己的图像连接到 source。动态噪声形成流动玻璃折射，低频和高频增强形变，柔光跟随输入画面。预览条纹不会插入工程。"
+    }
+}

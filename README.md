@@ -53,6 +53,9 @@ music work with editable cues, bound music, Windows export and Android built-in 
 template levels and canvas orientation before direct playback or queue insertion.
 [Ink Tide](docs/validation/ink_tide_2026-09-09.md) adds an editable music-driven pigment,
 coastline and contour composition with desktop export and Android selection.
+[Input-processing components](docs/validation/input_components_2026-09-09.md) now preview
+with demonstration inputs and insert only the editable component. Flow glass adds
+music-driven refraction for the author's own source texture; the catalog has 18 components.
 
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.

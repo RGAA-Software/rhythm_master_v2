@@ -1,0 +1,16 @@
+{
+    "ownership": "first-party",
+    "authoring_tool": "tools/author-input-components.py",
+    "authoring_tool_sha256": "156317d6a70a905b6ccfe52b8494a5b6e4f3ba3a40c95628392ad99665ea1ce7",
+    "reused_graph_writer": "tools/author-resonance-gate.py",
+    "existing_adapters": "provenance/tixl_effects.json",
+    "imported_third_party_files": [],
+    "components": [
+        {
+            "id": "flow_glass",
+            "nodes": 11,
+            "input": "texture",
+            "composition": "Noise/displace from the existing Ink Tide layer and existing blur/additive glow; exposed as an input-processing graph."
+        }
+    ]
+}
