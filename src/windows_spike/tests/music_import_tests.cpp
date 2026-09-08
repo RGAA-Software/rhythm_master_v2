@@ -18,7 +18,9 @@ int main(int argc, char* argv[]) {
     using namespace std::chrono_literals;
     try {
         Check(argc == 3, "music_import <fixture> <fresh test directory>");
-        const std::filesystem::path directory(argv[2]);
+        const auto directory =
+                std::filesystem::path(argv[2]) /
+                std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
         Check(std::filesystem::create_directories(directory / "cache"), "fresh test directory");
         const auto cache = directory / "cache";
         const auto first = cache / "music-first.media", second = cache / "music-second.media";

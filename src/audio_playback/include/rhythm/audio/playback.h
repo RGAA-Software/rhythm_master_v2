@@ -22,9 +22,14 @@ struct PlaybackSnapshot {
     std::uint32_t queued_frames_ = 0;
     // Latest pause intent; state_ separately acknowledges the worker/device.
     bool paused_ = false;
-    // Worker has released the preceding source and processed this generation.
-    // Unlike generation_, Stop/Load intent cannot advance this acknowledgment.
+    // Worker has released the preceding source and processed this load/seek/stop.
+    // Loop generations can advance generation_ while this acknowledgment stays
+    // unchanged. Stop/Load intent cannot advance this acknowledgment by itself.
     std::uint64_t source_generation_ = 0;
+    // Continuous device/analysis counters for this load or seek, including loops.
+    // These reset on source replacement, not at each audible loop generation.
+    std::uint64_t submitted_frames_ = 0;
+    std::uint64_t consumed_frames_ = 0;
 };
 
 // UI-thread commands publish desired values; a single worker owns file I/O,
@@ -44,8 +49,11 @@ class FilePlayback final {
     void Seek(double seconds);
     void Pause(bool paused);
     void SetVolume(float volume);
-    // Restarts after the device tail drains, with a new analysis generation.
-    // This is bounded repeat playback, not a gapless music-editing loop.
+    // Appends the next decoded iteration to the same bounded device stream.
+    // Analysis/time generation changes when consumption reaches the boundary.
+    // Disabling stops after the iteration already submitted to the queue.
+    // No flush/close is inserted at a normal loop boundary; device underruns,
+    // hardware timing and arbitrary sample discontinuities are not concealed.
     void SetLoop(bool loop);
     PlaybackSnapshot Snapshot() const;
 

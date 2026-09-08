@@ -84,8 +84,14 @@ void Run(const std::filesystem::path& directory) {
         return value.generation_ >= before_loop + 2 && value.features_.has_value();
     });
     Require(repeated.features_->generation_ == repeated.generation_ &&
-                    repeated.queued_frames_ <= 24000,
+                    repeated.queued_frames_ <= 24000 &&
+                    repeated.source_generation_ == before_loop &&
+                    repeated.state_ == PlaybackState::kPlaying,
             "repeat clears old analysis and retains queue bounds");
+    Require(repeated.consumed_frames_ > 2 * 48000 &&
+                    repeated.submitted_frames_ >= repeated.consumed_frames_ &&
+                    repeated.submitted_frames_ - repeated.consumed_frames_ <= 32768,
+            "device counters and analysis consumption continue across two complete loops");
     playback.SetLoop(false);
     Wait(playback, [](const auto& value) { return value.state_ == PlaybackState::kEnded; });
     std::ifstream input(directory / "tone.flac", std::ios::binary);

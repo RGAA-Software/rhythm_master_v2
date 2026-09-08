@@ -125,7 +125,7 @@ class FilePlayback::Impl final {
         request_cancel_.request_stop();
         request_cancel_ = std::stop_source{};
         request_.cancel_ = request_cancel_.get_token();
-        ++request_.generation_;
+        request_.generation_ = ++next_generation_;
         snapshot_ = {};
         snapshot_.generation_ = request_.generation_;
         snapshot_.position_seconds_ =
@@ -139,12 +139,20 @@ class FilePlayback::Impl final {
         std::lock_guard lock(mutex_);
         return request_;
     }
-    void Publish(const PlaybackSnapshot& value) {
+    void Publish(const PlaybackSnapshot& value, std::uint64_t source_generation) {
         std::lock_guard lock(mutex_);
-        if (value.generation_ == request_.generation_) {
+        if (source_generation == request_.generation_) {
             snapshot_ = value;
-            source_generation_ = value.generation_;
+            source_generation_ = source_generation;
         }
+    }
+    std::optional<std::uint64_t> ReserveLoop(std::uint64_t source_generation) {
+        std::lock_guard lock(mutex_);
+        if (request_.generation_ != source_generation || !request_.loop_) return {};
+        // Reserve a future audible generation without replacing the source or
+        // its cancellation token. Publication changes only when consumption
+        // reaches this generation's first PCM block.
+        return ++next_generation_;
     }
     void Repeat(std::uint64_t generation) {
         std::lock_guard lock(mutex_);
@@ -162,6 +170,7 @@ class FilePlayback::Impl final {
         PlaybackSnapshot state{};
         std::uint64_t active_generation = 0;
         std::uint64_t origin = 0;
+        std::uint64_t decoded_end = 0;
         bool ended_input = false;
         bool failed = false;
         for (;;) {
@@ -181,6 +190,7 @@ class FilePlayback::Impl final {
                     failed = false;
                     ended_input = false;
                     origin = request.first_sample_;
+                    decoded_end = origin;
                     if (request.path_ || request.bytes_ || request.file_bytes_.Valid()) {
                         decoder = request.file_bytes_.Valid()
                                           ? std::make_unique<media::AudioDecoder>(
@@ -204,7 +214,7 @@ class FilePlayback::Impl final {
                                 static_cast<double>(origin) / media::kAudioSampleRate;
                         state.state_ = PlaybackState::kPaused;
                     }
-                    Publish(state);
+                    Publish(state, active_generation);
                 }
                 if (device && !failed && state.state_ != PlaybackState::kEnded) {
                     device->SetVolume(request.volume_);
@@ -216,10 +226,21 @@ class FilePlayback::Impl final {
                     if (!request.paused_) {
                         if (!ended_input && device->Snapshot().queued_frames_ < 8192) {
                             auto block = decoder->Read(request.cancel_);
+                            if (!block) {
+                                state.duration_seconds_ =
+                                        static_cast<double>(decoded_end) / media::kAudioSampleRate;
+                                if (const auto generation = ReserveLoop(active_generation)) {
+                                    decoder->Seek(0, *generation, request.cancel_);
+                                    block = decoder->Read(request.cancel_);
+                                    if (!block) throw std::runtime_error("empty audio loop");
+                                }
+                            }
                             if (block) {
                                 if (!device->Queue(block->samples_)) {
                                     throw std::runtime_error("playback queue budget exceeded");
                                 }
+                                decoded_end = block->first_sample_ +
+                                              block->samples_.size() / media::kAudioChannels;
                                 analysis->Append(std::move(*block));
                             } else {
                                 ended_input = true;
@@ -247,16 +268,18 @@ class FilePlayback::Impl final {
                             }
                         }
                         analysis->Consume(std::max(heard, analysis->Consumed()));
+                        state.generation_ = analysis->Generation();
                         state.position_seconds_ =
-                                static_cast<double>(origin + analysis->Consumed()) /
-                                media::kAudioSampleRate;
+                                static_cast<double>(analysis->Position()) / media::kAudioSampleRate;
                         state.features_ = analysis->Snapshot();
                         state.queued_frames_ = output.queued_frames_;
+                        state.submitted_frames_ = output.submitted_frames_;
+                        state.consumed_frames_ = analysis->Consumed();
                     } else {
                         // Paused wall time must not advance an in-progress tail drain.
                         drain_started.reset();
                     }
-                    Publish(state);
+                    Publish(state, active_generation);
                 }
                 if (state.state_ == PlaybackState::kEnded) Repeat(active_generation);
             } catch (const std::exception&) {
@@ -267,7 +290,7 @@ class FilePlayback::Impl final {
                 state.state_ = PlaybackState::kFailed;
                 state.features_.reset();
                 state.queued_frames_ = 0;
-                Publish(state);
+                Publish(state, active_generation);
             }
             std::unique_lock lock(mutex_);
             const auto interval = state.state_ == PlaybackState::kPlaying
@@ -284,6 +307,7 @@ class FilePlayback::Impl final {
     std::stop_source request_cancel_{};
     PlaybackSnapshot snapshot_{};
     std::uint64_t source_generation_ = 0;
+    std::uint64_t next_generation_ = 0;
     // Destroyed first: join completes while the mailbox and mutex still exist.
     std::jthread worker_{};
 };

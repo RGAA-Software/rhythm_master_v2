@@ -1,0 +1,13 @@
+{
+    "source_url": "https://github.com/libsdl-org/SDL",
+    "revision": "96292a5b464258a2b926e0a3d72f8b98c2a81aa6",
+    "license": "Zlib",
+    "studied_files": ["src/audio/SDL_audiocvt.c: SDL_PutAudioStreamData, SDL_FlushAudioStream, SDL_GetAudioStreamQueued"],
+    "api_references": ["https://wiki.libsdl.org/SDL3/SDL_FlushAudioStream", "https://wiki.libsdl.org/SDL3/SDL_GetAudioStreamQueued"],
+    "imported_files": [],
+    "modifications": "Keep the already adopted output stream/resampler continuous at normal loop boundaries. Existing FFmpeg decoder prepares the next generation; project AnalysisQueue switches local sample time only when consumed.",
+    "first_party_reuse": ["AudioDecoder exact Seek(0)", "OutputDevice bounded SDL adapter", "Canonical Analyzer", "FilePlayback worker mailbox and source acknowledgment", "PlaybackClock backward-time generation handling"],
+    "target_modules": ["src/audio_playback/playback.cpp", "src/audio_playback/analysis_queue.cpp"],
+    "validation": "docs/validation/continuous_music_loops_2026-09-08.md",
+    "outbound_license": "Unselected; existing dependency versions and notices unchanged."
+}

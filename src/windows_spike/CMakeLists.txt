@@ -137,9 +137,15 @@ if(BUILD_TESTING)
         target_include_directories(music_import_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/android_player")
         target_link_libraries(music_import_tests PRIVATE audio_playback runtime_inputs media_types)
         rhythm_project_target(music_import_tests)
+        add_test(NAME music_import COMMAND music_import_tests
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/music-import-tests")
+        set_tests_properties(music_import PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 30 RUN_SERIAL TRUE)
         target_link_libraries(audio_transport_tests PRIVATE audio_ui player_core)
         rhythm_project_target(audio_transport_tests)
         add_dependencies(audio_transport_tests demo_audio_content)
+        add_test(NAME audio_transport COMMAND audio_transport_tests
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav")
+        set_tests_properties(audio_transport PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 30 RUN_SERIAL TRUE)
         add_test(NAME windows_studio_music_smoke
             COMMAND "$<TARGET_FILE_DIR:rhythm_master>/deploy/rhythm_master.exe" --smoke
                 --audio "${PROJECT_BINARY_DIR}/content/audio/resonance_demo.wav")

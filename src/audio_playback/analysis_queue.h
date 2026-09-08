@@ -16,14 +16,19 @@ class AnalysisQueue final {
     void Consume(std::uint64_t frames);
     std::optional<Features> Snapshot() const;
     std::uint64_t Consumed() const { return consumed_; }
+    std::uint64_t Generation() const { return generation_; }
+    std::uint64_t Position() const { return position_; }
 
    private:
     Analyzer analyzer_{};
     std::deque<media::AudioBlock> blocks_{};
     std::uint64_t generation_ = 0;
-    std::uint64_t first_sample_ = 0;
+    std::uint64_t append_generation_ = 0;
+    std::uint64_t next_sample_ = 0;
+    std::uint64_t position_ = 0;
     std::uint64_t submitted_ = 0;
     std::uint64_t consumed_ = 0;
     std::size_t front_offset_ = 0;
+    std::size_t retained_samples_ = 0;
 };
 }  // namespace rhythm::audio::detail
