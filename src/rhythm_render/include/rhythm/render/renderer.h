@@ -6,6 +6,7 @@
 #include <span>
 #include <vector>
 
+#include "rhythm/render/gpu_points.h"
 #include "rhythm/render/scene.h"
 
 namespace rhythm::platform {
@@ -147,6 +148,9 @@ struct FrameStats {
     std::uint64_t texture_bytes_ = 0;
     std::uint32_t live_meshes_ = 0;
     std::uint64_t mesh_bytes_ = 0;
+    std::uint32_t gpu_point_buffers_ = 0;
+    std::uint32_t gpu_point_capacity_ = 0;
+    std::uint64_t gpu_point_bytes_ = 0;
     // Surface resets can discard submissions made earlier in that frame.
     // Cached producers must redraw when this generation changes.
     std::uint64_t presentation_generation_ = 0;
@@ -236,6 +240,12 @@ class Renderer final {
     Mesh CreateMesh(std::span<const MeshVertex> vertices, std::span<const std::uint32_t> indices);
     [[nodiscard]] bool IsValid(MeshHandle handle) const;
     [[nodiscard]] bool SupportsScenes() const;
+    [[nodiscard]] bool SupportsGpuPoints() const;
+    GpuPoints CreateGpuPoints(std::uint32_t capacity);
+    [[nodiscard]] bool IsValid(GpuPointHandle handle) const;
+    void UpdateGpuParticles(GpuPointHandle handle, const GpuParticleStep& step);
+    void SubmitGpuPoints(TextureHandle target, GpuPointHandle points,
+                         const GpuPointStyle& style = {});
     [[nodiscard]] bool SupportsReadback() const;
     // Inside an open frame, after source rendering. RGBA8 render targets only.
     // Three outstanding

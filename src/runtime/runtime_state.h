@@ -1,6 +1,7 @@
 #pragma once
 
 #include "blur_pass.h"
+#include "gpu_particle_pass.h"
 #include "image_pass.h"
 #include "point_ops.h"
 #include "point_physics.h"
@@ -47,6 +48,7 @@ class Runtime::Impl final {
         render::Extent extent_{};
         bool target_retired_ = false;
         std::unique_ptr<detail::PointState> points_{};
+        std::unique_ptr<detail::GpuParticlePass> gpu_particles_{};
         std::unique_ptr<detail::PointPhysics> physics_{};
         std::unique_ptr<detail::ScenePass> scene_{};
         std::unique_ptr<detail::BlurPass> blur_{};

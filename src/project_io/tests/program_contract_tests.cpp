@@ -27,6 +27,24 @@ int main() {
     try {
         graph::Registry registry;
         {
+            graph::Document gpu;
+            gpu.id_ = "gpu-program";
+            gpu.nodes_ = {registry.MakeNode(1, "gpu.particles"), registry.MakeNode(2, "gpu.render"),
+                          registry.MakeNode(3, "output.texture")};
+            gpu.edges_ = {{1, 1, 2, "points"}, {2, 2, 3, "source"}};
+            gpu.output_ = 3;
+            const auto plan = std::get<graph::ExecutionPlan>(graph::Compile(gpu, registry));
+            const auto restored = project::DecodeProgram(project::EncodeProgram(plan));
+            Check(restored.instructions_[0].operation_ == graph::Operation::kGpuParticleEmitter &&
+                          restored.instructions_[1].operation_ == graph::Operation::kGpuPointRender,
+                  "GPU types survive program publication");
+            schema::CompiledProgram wrong;
+            Check(wrong.ParseFromString(project::EncodeProgram(plan)), "GPU program");
+            wrong.mutable_instructions(1)->set_operator_type("point.render");
+            wrong.mutable_instructions(1)->mutable_configuration()->set_type_key("point.render");
+            Reject(wrong.SerializeAsString());
+        }
+        {
             graph::Document scene;
             scene.id_ = "legacy-scene-scale";
             scene.nodes_ = {

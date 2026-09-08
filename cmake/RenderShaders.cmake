@@ -109,6 +109,7 @@ if(BUILD_TESTING)
             "${RHYTHM_SHADERC}" ${render_shader_includes}
         VERBATIM)
     add_library(gpu_execution_probe STATIC
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_particles_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/scene_instances_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_execution_probe.cpp" "${probe_shader_header}")
     target_include_directories(gpu_execution_probe PRIVATE
@@ -117,3 +118,19 @@ if(BUILD_TESTING)
     target_link_libraries(gpu_execution_probe PRIVATE Rhythm::Render spike_bgfx)
     rhythm_project_target(gpu_execution_probe)
 endif()
+
+set(gpu_point_shader_header "${PROJECT_BINARY_DIR}/generated/render/gpu_point_shader.h")
+add_custom_command(OUTPUT "${gpu_point_shader_header}"
+    COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        --compiler "${RHYTHM_SHADERC}" --output "${gpu_point_shader_header}"
+        --platform "${render_shader_platform}" --group gpu_points
+    DEPENDS "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        "${PROJECT_SOURCE_DIR}/tools/compile-shader.py"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/gpu_point_vertex.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/gpu_point_fragment.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/gpu_particle_update.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/gpu_point_varying.def.sc"
+        "${RHYTHM_SHADERC}" ${render_shader_includes}
+    VERBATIM)
+target_sources(render_bgfx PRIVATE "${gpu_point_shader_header}"
+    "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_gpu_points.cpp")

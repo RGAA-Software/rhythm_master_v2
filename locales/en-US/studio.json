@@ -635,5 +635,14 @@
     "instance_limit": "Instance capacity",
     "instance_span": "World span",
     "audio_gain": "Audio height gain",
-    "instance_point_color": "Use point colors"
+    "instance_point_color": "Use point colors",
+    "gpu.particles": "GPU particle emitter",
+    "gpu.render": "GPU point render",
+    "initial_fill": "Initial fill",
+    "emitter_radius": "Emitter radius",
+    "drag": "Drag",
+    "graph.gpu_points_budget": "GPU point capacity exceeds the budget. Reduce particle counts or emitter count.",
+    "render.gpu_points_unsupported": "GPU particles require compute shaders and instancing on this device/profile.",
+    "profile.gpu_points": "GPU point capacity",
+    "profile.draws": "Draw submissions"
 }

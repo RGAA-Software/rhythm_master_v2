@@ -17,6 +17,10 @@ bool DrawPerformancePanel(const runtime::FrameResult& frame, const render::Frame
     ImGui::Text("%s: %.3f ms", text.at("profile.cpu_total").c_str(), cpu_ms);
     ImGui::Text("%s: %.1f MiB / %u", text.at("profile.textures").c_str(),
                 static_cast<double>(stats.texture_bytes_) / (1024 * 1024), stats.live_textures_);
+    ImGui::Text("%s: %u / %.1f MiB", text.at("profile.gpu_points").c_str(),
+                stats.gpu_point_capacity_,
+                static_cast<double>(stats.gpu_point_bytes_) / (1024 * 1024));
+    ImGui::Text("%s: %u", text.at("profile.draws").c_str(), stats.draws_);
     ImGui::Text("%s: %u", text.at("profile.recycled").c_str(), frame.recycled_textures_);
     ImGui::TextWrapped("%s", text.at("profile.help").c_str());
     if (const auto found = std::find_if(frame.profiles_.begin(), frame.profiles_.end(),

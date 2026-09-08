@@ -346,6 +346,7 @@ int main(int argc, char* argv[]) {
             auto renderer = platform::Host::CreateRenderer();
             validation::VerifyGpuExecution(pixels);
             validation::VerifySceneInstances(renderer);
+            validation::VerifyGpuParticles(renderer);
             return 0;
         }
 #ifdef RHYTHM_HAS_LOCAL_MEDIA

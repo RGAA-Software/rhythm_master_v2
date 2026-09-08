@@ -1,5 +1,5 @@
 set(rhythm_deps "${PROJECT_SOURCE_DIR}/third_party/sources")
-set(RHYTHM_ANDROID_GLES_VERSION "30" CACHE STRING "Validated Android bgfx GLES feature level (30 or 31)")
+set(RHYTHM_ANDROID_GLES_VERSION "31" CACHE STRING "Validated Android bgfx GLES feature level (30 or 31)")
 set_property(CACHE RHYTHM_ANDROID_GLES_VERSION PROPERTY STRINGS 30 31)
 if(NOT RHYTHM_ANDROID_GLES_VERSION MATCHES "^(30|31)$")
     message(FATAL_ERROR "RHYTHM_ANDROID_GLES_VERSION must be 30 or 31")

@@ -18,6 +18,8 @@ ImColor TypeColor(graph::ValueType type) {
             return {116, 211, 146};
         case graph::ValueType::kTexture:
             return {77, 180, 223};
+        case graph::ValueType::kGpuPoints:
+            return {255, 101, 173};
         case graph::ValueType::kPoints:
             return {214, 129, 226};
         case graph::ValueType::kGeometry:

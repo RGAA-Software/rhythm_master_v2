@@ -53,8 +53,8 @@ void Viewers::Capture(const FrameResult& frame, std::span<const graph::NodeId> n
         const auto source = std::find_if(frame.outputs_.begin(), frame.outputs_.end(),
                                          [&](const auto& item) { return item.node_ == node; });
         if (source == frame.outputs_.end() ||
-            (!source->points_ && !source->geometry_ && !source->scene_ && !source->material_ &&
-             !renderer.IsValid(source->texture_)))
+            (!renderer.IsValid(source->gpu_points_) && !source->points_ && !source->geometry_ &&
+             !source->scene_ && !source->material_ && !renderer.IsValid(source->texture_)))
             continue;
         if (count == textures_.size()) textures_.push_back(renderer.CreateTexture({256, 144}));
         auto& texture = textures_[count++];
@@ -63,7 +63,8 @@ void Viewers::Capture(const FrameResult& frame, std::span<const graph::NodeId> n
         draw.height_ = 144;
         const auto fit = render::AspectFit(frame.extent_, {0, 0, 256, 144});
         auto source_texture = source->texture_;
-        if (source->geometry_ || source->scene_ || source->material_) {
+        if (renderer.IsValid(source->gpu_points_) || source->geometry_ || source->scene_ ||
+            source->material_) {
             if (!scenes_) scenes_ = std::make_unique<detail::ScenePreviews>();
             auto& entry = scenes_->entries_[node];
             const render::Extent extent{
@@ -74,9 +75,13 @@ void Viewers::Capture(const FrameResult& frame, std::span<const graph::NodeId> n
                 entry.target_ = renderer.CreateTexture(extent);
                 entry.extent_ = extent;
             }
-            const auto scene = detail::PreviewScene(*source);
-            const auto list = entry.pass_.Build(scene, scene::Camera{}, extent, renderer);
-            renderer.SubmitScene(entry.target_.Handle(), list);
+            if (renderer.IsValid(source->gpu_points_)) {
+                renderer.SubmitGpuPoints(entry.target_.Handle(), source->gpu_points_);
+            } else {
+                const auto scene = detail::PreviewScene(*source);
+                const auto list = entry.pass_.Build(scene, scene::Camera{}, extent, renderer);
+                renderer.SubmitScene(entry.target_.Handle(), list);
+            }
             source_texture = entry.target_.Handle();
         } else if (scenes_)
             scenes_->entries_.erase(node);

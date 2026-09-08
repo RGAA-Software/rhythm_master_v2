@@ -50,6 +50,8 @@ std::string_view Category(graph::Operation operation) {
             return "palette.composite";
         case kPointGrid:
         case kParticleEmitter:
+        case kGpuParticleEmitter:
+        case kGpuPointRender:
         case kPointTransform:
         case kPointRender:
             return "palette.particles";

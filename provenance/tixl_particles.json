@@ -1,0 +1,20 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "license": "MIT",
+    "license_file": "third_party/notices/tixl-effects/LICENSE.txt",
+    "files": [
+        {
+            "upstream_file": "Operators/Lib/Assets/shaders/particles/ParticleSystem.hlsl",
+            "imported_file": "third_party/sources/tixl-effects/ParticleSystem.hlsl",
+            "sha256": "8c814c59da367560ebb5fe375b51ba3a3d2b78149574ef4800820f429aafe893"
+        }
+    ],
+    "target": "src/rhythm_render/shaders/gpu_particle_update.sc",
+    "modifications": [
+        "Adapt bounded ring insertion, lifetime retirement and time-based drag to bgfx compute.",
+        "Replace NaN sentinel with explicit negative age and flatten records into four vec4 values.",
+        "Use seconds and normalized canvas units, seeded integer LCG disk emission and analytic curl flow.",
+        "Omit quaternion alignment, external emit-point and duplicate result buffers; draw same GPU state as instances."
+    ]
+}

@@ -139,6 +139,11 @@ if(BUILD_TESTING)
         target_link_libraries(export_gpu_tests PRIVATE export_core platform_sdl media_video)
         rhythm_project_target(export_gpu_tests)
         add_dependencies(export_gpu_tests runtime_builtin_content)
+        add_test(NAME spectral_nebula_export_gpu COMMAND export_gpu_tests
+            "${PROJECT_BINARY_DIR}/content/packages/spectral_nebula.rhythmpack"
+            "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
+            "${PROJECT_BINARY_DIR}/spectral-nebula-export")
+        set_tests_properties(spectral_nebula_export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME export_gpu COMMAND export_gpu_tests
             "${PROJECT_BINARY_DIR}/content/packages/resonance_live.rhythmpack"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
@@ -190,6 +195,11 @@ if(BUILD_TESTING)
             --expected-nodes 290 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/harmonic-city-music-captures")
         set_tests_properties(harmonic_city_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME spectral_nebula_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
+            --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/spectral_nebula.rhythmpack"
+            --expected-nodes 21 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --output "${PROJECT_BINARY_DIR}/spectral-nebula-music-captures")
+        set_tests_properties(spectral_nebula_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME spectral_foundry_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
             --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/spectral_foundry.rhythmpack"
             --expected-nodes 33 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"

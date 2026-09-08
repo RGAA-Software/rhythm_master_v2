@@ -4,6 +4,8 @@ import argparse
 import hashlib
 import json
 import os
+import re
+import xml.etree.ElementTree as ET
 from pathlib import Path
 import shutil
 import subprocess
@@ -51,6 +53,11 @@ def main():
              f"-DRHYTHM_PLAYER_PACKAGE={args.package}",
              f"-DRHYTHM_PROTOC={args.protoc}", f"-DCMAKE_FIND_ROOT_PATH={args.target_sdk}"])
         run(["cmake", "--build", build, "--target", "rhythm_android", "--parallel", "20"])
+    match = re.search(r"^RHYTHM_ANDROID_GLES_VERSION:STRING=(30|31)$",
+                      (build / "CMakeCache.txt").read_text(encoding="utf-8"), re.MULTILINE)
+    if not match:
+        raise ValueError("Expected validated Android GLES profile in build cache")
+    gles_version = int(match.group(1))
     source = ROOT / "platforms/android"
     output = build / "apk"
     output.mkdir(parents=True, exist_ok=True)
@@ -82,7 +89,7 @@ def main():
     inputs += [ROOT / "tools/android_media.py", ROOT / "tools/relink-android-player.py",
                media / "profile.json", media / "COPYING.LGPLv2.1", demo]
     inputs += sorted(path for path in (ROOT / "third_party/notices").rglob("*") if path.is_file())
-    fingerprint = hashlib.sha256()
+    fingerprint = hashlib.sha256(str(gles_version).encode("ascii"))
     for path in inputs:
         fingerprint.update(str(path).encode())
         fingerprint.update(path.read_bytes())
@@ -109,10 +116,18 @@ def main():
         "are in the companion rhythm-player-" + args.configuration.lower() + "-relink.zip.\n"
         "No additional restriction on modifying FFmpeg or debugging those changes is imposed.\n"
         "Project outbound license/public release remains undecided.\n", encoding="utf-8")
+    manifest = ET.parse(source / "AndroidManifest.xml")
+    ET.register_namespace("android", "http://schemas.android.com/apk/res/android")
+    feature = manifest.getroot().find("uses-feature")
+    if feature is None:
+        raise ValueError("Android manifest lacks the GLES requirement")
+    feature.set("{http://schemas.android.com/apk/res/android}glEsVersion", f"0x{0x30000 + gles_version - 30:08x}")
+    manifest_path = output / "AndroidManifest.xml"
+    manifest.write(manifest_path, encoding="utf-8", xml_declaration=True)
     generated = output / "generated"
     generated.mkdir(exist_ok=True)
     run([build_tools / "aapt2.exe", "compile", "--dir", source / "res", "-o", output / "resources.zip"])
-    run([build_tools / "aapt2.exe", "link", "-o", output / "base.apk", "--manifest", source / "AndroidManifest.xml",
+    run([build_tools / "aapt2.exe", "link", "-o", output / "base.apk", "--manifest", manifest_path,
          "-I", android_jar, "--java", generated, "-A", assets, output / "resources.zip"])
     classes = output / "classes"
     classes.mkdir(exist_ok=True)

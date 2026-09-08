@@ -14,6 +14,18 @@ class Backend {
     virtual void Update(TextureHandle handle, std::span<const std::uint8_t> rgba) = 0;
     virtual bool IsValid(TextureHandle handle) const = 0;
     virtual bool SupportsScenes() const { return false; }
+    virtual bool SupportsGpuPoints() const { return false; }
+    virtual GpuPointHandle CreateGpuPoints(std::uint32_t) {
+        throw std::logic_error("render.gpu_points_unsupported");
+    }
+    virtual void ReleaseGpuPoints(GpuPointHandle) noexcept {}
+    virtual bool IsValid(GpuPointHandle) const { return false; }
+    virtual void UpdateGpuParticles(GpuPointHandle, const GpuParticleStep&) {
+        throw std::logic_error("render.gpu_points_unsupported");
+    }
+    virtual void SubmitGpuPoints(TextureHandle, GpuPointHandle, const GpuPointStyle&) {
+        throw std::logic_error("render.gpu_points_unsupported");
+    }
     virtual bool SupportsReadback() const { return false; }
     virtual std::uint64_t RequestReadback(TextureHandle) {
         throw std::logic_error("render.readback_unsupported");

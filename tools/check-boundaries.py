@@ -18,8 +18,14 @@ RENDER_ADAPTERS = {
         "bgfx_backend.h", "bgfx_backend.cpp", "bgfx_handles.h",
         "bgfx_readbacks.h", "bgfx_readbacks.cpp",
         "bgfx_scene.h", "bgfx_scene.cpp",
+        "bgfx_scene_instances.h", "bgfx_scene_instances.cpp",
+        "bgfx_gpu_points.h", "bgfx_gpu_points.cpp",
         "bgfx_texture_programs.h", "bgfx_texture_programs.cpp")
 }
+
+# This isolated R0 probe deliberately validates native buffer bindings; its public
+# test entry point exposes only project types and a bounded byte span.
+RENDER_ADAPTERS.add("src/rhythm_render/tests/gpu_execution_probe.cpp")
 
 
 def without_comments(text):

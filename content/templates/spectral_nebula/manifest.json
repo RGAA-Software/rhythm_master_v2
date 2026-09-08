@@ -1,0 +1,29 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.templates.spectral_nebula",
+    "content_version": "0.1.0",
+    "project_id": "official-spectral-nebula",
+    "graph_revision": 0,
+    "title": "频谱星云 / Spectral Nebula",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "频谱星云",
+        "en-US": "Spectral Nebula"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition; TiXL MIT particle adaptation and attributed texture adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android-gles31-compute"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "98304 个 GPU 粒子构成冰蓝星尘与暖色余烬，卷曲流场、六重与九重折射、柔光共同形成星云。真实低频控制流速，高频控制发射，响度控制光芒。需要 compute 与实例化支持；跳转会按固定种子重置，全部节点可编辑。",
+        "en-US": "98304 GPU particles form icy stardust and warm embers with curl flow, six/ninefold refraction and bloom. Real bass controls flow, treble controls emission and loudness controls glow. Requires compute and instancing; seeking restarts seeded state. Every node is editable."
+    }
+}

@@ -635,5 +635,14 @@
     "instance_limit": "实例容量",
     "instance_span": "世界范围",
     "audio_gain": "音乐高度增益",
-    "instance_point_color": "使用点颜色"
+    "instance_point_color": "使用点颜色",
+    "gpu.particles": "GPU 粒子发射器",
+    "gpu.render": "GPU 粒子绘制",
+    "initial_fill": "初始填充比例",
+    "emitter_radius": "发射半径",
+    "drag": "阻力",
+    "graph.gpu_points_budget": "GPU 粒子容量超出预算。请减少粒子数或发射器数量。",
+    "render.gpu_points_unsupported": "当前 GPU 或图形配置不支持 GPU 粒子，请使用支持计算着色器和实例化的设备。",
+    "profile.gpu_points": "GPU 粒子容量",
+    "profile.draws": "绘制提交"
 }

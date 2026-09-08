@@ -11,6 +11,7 @@
 #include <optional>
 #include <stdexcept>
 
+#include "bgfx_gpu_points.h"
 #include "bgfx_handles.h"
 #include "bgfx_readbacks.h"
 #include "bgfx_scene.h"
@@ -181,6 +182,46 @@ class BgfxBackend final : public Backend {
     void CancelReadback(std::uint64_t ticket) noexcept override {
         readbacks_.Cancel(ticket, resources_);
     }
+    bool SupportsGpuPoints() const override {
+        resources_.CheckReady();
+        return BgfxGpuPoints::Supported();
+    }
+    GpuPointHandle CreateGpuPoints(std::uint32_t capacity) override {
+        resources_.CheckReady();
+        if (!gpu_points_) gpu_points_ = std::make_unique<BgfxGpuPoints>(resources_.DeviceId());
+        return gpu_points_->Create(capacity);
+    }
+    void ReleaseGpuPoints(GpuPointHandle handle) noexcept override {
+        resources_.CheckThread();
+        if (gpu_points_) gpu_points_->Release(handle);
+    }
+    bool IsValid(GpuPointHandle handle) const override {
+        resources_.CheckThread();
+        return gpu_points_ && gpu_points_->IsValid(handle);
+    }
+    void UpdateGpuParticles(GpuPointHandle handle, const GpuParticleStep& step) override {
+        resources_.CheckReady();
+        if (!in_frame_) throw std::logic_error("render.frame_not_open");
+        if (!gpu_points_) throw std::invalid_argument("render.invalid_gpu_points");
+        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        gpu_points_->Update(static_cast<bgfx::ViewId>(passes_), handle, step);
+        ++passes_;
+    }
+    void SubmitGpuPoints(TextureHandle target, GpuPointHandle handle,
+                         const GpuPointStyle& style) override {
+        resources_.CheckReady();
+        if (!in_frame_) throw std::logic_error("render.frame_not_open");
+        if (!resources_.IsRenderTarget(target))
+            throw std::invalid_argument("render.gpu_point_target");
+        if (!gpu_points_) throw std::invalid_argument("render.invalid_gpu_points");
+        gpu_points_->ValidateDraw(handle, style);
+        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        gpu_points_->Draw(static_cast<bgfx::ViewId>(passes_),
+                          textures_.at(target.slot_).framebuffer_.Get(), resources_.Size(target),
+                          invert_targets_, handle, style);
+        ++passes_;
+        ++draws_;
+    }
     bool SupportsScenes() const override {
         resources_.CheckReady();
         return scenes_supported_;
@@ -339,6 +380,7 @@ class BgfxBackend final : public Backend {
     FrameStats Stats() const override {
         auto stats = resources_.Stats();
         if (scene_) scene_->AddStats(stats);
+        if (gpu_points_) gpu_points_->AddStats(stats);
         stats.frame_ = frame_;
         stats.passes_ = passes_;
         stats.draws_ = draws_;
@@ -350,6 +392,7 @@ class BgfxBackend final : public Backend {
         readbacks_.Invalidate(resources_);
         resources_.Invalidate();
         if (scene_) scene_->Invalidate();
+        if (gpu_points_) gpu_points_->Invalidate();
     }
 
    private:
@@ -366,6 +409,7 @@ class BgfxBackend final : public Backend {
     BgfxReadbacks readbacks_{readback_memory_};
     std::vector<Entry> textures_{};
     std::unique_ptr<BgfxScene> scene_{};
+    std::unique_ptr<BgfxGpuPoints> gpu_points_{};
     bgfx::VertexLayout layout_{};
     std::optional<BgfxTexturePrograms> texture_programs_{};
     bool in_frame_ = false;

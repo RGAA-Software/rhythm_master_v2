@@ -413,14 +413,15 @@ class Studio::Impl final {
         host.ClearViewerTextures();
         const bool seekable =
                 plan_ &&
-                std::none_of(plan_->instructions_.begin(), plan_->instructions_.end(),
-                             [](const auto& instruction) {
-                                 return instruction.operation_ == graph::Operation::kFeedback ||
-                                        instruction.operation_ == graph::Operation::kTextureTrail ||
-                                        instruction.operation_ ==
-                                                graph::Operation::kParticleEmitter ||
-                                        instruction.operation_ == graph::Operation::kPointPhysics;
-                             });
+                std::none_of(
+                        plan_->instructions_.begin(), plan_->instructions_.end(),
+                        [](const auto& instruction) {
+                            return instruction.operation_ == graph::Operation::kFeedback ||
+                                   instruction.operation_ == graph::Operation::kTextureTrail ||
+                                   instruction.operation_ == graph::Operation::kParticleEmitter ||
+                                   instruction.operation_ == graph::Operation::kPointPhysics ||
+                                   instruction.operation_ == graph::Operation::kGpuParticleEmitter;
+                        });
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         soundtrack_panel_.Sync(history_->Current(), project_ / "assets", audio_panel_);
 #endif

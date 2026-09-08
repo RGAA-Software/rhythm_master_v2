@@ -17,7 +17,7 @@ def main():
     parser.add_argument("--compiler", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--platform", choices=("windows", "android"), required=True)
-    parser.add_argument("--group", choices=("color", "scene", "filter", "noise", "mapping", "displace", "execution_probe"), default="color")
+    parser.add_argument("--group", choices=("color", "scene", "filter", "noise", "mapping", "displace", "execution_probe", "gpu_points"), default="color")
     args = parser.parse_args()
     output = args.output.resolve()
     if not output.is_relative_to(ROOT / "out"):
@@ -28,6 +28,10 @@ def main():
         programs = [("probe_instance.sc", "vertex", "probe_varying.def.sc", "kProbeVertexShader"),
                     ("probe_color.sc", "fragment", "probe_varying.def.sc", "kProbeFragmentShader"),
                     ("probe_update.sc", "compute", None, "kProbeComputeShader")]
+    elif args.group == "gpu_points":
+        programs = [("gpu_point_vertex.sc", "vertex", "gpu_point_varying.def.sc", "kGpuPointVertexShader"),
+                    ("gpu_point_fragment.sc", "fragment", "gpu_point_varying.def.sc", "kGpuPointFragmentShader"),
+                    ("gpu_particle_update.sc", "compute", None, "kGpuParticleComputeShader")]
     elif args.group == "scene":
         programs = [("scene_vertex.sc", "vertex", "scene_varying.def.sc", "kSceneVertexShader"),
                     ("scene_instance.sc", "vertex", "scene_varying.def.sc", "kSceneInstanceShader"),

@@ -138,9 +138,11 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
             }
         if (operation == graph::Operation::kTime || operation == graph::Operation::kTextureTrail ||
             operation == graph::Operation::kParticleEmitter ||
+            operation == graph::Operation::kGpuParticleEmitter ||
             operation == graph::Operation::kPointPhysics)
             versions.push_back(std::bit_cast<std::uint64_t>(frame.seconds_));
         if (operation == graph::Operation::kParticleEmitter ||
+            operation == graph::Operation::kGpuParticleEmitter ||
             operation == graph::Operation::kTextureTrail ||
             operation == graph::Operation::kPointPhysics)
             versions.push_back(frame.advance_state_ ? 1 : 0);
@@ -220,6 +222,23 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                 case graph::Operation::kSceneCamera:
                     detail::EvaluateScene(instruction, result.outputs_, state.output_, resources);
                     break;
+                case graph::Operation::kGpuParticleEmitter:
+                    if (!state.gpu_particles_)
+                        state.gpu_particles_ = std::make_unique<detail::GpuParticlePass>();
+                    state.output_.gpu_points_ = state.gpu_particles_->Evaluate(
+                            instruction, result.outputs_, frame, renderer);
+                    break;
+                case graph::Operation::kGpuPointRender: {
+                    if (!state.target_.Handle().device_) state.target_ = acquire(extent);
+                    const auto opacity = instruction.inputs_[1] ? input(1).scalar_
+                                                                : graph::Scalar(node, "opacity", 1);
+                    const render::GpuPointStyle style{
+                            float(std::isfinite(opacity) ? std::clamp(opacity, 0.0, 1.0) : 1),
+                            graph::Scalar(node, "point_blend", 1) == 1};
+                    renderer.SubmitGpuPoints(state.target_.Handle(), input(0).gpu_points_, style);
+                    state.output_.texture_ = state.target_.Handle();
+                    break;
+                }
                 case graph::Operation::kPointInstances:
                     state.output_.scene_ =
                             detail::PointInstances(instruction, result.outputs_, frame.external_);

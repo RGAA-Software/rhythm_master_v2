@@ -1,0 +1,98 @@
+#include "bgfx_gpu_points.h"
+
+#include "gpu_point_shader.h"
+namespace rhythm::render::detail {
+bool BgfxGpuPoints::Supported() {
+    const auto caps = bgfx::getCaps();
+    constexpr auto required = BGFX_CAPS_COMPUTE | BGFX_CAPS_INSTANCING;
+    return caps && (caps->supported & required) == required;
+}
+BgfxGpuPoints::BgfxGpuPoints(std::uint64_t device) : store_(device) {
+    if (!Supported()) throw std::logic_error("render.gpu_points_unsupported");
+    GpuHandle cs(bgfx::createShader(
+            bgfx::copy(kGpuParticleComputeShader, sizeof(kGpuParticleComputeShader))));
+    compute_ = GpuHandle(bgfx::createProgram(cs.Get(), false));
+    GpuHandle vs(
+            bgfx::createShader(bgfx::copy(kGpuPointVertexShader, sizeof(kGpuPointVertexShader))));
+    GpuHandle fs(bgfx::createShader(
+            bgfx::copy(kGpuPointFragmentShader, sizeof(kGpuPointFragmentShader))));
+    render_ = GpuHandle(bgfx::createProgram(vs.Get(), fs.Get(), false));
+    constexpr std::array<float, 8> vertices{-1, -1, 1, -1, 1, 1, -1, 1};
+    constexpr std::array<std::uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
+    bgfx::VertexLayout layout;
+    layout.begin().add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float).end();
+    quad_ = GpuHandle(
+            bgfx::createVertexBuffer(bgfx::copy(vertices.data(), sizeof(vertices)), layout));
+    indices_ = GpuHandle(bgfx::createIndexBuffer(bgfx::copy(indices.data(), sizeof(indices))));
+    constexpr std::array names{"u_gpu_step0",   "u_gpu_step1",   "u_gpu_emit",   "u_gpu_dynamics",
+                               "u_gpu_gravity", "u_gpu_color_a", "u_gpu_color_b"};
+    for (std::size_t i = 0; i < names.size(); ++i)
+        uniforms_[i] = GpuHandle(bgfx::createUniform(names[i], bgfx::UniformType::Vec4));
+    view_ = GpuHandle(bgfx::createUniform("u_gpu_view", bgfx::UniformType::Vec4));
+}
+GpuPointHandle BgfxGpuPoints::Create(std::uint32_t capacity) {
+    auto handle = store_.Allocate(capacity);
+    try {
+        if (buffers_.size() <= handle.slot_) buffers_.resize(handle.slot_ + 1);
+        bgfx::VertexLayout layout;
+        layout.begin()
+                .add(bgfx::Attrib::TexCoord0, 4, bgfx::AttribType::Float)
+                .add(bgfx::Attrib::TexCoord1, 4, bgfx::AttribType::Float)
+                .add(bgfx::Attrib::TexCoord2, 4, bgfx::AttribType::Float)
+                .add(bgfx::Attrib::TexCoord3, 4, bgfx::AttribType::Float)
+                .end();
+        buffers_[handle.slot_] = GpuHandle(
+                bgfx::createDynamicVertexBuffer(capacity, layout, BGFX_BUFFER_COMPUTE_READ_WRITE));
+        return handle;
+    } catch (...) {
+        store_.Release(handle);
+        throw;
+    }
+}
+void BgfxGpuPoints::Release(GpuPointHandle handle) noexcept {
+    if (!store_.Owns(handle)) return;
+    buffers_[handle.slot_] = {};
+    store_.Release(handle);
+}
+void BgfxGpuPoints::Update(bgfx::ViewId view, GpuPointHandle handle, const GpuParticleStep& s) {
+    store_.Validate(handle, s);
+    const auto capacity = store_.Capacity(handle);
+    const std::array<std::array<float, 4>, 7> values{
+            {{s.seconds_, s.reset_ ? 1.0f : 0.0f, float(s.spawn_start_), float(s.spawn_count_)},
+             {float(capacity), float(s.seed_), float(s.sequence_), s.phase_},
+             {s.center_[0], s.center_[1], s.radius_, s.speed_},
+             {s.drag_, s.lifetime_, s.size_, s.flow_},
+             {s.gravity_[0], s.gravity_[1], s.frequency_, s.center_[2]},
+             s.color_a_,
+             s.color_b_}};
+    bgfx::setViewMode(view, bgfx::ViewMode::Sequential);
+    bgfx::setViewName(view, "GPU particle update");
+    for (std::size_t i = 0; i < values.size(); ++i)
+        bgfx::setUniform(uniforms_[i].Get(), values[i].data());
+    bgfx::setBuffer(0, buffers_[handle.slot_].Get(), bgfx::Access::ReadWrite);
+    bgfx::dispatch(view, compute_.Get(), (capacity + 63) / 64);
+    store_.Updated(handle);
+}
+void BgfxGpuPoints::Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Extent extent,
+                         bool invert, GpuPointHandle handle, const GpuPointStyle& style) {
+    store_.ValidateDraw(handle, style);
+    bgfx::setViewName(view, "GPU point rendering");
+    bgfx::setViewMode(view, bgfx::ViewMode::Sequential);
+    bgfx::setViewFrameBuffer(view, target);
+    bgfx::setViewRect(view, 0, 0, extent.width_, extent.height_);
+    bgfx::setViewClear(view, BGFX_CLEAR_COLOR, 0);
+    bgfx::setViewTransform(view, nullptr, nullptr);
+    const std::array<float, 4> values{float(extent.height_) / extent.width_, invert ? -1.0f : 1.0f,
+                                      style.opacity_, 0};
+    bgfx::setUniform(view_.Get(), values.data());
+    bgfx::setVertexBuffer(0, quad_.Get());
+    bgfx::setIndexBuffer(indices_.Get());
+    bgfx::setInstanceDataBuffer(buffers_[handle.slot_].Get(), 0, store_.Capacity(handle));
+    bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A |
+                   (style.additive_
+                            ? BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE)
+                            : BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE,
+                                                    BGFX_STATE_BLEND_INV_SRC_ALPHA)));
+    bgfx::submit(view, render_.Get());
+}
+}  // namespace rhythm::render::detail

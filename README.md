@@ -5,6 +5,11 @@ and [authoring feature gaps](docs/feature_gap_review_2026-09-08.md). Features an
 editable music-driven works come first; long-duration tests are deferred to final
 integrated acceptance. Android follows each supported shared-feature increment.
 
+R1 now includes hardware scene batches and typed GPU particles, editable Spectral
+Foundry/Nebula works, node previews, real music and MP4 checks on Windows, and
+Android built-in playback. [Evidence and limits](docs/validation/gpu_particles_2026-09-08.md).
+R2–R6 and visual/endurance acceptance continue.
+
 Large-song authoring now supports one bound music file up to 256 MiB through
 `music-performance-v2`, with streamed decoding in the shared Player core.
 Windows Studio/Player and USB Android native PCM/GLES validation pass; Android

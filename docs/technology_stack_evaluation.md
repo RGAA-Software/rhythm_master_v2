@@ -6,7 +6,10 @@
 ## 1. 状态与决策规则
 
 R1 实例批处理及 1 千/1 万实例像素检查已通过 D3D11 与 Adreno 650/GLES 3.1；
-[首批交付](validation/scene_instances_2026-09-08.md) 未引入新依赖，GPU 粒子仍在后续。
+[首批交付](validation/scene_instances_2026-09-08.md) 未引入新依赖。
+GPU 粒子也已通过两端 compute 更新/绘制与实际作品检查，复用 TiXL MIT 粒子代码；
+见 [GPU 粒子交付](validation/gpu_particles_2026-09-08.md)。Android 新构建默认 GLES 3.1，
+已有缓存不强制切换，打包最低 GLES 要求与实际编译档位一致。
 
 R0 已实测 D3D11 与 USB Adreno 650/GLES 3.1 的实例和计算写入/绘制；
 GLES 3.0 编译档位只有实例路径。详见 [GPU 验证](validation/gpu_execution_2026-09-08.md)。

@@ -1,6 +1,7 @@
 #include <stdexcept>
 
 #include "backend.h"
+#include "gpu_point_store.h"
 #include "mesh_store.h"
 #include "resource_table.h"
 #include "rhythm/render/budget.h"
@@ -22,6 +23,41 @@ class NullBackend final : public Backend {
     bool SupportsScenes() const override {
         resources_.CheckReady();
         return true;
+    }
+    bool SupportsGpuPoints() const override {
+        resources_.CheckReady();
+        return true;  // Contract-only backend, no claim of GPU execution.
+    }
+    GpuPointHandle CreateGpuPoints(std::uint32_t capacity) override {
+        resources_.CheckReady();
+        return points_.Allocate(capacity);
+    }
+    void ReleaseGpuPoints(GpuPointHandle handle) noexcept override {
+        resources_.CheckThread();
+        points_.Release(handle);
+    }
+    bool IsValid(GpuPointHandle handle) const override {
+        resources_.CheckThread();
+        return points_.IsValid(handle);
+    }
+    void UpdateGpuParticles(GpuPointHandle handle, const GpuParticleStep& step) override {
+        resources_.CheckReady();
+        if (!in_frame_) throw std::logic_error("render.frame_not_open");
+        points_.Validate(handle, step);
+        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        points_.Updated(handle);
+        ++passes_;
+    }
+    void SubmitGpuPoints(TextureHandle target, GpuPointHandle handle,
+                         const GpuPointStyle& style) override {
+        resources_.CheckReady();
+        if (!in_frame_) throw std::logic_error("render.frame_not_open");
+        if (!resources_.IsRenderTarget(target))
+            throw std::invalid_argument("render.gpu_point_target");
+        points_.ValidateDraw(handle, style);
+        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        ++passes_;
+        ++draws_;
     }
     MeshHandle CreateMesh(std::span<const MeshVertex> vertices,
                           std::span<const std::uint32_t> indices) override {
@@ -73,6 +109,7 @@ class NullBackend final : public Backend {
     FrameStats Stats() const override {
         auto stats = resources_.Stats();
         meshes_.AddStats(stats);
+        points_.AddStats(stats);
         stats.frame_ = frame_;
         stats.passes_ = passes_;
         stats.draws_ = draws_;
@@ -82,11 +119,13 @@ class NullBackend final : public Backend {
         if (in_frame_) throw std::logic_error("render.frame_still_open");
         resources_.Invalidate();
         meshes_.Invalidate();
+        points_.Invalidate();
     }
 
    private:
     ResourceTable resources_{};
     MeshStore meshes_{resources_.DeviceId()};
+    GpuPointStore points_{resources_.DeviceId()};
     bool in_frame_ = false;
     std::uint64_t frame_ = 0;
     std::uint32_t passes_ = 0;

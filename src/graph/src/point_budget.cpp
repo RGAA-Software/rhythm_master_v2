@@ -8,8 +8,19 @@ std::optional<Diagnostic> ValidatePointBudget(const ExecutionPlan& plan) {
     std::vector<std::uint32_t> counts(plan.instructions_.size());
     std::uint64_t total = 0;
     std::uint64_t physics_total = 0;
+    std::uint64_t gpu_total = 0;
+    std::uint32_t gpu_buffers = 0;
     for (std::size_t index = 0; index < plan.instructions_.size(); ++index) {
         const auto& instruction = plan.instructions_[index];
+        if (instruction.operation_ == Operation::kGpuParticleEmitter) {
+            const auto capacity = Scalar(instruction.node_, "particle_capacity", 65536);
+            if (!std::isfinite(capacity) || capacity < 1 || capacity > 262144 ||
+                std::floor(capacity) != capacity)
+                return Diagnostic{"graph.gpu_points_budget", instruction.node_.id_};
+            gpu_total += static_cast<std::uint64_t>(capacity);
+            if (gpu_total > 1048576 || ++gpu_buffers > 16)
+                return Diagnostic{"graph.gpu_points_budget", instruction.node_.id_};
+        }
         double count = 0;
         if (instruction.operation_ == Operation::kParticleEmitter)
             count = Scalar(instruction.node_, "particle_capacity", 2048);

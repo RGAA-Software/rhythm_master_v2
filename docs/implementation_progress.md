@@ -1,5 +1,16 @@
 # Continuous implementation through Android Player
 
+## R1 GPU particle delivery, 2026-09-08
+
+Typed GPU buffers, compute emission/lifetime/flow, instanced point rendering,
+fixed-step runtime and read-only inline previews are implemented. Windows D3D11
+and USB GLES 3.1 native/runtime checks pass, including 100k/262144 points and
+same-frame compute visibility. Spectral Nebula authoring source is added;
+real PCM/music-vs-silence/frequency checks and deterministic MP4 exports pass.
+Windows deploy bundles and 34-effect Android APK updated; overlay installation
+and UI selection/music playback verified. R2 float/color/depth is next.
+[Current evidence and limits](validation/gpu_particles_2026-09-08.md).
+
 ## R1 first delivery: instance authoring and Android playback, 2026-09-08
 
 Hardware scene batching and `scene.point_instances` are implemented, including
@@ -9,7 +20,7 @@ and Android pass pixel equivalence and 1k/10k instance checks; decoded music,
 silence and frequency comparison pass. Windows deploy bundles updated and APK
 with 33 direct-select effects overlay-installed on the USB phone.
 [Evidence and limits](validation/scene_instances_2026-09-08.md).
-GPU particle simulation is the next R1 increment; R1 as a whole is not complete.
+GPU particle functional delivery is recorded above; visual quality and endurance acceptance remain separate.
 
 ## R0 GPU execution gate, 2026-09-08
 

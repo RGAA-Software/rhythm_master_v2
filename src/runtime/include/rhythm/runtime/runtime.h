@@ -44,6 +44,8 @@ struct NodeOutput {
     std::shared_ptr<const scene::Scene> scene_{};
     std::optional<scene::Material> material_{};
     std::optional<scene::Camera> camera_{};
+    // Borrowed value handle; Runtime owns the mutable GPU state.
+    render::GpuPointHandle gpu_points_{};
 };
 // Optional host-thread CPU/submission measurements, not GPU timestamp timings.
 struct NodeProfile {

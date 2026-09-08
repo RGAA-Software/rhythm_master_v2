@@ -21,7 +21,8 @@ enum class ValueType : std::uint8_t {
     kGeometry,
     kMaterial,
     kScene,
-    kCamera
+    kCamera,
+    kGpuPoints
 };
 struct Canvas {
     std::uint32_t width_ = 640;
