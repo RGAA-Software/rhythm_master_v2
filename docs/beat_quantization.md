@@ -41,3 +41,25 @@ schema 1–5 读取与 schema 2–5 写入规则，以及 ABI 1–3；显式配�
 `editor_contract_tests` 通过。文件级检查覆盖保存→重开→发布→读取实际文件。
 日志为 `out/p1-beat-{graph,codec,persistence,template}-tests.log` 与
 `out/p1-beat-codec-android-tests.log`。这些是合同/文件路径检查，尚非量化 UI 验收。
+
+## 有界量化请求（P1.2）
+
+`player::PerformanceActions` 由宿主线程持有，复用 `PlaybackSample` 和 `BeatGrid`。
+快照与下一场各一个槽位；相同未完成目标/模式重复点击返回原请求 ID，不移动目标拍。
+不同请求替换该类槽位并保留被替换 ID。状态区分等待、已派发、已完成、取消和失败；
+派发后的宿主实际操作成功才确认完成，失败报告目标不可用。每个请求最多派发一次。
+暂停/挂起（包括立即模式）等待；换工程/播放代次变化/倒退时间取消，网格变化另报原因。
+无网格不能量化，预算末尾无后续拍点时明确失败。没有线程、时钟外推或资源所有权。
+
+已查阅本地 TiXL `Core/Animation`、`Editor/Gui/Interaction/Timing` 的时间与敲击
+控制；其静态播放/同步状态不能直接承载本项目的来源代次与有界请求语义。本增量
+复用既有项目时间/网格合同，新增宿主适配逻辑，不引入第三方调度服务。
+
+Windows 与 USB Android 原生 `performance_action_tests` 通过；日志
+`out/p1-performance-actions-tests.log`、`out/p1-performance-actions-android-tests.log`。
+检查覆盖两种并行请求、边界一 ULP 前、恰在边界、重复派发、替换、取消、失败确认、
+暂停/挂起、来源/网格失效、非法输入不修改现状和 30/60/144 Hz 首个跨界帧。
+目前只是共享状态机；实际按钮到渲染/切场接入属于紧接着的 P1.3/P1.4。
+
+元数据交付补充：Windows Studio/Player 自动部署各 20 个 DLL 与完整资源；四项强制
+模板检查通过，日志 `out/p1-beat-metadata-delivery.log`。
