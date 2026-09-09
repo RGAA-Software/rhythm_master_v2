@@ -362,3 +362,14 @@ CMake/Ninja 20 workers 在项目内重建 shaderc 1.19.157。两端全部 48 个
 以下为本次验证前的历史记录：
 
 私有词法适配直接使用 vcpkg 已安装 stb C lexer（两端版本、MIT 选择和兼容差异见 `provenance/stb_lexer.json`）。既有 shaderc 1.19.157 已验证 Windows s_5_0 / Android 300_es 的 FSH12 固定绑定、实际像素和作者编译闭环；本地 Studio 部署携带独立工具与完整已记录通知。当前 triplet 未安装 bgfx tools，已检查 port 1.129.8940-496#1，其与当前后端兼容性未验证，不更换共享包或 graphics ABI。现有工具来源、709 个编译源文件与二进制哈希见 `provenance/shaderc_host.json`；在本项目重建工具及可复现性仍待办。该结果仅确认受约束图像 profile，不确认通用材质/compute 或 Apple 编译。详见 [实现与验证](image_shader.md)。
+
+
+### P6 RGB 表面表达式（2026-09-10）
+
+限制采用现有 bgfx／Godot 适配材质路径上的 RGB 染色表达式，不增加依赖。
+复用已验证的 shaderc 1.19.157 和 vcpkg stb 词法适配，场景绑定、六种顶点变体
+与 D3D11／GLES 实际像素验证已通过；独立表面格式避免放宽旧图像格式。
+Studio 双目标编译、错误热更、源码恢复及真实音乐作品检查已通过，完整两端
+交付正在收口。范围仅为光照前 RGB 乘数，保留透明度、法线／贴图及光照契约；
+不是完整材质语言、通用 compute 或 Apple 编译支持。具体范围、失败和证据见
+[材质评估](material_shader_evaluation.md)与[作者验收](validation/surface_authoring_2026-09-10.md)。

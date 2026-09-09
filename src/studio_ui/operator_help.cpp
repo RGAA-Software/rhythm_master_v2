@@ -5,6 +5,14 @@
 #include <array>
 
 namespace rhythm::studio {
+std::string OperatorFieldKey(const std::string& type, const std::string& key) {
+    if (type == "texture.text" && key == "asset") return "text.font";
+    if (type == "texture.shader" || type == "material.shader") {
+        if (key == "asset") return "shader.asset";
+        if (key == "a" || key == "b" || key == "c" || key == "d") return "shader.parameter." + key;
+    }
+    return key;
+}
 void DrawOperatorHelp(const graph::OperatorDescriptor& descriptor,
                       const std::map<std::string, std::string>& text, bool properties) {
     const auto label = [&](const std::string& key) {
@@ -30,13 +38,15 @@ void DrawOperatorHelp(const graph::OperatorDescriptor& descriptor,
     else {
         ImGui::SeparatorText(label("help.inputs").c_str());
         for (const auto& port : descriptor.inputs_)
-            ImGui::TextWrapped("%s: %s (%s)", label(port.key_).c_str(), type(port.type_).c_str(),
+            ImGui::TextWrapped("%s: %s (%s)",
+                               label(OperatorFieldKey(descriptor.type_, port.key_)).c_str(),
+                               type(port.type_).c_str(),
                                label(port.required_ ? "help.required" : "help.optional").c_str());
     }
     if (!properties || descriptor.properties_.empty()) return;
     ImGui::SeparatorText(label("help.properties").c_str());
     for (const auto& property : descriptor.properties_) {
-        const auto title = label(property.key_);
+        const auto title = label(OperatorFieldKey(descriptor.type_, property.key_));
         if (const auto scalar = std::get_if<double>(&property.default_)) {
             ImGui::TextWrapped("%s: %.4g [%g, %g]", title.c_str(), *scalar, property.minimum_,
                                property.maximum_);

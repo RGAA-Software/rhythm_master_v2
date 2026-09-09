@@ -124,6 +124,7 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
                 context.resources_ = resources->models_;
                 context.images_ = resources->images_;
                 context.shaders_ = resources->shaders_;
+                context.surfaces_ = resources->surfaces_;
                 context.videos_ = streams.Resolve(package.program_, *resources, frame / 60.0, 1);
                 context.external_ = inputs;
                 output = offline.Evaluate(package.program_, context, renderer);

@@ -8,10 +8,12 @@
 #include <nlohmann/json.hpp>
 #include <numbers>
 
+#include "rhythm/assets/store.h"
 #include "rhythm/graph/registry.h"
 #include "rhythm/project/package.h"
 #include "rhythm/project/store.h"
 #include "rhythm/studio/studio.h"
+#include "rhythm/surface_shader/program.h"
 #include "studio_input.h"
 #include "workflow_evidence.h"
 
@@ -134,6 +136,17 @@ int main(int argc, char** argv) {
                 else
                     ui.Text("###inspector", label, value.dump());
             }
+            if (node.contains("shader_source")) {
+                const auto before = studio.Workflow().requested_generation_;
+                ui.MultilineText("###inspector", "###shader.source",
+                                 node.at("shader_source").get<std::string>());
+                ui.Button("###inspector", "###shader.compile");
+                for (int attempt = 0; attempt < 300 && studio.Workflow().shader_busy_; ++attempt)
+                    frame();
+                Check(!studio.Workflow().shader_busy_ && studio.Workflow().shader_error_.empty() &&
+                              studio.Workflow().requested_generation_ > before,
+                      "visible shader compilation failed: " + studio.Workflow().shader_error_);
+            }
             ui.Export("n" + std::to_string(id));
             const auto inputs = node.value("inputs", nlohmann::json::object());
             for (const auto& [port, source] : inputs.items())
@@ -143,6 +156,49 @@ int main(int argc, char** argv) {
         for (int index = 0; index < 150 && !studio.HasValidPlan(); ++index) frame();
         Check(studio.HasValidPlan() && !studio.Status().budget_limited_,
               "authored graph did not produce a current plan");
+        const auto wait_shader = [&] {
+            for (int attempt = 0; attempt < 300 && studio.Workflow().shader_busy_; ++attempt)
+                frame();
+            Check(!studio.Workflow().shader_busy_, "shader task did not finish");
+        };
+        for (std::size_t index = 0; index < recipe.at("nodes").size(); ++index) {
+            const auto& step = recipe.at("nodes")[index];
+            if (!step.contains("shader_source")) continue;
+            const auto original = step.at("shader_source").get<std::string>();
+            ui.FindNode(authored[index], step.at("type").get<std::string>());
+            wait_shader();
+            Check(ui.ReadMultilineText("###inspector", "###shader.source") == original,
+                  "selecting an existing shader must restore its source");
+            const auto before = studio.Workflow().requested_generation_;
+            ui.MultilineText("###inspector", "###shader.source", "vec2(uv)");
+            ui.Button("###inspector", "###shader.compile");
+            wait_shader();
+            Check(!studio.Workflow().shader_error_.empty() &&
+                          studio.Workflow().requested_generation_ == before &&
+                          studio.HasValidPlan(),
+                  "failed shader must report a diagnostic and retain the previous graph");
+            bgfx::requestScreenShot(BGFX_INVALID_HANDLE,
+                                    (output / "shader-error").string().c_str());
+            ui.Settle(6);
+            const auto replacement = "(" + original + ") * 0.7";
+            ui.MultilineText("###inspector", "###shader.source", replacement);
+            ui.Button("###inspector", "###shader.compile");
+            wait_shader();
+            for (int attempt = 0; attempt < 150 && !studio.HasValidPlan(); ++attempt) frame();
+            Check(studio.Workflow().shader_error_.empty() && studio.HasValidPlan() &&
+                          studio.Workflow().requested_generation_ > before,
+                  "fixed shader must install a new current graph");
+            for (const auto& [button, expected] : std::vector<std::pair<std::string, std::string>>{
+                         {"###undo", original}, {"###redo", replacement}, {"###undo", original}}) {
+                ui.Button("###graph", button);
+                wait_shader();
+                Check(ui.ReadMultilineText("###inspector", "###shader.source") == expected,
+                      "shader undo/redo must restore the complete source");
+            }
+            for (int attempt = 0; attempt < 150 && !studio.HasValidPlan(); ++attempt) frame();
+            Check(studio.HasValidPlan(), "restored shader graph has no current output");
+            std::cout << "Shader error, correction and source undo/redo passed\n";
+        }
         ui.Button("###inspector", "###audio.demo");
         for (int index = 0; index < 300 && studio.Status().audio_rms_ < .001f; ++index) frame();
         Check(studio.Status().audio_rms_ >= .001f, "Studio demo has no decoded audio input");
@@ -171,6 +227,19 @@ int main(int argc, char** argv) {
             const auto& step = recipe.at("nodes")[index];
             Check(saved.document_.nodes_[index].type_ == step.at("type").get<std::string>(),
                   "saved node type differs from recipe");
+            if (step.contains("shader_source")) {
+                const auto& asset_id = std::get<assets::AssetId>(
+                        saved.document_.nodes_[index].properties_.at("asset"));
+                const auto record =
+                        std::find_if(saved.assets_.begin(), saved.assets_.end(),
+                                     [&](const auto& item) { return item.id_ == asset_id; });
+                Check(record != saved.assets_.end(), "compiled source asset not saved");
+                const auto bytes = assets::Store(path / "assets").Read(*record);
+                const auto program = surface_shader::Decode(std::span<const std::uint8_t>(
+                        reinterpret_cast<const std::uint8_t*>(bytes.data()), bytes.size()));
+                Check(program.expression_ == step.at("shader_source").get<std::string>(),
+                      "saved source differs from the text entered in Studio");
+            }
             const auto properties = step.value("properties", nlohmann::json::object());
             for (const auto& [key, value] : properties.items()) {
                 if (std::holds_alternative<std::string>(
@@ -349,6 +418,15 @@ int main(int argc, char** argv) {
             frame();
         Check(studio.HasValidPlan() && studio.Workflow().requested_generation_ > before_reopen,
               "reopened authored work has no new current plan");
+        for (std::size_t index = 0; index < recipe.at("nodes").size(); ++index) {
+            const auto& step = recipe.at("nodes")[index];
+            if (!step.contains("shader_source")) continue;
+            ui.FindNode(authored[index], step.at("type").get<std::string>());
+            wait_shader();
+            Check(ui.ReadMultilineText("###inspector", "###shader.source") ==
+                          step.at("shader_source").get<std::string>(),
+                  "reopened project must restore saved shader source");
+        }
         bgfx::requestScreenShot(BGFX_INVALID_HANDLE, (output / "authored").string().c_str());
         ui.Settle(6);
         std::cout

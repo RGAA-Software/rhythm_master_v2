@@ -46,6 +46,19 @@ class StudioInput final {
         const auto id = Activate(window, label, {}, true);
         EnterText(id, value);
     }
+    void MultilineText(const std::string& window, const std::string& label,
+                       const std::string& value) const {
+        const auto id = Activate(window, label, {}, true);
+        EnterText(id, value, false);
+    }
+    std::string ReadMultilineText(const std::string& window, const std::string& label) const {
+        const auto id = Activate(window, label, {}, true);
+        Settle();
+        const auto* state = ImGui::GetInputTextState(id);
+        if (!state || state->TextA.Size == 0)
+            throw std::runtime_error("authoring source input state missing");
+        return {state->TextA.Data, static_cast<std::size_t>(state->TextLen)};
+    }
     void Focus(const std::string& window, const std::string& label) const {
         const auto id = Activate(window, label, {}, true);
         Settle();
@@ -71,7 +84,7 @@ class StudioInput final {
     }
 
    private:
-    void EnterText(ImGuiID id, const std::string& value) const {
+    void EnterText(ImGuiID id, const std::string& value, bool submit = true) const {
         Settle();
         if (ImGui::GetCurrentContext()->ActiveId != id)
             throw std::runtime_error("authoring input not focused: " + std::to_string(id));
@@ -83,6 +96,10 @@ class StudioInput final {
         io.AddKeyEvent(ImGuiMod_Ctrl, false);
         io.AddInputCharactersUTF8(value.c_str());
         frame_();
+        if (!submit) {
+            Settle();
+            return;
+        }
         io.AddKeyEvent(ImGuiKey_Enter, true);
         frame_();
         io.AddKeyEvent(ImGuiKey_Enter, false);

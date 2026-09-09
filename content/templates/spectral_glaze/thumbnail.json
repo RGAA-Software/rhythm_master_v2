@@ -1,0 +1,14 @@
+{
+    "template": "spectral_glaze",
+    "package_sha256": "3f0132dcf045be03169d195ac38913028105c99e475fd5e4892555e1a95ef1c3",
+    "thumbnail_sha256": "47257d38bab7db3d62663874c62c3ab48fb1f501870f8d8d8a8b61d5f9dc7f93",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

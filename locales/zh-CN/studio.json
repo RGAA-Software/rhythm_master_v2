@@ -1291,5 +1291,10 @@
     "shader.surface_help": "返回光照前的 vec3 RGB 染色。输入：uv、position、normal（世界空间）、time、a/b/c/d。向量请明确写出各分量。染色限制在 0..1，继承材质透明度与光照。",
     "help.material.shader": "为输入材质应用编译后的 RGB 染色。连接时间或音乐驱动的 a/b/c/d，再将材质用于场景实例。",
     "shader.surface_tools": "缺少表面编译文件，请恢复完整的 Studio deploy 目录。",
-    "shader.read": "无法读取 Shader 源码。"
+    "shader.read": "无法读取 Shader 源码。",
+    "shader.asset": "Shader 资源",
+    "shader.parameter.a": "a",
+    "shader.parameter.b": "b",
+    "shader.parameter.c": "c",
+    "shader.parameter.d": "d"
 }

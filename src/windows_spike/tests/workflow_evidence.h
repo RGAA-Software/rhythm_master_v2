@@ -24,7 +24,9 @@ class WorkflowEvidence final {
               << " nodes=" << studio.Status().authored_nodes_
               << " budget=" << studio.Status().budget_limited_ << " export=" << status.export_state_
               << " phase=" << status.export_phase_ << " frames=" << status.exported_frames_ << '/'
-              << status.export_total_frames_ << " error=" << std::quoted(status.export_error_);
+              << status.export_total_frames_ << " error=" << std::quoted(status.export_error_)
+              << " shader_busy=" << status.shader_busy_
+              << " shader_error=" << std::quoted(status.shader_error_);
         for (const auto& error : status.graph_errors_)
             file_ << " graph_error=" << std::quoted(error);
         file_ << '\n';

@@ -12,6 +12,7 @@
 #include "node_inspection.h"
 #include "node_navigation.h"
 #include "node_visual.h"
+#include "operator_help.h"
 #include "rhythm/editor/commands.h"
 #include "rhythm/graph/controls.h"
 
@@ -228,8 +229,8 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
                             return binding.node_ == node.id_ && binding.input_ == port.key_;
                         });
                 const bool has_binding = bound != snapshot.document_.bindings_.end();
-                const auto label =
-                        text(port.key_) + (has_binding ? " [" + bound->signal_ + "]" : "");
+                const auto label = text(OperatorFieldKey(node.type_, port.key_)) +
+                                   (has_binding ? " [" + bound->signal_ + "]" : "");
                 visual.inputs_.push_back(
                         {impl_->Pin(node.id_, port.key_), label, port.type_, has_binding});
             }

@@ -1291,5 +1291,10 @@
     "shader.surface_help": "Return vec3 RGB tint before lighting. Inputs: uv, position, normal (world), time, a/b/c/d. Use explicit vector components. Tint is clamped to 0..1; material alpha and lighting are preserved.",
     "help.material.shader": "Apply a compiled RGB tint to the input material. Connect time or audio-driven a/b/c/d, then use the material on scene instances.",
     "shader.surface_tools": "Surface compiler files are missing. Restore the complete Studio deploy folder.",
-    "shader.read": "Could not read the shader source."
+    "shader.read": "Could not read the shader source.",
+    "shader.asset": "Shader asset",
+    "shader.parameter.a": "a",
+    "shader.parameter.b": "b",
+    "shader.parameter.c": "c",
+    "shader.parameter.d": "d"
 }

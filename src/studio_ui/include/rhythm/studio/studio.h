@@ -29,6 +29,8 @@ struct WorkflowStatus {
     std::uint64_t requested_generation_ = 0;
     std::uint64_t installed_generation_ = 0;
     std::vector<std::string> graph_errors_{};
+    bool shader_busy_ = false;
+    std::string shader_error_{};
     std::string export_state_ = "unavailable";
     std::string export_phase_ = "idle";
     std::uint64_t exported_frames_ = 0;

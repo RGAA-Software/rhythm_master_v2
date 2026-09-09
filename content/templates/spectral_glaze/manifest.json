@@ -1,0 +1,46 @@
+{
+    "assets": [
+        {
+            "bytes": 39409,
+            "media_type": "application/x-rhythm-surface-shader",
+            "sha256": "d3efe6892b2ef2df98d8e96b19588812a5422a41e1217e9a211f6fd4d21e5543"
+        },
+        {
+            "bytes": 3072044,
+            "media_type": "audio/x-rhythm-media",
+            "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec"
+        }
+    ],
+    "format": "rhythm.project",
+    "graph_revision": 130,
+    "manifest_version": 2,
+    "project_id": "p6-spectral-glaze",
+    "soundtrack": {
+        "gain": 1.0,
+        "loop": true,
+        "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec",
+        "title": "resonance_demo.wav"
+    },
+    "title": "光谱釉球 / Spectral Glaze",
+    "kind": "template",
+    "content_id": "official.templates.spectral_glaze",
+    "content_version": "0.1.0",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "光谱釉球",
+        "en-US": "Spectral Glaze"
+    },
+    "category": "audio",
+    "tier": "example",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party Studio-authored graph and original demo music; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "青金干涉纹在釉色球体表面流动，低频推动条纹相位，高频改变色带，金属轨道围绕球体缓慢旋转。材质表达式与音乐连接均可编辑。",
+        "en-US": "Cyan and gold interference flows over a glazed sphere: bass moves the pattern phase, treble shifts its color bands, and metallic orbits slowly turn. Surface expressions and music connections remain editable."
+    }
+}

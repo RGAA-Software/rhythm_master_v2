@@ -149,6 +149,7 @@ int main(int argc, char* argv[]) {
                     context.resources_ = resources->models_;
                     context.images_ = resources->images_;
                     context.shaders_ = resources->shaders_;
+                    context.surfaces_ = resources->surfaces_;
                     context.videos_ =
                             video_streams.Resolve(package.program_, *resources, seconds, 1);
                     context.external_ = inputs;

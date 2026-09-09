@@ -876,6 +876,8 @@ WorkflowStatus Studio::Workflow() const {
     result.selected_author_node_ = impl_->canvas_.Selection();
     result.requested_generation_ = impl_->generation_;
     result.installed_generation_ = impl_->plan_generation_;
+    result.shader_busy_ = impl_->shader_panel_.Busy();
+    result.shader_error_ = impl_->shader_panel_.Error();
     for (const auto& diagnostic : impl_->diagnostics_)
         result.graph_errors_.push_back(diagnostic.code_);
 #ifdef RHYTHM_HAS_LOCAL_MEDIA

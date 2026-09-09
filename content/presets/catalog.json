@@ -2061,6 +2061,17 @@
                 "sample_color": 1,
                 "sample_size": 0
             }
+        },
+        {
+            "id": "official.material.shader.default",
+            "version": "1.0.0",
+            "operator": "material.shader",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
         }
     ]
 }

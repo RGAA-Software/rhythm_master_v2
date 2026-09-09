@@ -4,6 +4,8 @@
 
 #include <algorithm>
 
+#include "operator_help.h"
+
 namespace rhythm::studio {
 void BindingEditor::Reset() {
     selected_ = 0;
@@ -60,7 +62,8 @@ std::optional<editor::Snapshot> BindingEditor::Draw(
                              });
         const auto preview = bound == snapshot.document_.bindings_.end() ? label("binding.none")
                                                                          : bound->signal_;
-        const auto input_label = label(port.key_) + "###binding.input." + port.key_;
+        const auto input_label = label(OperatorFieldKey(descriptor->type_, port.key_)) +
+                                 "###binding.input." + port.key_;
         if (ImGui::BeginCombo(input_label.c_str(), preview.c_str())) {
             if (ImGui::Selectable(label("binding.none").c_str(),
                                   bound == snapshot.document_.bindings_.end()) &&

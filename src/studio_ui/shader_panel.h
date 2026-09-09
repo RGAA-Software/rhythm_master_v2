@@ -15,6 +15,7 @@ class ShaderPanel final {
               const std::filesystem::path& assets, const std::map<std::string, std::string>& text);
     std::optional<editor::Snapshot> Take(const editor::Snapshot& snapshot);
     bool Busy() const { return compiler_.Busy() || source_loader_.Busy(); }
+    const std::string& Error() const { return error_; }
 
    private:
     shader_authoring::Toolchain tools_{};

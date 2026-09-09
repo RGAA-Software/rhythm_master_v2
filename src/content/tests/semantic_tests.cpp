@@ -90,6 +90,7 @@ int main(int argc, char* argv[]) {
                 context.images_ = resources->images_;
                 context.resources_ = resources->models_;
                 context.shaders_ = resources->shaders_;
+                context.surfaces_ = resources->surfaces_;
                 const auto result = runtime.Evaluate(package.program_, context, renderer);
                 Check(renderer.IsValid(result.final_), "semantic runtime output");
                 renderer.EndFrame();
@@ -110,6 +111,7 @@ int main(int argc, char* argv[]) {
                 context.images_ = resources->images_;
                 context.resources_ = resources->models_;
                 context.shaders_ = resources->shaders_;
+                context.surfaces_ = resources->surfaces_;
                 const auto result = runtime.Evaluate(variant_package.program_, context, renderer);
                 Check(renderer.IsValid(result.final_), "variant runtime output");
                 renderer.EndFrame();
