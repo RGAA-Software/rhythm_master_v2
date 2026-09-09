@@ -1,9 +1,32 @@
 add_library(geometry2d STATIC affine.cpp)
+target_sources(geometry2d PRIVATE vector.cpp)
+if(ANDROID)
+    set(vector_triplet arm64-android)
+elseif(WIN32)
+    set(vector_triplet x64-windows)
+endif()
+if(ANDROID OR WIN32)
+    find_package(Clipper2 CONFIG REQUIRED PATHS
+        "C:/source/vcpkg/installed/${vector_triplet}/share/clipper2"
+        NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
+    find_path(VECTOR_EARCUT_INCLUDE mapbox/earcut.hpp PATHS
+        "C:/source/vcpkg/installed/${vector_triplet}/include"
+        NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH REQUIRED)
+else()
+    find_package(Clipper2 CONFIG REQUIRED)
+    find_path(VECTOR_EARCUT_INCLUDE mapbox/earcut.hpp REQUIRED)
+endif()
+target_include_directories(geometry2d SYSTEM PRIVATE "${VECTOR_EARCUT_INCLUDE}")
+target_link_libraries(geometry2d PRIVATE Clipper2::Clipper2)
 target_include_directories(geometry2d PUBLIC include)
 # Reuse the GLM target headers already validated for scene3d in this triplet.
 target_include_directories(geometry2d SYSTEM PRIVATE "${RHYTHM_GLM_INCLUDE}")
 rhythm_project_target(geometry2d)
 if(BUILD_TESTING)
+    add_executable(vector_geometry_tests tests/vector_tests.cpp)
+    target_link_libraries(vector_geometry_tests PRIVATE geometry2d)
+    rhythm_project_target(vector_geometry_tests)
+    add_test(NAME vector_geometry COMMAND vector_geometry_tests)
     add_executable(geometry2d_tests tests/affine_tests.cpp)
     target_link_libraries(geometry2d_tests PRIVATE geometry2d)
     rhythm_project_target(geometry2d_tests)
