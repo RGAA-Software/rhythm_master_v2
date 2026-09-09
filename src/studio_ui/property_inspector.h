@@ -2,6 +2,7 @@
 
 #include "binding_editor.h"
 #include "curve_editor.h"
+#include "event_track_editor.h"
 #include "expression_editor.h"
 #include "rhythm/content/presets.h"
 #include "rhythm/control_ui/control_panel.h"
@@ -33,6 +34,7 @@ class PropertyInspector final {
         expression_editor_.Reset();
         binding_editor_.Reset();
         curve_editor_.Reset();
+        event_track_editor_.Reset();
         controls_.Reset();
         live_controls_.clear();
         performance_controls_.clear();
@@ -49,6 +51,7 @@ class PropertyInspector final {
     ExpressionEditor expression_editor_{};
     BindingEditor binding_editor_{};
     CurveEditor curve_editor_{};
+    EventTrackEditor event_track_editor_{};
     control_ui::ControlPanel controls_{};
     parameters::ControlValues live_controls_{};
     parameters::ControlValues performance_controls_{};

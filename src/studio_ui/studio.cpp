@@ -16,6 +16,7 @@
 #include "component_library_panel.h"
 #include "component_panel.h"
 #include "component_workbench.h"
+#include "event_authoring.h"
 #include "graph_canvas.h"
 #include "input_preview.h"
 #include "node_palette.h"
@@ -108,6 +109,7 @@ class Studio::Impl final {
     }
     void SyncTitle() {
         beat_performance_.Reset();
+        event_authoring_.Cancel();
         title_.fill(0);
         const auto& title = history_->Current().title_;
         std::memcpy(title_.data(), title.data(), std::min(title.size(), title_.size() - 1));
@@ -301,6 +303,9 @@ class Studio::Impl final {
         }
     }
     void Inspector() {
+        if (auto take = event_authoring_.Draw(history_->Current(), canvas_.Selection(),
+                                              catalogs_.at(locale_)))
+            Apply(std::move(*take));
         ImGui::BeginDisabled(inspector_.Preview().has_value());
         const auto beat_edit = beat_performance_.Draw(
                 history_->Current(), evaluated_seconds_.value_or(0), catalogs_.at(locale_));
@@ -339,10 +344,12 @@ class Studio::Impl final {
         }
         shader_panel_.Draw(history_->Current(), canvas_.Selection(), project_ / "assets",
                            catalogs_.at(locale_));
+        ImGui::BeginDisabled(event_authoring_.Recording());
         auto result = inspector_.Draw(history_->Current(), canvas_.Selection(), registry_, presets_,
                                       catalogs_.at(locale_), locale_, *prepared_resources_->models_,
                                       evaluated_seconds_.value_or(0),
                                       history_->Current().document_.beat_grid_.has_value());
+        ImGui::EndDisabled();
         if (result.follow_cues_) beat_performance_.Cancel(player::PerformanceActionReason::kUser);
         if (result.recall_) {
             if (plan_ && plan_generation_ == generation_ && diagnostics_.empty())
@@ -552,7 +559,11 @@ class Studio::Impl final {
             frame.advance_state_ =
                     !timeline_.Paused() && (!audio_frame.playback_ || transport_changed ||
                                             evaluated_seconds_ != playback_seconds);
+            frame.external_.events_ = event_authoring_.Advance(
+                    history_->Current().document_, *plan_, frame,
+                    plan_generation_ == generation_ && diagnostics_.empty());
             output = runtime_.EvaluateSafely(*plan_, frame, renderer);
+            event_authoring_.Observe(output);
             evaluated_seconds_ = playback_seconds;
         }
         evaluated_ = output.evaluated_;
@@ -749,6 +760,7 @@ class Studio::Impl final {
     std::array<char, 4097> title_{};
     PropertyInspector inspector_{};
     BeatPerformance beat_performance_{};
+    EventAuthoring event_authoring_{};
     ComponentPanel component_panel_{};
     ComponentLibraryPanel component_library_{};
     ComponentWorkbench component_workbench_{};

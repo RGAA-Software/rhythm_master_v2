@@ -188,6 +188,12 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
                 }
                 ImGui::EndCombo();
             }
+        } else if (std::holds_alternative<parameters::EventTrack>(value)) {
+            if (auto track = event_track_editor_.Draw(std::get<parameters::EventTrack>(value),
+                                                      label, seconds, text)) {
+                edited = std::move(*track);
+                changed = committed = true;
+            }
         } else if (std::holds_alternative<parameters::Expression>(value)) {
             if (auto expression = expression_editor_.Draw(std::get<parameters::Expression>(value),
                                                           label, text)) {

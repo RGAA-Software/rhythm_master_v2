@@ -40,6 +40,7 @@ std::string_view Category(graph::Operation operation) {
         case kEventGate:
         case kEventLatch:
         case kEventReset:
+        case kEventInput:
             return "palette.events";
         case kGradient:
         case kShape:
