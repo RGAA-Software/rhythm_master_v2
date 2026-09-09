@@ -3,6 +3,7 @@
 #include <iostream>
 #include <thread>
 
+#include "rhythm/player/scene_deck.h"
 #include "rhythm/player/scene_queue.h"
 #include "rhythm/player/session.h"
 
@@ -97,6 +98,48 @@ int main(int argc, char* argv[]) {
         }
         Check(!queue.Busy() && queue.Items().empty() && !queue.TakeReady(),
               "canceled queue drains without resurrection");
+        {
+            player::SceneDeck deck;
+            deck.LoadPrepared(player::PreparedPackage(bytes));
+            deck.SetBeatGrid(parameters::BeatSettings{});
+            auto renderer = render::Renderer::CreateNull();
+            double monotonic = 0;
+            const auto tick = [&](double seconds) {
+                renderer.BeginFrame();
+                const auto frame =
+                        deck.Tick(monotonic += 0.1, false, player::RenderQuality::kOriginal,
+                                  renderer, {}, runtime::PlaybackSample{seconds, 1, false}, queue);
+                Check(renderer.IsValid(frame.output_.final_), "quantized scene output");
+                renderer.EndFrame();
+                return frame;
+            };
+            tick(0.1);
+            const auto id = queue.Enqueue(survivor, "Next").value();
+            wait(player::ScenePreparation::kReady);
+            const auto action = deck.RequestNextScene(id, 0, parameters::Quantization::kBeat);
+            Check(!tick(0.49).switched_ && queue.Items().front().id_ == id,
+                  "pending next scene retains queue ownership");
+            Check(tick(0.5).switched_ && queue.Items().empty() &&
+                          deck.Current().Title() == "Survivor scene" &&
+                          deck.ActionStatus(player::PerformanceActionKind::kNextScene).id_ ==
+                                  action &&
+                          deck.ActionStatus(player::PerformanceActionKind::kNextScene).state_ ==
+                                  player::PerformanceActionState::kCompleted,
+                  "next scene displays at the requested beat");
+            tick(0.6);
+            deck.SetBeatGrid(parameters::BeatSettings{});
+            const auto stale = queue.Enqueue(good, "Removed").value();
+            wait(player::ScenePreparation::kReady);
+            deck.RequestNextScene(stale, 0, parameters::Quantization::kBeat);
+            Check(queue.Remove(stale), "remove pending target");
+            const auto survivor_id = queue.Enqueue(good, "Do not consume").value();
+            wait(player::ScenePreparation::kReady);
+            Check(!tick(1.1).switched_ && queue.Items().front().id_ == survivor_id &&
+                          deck.ActionStatus(player::PerformanceActionKind::kNextScene).state_ ==
+                                  player::PerformanceActionState::kFailed,
+                  "stale target cannot switch to a different queue item");
+            deck.ReleaseGraphics();
+        }
         std::cout << "bounded scene preparation, retry, cancellation and move handoff pass\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

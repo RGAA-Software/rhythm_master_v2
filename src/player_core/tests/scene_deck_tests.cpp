@@ -20,6 +20,8 @@ std::string Package(const std::string& title, rhythm::graph::NodeId id,
     document.nodes_[0].properties_["value"] = 0.2;
     document.edges_ = {{1, id, id + 1, "amount"}, {2, id + 1, id + 2, "source"}};
     document.control_titles_[id] = "Energy";
+    document.control_snapshots_ = {{1, "Quiet", {{id, 0.1}}}, {2, "Bright", {{id, 0.9}}}};
+    document.beat_grid_ = parameters::BeatSettings{};
     document.output_ = id + 2;
     return project::EncodePackage(document, title);
 }
@@ -47,6 +49,28 @@ int main() {
             return result;
         };
         tick(5, 10);
+        const auto recall = deck.RequestSnapshot(2, parameters::Quantization::kBeat);
+        tick(5.49, 10);
+        Check(deck.Current().CurrentControls().at(1) == 0.8, "recall is not early");
+        tick(5.5, 10, true);
+        Check(deck.Current().CurrentControls().at(1) == 0.8, "paused recall waits");
+        tick(5.5, 10);
+        Check(deck.Current().CurrentControls().at(1) == 0.9 &&
+                      deck.ActionStatus(player::PerformanceActionKind::kSnapshot).id_ == recall &&
+                      deck.ActionStatus(player::PerformanceActionKind::kSnapshot).state_ ==
+                              player::PerformanceActionState::kCompleted,
+              "snapshot reaches current rendered frame at beat");
+        deck.EditControls({{1, 0.4}});
+        tick(5.5, 10, true);
+        Check(deck.Current().CurrentControls().at(1) == 0.4, "manual control after recall");
+        deck.FollowCues();
+        tick(5.5, 10);
+        Check(deck.Current().CurrentControls().at(1) == 0.8, "follow clears performance overrides");
+        deck.RequestSnapshot(1, parameters::Quantization::kBar);
+        deck.SetBeatGrid(parameters::BeatSettings{97, 6, 8, 0.1});
+        Check(deck.ActionStatus(player::PerformanceActionKind::kSnapshot).reason_ ==
+                      player::PerformanceActionReason::kGridChanged,
+              "tempo edit cancels outstanding recall immediately");
         Check(deck.StartTransition(player::PreparedPackage(second), 2), "stage prepared scene");
         tick(5.5, 10);
         Check(deck.Transitioning() && deck.Progress() == 0 && !deck.CanPrepareNext(),

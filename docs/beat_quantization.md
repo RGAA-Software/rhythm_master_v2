@@ -63,3 +63,15 @@ Windows 与 USB Android 原生 `performance_action_tests` 通过；日志
 
 元数据交付补充：Windows Studio/Player 自动部署各 20 个 DLL 与完整资源；四项强制
 模板检查通过，日志 `out/p1-beat-metadata-delivery.log`。
+
+### Player 帧边界接入
+
+`SceneDeck` 的主播放时钟推进后、当前场渲染前派发快照；过渡在同一边界开始。
+下一场请求只记稳定队列项 ID，准备包仍归队列所有，目标时间才取出。删项、准备失败、
+忙碌或目标不再是队首时失败，不能误消费后续项。过渡请求只有首次有效渲染通过后
+才确认完成；GPU 预算拒绝保留当前场。新作品恢复自己的节拍与宏值。
+
+Windows 与 Android 原生 `scene_deck_tests`、`scene_queue_tests` 通过，覆盖实际
+`SceneDeck::Tick` 的空渲染器路径、快照当帧值、暂停/恢复、手动覆盖、改 BPM 取消、
+量化队列切场与删除目标。日志 `out/p1-performance-deck-tests.log` 和
+`out/p1-performance-deck-android-tests.log`。这尚不是 GPU/UI 或 APK 控件验收。

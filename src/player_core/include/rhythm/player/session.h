@@ -22,6 +22,7 @@ class Session final {
     [[nodiscard]] const std::string& Title() const;
     [[nodiscard]] const parameters::ControlBank& Controls() const;
     [[nodiscard]] const std::optional<parameters::ControlSequence>& ControlSequence() const;
+    [[nodiscard]] std::optional<parameters::BeatSettings> BeatGrid() const;
     [[nodiscard]] parameters::ControlValues CurrentControls() const;
     [[nodiscard]] render::Extent Canvas() const;
     [[nodiscard]] std::optional<media::SoundtrackSource> Soundtrack() const { return soundtrack_; }

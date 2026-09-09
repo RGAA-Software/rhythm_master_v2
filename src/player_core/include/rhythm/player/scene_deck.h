@@ -1,7 +1,11 @@
 #pragma once
 
+#include <functional>
+
+#include "rhythm/player/performance_actions.h"
 #include "rhythm/player/render_quality.h"
 #include "rhythm/player/scene_compositor.h"
+#include "rhythm/player/scene_queue.h"
 #include "rhythm/player/session.h"
 
 namespace rhythm::player {
@@ -26,13 +30,25 @@ class SceneDeck final {
     void Restart() { Seek(0); }
     void CancelTransition();
     void ReleaseGraphics();
+    const std::optional<parameters::BeatSettings>& BeatGrid() const { return beat_grid_; }
+    void SetBeatGrid(std::optional<parameters::BeatSettings> grid);
+    void EditControls(const parameters::ControlValues& changes);
+    void FollowCues();
+    std::uint64_t RequestSnapshot(std::uint64_t snapshot, parameters::Quantization mode);
+    std::uint64_t RequestNextScene(std::uint64_t queue_item, double duration,
+                                   parameters::Quantization mode);
+    bool CancelAction(std::uint64_t id) { return actions_.Cancel(id); }
+    const PerformanceAction& ActionStatus(PerformanceActionKind kind) const {
+        return actions_.Status(kind);
+    }
     // After loading a newly promoted work's soundtrack, seek that audio service
     // to entry_seconds_, then pass its immediate value snapshot here. The next
     // frame rebases the master without discarding the incoming scene's history.
     void AdoptMedia(const runtime::PlaybackSample& sample);
     SceneDeckFrame Tick(double monotonic_seconds, bool suspended, RenderQuality quality,
                         render::Renderer& renderer, const runtime::ExternalInputs& inputs = {},
-                        const std::optional<runtime::PlaybackSample>& playback = {});
+                        const std::optional<runtime::PlaybackSample>& playback = {},
+                        const std::optional<std::reference_wrapper<SceneQueue>>& queue = {});
     bool Transitioning() const { return bool(incoming_); }
     bool CanPrepareNext() const { return !incoming_ && !retired_; }
     double Progress() const { return progress_; }
@@ -41,6 +57,9 @@ class SceneDeck final {
 
    private:
     void ResetClock();
+    void ResetPerformance();
+    void ApplyPerformance(const runtime::PlaybackSample& sample,
+                          const std::optional<std::reference_wrapper<SceneQueue>>& queue);
     std::unique_ptr<Session> current_ = std::make_unique<Session>();
     std::unique_ptr<Session> incoming_{};
     std::unique_ptr<Session> retired_{};
@@ -56,5 +75,11 @@ class SceneDeck final {
     bool warmed_ = false;
     bool clock_observed_ = false;
     SceneTransitionError error_ = SceneTransitionError::kNone;
+    PerformanceActions actions_{};
+    std::optional<parameters::BeatSettings> beat_grid_{};
+    parameters::ControlValues live_controls_{};
+    std::uint64_t performance_generation_ = 0;
+    std::optional<std::uint64_t> transition_action_{};
+    double requested_duration_ = 0;
 };
 }  // namespace rhythm::player

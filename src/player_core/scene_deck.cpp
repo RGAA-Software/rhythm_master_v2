@@ -14,6 +14,7 @@ void SceneDeck::ResetClock() {
     handoff_generation_.reset();
     CancelTransition();
     retired_.reset();
+    ResetPerformance();
 }
 void SceneDeck::Open(const std::filesystem::path& path) {
     auto next = std::make_unique<Session>();
@@ -56,8 +57,11 @@ void SceneDeck::Seek(double seconds) {
     origin_ = 0;
     handoff_generation_.reset();
     CancelTransition();
+    actions_.CancelAll(PerformanceActionReason::kSourceChanged);
 }
 void SceneDeck::CancelTransition() {
+    if (transition_action_) actions_.Cancel(*transition_action_);
+    transition_action_.reset();
     incoming_.reset();
     compositor_.ReleaseGraphics();
     progress_ = 0;
@@ -80,7 +84,8 @@ void SceneDeck::AdoptMedia(const runtime::PlaybackSample& sample) {
 }
 SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQuality quality,
                                render::Renderer& renderer, const runtime::ExternalInputs& inputs,
-                               const std::optional<runtime::PlaybackSample>& playback) {
+                               const std::optional<runtime::PlaybackSample>& playback,
+                               const std::optional<std::reference_wrapper<SceneQueue>>& queue) {
     if (!runtime::ValidExternalInputs(inputs))
         throw std::invalid_argument("runtime.external_inputs");
     if (retired_) {
@@ -91,6 +96,8 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
     if (suspended) return {};
     if (master_generation_ != master_.Generation()) {
         master_generation_ = master_.Generation();
+        if (!(handoff_generation_ && playback && *handoff_generation_ == playback->generation_))
+            actions_.CancelAll(PerformanceActionReason::kSourceChanged);
         if (clock_observed_ &&
             !(handoff_generation_ && playback && *handoff_generation_ == playback->generation_)) {
             const bool interrupted = Transitioning();
@@ -105,10 +112,13 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
     if (!current_->Ready()) return {};
     const runtime::PlaybackSample current_time{
             std::max(0.0, seconds - origin_), scene_generation_, master_.Paused(), {}};
+    ApplyPerformance(current_time, queue);
+    auto current_inputs = inputs;
+    for (const auto& [id, value] : live_controls_) current_inputs.controls_[id] = value;
     const auto extent = PlaybackExtent(current_->Canvas(), quality);
     SceneDeckFrame result;
-    result.output_ =
-            current_->Tick(monotonic_seconds, false, extent, renderer, inputs, current_time);
+    result.output_ = current_->Tick(monotonic_seconds, false, extent, renderer, current_inputs,
+                                    current_time);
     if (!incoming_) return result;
     if (!warmed_) incoming_origin_ = seconds;
     const double incoming_seconds = std::max(0.0, seconds - incoming_origin_);
@@ -126,6 +136,8 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
                                           incoming_inputs, incoming_time);
         if (next.budget_) throw render::BudgetExceeded(*next.budget_);
         if (!renderer.IsValid(next.final_)) throw std::runtime_error("player.transition_output");
+        if (transition_action_) actions_.Resolve(*transition_action_, true);
+        transition_action_.reset();
         warmed_ = true;
         progress_ = duration_ > 0 ? std::clamp(incoming_seconds / duration_, 0.0, 1.0) : 1;
         if (progress_ < 1) {
@@ -139,11 +151,14 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
             result.output_ = next;
             result.switched_ = true;
             result.entry_seconds_ = incoming_seconds;
+            ResetPerformance();
         }
     } catch (const render::BudgetExceeded&) {
+        if (transition_action_) actions_.Resolve(*transition_action_, false);
         CancelTransition();
         error_ = SceneTransitionError::kBudget;
     } catch (const std::exception&) {
+        if (transition_action_) actions_.Resolve(*transition_action_, false);
         CancelTransition();
         error_ = SceneTransitionError::kRender;
     }

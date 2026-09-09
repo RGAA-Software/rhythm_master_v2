@@ -57,6 +57,9 @@ const std::optional<parameters::ControlSequence>& Session::ControlSequence() con
     static const std::optional<parameters::ControlSequence> kEmpty;
     return package_ ? package_->program_.control_sequence_ : kEmpty;
 }
+std::optional<parameters::BeatSettings> Session::BeatGrid() const {
+    return package_ ? package_->program_.beat_grid_ : std::nullopt;
+}
 parameters::ControlValues Session::CurrentControls() const {
     return external_.controls_.empty()
                    ? parameters::EvaluateControls(Controls(), ControlSequence(), Seconds())

@@ -1,6 +1,6 @@
 add_library(player_core STATIC session.cpp prepared_package.cpp package_loader.cpp render_quality.cpp)
 target_include_directories(player_core PUBLIC include PRIVATE "${PROJECT_SOURCE_DIR}/third_party/sources/picosha2")
-target_sources(player_core PRIVATE scene_queue.cpp scene_compositor.cpp scene_deck.cpp performance_actions.cpp)
+target_sources(player_core PRIVATE scene_queue.cpp scene_compositor.cpp scene_deck.cpp performance_actions.cpp scene_performance.cpp)
 target_link_libraries(player_core PUBLIC graph_runtime runtime_package foundation_async prepared_assets video_sources)
 rhythm_project_target(player_core)
 if(BUILD_TESTING)
