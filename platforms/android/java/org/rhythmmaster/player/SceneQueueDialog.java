@@ -114,7 +114,13 @@ final class SceneQueueDialog {
             go_.setEnabled(data.optBoolean("can_go"));
             cancel_.setEnabled(data.optBoolean("transitioning"));
             int error = data.optInt("error");
-            status_.setText(error != 0 ? activity_.getString(error == 3 ? R.string.scene_budget : R.string.scene_interrupted) :
+            status_.setText(error != 0 ? activity_.getString(error == 3 ? R.string.scene_budget :
+                    error == 6 ? R.string.scene_audio_failed : R.string.scene_interrupted) +
+                    (data.optString("error_detail").isEmpty() ? "" : "\n" + data.optString("error_detail")) :
+                    data.optBoolean("audio_pending") && !data.optBoolean("transitioning") ?
+                    activity_.getString(R.string.scene_audio_recover) :
+                    data.optBoolean("audio_pending") && data.optDouble("progress") == 0 ?
+                    activity_.getString(R.string.scene_audio_wait) :
                     data.optBoolean("transitioning") ? String.format(Locale.ROOT, "%s · %.0f%%",
                     data.optString("incoming"), data.optDouble("progress") * 100) :
                     activity_.getString(R.string.scene_help));

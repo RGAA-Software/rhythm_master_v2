@@ -35,28 +35,36 @@ void AudioPanel::SetSuspended(bool suspended) {
 }
 std::optional<audio::Features> AudioPanel::Snapshot() const { return Frame().features_; }
 AudioInputFrame AudioPanel::Frame() const {
+    AudioInputFrame frame;
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
+    frame.file_ = file_.Snapshot();
     if (media_selected_) {
-        const auto file = file_.Snapshot();
+        const auto& file = frame.file_;
         runtime::PlaybackSample playback{
                 file.position_seconds_, file.generation_,
                 file.paused_ || file.state_ != audio::PlaybackState::kPlaying,
                 file.duration_seconds_};
         if (playback.duration_ && *playback.duration_ <= 0) playback.duration_.reset();
-        return {file.features_, playback};
+        frame.features_ = file.features_;
+        frame.playback_ = playback;
+        return frame;
     }
 #endif
     const auto snapshot = capture_.Snapshot();
-    if (snapshot.state_ != audio::CaptureState::kRunning || !snapshot.features_.valid_) return {};
-    return {snapshot.features_, {}};
+    if (snapshot.state_ == audio::CaptureState::kRunning && snapshot.features_.valid_)
+        frame.features_ = snapshot.features_;
+    return frame;
 }
 void AudioPanel::ApplyPlayback(const runtime::PlaybackCommand& command) {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
     if (!media_selected_) return;
     const auto state = file_.Snapshot().state_;
-    if ((state == audio::PlaybackState::kStopped || state == audio::PlaybackState::kEnded) &&
-        (command.seek_ || command.paused_ == false)) {
-        if (arrangement_files_)
+    if (state == audio::PlaybackState::kStopped && (command.seek_ || command.paused_ == false)) {
+        if (soundtrack_binding_) {
+            auto binding = *soundtrack_binding_;
+            binding.loop_ = loop_;
+            file_.LoadSoundtrack({binding, embedded_, streamed_, arrangement_});
+        } else if (arrangement_files_)
             file_.Load(*arrangement_files_);
         else if (arrangement_)
             file_.Load(*arrangement_);
@@ -64,12 +72,18 @@ void AudioPanel::ApplyPlayback(const runtime::PlaybackCommand& command) {
             file_.Load(streamed_);
         else if (embedded_)
             file_.Load(embedded_);
-        else
+        else if (!loaded_file_.empty())
             file_.Load(loaded_file_);
         file_.Pause(command.paused_.value_or(true));
     }
-    if (command.seek_) file_.Seek(*command.seek_);
-    if (command.paused_) file_.Pause(*command.paused_);
+    if (command.seek_)
+        file_.Seek(*command.seek_);
+    else if (state == audio::PlaybackState::kEnded && command.paused_ == false)
+        file_.Seek(0);
+    if (command.paused_) {
+        if (suspended_) resume_file_ = !*command.paused_;
+        file_.Pause(suspended_ || *command.paused_);
+    }
 #else
     (void)command;
 #endif
@@ -119,6 +133,7 @@ std::optional<std::filesystem::path> AudioPanel::SelectedFile() const {
     return std::nullopt;
 }
 void AudioPanel::LoadFile(const std::filesystem::path& path) {
+    soundtrack_binding_.reset();
     capture_.Stop();
     arrangement_.reset();
     arrangement_files_.reset();
@@ -141,12 +156,35 @@ void AudioPanel::LoadFile(const std::filesystem::path& path) {
 void AudioPanel::LoadSoundtrack(const media::SoundtrackSource& source) {
     if (!media::ValidSoundtrackSource(source))
         throw std::invalid_argument("project.soundtrack_invalid");
-    if (source.arrangement_)
-        file_.Load(*source.arrangement_);
-    else if (source.file_bytes_.Valid())
-        file_.Load(source.file_bytes_);
-    else
-        file_.Load(source.bytes_);
+    file_.LoadSoundtrack(source);
+    SelectSoundtrack(source);
+    if (suspended_) {
+        resume_file_ = true;
+        file_.Pause(true);
+    }
+}
+std::uint64_t AudioPanel::BeginSoundtrackTransition(const media::SoundtrackSource& source,
+                                                    double duration, bool paused) {
+    file_.Pause(suspended_ || paused);
+    const auto id = file_.BeginTransition(source, duration);
+    if (suspended_) resume_file_ = !paused;
+    capture_.Stop();
+    resume_capture_ = false;
+    media_selected_ = true;
+    transition_id_ = id;
+    return id;
+}
+bool AudioPanel::CancelSoundtrackTransition(std::uint64_t id) { return file_.CancelTransition(id); }
+void AudioPanel::AdoptSoundtrack(const media::SoundtrackSource& source, std::uint64_t id) {
+    const auto snapshot = file_.Snapshot();
+    if (!id || id != transition_id_ || snapshot.transition_.id_ != id ||
+        snapshot.transition_.state_ != audio::AudioTransitionState::kCompleted ||
+        !media::ValidSoundtrackSource(source))
+        throw std::logic_error("audio.transition_not_committed");
+    SelectSoundtrack(source);
+    transition_id_ = 0;
+}
+void AudioPanel::SelectSoundtrack(const media::SoundtrackSource& source) {
     capture_.Stop();
     arrangement_ = source.arrangement_;
     arrangement_files_.reset();
@@ -155,15 +193,12 @@ void AudioPanel::LoadSoundtrack(const media::SoundtrackSource& source) {
     loaded_file_.clear();
     file_path_.fill(0);
     media_selected_ = true;
-    SetVolume(source.binding_.gain_);
-    SetLoop(source.binding_.loop_);
-    if (suspended_) {
-        resume_file_ = true;
-        file_.Pause(true);
-    }
+    soundtrack_binding_ = source.binding_;
+    loop_ = source.binding_.loop_;
 }
 void AudioPanel::LoadArrangement(media::AudioArrangementFiles files) {
     file_.Load(files);
+    soundtrack_binding_.reset();
     capture_.Stop();
     arrangement_files_ = std::make_shared<const media::AudioArrangementFiles>(std::move(files));
     arrangement_.reset();
@@ -179,6 +214,7 @@ void AudioPanel::LoadArrangement(media::AudioArrangementFiles files) {
 }
 void AudioPanel::ClearFile() {
     file_.Stop();
+    soundtrack_binding_.reset();
     arrangement_.reset();
     arrangement_files_.reset();
     embedded_.reset();

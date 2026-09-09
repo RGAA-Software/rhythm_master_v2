@@ -155,3 +155,59 @@ Windows `out/p3-scene-audio-bridge-windows-tests.log` 三项通过；Android
 `out/p3-scene-audio-bridge-android-tests.log` 原生检查通过。检查使用真实含配乐
 运行包、Null renderer 和音频命令替身，覆盖准备、双时钟、明确提交、早期/排队取消、
 命令拒绝与过期身份，不是 Player 界面/硬件音画验收。
+
+两端音频宿主增量：AudioPanel / MusicPlayback 使用原子 LoadSoundtrack，作者增益
+独立于用户主音量；EOF 重播通过既有来源 Seek，保留增益/循环。消费确认后的
+AdoptSoundtrack 只接管选择元数据，不重新打开/seek；Android 私有音乐副本根据
+来源释放确认清理，不误把分析循环代次当来源释放。Frame 附带产生该帧 FFT/时间的
+同一份完整音频快照。Windows `out/p3-audio-panel-transition-tests.log` 三项通过；
+Android `out/p3-android-music-host-tests.log` 通过（SDL dummy）。实际宿主 API 检查
+作者增益 0.5 → 0.25 的 RMS、重播/seek、用户主音量零不变、连续设备计数与暂停取消。
+Android 独立测试首次缺少显式 media_types 链接，失败保留于
+`out/p3-android-music-host-build.log`，补齐依赖后构建见 linked-build 版本。
+
+直接选中纯视觉作品时新增显式 AnchorMedia：保留既有音乐，并让新作品从自己的
+零点运行；严格同位置的 AdoptMedia 合同不变。Windows
+`out/p3-shared-music-anchor-tests.log` 两项通过，覆盖音乐 43 秒时选择新画面、随后
+音乐 43.2 秒对应画面 0.2 秒。正式主循环连接与当前交付验证继续进行。
+
+两端主循环已连接协调层，音频消费确认后只接管作品与配乐元数据；纯视觉作品
+继续使用当前音乐。队列显示准备、恢复和具体失败；Android 记录状态变化/来源位置/
+当前 SDL 音频驱动及场景提交，便于区分实际接管与保留旧输出。
+Windows `out/p3-player-audio-windows-tests.log` 五项通过并部署 20 个 DLL 与资源。
+新增真实 ImGui 加入/Go → AudioPanel/FilePlayback → SceneDeck → D3D 读回检查，
+`out/p3-scene-audio-ui-tests.log` 三项通过，详细像素记录
+`out/p3-scene-audio-ui-pixel-detail.log`：进度 0 为红 255/蓝 0，0.368667 为
+红 161/蓝 94，1 为红 0/蓝 255；音频设备主音量零，不作听感结论。
+
+真实内容审查发现整首峰值相加会错误拒绝内置三轨编排的短过渡。保留旧场完整
+峰值余量，新场只预留过渡长度与一个解码块覆盖的前缀；未确认时每次读取仍检查
+新场前缀，超限先释放新场、恢复旧场，不改变四个逻辑游标上限。持续到晚段的
+真实超限仍在开始前拒绝，迟迟不确认则在解码将超限之前回退。
+`out/p3-arrangement-window-tests.log` 五项、Android
+`out/p3-arrangement-window-android-tests.log` 三项通过；后者播放宿主为 dummy，
+SceneDeck 为 Null。`out/p3-arrangement-player-delivery-tests.log` 五项通过，额外
+使用当前《光幕协奏》实际包，从旧场 9 秒三轨段落淡入新场开头，检查消费确认和
+独立来源位置，修复后 Windows Player 已更新 deploy。Android 当前 APK 验收继续进行。
+
+取消竞态：音频可能在 UI 取消手势与下一帧快照之间完成消费确认。现在先记录取消
+意图，保留来场直到恢复开始；如果快照表明已经接管，则提交对应画面，避免旧画面
+配新音乐。取消仍不能撤回已经听到的声音。Windows
+`out/p3-late-audio-cancel-tests.log` 六项通过；最终宿主修订含先提交暂停意图再发起
+配乐准备，Windows `out/p3-final-audio-host-windows-tests.log` 六项通过并完整部署，
+Android `out/p3-final-audio-host-android-tests.log` 三项通过（桥接/场景为 Null，音频
+宿主为 dummy），随后重建当前 APK 并覆盖安装。
+
+正式 Android APK 短操作验收：新增 `tools/test-android-scene-audio.py`，复用既有
+节目单 UI 重开检查，界面点击暂停状态下 Go、继续、真实音频过渡与画面接管；
+证据 `out/android-scene-audio/4d19852384904cd6b6abc7fb97fc021f/`，
+汇总 `out/p3-final-audio-apk-touch-tests.log`。驱动为 **AAudio**，消费计数
+101376 → 111360 → 158976，旧源 3.312 秒、新源 1.008 秒时确认一秒过渡；
+保存节目单字节保持不变，最后暂停。保留截图、状态日志和 AudioFlinger 信息；
+这是生产音频设备/呈现估计，不是声学回录或听感、长稳、热稳定验收。APK SHA-256
+`4909ac6ad1712c6714c63504220b51d02e4561705fe87d4a47c61d3b7998250f`。
+
+常规四游标预算内的跨作品音画淡化已连接并交付两端。P3 剩余：分帧 GPU 准备/
+创建峰值、量化边界与准备排队延迟、完整列表取消/失败/画布方向工作流，以及
+超过双场准入时用户明确选择的零时长替换路径；当前零时长仍走双场保留准入，
+不能宣称任意 4+4 编排都支持无缝硬切。P3 整体仍未关闭。

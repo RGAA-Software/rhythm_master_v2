@@ -145,6 +145,20 @@ void Run(const std::filesystem::path& directory) {
     tick(poll());
     Require(deck.ErrorDetail() == "audio.transition_unconfirmed_position",
             "completion without a consumed incoming position is rejected");
+    (void)poll();
+    Require(deck.StartTransition(player::PreparedPackage(musical), 1), "stage late cancel race");
+    tick(poll());
+    (void)poll();
+    deck.CancelTransition();
+    snapshot.transition_.state_ = audio::AudioTransitionState::kCompleted;
+    snapshot.transition_.incoming_presented_ = true;
+    snapshot.transition_.incoming_seconds_ = 0.8;
+    snapshot.transition_.elapsed_frames_ = 48000;
+    const auto late_cancel = tick(poll());
+    Require(late_cancel.switched_ && late_cancel.audio_synchronized_ &&
+                    deck.Current().Seconds() == 0.8,
+            "already-consumed handoff wins late cancel instead of leaving old picture with new "
+            "music");
     deck.ReleaseGraphics();
 }
 }  // namespace

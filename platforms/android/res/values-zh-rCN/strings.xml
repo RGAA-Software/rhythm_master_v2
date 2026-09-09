@@ -51,7 +51,7 @@
     <string name="scene_go">切换下一场</string>
     <string name="scene_cancel">取消转场</string>
     <string name="scene_duration">转场时长：%1$.2f 秒</string>
-    <string name="scene_help">最多 16 场，依次预备。暂停会冻结转场。带配乐作品接管时切换音乐。队列仅用于本次演出。</string>
+    <string name="scene_help">依次预备下一场。点击切换后画面和配乐同步过渡；暂停会冻结两者。纯视觉作品保留当前音乐。</string>
     <string name="scene_budget">下一场超过资源预算，保留当前画面。</string>
     <string name="scene_interrupted">转场已中断或失败，保留当前场景。</string>
     <string name="fullscreen">全屏演出</string>
@@ -119,4 +119,7 @@
     <string name="program_ambiguous">目录身份重复</string>
     <string name="program_entry_settings">使用节目单条目设置</string>
     <string name="program_rejected">操作未接受，请等待完成或检查选中条目。</string>
+    <string name="scene_audio_wait">正在准备下一场画面和配乐…</string>
+    <string name="scene_audio_recover">正在恢复当前配乐…</string>
+    <string name="scene_audio_failed">无法切换配乐，保留当前作品。</string>
 </resources>

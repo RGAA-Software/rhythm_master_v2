@@ -10,6 +10,7 @@ struct MusicFrame {
     runtime::ExternalInputs inputs_{};
     std::optional<runtime::PlaybackSample> playback_{};
     bool failed_ = false;
+    audio::PlaybackSnapshot audio_{};
 };
 // Host-thread adapter for app-private imported music. A retired file is kept
 // until the decoding worker acknowledges its replacement. At most two files
@@ -20,6 +21,10 @@ class MusicPlayback final {
     explicit MusicPlayback(std::filesystem::path cache);
     bool Open(std::filesystem::path path);
     void Open(const media::SoundtrackSource& source);
+    std::uint64_t BeginSoundtrackTransition(const media::SoundtrackSource& source, double duration,
+                                            bool paused);
+    bool CancelSoundtrackTransition(std::uint64_t id);
+    void AdoptSoundtrack(const media::SoundtrackSource& source, std::uint64_t id);
     void Clear();
     void Apply(const runtime::PlaybackCommand& command);
     void SetSuspended(bool suspended);
@@ -41,6 +46,7 @@ class MusicPlayback final {
         std::filesystem::path path_{};
     };
     void Collect();
+    void SelectSoundtrack(const media::SoundtrackSource& source);
     std::filesystem::path cache_{};
     std::optional<FileLease> active_{};
     std::optional<FileLease> retired_{};
@@ -52,6 +58,7 @@ class MusicPlayback final {
     std::uint64_t generation_ = 0;
     bool suspended_ = false;
     bool resume_ = false;
+    std::uint64_t transition_id_ = 0;
     // Destroyed first, joining the worker before releasing its source leases.
     audio::FilePlayback file_{};
 };

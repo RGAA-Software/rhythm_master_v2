@@ -108,12 +108,18 @@ void SceneQueuePanel::Draw(player::SceneQueue& queue, player::SceneDeck& deck,
         if (ImGui::Button(label("scene.cancel").c_str())) deck.CancelTransition();
         ImGui::ProgressBar(static_cast<float>(deck.Progress()), {-1, 0},
                            deck.IncomingTitle().c_str());
-    }
+        if (deck.AudioPendingId() && deck.Progress() == 0)
+            ImGui::TextUnformatted(text.at("scene.audio_wait").c_str());
+    } else if (deck.AudioPendingId())
+        ImGui::TextUnformatted(text.at("scene.audio_recover").c_str());
     if (deck.Error() != player::SceneTransitionError::kNone)
-        ImGui::TextWrapped("%s", text.at(deck.Error() == player::SceneTransitionError::kBudget
-                                                 ? "scene.budget"
-                                                 : "scene.transition_failed")
-                                         .c_str());
+        ImGui::TextWrapped(
+                "%s", text.at(deck.Error() == player::SceneTransitionError::kBudget ? "scene.budget"
+                              : deck.Error() == player::SceneTransitionError::kAudio
+                                      ? "scene.audio_failed"
+                                      : "scene.transition_failed")
+                              .c_str());
+    if (!deck.ErrorDetail().empty()) ImGui::TextWrapped("%s", deck.ErrorDetail().c_str());
     ImGui::End();
 }
 }  // namespace rhythm::player_ui

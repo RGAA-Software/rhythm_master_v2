@@ -13,6 +13,7 @@
 #include "scene_bridge.h"
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
 #include "music_playback.h"
+#include "rhythm/player_audio/scene_audio_bridge.h"
 #endif
 #include "rhythm/player/scene_deck.h"
 #include "rhythm/render/layout.h"
@@ -60,6 +61,9 @@ int main(int, char**) {
         std::string program_error;
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         android_host::MusicPlayback music(host.CacheDirectory());
+        player_audio::SceneAudioBridge scene_audio;
+        std::pair<std::uint64_t, audio::AudioTransitionState> audio_transition_status{};
+        deck.EnableAudioTransitions(true);
 #endif
         auto render_quality = player::RenderQuality::kBalanced;
         deck.LoadPrepared(player::PreparedPackage(host.ReadAsset("signal_texture.rhythmpack")));
@@ -152,7 +156,8 @@ int main(int, char**) {
                     if (const auto track = deck.Current().Soundtrack()) {
                         music.Open(*track);
                         music.Apply({paused, {}});
-                    }
+                    } else if (const auto sample = music.Frame().playback_)
+                        deck.AnchorMedia(*sample);
 #endif
                     error.clear();
                 } else {
@@ -198,8 +203,30 @@ int main(int, char**) {
             renderer->BeginFrame();
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
             auto music_frame = music.Frame();
-            const auto frame = deck.Tick(seconds, false, render_quality, *renderer,
-                                         music_frame.inputs_, music_frame.playback_, scene_queue);
+            const auto& transition = music_frame.audio_.transition_;
+            const auto status = std::pair{transition.id_, transition.state_};
+            if (status != audio_transition_status) {
+                audio_transition_status = status;
+                // Borrowed SDL name is checked and used only in this host log call.
+                const auto* driver = SDL_GetCurrentAudioDriver();
+                SDL_Log("scene audio id=%llu phase=%u consumed=%llu elapsed=%llu previous=%.4f "
+                        "incoming=%.4f driver=%s error=%s",
+                        static_cast<unsigned long long>(transition.id_),
+                        static_cast<unsigned>(transition.state_),
+                        static_cast<unsigned long long>(music_frame.audio_.consumed_frames_),
+                        static_cast<unsigned long long>(transition.elapsed_frames_),
+                        transition.previous_seconds_, transition.incoming_seconds_,
+                        driver ? driver : "unknown", transition.error_.c_str());
+            }
+            const auto scene_audio_sample = scene_audio.Poll(
+                    deck, music_frame.audio_,
+                    [&](const auto& source, double duration, bool paused) {
+                        return music.BeginSoundtrackTransition(source, duration, paused);
+                    },
+                    [&](std::uint64_t id) { return music.CancelSoundtrackTransition(id); });
+            const auto frame =
+                    deck.Tick(seconds, false, render_quality, *renderer, music_frame.inputs_,
+                              music_frame.playback_, scene_queue, scene_audio_sample);
             if (music_frame.failed_) error = "audio_error";
             android_host::PublishPlayback(
                     music_frame.playback_ ? music_frame.playback_->seconds_
@@ -216,10 +243,18 @@ int main(int, char**) {
                 android_host::PublishScene(deck.Current().Canvas(), deck.Current().Title());
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
                 if (const auto track = deck.Current().Soundtrack()) {
-                    music.Open(*track);
-                    music.Apply({deck.Current().Paused(), frame.entry_seconds_});
-                    if (const auto sample = music.Frame().playback_) deck.AdoptMedia(*sample);
+                    if (frame.audio_synchronized_)
+                        music.AdoptSoundtrack(*track, music_frame.audio_.transition_.id_);
+                    else {
+                        music.Open(*track);
+                        music.Apply({deck.Current().Paused(), frame.entry_seconds_});
+                        if (const auto sample = music.Frame().playback_) deck.AdoptMedia(*sample);
+                    }
                 }
+                SDL_Log("scene committed transition=%llu audio_synchronized=%d width=%u height=%u",
+                        static_cast<unsigned long long>(frame.transition_id_),
+                        frame.audio_synchronized_, deck.Current().Canvas().width_,
+                        deck.Current().Canvas().height_);
 #endif
             }
             const auto& output = frame.output_;

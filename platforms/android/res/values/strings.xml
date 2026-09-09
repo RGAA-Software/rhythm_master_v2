@@ -51,7 +51,7 @@
     <string name="scene_go">Go to next</string>
     <string name="scene_cancel">Cancel transition</string>
     <string name="scene_duration">Transition: %1$.2f s</string>
-    <string name="scene_help">Up to 16 works, prepared in order. Pause freezes transitions. Bound music switches on takeover. Queue lasts for this performance.</string>
+    <string name="scene_help">Prepare the next work in order. Go starts the picture and soundtrack transition; pause freezes both. Visual-only works retain the current music.</string>
     <string name="scene_budget">Next work exceeds resource budget. Current scene retained.</string>
     <string name="scene_interrupted">Transition interrupted or failed. Current scene retained.</string>
     <string name="fullscreen">Full screen</string>
@@ -119,4 +119,7 @@
     <string name="program_ambiguous">Ambiguous catalog identity</string>
     <string name="program_entry_settings">Using program entry settings</string>
     <string name="program_rejected">Request not accepted. Wait for completion or check the selected entry.</string>
+    <string name="scene_audio_wait">Preparing the next picture and soundtrack…</string>
+    <string name="scene_audio_recover">Restoring the current soundtrack…</string>
+    <string name="scene_audio_failed">Cannot switch soundtrack. Current work retained.</string>
 </resources>

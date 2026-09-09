@@ -18,6 +18,9 @@
 #include "rhythm/project/store.h"
 #include "rhythm/render/layout.h"
 #include "scene_queue_panel.h"
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+#include "rhythm/player_audio/scene_audio_bridge.h"
+#endif
 
 // Native process arguments are borrowed at the entry boundary only.
 #ifdef _WIN32
@@ -84,6 +87,10 @@ int main(int argc, char* argv[]) {
         performance.Load();
         rhythm::player::PackageLoader package_loader;
         rhythm::audio_ui::AudioPanel audio_panel;
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+        rhythm::player_audio::SceneAudioBridge scene_audio;
+        deck.EnableAudioTransitions(true);
+#endif
         rhythm::control_ui::ControlPanel control_panel;
         rhythm::control_ui::BeatPanel beat_panel;
         const auto set_paused = [&](bool paused) {
@@ -110,8 +117,8 @@ int main(int argc, char* argv[]) {
         const auto apply_soundtrack = [&] {
             if (const auto track = deck.Current().Soundtrack())
                 audio_panel.LoadSoundtrack(*track);
-            else
-                audio_panel.ClearFile();
+            else if (const auto sample = audio_panel.Frame().playback_)
+                deck.AnchorMedia(*sample);
             if (smoke) audio_panel.SetVolume(0);
         };
         if (!requested_audio) apply_soundtrack();
@@ -238,19 +245,33 @@ int main(int argc, char* argv[]) {
             const auto height = std::max(1.0f, available.y);
             rhythm::runtime::ExternalInputs inputs;
             const auto audio_frame = audio_panel.Frame();
+            std::optional<rhythm::player::SceneAudioSample> scene_audio_sample;
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+            scene_audio_sample = scene_audio.Poll(
+                    deck, audio_frame.file_,
+                    [&](const auto& source, double duration, bool paused) {
+                        return audio_panel.BeginSoundtrackTransition(source, duration, paused);
+                    },
+                    [&](std::uint64_t id) { return audio_panel.CancelSoundtrackTransition(id); });
+#endif
             inputs.audio_ = audio_frame.features_;
             observed_audio |= inputs.audio_ && inputs.audio_->valid_ && inputs.audio_->rms_ > 0;
             const auto frame = deck.Tick(smoke ? frames / 60.0 : elapsed, false,
                                          rhythm::player::RenderQuality::kOriginal, renderer, inputs,
-                                         audio_frame.playback_, scene_queue);
+                                         audio_frame.playback_, scene_queue, scene_audio_sample);
             if (frame.switched_) {
                 beat_panel.Reset();
                 control_panel.Reset();
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
                 if (const auto track = deck.Current().Soundtrack()) {
-                    audio_panel.LoadSoundtrack(*track);
-                    audio_panel.ApplyPlayback({deck.Current().Paused(), frame.entry_seconds_});
-                    if (const auto sample = audio_panel.Frame().playback_) deck.AdoptMedia(*sample);
+                    if (frame.audio_synchronized_)
+                        audio_panel.AdoptSoundtrack(*track, audio_frame.file_.transition_.id_);
+                    else {
+                        audio_panel.LoadSoundtrack(*track);
+                        audio_panel.ApplyPlayback({deck.Current().Paused(), frame.entry_seconds_});
+                        if (const auto sample = audio_panel.Frame().playback_)
+                            deck.AdoptMedia(*sample);
+                    }
                     if (smoke) audio_panel.SetVolume(0);
                 }
 #endif

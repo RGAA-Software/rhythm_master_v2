@@ -135,6 +135,13 @@ int main() {
               "retry after releasing pressure");
         Check(tick(1.5, 12).switched_, "retry promotes a valid scene");
         tick(1.6, 12);
+        deck.LoadPrepared(player::PreparedPackage(second));
+        deck.AnchorMedia({43, 20, false, 120});
+        tick(43, 20);
+        Check(deck.Current().Seconds() == 0, "direct visual selection keeps independent origin");
+        tick(43.2, 20);
+        Check(std::abs(deck.Current().Seconds() - 0.2) < 1e-9,
+              "retained music advances newly selected visual from zero");
         deck.ReleaseGraphics();
         Check(renderer.Stats().texture_bytes_ == 0, "deck releases both sessions and compositor");
         std::cout

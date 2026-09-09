@@ -53,23 +53,45 @@ bool MusicPlayback::Open(std::filesystem::path path) {
 void MusicPlayback::Open(const media::SoundtrackSource& source) {
     if (!media::ValidSoundtrackSource(source))
         throw std::invalid_argument("project.soundtrack_invalid");
-    if (source.arrangement_)
-        file_.Load(*source.arrangement_);
-    else if (source.file_bytes_.Valid())
-        file_.Load(source.file_bytes_);
-    else
-        file_.Load(source.bytes_);
-    embedded_ = source.bytes_;
-    streamed_ = source.file_bytes_;
-    arrangement_ = source.arrangement_;
-    selected_ = true;
+    file_.LoadSoundtrack(source);
+    SelectSoundtrack(source);
     generation_ = file_.Snapshot().generation_;
-    SetLoop(source.binding_.loop_);
-    SetVolume(source.binding_.gain_);
     if (suspended_) {
         resume_ = true;
         file_.Pause(true);
     }
+}
+void MusicPlayback::SelectSoundtrack(const media::SoundtrackSource& source) {
+    embedded_ = source.bytes_;
+    streamed_ = source.file_bytes_;
+    arrangement_ = source.arrangement_;
+    selected_ = true;
+    loop_ = source.binding_.loop_;
+}
+std::uint64_t MusicPlayback::BeginSoundtrackTransition(const media::SoundtrackSource& source,
+                                                       double duration, bool paused) {
+    file_.Pause(suspended_ || paused);
+    const auto id = file_.BeginTransition(source, duration);
+    if (suspended_) resume_ = !paused;
+    selected_ = true;
+    transition_id_ = id;
+    return id;
+}
+bool MusicPlayback::CancelSoundtrackTransition(std::uint64_t id) {
+    return file_.CancelTransition(id);
+}
+void MusicPlayback::AdoptSoundtrack(const media::SoundtrackSource& source, std::uint64_t id) {
+    const auto snapshot = file_.Snapshot();
+    if (!id || id != transition_id_ || snapshot.transition_.id_ != id ||
+        snapshot.transition_.state_ != audio::AudioTransitionState::kCompleted ||
+        !media::ValidSoundtrackSource(source))
+        throw std::logic_error("audio.transition_not_committed");
+    SelectSoundtrack(source);
+    // A continuous handoff changes analysis generations without a load epoch.
+    // Consumed confirmation already released the old decoder's file lease.
+    generation_ = snapshot.source_generation_;
+    transition_id_ = 0;
+    Collect();
 }
 void MusicPlayback::Clear() {
     file_.Stop();
@@ -83,18 +105,10 @@ void MusicPlayback::Clear() {
 void MusicPlayback::Apply(const runtime::PlaybackCommand& command) {
     if (!selected_) return;
     const auto state = file_.Snapshot().state_;
-    if (state == audio::PlaybackState::kEnded && (command.seek_ || command.paused_ == false)) {
-        if (arrangement_)
-            file_.Load(*arrangement_);
-        else if (streamed_.Valid())
-            file_.Load(streamed_);
-        else if (embedded_)
-            file_.Load(embedded_);
-        else
-            file_.Load(active_->path_);
-        file_.Pause(command.paused_.value_or(true));
-    }
-    if (command.seek_) file_.Seek(*command.seek_);
+    if (command.seek_)
+        file_.Seek(*command.seek_);
+    else if (state == audio::PlaybackState::kEnded && command.paused_ == false)
+        file_.Seek(0);
     if (command.paused_) {
         if (suspended_) resume_ = !*command.paused_;
         file_.Pause(suspended_ || *command.paused_);
@@ -115,9 +129,10 @@ void MusicPlayback::SetSuspended(bool suspended) {
 }
 MusicFrame MusicPlayback::Frame() {
     Collect();
-    if (!selected_) return {};
-    const auto snapshot = file_.Snapshot();
     MusicFrame frame;
+    frame.audio_ = file_.Snapshot();
+    if (!selected_) return frame;
+    const auto& snapshot = frame.audio_;
     frame.inputs_.audio_ = snapshot.features_;
     frame.playback_ = runtime::PlaybackSample{
             snapshot.position_seconds_, snapshot.generation_,

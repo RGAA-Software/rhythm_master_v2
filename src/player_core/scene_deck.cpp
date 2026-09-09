@@ -15,7 +15,7 @@ void SceneDeck::EnableAudioTransitions(bool enabled) {
     audio_enabled_ = enabled;
 }
 std::uint64_t SceneDeck::AudioPendingId() const { return audio_clock_->Id(); }
-bool SceneDeck::AudioReady() const { return incoming_ && warmed_ && audio_clock_->Active(); }
+bool SceneDeck::AudioReady() const { return Transitioning() && warmed_ && audio_clock_->Active(); }
 bool SceneDeck::CanPrepareNext() const {
     return !incoming_ && !retired_ && !audio_clock_->Active();
 }
@@ -29,7 +29,7 @@ void SceneDeck::ResetClock() {
     origin_ = 0;
     clock_observed_ = false;
     handoff_generation_.reset();
-    CancelTransition();
+    DiscardTransition();
     audio_clock_->Reset();
     media_observed_ = false;
     preserve_audio_origin_ = false;
@@ -80,15 +80,26 @@ void SceneDeck::Seek(double seconds) {
     master_.Seek(seconds);
     origin_ = 0;
     handoff_generation_.reset();
-    CancelTransition();
+    DiscardTransition();
     audio_clock_->Reset();
     preserve_audio_origin_ = false;
     actions_.CancelAll(PerformanceActionReason::kSourceChanged);
 }
 void SceneDeck::CancelTransition() {
+    if (incoming_ && audio_clock_->Active()) {
+        if (transition_action_) actions_.Cancel(*transition_action_);
+        transition_action_.reset();
+        cancel_requested_ = true;
+        progress_ = 0;
+        return;
+    }
+    DiscardTransition();
+}
+void SceneDeck::DiscardTransition() {
     if (transition_action_) actions_.Cancel(*transition_action_);
     transition_action_.reset();
     incoming_.reset();
+    cancel_requested_ = false;
     compositor_.ReleaseGraphics();
     progress_ = 0;
     warmed_ = false;
@@ -110,6 +121,14 @@ void SceneDeck::AdoptMedia(const runtime::PlaybackSample& sample) {
         std::abs(sample.seconds_ - current_->Seconds()) > 1.0 / 48000)
         throw std::invalid_argument("player.media_handoff_position");
     origin_ = 0;
+    handoff_generation_ = sample.generation_;
+}
+void SceneDeck::AnchorMedia(const runtime::PlaybackSample& sample) {
+    if (clock_observed_ || !CanPrepareNext() || !std::isfinite(sample.seconds_) ||
+        sample.seconds_ < 0 ||
+        (sample.duration_ && (!std::isfinite(*sample.duration_) || *sample.duration_ <= 0)))
+        throw std::invalid_argument("player.media_anchor_position");
+    origin_ = sample.seconds_ - current_->Seconds();
     handoff_generation_ = sample.generation_;
 }
 SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQuality quality,
@@ -136,7 +155,7 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
         if (clock_observed_ && !synchronized &&
             !(handoff_generation_ && playback && *handoff_generation_ == playback->generation_)) {
             const bool interrupted = Transitioning();
-            CancelTransition();
+            DiscardTransition();
             origin_ = 0;
             ++scene_generation_;
             if (interrupted) error_ = SceneTransitionError::kDiscontinuity;
@@ -161,7 +180,7 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
     }
     if (synchronized && audio_frame.abort_ && incoming_) {
         if (transition_action_) actions_.Resolve(*transition_action_, false);
-        CancelTransition();
+        DiscardTransition();
         if (audio && (audio->phase_ == SceneAudioPhase::kFailed || !audio->error_.empty())) {
             error_ = SceneTransitionError::kAudio;
             error_detail_ = audio->error_;
@@ -179,7 +198,7 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
         audio_clock_->Reset();
         preserve_audio_origin_ = false;
     }
-    if (!incoming_) return result;
+    if (!incoming_ || (cancel_requested_ && !audio_frame.committed_)) return result;
     if (!warmed_) incoming_origin_ = seconds;
     const double incoming_seconds = std::max(0.0, seconds - incoming_origin_);
     runtime::PlaybackSample incoming_time{
@@ -214,6 +233,7 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
         } else {
             retired_ = std::move(current_);
             current_ = std::move(incoming_);
+            cancel_requested_ = false;
             origin_ = incoming_origin_;
             result.output_ = next;
             result.switched_ = true;
@@ -231,11 +251,11 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
         }
     } catch (const render::BudgetExceeded&) {
         if (transition_action_) actions_.Resolve(*transition_action_, false);
-        CancelTransition();
+        DiscardTransition();
         error_ = SceneTransitionError::kBudget;
     } catch (const std::exception& error) {
         if (transition_action_) actions_.Resolve(*transition_action_, false);
-        CancelTransition();
+        DiscardTransition();
         error_ = SceneTransitionError::kRender;
         error_detail_ = error.what();
     }

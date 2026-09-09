@@ -20,7 +20,8 @@ class TransitionStream::Lane final {
    public:
     Lane(const PlaybackSource& source, StreamOptions options, media::AudioCursorBudget budget,
          std::stop_token stop)
-        : options_(options),
+        : source_(source),
+          options_(options),
           required_(RequiredCursors(source)),
           stream_(std::make_unique<AudioStream>(source, options.source_id_, stop, budget)) {}
     std::size_t Available(std::stop_token stop) {
@@ -92,9 +93,18 @@ class TransitionStream::Lane final {
     float Gain() const { return options_.gain_; }
     StreamPosition Position() const { return {{options_.source_id_, iteration_}, position_}; }
     std::size_t Required() const { return required_; }
+    void CheckReservation(std::size_t reserved) const {
+        const auto end =
+                position_ > std::numeric_limits<std::uint64_t>::max() - media::kAudioBlockFrames
+                        ? std::numeric_limits<std::uint64_t>::max()
+                        : position_ + media::kAudioBlockFrames;
+        if (reserved + RequiredCursors(source_, end) > media::AudioCursorBudget::kMaximum)
+            throw std::length_error("audio.transition_cursor_budget");
+    }
     media::AudioInfo Info() const { return stream_->Info(); }
 
    private:
+    PlaybackSource source_{};
     StreamOptions options_{};
     std::size_t required_ = 0;
     std::unique_ptr<AudioStream> stream_{};
@@ -119,7 +129,8 @@ void TransitionStream::Begin(const PlaybackSource& source, StreamOptions options
     CheckStop(stop);
     if (incoming_ || rollback_) throw std::logic_error("audio.transition_busy");
     if (options.source_id_ <= last_source_id_) throw std::invalid_argument("audio.source_identity");
-    if (current_->Required() + RequiredCursors(source) > media::AudioCursorBudget::kMaximum)
+    if (current_->Required() + RequiredCursors(source, duration + media::kAudioBlockFrames) >
+        media::AudioCursorBudget::kMaximum)
         throw std::length_error("audio.transition_cursor_budget");
     auto prepared = std::make_unique<Lane>(source, options, budget_, stop);
     if (!prepared->Available(stop)) throw std::invalid_argument("audio.empty_transition_source");
@@ -140,6 +151,7 @@ std::optional<StreamPcm> TransitionStream::Read(std::stop_token stop) {
     if (incoming_) {
         std::size_t next_available = 0;
         try {
+            incoming_->CheckReservation(current_->Required());
             next_available = incoming_->Available(stop, incoming_cancel_);
         } catch (const std::exception& error) {
             if (stop.stop_requested()) throw;
@@ -169,6 +181,7 @@ std::optional<StreamPcm> TransitionStream::Read(std::stop_token stop) {
     }
     std::size_t frames = 0;
     try {
+        if (rollback_) current_->CheckReservation(rollback_->Required());
         frames =
                 rollback_ ? current_->Available(stop, incoming_cancel_) : current_->Available(stop);
     } catch (const std::exception& error) {

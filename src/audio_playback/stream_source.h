@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include <variant>
 
 #include "rhythm/media/audio_mixer.h"
@@ -15,9 +16,11 @@ using PlaybackSource =
                      std::shared_ptr<const media::AudioArrangementFiles>, SilentSource>;
 // Value validation only; file opening and source probing stay on the worker.
 void ValidateSource(const PlaybackSource& source);
-// Conservative peak over the entire arrangement, excluding silent clips.
-// Used before admitting a second scene, including clips that start later.
-std::size_t RequiredCursors(const PlaybackSource& source);
+// Conservative peak over a source prefix, excluding silent clips. The default
+// covers the full source; a transition reserves the old peak and the incoming
+// prefix it will decode while both lanes are retained.
+std::size_t RequiredCursors(const PlaybackSource& source,
+                            std::uint64_t end = std::numeric_limits<std::uint64_t>::max());
 // Owns exactly one PCM cursor chosen by the source kind. Device, analysis,
 // scheduling and transport intent remain in FilePlayback.
 class AudioStream final {

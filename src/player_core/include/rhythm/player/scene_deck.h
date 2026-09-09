@@ -52,6 +52,8 @@ class SceneDeck final {
     void SetPaused(bool paused);
     void Seek(double seconds);
     void Restart() { Seek(0); }
+    // Audio cancellation is acknowledged asynchronously. Retain the candidate
+    // until recovery starts; a completed audible handoff wins a late cancel.
     void CancelTransition();
     void ReleaseGraphics();
     const std::optional<parameters::BeatSettings>& BeatGrid() const { return beat_grid_; }
@@ -70,12 +72,15 @@ class SceneDeck final {
     // to entry_seconds_, then pass its immediate value snapshot here. The next
     // frame rebases the master without discarding the incoming scene's history.
     void AdoptMedia(const runtime::PlaybackSample& sample);
+    // Keep a newly selected visual-only work at its own time while retaining
+    // already-playing music. Call before its first Tick after LoadPrepared.
+    void AnchorMedia(const runtime::PlaybackSample& sample);
     SceneDeckFrame Tick(double monotonic_seconds, bool suspended, RenderQuality quality,
                         render::Renderer& renderer, const runtime::ExternalInputs& inputs = {},
                         const std::optional<runtime::PlaybackSample>& playback = {},
                         const std::optional<std::reference_wrapper<SceneQueue>>& queue = {},
                         const std::optional<SceneAudioSample>& audio = {});
-    bool Transitioning() const { return bool(incoming_); }
+    bool Transitioning() const { return bool(incoming_) && !cancel_requested_; }
     bool CanPrepareNext() const;
     double Progress() const { return progress_; }
     std::string IncomingTitle() const { return incoming_ ? incoming_->Title() : std::string{}; }
@@ -84,6 +89,7 @@ class SceneDeck final {
 
    private:
     void ResetClock();
+    void DiscardTransition();
     void ResetPerformance();
     void ApplyPerformance(const runtime::PlaybackSample& sample,
                           const std::optional<std::reference_wrapper<SceneQueue>>& queue);
@@ -101,6 +107,7 @@ class SceneDeck final {
     double duration_ = 0;
     double progress_ = 0;
     bool warmed_ = false;
+    bool cancel_requested_ = false;
     bool clock_observed_ = false;
     SceneTransitionError error_ = SceneTransitionError::kNone;
     PerformanceActions actions_{};

@@ -143,6 +143,22 @@ void Run(const std::filesystem::path& directory) {
     }
     Require(rejected && limited.Read()->first_sample_ == before_limit->samples_.size() / 2,
             "future four-clip overlap rejected before fade, old PCM continues");
+    TransitionStream short_limit(tone, {32});
+    short_limit.Begin(late_four, {33}, 4800, media::CrossfadeCurve::kLinear);
+    while (short_limit.Progress().state_ == FadeState::kMixing) short_limit.Read();
+    Require(short_limit.Confirm(), "short fade need not reserve distant incoming clip peaks");
+    while (short_limit.Read()) {
+    }
+    Require(short_limit.PeakCursors() <= 4,
+            "late clips after confirmation fit single-source budget");
+    TransitionStream overdue(tone, {34});
+    overdue.Begin(late_four, {35}, 4800, media::CrossfadeCurve::kLinear);
+    while (overdue.Progress().state_ != FadeState::kFailed) {
+        Require(overdue.Read().has_value(), "unconfirmed lane still has bounded PCM");
+    }
+    Require(overdue.Progress().error_ == "audio.transition_cursor_budget" &&
+                    overdue.Read()->identity_.source_ == 34 && overdue.PeakCursors() <= 4,
+            "delayed confirmation rolls back before late incoming clips consume old reservation");
 
     // A later missing asset is deliberately not touched by the first probe.
     // It must fail the incoming lane, not interrupt the old lane's next sample.

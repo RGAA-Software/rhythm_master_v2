@@ -26,10 +26,10 @@ void ValidateSource(const PlaybackSource& source) {
             source);
     if (!valid) throw std::invalid_argument("audio.playback_source");
 }
-std::size_t RequiredCursors(const PlaybackSource& source) {
+std::size_t RequiredCursors(const PlaybackSource& source, std::uint64_t end) {
     ValidateSource(source);
     return std::visit(
-            [](const auto& value) -> std::size_t {
+            [end](const auto& value) -> std::size_t {
                 using Type = std::decay_t<decltype(value)>;
                 if constexpr (std::is_same_v<
                                       Type, std::shared_ptr<const media::AudioArrangementSource>> ||
@@ -39,7 +39,9 @@ std::size_t RequiredCursors(const PlaybackSource& source) {
                     const auto& clips = value->arrangement_.Clips();
                     const auto& samples = value->arrangement_.Samples();
                     for (std::size_t index = 0; index < clips.size(); ++index) {
-                        if (clips[index].muted_ || clips[index].gain_ == 0) continue;
+                        if (clips[index].muted_ || clips[index].gain_ == 0 ||
+                            samples[index].start_ >= end)
+                            continue;
                         edges.emplace_back(samples[index].start_, 1);
                         edges.emplace_back(samples[index].start_ + samples[index].duration_, -1);
                     }

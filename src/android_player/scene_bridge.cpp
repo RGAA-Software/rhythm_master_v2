@@ -27,6 +27,8 @@ void PublishSceneQueue(const player::SceneQueue& queue, const player::SceneDeck&
             {"progress", deck.Progress()},
             {"incoming", deck.IncomingTitle()},
             {"error", static_cast<int>(deck.Error())},
+            {"error_detail", deck.ErrorDetail()},
+            {"audio_pending", deck.AudioPendingId() != 0},
             {"can_go", deck.CanPrepareNext() && !queue.Items().empty() &&
                                queue.Items().front().state_ == player::ScenePreparation::kReady}};
     for (const auto& item : items)
