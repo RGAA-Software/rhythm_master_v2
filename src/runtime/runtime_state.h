@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "blur_pass.h"
 #include "event_ops.h"
 #include "gpu_particle_pass.h"
@@ -20,9 +22,28 @@ class Runtime::Impl final {
                          render::Renderer& renderer);
     FrameResult EvaluateSafely(const graph::ExecutionPlan& plan, FrameContext frame,
                                render::Renderer& renderer);
+    void BeginPreparation(graph::ExecutionPlan plan, FrameContext frame);
+    PreparationProgress PrepareNext(render::Renderer& renderer, PreparationBudget budget);
     void Reset();
 
    private:
+    struct Preparation {
+        graph::ExecutionPlan plan_{};
+        FrameContext frame_{};
+        FrameResult partial_{};
+        std::size_t next_ = 0;
+        bool initialized_ = false;
+        bool redraw_ = false;
+        std::uint64_t presentation_generation_ = 0;
+        double maximum_node_ms_ = 0;
+        std::uint32_t required_passes_ = 0;
+    };
+    FrameResult EvaluateRange(const graph::ExecutionPlan& plan, FrameContext frame,
+                              render::Renderer& renderer,
+                              const std::optional<std::reference_wrapper<Preparation>>& preparation,
+                              PreparationBudget budget);
+    void ResetResources();
+    std::optional<Preparation> preparation_{};
     struct Failure {
         graph::ExecutionPlan plan_{};
         render::Extent extent_{};

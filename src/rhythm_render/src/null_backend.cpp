@@ -44,7 +44,7 @@ class NullBackend final : public Backend {
         meshes_.Validate(list);
         resources_.ValidateSceneMaterials(color, list, depth);
         resources_.RecordSceneSamples(list);
-        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
         resources_.DropDepth(color);
         ++passes_;
         draws_ += static_cast<std::uint32_t>(list.draws_.size());
@@ -77,7 +77,7 @@ class NullBackend final : public Backend {
         resources_.CheckReady();
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         points_.Validate(handle, step);
-        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
         points_.Updated(handle);
         ++passes_;
     }
@@ -88,7 +88,7 @@ class NullBackend final : public Backend {
         if (!resources_.IsRenderTarget(target))
             throw std::invalid_argument("render.gpu_point_target");
         points_.ValidateDraw(handle, style);
-        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
         ++passes_;
         ++draws_;
     }
@@ -113,7 +113,7 @@ class NullBackend final : public Backend {
         meshes_.Validate(list);
         resources_.ValidateSceneMaterials(target, list);
         resources_.RecordSceneSamples(list);
-        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
         resources_.ReserveDepth(target);
         ++passes_;
         draws_ += static_cast<std::uint32_t>(list.draws_.size());
@@ -132,7 +132,7 @@ class NullBackend final : public Backend {
         for (const auto& command : list.commands_)
             if (command.image_program_) image_programs_.Validate(*command.image_program_);
         // Reserve the last 16 views for host/UI presentation after graph admission fails.
-        if (passes_ >= (target == TextureHandle{} ? 256U : 240U))
+        if (passes_ >= (target == TextureHandle{} ? 256U : kMaximumOffscreenPasses))
             throw BudgetExceeded(Budget::kPasses);
         resources_.RecordSamples(list);
         ++passes_;

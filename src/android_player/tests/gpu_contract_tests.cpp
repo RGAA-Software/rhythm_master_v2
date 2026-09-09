@@ -9,6 +9,7 @@
 
 #include "bgfx_backend.h"
 #include "gpu_execution_probe.h"
+#include "preparation_gpu_contracts.h"
 #include "rhythm/player/render_quality.h"
 #include "rhythm/player/session.h"
 #include "rhythm/render/renderer.h"
@@ -345,6 +346,11 @@ void VerifyAffine(rhythm::render::Renderer& renderer) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+        if (argc == 2 && std::string_view(argv[1]) == "--preparation") {
+            auto renderer = platform::Host::CreateRenderer();
+            validation::VerifyPreparedPixels(renderer);
+            return 0;
+        }
         if (argc == 2 && std::string_view(argv[1]) == "--events") {
             auto renderer = platform::Host::CreateRenderer();
             validation::VerifyEventPixels(renderer);

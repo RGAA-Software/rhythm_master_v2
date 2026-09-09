@@ -1,6 +1,7 @@
 # P3.4 分帧 GPU 准备
 
-状态：基线已测，准备调度尚未实现。2026-09-09，基线实现 `f7b8011`。
+状态：Runtime 分步执行已在 Windows D3D11 / Android GLES 验证；Session、队列和
+Player 调度正在接入，尚未作为应用功能交付。2026-09-09，基线实现 `f7b8011`。
 
 ## 复用与实施约束
 
@@ -49,3 +50,21 @@ Android 独立 GLES 探针在应用停止后运行；不把此探针当 APK 控�
    不把“按钮在整拍发出请求”当“画面和声音已经在该整拍到达设备”。
 5. 在同一探针比较创建峰值、稳定帧、取消/失败/资源释放和最终像素，
    然后更新 Windows deploy / Android APK，继续 P3.5 综合演出工作流。
+
+## Runtime 增量证据（2026-09-09）
+
+`BeginPreparation` 捕获计划与固定输入，`PrepareNext` 默认每步最多 8 个节点、
+2 ms 协作式 CPU/提交额度；宿主仍负责 BeginFrame/EndFrame。只在节点边界让出，
+单次节点/驱动操作及 EndFrame 可以超过额度，记录最大节点耗时，不承诺硬实时。
+视频按节点上传，跨步保留纹理生命周期；准备期间不推进反馈历史、不暴露部分输出。
+取消、设备变化和预算失败释放候选资源；普通 Evaluate 不得混入未完成的准备。
+累计离屏 pass 仍受共享 240 上限约束，分帧不能使无法正常播放的图通过准入。
+
+Windows `out/p3-staged-pass-budget-windows-tests.log`：runtime_preparation、
+preparation_gpu、render_contracts、source_boundaries 4 项通过。
+Android `out/p3-staged-pass-budget-android-tests.log`：相同 Runtime/渲染合同与
+真实 GLES `--preparation` 通过。250 节点链超限拒绝；视频分步上传、取消释放、
+已有场景资源受保护均有检查。共享 GPU 用例分 8 步完成视频/变换/反馈图，准备后
+像素及随后 3 个动态帧与一次执行逐像素相同，覆盖动态纹理复用与冻结反馈历史。
+这组 Android 证据是独立原生探针，不是 APK 交互；首帧准备也不代表预加载了
+未来所有视频片段或任意动态分支。

@@ -179,7 +179,7 @@ class BgfxBackend final : public Backend {
         scene_->Validate(list);
         resources_.ValidateSceneMaterials(color, list, depth);
         resources_.RecordSceneSamples(list);
-        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
         const auto extent = resources_.Size(color);
         const auto framebuffer =
                 scene_->Target(color, textures_[color.slot_].texture_.Get(), extent, depth,
@@ -214,7 +214,7 @@ class BgfxBackend final : public Backend {
             throw std::invalid_argument("render.readback_precision");
         if (!resources_.IsRenderTarget(handle))
             throw std::invalid_argument("render.readback_target");
-        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
         const auto ticket = readbacks_.Request(textures_.at(handle.slot_).texture_.Get(),
                                                resources_.Size(handle),
                                                static_cast<bgfx::ViewId>(passes_), resources_);
@@ -270,7 +270,7 @@ class BgfxBackend final : public Backend {
         resources_.CheckReady();
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         if (!gpu_points_) throw std::invalid_argument("render.invalid_gpu_points");
-        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
         gpu_points_->Update(static_cast<bgfx::ViewId>(passes_), handle, step);
         ++passes_;
     }
@@ -282,7 +282,7 @@ class BgfxBackend final : public Backend {
             throw std::invalid_argument("render.gpu_point_target");
         if (!gpu_points_) throw std::invalid_argument("render.invalid_gpu_points");
         gpu_points_->ValidateDraw(handle, style);
-        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
         gpu_points_->Draw(static_cast<bgfx::ViewId>(passes_),
                           textures_.at(target.slot_).framebuffer_.Get(), resources_.Size(target),
                           invert_targets_, handle, style,
@@ -318,7 +318,7 @@ class BgfxBackend final : public Backend {
         scene_->Validate(list);
         resources_.ValidateSceneMaterials(target, list);
         resources_.RecordSceneSamples(list);
-        if (passes_ >= 240) throw BudgetExceeded(Budget::kPasses);
+        if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
         const auto extent = resources_.Size(target);
         const bool allocated = resources_.ReserveDepth(target);
         bgfx::FrameBufferHandle framebuffer = BGFX_INVALID_HANDLE;
@@ -351,7 +351,7 @@ class BgfxBackend final : public Backend {
         }
         resources_.RecordSamples(list);
         // Reserve the last 16 views for host/UI presentation after graph admission fails.
-        if (passes_ >= (target == TextureHandle{} ? 256U : 240U))
+        if (passes_ >= (target == TextureHandle{} ? 256U : kMaximumOffscreenPasses))
             throw BudgetExceeded(Budget::kPasses);
         const auto view = static_cast<bgfx::ViewId>(passes_++);
         auto extent = size_;

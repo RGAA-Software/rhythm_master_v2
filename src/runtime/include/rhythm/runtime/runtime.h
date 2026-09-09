@@ -96,6 +96,25 @@ struct FrameResult {
     // represent a truncated source interval; it is not an exact missing count.
     std::uint64_t rejected_event_total_ = 0;
 };
+struct PreparationBudget {
+    std::size_t maximum_nodes_ = 8;
+    // Cooperative CPU/submission deadline, checked between indivisible nodes.
+    // A single backend call and EndFrame can exceed it; this is not a GPU timer.
+    double maximum_cpu_ms_ = 2;
+};
+enum class PreparationState { kPending, kReady, kFailed };
+struct PreparationProgress {
+    PreparationState state_ = PreparationState::kPending;
+    std::size_t completed_nodes_ = 0;
+    std::size_t total_nodes_ = 0;
+    double cpu_ms_ = 0;
+    double maximum_node_ms_ = 0;
+    std::uint32_t required_passes_ = 0;
+    // Only a fully evaluated frame can expose texture handles to the host.
+    std::optional<FrameResult> output_{};
+    std::optional<render::Budget> budget_{};
+    std::string error_{};
+};
 // Evaluation and resource ownership are host-thread confined. The immutable plan
 // may be compiled elsewhere; no UI or platform objects are retained here.
 class Runtime final {
@@ -113,6 +132,12 @@ class Runtime final {
     // or after Reset(). Time/audio changes alone never retry a rejected scene.
     FrameResult EvaluateSafely(const graph::ExecutionPlan& plan, FrameContext frame,
                                render::Renderer& renderer);
+    // Host-thread preparation replaces this Runtime's old resources. The plan
+    // and input snapshot are owned until completion; state advancement is off.
+    // The host brackets each step with BeginFrame/EndFrame. Reset cancels and
+    // releases partial resources. Ordinary evaluation requires completion first.
+    void BeginPreparation(graph::ExecutionPlan plan, FrameContext frame);
+    PreparationProgress PrepareNext(render::Renderer& renderer, PreparationBudget budget = {});
     void Reset();
 
    private:

@@ -8,6 +8,10 @@ class VideoUploads final {
    public:
     void Prepare(const graph::ExecutionPlan& plan, std::span<const VideoInput> inputs,
                  render::Renderer& renderer);
+    // Staged preparation retains the plan once, then uploads at each video node.
+    void Retain(const graph::ExecutionPlan& plan);
+    void PrepareNode(const graph::Instruction& instruction, std::span<const VideoInput> inputs,
+                     render::Renderer& renderer);
     std::uint64_t Revision(graph::NodeId node) const;
     render::DrawList Draw(const graph::Node& node, render::Extent extent) const;
 

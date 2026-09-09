@@ -16,7 +16,7 @@
 #include "texture_ops.h"
 
 namespace rhythm::runtime {
-void Runtime::Impl::Reset() {
+void Runtime::Impl::ResetResources() {
     failure_.reset();
     lifetimes_ = {};
     targets_ = {};
@@ -31,8 +31,11 @@ void Runtime::Impl::Reset() {
     extent_ = {};
 }
 
-FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameContext frame,
-                                    render::Renderer& renderer) {
+FrameResult Runtime::Impl::EvaluateRange(
+        const graph::ExecutionPlan& plan, FrameContext frame, render::Renderer& renderer,
+        const std::optional<std::reference_wrapper<Preparation>>& preparation,
+        PreparationBudget budget) {
+    const auto step_started = std::chrono::steady_clock::now();
     if (!std::isfinite(frame.seconds_) || frame.seconds_ < 0 || !frame.extent_.width_ ||
         !frame.extent_.height_ || plan.instructions_.empty() ||
         plan.output_ >= plan.instructions_.size())
@@ -49,46 +52,84 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
     const auto geometry_budgets = detail::GeometryBudgets(plan, resources);
     if (graph::ValidateSceneBudget(plan, geometry_budgets))
         throw std::length_error("runtime.scene_budget");
-    if (document_id_ != plan.document_id_ || reset_generation_ != frame.reset_generation_ ||
-        extent_ != frame.extent_) {
-        Reset();
-        document_id_ = plan.document_id_;
-        reset_generation_ = frame.reset_generation_;
-        extent_ = frame.extent_;
-    }
-    if (!renderer.IsValid(white_.Handle())) {
-        if (white_.Handle() != render::TextureHandle{})
-            throw std::invalid_argument("runtime.device_changed");
-        const std::array<std::uint8_t, 4> white{255, 255, 255, 255};
-        white_ = renderer.CreateTexture({1, 1}, white);
-    }
-    images_.Retain(plan, images);
     static const image_shader::Resources kNoShaders;
     const auto& shaders = frame.shaders_ ? *frame.shaders_ : kNoShaders;
-    shaders_.Retain(plan, shaders);
-    videos_.Prepare(plan, frame.videos_, renderer);
-    std::set<graph::NodeId> active;
-    for (const auto& instruction : plan.instructions_) active.insert(instruction.node_.id_);
-    std::erase_if(states_, [&](const auto& item) { return !active.contains(item.first); });
     FrameResult result;
     const auto presentation_generation = renderer.Stats().presentation_generation_;
-    const bool redraw = presentation_generation != presentation_generation_;
-    presentation_generation_ = presentation_generation;
-    result.extent_ = frame.extent_;
-    result.outputs_.resize(plan.instructions_.size());
-    if (frame.profile_nodes_) result.profiles_.resize(plan.instructions_.size());
-    lifetimes_.Prepare(plan, frame.retained_textures_);
-    if (!frame.advance_state_ && paused_frame_ && paused_frame_->frame_ == frame &&
-        paused_frame_->plan_generation_ == lifetimes_.Generation() &&
-        paused_frame_->presentation_generation_ == presentation_generation) {
-        auto cached = paused_frame_->result_;
-        cached.evaluated_ = 0;
-        cached.recycled_textures_ = 0;
-        for (auto& profile : cached.profiles_) profile = {profile.node_};
-        return cached;
+    const bool initialized = preparation && preparation->get().initialized_;
+    const bool redraw = initialized ? preparation->get().redraw_
+                                    : presentation_generation != presentation_generation_;
+    if (initialized) {
+        if (!renderer.IsValid(white_.Handle()) ||
+            presentation_generation != preparation->get().presentation_generation_)
+            throw std::invalid_argument("runtime.preparation_device_changed");
+        result = std::move(preparation->get().partial_);
+    } else {
+        if (document_id_ != plan.document_id_ || reset_generation_ != frame.reset_generation_ ||
+            extent_ != frame.extent_) {
+            ResetResources();
+            document_id_ = plan.document_id_;
+            reset_generation_ = frame.reset_generation_;
+            extent_ = frame.extent_;
+        }
+        if (!renderer.IsValid(white_.Handle())) {
+            if (white_.Handle() != render::TextureHandle{})
+                throw std::invalid_argument("runtime.device_changed");
+            const std::array<std::uint8_t, 4> white{255, 255, 255, 255};
+            white_ = renderer.CreateTexture({1, 1}, white);
+        }
+        images_.Retain(plan, images);
+        shaders_.Retain(plan, shaders);
+        if (preparation)
+            videos_.Retain(plan);
+        else
+            videos_.Prepare(plan, frame.videos_, renderer);
+        std::set<graph::NodeId> active;
+        for (const auto& instruction : plan.instructions_) active.insert(instruction.node_.id_);
+        std::erase_if(states_, [&](const auto& item) { return !active.contains(item.first); });
+        presentation_generation_ = presentation_generation;
+        result.extent_ = frame.extent_;
+        result.outputs_.resize(plan.instructions_.size());
+        if (frame.profile_nodes_) result.profiles_.resize(plan.instructions_.size());
+        lifetimes_.Prepare(plan, frame.retained_textures_);
+        if (!frame.advance_state_ && paused_frame_ && paused_frame_->frame_ == frame &&
+            paused_frame_->plan_generation_ == lifetimes_.Generation() &&
+            paused_frame_->presentation_generation_ == presentation_generation) {
+            auto cached = paused_frame_->result_;
+            cached.evaluated_ = 0;
+            cached.recycled_textures_ = 0;
+            for (auto& profile : cached.profiles_) profile = {profile.node_};
+            return cached;
+        }
+        paused_frame_.reset();
+        targets_.BeginFrame();
+        if (preparation) {
+            preparation->get().initialized_ = true;
+            preparation->get().redraw_ = redraw;
+            preparation->get().presentation_generation_ = presentation_generation;
+            preparation->get().frame_ = frame;
+        }
     }
-    paused_frame_.reset();
-    targets_.BeginFrame();
+    std::size_t processed = 0;
+    const auto checkpoint = [&](std::size_t next,
+                                std::chrono::steady_clock::time_point node_started) {
+        if (!preparation) return false;
+        auto& cursor = preparation->get();
+        const auto now = std::chrono::steady_clock::now();
+        cursor.next_ = next;
+        cursor.maximum_node_ms_ =
+                std::max(cursor.maximum_node_ms_,
+                         std::chrono::duration<double, std::milli>(now - node_started).count());
+        ++processed;
+        if (next < plan.instructions_.size() &&
+            (processed >= budget.maximum_nodes_ ||
+             std::chrono::duration<double, std::milli>(now - step_started).count() >=
+                     budget.maximum_cpu_ms_)) {
+            cursor.partial_ = std::move(result);
+            return true;
+        }
+        return false;
+    };
     const auto retire = [&](std::size_t index) {
         for (const auto retired : lifetimes_.RetireAfter(index)) {
             auto& state = states_.at(plan.instructions_[retired].node_.id_);
@@ -104,17 +145,20 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
         return lifetimes_.Enabled() ? targets_.Acquire(extent, renderer, precision)
                                     : renderer.CreateTexture(extent, {}, precision);
     };
-    for (std::size_t index = 0; index < plan.instructions_.size(); ++index) {
+    const auto begin = preparation ? preparation->get().next_ : 0;
+    for (std::size_t index = begin; index < plan.instructions_.size(); ++index) {
         const auto& instruction = plan.instructions_[index];
         const auto& node = instruction.node_;
         using Clock = std::chrono::steady_clock;
-        const auto profile_start = frame.profile_nodes_ ? Clock::now() : Clock::time_point{};
+        const auto profile_start =
+                frame.profile_nodes_ || preparation ? Clock::now() : Clock::time_point{};
         const auto before = frame.profile_nodes_ ? renderer.Stats() : render::FrameStats{};
         if (frame.profile_nodes_) result.profiles_[index].node_ = node.id_;
         auto& state = states_[node.id_];
         if (!lifetimes_.Primary(index) && !frame.evaluate_viewers_) {
             result.outputs_[index] = state.output_;
             retire(index);
+            if (checkpoint(index + 1, profile_start)) return {};
             continue;
         }
         auto extent = frame.extent_;
@@ -126,6 +170,8 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                       static_cast<std::uint16_t>(std::max(1.0f, std::round(fitted.height_)))};
         }
         const auto operation = instruction.operation_;
+        if (preparation && operation == graph::Operation::kTextureVideo)
+            videos_.PrepareNode(instruction, frame.videos_, renderer);
         const auto precision = detail::OutputPrecision(instruction, result.outputs_, renderer);
         if ((state.node_ && state.node_->type_ != node.type_) || state.extent_ != extent ||
             state.precision_ != precision) {
@@ -498,6 +544,7 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                             static_cast<std::int64_t>(before.texture_bytes_)};
         }
         retire(index);
+        if (checkpoint(index + 1, profile_start)) return {};
     }
     // Feedback reads have finished. Write into the other texture, then swap for next frame.
     for (std::size_t index = 0; index < plan.instructions_.size(); ++index) {
