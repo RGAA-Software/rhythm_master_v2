@@ -132,12 +132,14 @@ CompileResult Compile(const Document& document, const Registry& registry,
     std::vector<std::vector<std::size_t>> dependents(inputs.size());
     std::vector<std::size_t> degrees(inputs.size(), 0);
     for (std::size_t node = 0; node < inputs.size(); ++node) {
-        if (descriptors[node].operation_ == Operation::kFeedback) continue;
-        for (const auto input : inputs[node])
+        for (std::size_t port = 0; port < inputs[node].size(); ++port) {
+            if (descriptors[node].operation_ == Operation::kFeedback && port == 0) continue;
+            const auto input = inputs[node][port];
             if (input) {
                 dependents[*input].push_back(node);
                 ++degrees[node];
             }
+        }
     }
     std::priority_queue<std::size_t, std::vector<std::size_t>, std::greater<>> ready;
     for (std::size_t node = 0; node < degrees.size(); ++node)

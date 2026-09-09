@@ -60,6 +60,7 @@ class Runtime::Impl final {
         std::unique_ptr<detail::BlurPass> blur_{};
         std::unique_ptr<detail::TrailPass> trail_{};
         std::unique_ptr<detail::EventNode> events_{};
+        std::uint64_t last_reset_sequence_ = 0;
     };
     std::map<graph::NodeId, State> states_{};
     render::Texture white_{};

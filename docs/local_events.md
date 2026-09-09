@@ -98,7 +98,7 @@ EventBatch；同一输出可以分支，合流及消费者按身份去重。序�
 首批 beat、Cue、audio-onset、带迟滞的 scalar-edge、merge、ADSR、step、gate、
 latch、reset 转换已在真实 Runtime 空渲染器路径检查。gate 的 pulse 切换开关，gate
 事件显式设开/关；latch 在触发帧捕获输入，gate-off 不清空，reset 恢复初值。step
-按有界整数模运算步进。这里的 reset 转换尚未接入粒子/反馈状态入口。
+按有界整数模运算步进。reset 转换也可接到具有可选 reset 端口的状态节点。
 
 节拍/Cue 使用配置的媒体时间。音频 FFT 瞬态有检测延迟，来源在首次观察到新的
 onset_id 的显示帧发出事件，时间记录该显示帧，不冒充在过去的 onset 拍点已经显示。
@@ -117,3 +117,21 @@ Windows/Android Runtime 检查通过：日志
 `out/p2-event-runtime-identity-android-tests.log`。覆盖合流去重、逐帧清除脉冲、暂停、
 来源属性变化、Runtime 重建不复用序号、包络、音频重启/静音过滤、门控、锁存、
 reset 转换、无连续宏连接的 Cue、显式重启与异常跳变预算。不等于 GPU/UI 完成。
+
+### 指定状态重置增量
+
+CPU/GPU 粒子、物理、拖尾、反馈追加可选 Event reset 输入，保留原有端口索引；
+脉冲、gate-on 或 reset 清除该节点状态，gate-off 不重置。消费序号防止同帧重复
+求值再次重建，暂停不消费。反馈的图像输入仍是跨帧依赖，但 reset 输入是当前帧
+拓扑依赖，不能连同图像输入一起跳过环检查与排序。旧运行包自动补齐缺少的可选端口。
+
+Windows `event_reset/event_runtime/program_contracts` 通过，日志
+`out/p2-event-reset-windows-tests.log`；USB Android 定向 CPU/GPU 重置和图排序通过，
+见 `out/p2-event-reset-android-tests.log`。该日志也保留了旧 emitter 合同断言失败：
+追加 reset 后，测试夹具只删最后一个输入已不再模拟旧的两个端口。修正夹具同时删去
+flow/reset，检查恢复两个空可选输入后，Android 运行包合同通过，日志
+`out/p2-event-reset-compat-android-tests.log`。
+
+此项验证使用空渲染器，实际检查 CPU 粒子清空、GPU 资源句柄失效/重建、独立发射器
+状态保留及重复帧/暂停不重复重置；不是实际 GPU 像素验收。反馈/拖尾像素、物理状态
+重置以及完整 UI 作品的证据继续随 P2 交付补齐。

@@ -138,13 +138,13 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
         };
         std::vector<std::uint64_t> versions;
         const NodeOutput empty_input;
-        if (operation != graph::Operation::kFeedback)
-            for (const auto source : instruction.inputs_) {
-                const auto& value = source ? result.outputs_.at(*source) : empty_input;
-                versions.insert(versions.end(),
-                                {value.node_, value.version_, value.texture_.device_,
-                                 value.texture_.slot_, value.texture_.generation_});
-            }
+        for (std::size_t port = 0; port < instruction.inputs_.size(); ++port) {
+            if (operation == graph::Operation::kFeedback && port == 0) continue;
+            const auto source = instruction.inputs_[port];
+            const auto& value = source ? result.outputs_.at(*source) : empty_input;
+            versions.insert(versions.end(), {value.node_, value.version_, value.texture_.device_,
+                                             value.texture_.slot_, value.texture_.generation_});
+        }
         if (operation == graph::Operation::kTime ||
             (operation == graph::Operation::kTextureShader && !instruction.inputs_[1]) ||
             (operation == graph::Operation::kGeometryAnimate && !instruction.inputs_[1]) ||
@@ -192,6 +192,34 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
             render::DrawList list;
             list.width_ = extent.width_;
             list.height_ = extent.height_;
+            if (graph::HasEventReset(operation) && frame.advance_state_ &&
+                !instruction.inputs_.empty() && instruction.inputs_.back()) {
+                const auto& events = result.outputs_.at(*instruction.inputs_.back()).events_;
+                bool reset = false;
+                if (events) {
+                    auto last = state.last_reset_sequence_;
+                    for (const auto& event : events->Events()) {
+                        if (event.generation_ != frame.reset_generation_ + 1 ||
+                            event.sequence_ <= state.last_reset_sequence_)
+                            continue;
+                        last = std::max(last, event.sequence_);
+                        reset |= event.kind_ != parameters::EventKind::kGate || event.value_ != 0;
+                    }
+                    state.last_reset_sequence_ = last;
+                }
+                if (reset) {
+                    state.points_.reset();
+                    state.gpu_particles_.reset();
+                    state.physics_.reset();
+                    state.trail_.reset();
+                    state.output_.points_generation_ = 0;
+                    if (operation == graph::Operation::kFeedback &&
+                        state.history_.Handle().device_) {
+                        renderer.Submit(state.target_.Handle(), list, 0x000000ff);
+                        renderer.Submit(state.history_.Handle(), list, 0x000000ff);
+                    }
+                }
+            }
             if (detail::IsEventOperation(operation)) {
                 if (!state.events_) state.events_ = std::make_unique<detail::EventNode>();
                 auto event = state.events_->Evaluate(instruction, result.outputs_, frame, plan,

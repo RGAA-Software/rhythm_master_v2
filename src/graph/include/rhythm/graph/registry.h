@@ -99,6 +99,11 @@ enum class Operation : std::uint8_t {
     kEventLatch,
     kEventReset
 };
+constexpr bool HasEventReset(Operation operation) {
+    return operation == Operation::kFeedback || operation == Operation::kTextureTrail ||
+           operation == Operation::kParticleEmitter ||
+           operation == Operation::kGpuParticleEmitter || operation == Operation::kPointPhysics;
+}
 struct PortDescriptor {
     std::string key_{};
     ValueType type_ = ValueType::kScalar;

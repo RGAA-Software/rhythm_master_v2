@@ -111,10 +111,12 @@ int main() {
             schema::CompiledProgram legacy;
             Check(legacy.ParseFromString(project::EncodeProgram(plan)), "Particle program");
             legacy.mutable_instructions(0)->mutable_input_slots()->RemoveLast();
+            legacy.mutable_instructions(0)->mutable_input_slots()->RemoveLast();
             const auto restored = project::DecodeProgram(legacy.SerializeAsString());
-            Check(restored.instructions_[0].inputs_.size() == 3 &&
-                          !restored.instructions_[0].inputs_[2],
-                  "Legacy emitter gains neutral optional flow input");
+            Check(restored.instructions_[0].inputs_.size() == 4 &&
+                          !restored.instructions_[0].inputs_[2] &&
+                          !restored.instructions_[0].inputs_[3],
+                  "Legacy emitter gains neutral optional flow and reset inputs");
             legacy.mutable_instructions(1)->clear_input_slots();
             Reject(legacy.SerializeAsString());
         }

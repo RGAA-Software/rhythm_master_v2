@@ -88,6 +88,30 @@ int main() {
                       std::get<ExecutionPlan>(result).control_sequence_.has_value() &&
                       std::get<ExecutionPlan>(result).instructions_.size() == 5,
               "Cue events lost a bank without continuous macro connections");
+        Document feedback;
+        feedback.id_ = "event-feedback";
+        feedback.beat_grid_ = rhythm::parameters::BeatSettings{};
+        feedback.nodes_ = {
+                registry.MakeNode(1, "texture.gradient"), registry.MakeNode(2, "texture.feedback"),
+                registry.MakeNode(3, "texture.blend"), registry.MakeNode(4, "output.texture"),
+                registry.MakeNode(5, "event.beat")};
+        feedback.edges_ = {{1, 1, 3, "a"},
+                           {2, 2, 3, "b"},
+                           {3, 3, 2, "source"},
+                           {4, 3, 4, "source"},
+                           {5, 5, 2, "reset"}};
+        feedback.output_ = 4;
+        result = Compile(feedback, registry);
+        Check(std::holds_alternative<ExecutionPlan>(result), "feedback reset graph failed");
+        const auto& reset_plan = std::get<ExecutionPlan>(result);
+        const auto reset_source =
+                std::find_if(reset_plan.instructions_.begin(), reset_plan.instructions_.end(),
+                             [](const auto& item) { return item.node_.id_ == 5; });
+        const auto feedback_node =
+                std::find_if(reset_plan.instructions_.begin(), reset_plan.instructions_.end(),
+                             [](const auto& item) { return item.node_.id_ == 2; });
+        Check(reset_source < feedback_node,
+              "feedback reset incorrectly delayed with its texture input");
         std::cout << "Event port separation, component references, property ranges and cycle "
                      "rejection passed\n";
     } catch (const std::exception& error) {

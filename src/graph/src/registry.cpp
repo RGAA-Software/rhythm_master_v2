@@ -361,6 +361,9 @@ Registry::Registry() {
     AppendDepthDescriptors(operators_);
     AppendColorDescriptors(operators_);
     AppendEventDescriptors(operators_);
+    for (auto& descriptor : operators_)
+        if (HasEventReset(descriptor.operation_))
+            descriptor.inputs_.push_back({"reset", ValueType::kEvent, false});
 }
 std::optional<OperatorDescriptor> Registry::Find(
         std::string_view type, std::span<const ComponentDefinition> components) const {
