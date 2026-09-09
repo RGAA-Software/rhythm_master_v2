@@ -179,6 +179,7 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
                                   (descriptor->output_ == graph::ValueType::kTexture ||
                                    descriptor->output_ == graph::ValueType::kScalar ||
                                    descriptor->output_ == graph::ValueType::kSignal ||
+                                   descriptor->output_ == graph::ValueType::kEvent ||
                                    descriptor->output_ == graph::ValueType::kPoints ||
                                    descriptor->output_ == graph::ValueType::kGpuPoints ||
                                    descriptor->output_ == graph::ValueType::kSceneImage ||

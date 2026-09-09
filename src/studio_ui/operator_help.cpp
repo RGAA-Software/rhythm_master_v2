@@ -11,9 +11,9 @@ void DrawOperatorHelp(const graph::OperatorDescriptor& descriptor,
         const auto found = text.find(key);
         return found == text.end() ? key : found->second;
     };
-    constexpr std::array kTypes{"scalar",     "signal",      "texture", "points",
-                                "geometry",   "material",    "scene",   "camera",
-                                "gpu_points", "scene_image", "depth",   "path"};
+    constexpr std::array kTypes{"scalar",   "signal", "texture", "points",     "geometry",
+                                "material", "scene",  "camera",  "gpu_points", "scene_image",
+                                "depth",    "path",   "event"};
     const auto type = [&](graph::ValueType value) {
         return label("help.type." + std::string(kTypes.at(static_cast<std::size_t>(value))));
     };

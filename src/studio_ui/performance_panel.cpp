@@ -22,6 +22,8 @@ bool DrawPerformancePanel(const runtime::FrameResult& frame, const render::Frame
                 static_cast<double>(stats.gpu_point_bytes_) / (1024 * 1024));
     ImGui::Text("%s: %u", text.at("profile.draws").c_str(), stats.draws_);
     ImGui::Text("%s: %u", text.at("profile.recycled").c_str(), frame.recycled_textures_);
+    ImGui::Text("%s: %llu", text.at("event.rejected_reports").c_str(),
+                static_cast<unsigned long long>(frame.rejected_event_total_));
     ImGui::TextWrapped("%s", text.at("profile.help").c_str());
     if (const auto found = std::find_if(frame.profiles_.begin(), frame.profiles_.end(),
                                         [&](const auto& item) { return item.node_ == selected; });

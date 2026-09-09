@@ -77,7 +77,8 @@ void PreviewRouting::Stage(const editor::Compilation& compilation) {
                 continue;
             const auto descriptor = registry.Find(instruction.node_.type_);
             if (descriptor && (descriptor->output_ == graph::ValueType::kScalar ||
-                               descriptor->output_ == graph::ValueType::kSignal))
+                               descriptor->output_ == graph::ValueType::kSignal ||
+                               descriptor->output_ == graph::ValueType::kEvent))
                 pending_signal_nodes_.push_back(instruction.node_.id_);
         }
     }

@@ -36,6 +36,8 @@ ImColor TypeColor(graph::ValueType type) {
             return {120, 228, 204};
         case graph::ValueType::kDepth:
             return {177, 189, 199};
+        case graph::ValueType::kEvent:
+            return {255, 150, 87};
     }
     return {170, 180, 195};
 }
@@ -104,18 +106,31 @@ PreviewBounds DrawNode(const NodeVisual& node) {
             const auto padding =
                     std::max(0.01f, std::max(std::abs(*minimum), std::abs(*maximum)) * 0.05f);
             char label[64]{};
-            std::snprintf(label, sizeof(label), "%.6g", trace.value_);
+            if (trace.event_observation_)
+                std::snprintf(label, sizeof(label), "%.0f | #%llu @ %.3fs", trace.value_,
+                              static_cast<unsigned long long>(trace.event_observation_->count_),
+                              trace.event_observation_->last_seconds_);
+            else
+                std::snprintf(label, sizeof(label), "%.6g", trace.value_);
             ImGui::PushID(static_cast<int>(node.id_));
-            ImGui::PushStyleColor(ImGuiCol_PlotLines, TypeColor(node.output_.type_).Value);
+            ImGui::PushStyleColor(
+                    trace.event_observation_ ? ImGuiCol_PlotHistogram : ImGuiCol_PlotLines,
+                    TypeColor(node.output_.type_).Value);
             ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(16, 22, 31, 255));
             // Upstream PlotLines uses ButtonBehavior. A display-only plot must
             // not claim clicks from the node editor's body drag interaction.
             ImGui::PushStyleVar(ImGuiStyleVar_DisabledAlpha, 1.0f);
             ImGui::BeginDisabled();
             ImGui::SetNextItemAllowOverlap();
-            ImGui::PlotLines("##signal", samples.data(), static_cast<int>(samples.size()),
-                             static_cast<int>(trace.offset_), label, *minimum - padding,
-                             *maximum + padding, {preview.width_, preview.height_});
+            if (trace.event_observation_)
+                ImGui::PlotHistogram("##event", samples.data(), static_cast<int>(samples.size()),
+                                     static_cast<int>(trace.offset_), label, 0,
+                                     std::max(1.0f, *maximum + padding),
+                                     {preview.width_, preview.height_});
+            else
+                ImGui::PlotLines("##signal", samples.data(), static_cast<int>(samples.size()),
+                                 static_cast<int>(trace.offset_), label, *minimum - padding,
+                                 *maximum + padding, {preview.width_, preview.height_});
             ImGui::EndDisabled();
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(2);

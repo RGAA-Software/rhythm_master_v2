@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "graph_canvas.h"
+#include "operator_help.h"
 
 namespace {
 using rhythm::editor::Position;
@@ -214,6 +215,37 @@ void InlinePreviewVisibility() {
     Check(fixture.canvas_.PreviewNodes().empty(),
           "Offscreen previews must stop requesting evaluation");
 }
+
+void EventPreviewAndHelp() {
+    CanvasFixture fixture;
+    fixture.snapshot_.document_.nodes_[0] = fixture.registry_.MakeNode(1, "event.beat");
+    fixture.snapshot_.document_.nodes_[1] = fixture.registry_.MakeNode(2, "event.envelope");
+    fixture.snapshot_.document_.edges_ = {{1, 1, 2, "events"}};
+    fixture.previews_.enabled_ = true;
+    rhythm::runtime::SignalTrace trace;
+    trace.samples_[0] = 0;
+    trace.samples_[1] = 1;
+    trace.count_ = 2;
+    trace.value_ = 1;
+    trace.event_observation_ = rhythm::runtime::EventObservation{1, 1, 0.5};
+    fixture.previews_.signals_[1] = trace;
+    fixture.canvas_.RestoreLayout();
+    for (int frame = 0; frame < 6; ++frame) fixture.Frame();
+    Check(fixture.canvas_.PreviewNodes().size() == 3,
+          "event output missing from canvas preview demand");
+    const auto before = fixture.snapshot_.positions_.at(1);
+    const auto plot = fixture.canvas_.ToScreen({before.x_ + 90, before.y_ + 120});
+    fixture.Drag(plot, {plot.x_ + 40, plot.y_ + 25});
+    Check(fixture.snapshot_.positions_.at(1) != before &&
+                  fixture.snapshot_.document_.edges_.size() == 1,
+          "event histogram captured drag or changed its existing wire");
+    ImGui::NewFrame();
+    ImGui::Begin("Event help");
+    for (const auto type : {"event.beat", "event.envelope", "texture.feedback", "gpu.particles"})
+        rhythm::studio::DrawOperatorHelp(*fixture.registry_.Find(type), {}, true);
+    ImGui::End();
+    ImGui::Render();
+}
 }  // namespace
 
 int main() {
@@ -222,6 +254,7 @@ int main() {
         DragNodeAndConnect();
         PanCursor();
         InlinePreviewVisibility();
+        EventPreviewAndHelp();
         ThousandNodeCanvas();
         std::cout
                 << "Canvas interactions passed: node drag, port link, connected drag, pan/cursor\n";

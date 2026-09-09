@@ -9,6 +9,7 @@ struct EventEvaluation {
     double scalar_ = 0;
     std::shared_ptr<const parameters::EventBatch> events_{};
     std::size_t rejected_ = 0;
+    std::optional<EventObservation> observation_{};
 };
 // One node's event production/consumption state. No renderer, UI, worker or clock.
 // Inputs are already evaluated, immutable outputs in the acyclic execution plan.
@@ -30,5 +31,6 @@ class EventNode final {
     double scalar_ = 0;
     double last_event_seconds_ = 0;
     bool high_ = false;
+    EventObservation observation_{};
 };
 }  // namespace rhythm::runtime::detail

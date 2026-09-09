@@ -227,6 +227,8 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
                 state.output_.scalar_ = event.scalar_;
                 state.output_.events_ = std::move(event.events_);
                 state.output_.rejected_events_ = event.rejected_;
+                state.output_.event_observation_ = event.observation_;
+                state.output_.rejected_event_total_ += event.rejected_;
             } else
                 switch (operation) {
                     case graph::Operation::kTextureTrail: {
@@ -477,6 +479,7 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
         }
         result.outputs_[index] = state.output_;
         result.rejected_events_ += state.output_.rejected_events_;
+        result.rejected_event_total_ += state.output_.rejected_event_total_;
         if (frame.profile_nodes_) {
             const auto after = renderer.Stats();
             result.profiles_[index] = {

@@ -30,6 +30,17 @@ std::string_view Category(graph::Operation operation) {
         case kAudioBand:
         case kAudioSpectrum:
             return "palette.audio";
+        case kEventBeat:
+        case kEventCue:
+        case kEventAudio:
+        case kEventEdge:
+        case kEventMerge:
+        case kEventEnvelope:
+        case kEventStep:
+        case kEventGate:
+        case kEventLatch:
+        case kEventReset:
+            return "palette.events";
         case kGradient:
         case kShape:
         case kTextureNoise:
@@ -111,7 +122,7 @@ constexpr std::array kCategories{"palette.generators", "palette.filters", "palet
                                  "palette.audio",      "palette.time",    "palette.values",
                                  "palette.particles",  "palette.physics", "palette.scene",
                                  "palette.materials",  "palette.output",  "palette.components",
-                                 "palette.session",    "palette.other"};
+                                 "palette.session",    "palette.events",  "palette.other"};
 }  // namespace
 
 std::optional<std::string> NodePalette::Draw(std::span<const graph::OperatorDescriptor> entries,

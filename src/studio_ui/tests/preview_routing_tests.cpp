@@ -53,6 +53,27 @@ int main() {
               "deduplicate within scope, keep cross-scope identity");
         routing.Prepare({}, {}, "graph-b");
         Check(!routing.Pages() && !routing.StepPage(-1), "empty demand");
+        graph::Registry registry;
+        graph::Document document;
+        document.nodes_ = {registry.MakeNode(1, "texture.gradient"),
+                           registry.MakeNode(2, "output.texture"),
+                           registry.MakeNode(3, "event.beat")};
+        document.output_ = 2;
+        document.beat_grid_ = parameters::BeatSettings{};
+        document.edges_ = {{1, 1, 2, "source"}};
+        editor::Compilation compilation;
+        compilation.viewers_ = {3};
+        compilation.result_ = graph::Compile(document, registry, compilation.viewers_);
+        compilation.scoped_nodes_ = {{7, 3}};
+        routing.Stage(compilation);
+        routing.Commit();
+        Check(routing.SignalNodes().size() == 1 && routing.SignalNodes().front() == 3,
+              "event routed into texture capture instead of numeric observation");
+        studio::CanvasPreviews previews;
+        previews.signals_[3].event_observation_ = runtime::EventObservation{4, 6, 2};
+        const auto scoped = routing.Scoped(previews);
+        Check(scoped.signals_.at(7).event_observation_->count_ == 4,
+              "component-local event observation lost expanded identity mapping");
         std::cout << "preview groups: full reachability, shared budget, selection, scope and "
                      "project changes pass\n";
     } catch (const std::exception& error) {

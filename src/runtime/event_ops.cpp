@@ -154,8 +154,14 @@ EventEvaluation EventNode::Evaluate(const graph::Instruction& instruction,
     previous_ = frame.seconds_;
     if (operation == Operation::kEventEnvelope) scalar_ = envelope_.Sample(frame.seconds_);
     result.scalar_ = operation == Operation::kEventGate ? (high_ ? input(1).scalar_ : 0) : scalar_;
-    if (!produced.Events().empty())
+    if (!produced.Events().empty()) {
+        observation_.count_ += produced.Events().size();
+        observation_.last_sequence_ = produced.Events().back().sequence_;
+        observation_.last_seconds_ = produced.Events().back().seconds_;
         result.events_ = std::make_shared<const EventBatch>(std::move(produced));
+    }
+    if (operation <= Operation::kEventMerge || operation == Operation::kEventReset)
+        result.observation_ = observation_;
     return result;
 }
 }  // namespace rhythm::runtime::detail

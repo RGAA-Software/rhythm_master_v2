@@ -12,9 +12,10 @@ struct SignalTrace {
     std::size_t offset_ = 0;
     double value_ = 0;
     double sampled_seconds_ = 0;
+    std::optional<EventObservation> event_observation_{};
 };
 // Host-thread numeric inspection only: no GPU resources or graph mutation.
-// Nodes must be scalar/signal outputs of the committed plan and evaluated in
+// Nodes must be scalar/signal/event outputs of the committed plan and evaluated in
 // this frame. Samples follow playback time, so pause holds and seek resets.
 class SignalPreviews final {
    public:

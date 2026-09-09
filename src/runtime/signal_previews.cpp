@@ -28,10 +28,25 @@ void SignalPreviews::Capture(const FrameResult& frame, std::span<const graph::No
             continue;
         }
         auto& trace = traces_[node];
-        trace.value_ = source->scalar_;
+        if (trace.event_observation_.has_value() != source->event_observation_.has_value() ||
+            (trace.event_observation_ && source->event_observation_ &&
+             source->event_observation_->count_ < trace.event_observation_->count_))
+            trace = {};
+        const bool same_sample =
+                trace.count_ && seconds - trace.sampled_seconds_ + 1e-9 < 1.0 / 15.0;
+        if (source->event_observation_) {
+            const auto delta =
+                    trace.event_observation_
+                            ? source->event_observation_->count_ - trace.event_observation_->count_
+                            : (source->events_ ? source->events_->Events().size() : 0);
+            trace.value_ = (same_sample ? trace.value_ : 0) + static_cast<double>(delta);
+            trace.event_observation_ = source->event_observation_;
+        } else {
+            trace.value_ = source->scalar_;
+        }
         // Keep plotting arithmetic finite even for valid extreme expression results.
         const auto value = static_cast<float>(std::clamp(trace.value_, -1e30, 1e30));
-        if (trace.count_ && seconds - trace.sampled_seconds_ + 1e-9 < 1.0 / 15.0) {
+        if (same_sample) {
             trace.samples_[(trace.offset_ + trace.count_ - 1) % SignalTrace::kCapacity] = value;
             continue;
         }

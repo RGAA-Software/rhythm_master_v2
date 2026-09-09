@@ -46,6 +46,13 @@ struct SceneImage {
     render::TextureHandle color_{};
     DepthView depth_{};
 };
+// Cumulative production since this runtime node was created. Inspection may run
+// slower than graph evaluation without losing pulses between preview samples.
+struct EventObservation {
+    std::uint64_t count_ = 0;
+    std::uint64_t last_sequence_ = 0;
+    double last_seconds_ = 0;
+};
 struct NodeOutput {
     graph::NodeId node_ = 0;
     double scalar_ = 0;
@@ -65,6 +72,8 @@ struct NodeOutput {
     std::shared_ptr<const scene::Path> path_{};
     std::shared_ptr<const parameters::EventBatch> events_{};
     std::size_t rejected_events_ = 0;
+    std::optional<EventObservation> event_observation_{};
+    std::uint64_t rejected_event_total_ = 0;
 };
 // Optional host-thread CPU/submission measurements, not GPU timestamp timings.
 struct NodeProfile {
@@ -83,6 +92,9 @@ struct FrameResult {
     std::uint32_t recycled_textures_ = 0;
     std::vector<NodeProfile> profiles_{};
     std::size_t rejected_events_ = 0;
+    // Persistent rejection reports, cleared by runtime reset. A report can
+    // represent a truncated source interval; it is not an exact missing count.
+    std::uint64_t rejected_event_total_ = 0;
 };
 // Evaluation and resource ownership are host-thread confined. The immutable plan
 // may be compiled elsewhere; no UI or platform objects are retained here.

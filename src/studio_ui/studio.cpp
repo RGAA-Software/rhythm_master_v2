@@ -599,6 +599,10 @@ class Studio::Impl final {
         const auto graph_visible = ImGui::Begin((Text("graph") + "###graph").c_str());
         if (graph_visible) {
             Toolbar(host, renderer, seconds);
+            if (output.rejected_event_total_)
+                ImGui::TextColored({1.0f, 0.55f, 0.3f, 1.0f}, "%s: %llu",
+                                   Text("event.rejected_reports").c_str(),
+                                   static_cast<unsigned long long>(output.rejected_event_total_));
             previews.enabled_ = show_viewers_;
             if (const auto edit = canvas_.Draw(history_->Current(), registry_,
                                                catalogs_.at(locale_), previews))

@@ -65,6 +65,48 @@ void Run() {
     Check(rejected, "unbounded preview demand must be rejected");
     previews.Clear();
     Check(previews.Traces().empty(), "plan invalidation must clear all history");
+
+    document.beat_grid_ = parameters::BeatSettings{};
+    document.nodes_.push_back(registry.MakeNode(5, "event.beat"));
+    const std::array<graph::NodeId, 1> event_nodes{5};
+    const auto event_plan =
+            std::get<graph::ExecutionPlan>(graph::Compile(document, registry, event_nodes));
+    runtime.Reset();
+    const auto evaluate = [&](double seconds) {
+        renderer.BeginFrame();
+        auto result = runtime.Evaluate(event_plan, {seconds, 0, {32, 32}}, renderer);
+        renderer.EndFrame();
+        return result;
+    };
+    previews.Capture(evaluate(0), event_nodes, 0, 0);
+    previews.Capture(evaluate(0.49), event_nodes, 0.49, 0);
+    evaluate(0.5);  // The actual pulse frame is between preview captures.
+    output = evaluate(0.51);
+    previews.Capture(output, event_nodes, 0.51, 0);
+    Check(previews.Traces().at(5).value_ == 1 &&
+                  previews.Traces().at(5).event_observation_->count_ == 1,
+          "preview missed a pulse between its samples");
+    const auto event_trace = previews.Traces().at(5);
+    previews.Capture(output, event_nodes, 0.51, 0);
+    Check(previews.Traces().at(5).samples_ == event_trace.samples_,
+          "repeated preview counted the same event twice");
+    previews.Capture(evaluate(0.6), event_nodes, 0.6, 0);
+    Check(previews.Traces().at(5).value_ == 0 &&
+                  previews.Traces().at(5).event_observation_->count_ == 1,
+          "empty event interval lost cumulative observation or retained a pulse");
+    evaluate(1);
+    evaluate(1.5);
+    previews.Capture(evaluate(1.6), event_nodes, 1.6, 0);
+    Check(previews.Traces().at(5).value_ == 2, "slow preview did not retain multiple pulses");
+    output = evaluate(1000);
+    Check(output.rejected_event_total_ > 0, "overload diagnostic was not retained");
+    Check(evaluate(1000.01).rejected_event_total_ == output.rejected_event_total_,
+          "overload diagnostic disappeared before the UI could observe it");
+    runtime.Reset();
+    previews.Capture(evaluate(0), event_nodes, 0, 1);
+    Check(previews.Traces().at(5).event_observation_->count_ == 0 &&
+                  previews.Traces().at(5).count_ == 1,
+          "restart retained event observations from previous playback");
 }
 }  // namespace
 int main() {
