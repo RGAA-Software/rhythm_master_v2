@@ -1,0 +1,37 @@
+{
+    "status": "P4.1 coordinate foundation; interactive authoring still in progress",
+    "dependencies": [
+        {
+            "source_url": "https://github.com/g-truc/glm",
+            "revision": "bf71a834948186f4097caa076cd2663c69a10e1e",
+            "version": "0.9.9.8#2",
+            "license": "MIT alternative; full original dual-license notice retained",
+            "notice": "third_party/notices/glm/LICENSE.txt",
+            "package_manifest": "provenance/glm.json",
+            "imported_files": [],
+            "usage": "Use installed vcpkg x64-windows and arm64-android headers: glm/glm.hpp, glm/gtc/matrix_transform.hpp and their transitive headers. Private matrix multiplication, inversion and rotation adapter; no upstream changes or new source vendoring.",
+            "target_modules": [
+                "src/geometry2d",
+                "src/runtime/affine.cpp"
+            ]
+        }
+    ],
+    "design_references": [
+        {
+            "source_url": "https://github.com/tixl3d/tixl",
+            "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+            "license": "MIT",
+            "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+            "source_file": "Editor/Gui/Interaction/TransformGizmos/TransformGizmoHandling.cs",
+            "sha256": "601d94fb56c441df1e093a0641a3030941f5ff77ee553ef763ba679cd140cb45",
+            "imported_files": [],
+            "decision": "Read selection-scoped transformation and viewport conversion responsibilities. C# operator callbacks/ImGuiNET/System.Numerics/global editor state do not fit our value history contracts; use existing first-party History and GLM adapters. No verbatim source copied."
+        }
+    ],
+    "project_contracts": [
+        "Canvas-relative pivot/translation, signed scale, clockwise degrees in +Y-down coordinates.",
+        "Runtime and editing share the same affine computation. Parent composition and inverse reject singular/nonfinite mappings.",
+        "Aspect-fit hit coordinates exclude letterboxes before capture; captured drags can leave the image.",
+        "ImGuizmo remains pending: local vcpkg port 1.10 exists, installed project ImGui source is 1.91.9b; compatibility not yet validated."
+    ]
+}

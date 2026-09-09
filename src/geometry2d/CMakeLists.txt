@@ -1,0 +1,11 @@
+add_library(geometry2d STATIC affine.cpp)
+target_include_directories(geometry2d PUBLIC include)
+# Reuse the GLM target headers already validated for scene3d in this triplet.
+target_include_directories(geometry2d SYSTEM PRIVATE "${RHYTHM_GLM_INCLUDE}")
+rhythm_project_target(geometry2d)
+if(BUILD_TESTING)
+    add_executable(geometry2d_tests tests/affine_tests.cpp)
+    target_link_libraries(geometry2d_tests PRIVATE geometry2d)
+    rhythm_project_target(geometry2d_tests)
+    add_test(NAME geometry2d COMMAND geometry2d_tests)
+endif()
