@@ -7,9 +7,10 @@
 namespace rhythm::validation {
 namespace {
 render::ReadbackImage Capture(render::Renderer& renderer, render::TextureHandle target,
-                              render::GpuPointHandle points) {
+                              render::GpuPointHandle points,
+                              const render::GpuPointStyle& style = {}) {
     renderer.BeginFrame();
-    renderer.SubmitGpuPoints(target, points);
+    renderer.SubmitGpuPoints(target, points, style);
     auto ticket = renderer.RequestReadback(target);
     renderer.EndFrame();
     for (int i = 0; i < 32; ++i) {
@@ -25,12 +26,50 @@ void Update(render::Renderer& renderer, render::GpuPointHandle points,
     renderer.UpdateGpuParticles(points, step);
     renderer.EndFrame();
 }
+void SamplingOrientation(render::Renderer& renderer) {
+    const std::array<std::uint8_t, 4> white{255, 255, 255, 255};
+    auto source = renderer.CreateTexture({1, 1}, white);
+    auto map = renderer.CreateTexture({2, 2});
+    auto target = renderer.CreateTexture({64, 64});
+    render::DrawList list;
+    list.width_ = list.height_ = 2;
+    list.vertices_ = {{0, 0, 0, 0, 0xff0000ff}, {2, 0, 1, 0, 0xff0000ff}, {2, 1, 1, 1, 0xff0000ff},
+                      {0, 1, 0, 1, 0xff0000ff}, {0, 1, 0, 0, 0xffff0000}, {2, 1, 1, 0, 0xffff0000},
+                      {2, 2, 1, 1, 0xffff0000}, {0, 2, 0, 1, 0xffff0000}};
+    list.indices_ = {0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7};
+    list.commands_.push_back({source.Handle(), 0, 12, {0, 0, 2, 2}});
+    renderer.BeginFrame();
+    renderer.Submit(map.Handle(), list, 0);
+    renderer.EndFrame();
+    auto points = renderer.CreateGpuPoints(1);
+    render::GpuParticleStep step;
+    step.reset_ = true;
+    step.spawn_count_ = 1;
+    step.center_ = {.5f, .25f, 0};
+    step.radius_ = step.speed_ = step.flow_ = 0;
+    step.size_ = .15f;
+    step.color_a_ = step.color_b_ = {1, 1, 1, 1};
+    render::GpuPointStyle style;
+    style.sampling_ = render::GpuPointSampling{map.Handle(), 1, 0};
+    Update(renderer, points.Handle(), step);
+    auto image = Capture(renderer, target.Handle(), points.Handle(), style);
+    constexpr std::size_t kTop = (16 * 64 + 32) * 4;
+    if (image.rgba_[kTop] < 200 || image.rgba_[kTop + 2] > 10)
+        throw std::runtime_error("gpu_particles.sample_top_origin");
+    step.center_[1] = .75f;
+    Update(renderer, points.Handle(), step);
+    image = Capture(renderer, target.Handle(), points.Handle(), style);
+    constexpr std::size_t kBottom = (48 * 64 + 32) * 4;
+    if (image.rgba_[kBottom + 2] < 200 || image.rgba_[kBottom] > 10)
+        throw std::runtime_error("gpu_particles.sample_bottom_origin");
+}
 }  // namespace
 void VerifyGpuParticles(render::Renderer& renderer) {
     if (!renderer.SupportsGpuPoints()) {
         std::cout << "gpu_particles unsupported on this device/profile\n";
         return;
     }
+    SamplingOrientation(renderer);
     auto target = renderer.CreateTexture({64, 64});
     // Non-workgroup-aligned capacity and wrapping ring exercise bounds guards.
     auto points = renderer.CreateGpuPoints(65);
@@ -52,6 +91,31 @@ void VerifyGpuParticles(render::Renderer& renderer) {
         throw std::runtime_error("gpu_particles.spawn_color");
     auto paused = Capture(renderer, target.Handle(), points.Handle());
     if (first.rgba_ != paused.rgba_) throw std::runtime_error("gpu_particles.read_mutation");
+    // Attribute sampling is a view of unchanged point records, not a simulation update.
+    const std::array<std::uint8_t, 4> blue{0, 0, 255, 255};
+    auto map = renderer.CreateTexture({1, 1}, blue);
+    render::GpuPointStyle sampled;
+    sampled.sampling_ = render::GpuPointSampling{map.Handle(), 1, 0};
+    const auto colored = Capture(renderer, target.Handle(), points.Handle(), sampled);
+    if (colored.rgba_[kCenter] != 0 || colored.rgba_[kCenter + 2] < 240)
+        throw std::runtime_error("gpu_particles.sample_color");
+    sampled.sampling_->size_amount_ = 1;
+    const auto smaller = Capture(renderer, target.Handle(), points.Handle(), sampled);
+    const auto visible = [](const render::ReadbackImage& image) {
+        return std::count_if(image.rgba_.begin(), image.rgba_.end(),
+                             [](auto byte) { return byte > 0; });
+    };
+    if (visible(smaller) >= visible(colored) / 2)
+        throw std::runtime_error("gpu_particles.sample_size");
+    const std::array<std::uint8_t, 4> transparent{0, 0, 0, 0};
+    renderer.BeginFrame();
+    renderer.UpdateTexture(map.Handle(), transparent);
+    renderer.EndFrame();
+    sampled.sampling_->size_amount_ = 0;
+    const auto masked = Capture(renderer, target.Handle(), points.Handle(), sampled);
+    if (visible(masked) != 0) throw std::runtime_error("gpu_particles.sample_alpha");
+    const auto unchanged = Capture(renderer, target.Handle(), points.Handle());
+    if (unchanged.rgba_ != first.rgba_) throw std::runtime_error("gpu_particles.sample_mutation");
     step.reset_ = false;
     step.spawn_count_ = 0;
     step.seconds_ = 0.03f;

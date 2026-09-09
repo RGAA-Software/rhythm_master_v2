@@ -346,6 +346,12 @@ void VerifyAffine(rhythm::render::Renderer& renderer) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+        if (argc == 2 && std::string_view(argv[1]) == "--gpu-points") {
+            auto renderer = platform::Host::CreateRenderer();
+            if (!renderer.SupportsGpuPoints()) throw std::runtime_error("gpu_points.required");
+            validation::VerifyGpuParticles(renderer);
+            return 0;
+        }
         if (argc == 2 && std::string_view(argv[1]) == "--preparation") {
             auto renderer = platform::Host::CreateRenderer();
             validation::VerifyPreparedPixels(renderer);

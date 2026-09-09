@@ -150,6 +150,13 @@ void ResourceTable::RecordSceneSamples(const SceneDrawList& list) {
         for (const auto texture : draw.textures_.slots_)
             if (IsValid(texture)) slots_[texture.slot_].sampled_ = true;
 }
+void ResourceTable::RecordGpuPointSamples(TextureHandle target, const GpuPointStyle& style) {
+    if (!style.sampling_) return;
+    const auto texture = style.sampling_->texture_;
+    if (!IsValid(texture) || IsDepth(texture) || texture == target)
+        throw std::invalid_argument("render.gpu_point_sampling");
+    slots_.at(texture.slot_).sampled_ = true;
+}
 void ResourceTable::RecordSamples(const DrawList& list) {
     const auto sample = [&](TextureHandle handle) {
         if (IsValid(handle)) slots_[handle.slot_].sampled_ = true;

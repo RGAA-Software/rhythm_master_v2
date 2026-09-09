@@ -69,6 +69,11 @@ void GpuPointStore::ValidateDraw(GpuPointHandle handle, const GpuPointStyle& sty
     if (!slots_[handle.slot_].initialized_ || !std::isfinite(style.opacity_) ||
         style.opacity_ < 0 || style.opacity_ > 1)
         throw std::invalid_argument("render.gpu_point_draw");
+    if (style.sampling_ &&
+        (!std::isfinite(style.sampling_->color_amount_) || style.sampling_->color_amount_ < 0 ||
+         style.sampling_->color_amount_ > 1 || !std::isfinite(style.sampling_->size_amount_) ||
+         style.sampling_->size_amount_ < 0 || style.sampling_->size_amount_ > 1))
+        throw std::invalid_argument("render.gpu_point_sampling");
 }
 void GpuPointStore::AddStats(FrameStats& stats) const {
     stats.gpu_point_capacity_ = total_;

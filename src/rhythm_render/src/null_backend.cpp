@@ -90,6 +90,7 @@ class NullBackend final : public Backend {
             throw std::invalid_argument("render.gpu_point_target");
         points_.ValidateDraw(handle, style);
         if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
+        resources_.RecordGpuPointSamples(target, style);
         ++passes_;
         ++draws_;
     }

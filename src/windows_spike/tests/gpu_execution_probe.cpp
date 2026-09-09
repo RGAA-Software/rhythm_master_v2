@@ -31,6 +31,11 @@ int main(int argc, char* argv[]) {
             rhythm::validation::VerifyImageProgram(renderer, std::filesystem::path(argv[2]));
             return 0;
         }
+        if (argc == 2 && std::string_view(argv[1]) == "--gpu-points") {
+            if (!renderer.SupportsGpuPoints()) throw std::runtime_error("gpu_points.required");
+            rhythm::validation::VerifyGpuParticles(renderer);
+            return 0;
+        }
         rhythm::validation::VerifyGpuExecution(pixels);
         rhythm::validation::VerifySceneInstances(renderer);
         rhythm::validation::VerifyGpuParticles(renderer);

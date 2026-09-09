@@ -3,6 +3,9 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <optional>
+
+#include "rhythm/render/texture_handle.h"
 
 namespace rhythm::render {
 namespace detail {
@@ -40,9 +43,19 @@ struct GpuParticleStep {
     std::array<float, 4> color_a_{0.05f, 0.6f, 1, 1};
     std::array<float, 4> color_b_{1, 0.1f, 0.4f, 1};
 };
+// A lazy attribute view: sample the current premultiplied image at each point's
+// canvas-normalized center. Source point records remain unchanged. UVs clamp at
+// image edges, and luminance-based size uses premultiplied RGB (transparent = 0).
+struct GpuPointSampling {
+    TextureHandle texture_{};
+    float color_amount_ = 1;
+    float size_amount_ = 0;
+    bool operator==(const GpuPointSampling&) const = default;
+};
 struct GpuPointStyle {
     float opacity_ = 1;
     bool additive_ = true;
+    std::optional<GpuPointSampling> sampling_{};
 };
 // Move-only owner retains the backend through final release, like Texture/Mesh.
 // Handles are generation-checked observers; all destruction is device-thread only.

@@ -25,6 +25,7 @@ class ResourceTable final {
     void ValidateUpload(TextureHandle handle, std::span<const std::uint8_t> rgba) const;
     void BeginFrame();
     void RecordSamples(const DrawList& list);
+    void RecordGpuPointSamples(TextureHandle target, const GpuPointStyle& style);
     void ValidateSceneMaterials(TextureHandle target, const SceneDrawList& list,
                                 TextureHandle depth_target = {}) const;
     void RecordSceneSamples(const SceneDrawList& list);

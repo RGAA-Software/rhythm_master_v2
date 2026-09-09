@@ -29,6 +29,12 @@ BgfxGpuPoints::BgfxGpuPoints(std::uint64_t device) : store_(device) {
     for (std::size_t i = 0; i < names.size(); ++i)
         uniforms_[i] = GpuHandle(bgfx::createUniform(names[i], bgfx::UniformType::Vec4));
     view_ = GpuHandle(bgfx::createUniform("u_gpu_view", bgfx::UniformType::Vec4));
+    sampling_ = GpuHandle(bgfx::createUniform("u_gpu_sample", bgfx::UniformType::Vec4));
+    sampler_ = GpuHandle(bgfx::createUniform("s_gpu_sample", bgfx::UniformType::Sampler));
+    constexpr std::array<std::uint8_t, 4> white{255, 255, 255, 255};
+    white_ = GpuHandle(bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::RGBA8,
+                                             BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP,
+                                             bgfx::copy(white.data(), sizeof(white))));
 }
 GpuPointHandle BgfxGpuPoints::Create(std::uint32_t capacity) {
     auto handle = store_.Allocate(capacity);
@@ -78,7 +84,7 @@ void BgfxGpuPoints::Update(bgfx::ViewId view, GpuPointHandle handle, const GpuPa
 }
 void BgfxGpuPoints::Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Extent extent,
                          bool invert, GpuPointHandle handle, const GpuPointStyle& style,
-                         bool float_target) {
+                         bool float_target, bgfx::TextureHandle sampling_texture) {
     store_.ValidateDraw(handle, style);
     bgfx::setViewName(view, "GPU point rendering");
     bgfx::setViewMode(view, bgfx::ViewMode::Sequential);
@@ -89,6 +95,12 @@ void BgfxGpuPoints::Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Exte
     const std::array<float, 4> values{float(extent.height_) / extent.width_, invert ? -1.0f : 1.0f,
                                       style.opacity_, 0};
     bgfx::setUniform(view_.Get(), values.data());
+    const std::array<float, 4> sampling{style.sampling_ ? style.sampling_->color_amount_ : 0,
+                                        style.sampling_ ? style.sampling_->size_amount_ : 0, 0, 0};
+    bgfx::setUniform(sampling_.Get(), sampling.data());
+    bgfx::setTexture(0, sampler_.Get(),
+                     bgfx::isValid(sampling_texture) ? sampling_texture : white_.Get(),
+                     BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
     bgfx::setVertexBuffer(0, quad_.Get());
     bgfx::setIndexBuffer(indices_.Get());
     bgfx::setInstanceDataBuffer(buffers_[handle.slot_].Get(), 0, store_.Capacity(handle));
