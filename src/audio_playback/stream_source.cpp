@@ -1,5 +1,6 @@
 #include "stream_source.h"
 
+#include <algorithm>
 #include <stdexcept>
 #include <type_traits>
 
@@ -23,8 +24,39 @@ void ValidateSource(const PlaybackSource& source) {
             source);
     if (!valid) throw std::invalid_argument("audio.playback_source");
 }
+std::size_t RequiredCursors(const PlaybackSource& source) {
+    ValidateSource(source);
+    return std::visit(
+            [](const auto& value) -> std::size_t {
+                using Type = std::decay_t<decltype(value)>;
+                if constexpr (std::is_same_v<
+                                      Type, std::shared_ptr<const media::AudioArrangementSource>> ||
+                              std::is_same_v<Type,
+                                             std::shared_ptr<const media::AudioArrangementFiles>>) {
+                    std::vector<std::pair<std::uint64_t, int>> edges;
+                    const auto& clips = value->arrangement_.Clips();
+                    const auto& samples = value->arrangement_.Samples();
+                    for (std::size_t index = 0; index < clips.size(); ++index) {
+                        if (clips[index].muted_ || clips[index].gain_ == 0) continue;
+                        edges.emplace_back(samples[index].start_, 1);
+                        edges.emplace_back(samples[index].start_ + samples[index].duration_, -1);
+                    }
+                    std::sort(edges.begin(),
+                              edges.end());  // Releases before arrivals at equal samples.
+                    int active = 0;
+                    int peak = 0;
+                    for (const auto& edge : edges) {
+                        active += edge.second;
+                        peak = std::max(peak, active);
+                    }
+                    return static_cast<std::size_t>(peak);
+                } else
+                    return 1;
+            },
+            source);
+}
 AudioStream::AudioStream(const PlaybackSource& source, std::uint64_t generation,
-                         std::stop_token stop) {
+                         std::stop_token stop, media::AudioCursorBudget budget) {
     ValidateSource(source);
     std::visit(
             [&](const auto& value) {
@@ -34,13 +66,15 @@ AudioStream::AudioStream(const PlaybackSource& source, std::uint64_t generation,
                 else if constexpr (std::is_same_v<
                                            Type,
                                            std::shared_ptr<const media::AudioArrangementSource>>)
-                    mixer_ = std::make_unique<media::AudioMixer>(*value, generation);
+                    mixer_ = std::make_unique<media::AudioMixer>(*value, generation, budget);
                 else if constexpr (std::is_same_v<
                                            Type,
                                            std::shared_ptr<const media::AudioArrangementFiles>>)
-                    mixer_ = std::make_unique<media::AudioMixer>(*value, generation, stop);
-                else
+                    mixer_ = std::make_unique<media::AudioMixer>(*value, generation, stop, budget);
+                else {
+                    lease_ = budget.Acquire();
                     decoder_ = std::make_unique<media::AudioDecoder>(value, generation, stop);
+                }
             },
             source);
 }

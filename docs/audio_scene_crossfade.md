@@ -49,3 +49,19 @@ audio_mixer 三项通过；Android 同源原生程序见
 准入、第五路拒绝后旧场继续读取、释放后重新准入、线性相关信号峰值、等功率
 不相关信号能量、削波计数、零时长、无效输入和 RAII 异常释放。
 这些只证明底层混音合同，尚未经过设备声音、画面交接或两端切场 UI 验收。
+
+双源 PCM 增量：`audio_playback` 的私有 `TransitionStream` 使用两个有界 lane，
+所有文件和编排继续经 `AudioStream` / FFmpeg。以两份完整编排的最大活动片段数之和
+作保守准入；峰值可能出现在不同时间也会拒绝，当前不尝试动态挤占或降低片段数量。
+`StreamPcm` 分开携带来源 ID、循环次数和源内样本索引；解码块大小不同或淡化边界
+不在整块位置时不会丢弃余下样本。短源在剩余淡化期间填零，循环源保留精确相位。
+准备失败不移动旧游标；新源后续解码失败返回旧源下一未提交帧并保留原因。
+取消仅能撤销该层尚未完成的 PCM；设备排队的回退仍由后续消费交接层处理。
+
+Windows `out/p3-dual-pcm-windows-tests.log` 的 transition_stream、原有 audio_playback、
+media_audio 和 source_boundaries 四项通过；Android
+`out/p3-dual-pcm-typed-android-tests.log` 的真实 FFmpeg 双源检查通过。
+独立参考 PCM 逐样本比较 48/44.1 kHz 混合、作者增益、9601 帧交接、循环相位、
+短源结束、延迟坏素材、取消/seek、未来四片段峰值。Windows 首次构建的测试字节
+构造窄化告警已修正，失败日志保留；没有关闭告警或放宽项目规则。
+此增量仍未改变宿主切场行为，不作为已经完成 P3.3 的证据。
