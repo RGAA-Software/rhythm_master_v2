@@ -70,6 +70,13 @@ message GraphProject {
   repeated SignalBinding bindings = 9;
   repeated Component components = 10; // Authoring schema 4: embedded project library.
   ControlMetadata controls = 11;
+  BeatGrid beat_grid = 12; // Required exactly in authoring schema 6.
+}
+message BeatGrid {
+  double bpm = 1; // Quarter notes per minute.
+  uint32 beats_per_bar = 2;
+  uint32 beat_unit = 3;
+  double origin_seconds = 4;
 }
 message ControlSnapshot {
   uint64 id = 1;
@@ -123,6 +130,7 @@ message CompiledProgram {
   uint64 revision = 5;
   Canvas canvas = 6;
   ControlMetadata controls = 7;
+  BeatGrid beat_grid = 8; // Required exactly in runtime ABI 4.
 }
 message Instruction {
   string operator_type = 1;

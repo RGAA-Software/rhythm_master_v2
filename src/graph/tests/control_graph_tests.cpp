@@ -17,6 +17,7 @@ int main() {
                 registry.MakeNode(3, "output.texture"), registry.MakeNode(4, "control.scalar")};
         document.edges_ = {{1, 1, 2, "amount"}, {2, 2, 3, "source"}};
         document.output_ = 3;
+        document.beat_grid_ = parameters::BeatSettings{97, 7, 8, 0.25};
         document.control_titles_ = {{1, "Color mix"}, {4, "Disconnected"}};
         document.control_snapshots_ = {{1, "Warm", {{1, 0.8}, {4, 0.2}}}};
         const auto bank = graph::DescribeControls(document);
@@ -25,7 +26,12 @@ int main() {
         require(plan.instructions_.size() == 3 && plan.controls_.Definitions().size() == 1 &&
                 plan.controls_.Snapshot(1) == parameters::ControlValues{{1, 0.8}});
         require(document.control_snapshots_[0].values_.size() == 2);
+        require(plan.beat_grid_ == document.beat_grid_);
         const auto valid = document;
+        document.beat_grid_->bpm_ = 0;
+        require(std::holds_alternative<std::vector<graph::Diagnostic>>(
+                graph::Compile(document, registry)));
+        document = valid;
         document.control_cues_ = {{1, "Opening", 2, 1, 1}};
         const auto arranged = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
         require(arranged.control_sequence_ && arranged.control_sequence_->Sample(3).at(1) == 0.8);

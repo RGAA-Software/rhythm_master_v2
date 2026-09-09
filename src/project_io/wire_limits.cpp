@@ -28,7 +28,8 @@ enum class Kind {
     kControlTitle,
     kControlSnapshot,
     kControlValue,
-    kControlCue
+    kControlCue,
+    kBeatGrid
 };
 struct Budget {
     std::size_t fields_ = 0;
@@ -100,6 +101,8 @@ struct Child {
     std::size_t maximum_ = 1;
 };
 std::optional<Child> Nested(Kind kind, unsigned field) {
+    if ((kind == Kind::kGraph && field == 12) || (kind == Kind::kProgram && field == 8))
+        return Child{Kind::kBeatGrid};
     if ((kind == Kind::kGraph && field == 11) || (kind == Kind::kProgram && field == 7))
         return Child{Kind::kControls};
     if (kind == Kind::kControls && field == 1) return Child{Kind::kControlTitle, 64};
@@ -151,7 +154,7 @@ std::size_t StringLimit(Kind kind, unsigned field) {
 void Scan(std::string_view bytes, Kind kind, unsigned depth, Budget& budget) {
     if (depth > 32 || ++budget.messages_ > 100000) throw std::length_error("codec.message_budget");
     Cursor cursor(bytes);
-    std::array<std::size_t, 12> counts{};
+    std::array<std::size_t, 13> counts{};
     std::size_t slots = 0;
     while (!cursor.Empty()) {
         const auto tag = Tag(cursor, budget);

@@ -109,7 +109,9 @@ std::string EncodePackage(const graph::Document& document, std::string_view titl
     const auto program = EncodeProgram(plan);
     Json manifest = {{"format", "rhythm.runtime"},
                      {"manifest_version", 1},
-                     {"program_abi", plan.control_sequence_ ? 3 : 2},
+                     {"program_abi", plan.beat_grid_          ? 4
+                                     : plan.control_sequence_ ? 3
+                                                              : 2},
                      {"profile", soundtrack ? (soundtrack->clips_.empty() ? "music-performance-v1"
                                                                           : "music-arrangement-v1")
                                             : "texture-signal-v2"},
@@ -147,11 +149,11 @@ RuntimePackage DecodeEntries(const detail::PackageEntries& entries,
             file_music || arranged_music || manifest.at("profile") == "music-performance-v1";
     if (file_music != streamed.has_value()) throw std::invalid_argument("package.media_profile");
     const bool current = music || manifest.at("profile") == "texture-signal-v2";
-    if (!manifest.at("program_abi").is_number_unsigned() || manifest.at("program_abi") > 3)
+    if (!manifest.at("program_abi").is_number_unsigned() || manifest.at("program_abi") > 4)
         throw std::invalid_argument("package.profile");
     const auto abi = manifest.at("program_abi").get<std::uint32_t>();
     if (manifest.at("format") != "rhythm.runtime" || manifest.at("manifest_version") != 1 ||
-        (current ? (abi != 2 && abi != 3) : abi != 1) ||
+        (current ? (abi != 2 && abi != 3 && abi != 4) : abi != 1) ||
         (!current && manifest.at("profile") != "texture-signal-v1" &&
          manifest.at("profile") != "texture-signal-assets-v1"))
         throw std::invalid_argument("package.profile");

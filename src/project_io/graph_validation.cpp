@@ -9,6 +9,8 @@
 
 namespace rhythm::project::detail {
 void ValidateGraph(const graph::Document& document) {
+    if (document.beat_grid_ && !parameters::ValidBeatSettings(*document.beat_grid_))
+        throw std::invalid_argument("project.beat_settings");
     const auto controls = graph::DescribeControls(document);
     if (!document.control_cues_.empty())
         (void)parameters::ControlSequence(controls, document.control_cues_);

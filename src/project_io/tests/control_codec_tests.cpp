@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 
 #include "graph.pb.h"
@@ -19,6 +20,65 @@ void Reject(Callback callback) {
     }
     Require(rejected);
 }
+void CheckBeatGrid(rhythm::graph::Document document) {
+    using namespace rhythm;
+    for (const parameters::BeatSettings settings :
+         {parameters::BeatSettings{}, parameters::BeatSettings{97, 6, 8, -0.25}}) {
+        document.beat_grid_ = settings;
+        const auto encoded = project::EncodeGraph(document);
+        schema::GraphProject message;
+        Require(message.ParseFromString(encoded) && message.schema_version() == 6);
+        Require(project::DecodeGraph(encoded).beat_grid_ == document.beat_grid_);
+        auto& grid = *message.mutable_beat_grid();
+        grid.GetReflection()->MutableUnknownFields(&grid)->AddVarint(100, 91);
+        auto restored = project::DecodeGraph(message.SerializeAsString());
+        Require(message.ParseFromString(project::EncodeGraph(restored)));
+        Require(message.beat_grid()
+                        .GetReflection()
+                        ->GetUnknownFields(message.beat_grid())
+                        .field_count() == 1);
+        restored.beat_grid_.reset();
+        schema::GraphProject removed;
+        Require(removed.ParseFromString(project::EncodeGraph(restored)) &&
+                !removed.has_beat_grid() && removed.schema_version() < 6);
+        message.set_schema_version(5);
+        Reject([&] { (void)project::DecodeGraph(message.SerializeAsString()); });
+        message.set_schema_version(6);
+        message.clear_beat_grid();
+        Reject([&] { (void)project::DecodeGraph(message.SerializeAsString()); });
+        Require(message.ParseFromString(encoded));
+        message.mutable_beat_grid()->set_beat_unit(3);
+        Reject([&] { (void)project::DecodeGraph(message.SerializeAsString()); });
+        // Two singular grid messages must not merge into one accepted definition.
+        schema::GraphProject duplicate;
+        *duplicate.mutable_beat_grid() = message.beat_grid();
+        Reject([&] { (void)project::DecodeGraph(encoded + duplicate.SerializeAsString()); });
+
+        const auto plan =
+                std::get<graph::ExecutionPlan>(graph::Compile(document, graph::Registry{}));
+        const auto program = project::EncodeProgram(plan);
+        Require(project::DecodeProgram(program, 4).beat_grid_ == document.beat_grid_);
+        Reject([&] { (void)project::DecodeProgram(program, 3); });
+        schema::CompiledProgram compiled;
+        Require(compiled.ParseFromString(program) && compiled.abi_version() == 4);
+        compiled.set_abi_version(3);
+        Reject([&] { (void)project::DecodeProgram(compiled.SerializeAsString()); });
+        compiled.set_abi_version(4);
+        compiled.clear_beat_grid();
+        Reject([&] { (void)project::DecodeProgram(compiled.SerializeAsString()); });
+        Require(compiled.ParseFromString(program));
+        compiled.mutable_beat_grid()->set_bpm(std::numeric_limits<double>::quiet_NaN());
+        Reject([&] { (void)project::DecodeProgram(compiled.SerializeAsString()); });
+        const auto package = project::DecodePackage(project::EncodePackage(document, "Beat grid"));
+        Require(package.program_.beat_grid_ == document.beat_grid_ &&
+                package.program_.control_sequence_ == plan.control_sequence_);
+        auto invalid = plan;
+        invalid.beat_grid_->bpm_ = 0;
+        Reject([&] { (void)project::EncodeProgram(invalid); });
+        document.beat_grid_->bpm_ = 0;
+        Reject([&] { (void)project::EncodeGraph(document); });
+    }
+}
 }  // namespace
 int main() {
     using namespace rhythm;
@@ -35,6 +95,8 @@ int main() {
         document.control_snapshots_ = {{11, "Quiet", {{1, 0.1}}}, {12, "Bright", {{1, 0.9}}}};
         const auto bytes = project::EncodeGraph(document);
         const auto restored = project::DecodeGraph(bytes);
+        Require(!restored.beat_grid_);
+        CheckBeatGrid(document);
         Require(restored.control_titles_ == document.control_titles_ &&
                 restored.control_snapshots_ == document.control_snapshots_);
         const auto plan = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
@@ -61,6 +123,7 @@ int main() {
         (*bad.mutable_controls()->mutable_titles())[999] = "Dangling";
         Reject([&] { (void)project::DecodeProgram(bad.SerializeAsString()); });
         document.control_cues_ = {{1, "Opening", 0, 11}, {2, "Rise", 2, 12, 2, true}};
+        CheckBeatGrid(document);
         auto cue_bytes = project::EncodeGraph(document);
         Require(message.ParseFromString(cue_bytes) && message.schema_version() == 5);
         auto& cue = *message.mutable_controls()->mutable_cues(0);
@@ -86,6 +149,12 @@ int main() {
                 project::DecodePackage(project::EncodePackage(document, "Cue work", {}));
         Require(cue_package.program_.control_sequence_ == cued.control_sequence_ &&
                 cue_package.program_.control_sequence_->Sample(3).at(1) == 0.5);
+        document.control_cues_.clear();
+        document.control_snapshots_.clear();
+        document.control_titles_.clear();
+        document.nodes_.erase(document.nodes_.begin());
+        document.edges_.erase(document.edges_.begin());
+        CheckBeatGrid(document);  // Global tempo also works without a macro control bank.
         std::cout << "Controls: project, runtime/package metadata, extensions and invalid "
                      "references passed\n";
     } catch (const std::exception& error) {

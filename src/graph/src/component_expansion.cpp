@@ -145,6 +145,7 @@ ComponentScopeExpansion ExpandComponentScope(const Document& document, const Reg
         state.result_.control_titles_ = document.control_titles_;
         state.result_.control_snapshots_ = document.control_snapshots_;
         state.result_.control_cues_ = document.control_cues_;
+        state.result_.beat_grid_ = document.beat_grid_;
         std::map<NodeId, NodeId> ids;
         for (const auto& node : document.nodes_) {
             Require(node.id_ && ids.emplace(node.id_, node.id_).second, node.id_);

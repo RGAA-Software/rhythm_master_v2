@@ -22,6 +22,7 @@ struct ExecutionPlan {
     Canvas canvas_{};
     parameters::ControlBank controls_{};
     std::optional<parameters::ControlSequence> control_sequence_{};
+    std::optional<parameters::BeatSettings> beat_grid_{};
 };
 using CompileResult = std::variant<ExecutionPlan, std::vector<Diagnostic>>;
 // Shared initial CPU-point profile; checked during compilation/publication and

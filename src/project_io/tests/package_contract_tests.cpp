@@ -105,6 +105,26 @@ int main(int argc, char* argv[]) {
 
         const auto root =
                 argc >= 2 ? std::filesystem::path(argv[1]) : std::filesystem::path("package-tests");
+        {
+            auto musical = document;
+            musical.beat_grid_ = parameters::BeatSettings{97, 6, 8, -0.25};
+            const auto musical_path = root / "beat.rhythmpack";
+            project::PublishPackage(musical_path, musical, "Beat project");
+            Check(project::LoadPackage(musical_path).program_.beat_grid_ == musical.beat_grid_,
+                  "Published package preserves the beat grid");
+            auto musical_entries =
+                    project::detail::ReadArchive(project::EncodePackage(musical, "Beat project"));
+            auto musical_manifest = nlohmann::json::parse(musical_entries.at("manifest.json"));
+            Check(musical_manifest.at("program_abi") == 4, "Beat grid requires ABI 4");
+            musical_manifest["program_abi"] = 3;
+            musical_entries["manifest.json"] = musical_manifest.dump();
+            Reject(project::detail::WriteArchive(musical_entries));
+            auto old_entries = entries;
+            auto old_manifest = nlohmann::json::parse(old_entries.at("manifest.json"));
+            old_manifest["program_abi"] = 4;
+            old_entries["manifest.json"] = old_manifest.dump();
+            Reject(project::detail::WriteArchive(old_entries));
+        }
         if (argc >= 3) {
             const auto legacy = project::LoadPackage(argv[2]);
             Check(legacy.profile_ == project::PackageProfile::kTextureSignalV1,

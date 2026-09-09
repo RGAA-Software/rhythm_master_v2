@@ -27,6 +27,10 @@ CompileResult Compile(const Document& document, const Registry& registry,
         fail("graph.canvas");
         return diagnostics;
     }
+    if (document.beat_grid_ && !parameters::ValidBeatSettings(*document.beat_grid_)) {
+        fail("graph.beat_settings");
+        return diagnostics;
+    }
     if (document.nodes_.size() > 10000 || document.edges_.size() > 40000 || viewers.size() > 16) {
         fail("graph.limit");
         return diagnostics;
@@ -130,6 +134,7 @@ CompileResult Compile(const Document& document, const Registry& registry,
     plan.document_id_ = document.id_;
     plan.revision_ = document.revision_;
     plan.canvas_ = document.canvas_;
+    plan.beat_grid_ = document.beat_grid_;
     std::vector<std::size_t> remap(inputs.size());
     std::size_t visited = 0;
     while (!ready.empty()) {

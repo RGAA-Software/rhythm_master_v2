@@ -39,6 +39,18 @@ int main(int argc, char* argv[]) {
         const auto initial = project::LoadRevision(argv[1]).snapshot_;
         Check(initial.document_.nodes_.size() == 8);
         {
+            auto musical = initial;
+            musical.document_.beat_grid_ = parameters::BeatSettings{97, 6, 8, -0.25};
+            const auto root = std::filesystem::path(argv[2]) / "beat-project";
+            project::Save(root, musical);
+            const auto reopened = project::Load(root).snapshot_;
+            Check(reopened.document_.beat_grid_ == musical.document_.beat_grid_);
+            const auto package_path = root / "beat.rhythmpack";
+            project::PublishSnapshot(package_path, reopened, root / "assets");
+            Check(project::LoadPackage(package_path).program_.beat_grid_ ==
+                  musical.document_.beat_grid_);
+        }
+        {
             graph::Registry registry;
             graph::Document named;
             named.id_ = "binding.roundtrip";

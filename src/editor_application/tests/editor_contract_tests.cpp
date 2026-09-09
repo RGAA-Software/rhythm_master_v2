@@ -65,6 +65,7 @@ int main() {
             rhythm::editor::Snapshot content;
             content.document_.id_ = "template.local";
             content.document_.canvas_ = {720, 1280};
+            content.document_.beat_grid_ = rhythm::parameters::BeatSettings{97, 6, 8, -0.25};
             content.document_.nodes_ = {registry.MakeNode(1, "texture.gradient"),
                                         registry.MakeNode(2, "output.texture"),
                                         registry.MakeNode(3, "control.scalar")};
@@ -86,6 +87,9 @@ int main() {
             if (!std::holds_alternative<rhythm::graph::ExecutionPlan>(compiled))
                 throw std::runtime_error("template.remapped_controls_do_not_compile");
             const auto& plan = std::get<rhythm::graph::ExecutionPlan>(compiled);
+            if (plan.beat_grid_ != content.document_.beat_grid_ ||
+                instantiated.document_.beat_grid_ != content.document_.beat_grid_)
+                throw std::runtime_error("template.beat_grid");
             if (instantiated.document_.control_titles_ !=
                         std::map<rhythm::graph::NodeId, std::string>{{ids[2], "Color mix"}} ||
                 instantiated.document_.control_snapshots_[0].values_ !=
@@ -99,8 +103,11 @@ int main() {
                 instantiated.document_.signals_.front().source_ != ids[0] ||
                 instantiated.document_.bindings_.front().node_ != ids[1] ||
                 !history.Apply(instantiated, before.document_.revision_) || !history.Undo() ||
-                history.Current().title_ != before.title_ || !history.Redo() ||
-                history.Current().document_.canvas_ != content.document_.canvas_)
+                history.Current().title_ != before.title_ ||
+                history.Current().document_.beat_grid_ != before.document_.beat_grid_ ||
+                !history.Redo() ||
+                history.Current().document_.canvas_ != content.document_.canvas_ ||
+                history.Current().document_.beat_grid_ != content.document_.beat_grid_)
                 throw std::runtime_error("template.undoable_instantiation");
             if (!std::holds_alternative<rhythm::graph::Diagnostic>(
                         rhythm::editor::InstantiateTemplate(history.Current(), content, ids)) ||

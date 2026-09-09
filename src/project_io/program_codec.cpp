@@ -23,6 +23,7 @@ void ValidatePlan(const graph::ExecutionPlan& plan) {
     document.id_ = plan.document_id_;
     document.revision_ = plan.revision_;
     document.canvas_ = plan.canvas_;
+    document.beat_grid_ = plan.beat_grid_;
     document.output_ = plan.instructions_[plan.output_].node_.id_;
     for (const auto& control : plan.controls_.Definitions())
         document.control_titles_[control.id_] = control.title_;
@@ -68,7 +69,8 @@ void ValidatePlan(const graph::ExecutionPlan& plan) {
 std::string EncodeProgram(const graph::ExecutionPlan& plan) {
     ValidatePlan(plan);
     schema::CompiledProgram message;
-    message.set_abi_version(plan.control_sequence_ ? 3 : 2);
+    message.set_abi_version(plan.beat_grid_ ? 4 : plan.control_sequence_ ? 3 : 2);
+    if (plan.beat_grid_) detail::EncodeBeatGrid(*plan.beat_grid_, *message.mutable_beat_grid());
     message.mutable_canvas()->set_width(plan.canvas_.width_);
     message.mutable_canvas()->set_height(plan.canvas_.height_);
     message.set_document_id(plan.document_id_);
@@ -120,12 +122,15 @@ graph::ExecutionPlan DecodeProgram(std::string_view bytes, std::uint32_t require
     input.SetRecursionLimit(32);
     input.SetTotalBytesLimit(static_cast<int>(kMaximumProgramBytes));
     if (!message.ParseFromCodedStream(&input) || !input.ConsumedEntireMessage() ||
-        (message.abi_version() < 1 || message.abi_version() > 3) ||
+        (message.abi_version() < 1 || message.abi_version() > 4) ||
         (required_abi != 0 && message.abi_version() != required_abi))
         throw std::invalid_argument("package.abi");
     if ((message.abi_version() >= 2) != message.has_canvas())
         throw std::invalid_argument("package.canvas_abi");
     graph::ExecutionPlan plan;
+    if ((message.abi_version() == 4) != message.has_beat_grid())
+        throw std::invalid_argument("package.beat_abi");
+    if (message.has_beat_grid()) plan.beat_grid_ = detail::DecodeBeatGrid(message.beat_grid());
     plan.document_id_ = message.document_id();
     plan.revision_ = message.revision();
     if (message.has_canvas()) plan.canvas_ = {message.canvas().width(), message.canvas().height()};
@@ -169,7 +174,8 @@ graph::ExecutionPlan DecodeProgram(std::string_view bytes, std::uint32_t require
     detail::DecodeControls(message.controls(), metadata);
     for (const auto& instruction : plan.instructions_) metadata.nodes_.push_back(instruction.node_);
     plan.controls_ = graph::DescribeControls(metadata);
-    if ((message.abi_version() == 3) != !metadata.control_cues_.empty())
+    if (message.abi_version() < 4 &&
+        ((message.abi_version() == 3) != !metadata.control_cues_.empty()))
         throw std::invalid_argument("package.cue_abi");
     if (!metadata.control_cues_.empty())
         plan.control_sequence_.emplace(plan.controls_, metadata.control_cues_);

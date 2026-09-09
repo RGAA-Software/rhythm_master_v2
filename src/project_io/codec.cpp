@@ -24,7 +24,7 @@ graph::Document DecodeGraph(std::string_view bytes) {
     input.SetRecursionLimit(32);
     input.SetTotalBytesLimit(static_cast<int>(kMaximumGraphBytes));
     if (!message.ParseFromCodedStream(&input) || !input.ConsumedEntireMessage() ||
-        (message.schema_version() < 1 || message.schema_version() > 5))
+        (message.schema_version() < 1 || message.schema_version() > 6))
         throw std::invalid_argument("project.graph_schema");
     if ((message.schema_version() >= 2) != message.has_canvas())
         throw std::invalid_argument("project.canvas_schema");
@@ -33,6 +33,9 @@ graph::Document DecodeGraph(std::string_view bytes) {
     if (message.schema_version() < 4 && !message.components().empty())
         throw std::invalid_argument("project.component_schema");
     graph::Document document;
+    if ((message.schema_version() == 6) != message.has_beat_grid())
+        throw std::invalid_argument("project.beat_schema");
+    if (message.has_beat_grid()) document.beat_grid_ = detail::DecodeBeatGrid(message.beat_grid());
     document.id_ = message.id();
     document.revision_ = message.revision();
     document.output_ = message.output();
@@ -68,7 +71,8 @@ std::string EncodeGraph(const graph::Document& document) {
     schema::GraphProject message;
     if (!document.extensions_.empty() && !message.ParseFromString(document.extensions_))
         throw std::invalid_argument("project.extensions");
-    message.set_schema_version(!document.control_cues_.empty()                           ? 5
+    message.set_schema_version(document.beat_grid_                                       ? 6
+                               : !document.control_cues_.empty()                         ? 5
                                : !document.components_.empty()                           ? 4
                                : document.signals_.empty() && document.bindings_.empty() ? 2
                                                                                          : 3);
@@ -77,6 +81,10 @@ std::string EncodeGraph(const graph::Document& document) {
     message.set_id(document.id_);
     message.set_revision(document.revision_);
     message.set_output(document.output_);
+    if (document.beat_grid_)
+        detail::EncodeBeatGrid(*document.beat_grid_, *message.mutable_beat_grid());
+    else
+        message.clear_beat_grid();
     message.clear_nodes();
     message.clear_edges();
     for (const auto& node : document.nodes_) detail::EncodeNode(node, *message.add_nodes());

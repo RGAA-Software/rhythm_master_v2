@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "rhythm/assets/types.h"
+#include "rhythm/parameters/beat_grid.h"
 #include "rhythm/parameters/control_sequence.h"
 #include "rhythm/parameters/controls.h"
 #include "rhythm/parameters/curve.h"
@@ -128,6 +129,7 @@ struct Document {
     std::map<NodeId, std::string> control_titles_{};
     std::vector<parameters::ControlSnapshot> control_snapshots_{};
     std::vector<parameters::ControlCue> control_cues_{};
+    std::optional<parameters::BeatSettings> beat_grid_{};
     bool operator==(const Document&) const = default;
 };
 struct Diagnostic {

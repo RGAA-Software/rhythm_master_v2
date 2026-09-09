@@ -1,7 +1,7 @@
 # 节拍网格与量化控制
 
 2026-09-09，P1 第一个增量已完成纯合同和 Windows/USB Android 检查。
-当前尚未接入工程存储、控件和量化动作执行；这些继续按整体计划推进。
+P1.1 已接入图编译、工程存储和运行包；控件和量化动作执行继续按整体计划推进。
 
 `parameters::BeatGrid` 是不可变数值网格，不拥有时钟。BPM 固定表示每分钟四分音符数，
 范围 20–600；每小节 1–32 拍，拍号分母为 1/2/4/8/16/32。比如 120 BPM、6/8 的
@@ -22,3 +22,22 @@
 Windows `beat_grid` 及 USB `e2b3b128` 原生测试通过；日志
 `out/p1-beat-grid-tests.log`、`out/p1-beat-grid-android-tests.log`。
 这不是 Android UI 交付，未因此重装应用。
+
+## 工程与运行包兼容
+
+`Document::beat_grid_` 和 `ExecutionPlan::beat_grid_` 使用可选值。未配置时保留原来的
+schema 1–5 读取与 schema 2–5 写入规则，以及 ABI 1–3；显式配置（包括默认值）时
+工程使用 schema 6，运行程序及 manifest 使用 ABI 4。新版本标识与网格消息必须同时
+存在；拒绝缺失、伪造降级、不合法数值和重复的网格消息。旧读者已有的版本上限检查
+会拒绝新格式，不允许静默丢弃。未配置不会隐式启用手动网格。
+
+根图展开组件时继承该网格，组件定义不另设全局节拍。模板替换保留来源网格，撤销
+恢复先前网格。保存/重开保留嵌套未知字段；删除网格时也删除对应扩展消息。
+无宏节点、有宏无 Cue、有 Cue 三种作品均验证，发布音乐包复用同一 ABI 编码路径。
+
+2026-09-09 验证：Windows `control_graph`、`components`、`control_codec`、
+`program_contracts`、`package_contracts`、`persistence_contracts`、`editor_contracts`、
+`template_contracts` 通过；USB Android 原生 `control_codec_tests`、
+`editor_contract_tests` 通过。文件级检查覆盖保存→重开→发布→读取实际文件。
+日志为 `out/p1-beat-{graph,codec,persistence,template}-tests.log` 与
+`out/p1-beat-codec-android-tests.log`。这些是合同/文件路径检查，尚非量化 UI 验收。

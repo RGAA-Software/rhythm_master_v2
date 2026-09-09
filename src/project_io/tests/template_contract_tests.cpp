@@ -45,6 +45,7 @@ int main(int argc, char* argv[]) {
                 throw std::runtime_error(entry.id_ + ": applied template cannot compile");
             const auto& plan = std::get<graph::ExecutionPlan>(compiled);
             if (remapped.document_.control_cues_ != document.control_cues_ ||
+                remapped.document_.beat_grid_ != document.beat_grid_ ||
                 remapped.assets_ != source.snapshot_.assets_ ||
                 remapped.soundtrack_ != source.snapshot_.soundtrack_)
                 throw std::runtime_error(entry.id_ + ": application changed cues or media");
@@ -74,7 +75,8 @@ int main(int argc, char* argv[]) {
             const auto reapplied = project::DecodePackage(project::EncodePackage(
                     reopened.document_, reopened.title_, assets, reopened.soundtrack_));
             if (reapplied.program_.instructions_.size() != packaged.program_.instructions_.size() ||
-                reapplied.program_.controls_ != plan.controls_)
+                reapplied.program_.controls_ != plan.controls_ ||
+                reapplied.program_.beat_grid_ != document.beat_grid_)
                 throw std::runtime_error(entry.id_ + ": applied/save/reopen publication differs");
             if (packaged.soundtrack_ != source.snapshot_.soundtrack_)
                 throw std::runtime_error("template.soundtrack");

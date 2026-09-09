@@ -26,6 +26,7 @@ void Run() {
     color.parameters_[0].maximum_ = 1;
     Document document;
     document.id_ = "component.test";
+    document.beat_grid_ = rhythm::parameters::BeatSettings{123, 3, 4, -0.5};
     document.components_ = {color};
     document.nodes_ = {registry.MakeNode(10, color.type_, document.components_),
                        registry.MakeNode(20, color.type_, document.components_),
@@ -41,6 +42,7 @@ void Run() {
     Require(descriptor->properties_[0].minimum_ == 0 && descriptor->properties_[0].maximum_ == 1,
             "curated public bounds");
     const auto plan = std::get<ExecutionPlan>(Compile(document, registry));
+    Require(plan.beat_grid_ == document.beat_grid_, "root beat grid survives component expansion");
     Require(plan.instructions_.size() == 6, "instance expansion count");
     std::vector<double> values;
     for (const auto& instruction : plan.instructions_) {

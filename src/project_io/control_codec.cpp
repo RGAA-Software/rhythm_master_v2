@@ -3,6 +3,21 @@
 #include <stdexcept>
 
 namespace rhythm::project::detail {
+parameters::BeatSettings DecodeBeatGrid(const schema::BeatGrid& record) {
+    const parameters::BeatSettings settings{record.bpm(), record.beats_per_bar(),
+                                            record.beat_unit(), record.origin_seconds()};
+    if (!parameters::ValidBeatSettings(settings))
+        throw std::invalid_argument("project.beat_settings");
+    return settings;
+}
+void EncodeBeatGrid(const parameters::BeatSettings& settings, schema::BeatGrid& record) {
+    if (!parameters::ValidBeatSettings(settings))
+        throw std::invalid_argument("project.beat_settings");
+    record.set_bpm(settings.bpm_);
+    record.set_beats_per_bar(settings.beats_per_bar_);
+    record.set_beat_unit(settings.beat_unit_);
+    record.set_origin_seconds(settings.origin_seconds_);
+}
 void DecodeControls(const schema::ControlMetadata& record, graph::Document& document) {
     if (record.titles_size() > 64 || record.snapshots_size() > 64 || record.cues_size() > 256)
         throw std::length_error("control.budget");
