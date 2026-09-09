@@ -30,6 +30,7 @@ class SceneAudioClock final {
     std::uint64_t id_ = 0;
     double duration_ = 0;
     std::optional<double> previous_offset_{};
+    std::optional<runtime::PlaybackSample> previous_sample_{};
     std::optional<std::uint64_t> previous_iteration_{};
     std::optional<std::uint64_t> incoming_iteration_{};
     std::uint64_t previous_generation_ = 0;

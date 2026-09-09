@@ -47,8 +47,17 @@ int main() {
         Require(frame.abort_ && !frame.terminal_ &&
                         std::abs(frame.previous_.seconds_ - 31.2) < 1e-9,
                 "queued recovery keeps old visual origin until audible restoration");
+        sample.previous_.reset();
+        sample.incoming_ = SceneAudioPosition{0.25, 5};
+        frame = clock.Step({0.25, 99, false, {}}, sample);
+        Require(frame.abort_ && frame.previous_.paused_ && frame.previous_.generation_ == 10 &&
+                        std::abs(frame.previous_.seconds_ - 31.2) < 1e-9,
+                "serial recovery holds last old time instead of following new primary PCM");
+        sample.previous_ = SceneAudioPosition{1.4, 0};
         sample.phase_ = SceneAudioPhase::kCanceled;
-        Require(clock.Step(fallback, sample).terminal_, "cancel completes after recovery");
+        frame = clock.Step(fallback, sample);
+        Require(frame.terminal_ && std::abs(frame.previous_.seconds_ - 31.3) < 1e-9,
+                "cancel completes after old consumed position returns");
         const auto offset = clock.PreviousOffset();
         sample.phase_ = SceneAudioPhase::kRunning;
         sample.incoming_->seconds_ = std::numeric_limits<double>::quiet_NaN();

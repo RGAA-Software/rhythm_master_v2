@@ -238,3 +238,31 @@ Windows `out/p3-serial-cut-public-windows-tests.log` 及 Android
 `out/p3-serial-cut-public-android-tests.log` 通过（Android 为 dummy）。
 两端 Player 画面时钟、UI 提示与实际硬切交付尚待后续增量，不能把上述音频测试
 记成完整应用硬切验收。
+
+
+### 顺序硬切的画面时钟与应用验证
+
+当串行替换只保留旧源恢复点、新 PCM 成为设备主来源而没有旧 PCM 呈现位置时，
+SceneAudioClock 保持最后确认的旧画面时间；恢复到旧 PCM 后继续使用原来的画面
+时间偏移。不会把新音乐零点误用到旧场。Windows
+`out/p3-serial-cut-clock-windows-tests.log` 与 Android
+`out/p3-serial-cut-clock-android-tests.log` 的时钟、场景和桥接检查通过。
+
+Windows 新增 scene_audio_serial_ui：从含四路配乐的红色旧场，用实际队列 Go
+运行显式 0 秒节目单条目，切入四路蓝色新场；使用实际 AudioPanel/FilePlayback
+设备消费快照，读回红→蓝像素，确认接管后不重新加载媒体/设备 epoch。
+`out/p3-serial-cut-player-windows-tests.log` 共 6 项通过，包含常规淡化、实际《光幕
+协奏》编排与 Player deploy smoke；详情
+`out/p3-serial-cut-player-windows-detail.log`。Windows deploy 已更新。
+
+Android 的 `--hard-cut-head` 短测选中节目单第一行、通过滑块将草稿时长设为零、
+应用草稿但不保存，然后预备队列和实际 Go；原保存列表逐字节保持不变。
+`out/android-scene-audio/0b76fd13c358400da95f537daf2d237f/` 与
+`out/android-program-ui/775149a2c57d434bae875231e50ed2da/` 通过，使用生产 AAudio，
+确认 elapsed=0 的零时长接管后暂停。此 APK 用例是内置《光幕协奏》，不是四路对
+四路压力编排；四路预算的 Android 证据是前述 native/dummy 检查，Windows 有
+实际 UI/设备/像素检查，不混淆三者。
+当前覆盖安装 APK SHA256 `33e7842d159f91f784de56beb609bf52ee2381f5148f3f413acd9ff2cb1fe357`。
+
+两端遇到 audio.transition_cursor_budget 会提示可将过渡时长设为 0，并说明可能
+有短暂间隙。GPU 双场不足的顺序替换、失败队列重试闭环与完整连续演出还在 P3.5。

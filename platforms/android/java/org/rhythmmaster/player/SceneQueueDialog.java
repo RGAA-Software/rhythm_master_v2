@@ -128,6 +128,8 @@ final class SceneQueueDialog {
                     data.optBoolean("transitioning") ? String.format(Locale.ROOT, "%s · %.0f%%",
                     data.optString("incoming"), data.optDouble("progress") * 100) :
                     activity_.getString(R.string.scene_help));
+            if ("audio.transition_cursor_budget".equals(data.optString("error_detail")))
+                status_.append("\n" + activity_.getString(R.string.scene_audio_hard_cut_hint));
         } catch (Exception error) { status_.setText(R.string.scene_interrupted); }
     }
     private void Open() {

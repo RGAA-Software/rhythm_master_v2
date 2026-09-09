@@ -11,6 +11,7 @@
 #include "rhythm/assets/store.h"
 #include "rhythm/audio_ui/audio_panel.h"
 #include "rhythm/platform/host.h"
+#include "rhythm/player/work_library.h"
 #include "rhythm/player_audio/scene_audio_bridge.h"
 #include "scene_queue_panel.h"
 
@@ -26,7 +27,8 @@ void Activate(const char* window_name, const char* item) {
     ImGui::ActivateItemByID(ImHashStr(item, 0, window->ID));
 }
 std::string Package(const std::string& title, graph::Color color,
-                    std::span<const project::PackagedAsset> assets, float gain) {
+                    std::span<const project::PackagedAsset> assets, float gain,
+                    bool serial = false) {
     graph::Registry registry;
     graph::Document document;
     document.id_ = title;
@@ -36,8 +38,15 @@ std::string Package(const std::string& title, graph::Color color,
     for (const auto key : {"color_a", "color_b"}) document.nodes_[0].properties_[key] = color;
     document.edges_ = {{1, 1, 2, "source"}};
     document.output_ = 2;
-    return project::EncodePackage(document, title, assets,
-                                  media::Soundtrack{assets.front().record_.id_, title, gain, true});
+    media::Soundtrack soundtrack{assets.front().record_.id_, title, gain, true};
+    if (serial)
+        for (std::uint64_t id = 1; id <= 4; ++id) {
+            media::AudioClip clip{id, "Concurrent", soundtrack.asset_};
+            clip.timing_ = {0, 1, 0, 1};
+            clip.gain_ = 0.2F;
+            soundtrack.clips_.push_back(clip);
+        }
+    return project::EncodePackage(document, title, assets, soundtrack);
 }
 void Pixels(render::Renderer& renderer, render::Readback& ticket, double progress) {
     for (int attempt = 0; attempt < 16; ++attempt) {
@@ -60,12 +69,14 @@ void Pixels(render::Renderer& renderer, render::Readback& ticket, double progres
     }
     throw std::runtime_error("audio scene readback timeout");
 }
-void Run(const std::filesystem::path& root, const std::filesystem::path& fixture) {
+void Run(const std::filesystem::path& root, const std::filesystem::path& fixture,
+         bool serial = false) {
     assets::Store store(fixture / "scene-audio-ui-assets");
     const auto record = store.Import(fixture / "tone.flac", "audio/flac");
     const std::array assets{project::PackagedAsset{record, store.Read(record)}};
     const auto incoming_path = fixture / "scene-audio-ui-next.rhythmpack";
-    project::InstallPackage(incoming_path, Package("Blue incoming", {0, 0, 1, 1}, assets, 0.25F));
+    project::InstallPackage(incoming_path,
+                            Package("Blue incoming", {0, 0, 1, 1}, assets, 0.25F, serial));
     platform::Host host(true);
     host.Resize({1280, 720});
     ImGui::GetIO().IniFilename = nullptr;
@@ -75,10 +86,21 @@ void Run(const std::filesystem::path& root, const std::filesystem::path& fixture
     audio.SetVolume(0);
     player::SceneDeck deck;
     deck.EnableAudioTransitions(true);
-    deck.LoadPrepared(player::PreparedPackage(Package("Red current", {1, 0, 0, 1}, assets, 0.5F)));
+    deck.LoadPrepared(
+            player::PreparedPackage(Package("Red current", {1, 0, 0, 1}, assets, 0.5F, serial)));
     audio.LoadSoundtrack(*deck.Current().Soundtrack());
     player_audio::SceneAudioBridge bridge;
     player::SceneQueue queue;
+    if (serial) {
+        player::WorkLibrary library(fixture / "serial-cut-works");
+        const auto imported = library.Import(incoming_path);
+        const std::array works{player::ResolvedWork{
+                {1, imported.reference_, imported.title_, 0, parameters::Quantization::kImmediate},
+                performance::ResolutionState::kExact,
+                library.Open(imported.reference_)}};
+        Require(queue.ReplacePerformance(works),
+                "install explicit zero-duration performance entry");
+    }
     player_ui::SceneQueuePanel panel;
     const std::vector<player_ui::SceneChoice> choices{
             {incoming_path, {{"en-US", "Blue incoming"}}}};
@@ -99,10 +121,10 @@ void Run(const std::filesystem::path& root, const std::filesystem::path& fixture
         host.BeginUi();
         renderer.BeginFrame();
         if (frame_index == 2) Activate("Audio harness", "###scene.queue");
-        if (frame_index == 5) Activate("###scene.queue", "###scene.enqueue");
+        if (!serial && frame_index == 5) Activate("###scene.queue", "###scene.enqueue");
         const auto input = audio.Frame();
         heard |= input.features_ && input.features_->rms_ > 0.1F;
-        if (!started && heard && !queue.Items().empty() &&
+        if (!started && frame_index > 3 && heard && !queue.Items().empty() &&
             deck.QueueReady(queue.Items().front().id_)) {
             Activate("###scene.queue", "###scene.go");
             started = true;
@@ -147,12 +169,14 @@ void Run(const std::filesystem::path& root, const std::filesystem::path& fixture
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
-    Require(started && midpoint && heard && deck.Current().Title() == "Blue incoming" &&
+    Require(started && (serial || midpoint) && heard && deck.Current().Title() == "Blue incoming" &&
                     queue.Items().empty(),
             "UI enqueue/Go, audible mix and actual pixels all observed");
     deck.ReleaseGraphics();
     std::cout << "Scene audio UI: enqueue/Go, actual playback snapshot, D3D pixels and continuous "
                  "takeover passed\n";
+    if (serial)
+        std::cout << "Four old plus four incoming clips: explicit zero-duration UI Go passed\n";
 }
 void Arrangement(const std::filesystem::path& package) {
     player::Session work;
@@ -195,11 +219,12 @@ void Arrangement(const std::filesystem::path& package) {
 }  // namespace
 int main(int argc, char** argv) {
     try {
-        if (argc != 3) throw std::invalid_argument("expected root and media fixture");
+        if (argc != 3 && !(argc == 4 && std::string_view(argv[3]) == "--serial"))
+            throw std::invalid_argument("expected root, media fixture and optional --serial");
         if (std::string_view(argv[1]) == "--arrangement")
             Arrangement(argv[2]);
         else
-            Run(argv[1], argv[2]);
+            Run(argv[1], argv[2], argc == 4);
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

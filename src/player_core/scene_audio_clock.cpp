@@ -25,7 +25,11 @@ void SceneAudioClock::Begin(std::uint64_t id, double duration, std::uint64_t gen
 SceneAudioFrame SceneAudioClock::Step(const runtime::PlaybackSample& fallback,
                                       const std::optional<SceneAudioSample>& sample) {
     SceneAudioFrame frame{fallback, {0, incoming_generation_, true, {}}};
-    if (!Active() || !sample || sample->transition_id_ != id_) return frame;
+    if (!Active()) return frame;
+    if (!sample || sample->transition_id_ != id_) {
+        if (std::isfinite(fallback.seconds_) && fallback.seconds_ >= 0) previous_sample_ = fallback;
+        return frame;
+    }
     if (!std::isfinite(fallback.seconds_) || fallback.seconds_ < 0 ||
         !std::isfinite(sample->elapsed_seconds_) || sample->elapsed_seconds_ < 0 ||
         sample->elapsed_seconds_ > 5 || !ValidPosition(sample->previous_) ||
@@ -40,6 +44,12 @@ SceneAudioFrame SceneAudioClock::Step(const runtime::PlaybackSample& fallback,
                            previous_generation_,
                            sample->paused_,
                            {}};
+        previous_sample_ = frame.previous_;
+    } else if (sample->incoming_ && previous_sample_) {
+        // A serial cut can queue new PCM while holding only the old recovery
+        // checkpoint. Its new primary clock must not animate/rewind the old work.
+        frame.previous_ = *previous_sample_;
+        frame.previous_.paused_ = true;
     }
     frame.running_ = sample->phase_ == SceneAudioPhase::kRunning;
     frame.committed_ = sample->phase_ == SceneAudioPhase::kCommitted;

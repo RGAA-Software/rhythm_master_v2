@@ -892,6 +892,7 @@
     "scene.loading": "正在预备",
     "scene.cpu_ready": "素材已准备",
     "scene.gpu_preparing": "正在准备场景画面",
+    "scene.audio_hard_cut_hint": "淡化需要的音轨数超过上限。将过渡时长设为 0 可硬切；切换可能有短暂间隙。",
     "scene.ready": "已就绪",
     "scene.failed": "预备失败",
     "scene.remove": "移除所选",

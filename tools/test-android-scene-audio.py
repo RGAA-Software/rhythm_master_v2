@@ -28,6 +28,8 @@ def main():
     parser.add_argument("--adb", type=Path, default=Path("D:/android/sdk/platform-tools/adb.exe"))
     parser.add_argument("--apk", type=Path, default=ROOT / "out/android-arm64-release/apk/rhythm-player-release.apk")
     parser.add_argument("--locale", choices=("zh-CN", "en-US"), default="zh-CN")
+    parser.add_argument("--hard-cut-head", action="store_true",
+                        help="Set zero duration through the draft program UI, leaving saved data unchanged")
     args = parser.parse_args()
     output = ROOT / "out/android-scene-audio" / uuid.uuid4().hex
     output.mkdir(parents=True)
@@ -86,13 +88,16 @@ def main():
     program = json.loads(original)
     if not program["entries"] or program["entries"][0]["work"]["content_id"] != "official.templates.luminous_concerto":
         raise ValueError("Saved program must begin with the existing Concerto acceptance fixture")
+    if not args.hard_cut_head and program["entries"][0]["transition_seconds"] != 1:
+        raise ValueError("The normal audio fade fixture requires a one-second head transition")
     (output / "program-before.json").write_bytes(original)
     try:
         (output / "install.txt").write_bytes(adb("install", "-r", args.apk, timeout=60))
         with (output / "program-reopen.txt").open("w", encoding="utf-8") as log:
             subprocess.run([sys.executable, str(ROOT / "tools/test-android-program-ui.py"),
                             "--serial", args.serial, "--adb", str(args.adb), "--locale", args.locale,
-                            "--reopen-only"], check=True, stdout=log, stderr=subprocess.STDOUT)
+                            "--reopen-only", *(["--hard-cut-head"] if args.hard_cut_head else [])],
+                           check=True, stdout=log, stderr=subprocess.STDOUT)
         width, height = shot("paused-ready")
         pid = adb("shell", "pidof", APP).decode().strip()
 
@@ -123,11 +128,12 @@ def main():
         if completed is None or completed[6] in (b"dummy", b"unknown") or completed[7]:
             raise RuntimeError("Production audio driver did not confirm transition")
         matching = [row for row in rows if row[0] == completed[0]]
-        if not any(row[1] == b"3" for row in matching):
+        if not args.hard_cut_head and not any(row[1] == b"3" for row in matching):
             raise RuntimeError("No audible mixing state observed")
         counters = [int(row[2]) for row in matching]
-        if counters != sorted(counters) or counters[-1] <= counters[0] or int(completed[3]) != 48000:
-            raise RuntimeError("Device consumed counters did not span the one-second transition")
+        expected_frames = 0 if args.hard_cut_head else 48000
+        if counters != sorted(counters) or counters[-1] <= counters[0] or int(completed[3]) != expected_frames:
+            raise RuntimeError("Device consumed counters did not confirm the requested transition")
         shot("committed")
         (output / "audio-flinger.txt").write_bytes(adb("shell", "dumpsys", "media.audio_flinger"))
         adb("shell", "input", "tap", round(width * .783), round(height * .134))
@@ -137,6 +143,7 @@ def main():
                   "apk_sha256": hashlib.sha256(args.apk.read_bytes()).hexdigest(),
                   "transition_id": int(completed[0]), "consumed_frames": counters,
                   "previous_seconds": float(completed[4]), "incoming_seconds": float(completed[5]),
+                  "hard_cut_head_draft": args.hard_cut_head,
                   "saved_program_unchanged": True, "acoustic_capture": False}
         (output / "result.json").write_text(json.dumps(result, indent=4) + "\n", encoding="utf-8")
         print("APK queue touch / paused Go / production audio / scene commitment passed", flush=True)

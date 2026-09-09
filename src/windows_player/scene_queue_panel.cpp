@@ -132,6 +132,8 @@ void SceneQueuePanel::Draw(player::SceneQueue& queue, player::SceneDeck& deck,
                                       : "scene.transition_failed")
                               .c_str());
     if (!deck.ErrorDetail().empty()) ImGui::TextWrapped("%s", deck.ErrorDetail().c_str());
+    if (deck.ErrorDetail() == "audio.transition_cursor_budget")
+        ImGui::TextWrapped("%s", text.at("scene.audio_hard_cut_hint").c_str());
     ImGui::End();
 }
 }  // namespace rhythm::player_ui

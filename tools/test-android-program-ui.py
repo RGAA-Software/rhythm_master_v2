@@ -25,7 +25,11 @@ def main():
     parser.add_argument("--adb", type=Path, default=Path("D:/android/sdk/platform-tools/adb.exe"))
     parser.add_argument("--locale", choices=("en-US", "zh-CN"), default="zh-CN")
     parser.add_argument("--reopen-only", action="store_true")
+    parser.add_argument("--hard-cut-head", action="store_true",
+                        help="Set the first entry's draft duration to zero through UI; do not save")
     args = parser.parse_args()
+    if args.hard_cut_head and not args.reopen_only:
+        parser.error("--hard-cut-head requires --reopen-only to preserve the saved program")
     output = ROOT / "out/android-program-ui" / uuid.uuid4().hex
     output.mkdir(parents=True)
     print(f"Device evidence: {output}", flush=True)
@@ -159,6 +163,17 @@ def main():
             shot("reopened")
         startup()
         assert saved() == snapshot, "restart changed persisted program"
+        if args.hard_cut_head:
+            locate("program_up", True)
+            root = hierarchy("select-head")
+            touch(next(n for n in root.iter("node") if n.get("class") == "android.widget.Spinner"))
+            root = hierarchy("program-entries")
+            touch(next(n for n in root.iter("node")
+                       if n.get("class") == "android.widget.CheckedTextView" and n.get("text", "").startswith("1. ")))
+            x1, y1, x2, y2 = bounds(locate("program_duration", True))
+            tap(x1 + 1, (y1 + y2) / 2)
+            action("program_apply", True)
+            assert saved() == snapshot, "draft hard-cut edit must not alter the saved program"
         action("program_prepare")
         time.sleep(2)
         action("scene_queue", True)
@@ -174,7 +189,8 @@ def main():
         adb("shell", "input", "keyevent", 4)
         shot("prepared")
         (output / "result.json").write_text(json.dumps({"serial": args.serial, "entries": len(snapshot["entries"]),
-                "queue_rows": rows, "reopen_only": args.reopen_only, "status": "passed"}, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
+                "queue_rows": rows, "reopen_only": args.reopen_only,
+                "hard_cut_head_draft": args.hard_cut_head, "status": "passed"}, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
         print("Android touch program restart/reopen/prepare passed" if args.reopen_only else
               "Android touch program add/duplicate/order/settings/save/reopen/restart/prepare passed", flush=True)
     except Exception:

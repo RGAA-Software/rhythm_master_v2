@@ -892,6 +892,7 @@
     "scene.loading": "Preparing",
     "scene.cpu_ready": "CPU assets ready",
     "scene.gpu_preparing": "Preparing scene graphics",
+    "scene.audio_hard_cut_hint": "The fade exceeds the audio track limit. Set transition duration to 0 for a hard cut; a short gap is possible.",
     "scene.ready": "Ready",
     "scene.failed": "Preparation failed",
     "scene.remove": "Remove selected",
