@@ -95,7 +95,7 @@ def main():
         if width <= height:
             raise RuntimeError('This landscape authoring check requires a landscape startup scene')
         queries = {'contour_pulse': 'contour', 'resonant_armillary': 'armillary',
-                   'prismatic_title': 'title'}
+                   'prismatic_title': 'title', 'vector_resonance': 'vector'}
         for name in args.effect or ['contour_pulse', 'resonant_armillary']:
             query = queries[name]
             entry = catalog[name]

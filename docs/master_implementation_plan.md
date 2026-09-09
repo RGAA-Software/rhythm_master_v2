@@ -45,7 +45,12 @@ schema 8 / ABI 6 和 Windows 实际空白创作/保存发布/重开及 PCM/GPU �
 见 [文字创作证据](validation/text_authoring_2026-09-10.md) 与
 [文字实施边界](text_rendering.md)。Android 原生字体准备、实际 APK/GLES 音乐对照、
 内置 UI 选择与暂停恢复截图核对，以及 Windows MP4 导出/完整 deploy 已通过。
-P5 矢量/桥接/持久缓存与系统输入法专项，以及 P6–P9 未完成。
+字体持久缓存已接入后台 Loader，并修复并发保存／读取 CURRENT 的句柄竞态。
+P5 矢量基础和运行时合同已通过 Windows/Android 原生测试，“矢量共振”23 节点
+作品已通过实际 Studio 空白创作／保存发布重开、PCM/GPU 对比、MP4 导出及两端交付，
+含 Android 应用内选择和暂停／恢复截图核对。
+见 [矢量实施与证据](vector_graphics.md)。P5 桥接、其他资产局部缓存与系统输入法
+专项，以及 P6–P9 未完成。
 
 ## 1. 产品目标、阶段终点与优先级
 

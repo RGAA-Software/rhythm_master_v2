@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import subprocess
+import sys
 import uuid
 import zipfile
 
@@ -27,6 +28,14 @@ def main():
         parser.error('Invalid effect or expected node count')
     evidence = ROOT / 'out/android-music' / uuid.uuid4().hex
     evidence.mkdir(parents=True)
+    # APK builds do not link standalone test targets. Rebuild the checker before
+    # interpreting its result; an old registry would reject newly added operators.
+    cache = (args.build / 'CMakeCache.txt').read_text(encoding='utf-8')
+    configuration = next(line.split('=', 1)[1] for line in cache.splitlines()
+                         if line.startswith('CMAKE_BUILD_TYPE:STRING='))
+    run_logged([sys.executable, str(ROOT / 'tools/build-android.py'),
+                '--build', str(args.build), '--configuration', configuration,
+                '--target', 'android_gpu_contract_tests'], evidence / 'native-build.log')
     apk_path = args.build / 'apk/rhythm-player-release.apk'
     package = args.host_build / 'content/packages' / (args.effect + '.rhythmpack')
     source = ROOT / 'content/templates' / args.effect

@@ -2006,6 +2006,34 @@
             "properties": {
                 "initial": 0
             }
+        },
+        {
+            "id": "official.texture.path_fill.default",
+            "version": "1.0.0",
+            "operator": "texture.path_fill",
+            "titles": {
+                "zh-CN": "默认 · 路径填充",
+                "en-US": "Default · Path fill"
+            },
+            "properties": {
+                "path_span": 4,
+                "path_plane": 0,
+                "path_samples": 512
+            }
+        },
+        {
+            "id": "official.texture.path_stroke.default",
+            "version": "1.0.0",
+            "operator": "texture.path_stroke",
+            "titles": {
+                "zh-CN": "默认 · 路径描边",
+                "en-US": "Default · Path stroke"
+            },
+            "properties": {
+                "path_span": 4,
+                "path_plane": 0,
+                "path_samples": 512
+            }
         }
     ]
 }

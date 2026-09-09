@@ -27,6 +27,7 @@ void Runtime::Impl::ResetResources() {
     images_ = {};
     shaders_ = {};
     videos_ = {};
+    vectors_ = {};
     document_id_.clear();
     extent_ = {};
 }
@@ -79,6 +80,7 @@ FrameResult Runtime::Impl::EvaluateRange(
             white_ = renderer.CreateTexture({1, 1}, white);
         }
         images_.Retain(plan, images);
+        vectors_.Retain(plan);
         shaders_.Retain(plan, shaders);
         if (preparation)
             videos_.Retain(plan);
@@ -517,6 +519,14 @@ FrameResult Runtime::Impl::EvaluateRange(
                             renderer.Submit(state.history_.Handle(), list, 0x000000ff);
                         }
                         state.output_.texture_ = state.history_.Handle();
+                        break;
+                    case graph::Operation::kVectorFill:
+                    case graph::Operation::kVectorStroke:
+                        if (!state.target_.Handle().device_)
+                            state.target_ = acquire(extent, precision);
+                        vectors_.Draw(instruction, result.outputs_, white_.Handle(), list);
+                        renderer.Submit(state.target_.Handle(), list, 0);
+                        state.output_.texture_ = state.target_.Handle();
                         break;
                     default:
                         if (!state.target_.Handle().device_)

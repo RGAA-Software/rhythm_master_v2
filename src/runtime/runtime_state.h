@@ -13,6 +13,7 @@
 #include "shader_pass.h"
 #include "texture_lifetimes.h"
 #include "trail_pass.h"
+#include "vector_pass.h"
 #include "video_pass.h"
 
 namespace rhythm::runtime {
@@ -89,6 +90,7 @@ class Runtime::Impl final {
     detail::ImageUploads images_{};
     detail::ShaderPrograms shaders_{};
     detail::VideoUploads videos_{};
+    detail::VectorMeshes vectors_{};
     std::string document_id_{};
     std::uint64_t reset_generation_ = 0;
     render::Extent extent_{};

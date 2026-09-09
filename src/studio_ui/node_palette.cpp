@@ -48,6 +48,8 @@ std::string_view Category(graph::Operation operation) {
         case kTextureShader:
         case kTextureImage:
         case kTextureText:
+        case kVectorFill:
+        case kVectorStroke:
         case kTextureVideo:
             return "palette.generators";
         case kTransform:

@@ -3,6 +3,28 @@
 namespace rhythm::graph {
 void AppendPathDescriptors(std::vector<OperatorDescriptor>& operators) {
     using Type = ValueType;
+    operators.push_back({"texture.path_fill",
+                         Operation::kVectorFill,
+                         Type::kTexture,
+                         {{"path", Type::kPath}, {"hole", Type::kPath, false}},
+                         {{"path_samples", 512.0, 3, 512, {}, true},
+                          {"path_span", 4.0, 0.1, 100},
+                          {"path_plane", 0.0, 0, 2, {"vector.xy", "vector.xz", "vector.yz"}, true},
+                          {"color_a", Color{0.1, 0.8, 0.9, 1}}}});
+    operators.push_back(
+            {"texture.path_stroke",
+             Operation::kVectorStroke,
+             Type::kTexture,
+             {{"path", Type::kPath}, {"vector_width", Type::kScalar, false}},
+             {{"path_samples", 512.0, 3, 512, {}, true},
+              {"path_span", 4.0, 0.1, 100},
+              {"path_plane", 0.0, 0, 2, {"vector.xy", "vector.xz", "vector.yz"}, true},
+              {"vector_width", 4.0, 0, 100},
+              {"vector_join", 2.0, 0, 2, {"vector.miter", "vector.bevel", "vector.round"}, true},
+              {"vector_cap", 2.0, 0, 2, {"vector.butt", "vector.square", "vector.round"}, true},
+              {"vector_miter", 4.0, 1, 16},
+              {"vector_tolerance", 0.25, 0.001, 1},
+              {"color_a", Color{0.1, 0.8, 0.9, 1}}}});
     operators.push_back({"geometry.deform",
                          Operation::kGeometryDeform,
                          Type::kGeometry,

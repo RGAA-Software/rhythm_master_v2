@@ -1,0 +1,36 @@
+{
+    "id": "p5-vector-resonance",
+    "title": "矢量共振 / Vector Resonance",
+    "descriptions": {
+        "zh-CN": "低频扩张带孔圆环，高频驱动金色弧线宽度，时间推动粉色波形和旋转弧线；路径、填充、描边和柔光均可展开编辑。",
+        "en-US": "Bass expands a ring with a true hole, treble changes the gold arc width, and time moves a pink wave and orbit. Paths, fills, strokes and glow remain editable."
+    },
+    "view_node": 22,
+    "final_view": {"translate_x": 0, "rotation": 0, "scale_x": 1, "scale_y": 1, "scale": 1},
+    "component_title": "Vector Composition",
+    "nodes": [
+        {"type": "core.time"},
+        {"type": "audio.band", "properties": {"audio_band": 12}},
+        {"type": "scalar.map", "properties": {"input_max": 0.15, "output_min": 0.92, "output_max": 1.16}, "inputs": {"value": 2}},
+        {"type": "audio.band", "properties": {"audio_band": 48}},
+        {"type": "scalar.map", "properties": {"input_max": 0.1, "output_min": 3, "output_max": 16}, "inputs": {"value": 4}},
+        {"type": "scalar.map", "properties": {"input_max": 60, "output_min": 0, "output_max": 3600}, "inputs": {"value": 1}},
+        {"type": "path.helix", "properties": {"path_height": 0, "path_turns": 1, "path_closed": 1}, "inputs": {"path_radius": 3}},
+        {"type": "path.helix", "properties": {"path_height": 0, "path_turns": 1, "path_closed": 1, "path_radius": 0.84}},
+        {"type": "texture.path_fill", "properties": {"path_plane": 1, "color_a": "34E1CCFF"}, "inputs": {"path": 7, "hole": 8}},
+        {"type": "path.helix", "properties": {"path_height": 0, "path_turns": 0.82, "path_radius": 1.4}, "inputs": {"path_phase": 6}},
+        {"type": "texture.path_stroke", "properties": {"path_plane": 1, "color_a": "FFD28AFF"}, "inputs": {"path": 10, "vector_width": 5}},
+        {"type": "path.helix", "properties": {"path_height": 2.8, "path_turns": 2.5, "path_radius": 0.48}, "inputs": {"path_phase": 6}},
+        {"type": "texture.path_stroke", "properties": {"path_plane": 0, "vector_width": 3, "color_a": "F37DB9FF"}, "inputs": {"path": 12}},
+        {"type": "texture.composite", "inputs": {"a": 9, "b": 11}},
+        {"type": "texture.composite", "inputs": {"a": 14, "b": 13}},
+        {"type": "texture.blur", "properties": {"blur_radius": 16}, "inputs": {"source": 15}},
+        {"type": "texture.composite", "inputs": {"a": 16, "b": 15}},
+        {"type": "texture.noise", "properties": {"noise_scale": 3, "color_a": "030713FF", "color_b": "102A31FF"}, "inputs": {"phase": 1}},
+        {"type": "texture.composite", "inputs": {"a": 18, "b": 17}},
+        {"type": "texture.fxaa", "inputs": {"source": 19}},
+        {"type": "texture.affine", "properties": {"scale": 0.95}, "inputs": {"source": 20}},
+        {"type": "texture.affine", "properties": {"scale": 0.85}, "inputs": {"source": 21}},
+        {"type": "output.texture", "inputs": {"source": 22}}
+    ]
+}
