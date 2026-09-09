@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
         studio::ShaderPanel panel;
         panel.SetTools({argv[1], argv[2], argv[3]});
         const auto assets = std::filesystem::path(argv[4]) / "assets";
+        ImGuiID source_id = 0;
         const auto frame = [&](std::string_view activate = {}) {
             if (auto next = panel.Take(history.Current()))
                 history.Apply(std::move(*next), history.Current().document_.revision_);
@@ -45,6 +46,7 @@ int main(int argc, char* argv[]) {
             ImGui::SetNextWindowPos({0, 0});
             ImGui::SetNextWindowSize({900, 700});
             ImGui::Begin("Shader UI", nullptr, ImGuiWindowFlags_NoDecoration);
+            source_id = ImGui::GetID("###shader.source");
             if (!activate.empty())
                 ImGui::ActivateItemByID(ImGui::GetID(std::string(activate).c_str()));
             panel.Draw(history.Current(), 1, assets, text);
@@ -59,6 +61,19 @@ int main(int argc, char* argv[]) {
             }
             Check(!panel.Busy(), "UI compilation deadline");
             frame();
+        };
+        const auto check_source = [&](std::string_view expected) {
+            io.AddMousePosEvent(80, 110);
+            frame();
+            io.AddMouseButtonEvent(0, true);
+            frame();
+            io.AddMouseButtonEvent(0, false);
+            frame();
+            // Checked synchronous borrow of Dear ImGui's active widget state.
+            const auto* state = ImGui::GetInputTextState(source_id);
+            Check(state && state->TextA.Size > 0, "source widget is focused");
+            Check(std::string_view(state->TextA.Data, state->TextLen) == expected,
+                  "source widget must contain the restored asset expression");
         };
         frame();
         frame("###shader.compile");
@@ -94,11 +109,13 @@ int main(int argc, char* argv[]) {
               "undo restores the previous successful shader");
         frame();
         drain();
+        check_source("vec4(0.5 + 0.5 * cos(time + uv.xyx * 6.283185 + vec3(0.0, 2.0, 4.0)), 1.0)");
         Check(history.Redo(), "redo compiled replacement");
         const auto replacement = history.Current().assets_[0].id_;
         // Undo/redo changes binding; the disconnected node must reload the asset source.
         frame();
         drain();
+        check_source("vec4(uv.x, uv.y, sin(time), 1.0)");
         frame("###shader.compile");
         frame();
         drain();

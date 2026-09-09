@@ -72,6 +72,8 @@ void ShaderPanel::Draw(const editor::Snapshot& snapshot, graph::NodeId selected,
         source_loader_.Cancel();
         ++load_generation_;
         buffer_.fill(0);
+        error_.clear();
+        diagnostic_.reset();
         const std::string initial =
                 "vec4(0.5 + 0.5 * cos(time + uv.xyx * 6.283185 + vec3(0.0, 2.0, 4.0)), 1.0)";
         if (id.sha256_.empty()) {
@@ -82,17 +84,20 @@ void ShaderPanel::Draw(const editor::Snapshot& snapshot, graph::NodeId selected,
             // Prepare just this shader asset independently of the running graph.
             graph::Document source_document;
             source_document.id_ = document_;
-            source_document.nodes_ = {*found};
-            source_document.output_ = found->id_;
+            const graph::Registry registry;
+            const graph::NodeId output = found->id_ == 1 ? 2 : 1;
+            source_document.nodes_ = {*found, registry.MakeNode(output, "output.texture")};
+            source_document.edges_ = {{1, found->id_, output, "source"}};
+            source_document.output_ = output;
             const auto compiled = graph::Compile(source_document, graph::Registry{});
             if (std::holds_alternative<graph::ExecutionPlan>(compiled))
                 source_loader_.Submit({std::get<graph::ExecutionPlan>(compiled), snapshot.assets_,
                                        assets, load_generation_});
-            else
+            else {
                 loaded_ = true;
+                error_ = "shader.read";
+            }
         }
-        error_.clear();
-        diagnostic_.reset();
     }
     if (const auto result = source_loader_.Take();
         result && result->generation_ == load_generation_) {
