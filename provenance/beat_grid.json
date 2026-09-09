@@ -1,0 +1,36 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "license": "MIT",
+    "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+    "source_files": [
+        {
+            "path": "Core/Animation/Playback.cs",
+            "sha256": "0f38129cbe71690f6d9ba04ef8698a46013d030d2f0089ff590f364849dd53e5"
+        },
+        {
+            "path": "Editor/Gui/Interaction/Timing/BeatTiming.cs",
+            "sha256": "fd83d7aa10eb491d942a4fc3a61412634943ad04c5e801c9c14aeea0061ac05a"
+        },
+        {
+            "path": "Core/Audio/BeatTimingDetails.cs",
+            "sha256": "4f46425993a6083cf47d0c891842aaabc8a7a303fefa5f9bdeca600fe36683de"
+        }
+    ],
+    "imported_files": [],
+    "adapted_files": [
+        "src/parameters/beat_grid.cpp"
+    ],
+    "usage": "Read Playback time conversion and BeatTiming.ProcessBeatTaps. Adapt the bounded tap interval-averaging approach; no verbatim C# source or host service imported.",
+    "modifications": [
+        "Keep caller-owned media time instead of static Playback runtime/BeatSynchronizer. Define explicit quarter-note BPM, configurable meter/origin, strict future boundary queries and finite budgets. Use eight accepted taps, four before publishing a BPM estimate; ignore bounce and reset on long/backward intervals. No phase smoothing or automatic beat-lock claims."
+    ],
+    "target_modules": [
+        "parameters"
+    ],
+    "first_party_reuse": [
+        "src/runtime/include/rhythm/runtime/playback_clock.h",
+        "src/parameters/control_sequence.cpp"
+    ],
+    "outbound_license": "Unselected. Existing upstream MIT notice retained; no third-party relicensing."
+}
