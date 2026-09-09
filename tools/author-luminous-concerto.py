@@ -71,10 +71,19 @@ def media_sources(work, ffmpeg):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--ffmpeg", type=Path, default=Path("C:/source/vcpkg/installed/x64-windows-static-release/tools/ffmpeg/ffmpeg.exe"))
+    parser.add_argument("--reuse-media", action="store_true", help="Reauthor nodes using the existing verified media blobs")
     args = parser.parse_args()
     destination = ROOT / "content/templates/luminous_concerto"
     records = []
-    for path, mime in media_sources(ROOT / "out/luminous-concerto-authoring", args.ffmpeg):
+    sources = [] if args.reuse_media else media_sources(ROOT / "out/luminous-concerto-authoring", args.ffmpeg)
+    if args.reuse_media:
+        records = json.loads((destination / 'manifest.json').read_text(encoding='utf-8'))['assets']
+        for record in records:
+            digest = record['sha256']
+            data = (destination / 'assets/sha256' / digest[:2] / digest).read_bytes()
+            if hashlib.sha256(data).hexdigest() != digest or len(data) != record['bytes']:
+                raise ValueError('Existing media integrity failure')
+    for path, mime in sources:
         data = path.read_bytes()
         digest = hashlib.sha256(data).hexdigest()
         blob = destination / "assets/sha256" / digest[:2] / digest
@@ -121,7 +130,20 @@ def main():
     spectrum = node("texture.spectrum", 5500, 500, spectrum_layout=1, spectrum_radius=0.38, spectrum_gain=1.5,
                     bar_count=96, bar_gap=0.7, color_a=(0.05, 0.8, 1, 0.6), color_b=(1, 0.2, 0.4, 0.7))
     display = node("texture.composite", 6100, 0, dict(a=display, b=spectrum), composite_mode=1, amount=0.7)
-    final = node("output.texture", 6400, 0, dict(source=display))
+    beat = node("event.beat", 6100, 1050)
+    beat_envelope = node("event.envelope", 6430, 1050, dict(events=beat),
+                         attack=0.005, decay=0.08, sustain=0.35, duration=0.1, release=0.28)
+    onset = node("event.audio_onset", 6100, 1550, threshold=0.015, band_first=0, band_last=28)
+    onset_envelope = node("event.envelope", 6430, 1550, dict(events=onset),
+                          attack=0.005, decay=0.1, sustain=0.3, duration=0.12, release=0.22)
+    cue = node("event.cue", 6100, 2050)
+    section = node("event.step", 6430, 2050, dict(events=cue), steps=3, step=1, initial=0)
+    exposure = node("scalar.expression", 6760, 1050, dict(a=beat_envelope, b=onset_envelope),
+                    expression="a * 0.35 + b * 1.2")
+    saturation = node("scalar.expression", 6760, 2050, dict(a=section), expression="0.9 + a * 0.12")
+    display = node("texture.color_adjust", 7100, 0,
+                   dict(source=display, exposure=exposure, saturation=saturation))
+    final = node("output.texture", 7440, 0, dict(source=display))
     controls = ['controls {']
     for identity, title in [(response, 'Music response'), (motion, 'Orbit speed'), (glow, 'Bloom')]:
         controls.append(f' titles {{ key: {identity} value: "{title}" }}')
@@ -133,7 +155,7 @@ def main():
     for identity, seconds, snapshot, fade in [(1, 0, 1, 0), (2, 4, 2, 2), (3, 12, 3, 3)]:
         controls.append(f' cues {{ id: {identity} title: "Part {identity}" seconds: {seconds} snapshot: {snapshot} fade: {fade} smooth: true }}')
     controls.append('}')
-    (destination / 'graph.textproto').write_text(f'schema_version: 6\nbeat_grid {{ bpm: 120 beats_per_bar: 4 beat_unit: 4 origin_seconds: 0 }}\nid: "official-luminous-concerto"\noutput: {final}\ncanvas {{ width: 1280 height: 720 }}\n' + '\n'.join(graph.nodes + graph.edges + controls) + '\n', encoding='utf-8')
+    (destination / 'graph.textproto').write_text(f'schema_version: 7\nbeat_grid {{ bpm: 120 beats_per_bar: 4 beat_unit: 4 origin_seconds: 0 }}\nid: "official-luminous-concerto"\noutput: {final}\ncanvas {{ width: 1280 height: 720 }}\n' + '\n'.join(graph.nodes + graph.edges + controls) + '\n', encoding='utf-8')
     (destination / 'editor.json').write_text(json.dumps(dict(version=2, positions=graph.positions), indent=4) + '\n', encoding='utf-8')
     clips = []
     for identity, title, source, start, duration, source_in, source_out, gain, pan in [
@@ -149,8 +171,8 @@ def main():
     manifest.update(manifest_version=3, content_id='official.templates.luminous_concerto', project_id='official-luminous-concerto',
                     title='光幕协奏 / Luminous Concerto', titles={'zh-CN': '光幕协奏', 'en-US': 'Luminous Concerto'},
                     assets=records, tier='example', soundtrack=dict(sha256=records[0]['sha256'], title='Luminous Concerto', gain=0.75, loop=True, clips=clips),
-                    descriptions={'zh-CN': '两段原创流光视频、四条音频片段与三段 Cue 组成 16 秒音画演出。低中高频驱动八组立体光环，视频在中段交叠，配乐可逐片段编辑入出点、音量、左右平衡与淡入淡出。',
-                                  'en-US': 'A 16-second performance with two original ribbon videos, four audio clips and three cues. Eight 3D rings respond to bass, mids and treble while the video layers overlap. Edit trim, placement, gain, balance and fades directly in the timeline.'})
+                    descriptions={'zh-CN': '两段原创流光视频、四条音频片段与三段 Cue 组成 16 秒音画演出。低中高频驱动八组立体光环，视频在中段交叠，节拍与音频瞬态通过独立 ADSR 驱动曝光，Cue 事件步进切换饱和度；配乐可逐片段编辑。',
+                                  'en-US': 'A 16-second performance with two original ribbon videos, four audio clips and three cues. Eight 3D rings respond to bass, mids and treble while the video layers overlap. Beat and detected audio onset events drive separate ADSR exposure pulses; Cue events step the saturation. Edit each music clip in the timeline.'})
     (destination / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=4) + '\n', encoding='utf-8')
     print(f'Luminous Concerto: {len(graph.nodes)} nodes, {len(graph.edges)} edges; {sum(record["bytes"] for record in records)} asset bytes')
 

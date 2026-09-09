@@ -38,6 +38,10 @@ int main(int argc, char* argv[]) {
         const auto expected_nodes = argc == 5 ? std::stoull(argv[4]) : 164;
         const auto package = project::LoadPackage(argv[1]);
         const auto& instructions = package.program_.instructions_;
+        graph::NodeId onset_source = 0;
+        for (const auto& instruction : instructions)
+            if (instruction.operation_ == graph::Operation::kEventAudio)
+                onset_source = instruction.node_.id_;
         const bool videos =
                 std::any_of(instructions.begin(), instructions.end(), [](const auto& instruction) {
                     // Both texture.video and texture.video_clip compile to this operation.
@@ -124,6 +128,7 @@ int main(int argc, char* argv[]) {
             runtime::ExternalInputs inputs;
             std::size_t cursor = 0;
             std::uint64_t stable_bytes = 0;
+            std::uint64_t onset_events = 0;
             for (int frame = 0; frame < 124; ++frame) {
                 const auto seconds = std::min(frame, 120) / 30.0;
                 const auto& sequence = features[scenario];
@@ -161,13 +166,21 @@ int main(int argc, char* argv[]) {
                     bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
                 }
                 renderer.EndFrame();
+                for (const auto& value : image.outputs_)
+                    if (value.node_ == onset_source && value.event_observation_)
+                        onset_events = value.event_observation_->count_;
+                if (image.rejected_event_total_) throw std::runtime_error("music.event_rejections");
                 const auto bytes = renderer.Stats().texture_bytes_;
                 if (frame == 30) stable_bytes = bytes;
                 if (frame > 30 && bytes != stable_bytes)
                     throw std::runtime_error("music.texture_growth");
             }
             std::cout << names[scenario] << " decoded_feature_frames=" << features[scenario].size()
-                      << " texture_bytes=" << stable_bytes << '\n';
+                      << " texture_bytes=" << stable_bytes << " audio_onset_events=" << onset_events
+                      << '\n';
+            if (onset_source &&
+                ((scenario == 0 && onset_events == 0) || (scenario == 1 && onset_events != 0)))
+                throw std::runtime_error("music.onset_event_response");
         }
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

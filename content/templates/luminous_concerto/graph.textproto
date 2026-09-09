@@ -1,7 +1,7 @@
-schema_version: 6
+schema_version: 7
 beat_grid { bpm: 120 beats_per_bar: 4 beat_unit: 4 origin_seconds: 0 }
 id: "official-luminous-concerto"
-output: 85
+output: 94
 canvas { width: 1280 height: 720 }
 nodes { id: 1 type_key: "control.scalar" schema_version: 1
     properties { key: "value" value { scalar: 1 } }
@@ -341,7 +341,43 @@ nodes { id: 84 type_key: "texture.composite" schema_version: 1
     properties { key: "composite_mode" value { scalar: 1 } }
     properties { key: "amount" value { scalar: 0.7 } }
 }
-nodes { id: 85 type_key: "output.texture" schema_version: 1
+nodes { id: 85 type_key: "event.beat" schema_version: 1
+}
+nodes { id: 86 type_key: "event.envelope" schema_version: 1
+    properties { key: "attack" value { scalar: 0.005 } }
+    properties { key: "decay" value { scalar: 0.08 } }
+    properties { key: "sustain" value { scalar: 0.35 } }
+    properties { key: "duration" value { scalar: 0.1 } }
+    properties { key: "release" value { scalar: 0.28 } }
+}
+nodes { id: 87 type_key: "event.audio_onset" schema_version: 1
+    properties { key: "threshold" value { scalar: 0.015 } }
+    properties { key: "band_first" value { scalar: 0 } }
+    properties { key: "band_last" value { scalar: 28 } }
+}
+nodes { id: 88 type_key: "event.envelope" schema_version: 1
+    properties { key: "attack" value { scalar: 0.005 } }
+    properties { key: "decay" value { scalar: 0.1 } }
+    properties { key: "sustain" value { scalar: 0.3 } }
+    properties { key: "duration" value { scalar: 0.12 } }
+    properties { key: "release" value { scalar: 0.22 } }
+}
+nodes { id: 89 type_key: "event.cue" schema_version: 1
+}
+nodes { id: 90 type_key: "event.step" schema_version: 1
+    properties { key: "steps" value { scalar: 3 } }
+    properties { key: "step" value { scalar: 1 } }
+    properties { key: "initial" value { scalar: 0 } }
+}
+nodes { id: 91 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * 0.35 + b * 1.2" } }
+}
+nodes { id: 92 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "0.9 + a * 0.12" } }
+}
+nodes { id: 93 type_key: "texture.color_adjust" schema_version: 1
+}
+nodes { id: 94 type_key: "output.texture" schema_version: 1
 }
 edges { id: 1 from: 4 to: 5 input: "time" }
 edges { id: 2 from: 2 to: 5 input: "a" }
@@ -451,7 +487,16 @@ edges { id: 105 from: 12 to: 82 input: "a" }
 edges { id: 106 from: 81 to: 82 input: "b" }
 edges { id: 107 from: 82 to: 84 input: "a" }
 edges { id: 108 from: 83 to: 84 input: "b" }
-edges { id: 109 from: 84 to: 85 input: "source" }
+edges { id: 109 from: 85 to: 86 input: "events" }
+edges { id: 110 from: 87 to: 88 input: "events" }
+edges { id: 111 from: 89 to: 90 input: "events" }
+edges { id: 112 from: 86 to: 91 input: "a" }
+edges { id: 113 from: 88 to: 91 input: "b" }
+edges { id: 114 from: 90 to: 92 input: "a" }
+edges { id: 115 from: 84 to: 93 input: "source" }
+edges { id: 116 from: 91 to: 93 input: "exposure" }
+edges { id: 117 from: 92 to: 93 input: "saturation" }
+edges { id: 118 from: 93 to: 94 input: "source" }
 controls {
  titles { key: 1 value: "Music response" }
  titles { key: 2 value: "Orbit speed" }

@@ -23,8 +23,8 @@
     ],
     "external_assets": [],
     "descriptions": {
-        "zh-CN": "两段原创流光视频、四条音频片段与三段 Cue 组成 16 秒音画演出。低中高频驱动八组立体光环，视频在中段交叠，配乐可逐片段编辑入出点、音量、左右平衡与淡入淡出。",
-        "en-US": "A 16-second performance with two original ribbon videos, four audio clips and three cues. Eight 3D rings respond to bass, mids and treble while the video layers overlap. Edit trim, placement, gain, balance and fades directly in the timeline."
+        "zh-CN": "两段原创流光视频、四条音频片段与三段 Cue 组成 16 秒音画演出。低中高频驱动八组立体光环，视频在中段交叠，节拍与音频瞬态通过独立 ADSR 驱动曝光，Cue 事件步进切换饱和度；配乐可逐片段编辑。",
+        "en-US": "A 16-second performance with two original ribbon videos, four audio clips and three cues. Eight 3D rings respond to bass, mids and treble while the video layers overlap. Beat and detected audio onset events drive separate ADSR exposure pulses; Cue events step the saturation. Edit each music clip in the timeline."
     },
     "assets": [
         {

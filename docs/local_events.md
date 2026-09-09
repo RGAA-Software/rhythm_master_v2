@@ -174,4 +174,46 @@ ADSR 定时输出、反馈/拖尾独立重置与 GPU 粒子清空已经完成实
 [失效路径与永久回归](validation/compute_view_reuse_2026-09-09.md)。Windows Player
 和 Android 状态区域也接入事件拒绝累计报告；本轮 Windows Player 启动通过
 `out/p2-player-event-diagnostics-windows-tests.log`，Android 编译打包并 install -r 成功。
-事件完整作品与 Studio 模板应用仍在下一次交付中验收；该安装包还未包含后续计算视图修复。
+该次安装包还未包含后续计算视图修复；下面的完整作品交付已包含该修复。
+
+### 完整作品交付
+
+光幕协奏更新为 94 节点、118 条连接，原有四份音视频资产不变。节拍和音频瞬态
+分别驱动包络，Cue 驱动步进，最终调制曝光/饱和度。仍是品质审核待定示例。
+Windows Studio 构建自动部署并通过四项强制模板应用回归，日志
+`out/p2-event-work-delivery.log`；Windows 音乐/GPU 检查通过
+`out/p2-event-work-music-windows-tests.log`，实际渲染音乐、静音和频段对照。
+
+Android 采用作品四条音频实际混音，并对两组输入在相同时间解析相同视频帧。
+16 秒、960 帧检查：音乐瞬态事件 51 次，静音 0 次；2/6/10/14 秒音乐与静音
+平均 RGB 差分别为 0.202558、1.34367、1.02277、0.424988。音乐组 p50 11.72 ms、
+p95 15.86 ms，峰值纹理 14925316 字节。这是离线解码与 GPU 检查，不能当实机 UI
+帧率或长稳成绩。日志 `out/p2-event-work-synchronous-music-android-tests.log`。
+
+测试期间补齐两个夹具缺口：旧音乐探针假设单个音频文件，不能读取编排配乐；
+旧常量纹理断言不适用于视频片段进入/退出。探针复用项目 AudioMixer 和同步视频
+解析，对非视频夹具保留原断言；失败日志分别保留在
+`out/p2-event-work-music-android-tests.log`、
+`out/p2-event-work-mixed-music-android-tests.log`，不把这两次失败描述成已通过。
+
+当前 APK 已覆盖安装到 USB Redmi K40S，内置目录包含新作品；节拍控件、页面重开、
+暂停等待及快照实际参数变化通过，日志 `out/p2-event-work-android-ui.log`，
+证据目录 `out/android-beat-ui/dffac1a0c86049c3a39bbc6a4c70f628`。
+
+### 动作轨合同与复用决定（P2.4 进行中）
+
+参考本地 TiXL `fbc994d923e8a0142d2ff1b772e4d12248c5b0ba`（MIT）中的
+`Core/DataTypes/DataSet/DataRecording.cs`、`IoServices/IoDataSetRecorder.cs`、
+`Editor/Gui/Windows/TimeLine/RecordingSession.cs`，源地址
+<https://github.com/tixl3d/tixl/tree/fbc994d923e8a0142d2ff1b772e4d12248c5b0ba>。
+采用“一次录制对应一次历史事务”的交互原则；没有复制源文件。其 C# 全局录制集、
+MIDI/OSC 回调和墙上时间不能直接满足本项目停止通信开发、统一媒体时钟、不可变结果
+及有界事件合同，因此复用项目曲线值和历史事务架构实现适配，不引入另一录制时钟。
+
+动作轨由 event.input 节点拥有，存稳定动作 ID、秒时间、类型和值，复制/组件移动随
+所属节点一起迁移，不另存易悬挂的外部节点地址。单轨 4096 项；录制缓冲达到容量
+拒绝新动作并报告，不覆盖已录内容。录制以实际分发事件为准，校验来源、代次、时间
+和序号；结束返回一个不可变轨值供一次撤销提交，取消不改变原轨。
+纯参数模块已通过 Windows/Android `event_track`，日志
+`out/p2-event-track-windows-tests.log`、`out/p2-event-track-android-tests.log`。
+运行时入口、存储及可操作录制界面仍在实施，这些原生检查不代表 P2.4 已交付。

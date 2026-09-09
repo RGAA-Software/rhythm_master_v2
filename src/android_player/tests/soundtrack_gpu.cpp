@@ -9,6 +9,7 @@
 
 #include "rhythm/audio/analyzer.h"
 #include "rhythm/media/audio_decoder.h"
+#include "rhythm/media/audio_mixer.h"
 #include "rhythm/player/session.h"
 
 namespace rhythm::validation {
@@ -34,6 +35,14 @@ void Write(const std::filesystem::path& path, const render::ReadbackImage& image
 // diagnostic does not substitute for Android application audio/lifecycle tests.
 void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path& path,
                         bool arrangement) {
+    const auto package = project::LoadPackage(path);
+    const bool videos = std::any_of(
+            package.program_.instructions_.begin(), package.program_.instructions_.end(),
+            [](const auto& node) { return node.operation_ == graph::Operation::kTextureVideo; });
+    graph::NodeId onset_source = 0;
+    for (const auto& instruction : package.program_.instructions_)
+        if (instruction.operation_ == graph::Operation::kEventAudio)
+            onset_source = instruction.node_.id_;
     const auto frames = arrangement ? 960 : 240;
     const std::vector<int> checkpoints =
             arrangement ? std::vector<int>{120, 360, 600, 840} : std::vector<int>{239};
@@ -41,18 +50,32 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
     for (int silent = 0; silent < 2; ++silent) {
         player::Session session;
         session.Open(path);
+        // Match the Windows offline comparison: resolve the same source video
+        // frames synchronously, so worker scheduling cannot mimic audio response.
+        const auto resources = videos ? prepared_assets::Prepare(package.program_, package.assets_)
+                                      : std::shared_ptr<const prepared_assets::Resources>{};
+        video_sources::Streams streams;
+        runtime::Runtime offline;
         const auto track = session.Soundtrack();
         if (!track) throw std::runtime_error("music package missing soundtrack");
-        auto decoder = track->file_bytes_.Valid() ? media::AudioDecoder(track->file_bytes_)
-                                                  : media::AudioDecoder(track->bytes_);
+        std::optional<media::AudioDecoder> decoder;
+        std::optional<media::AudioMixer> mixer;
+        if (track->arrangement_)
+            mixer.emplace(*track->arrangement_);
+        else if (track->file_bytes_.Valid())
+            decoder.emplace(track->file_bytes_);
+        else
+            decoder.emplace(track->bytes_);
         audio::Analyzer analyzer;
         if (!analyzer.Reset(48000, 1)) throw std::runtime_error("music analyzer");
         auto target = renderer.CreateTexture({320, 180});
         std::optional<media::AudioBlock> block;
         std::size_t offset = 0;
         std::uint64_t sample = 0, stable_bytes = 0;
+        std::uint64_t peak_bytes = 0;
         std::vector<double> elapsed;
         float maximum_rms = 0;
+        std::uint64_t onset_events = 0;
         std::optional<render::Readback> ticket;
         const auto collect = [&] {
             if (!ticket) return;
@@ -73,12 +96,12 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
                 std::vector<float> pcm(1600);
                 for (auto& value : pcm) {
                     if (!block || offset == block->samples_.size()) {
-                        block = decoder.Read();
+                        block = mixer ? mixer->Read() : decoder->Read();
                         offset = 0;
                     }
                     if (!block)
                         throw std::runtime_error("music fixture ended before requested duration");
-                    value = silent ? 0 : block->samples_[offset];
+                    value = silent ? 0 : block->samples_[offset] * track->binding_.gain_;
                     ++offset;
                 }
                 if (!analyzer.Push(pcm, 2, sample))
@@ -89,10 +112,25 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
             inputs.audio_ = analyzer.Snapshot();
             maximum_rms = std::max(maximum_rms, inputs.audio_->rms_);
             renderer.BeginFrame();
-            const auto output = session.Tick(frame / 60.0, false, {640, 360}, renderer, inputs,
-                                             runtime::PlaybackSample{frame / 60.0, 1, false, 16});
+            runtime::FrameResult output;
+            if (videos) {
+                runtime::FrameContext context{frame / 60.0, 1, {640, 360}, false};
+                context.resources_ = resources->models_;
+                context.images_ = resources->images_;
+                context.shaders_ = resources->shaders_;
+                context.videos_ = streams.Resolve(package.program_, *resources, frame / 60.0, 1);
+                context.external_ = inputs;
+                output = offline.Evaluate(package.program_, context, renderer);
+            } else {
+                output = session.Tick(frame / 60.0, false, {640, 360}, renderer, inputs,
+                                      runtime::PlaybackSample{frame / 60.0, 1, false, 16});
+            }
             if (output.budget_ || !renderer.IsValid(output.final_))
                 throw std::runtime_error("music scene budget/output");
+            if (output.rejected_event_total_) throw std::runtime_error("music event rejection");
+            for (const auto& value : output.outputs_)
+                if (value.node_ == onset_source && value.event_observation_)
+                    onset_events = value.event_observation_->count_;
             const bool capture =
                     std::find(checkpoints.begin(), checkpoints.end(), frame) != checkpoints.end();
             if (capture) {
@@ -104,8 +142,12 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
             glFinish();
             if (glGetError() != GL_NO_ERROR) throw std::runtime_error("music GLES error");
             if (frame == 60) stable_bytes = renderer.Stats().texture_bytes_;
+            peak_bytes = std::max(peak_bytes, renderer.Stats().texture_bytes_);
             if (frame >= 60 && !ticket) {
-                if (stable_bytes != renderer.Stats().texture_bytes_)
+                // Video clip entry/exit changes live upload extents. Backend
+                // resource admission applies; a constant byte count is only a
+                // valid invariant for this probe's non-video fixtures.
+                if (!videos && stable_bytes != renderer.Stats().texture_bytes_)
                     throw std::runtime_error("music texture growth");
                 elapsed.push_back(std::chrono::duration<double, std::milli>(
                                           std::chrono::steady_clock::now() - begin)
@@ -121,10 +163,13 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
         if (images[silent].size() != checkpoints.size() || (!silent && maximum_rms < 0.01F))
             throw std::runtime_error("music readback/audio");
         std::sort(elapsed.begin(), elapsed.end());
+        if (onset_source && (silent ? onset_events != 0 : onset_events == 0))
+            throw std::runtime_error("packaged PCM onset events missing or fabricated in silence");
         std::cout << (silent ? "silence" : "music") << " native_GLES_frames=" << frames
                   << " extent=640x360 p50_ms=" << elapsed[elapsed.size() / 2]
                   << " p95_ms=" << elapsed[elapsed.size() * 95 / 100]
-                  << " texture_bytes=" << stable_bytes << " maximum_rms=" << maximum_rms << '\n';
+                  << " peak_texture_bytes=" << peak_bytes << " maximum_rms=" << maximum_rms
+                  << " audio_onset_events=" << onset_events << '\n';
     }
     for (std::size_t checkpoint = 0; checkpoint < checkpoints.size(); ++checkpoint) {
         const auto& music = images[0][checkpoint];
