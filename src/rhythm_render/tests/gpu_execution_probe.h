@@ -11,6 +11,8 @@ namespace rhythm::validation {
 // Native test boundary, outside an open Renderer frame. The host owns this
 // destination until AFTER device destruction, including on a readback timeout.
 void VerifyGpuExecution(std::span<std::uint8_t, 32 * 16 * 4> pixels);
+void VerifyMaterialProfile(std::span<std::uint8_t, 32 * 16 * 4> pixels,
+                           const std::filesystem::path& directory);
 void VerifySampleableDepth(render::Renderer& renderer);
 void VerifyPositionalLights(render::Renderer& renderer);
 void VerifyMaterialTextures(render::Renderer& renderer);

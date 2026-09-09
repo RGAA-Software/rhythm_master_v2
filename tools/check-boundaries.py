@@ -33,6 +33,9 @@ RENDER_ADAPTERS.update({"src/rhythm_render/src/bgfx_image_programs.h", "src/rhyt
 # This isolated R0 probe deliberately validates native buffer bindings; its public
 # test entry point exposes only project types and a bounded byte span.
 RENDER_ADAPTERS.add("src/rhythm_render/tests/gpu_execution_probe.cpp")
+# P6.1 isolated material linkage/pixel probe has the same native boundary;
+# its public contract contains only a bounded host byte span and a path.
+RENDER_ADAPTERS.add("src/rhythm_render/tests/material_profile_gpu.cpp")
 
 
 CPP_NON_CODE = re.compile(

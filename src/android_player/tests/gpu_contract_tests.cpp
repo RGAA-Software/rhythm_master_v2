@@ -346,6 +346,12 @@ void VerifyAffine(rhythm::render::Renderer& renderer) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+        if (argc == 3 && std::string_view(argv[1]) == "--material-profile") {
+            std::array<std::uint8_t, 32 * 16 * 4> pixels{};
+            auto renderer = platform::Host::CreateRenderer();
+            validation::VerifyMaterialProfile(pixels, argv[2]);
+            return 0;
+        }
         if (argc == 3 && std::string_view(argv[1]) == "--quality-baseline") {
             auto renderer = platform::Host::CreateRenderer();
             validation::MeasureQualityBaseline(renderer, argv[2]);

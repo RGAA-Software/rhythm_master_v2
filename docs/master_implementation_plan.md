@@ -65,6 +65,8 @@ P6.3 已完成相交透明／移动细线的 D3D11 和 GLES 基线及 1080p 短�
 有声导出／Windows deploy／Android 当前包真实 PCM 与应用内播放验收。
 见 [画质分项决定与证据](render_quality_evaluation.md)。相交透明排序仍待独立
 方案比较，P6 其余工作包和 P7–P9 继续推进，不因这项交付宣布 P6 完成。
+P6.1 已完成 RGB 表面表达式的双目标编译与 D3D11／GLES 基础参数改色探针，
+见 [材质候选验证](material_shader_evaluation.md)；这尚不是用户材质功能交付。
 
 ## 1. 产品目标、阶段终点与优先级
 

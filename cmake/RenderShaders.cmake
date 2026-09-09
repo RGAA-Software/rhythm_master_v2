@@ -134,6 +134,7 @@ if(BUILD_TESTING)
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/depth_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/lights_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/material_textures_gpu.cpp"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/material_profile_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/shadows_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/environment_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/deformation_gpu.cpp"
