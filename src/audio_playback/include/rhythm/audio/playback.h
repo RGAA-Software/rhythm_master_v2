@@ -14,6 +14,7 @@ class FileBytes;
 namespace rhythm::media {
 struct AudioArrangementSource;
 struct AudioArrangementFiles;
+struct SoundtrackSource;
 }  // namespace rhythm::media
 
 namespace rhythm::audio {
@@ -27,6 +28,8 @@ struct PlaybackSnapshot {
     std::uint32_t queued_frames_ = 0;
     // Latest pause intent; state_ separately acknowledges the worker/device.
     bool paused_ = false;
+    // Latest device master-volume intent, independent of authored source gain.
+    float volume_ = 1;
     // Worker has released the preceding source and processed this load/seek/stop.
     // Loop generations can advance generation_ while this acknowledgment stays
     // unchanged. Stop/Load intent cannot advance this acknowledgment by itself.
@@ -55,6 +58,13 @@ class FilePlayback final {
     void Load(storage::FileBytes bytes);
     void Load(media::AudioArrangementSource arrangement);
     void Load(media::AudioArrangementFiles files);
+    // Atomically installs authored gain/loop without changing device master volume.
+    void LoadSoundtrack(const media::SoundtrackSource& source);
+    // UI-thread value commands; decoding/preparation stays on the existing worker.
+    // One outstanding transition. Failure preserves the accepted current source.
+    std::uint64_t BeginTransition(const media::SoundtrackSource& source, double duration_seconds,
+                                  TransitionCurve curve = TransitionCurve::kLinear);
+    bool CancelTransition(std::uint64_t id);
     void Stop();
     void Seek(double seconds);
     void Pause(bool paused);

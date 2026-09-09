@@ -46,6 +46,8 @@ void PlaybackEngine::Recover(std::string error, std::uint64_t boundary) {
 bool PlaybackEngine::Cancel() {
     if (!AudioTransitionActive(state_.transition_.state_) || !stream_->Cancel()) return false;
     Recover({}, device_->Snapshot().submitted_frames_);
+    if (recovery_frame_ == presentation_->Consumed())
+        state_.transition_.state_ = AudioTransitionState::kCanceled;
     return true;
 }
 void PlaybackEngine::Submit(std::stop_token stop,
@@ -54,8 +56,9 @@ void PlaybackEngine::Submit(std::stop_token stop,
     auto block = stream_->Read(stop);
     const auto progress = stream_->Progress();
     state_.transition_.clipped_samples_ = progress.clipped_samples_;
-    if (progress.state_ == FadeState::kFailed &&
+    if ((progress.state_ == FadeState::kFailed || progress.state_ == FadeState::kCanceled) &&
         state_.transition_.state_ != AudioTransitionState::kRecovering &&
+        state_.transition_.state_ != AudioTransitionState::kCanceled &&
         state_.transition_.state_ != AudioTransitionState::kFailed)
         Recover(progress.error_, start);
     if (!block) {

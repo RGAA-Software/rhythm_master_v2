@@ -61,6 +61,13 @@ class TransitionStream::Lane final {
         position_ += frames;
         return result;
     }
+    std::size_t Available(std::stop_token stop, std::stop_token incoming_cancel) {
+        if (!incoming_cancel.stop_possible()) return Available(stop);
+        std::stop_source linked;
+        std::stop_callback global(stop, [&] { linked.request_stop(); });
+        std::stop_callback local(incoming_cancel, [&] { linked.request_stop(); });
+        return Available(linked.get_token());
+    }
     void Advance(std::size_t frames, std::stop_token stop) {
         while (frames) {
             const auto available = Available(stop);
@@ -120,6 +127,7 @@ void TransitionStream::Begin(const PlaybackSource& source, StreamOptions options
     last_source_id_ = options.source_id_;
     progress_ = {FadeState::kMixing, options.source_id_, 0, duration};
     curve_ = curve;
+    incoming_cancel_ = stop;
 }
 std::optional<StreamPcm> TransitionStream::Read(std::stop_token stop) {
     CheckStop(stop);
@@ -131,11 +139,12 @@ std::optional<StreamPcm> TransitionStream::Read(std::stop_token stop) {
     if (incoming_) {
         std::size_t next_available = 0;
         try {
-            next_available = incoming_->Available(stop);
+            next_available = incoming_->Available(stop, incoming_cancel_);
         } catch (const std::exception& error) {
             if (stop.stop_requested()) throw;
-            progress_.state_ = FadeState::kFailed;
-            progress_.error_ = error.what();
+            progress_.state_ =
+                    incoming_cancel_.stop_requested() ? FadeState::kCanceled : FadeState::kFailed;
+            if (!incoming_cancel_.stop_requested()) progress_.error_ = error.what();
             incoming_.reset();
             // Incoming failure occurs before reading the old cursor, so this
             // call resumes precisely at the first PCM frame not yet produced.
@@ -159,12 +168,14 @@ std::optional<StreamPcm> TransitionStream::Read(std::stop_token stop) {
     }
     std::size_t frames = 0;
     try {
-        frames = current_->Available(stop);
+        frames =
+                rollback_ ? current_->Available(stop, incoming_cancel_) : current_->Available(stop);
     } catch (const std::exception& error) {
         if (stop.stop_requested() || !rollback_) throw;
         current_ = std::move(rollback_);
-        progress_.state_ = FadeState::kFailed;
-        progress_.error_ = error.what();
+        progress_.state_ =
+                incoming_cancel_.stop_requested() ? FadeState::kCanceled : FadeState::kFailed;
+        if (!incoming_cancel_.stop_requested()) progress_.error_ = error.what();
         return Read(stop);
     }
     if (!frames) return {};

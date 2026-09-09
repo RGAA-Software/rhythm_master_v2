@@ -110,3 +110,18 @@ Windows `out/p3-device-fade-windows-tests.log` 六项通过，实际设备设主
 SDL_SetMainReady 和显式 dummy 选择，生产宿主/后端不做 fallback。
 原有实际 Windows 文件/编排播放、暂停、seek、快速替换、循环、共享文件释放和 EOF
 回归继续通过；增加的引擎检查包括 101 帧淡化排队取消、60001 帧短源尾段和延迟坏素材。
+
+异步命令增量：FilePlayback 增加 LoadSoundtrack、BeginTransition 和按 ID 的
+CancelTransition。作者增益/循环随来源提交，设备主音量保持用户意图；只有听到的
+交接确认后才更新被接受的来源，所以后续 seek/循环使用新音乐。一次最多一个请求，
+重复请求明确拒绝；旧 worker 快照不得擦除新命令，Load/Stop/Seek 使未完成请求失效。
+来场取消 token 与整体播放取消 token 在解码调用内合并，取消来场不会取消旧源。
+失败细节独立于当前播放错误；排队中已产生的声音仍按恢复边界确认取消。
+
+Windows `out/p3-async-fade-windows-tests.log` 六项通过，补充取消连接后
+`out/p3-async-linked-cancel-windows-tests.log` 三项通过；Android
+`out/p3-async-fade-android-dummy-tests.log` 四项及
+`out/p3-async-linked-cancel-android-tests.log` 两项通过（播放接口仍为测试 dummy 设备）。
+检查直接调用公开异步 API，覆盖暂停/取消、旧 epoch 保持、消费完成、作者增益在 seek
+后保留且主音量仍静音、坏媒体拒绝后继续播放，以及 Stop 后不得有过期结果。
+下一步是宿主的 GPU 可呈现准备与音画交接；当前 DLL/APK 尚未更新，P3.3 仍未整体验收。

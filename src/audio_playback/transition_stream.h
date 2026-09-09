@@ -74,5 +74,6 @@ class TransitionStream final {
     FadeProgress progress_{};
     media::CrossfadeCurve curve_ = media::CrossfadeCurve::kLinear;
     std::uint64_t last_source_id_ = 0;
+    std::stop_token incoming_cancel_{};
 };
 }  // namespace rhythm::audio::detail
