@@ -309,6 +309,28 @@ void UnrelatedMouseRelease() {
     Check(fixture.snapshot_ == before, "unrelated mouse release must not commit the graph layout");
 }
 
+void VacantInsertion() {
+    CanvasFixture fixture;
+    fixture.previews_.enabled_ = true;
+    fixture.canvas_.RestoreLayout();
+    for (int frame = 0; frame < 6; ++frame) fixture.Frame();
+    for (std::uint64_t id = 4; id <= 24; ++id) {
+        const auto point = fixture.canvas_.InsertionPoint();
+        const auto existing = fixture.snapshot_.positions_;
+        for (const auto& [node, position] : existing)
+            Check(std::abs(point.x_ - position.x_) >= 200 ||
+                          std::abs(point.y_ - position.y_) >= 180,
+                  "palette insertion overlaps an existing node");
+        fixture.snapshot_ = std::get<rhythm::editor::Snapshot>(rhythm::editor::AddNode(
+                fixture.snapshot_, fixture.registry_, "texture.gradient", point, id));
+        fixture.canvas_.RestoreLayout();
+        for (int frame = 0; frame < 6; ++frame) fixture.Frame();
+        for (const auto& [node, position] : existing)
+            Check(fixture.snapshot_.positions_.at(node) == position,
+                  "insertion rearranged existing authored nodes");
+    }
+}
+
 void ReplaceDeletedOutput() {
     CanvasFixture fixture;
     auto& document = fixture.snapshot_.document_;
@@ -431,6 +453,7 @@ int main(int argc, char** argv) {
         DragNodeAndConnect();
         PanCursor();
         UnrelatedMouseRelease();
+        VacantInsertion();
         ReplaceDeletedOutput();
         InlinePreviewVisibility();
         EventPreviewAndHelp();

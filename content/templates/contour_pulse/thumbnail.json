@@ -1,0 +1,14 @@
+{
+    "template": "contour_pulse",
+    "package_sha256": "b1967e86d5375432cf5207aff38232d49a15faeb45d957fef911323d1c66f9b7",
+    "thumbnail_sha256": "83730bd1df01510670538475f4bd31f054c6ee2a75082940145f43032086b8f2",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

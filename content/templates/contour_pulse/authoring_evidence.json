@@ -1,0 +1,16 @@
+{
+    "run": "out/windows-release/from-empty-studio-2d/0180e95f6ed3488a8306471996182cc4",
+    "recipe": "content/authoring/contour_pulse.json",
+    "recipe_sha256": "54618c91f28925a3555077cd86db4b29eb0928b1a307d188e4c9ff086ad01e2f",
+    "saved_graph_sha256": "61d82bed9fef52dae02d5fcb00499bbfdedef89137023e0d3604c6840ef81b98",
+    "published_sha256": "b1967e86d5375432cf5207aff38232d49a15faeb45d957fef911323d1c66f9b7",
+    "acceptance": {
+        "recipe": "p4-contour-pulse",
+        "recipe_sha256": "54618c91f28925a3555077cd86db4b29eb0928b1a307d188e4c9ff086ad01e2f",
+        "ui_authoring": "passed",
+        "decoded_pcm_gpu": "passed",
+        "visual_review": "pending",
+        "android": "pending",
+        "acoustic_capture": false
+    }
+}

@@ -1,10 +1,12 @@
 #include "graph_canvas.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <imgui_node_editor.h>
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 
 #include "node_inspection.h"
@@ -88,6 +90,7 @@ class GraphCanvas::Impl final {
     int stable_frames_ = 0;
     std::size_t visible_nodes_ = 0;
     editor::Position insertion_point_{};
+    std::vector<ImRect> node_bounds_{};
     bool pan_pressed_ = false;
     bool layout_pressed_ = false;
     std::vector<graph::NodeId> preview_nodes_{};
@@ -111,7 +114,45 @@ void GraphCanvas::RestoreLayout() {
 void GraphCanvas::FocusSelection() { impl_->focus_selection_ = true; }
 void GraphCanvas::FitContent() { impl_->fit_content_ = true; }
 std::size_t GraphCanvas::VisibleNodes() const { return impl_->visible_nodes_; }
-editor::Position GraphCanvas::InsertionPoint() const { return impl_->insertion_point_; }
+editor::Position GraphCanvas::InsertionPoint() const {
+    // Upstream supplies native node bounds, but no vacant insertion slot. Keep
+    // this small placement policy in the UI adapter and run it only on insertion.
+    const auto origin = impl_->insertion_point_;
+    float width = 260, height = 300;
+    constexpr float kGap = 40;
+    for (const auto& bounds : impl_->node_bounds_) {
+        width = std::max(width, bounds.GetWidth());
+        height = std::max(height, bounds.GetHeight());
+    }
+    auto result = origin;
+    float best_distance = std::numeric_limits<float>::max();
+    for (const auto row : {0, 1, -1, 2, -2}) {
+        const auto y = origin.y_ + row * (height + kGap);
+        std::vector<std::pair<float, float>> blocked;
+        for (const auto& bounds : impl_->node_bounds_)
+            if (y + height + kGap > bounds.Min.y && y < bounds.Max.y + kGap)
+                blocked.emplace_back(bounds.Min.x - width - kGap, bounds.Max.x + kGap);
+        std::sort(blocked.begin(), blocked.end());
+        // Merge forbidden top-left intervals; the nearest endpoint of their
+        // containing union gives a free slot without moving any existing node.
+        auto x = origin.x_;
+        for (std::size_t index = 0; index < blocked.size();) {
+            auto [left, right] = blocked[index++];
+            while (index < blocked.size() && blocked[index].first <= right)
+                right = std::max(right, blocked[index++].second);
+            if (x > left && x < right) {
+                x = x - left < right - x ? left : right;
+                break;
+            }
+        }
+        const auto distance = std::hypot(x - origin.x_, y - origin.y_);
+        if (distance < best_distance) {
+            best_distance = distance;
+            result = {x, y};
+        }
+    }
+    return result;
+}
 std::span<const graph::NodeId> GraphCanvas::PreviewNodes() const { return impl_->preview_nodes_; }
 std::size_t GraphCanvas::DrawnPreviews() const { return impl_->drawn_previews_; }
 editor::Position GraphCanvas::ToScreen(editor::Position position) const {
@@ -326,12 +367,15 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
     }
     impl_->visible_nodes_ = 0;
     impl_->preview_nodes_.clear();
+    impl_->node_bounds_.clear();
     const auto center =
             ed::ScreenToCanvas({origin.x + canvas_size.x * 0.5f, origin.y + canvas_size.y * 0.5f});
     impl_->insertion_point_ = {center.x, center.y};
     for (const auto& node : snapshot.document_.nodes_) {
         const auto position = ed::GetNodePosition(ed::NodeId(impl_->Node(node.id_)));
         const auto size = ed::GetNodeSize(ed::NodeId(impl_->Node(node.id_)));
+        impl_->node_bounds_.emplace_back(position,
+                                         ImVec2{position.x + size.x, position.y + size.y});
         const auto first = ed::CanvasToScreen(position);
         const auto last = ed::CanvasToScreen({position.x + size.x, position.y + size.y});
         if (last.x - first.x >= 20 && last.y - first.y >= 15 && first.x >= origin.x - 1 &&

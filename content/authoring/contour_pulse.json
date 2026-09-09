@@ -1,0 +1,24 @@
+{
+    "id": "p4-contour-pulse",
+    "title": "脉动等高线 / Contour Pulse",
+    "scope": "P4 from-empty Studio workflow; visual review pending",
+    "descriptions": {
+        "zh-CN": "低频改变万花筒尺度，高频推动金青色等高线；包含可编辑的构图组件和原创演示音乐。",
+        "en-US": "Bass changes kaleidoscope scale while treble shifts gold and cyan contours, with an editable composition component and original demo music."
+    },
+    "view_node": 11,
+    "nodes": [
+        {"type": "core.time"},
+        {"type": "audio.band", "properties": {"audio_band": 12}},
+        {"type": "scalar.map", "properties": {"output_min": 0.7, "output_max": 2.0}, "inputs": {"value": 2}},
+        {"type": "audio.band", "properties": {"audio_band": 48}},
+        {"type": "scalar.map", "properties": {"output_min": 0.0, "output_max": 0.8}, "inputs": {"value": 4}},
+        {"type": "texture.noise", "properties": {"contrast": 2.0}, "inputs": {"phase": 1}},
+        {"type": "texture.mapping", "inputs": {"source": 6, "scale": 3, "rotation": 1}},
+        {"type": "texture.contours", "properties": {"line_width": 0.08, "contour_count": 9, "color_a": "F2B76BFF", "color_b": "49D6DDFF"}, "inputs": {"source": 7, "phase": 5}},
+        {"type": "texture.gradient", "properties": {"color_a": "030B13FF", "color_b": "101023FF"}},
+        {"type": "texture.composite", "inputs": {"a": 9, "b": 8}},
+        {"type": "texture.affine", "properties": {"scale": 0.85}, "inputs": {"source": 10}},
+        {"type": "output.texture", "inputs": {"source": 11}}
+    ]
+}

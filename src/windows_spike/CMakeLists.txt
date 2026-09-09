@@ -6,6 +6,18 @@ target_compile_definitions(render_bgfx PRIVATE BX_CONFIG_DEBUG=0)
 rhythm_project_target(render_bgfx)
 include("${PROJECT_SOURCE_DIR}/cmake/RenderShaders.cmake")
 if(BUILD_TESTING)
+    if(RHYTHM_BUILD_MEDIA)
+        add_executable(from_empty_studio_tests tests/from_empty_studio_tests.cpp)
+        target_link_libraries(from_empty_studio_tests PRIVATE studio_ui project_io runtime_package spike_imgui spike_bgfx nlohmann_json::nlohmann_json)
+        rhythm_project_target(from_empty_studio_tests)
+        add_dependencies(from_empty_studio_tests studio_resources music_gpu_tests)
+        add_test(NAME from_empty_studio_2d COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-from-empty-studio.py"
+            --executable "$<TARGET_FILE:from_empty_studio_tests>" --resources "${CMAKE_CURRENT_BINARY_DIR}"
+            --recipe "${PROJECT_SOURCE_DIR}/content/authoring/contour_pulse.json" --output "${PROJECT_BINARY_DIR}/from-empty-studio-2d"
+            --music-executable "$<TARGET_FILE:music_gpu_tests>" --fixtures "${PROJECT_BINARY_DIR}/music-fixtures")
+        set_tests_properties(from_empty_studio_2d PROPERTIES TIMEOUT 280 RUN_SERIAL TRUE FIXTURES_REQUIRED music_pcm
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
+    endif()
     add_executable(scene_scope_gpu_tests tests/scene_scope_gpu_tests.cpp)
     target_link_libraries(scene_scope_gpu_tests PRIVATE studio_ui project_io runtime_package spike_imgui spike_bgfx nlohmann_json::nlohmann_json)
     rhythm_project_target(scene_scope_gpu_tests)
