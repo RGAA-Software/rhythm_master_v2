@@ -440,15 +440,14 @@ FrameResult Runtime::Impl::EvaluateRange(
                         break;
                     case graph::Operation::kSceneRender: {
                         if (!input(0).scene_) throw std::invalid_argument("runtime.scene_input");
-                        if (!state.scene_) state.scene_ = std::make_unique<detail::ScenePass>();
-                        if (!state.target_.Handle().device_)
-                            state.target_ = renderer.CreateTexture(extent, {}, precision);
+                        if (!state.scene_color_)
+                            state.scene_color_ = std::make_unique<detail::SceneColor>();
                         const auto camera =
                                 instruction.inputs_[1] ? input(1).camera_.value() : scene::Camera{};
-                        const auto scene_draw = state.scene_->Build(
-                                *input(0).scene_, camera, extent, renderer, result.outputs_);
-                        renderer.SubmitScene(state.target_.Handle(), scene_draw);
-                        state.output_.texture_ = state.target_.Handle();
+                        state.output_.texture_ = state.scene_color_->Draw(
+                                *input(0).scene_, camera, extent, precision,
+                                graph::Scalar(node, "scene_antialiasing", 0) == 1, renderer,
+                                result.outputs_);
                         break;
                     }
                     case graph::Operation::kSpectrumPoints:

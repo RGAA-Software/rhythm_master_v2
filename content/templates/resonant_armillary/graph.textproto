@@ -1,6 +1,6 @@
 schema_version: 4
 id: "p4-resonant-armillary"
-revision: 99
+revision: 100
 nodes {
     id: 2
     type_key: "core.time"
@@ -540,6 +540,12 @@ nodes {
     id: 21
     type_key: "scene.render"
     schema_version: 1
+    properties {
+        key: "scene_antialiasing"
+        value {
+            scalar: 1
+        }
+    }
     properties {
         key: "texture_precision"
         value {

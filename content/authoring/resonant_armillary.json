@@ -169,6 +169,9 @@
             "inputs": {
                 "scene": 18,
                 "camera": 19
+            },
+            "properties": {
+                "scene_antialiasing": 1
             }
         },
         {

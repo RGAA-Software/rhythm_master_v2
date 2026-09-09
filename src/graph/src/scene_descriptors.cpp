@@ -185,9 +185,11 @@ void AppendSceneDescriptors(std::vector<OperatorDescriptor>& operators) {
                           {"orthographic_height", 2.0, 0.001, 10000},
                           {"near_plane", 0.05, 0.001, 10000},
                           {"far_plane", 1000.0, 0.002, 100000}}});
-    operators.push_back({"scene.render",
-                         Operation::kSceneRender,
-                         Type::kTexture,
-                         {{"scene", Type::kScene}, {"camera", Type::kCamera, false}}});
+    operators.push_back(
+            {"scene.render",
+             Operation::kSceneRender,
+             Type::kTexture,
+             {{"scene", Type::kScene}, {"camera", Type::kCamera, false}},
+             {{"scene_antialiasing", 0.0, 0, 1, {"scene.aa_none", "scene.aa_supersample_2x"}}}});
 }
 }  // namespace rhythm::graph

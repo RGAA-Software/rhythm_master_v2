@@ -23,6 +23,21 @@ void Run() {
     Require(std::holds_alternative<ExecutionPlan>(Compile(document, registry)),
             "typed scene compiles");
     {
+        auto sampled = document;
+        sampled.nodes_[5].properties_["scene_antialiasing"] = 1.0;
+        Require(std::holds_alternative<ExecutionPlan>(Compile(sampled, registry)),
+                "explicit 2x scene color sampling compiles");
+        sampled.nodes_[5].properties_["scene_antialiasing"] = 0.5;
+        Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(sampled, registry)),
+                "fractional sampling profile rejected");
+        sampled.nodes_[5].properties_["scene_antialiasing"] = 2.0;
+        Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(sampled, registry)),
+                "unsupported sampling profile rejected");
+        sampled.nodes_[5].properties_.erase("scene_antialiasing");
+        Require(std::holds_alternative<ExecutionPlan>(Compile(sampled, registry)),
+                "old scene render without explicit sampling remains valid");
+    }
+    {
         auto captured = document;
         captured.nodes_[5] = registry.MakeNode(6, "scene.capture");
         captured.nodes_.push_back(registry.MakeNode(8, "scene.color"));

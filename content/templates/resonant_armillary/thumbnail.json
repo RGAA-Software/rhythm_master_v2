@@ -1,7 +1,7 @@
 {
     "template": "resonant_armillary",
-    "package_sha256": "3f666f571f3f1ac561b14a0cdfbaca93abd7882dd53f98b9e252e02e89993518",
-    "thumbnail_sha256": "b2d9b809240f42f21081c3f5744645a2bee6fe0a1bf77285cb06d0706eff439a",
+    "package_sha256": "52c914c43338e899ab9184a7239ba18f178cc3b0d2dfbac176b80cf0b07bbad0",
+    "thumbnail_sha256": "301b7780d6859508c910789647b9d173e2a432336dc12b71ccaa19f199c52510",
     "extent": [
         256,
         144

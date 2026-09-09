@@ -9,6 +9,7 @@
 #include "point_ops.h"
 #include "point_physics.h"
 #include "scene_capture.h"
+#include "scene_color.h"
 #include "scene_pass.h"
 #include "shader_pass.h"
 #include "texture_lifetimes.h"
@@ -77,7 +78,7 @@ class Runtime::Impl final {
         std::unique_ptr<detail::PointState> points_{};
         std::unique_ptr<detail::GpuParticlePass> gpu_particles_{};
         std::unique_ptr<detail::PointPhysics> physics_{};
-        std::unique_ptr<detail::ScenePass> scene_{};
+        std::unique_ptr<detail::SceneColor> scene_color_{};
         std::unique_ptr<detail::SceneCapture> capture_{};
         std::unique_ptr<detail::BlurPass> blur_{};
         std::unique_ptr<detail::TrailPass> trail_{};

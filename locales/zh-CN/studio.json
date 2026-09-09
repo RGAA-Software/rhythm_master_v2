@@ -1281,5 +1281,9 @@
     "sample_size": "亮度驱动大小",
     "help.gpu.texture_sample": "在每个 GPU 点的位置采样图像，让纹理控制颜色、透明度与大小。原始点保持不变；结果可直接预览或连接 GPU 点绘制。需要多个映射时，先合成纹理再采样。",
     "graph.gpu_sample_chain": "一个点视图只接受一次纹理采样。请先合成多个纹理，再连接原始 GPU 点进行采样。",
-    "render.gpu_point_sampling": "点属性采样的纹理或混合量无效，不能采样自身输出或深度纹理。"
+    "render.gpu_point_sampling": "点属性采样的纹理或混合量无效，不能采样自身输出或深度纹理。",
+    "scene_antialiasing": "场景抗锯齿",
+    "scene.aa_none": "关闭",
+    "scene.aa_supersample_2x": "2倍超采样（4倍场景像素）",
+    "runtime.scene_sampling_extent": "2倍超采样要求输出宽高不超过4096；请减小画布或关闭超采样。"
 }

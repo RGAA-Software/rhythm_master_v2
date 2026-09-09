@@ -46,11 +46,47 @@ alpha scissor/hash 选择，以及本项目 `scene_pass.cpp`／`bgfx_scene.cpp`�
 `scene.capture` 的显式颜色／深度配对、节点小预览以及已有作品默认效果保持既有
 语义；没有定义深度 resolve 之前不把高分辨率深度伪装成同尺寸深度输出。
 
-该选项尚待图合同、生命周期、UI／包及作品验证后交付。新增属性使用既有值格式，
+该选项现已完成图合同、生命周期、UI／包及作品验证，详见下节。新增属性使用既有值格式，
 旧 Player 通过未知属性校验拒绝，不能默默忽略质量设置。
 
 相交半透明问题仍待独立方案比较；尚未采用 OIT、TAA、MSAA 或 alpha depth prepass。
 2× 超采样不会修复排序，不能以本增量宣布全部 P6.3 完成。
+
+## 可选 2× 场景超采样交付
+
+`scene.render` 新增 `scene_antialiasing`：0 关闭，1 为 2× 超采样。默认单 pass
+保留，启用后场景 pass 加一次缩小 pass。`SceneColor` 独立拥有颜色输出和高分辨率
+附件；切换开关、尺寸、精度或 Reset 释放旧附件，静态图不重复绘制／分配。
+原点、相机比例、输出尺寸不变；Float16 保持到缩小后的目标。分帧准备统计两次
+实际 pass，超预算不发布部分结果，缩小后可恢复。没有改变显式颜色／深度捕获。
+
+Windows `out/p6-scene-aa-graph-tests.log`、`out/p6-scene-aa-runtime-tests.log`、
+`out/p6-scene-aa-staging-tests.log` 通过合法／非法 profile、旧图兼容、缓存、开关
+释放、竖屏 Float16、预算拒绝恢复、分帧准备和原有场景／纹理生命周期检查。
+Android 原生同组图／场景合同在 `out/p6-scene-aa-android-contract-tests.log`，
+新增分帧准备检查在 `out/p6-scene-aa-android-staging-tests.log` 通过。
+
+“共振星仪 / Resonant Armillary”以完整 Studio 从零创作流程启用该选项，
+`out/p6-scene-aa-authoring-tests.log` 通过，运行目录
+`out/windows-release/from-empty-studio-3d/35b05496d83f4fbf819f161388679efd/`。
+真实 PCM/GPU 差：音乐／静音 1.06503、低频／静音 6.66417、高频／静音 8.63421、
+低／高频 2.83642。人工看图确认青色／金色圆环、交叠遮挡、镜面高光和构图正常。
+源模板从此通过的工程提取，版本升为 0.2.0，仍为功能示例，不新增 P7 品质计数。
+
+Windows Studio／Player 完整 deploy 和五项强制模板检查通过，最终日志
+`out/p6-scene-aa-thumbnail-delivery.log`（28.15 秒），目录缩略图由实际渲染更新。
+`out/p6-scene-aa-export.log` 通过 640×360／30 FPS／120 帧有声导出、重复解码帧
+一致、静音对照及取消清理，音频 MSE 7.6297e-06。
+
+Android APK SHA256
+`32d48e95e7dac044163ab3a11f6c706dae949b885a32fdf1ee54c40460d79dc8` 已覆盖安装。
+`out/p6-scene-aa-android-music.log` 通过包内真实 PCM 的音乐／静音各 960 帧 GLES，
+640×360，峰值纹理 8755204 字节；2/6/10/14 秒平均 RGB 差为
+0.438924／1.53549／0.888368／2.4497。
+`out/p6-scene-aa-android-ui.log` 的应用内选择和暂停恢复截图在
+`out/android-authored-works/fbb155a7d38d491e88265299dbbe8778/`，已人工查看正确作品
+标题、两环和高光，时间 2.27→3.39 秒且 RMS 非零；安装 APK 哈希匹配，用户保存
+工程字节未改。没有声学回录、长稳或通用相交透明质量合格的声明。
 
 ## 证据
 

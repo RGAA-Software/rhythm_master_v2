@@ -7,7 +7,7 @@
         }
     ],
     "format": "rhythm.project",
-    "graph_revision": 99,
+    "graph_revision": 100,
     "manifest_version": 2,
     "project_id": "p4-resonant-armillary",
     "soundtrack": {
@@ -19,7 +19,7 @@
     "title": "共振星仪 / Resonant Armillary",
     "kind": "template",
     "content_id": "official.templates.resonant_armillary",
-    "content_version": "0.1.0",
+    "content_version": "0.2.0",
     "default_locale": "zh-CN",
     "titles": {
         "zh-CN": "共振星仪",
