@@ -125,10 +125,14 @@ if(BUILD_TESTING)
             "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/probe_instance.sc"
             "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/probe_color.sc"
             "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/probe_update.sc"
+            "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/attribute_probe_vertex.sc"
+            "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/attribute_probe_map.sc"
+            "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/attribute_probe_varying.def.sc"
             "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/probe_varying.def.sc"
             "${RHYTHM_SHADERC}" ${render_shader_includes}
         VERBATIM)
     add_library(gpu_execution_probe STATIC
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_attribute_profile.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/quality_baseline_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/fxaa_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/color_pipeline_gpu.cpp"

@@ -27,7 +27,9 @@ def main():
     if args.group == "execution_probe":
         programs = [("probe_instance.sc", "vertex", "probe_varying.def.sc", "kProbeVertexShader"),
                     ("probe_color.sc", "fragment", "probe_varying.def.sc", "kProbeFragmentShader"),
-                    ("probe_update.sc", "compute", None, "kProbeComputeShader")]
+                    ("probe_update.sc", "compute", None, "kProbeComputeShader"),
+                    ("attribute_probe_vertex.sc", "vertex", "attribute_probe_varying.def.sc", "kAttributeProbeVertexShader"),
+                    ("attribute_probe_map.sc", "compute", None, "kAttributeProbeComputeShader")]
     elif args.group == "gpu_points":
         programs = [("gpu_point_vertex.sc", "vertex", "gpu_point_varying.def.sc", "kGpuPointVertexShader"),
                     ("gpu_point_fragment.sc", "fragment", "gpu_point_varying.def.sc", "kGpuPointFragmentShader"),

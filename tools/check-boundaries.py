@@ -37,6 +37,7 @@ RENDER_ADAPTERS.add("src/rhythm_render/tests/gpu_execution_probe.cpp")
 # P6.1 isolated material linkage/pixel probe has the same native boundary;
 # its public contract contains only a bounded host byte span and a path.
 RENDER_ADAPTERS.add("src/rhythm_render/tests/material_profile_gpu.cpp")
+RENDER_ADAPTERS.add("src/rhythm_render/tests/gpu_attribute_profile.cpp")
 
 
 CPP_NON_CODE = re.compile(

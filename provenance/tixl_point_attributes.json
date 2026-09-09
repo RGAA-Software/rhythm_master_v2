@@ -1,0 +1,20 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "license": "MIT",
+    "license_file": "third_party/notices/tixl-effects/LICENSE.txt",
+    "files": [
+        {
+            "upstream_file": "Operators/Lib/Assets/shaders/points/modify/TransformPoints.hlsl",
+            "imported_file": "third_party/sources/tixl-effects/TransformPoints.hlsl",
+            "sha256": "87a6df29072dff6dcb174849cd5c27bb2c3e425d5d28755cdee1ca83f96c5111"
+        }
+    ],
+    "target": "src/rhythm_render/shaders/attribute_probe_map.sc",
+    "modifications": [
+        "Retain independent source/result buffers, 64-lane bounds guard and copy-then-modify point semantics.",
+        "Adapt the fixed record to existing four-vec4 point data and bgfx compute bindings.",
+        "Probe only canvas-space affine position, color multiplication and point size; retain age, velocity/lifetime and other shape fields.",
+        "Omit quaternion orientation, coordinate-space modes and FX weighting; no new user compute language or runtime layout is adopted by this experiment."
+    ]
+}
