@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import content_identity
 
 protoc, schema, source, destination = sys.argv[1:]
 schema = Path(schema)
@@ -55,3 +56,4 @@ else:
     (destination / "thumbnail.rgba").unlink(missing_ok=True)
     (destination / "thumbnail.json").unlink(missing_ok=True)
 (destination / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+content_identity.write_compiled_identity(source, destination)

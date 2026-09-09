@@ -35,10 +35,12 @@ foreach(manifest IN LISTS template_manifests)
     list(APPEND template_names "${template_name}")
     list(APPEND template_products "${output_dir}/graph.pb" "${output_dir}/manifest.json" "${output_dir}/editor.json")
     add_custom_command(OUTPUT "${output_dir}/graph.pb" "${output_dir}/manifest.json" "${output_dir}/editor.json"
+        BYPRODUCTS "${output_dir}/build_identity.json"
         COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/compile-content.py"
             "${RHYTHM_PROTOC}" "${schema}" "${source_dir}" "${output_dir}"
         DEPENDS "${schema}" "${source_dir}/graph.textproto" "${manifest}"
-            "${source_dir}/editor.json" ${template_thumbnails} ${template_assets} "${PROJECT_SOURCE_DIR}/tools/compile-content.py" VERBATIM)
+            "${source_dir}/editor.json" ${template_thumbnails} ${template_assets} "${PROJECT_SOURCE_DIR}/tools/compile-content.py"
+            "${PROJECT_SOURCE_DIR}/tools/content_identity.py" VERBATIM)
 endforeach()
 add_custom_target(phase_a_content ALL DEPENDS ${template_products})
 if(NOT CMAKE_CROSSCOMPILING)
@@ -52,18 +54,21 @@ if(NOT CMAKE_CROSSCOMPILING)
         set(source_dir "${PROJECT_BINARY_DIR}/content/templates/${template_name}")
         list(APPEND runtime_packages "${runtime_package_output}")
         add_custom_command(OUTPUT "${runtime_package_output}"
+            BYPRODUCTS "${PROJECT_BINARY_DIR}/content/packages/${template_name}.source.json"
             COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/compile-runtime-package.py"
                 --publisher "$<TARGET_FILE:rhythm_package>" --sdk "${RHYTHM_IO_SDK}"
                 --media-sdk "${RHYTHM_MEDIA_SDK}"
                 --template "${source_dir}" --output "${runtime_package_output}"
             DEPENDS rhythm_package "${source_dir}/graph.pb" "${source_dir}/manifest.json"
-                "${PROJECT_SOURCE_DIR}/tools/compile-runtime-package.py" ${previous_package_output} VERBATIM)
+                "${PROJECT_SOURCE_DIR}/tools/compile-runtime-package.py"
+                "${PROJECT_SOURCE_DIR}/tools/content_identity.py" ${previous_package_output} VERBATIM)
         # Atomic publication intentionally has one writer per output directory.
         set(previous_package_output "${runtime_package_output}")
     endforeach()
     add_custom_target(runtime_builtin_content ALL DEPENDS ${runtime_packages})
 endif()
 if(BUILD_TESTING)
+    add_test(NAME content_identity COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-content-identity.py")
     add_executable(control_codec_tests tests/control_codec_tests.cpp)
     target_link_libraries(control_codec_tests PRIVATE project_io project_schema protobuf::libprotobuf)
     rhythm_project_target(control_codec_tests)

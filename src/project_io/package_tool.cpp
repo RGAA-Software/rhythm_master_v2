@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "feature_versions.h"
 #include "rhythm/project/package.h"
 #include "rhythm/project/store.h"
 
@@ -30,10 +31,8 @@ int main(int argc, char* argv[]) {
         rhythm::project::PublishSnapshot(output, loaded.snapshot_, input / "assets");
         const auto verified = rhythm::project::LoadPackage(output);
         std::cout << "Published runtime ABI "
-                  << (verified.program_.beat_grid_          ? 4
-                      : verified.program_.control_sequence_ ? 3
-                                                            : 2)
-                  << ", " << verified.program_.instructions_.size() << " instructions, "
+                  << rhythm::project::detail::ProgramAbi(verified.program_) << ", "
+                  << verified.program_.instructions_.size() << " instructions, "
                   << verified.assets_.size() << " assets\n";
         return 0;
     } catch (const std::exception& error) {

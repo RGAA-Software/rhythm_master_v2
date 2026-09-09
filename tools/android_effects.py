@@ -8,6 +8,7 @@ import shutil
 import struct
 import zipfile
 import zlib
+import content_identity
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,7 +22,8 @@ def sources(package_directory):
         package = package_directory / (manifest.parent.name + ".rhythmpack")
         if not package.is_file():
             raise ValueError(f"Build runtime_builtin_content before Android packaging: {package}")
-        result.extend((manifest, package))
+        content_identity.verify_package_source(manifest.parent, package)
+        result.extend((manifest, package, package.with_suffix('.source.json')))
         thumbnail = manifest.parent / "thumbnail.rgba"
         if thumbnail.is_file():
             result.append(thumbnail)
@@ -56,6 +58,7 @@ def prepare(package_directory, assets):
         with zipfile.ZipFile(package) as archive:
             runtime = json.loads(archive.read("manifest.json"))
         entry = {"id": effect_id, "titles": authored["titles"], "canvas": runtime["canvas"],
+                 "source_sha256": content_identity.verify_package_source(manifest_path.parent, package),
                  "tier": authored.get("tier", "example"),
                  "descriptions": authored.get("descriptions", {"zh-CN": "", "en-US": ""}),
                  "audio": any(op.startswith("audio.") or op in ("texture.spectrum", "scene.point_instances")

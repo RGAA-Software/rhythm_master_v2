@@ -161,6 +161,9 @@ ownership is explicitly transferred to the project.
 - Bundle the authored effects in Android and offer direct in-app selection.
   Directory picking is not the built-in effects workflow. Choose orientation
   from the accepted scene canvas: landscape, portrait, or user rotation for square.
+- Android delivery must complete the host runtime-content build before packaging,
+  including no-op native builds. Verify authored-input and runtime-package hashes;
+  a valid APK containing a previous content revision is not current delivery evidence.
 - Specify `encoding="utf-8"` for Python reads/writes of project text. Never
   rewrite UTF-8 content through the Windows default code page. Text validation
   must check expected content as well as valid encoding and glyph availability.

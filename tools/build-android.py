@@ -46,7 +46,10 @@ def main():
             if line.startswith("RHYTHM_SHADERC:FILEPATH="):
                 options.append("-DRHYTHM_SHADERC=" + line.split("=", 1)[1])
     subprocess.run(["cmake", "-S", str(ROOT), "-B", str(build), "-G", "Ninja", *options], check=True)
-    targets = args.target or ["android_player_apk"]
+    # A delivery request must also assemble/validate content after a no-op native
+    # build. POST_BUILD alone cannot notice changed effect sources or Java files.
+    targets = ['android_player_apk' if target == 'rhythm_android' else target
+               for target in args.target] or ["android_player_apk"]
     subprocess.run(["cmake", "--build", str(build), "--parallel", str(args.jobs), "--target", *targets], check=True)
 
 

@@ -13,6 +13,7 @@ import sys
 import zipfile
 import android_media
 import android_effects
+from verify_windows import verification_lease
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -53,6 +54,22 @@ def main():
              f"-DRHYTHM_PLAYER_PACKAGE={args.package}",
              f"-DRHYTHM_PROTOC={args.protoc}", f"-DCMAKE_FIND_ROOT_PATH={args.target_sdk}"])
         run(["cmake", "--build", build, "--target", "rhythm_android", "--parallel", "20"])
+    # APK assembly consumes host-compiled packages. Complete that dependency
+    # before acquiring the read/assembly lease; never nest the Windows builder
+    # inside its own cross-process lease.
+    host_build = args.package.resolve().parents[2]
+    host_cache = (host_build / 'CMakeCache.txt').read_text(encoding='utf-8')
+    host_configuration = re.search(r'^CMAKE_BUILD_TYPE:STRING=(Debug|Release)$', host_cache, re.MULTILINE)
+    if not host_configuration:
+        raise ValueError('The runtime package directory must belong to a configured host build')
+    run([sys.executable, ROOT / 'tools/build-windows.py', '--build', host_build,
+         '--configuration', host_configuration.group(1), '--target', 'runtime_builtin_content',
+         '--target', 'demo_audio_content'])
+    with verification_lease():
+        assemble(args, build, ndk)
+
+
+def assemble(args, build, ndk):
     match = re.search(r"^RHYTHM_ANDROID_GLES_VERSION:STRING=(30|31)$",
                       (build / "CMakeCache.txt").read_text(encoding="utf-8"), re.MULTILINE)
     if not match:
@@ -85,7 +102,7 @@ def main():
     inputs = sorted(source.rglob("*.java")) + sorted(source.rglob("*.xml")) + natives + [args.package]
     inputs += sorted((ROOT / "third_party/sources/sdl/android-project/app/src/main/java").rglob("*.java"))
     inputs += [Path(__file__), ROOT / "tools/verify-android-apk.py", ROOT / "third_party/README.md"]
-    inputs += [ROOT / "tools/android_effects.py"] + android_effects.sources(args.package.parent)
+    inputs += [ROOT / "tools/android_effects.py", ROOT / "tools/content_identity.py"] + android_effects.sources(args.package.parent)
     inputs += [ROOT / "tools/android_media.py", ROOT / "tools/relink-android-player.py",
                media / "profile.json", media / "COPYING.LGPLv2.1", demo]
     inputs += sorted(path for path in (ROOT / "third_party/notices").rglob("*") if path.is_file())

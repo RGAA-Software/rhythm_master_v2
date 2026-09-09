@@ -4,6 +4,7 @@ import argparse
 import os
 from pathlib import Path
 import subprocess
+import content_identity
 
 
 def main():
@@ -27,6 +28,7 @@ def main():
     print(result.stdout.decode('utf-8', errors='replace'), end='')
     print(result.stderr.decode('utf-8', errors='replace'), end='')
     result.check_returncode()
+    content_identity.write_package_identity(args.template, args.output)
 
 
 if __name__ == "__main__":

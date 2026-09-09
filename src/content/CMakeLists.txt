@@ -35,18 +35,22 @@ foreach(manifest IN LISTS semantic_manifests)
     file(GLOB semantic_thumbnails CONFIGURE_DEPENDS "${source_dir}/thumbnail.rgba" "${source_dir}/thumbnail.json")
     list(APPEND semantic_products "${output_dir}/graph.pb" "${output_dir}/manifest.json" "${output_dir}/editor.json" "${output_dir}/presets.json")
     add_custom_command(OUTPUT "${output_dir}/graph.pb" "${output_dir}/manifest.json" "${output_dir}/editor.json" "${output_dir}/presets.json"
+        BYPRODUCTS "${output_dir}/build_identity.json"
         COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/compile-content.py"
             "${RHYTHM_PROTOC}" "${PROJECT_SOURCE_DIR}/src/project_io/schema/graph.proto" "${source_dir}" "${output_dir}"
         DEPENDS "${PROJECT_SOURCE_DIR}/src/project_io/schema/graph.proto" "${source_dir}/graph.textproto"
-            "${manifest}" "${source_dir}/editor.json" "${source_dir}/presets.json" ${semantic_thumbnails} ${semantic_assets} "${PROJECT_SOURCE_DIR}/tools/compile-content.py" VERBATIM)
+            "${manifest}" "${source_dir}/editor.json" "${source_dir}/presets.json" ${semantic_thumbnails} ${semantic_assets} "${PROJECT_SOURCE_DIR}/tools/compile-content.py"
+            "${PROJECT_SOURCE_DIR}/tools/content_identity.py" VERBATIM)
     if(NOT CMAKE_CROSSCOMPILING)
         set(package "${PROJECT_BINARY_DIR}/content/semantic_packages/${semantic_name}.rhythmpack")
         add_custom_command(OUTPUT "${package}"
+            BYPRODUCTS "${PROJECT_BINARY_DIR}/content/semantic_packages/${semantic_name}.source.json"
             COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/compile-runtime-package.py"
                 --publisher "$<TARGET_FILE:rhythm_package>" --sdk "${RHYTHM_IO_SDK}"
                 --media-sdk "${RHYTHM_MEDIA_SDK}" --template "${output_dir}" --output "${package}"
             DEPENDS rhythm_package "${output_dir}/graph.pb" "${output_dir}/manifest.json"
-                "${PROJECT_SOURCE_DIR}/tools/compile-runtime-package.py" ${previous_semantic_package} VERBATIM)
+                "${PROJECT_SOURCE_DIR}/tools/compile-runtime-package.py"
+                "${PROJECT_SOURCE_DIR}/tools/content_identity.py" ${previous_semantic_package} VERBATIM)
         list(APPEND semantic_packages "${package}")
         set(previous_semantic_package "${package}")
     endif()
