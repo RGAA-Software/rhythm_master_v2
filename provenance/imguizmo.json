@@ -1,0 +1,49 @@
+{
+    "source_url": "https://github.com/CedricGuillemet/ImGuizmo",
+    "revision": "b796ac3b861afc6e91ca74e4611effd9c9527367",
+    "tag": "1.10",
+    "vcpkg_version": "1.10",
+    "archive_sha512": "c707e22d3caffcf06c5aab33201ebc4fe352d07e893ee8623db374a7e848bc18d031fb1904e7ddae5573443783bd70ccf787cd7029074a1de2c7e9fe12a54733",
+    "license": "MIT",
+    "notice": "third_party/notices/imguizmo/LICENSE.txt",
+    "imported_files": [
+        {
+            "source": "src/ImGuizmo.cpp",
+            "target": "third_party/sources/imguizmo/ImGuizmo.cpp",
+            "sha256": "ad7ffeeacc9753e804d3b77f427c6629983ed19dcc9e15f77799568199551ba0"
+        },
+        {
+            "source": "src/ImGuizmo.h",
+            "target": "third_party/sources/imguizmo/ImGuizmo.h",
+            "sha256": "11378812f1e73ef0fa9a62ff276331a84fe2ffad6fd24d264900d1f1a100fd29"
+        },
+        {
+            "source": "LICENSE",
+            "target": "third_party/notices/imguizmo/LICENSE.txt",
+            "sha256": "b957968be18bbc4fde7705cfcbda10bea1a71614e62361ace0473bb97dd0b700"
+        }
+    ],
+    "modifications": [],
+    "target_modules": [
+        "studio_imguizmo",
+        "src/studio_ui/gizmo.cpp"
+    ],
+    "decision": "Installed x64-windows binary uses ImGui 1.91.9 non-docking; Studio uses 1.91.9b docking. sizeof/offset ABI probe confirms mismatch. Compile focused unmodified source with Studio's existing ImGui. No GraphEditor, sequencer, whole engine or second ImGui imported.",
+    "validation": "out/p4-imgui-abi-detail.log; out/p4-gizmo-tests-axis-contract.log",
+    "validated_scope": "Windows private adapter: actual ImGui mouse input, perspective/orthographic, world translation through rotated nonuniform parent, local/world rotation, local scale, cancellation and viewport bounds. No complete Studio 3D workflow yet.",
+    "limits": [
+        "World scale explicitly rejects; upstream silently forces local scale.",
+        "Adapter bounds initial hits independently of upstream SetRect mYMax typo.",
+        "No Android editor or whole-engine dependency."
+    ],
+    "design_reference": {
+        "source_url": "https://github.com/godotengine/godot",
+        "revision": "f62fdbde15035c5576dad93e586201f4d41ef0cb",
+        "file": "scene/3d/node_3d.cpp",
+        "symbol": "Node3D::set_global_transform",
+        "license": "MIT",
+        "notice": "third_party/notices/godot/LICENSE.txt",
+        "reuse": "Study inverse parent times global transform for local writeback; use existing GLM-backed project matrix contracts. No Godot types copied."
+    },
+    "outbound_license": "not selected; upstream contributions retain MIT"
+}

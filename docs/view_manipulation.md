@@ -64,6 +64,38 @@ Windows Studio 已完成交付构建 `out/p4-output-canvas-delivery.log`，Pytho
 P4.1 的根图静态 affine 工作流可验收；P4.2–P4.5 继续推进，不把受保护的驱动
 参数或暂不支持的组件/3D 路径算作已完成。
 
+Android 同步交付共享 affine 渲染基础，覆盖安装 APK SHA256
+`54bbcaa8755212b8d3b051ece61d17beed171ddb899efac07b84a9e0137c6cc4`。
+`out/p4-shared-affine-android-delivery.log` 包含主机内容重建/哈希检查，
+`out/p4-shared-affine-android-program.log` 通过实际内置目录连续节目，证据目录
+`out/android-continuous-program/6f3b4a581a6e487a8eb2f70ebe1b99b1/`。
+三场的方向为 1280×720 / 720×1280 / 1280×720，队列从 3 个耗尽，横竖切换和
+后台恢复通过，保存的节目单不变。此项没有声学回录，不替代最终长稳/听感验收。
+
+### P4.2 ImGuizmo 私有适配器（已验证，场景编辑仍在接入）
+
+ImGuizmo 1.10 的安装二进制与现有 docking ImGui ABI 不兼容；精确测量与源码
+例外见 [技术栈记录](technology_stack_evaluation.md) 和 `provenance/imguizmo.json`。
+`tools/prepare-imguizmo.py` 只从 SHA512 固定的 vcpkg 下载包提取两份未修改源码及
+MIT 许可，固定上游提交 `b796ac3b861afc6e91ca74e4611effd9c9527367`。未升级现有
+ImGui、未导入另一份 ImGui、没有把 SDK 安装成功当作 ABI 兼容证明。
+
+`studio::Gizmo` 以项目矩阵、相机、视口和稳定身份接入；原生/第三方类型只在
+私有同步 UI 边界。世界到局部写回参考已有 Godot Node3D 的逆父矩阵语义，实际
+运算复用项目 GLM 适配器。上游 SetRect 的 YMax 使用了 XMax，故适配器另行限制
+初始命中，不允许留黑/视口外开始捕获；捕获后可拖出视口。Esc、身份/模式变化、
+失焦和错误取消捕获。
+
+`out/p4-gizmo-tests-axis-contract.log`、`out/p4-gizmo-tests-cancel-errors.log`
+通过真实 ImGui 鼠标队列测试：透视/正交、旋转且非均匀父变换下的屏幕移动及
+局部矩阵写回、局部/世界旋转、局部缩放、取消和视口边界。此项仍没有完整 Studio
+3D 对象选择/保存/像素证据，不能宣称 P4.2 完成。
+
+上游缩放始终使用局部轴，不支持世界轴缩放，适配器显式返回
+`gizmo.world_scale_unsupported`，后续 UI 必须明确提示，不能显示“世界缩放”却
+静默沿局部轴操作。带剪切的矩阵也不能直接等同现有 TRS 作者参数，接续事务需要
+可表示性验证，不把程序生成的中间网格写回作者资产。
+
 1. `editor_application` 增加变换编辑事务，保留基线 revision/稳定节点 ID；一次
    鼠标拖动只提交一次 History，Esc/失焦/删除或外部 revision 变化取消草稿。
 2. Studio 最终输出的坐标操作与节点图平移分开；先支持 affine 作者节点的

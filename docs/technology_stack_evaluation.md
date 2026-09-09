@@ -5,6 +5,16 @@
 
 ## 1. 状态与决策规则
 
+P4.2 ImGuizmo 验证更新：vcpkg 仅新增 `imguizmo:x64-windows@1.10`，未升级其他
+包。安装二进制所用 ImGui 1.91.9 non-docking 与项目 1.91.9b docking ABI 不同：
+`sizeof(ImGuiIO)` 为 3032/3088，`ImGuiContext` 为 10576/11160，HoveredWindow
+偏移为 5040/5368（安装包/项目）。证据 `out/p4-imgui-abi-detail.log`。拒绝直接链接
+此二进制，保留现有 ImGui；通过 Python 从 vcpkg 校验过的 1.10 下载包仅提取
+`ImGuizmo.cpp/.h` 和 MIT 声明，用同一项目 ImGui 编译。源码例外、固定 revision、
+文件哈希见 `provenance/imguizmo.json`；私有适配器鼠标交互验证已经通过，范围为
+透视/正交、父变换写回、局部/世界旋转、局部缩放和捕获取消。世界缩放明确不支持；
+完整 3D 对象选择/手柄工作流仍在接入。手机 Player 不引入 ImGuizmo/ImGui。
+
 R3 已验证 vcpkg `mikktspace 2020-10-06#3`（Zlib，静态链接），仅新增
 `x64-windows` 与 `arm64-android` 包，没有升级共享安装的其他依赖。Windows 与
 USB 手机通过基本几何、镜像 UV 接缝和异常输入检查，采用其切线生成；C 类型仅留在
