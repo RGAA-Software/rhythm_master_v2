@@ -1,6 +1,6 @@
 schema_version: 4
 id: "p4-contour-pulse"
-revision: 54
+revision: 56
 nodes {
     id: 2
     type_key: "core.time"
@@ -357,7 +357,7 @@ nodes {
     properties {
         key: "rotation"
         value {
-            scalar: 0
+            scalar: 14.826479970355672
         }
     }
     properties {
@@ -369,13 +369,13 @@ nodes {
     properties {
         key: "scale_x"
         value {
-            scalar: 1
+            scalar: 1.0992624833756497
         }
     }
     properties {
         key: "scale_y"
         value {
-            scalar: 1
+            scalar: 1.1020099416468552
         }
     }
     properties {
@@ -538,7 +538,7 @@ components {
         properties {
             key: "rotation"
             value {
-                scalar: 0
+                scalar: 14.826479970355672
             }
         }
         properties {
@@ -550,13 +550,13 @@ components {
         properties {
             key: "scale_x"
             value {
-                scalar: 1
+                scalar: 1.0992624833756497
             }
         }
         properties {
             key: "scale_y"
             value {
-                scalar: 1
+                scalar: 1.1020099416468552
             }
         }
         properties {

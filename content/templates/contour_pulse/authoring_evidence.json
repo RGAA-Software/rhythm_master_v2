@@ -1,9 +1,9 @@
 {
-    "run": "out/windows-release/from-empty-studio-2d/0180e95f6ed3488a8306471996182cc4",
+    "run": "out/windows-release/from-empty-studio-2d/c3c27479744b45c5b32b6f70eb576a26",
     "recipe": "content/authoring/contour_pulse.json",
     "recipe_sha256": "54618c91f28925a3555077cd86db4b29eb0928b1a307d188e4c9ff086ad01e2f",
-    "saved_graph_sha256": "61d82bed9fef52dae02d5fcb00499bbfdedef89137023e0d3604c6840ef81b98",
-    "published_sha256": "b1967e86d5375432cf5207aff38232d49a15faeb45d957fef911323d1c66f9b7",
+    "saved_graph_sha256": "817b7504b165f97d5a4ac43239f45e15d827ee10e56f9fb07643a498e7f51f62",
+    "published_sha256": "bd8f53e93741586a3836bc241f0cf3e69ad79aa5386dd1e8408d06e153c8709d",
     "acceptance": {
         "recipe": "p4-contour-pulse",
         "recipe_sha256": "54618c91f28925a3555077cd86db4b29eb0928b1a307d188e4c9ff086ad01e2f",

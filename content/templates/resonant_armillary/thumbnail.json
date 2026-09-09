@@ -1,7 +1,7 @@
 {
-    "template": "contour_pulse",
-    "package_sha256": "bd8f53e93741586a3836bc241f0cf3e69ad79aa5386dd1e8408d06e153c8709d",
-    "thumbnail_sha256": "039a2cb99e4e520a908a5770e0847ef0dfc1667a0b3bcd7213efbde788f225ac",
+    "template": "resonant_armillary",
+    "package_sha256": "3f666f571f3f1ac561b14a0cdfbaca93abd7882dd53f98b9e252e02e89993518",
+    "thumbnail_sha256": "b2d9b809240f42f21081c3f5744645a2bee6fe0a1bf77285cb06d0706eff439a",
     "extent": [
         256,
         144

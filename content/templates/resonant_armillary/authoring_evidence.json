@@ -1,0 +1,16 @@
+{
+    "run": "out/windows-release/from-empty-studio-3d/ec5d0fee0210462db586d50e1ed67ccf",
+    "recipe": "content/authoring/resonant_armillary.json",
+    "recipe_sha256": "1bf740be6eb41c8368703c551abb1e3c1bbdad8ef6fbd89f04d4ef413930e9b2",
+    "saved_graph_sha256": "010011f1d306c17d8a42682ee74daf25df9463d35341f2ab94aa36c28caa17c0",
+    "published_sha256": "3f666f571f3f1ac561b14a0cdfbaca93abd7882dd53f98b9e252e02e89993518",
+    "acceptance": {
+        "recipe": "p4-resonant-armillary",
+        "recipe_sha256": "1bf740be6eb41c8368703c551abb1e3c1bbdad8ef6fbd89f04d4ef413930e9b2",
+        "ui_authoring": "passed",
+        "decoded_pcm_gpu": "passed",
+        "visual_review": "pending",
+        "android": "pending",
+        "acoustic_capture": false
+    }
+}

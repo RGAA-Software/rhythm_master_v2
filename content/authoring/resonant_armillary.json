@@ -1,0 +1,181 @@
+{
+    "id": "p4-resonant-armillary",
+    "title": "共振星仪 / Resonant Armillary",
+    "scope": "P4 from-empty 3D Studio workflow; visual review pending",
+    "descriptions": {
+        "zh-CN": "金色与青色圆环交错组成音乐雕塑：低频改变环的倾角，整体能量与高频点亮金属表面；包含可编辑构图组件和原创演示音乐。",
+        "en-US": "Interlocking gold and cyan rings form a musical sculpture: bass tilts the rings while overall energy and treble light their metallic surfaces, with an editable composition component and original demo music."
+    },
+    "view_node": 18,
+    "view_type": "scene.transform",
+    "component_title": "Armillary Composition",
+    "expected_translation": 0.5333333333333333,
+    "nodes": [
+        {
+            "type": "core.time"
+        },
+        {
+            "type": "audio.band",
+            "properties": {
+                "audio_band": 12
+            }
+        },
+        {
+            "type": "scalar.map",
+            "properties": {
+                "output_min": 25,
+                "output_max": 110,
+                "input_max": 0.15
+            },
+            "inputs": {
+                "value": 2
+            }
+        },
+        {
+            "type": "audio.band",
+            "properties": {
+                "audio_band": 48
+            }
+        },
+        {
+            "type": "audio.feature",
+            "properties": {
+                "audio_feature": 0
+            }
+        },
+        {
+            "type": "scalar.math",
+            "inputs": {
+                "a": 4,
+                "b": 5
+            }
+        },
+        {
+            "type": "scalar.map",
+            "properties": {
+                "output_min": 0.08,
+                "output_max": 1.5,
+                "input_max": 0.4
+            },
+            "inputs": {
+                "value": 6
+            }
+        },
+        {
+            "type": "material.pbr",
+            "properties": {
+                "color_a": "DAB079FF",
+                "color_b": "FAC788FF",
+                "metallic": 0.65,
+                "roughness": 0.22
+            },
+            "inputs": {
+                "emission": 7
+            }
+        },
+        {
+            "type": "material.pbr",
+            "properties": {
+                "color_a": "2BA8B8FF",
+                "color_b": "64DCE6FF",
+                "metallic": 0.5,
+                "roughness": 0.25
+            },
+            "inputs": {
+                "emission": 7
+            }
+        },
+        {
+            "type": "geometry.torus",
+            "properties": {
+                "radius": 1.0,
+                "tube_ratio": 0.06,
+                "radial_segments": 96,
+                "tube_segments": 24
+            }
+        },
+        {
+            "type": "scene.instance",
+            "inputs": {
+                "geometry": 10,
+                "material": 8
+            }
+        },
+        {
+            "type": "scene.transform",
+            "inputs": {
+                "scene": 11,
+                "rotation_y": 3,
+                "rotation_x": 1
+            }
+        },
+        {
+            "type": "scene.instance",
+            "inputs": {
+                "geometry": 10,
+                "material": 9
+            }
+        },
+        {
+            "type": "scene.transform",
+            "properties": {
+                "rotation_x": 70,
+                "scale": 0.75
+            },
+            "inputs": {
+                "scene": 13,
+                "rotation_z": 1
+            }
+        },
+        {
+            "type": "scene.merge",
+            "inputs": {
+                "a": 12,
+                "b": 14
+            }
+        },
+        {
+            "type": "scene.directional_light",
+            "properties": {
+                "color_a": "FFF0D9FF",
+                "light_energy": 3
+            }
+        },
+        {
+            "type": "scene.merge",
+            "inputs": {
+                "a": 15,
+                "b": 16
+            }
+        },
+        {
+            "type": "scene.transform",
+            "properties": {
+                "scale": 0.9
+            },
+            "inputs": {
+                "scene": 17
+            }
+        },
+        {
+            "type": "scene.camera",
+            "properties": {
+                "projection": 1,
+                "orthographic_height": 3
+            }
+        },
+        {
+            "type": "scene.render",
+            "inputs": {
+                "scene": 18,
+                "camera": 19
+            }
+        },
+        {
+            "type": "output.texture",
+            "inputs": {
+                "source": 20
+            }
+        }
+    ]
+}

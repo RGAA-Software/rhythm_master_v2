@@ -102,6 +102,33 @@ class StudioInput final {
         if (rows.empty()) throw std::runtime_error("authoring search rows missing");
         Button(rows, "###node." + std::to_string(id));
     }
+    void Drag(ImVec2 from, ImVec2 to) const {
+        auto& io = ImGui::GetIO();
+        io.AddMousePosEvent(from.x, from.y);
+        Settle();
+        io.AddMouseButtonEvent(0, true);
+        frame_();
+        for (int step = 1; step <= 6; ++step) {
+            io.AddMousePosEvent(from.x + (to.x - from.x) * step / 6,
+                                from.y + (to.y - from.y) * step / 6);
+            frame_();
+        }
+        io.AddMouseButtonEvent(0, false);
+        Settle(6);
+    }
+    ImVec2 SceneHandle(ImVec2 center) const {
+        // Scan the visible handle region using the real hover cursor. This is
+        // input only; no ImGuizmo/editor matrix or authored state is mutated.
+        for (int y = -60; y <= 60; y += 4)
+            for (int x = -60; x <= 60; x += 4) {
+                if (x * x + y * y < 100) continue;
+                ImGui::GetIO().AddMousePosEvent(center.x + x, center.y + y);
+                frame_();
+                if (ImGui::GetMouseCursor() == ImGuiMouseCursor_Hand)
+                    return {center.x + x, center.y + y};
+            }
+        throw std::runtime_error("visible scene handle not found");
+    }
     static ImRect ImageRect(const std::string& name) {
         const auto* window = ImGui::FindWindowByName(name.c_str());
         if (!window || !window->Active) throw std::runtime_error("authoring image window missing");

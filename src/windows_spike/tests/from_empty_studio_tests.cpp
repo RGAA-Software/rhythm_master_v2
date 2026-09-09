@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <numbers>
 
 #include "rhythm/graph/registry.h"
 #include "rhythm/project/package.h"
@@ -85,9 +86,19 @@ int main(int argc, char** argv) {
             Check(studio.Status().authored_nodes_ == id && actual_id != 0,
                   "palette did not add expected node " + std::to_string(id) + " " + type);
             const auto properties = node.value("properties", nlohmann::json::object());
+            const auto descriptor = registry.Find(type);
+            Check(descriptor.has_value(), "authoring descriptor missing");
             for (const auto& [key, value] : properties.items()) {
                 const auto label = "###property." + std::to_string(actual_id) + "." + key;
-                if (value.is_string())
+                const auto property =
+                        std::find_if(descriptor->properties_.begin(), descriptor->properties_.end(),
+                                     [&](const auto& item) { return item.key_ == key; });
+                Check(property != descriptor->properties_.end(), "recipe property missing: " + key);
+                if (!property->choices_.empty()) {
+                    ui.Button("###inspector", label);
+                    ui.Button(testing::StudioInput::Popup(),
+                              "###" + property->choices_.at(value.get<std::size_t>()));
+                } else if (value.is_string())
                     ui.Color(label, value.get<std::string>());
                 else
                     ui.Text("###inspector", label, value.dump());
@@ -170,7 +181,8 @@ int main(int argc, char** argv) {
                       saved.document_.signals_.size() == authored.size(),
               "unexpected named connections");
         const auto view_id = authored.at(recipe.at("view_node").get<std::size_t>() - 1);
-        ui.FindNode(view_id, "texture.affine");
+        const auto view_type = recipe.value("view_type", std::string("texture.affine"));
+        ui.FindNode(view_id, view_type);
         Check(studio.Workflow().selected_author_node_ == view_id, "view author not selected");
         ui.Button("###output", "###canvas.edit");
         ui.Focus("###output");
@@ -200,16 +212,72 @@ int main(int argc, char** argv) {
                       << " rect=" << rect.Min.x << ',' << rect.Min.y << ',' << rect.GetWidth()
                       << ',' << rect.GetHeight() << '\n';
         Check(moved_node != moved.document_.nodes_.end() &&
-                      std::abs(graph::Scalar(*moved_node, "translate_x", 0) - .1) < .005,
+                      std::abs(graph::Scalar(*moved_node, "translate_x", 0) -
+                               recipe.value("expected_translation", .1)) < .005,
               "from-empty work view drag not saved");
+        const bool scene_view = view_type == "scene.transform";
+        ui.Button("###output", "###canvas.rotate");
+        ui.Focus("###output");
+        const auto rotation_rect = testing::StudioInput::ImageRect("###output");
+        const ImVec2 pivot{rotation_rect.Min.x + rotation_rect.GetWidth() * .6f,
+                           rotation_rect.GetCenter().y};
+        constexpr float kAngle = float(std::numbers::pi / 12);
+        const auto rotation_start =
+                scene_view ? ui.SceneHandle(pivot)
+                           : ImVec2{pivot.x, pivot.y - rotation_rect.GetHeight() * .34f};
+        const ImVec2 offset{rotation_start.x - pivot.x, rotation_start.y - pivot.y};
+        ui.Drag(rotation_start,
+                {pivot.x + offset.x * std::cos(kAngle) - offset.y * std::sin(kAngle),
+                 pivot.y + offset.x * std::sin(kAngle) + offset.y * std::cos(kAngle)});
+        ui.Button("###graph", "###save");
+        ui.Settle(20);
+        const auto rotated = project::Load(path).snapshot_;
+        const auto rotated_node =
+                std::find_if(rotated.document_.nodes_.begin(), rotated.document_.nodes_.end(),
+                             [&](const auto& node) { return node.id_ == view_id; });
+        Check(rotated_node != rotated.document_.nodes_.end(), "rotated author missing");
+        const auto rotation =
+                scene_view ? std::abs(graph::Scalar(*rotated_node, "rotation_x", 0)) +
+                                     std::abs(graph::Scalar(*rotated_node, "rotation_y", 0)) +
+                                     std::abs(graph::Scalar(*rotated_node, "rotation_z", 0))
+                           : std::abs(graph::Scalar(*rotated_node, "rotation", 0));
+        Check(scene_view ? rotation > 1 : std::abs(rotation - 15) < 1,
+              "view rotation gesture not saved");
+        ui.Button("###output", "###canvas.scale");
+        ui.Focus("###output");
+        const auto scale_rect = testing::StudioInput::ImageRect("###output");
+        const ImVec2 scale_pivot{scale_rect.Min.x + scale_rect.GetWidth() * .6f,
+                                 scale_rect.GetCenter().y};
+        const auto angle =
+                float(graph::Scalar(*rotated_node, "rotation", 0) * std::numbers::pi / 180);
+        const ImVec2 corner{-scale_rect.GetWidth() * .425f, scale_rect.GetHeight() * .425f};
+        const auto scale_start = scene_view ? ui.SceneHandle(scale_pivot)
+                                            : ImVec2{scale_pivot.x + corner.x * std::cos(angle) -
+                                                             corner.y * std::sin(angle),
+                                                     scale_pivot.y + corner.x * std::sin(angle) +
+                                                             corner.y * std::cos(angle)};
+        ui.Drag(scale_start, {scale_pivot.x + (scale_start.x - scale_pivot.x) * 1.1f,
+                              scale_pivot.y + (scale_start.y - scale_pivot.y) * 1.1f});
+        ui.Button("###graph", "###save");
+        ui.Settle(20);
+        const auto scaled = project::Load(path).snapshot_;
+        const auto scaled_node =
+                std::find_if(scaled.document_.nodes_.begin(), scaled.document_.nodes_.end(),
+                             [&](const auto& node) { return node.id_ == view_id; });
+        Check(scaled_node != scaled.document_.nodes_.end(), "scaled author missing");
+        const auto scale_delta = std::abs(graph::Scalar(*scaled_node, "scale_x", 1) - 1) +
+                                 std::abs(graph::Scalar(*scaled_node, "scale_y", 1) - 1) +
+                                 std::abs(graph::Scalar(*scaled_node, "scale_z", 1) - 1);
+        Check(scale_delta > .03, "view scale gesture not saved");
         ui.Button("###inspector", "###component.panel");
-        ui.Text("###inspector", "###component.name", "Contour Composition");
+        ui.Text("###inspector", "###component.name",
+                recipe.value("component_title", std::string("Contour Composition")));
         ui.Button("###inspector", "###component.create");
         ui.Button("###graph", "###save");
         const auto component = project::Load(path).snapshot_;
         Check(component.document_.components_.size() == 1 &&
                       component.document_.components_[0].nodes_.size() == 1 &&
-                      component.document_.components_[0].nodes_[0].type_ == "texture.affine",
+                      component.document_.components_[0].nodes_[0].type_ == view_type,
               "authored composition component missing");
         ui.Button("###graph", "###publish");
         const auto package = output / "Published/work.rhythmpack";

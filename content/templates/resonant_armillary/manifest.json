@@ -7,23 +7,23 @@
         }
     ],
     "format": "rhythm.project",
-    "graph_revision": 56,
+    "graph_revision": 99,
     "manifest_version": 2,
-    "project_id": "p4-contour-pulse",
+    "project_id": "p4-resonant-armillary",
     "soundtrack": {
         "gain": 1.0,
         "loop": true,
         "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec",
         "title": "resonance_demo.wav"
     },
-    "title": "脉动等高线 / Contour Pulse",
+    "title": "共振星仪 / Resonant Armillary",
     "kind": "template",
-    "content_id": "official.templates.contour_pulse",
+    "content_id": "official.templates.resonant_armillary",
     "content_version": "0.1.0",
     "default_locale": "zh-CN",
     "titles": {
-        "zh-CN": "脉动等高线",
-        "en-US": "Contour Pulse"
+        "zh-CN": "共振星仪",
+        "en-US": "Resonant Armillary"
     },
     "category": "audio",
     "tier": "example",
@@ -35,7 +35,7 @@
     ],
     "external_assets": [],
     "descriptions": {
-        "zh-CN": "低频改变万花筒尺度，高频推动金青色等高线；包含可编辑的构图组件和原创演示音乐。",
-        "en-US": "Bass changes kaleidoscope scale while treble shifts gold and cyan contours, with an editable composition component and original demo music."
+        "zh-CN": "金色与青色圆环交错组成音乐雕塑：低频改变环的倾角，整体能量与高频点亮金属表面；包含可编辑构图组件和原创演示音乐。",
+        "en-US": "Interlocking gold and cyan rings form a musical sculpture: bass tilts the rings while overall energy and treble light their metallic surfaces, with an editable composition component and original demo music."
     }
 }
