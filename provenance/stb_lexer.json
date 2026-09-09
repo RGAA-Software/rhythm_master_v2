@@ -18,10 +18,10 @@
         }
     ],
     "imported_files": [],
-    "target": "src/image_shader/source.cpp",
+    "target": "src/shader_expression/source.cpp",
     "modifications": [
         "Compile unmodified installed SYSTEM header privately; no types exposed.",
-        "Reject comments/directives before lexing and enforce image-expression token/function/resource limits.",
+        "Reject comments/directives before lexing and enforce bounded token/function/resource limits; image and surface profiles have separate allowed context names.",
         "Use bounded NUL-terminated identifier storage rather than string_len, which is incorrect in the older installed desktop revision."
     ],
     "validation": "Source/profile, dual-artifact codec and actual Windows/GLES GPU pixel checks passed; no package upgrades or media decoder reuse."

@@ -1,0 +1,18 @@
+add_library(shader_expression STATIC source.cpp)
+target_include_directories(shader_expression PUBLIC include)
+if(ANDROID)
+    set(shader_expression_triplet arm64-android)
+else()
+    set(shader_expression_triplet x64-windows)
+endif()
+find_path(RHYTHM_STB_LEXER_INCLUDE stb_c_lexer.h PATHS
+    "C:/source/vcpkg/installed/${shader_expression_triplet}/include"
+    NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH REQUIRED)
+target_include_directories(shader_expression SYSTEM PRIVATE "${RHYTHM_STB_LEXER_INCLUDE}")
+rhythm_project_target(shader_expression)
+if(BUILD_TESTING)
+    add_executable(shader_expression_tests tests/source_tests.cpp)
+    target_link_libraries(shader_expression_tests PRIVATE shader_expression)
+    rhythm_project_target(shader_expression_tests)
+    add_test(NAME shader_expression COMMAND shader_expression_tests)
+endif()

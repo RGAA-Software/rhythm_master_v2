@@ -1,14 +1,6 @@
 add_library(image_shader STATIC source.cpp artifact.cpp program.cpp)
 target_include_directories(image_shader PUBLIC include)
-if(ANDROID)
-    set(image_shader_triplet arm64-android)
-else()
-    set(image_shader_triplet x64-windows)
-endif()
-find_path(RHYTHM_STB_LEXER_INCLUDE stb_c_lexer.h PATHS
-    "C:/source/vcpkg/installed/${image_shader_triplet}/include"
-    NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH REQUIRED)
-target_include_directories(image_shader SYSTEM PRIVATE "${RHYTHM_STB_LEXER_INCLUDE}")
+target_link_libraries(image_shader PUBLIC shader_expression)
 rhythm_project_target(image_shader)
 if(BUILD_TESTING)
     add_executable(image_shader_program_tests tests/program_tests.cpp)

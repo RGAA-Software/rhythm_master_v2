@@ -80,3 +80,12 @@ Windows D3D11 与 Android GLES 中心 RGB 都依次为 `(29,29,29)`、`(7,2,16)`
 
 实现继续完成独立资产合同、预算／生命周期、实例组合键、错误热更、旧包拒绝、
 可编辑音乐作品与两端交付；这些尚未完成，不把 P6.1 标成已交付。
+
+词法基础已抽到 `shader_expression`，原图像接口转发到相同实现，生成包装器和旧
+容器保持不变。Surface 允许 position／normal，拒绝图像专用 Sample／resolution；
+两个 profile 都保留长度、词元、嵌套、字面量与诊断位置限制，未知 profile 拒绝。
+Windows `out/p6-shared-expression-tests.log` 的四项检查通过，包含旧图像双目标
+编译和容器负例。Android 当前原生二进制通过相同词法及旧图像合同，日志为
+`out/p6-shared-expression-android-tests.log`、
+`out/p6-shared-expression-android-image-source-tests.log`、
+`out/p6-shared-expression-android-image-program-tests.log`。
