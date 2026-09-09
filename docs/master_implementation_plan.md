@@ -11,6 +11,8 @@ Studio/Windows Player 控件和 P1.4 的 Android 控件已实现，实机快照�
 P1.5 已完成示例、Studio GPU 专项与跨画布方向检查，见
 [示例交付证据](validation/beat_studio_example_2026-09-09.md)和
 [节拍实施证据](beat_quantization.md)。下一增量为 P2 本地事件，其余工作包不因此标记完成。
+P2.1 的事件身份与有界准入已通过 Windows/Android 原生验证；P2.2 继续接来源和算子，
+见 [事件合同及预算探针](local_events.md)。尚未接入图事件端口、动作轨或录制。
 
 ## 1. 产品目标、阶段终点与优先级
 
