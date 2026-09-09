@@ -25,6 +25,7 @@ struct FrameStatus {
 // UI-thread value snapshot for support/acceptance evidence. No backend objects,
 // generated schema or media resources cross this inspection boundary.
 struct WorkflowStatus {
+    std::uint64_t selected_author_node_ = 0;
     std::uint64_t requested_generation_ = 0;
     std::uint64_t installed_generation_ = 0;
     std::vector<std::string> graph_errors_{};

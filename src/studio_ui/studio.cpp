@@ -20,6 +20,7 @@
 #include "graph_canvas.h"
 #include "input_preview.h"
 #include "node_palette.h"
+#include "output_canvas.h"
 #include "performance_panel.h"
 #include "preview_routing.h"
 #include "property_inspector.h"
@@ -95,6 +96,10 @@ class Studio::Impl final {
     }
     std::string Label(const std::string& key) const { return Text(key) + "###" + key; }
     void MoveHistory(bool redo) {
+        if (output_canvas_.Cancel()) {
+            QueueCompile();
+            return;
+        }
         const auto preview = inspector_.Preview().has_value() || timeline_.Preview().has_value();
         auto before = history_->Current().document_;
         const auto before_assets = history_->Current().assets_;
@@ -108,6 +113,7 @@ class Studio::Impl final {
             QueueCompile();
     }
     void SyncTitle() {
+        output_canvas_.Cancel();
         beat_performance_.Reset();
         event_authoring_.Cancel();
         title_.fill(0);
@@ -121,9 +127,10 @@ class Studio::Impl final {
         asset_loader_.Cancel();
         const auto& document = component_workbench_.PreviewDocument()
                                        ? *component_workbench_.PreviewDocument()
-                               : inspector_.Preview() ? inspector_.Preview()->document_
-                               : timeline_.Preview()  ? timeline_.Preview()->document_
-                                                      : history_->Current().document_;
+                               : inspector_.Preview()    ? inspector_.Preview()->document_
+                               : timeline_.Preview()     ? timeline_.Preview()->document_
+                               : output_canvas_.Active() ? output_canvas_.Preview().document_
+                                                         : history_->Current().document_;
         auto request = preview_routing_.Prepare(
                 viewer_nodes_,
                 show_viewers_ ? component_workbench_.PreviewViewers() : editor::ScopedViewers{},
@@ -132,15 +139,15 @@ class Studio::Impl final {
                 compiler_.Submit(document, std::move(request.roots_), std::move(request.scoped_));
     }
     void Apply(editor::Snapshot next) {
+        const auto canceled_canvas = output_canvas_.Cancel();
         const auto assets_changed = next.assets_ != history_->Current().assets_;
         auto before = history_->Current().document_;
         auto after = next.document_;
         before.revision_ = 0;
         after.revision_ = 0;
         const auto expected_revision = next.document_.revision_;
-        if (history_->Apply(std::move(next), expected_revision) &&
-            (before != after || assets_changed))
-            QueueCompile();
+        const auto applied = history_->Apply(std::move(next), expected_revision);
+        if ((applied && (before != after || assets_changed)) || canceled_canvas) QueueCompile();
     }
     void Toolbar(platform::Host& host, render::Renderer& renderer, double seconds) {
         if (show_viewers_) preview_routing_.DrawNavigation(catalogs_.at(locale_));
@@ -365,12 +372,13 @@ class Studio::Impl final {
     }
     void Frame(platform::Host& host, render::Renderer& renderer, double seconds) {
         component_library_.Initialize(host.DataDirectory() / "Components");
-        if (!inspector_.Preview() && !timeline_.Preview())
+        if (!inspector_.Preview() && !timeline_.Preview() && !output_canvas_.Active())
             if (auto shader = shader_panel_.Take(history_->Current())) Apply(std::move(*shader));
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         if (auto edit = soundtrack_panel_.Take(
                     history_->Current(),
                     inspector_.Preview().has_value() || timeline_.Preview().has_value() ||
+                            output_canvas_.Active() ||
                             std::string(title_.data()) != history_->Current().title_,
                     audio_panel_))
             Apply(std::move(*edit));
@@ -383,7 +391,7 @@ class Studio::Impl final {
                                        : "operation_failed");
             } else if (completed->loaded_) {
                 if (history_->Current().document_.revision_ != load_revision_ ||
-                    inspector_.Preview() || timeline_.Preview() ||
+                    inspector_.Preview() || timeline_.Preview() || output_canvas_.Active() ||
                     std::string(title_.data()) != history_->Current().title_)
                     status_ = Text("load_conflict");
                 else if (completed->template_) {
@@ -426,7 +434,7 @@ class Studio::Impl final {
                 status_ = Text(result.error_);
             } else if (history_->Current().document_.id_ != result.expected_document_ ||
                        history_->Current().document_.revision_ != result.expected_revision_ ||
-                       inspector_.Preview() || timeline_.Preview() ||
+                       inspector_.Preview() || timeline_.Preview() || output_canvas_.Active() ||
                        std::string(title_.data()) != history_->Current().title_) {
                 status_ = Text("load_conflict");
             } else {
@@ -633,7 +641,7 @@ class Studio::Impl final {
             QueueCompile();
         }
         ImGui::Begin((Text("inspector") + "###inspector").c_str());
-        ImGui::BeginDisabled(timeline_.Preview().has_value());
+        ImGui::BeginDisabled(timeline_.Preview().has_value() || output_canvas_.Active());
         Inspector();
         ImGui::EndDisabled();
         audio_panel_.Draw(catalogs_.at(locale_));
@@ -663,7 +671,7 @@ class Studio::Impl final {
         if (show_timeline_) {
             ImGui::SetNextWindowSize({760, 530}, ImGuiCond_FirstUseEver);
             if (ImGui::Begin((Text("timeline") + "###timeline").c_str(), &show_timeline_)) {
-                ImGui::BeginDisabled(inspector_.Preview().has_value());
+                ImGui::BeginDisabled(inspector_.Preview().has_value() || output_canvas_.Active());
                 std::optional<std::filesystem::path> music;
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
                 music = audio_panel_.SelectedFile();
@@ -702,12 +710,19 @@ class Studio::Impl final {
             if (ImGui::Button(Label("render.retry").c_str())) ++reset_;
         }
         if (output_visible && output.final_.device_) {
-            const auto available = ImGui::GetContentRegionAvail();
-            const auto fit = render::AspectFit(output.extent_, {0, 0, std::max(1.0f, available.x),
-                                                                std::max(1.0f, available.y)});
-            const auto cursor = ImGui::GetCursorPos();
-            ImGui::SetCursorPos({cursor.x + fit.x_, cursor.y + fit.y_});
-            ImGui::Image(host.RegisterTexture(output.final_), {fit.width_, fit.height_});
+            const auto editable = !inspector_.Preview() && !timeline_.Preview() &&
+                                  !component_workbench_.PreviewDocument() &&
+                                  !event_authoring_.Recording() && !output.budget_;
+            auto edit = output_canvas_.Draw(
+                    history_->Current(), canvas_.Selection(), host.RegisterTexture(output.final_),
+                    {double(output.extent_.width_), double(output.extent_.height_)}, editable,
+                    plan_generation_ == generation_ && diagnostics_.empty(), catalogs_.at(locale_));
+            if (edit.committed_)
+                Apply(std::move(*edit.committed_));
+            else if (edit.preview_changed_)
+                QueueCompile();
+        } else if (output_canvas_.Cancel()) {
+            QueueCompile();
         }
         ImGui::End();
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
@@ -719,6 +734,7 @@ class Studio::Impl final {
 #endif
     }
     void CommitEdits() {
+        if (output_canvas_.Cancel()) QueueCompile();
         auto next = inspector_.Preview()  ? *inspector_.Preview()
                     : timeline_.Preview() ? *timeline_.Preview()
                                           : history_->Current();
@@ -750,6 +766,7 @@ class Studio::Impl final {
     std::vector<graph::NodeId> viewer_nodes_{};
     std::uint32_t evaluated_ = 0;
     GraphCanvas canvas_{};
+    OutputCanvas output_canvas_{};
     std::vector<graph::Diagnostic> diagnostics_{};
     std::map<std::string, std::map<std::string, std::string>> catalogs_{};
     std::filesystem::path project_{};
@@ -819,6 +836,7 @@ FrameStatus Studio::Status() const {
 }
 WorkflowStatus Studio::Workflow() const {
     WorkflowStatus result;
+    result.selected_author_node_ = impl_->canvas_.Selection();
     result.requested_generation_ = impl_->generation_;
     result.installed_generation_ = impl_->plan_generation_;
     for (const auto& diagnostic : impl_->diagnostics_)

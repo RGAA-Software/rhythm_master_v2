@@ -23,6 +23,47 @@ Windows `out/p4-geometry2d-tests.log`、
 
 ## 接续实施
 
+### P4.1 编辑事务与输出视图（进行中）
+
+`editor_application::CanvasEdit` 已通过 Windows 和 USB Android 原生检查：
+四种变换、镜像/非均匀父变换、像素/角度/比例吸附、枢轴保持、单次撤销、
+过期 revision 和连接/绑定保护。证据为 `out/p4-canvas-edit-tests-retry.log`、
+`out/p4-canvas-edit-android-tests.log`。Android 原生检查是共享事务测试，
+不代表手机增加编辑器或新的 APK 已交付。
+
+Studio 新增独立 `OutputCanvas`：在最终输出开启画布编辑，选中作者的
+`texture.affine` 节点后操作移动、旋转、缩放和枢轴；吸附为 16 像素、15 度、
+0.1 倍。输出手柄不使用节点图的平移操作。Esc、失焦、切换选择、切入其他编辑、
+隐藏输出或外部 revision 变化会取消草稿；一次拖动最多写入一次 History。
+首个拖动必须对应当前成功编译的输出，已有拖动允许异步更新中间预览。
+保存/发布前取消未完成的捕获，不把鼠标仍按下的草稿静默写入工程。
+
+支持根图 affine 经唯一 affine/composite/output 路径的作者变换。选择使用
+作者画布矩形，不是逐像素 alpha 拾取；一般合成遮挡并未作为可见性证明。
+非坐标保持后处理、多个可见分支、组件内部及被驱动的父变换明确拒绝，后续
+按 P4.3/4.4 补语义，不能把这一小范围称为全部 2D/3D 直接编辑已完成。
+
+中英文 `output_canvas` 检查实际注入 ImGui 鼠标输入，覆盖四种手柄、取消、旧输出
+禁止起拖、保存/重开属性及发布 program 一致性：`out/p4-output-canvas-tests-wire.log`
+通过。此检查没有 OS 窗口/GPU 像素，完整 Studio 图选择/拖动/像素检查仍在接入。
+测试校准记录：鼠标坐标由 ImGui 取整，输入映射允许一个屏幕像素的误差；数学
+测试仍使用严格容差。持久化会保留原始 protobuf 记录为扩展数据，比较稳定编码
+及变换属性，不用包含该缓存的内存 Document 与新建空扩展 Document 直接相等。
+
+完整 Studio `output_canvas_gpu` 已通过（`out/p4-output-canvas-gpu-tests-rect.log`）：
+从实际节点图选中 affine，鼠标拖动最终输出，观察 requested/installed 代次，
+保存/发布、撤销、重新打开，并核对移动前后左右两块 7×7 像素区域。
+证据目录 `out/windows-release/output-canvas-gpu/01d1859954114ad5a04e0bae43110561/`
+含截图、实际 Image 矩形和工作流记录。首次 GPU 测试的取框辅助函数错误地把原点
+并入包围盒，导致测试鼠标点错位置；修正为从首个图像顶点初始化后通过，失败
+记录仍保留。该问题没有通过忽略“未产生新编译”来放过。
+
+Windows Studio 已完成交付构建 `out/p4-output-canvas-delivery.log`，Python 自动部署
+可执行文件、DLL 与资源，并通过强制四项模板应用/保存/重开/发布回归。
+路径：`out/windows-release/src/windows_spike/deploy/rhythm_master.exe`。
+P4.1 的根图静态 affine 工作流可验收；P4.2–P4.5 继续推进，不把受保护的驱动
+参数或暂不支持的组件/3D 路径算作已完成。
+
 1. `editor_application` 增加变换编辑事务，保留基线 revision/稳定节点 ID；一次
    鼠标拖动只提交一次 History，Esc/失焦/删除或外部 revision 变化取消草稿。
 2. Studio 最终输出的坐标操作与节点图平移分开；先支持 affine 作者节点的
