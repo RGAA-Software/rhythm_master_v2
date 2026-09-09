@@ -1,5 +1,5 @@
 add_executable(rhythm_player main.cpp)
-target_sources(rhythm_player PRIVATE scene_queue_panel.cpp)
+target_sources(rhythm_player PRIVATE scene_queue_panel.cpp performance_panel.cpp)
 target_link_libraries(rhythm_player PRIVATE platform_sdl player_core project_io audio_ui control_ui spike_imgui nlohmann_json::nlohmann_json)
 rhythm_project_target(rhythm_player)
 add_dependencies(rhythm_player runtime_builtin_content)
@@ -20,6 +20,16 @@ add_custom_command(TARGET rhythm_player POST_BUILD COMMAND ${player_deploy_comma
 add_custom_target(player_deploy ALL COMMAND ${player_deploy_command} DEPENDS rhythm_player runtime_builtin_content demo_audio_content VERBATIM)
 add_dependencies(rhythm_player demo_audio_content)
 if(BUILD_TESTING)
+    add_executable(performance_ui_tests performance_ui_tests.cpp performance_panel.cpp)
+    target_link_libraries(performance_ui_tests PRIVATE player_core performance_store spike_imgui nlohmann_json::nlohmann_json)
+    rhythm_project_target(performance_ui_tests)
+    foreach(locale IN ITEMS en-US zh-CN)
+        add_test(NAME performance_ui_${locale} COMMAND performance_ui_tests
+            "${PROJECT_SOURCE_DIR}/locales/${locale}/studio.json" "${locale}"
+            "${PROJECT_BINARY_DIR}/performance-ui-tests")
+        set_tests_properties(performance_ui_${locale} PROPERTIES TIMEOUT 30
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
+    endforeach()
     add_executable(scene_queue_ui_tests scene_queue_ui_tests.cpp scene_queue_panel.cpp)
     target_link_libraries(scene_queue_ui_tests PRIVATE platform_sdl player_core spike_imgui nlohmann_json::nlohmann_json)
     rhythm_project_target(scene_queue_ui_tests)

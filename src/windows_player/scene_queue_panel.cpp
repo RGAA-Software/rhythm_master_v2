@@ -47,13 +47,25 @@ void SceneQueuePanel::Draw(player::SceneQueue& queue, player::SceneDeck& deck,
         static constexpr std::array kStates{"scene.waiting", "scene.loading", "scene.ready",
                                             "scene.failed"};
         for (const auto& item : items) {
-            const auto title = item.title_ + " | " +
-                               text.at(kStates.at(static_cast<std::size_t>(item.state_))) +
-                               "###scene.row." + std::to_string(item.id_);
+            auto title = item.title_ + " | " +
+                         text.at(kStates.at(static_cast<std::size_t>(item.state_))) + " ";
+            if (item.entry_) {
+                static constexpr std::array resolutions{
+                        "performance.exact", "performance.updated", "performance.missing",
+                        "performance.changed", "performance.ambiguous"};
+                title += text.at(resolutions.at(static_cast<std::size_t>(item.resolution_)));
+            }
+            title += "###scene.row." + std::to_string(item.id_);
             if (ImGui::Selectable(title.c_str(), selected_ == item.id_)) selected_ = item.id_;
         }
     }
     ImGui::EndChild();
+    for (const auto& item : items)
+        if (item.id_ == selected_ && !item.resolution_error_.empty()) {
+            const auto translated = text.find(item.resolution_error_);
+            ImGui::TextWrapped("%s", translated == text.end() ? item.resolution_error_.c_str()
+                                                              : translated->second.c_str());
+        }
     ImGui::BeginDisabled(items.empty());
     if (ImGui::Button(label("scene.remove").c_str())) queue.Remove(selected_);
     ImGui::SameLine();
@@ -67,16 +79,29 @@ void SceneQueuePanel::Draw(player::SceneQueue& queue, player::SceneDeck& deck,
                          queue.Items().front().state_ != player::ScenePreparation::kFailed);
     if (ImGui::Button(label("scene.retry").c_str())) queue.Retry();
     ImGui::EndDisabled();
+    const auto next_entry = queue.Items().empty() ? std::optional<performance::ListEntry>{}
+                                                  : queue.Items().front().entry_;
+    ImGui::BeginDisabled(next_entry.has_value());
     ImGui::SetNextItemWidth(180);
     ImGui::SliderFloat(label("scene.duration").c_str(), &duration_, 0, 5, "%.2f s",
                        ImGuiSliderFlags_AlwaysClamp);
+    ImGui::EndDisabled();
+    if (next_entry) {
+        static constexpr std::array modes{"beat.immediate", "beat.next_beat", "beat.next_bar"};
+        ImGui::Text("%s: %.2f s | %s", text.at("performance.entry_settings").c_str(),
+                    next_entry->transition_seconds_,
+                    text.at(modes.at(static_cast<std::size_t>(next_entry->quantization_))).c_str());
+    }
     const bool can_go = deck.CanPrepareNext() && !queue.Items().empty() &&
                         queue.Items().front().state_ == player::ScenePreparation::kReady;
     ImGui::BeginDisabled(!can_go);
     // Keyboard/navigation activation may have been queued on a previous frame.
     // Recheck domain availability even when the current button is disabled.
-    if (ImGui::Button(label("scene.go").c_str()) && can_go)
-        deck.RequestNextScene(queue.Items().front().id_, duration_, mode);
+    if (ImGui::Button(label("scene.go").c_str()) && can_go) {
+        const auto& item = queue.Items().front();
+        deck.RequestNextScene(item.id_, item.entry_ ? item.entry_->transition_seconds_ : duration_,
+                              item.entry_ ? item.entry_->quantization_ : mode);
+    }
     ImGui::EndDisabled();
     if (deck.Transitioning()) {
         ImGui::SameLine();

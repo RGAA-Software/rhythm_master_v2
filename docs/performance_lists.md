@@ -1,8 +1,8 @@
 # 持久演出列表与连续播放
 
 P3 实施记录，2026-09-09。对应 `master_implementation_plan.md` P3.1–P3.5。
-列表合同、原子存储与托管包/队列适配已通过两端原生检查；UI、音频淡化和分阶段 GPU
-准备尚未交付。
+列表合同、原子存储与托管包/队列适配已通过两端原生检查，Windows Player 列表 UI
+已交付；Android UI、音频淡化和分阶段 GPU 准备尚未交付。
 
 ## 保存语义
 
@@ -71,3 +71,10 @@ AssetId/SHA-256。新增代码仅实现项目列表合同与适配，不新增�
   `out/p3-program-immutable-{windows,android}-tests.log` 通过，另有原队列回归。
   目录更新会复核实际字节 SHA-256；初次 Windows 失败来自测试原地改写仍被文件
   lease 持有的包，修正为实际发布使用的原子替换后通过，失败日志保留。
+- Windows Player 的“演出列表”窗口：添加/复制/排序/删除、过渡与量化设置、固定或
+  跟随内置版本、托管导入、保存/重开、准备到播放队列。队列明确显示缺失/更新/固定
+  版本变化和字节错误；Go 使用保存的条目设置，通用时长控件在该模式禁用。
+  `out/p3-windows-performance-ui-final-tests.log` 五项通过：两语言真实 ImGui 导航
+  激活操作覆盖保存文件与重开/队列顺序；既有队列 GPU 切场、最终 deploy Player smoke
+  与源码边界通过。UI 用例不是手机触屏证据。已生成
+  `out/windows-release/src/windows_player/deploy/rhythm_player.exe`，含 20 个 DLL 和资源。

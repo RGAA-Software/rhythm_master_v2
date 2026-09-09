@@ -9,6 +9,7 @@
 #include <optional>
 #include <string_view>
 
+#include "performance_panel.h"
 #include "rhythm/audio_ui/audio_panel.h"
 #include "rhythm/control_ui/beat_panel.h"
 #include "rhythm/control_ui/control_panel.h"
@@ -48,12 +49,39 @@ int main(int argc, char* argv[]) {
         rhythm::player::SceneDeck deck;
         rhythm::player::SceneQueue scene_queue;
         rhythm::player_ui::SceneQueuePanel scene_panel;
+        rhythm::player_ui::PerformancePanel performance_panel;
         std::vector<rhythm::player_ui::SceneChoice> scene_choices;
+        std::vector<rhythm::performance::WorkReference> work_catalog;
         for (const auto& entry :
-             rhythm::project::ScanTemplates(host.ResourceDirectory() / "content/templates"))
-            scene_choices.push_back({host.ResourceDirectory() / "content/packages" /
-                                             (entry.directory_.filename().string() + ".rhythmpack"),
-                                     entry.titles_});
+             rhythm::project::ScanTemplates(host.ResourceDirectory() / "content/templates")) {
+            const auto package = host.ResourceDirectory() / "content/packages" /
+                                 (entry.directory_.filename().string() + ".rhythmpack");
+            auto identity = package;
+            identity.replace_extension(".source.json");
+            std::ifstream identity_file(identity);
+            const auto metadata = nlohmann::json::parse(identity_file);
+            rhythm::performance::WorkReference reference{
+                    rhythm::performance::WorkSource::kBuiltin,
+                    entry.id_,
+                    entry.version_,
+                    {metadata.at("package_sha256").get<std::string>()},
+                    rhythm::performance::VersionPolicy::kCurrentBuiltin};
+            scene_choices.push_back({package, entry.titles_, reference});
+            work_catalog.push_back(std::move(reference));
+        }
+        rhythm::player::PerformanceProgram performance(
+                host.DataDirectory() / "performance", std::move(work_catalog),
+                [choices = scene_choices](const rhythm::performance::WorkReference& work,
+                                          std::stop_token stop) {
+                    if (stop.stop_requested()) throw std::runtime_error("performance.cancelled");
+                    for (const auto& choice : choices)
+                        if (choice.reference_.content_id_ == work.content_id_ &&
+                            choice.reference_.package_ == work.package_)
+                            return rhythm::storage::FileBytes::Open(
+                                    choice.package_, rhythm::project::kMaximumFilePackageBytes);
+                    throw std::runtime_error("performance.builtin_missing");
+                });
+        performance.Load();
         rhythm::player::PackageLoader package_loader;
         rhythm::audio_ui::AudioPanel audio_panel;
         rhythm::control_ui::ControlPanel control_panel;
@@ -120,6 +148,11 @@ int main(int argc, char* argv[]) {
                 } else if (result->error_ != rhythm::player::PackageLoadError::kCancelled) {
                     error = "package_error";
                 }
+            }
+            performance.Pump();
+            if (deck.CanPrepareNext()) {
+                if (auto resolved = performance.TakeResolved())
+                    scene_queue.ReplacePerformance(*resolved);
             }
             scene_queue.Pump(deck.CanPrepareNext());
             if (!ImGui::GetIO().WantTextInput) {
@@ -199,6 +232,7 @@ int main(int argc, char* argv[]) {
                                 : "Cannot open package. Current playback is retained.");
             scene_panel.Draw(scene_queue, deck, scene_choices, chinese ? "zh-CN" : "en-US",
                              catalogs.at(chinese ? "zh-CN" : "en-US"), beat_panel.Mode());
+            performance_panel.Draw(performance, scene_choices, chinese ? "zh-CN" : "en-US", text);
             const auto available = ImGui::GetContentRegionAvail();
             const auto width = std::max(1.0f, available.x);
             const auto height = std::max(1.0f, available.y);

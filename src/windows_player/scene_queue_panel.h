@@ -9,6 +9,7 @@ namespace rhythm::player_ui {
 struct SceneChoice {
     std::filesystem::path package_{};
     std::map<std::string, std::string> titles_{};
+    performance::WorkReference reference_{};
 };
 // UI gestures only. The host supplies the startup catalog and owns the queue,
 // deck and audio handoff. No disk access or waiting occurs in Draw.
