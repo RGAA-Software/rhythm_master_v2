@@ -91,4 +91,5 @@
     <string name="beat_target_unavailable">Target unavailable; current work retained</string>
     <string name="beat_snapshot">Snapshot</string>
     <string name="beat_scene">Next scene</string>
+    <string name="event_rejections">Event rejection reports (triggers skipped)</string>
 </resources>

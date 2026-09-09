@@ -223,6 +223,12 @@ int main(int argc, char* argv[]) {
             }
             const auto& output = frame.output_;
             host.ClearViewerTextures();
+            if (output.rejected_event_total_)
+                ImGui::TextWrapped("%s: %llu",
+                                   catalogs.at(chinese ? "zh-CN" : "en-US")
+                                           .at("event.rejected_reports")
+                                           .c_str(),
+                                   static_cast<unsigned long long>(output.rejected_event_total_));
             if (output.budget_)
                 ImGui::TextWrapped("%s", catalogs.at(chinese ? "zh-CN" : "en-US")
                                                  .at("render.resource_budget")

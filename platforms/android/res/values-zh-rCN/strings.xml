@@ -91,4 +91,5 @@
     <string name="beat_target_unavailable">目标不可用，保留当前作品</string>
     <string name="beat_snapshot">快照</string>
     <string name="beat_scene">下一场</string>
+    <string name="event_rejections">事件拒绝报告（部分触发已跳过）</string>
 </resources>

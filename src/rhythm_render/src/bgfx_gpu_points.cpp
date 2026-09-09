@@ -65,6 +65,9 @@ void BgfxGpuPoints::Update(bgfx::ViewId view, GpuPointHandle handle, const GpuPa
              {s.gravity_[0], s.gravity_[1], s.frequency_, s.center_[2]},
              s.color_a_,
              s.color_b_}};
+    // View IDs are reused across frames. A compute pass must not inherit the
+    // framebuffer/clear state of an earlier graphics pass at the same index.
+    bgfx::resetView(view);
     bgfx::setViewMode(view, bgfx::ViewMode::Sequential);
     bgfx::setViewName(view, "GPU particle update");
     for (std::size_t i = 0; i < values.size(); ++i)

@@ -166,3 +166,12 @@ schema 7、无网格可读、普通图版本不变、最低版本拒绝。Window
 通过，连同旧程序与宏/Cue/网格合同回归，日志 `out/p2-event-io-windows-tests.log`、
 `out/p2-event-io-android-tests.log`。这是原生存储/执行路径；完整 Studio 模板 UI/GPU
 及事件作品仍随本轮交付验收，不用该测试替代。
+
+### 两端 GPU 状态与可见拒绝报告
+
+ADSR 定时输出、反馈/拖尾独立重置与 GPU 粒子清空已经完成实际像素检查；物理重置
+完成原生位置/身份检查。期间发现并修复 GLES 计算视图继承旧绘图状态的问题，详见
+[失效路径与永久回归](validation/compute_view_reuse_2026-09-09.md)。Windows Player
+和 Android 状态区域也接入事件拒绝累计报告；本轮 Windows Player 启动通过
+`out/p2-player-event-diagnostics-windows-tests.log`，Android 编译打包并 install -r 成功。
+事件完整作品与 Studio 模板应用仍在下一次交付中验收；该安装包还未包含后续计算视图修复。

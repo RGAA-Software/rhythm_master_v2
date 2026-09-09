@@ -74,8 +74,44 @@ int main() {
             Check(Output(frame, 1).gpu_points_ == reset.gpu_points_,
                   "pause reconstructed GPU state");
         }
-        std::cout << "Targeted CPU/GPU event resets preserve unrelated state and deduplicate "
-                     "repeated frames\n";
+        {
+            graph::Document document;
+            document.id_ = "physics-event-reset";
+            document.beat_grid_ = parameters::BeatSettings{};
+            document.nodes_ = {
+                    registry.MakeNode(1, "point.grid"), registry.MakeNode(2, "point.physics2d"),
+                    registry.MakeNode(3, "point.render"), registry.MakeNode(4, "output.texture"),
+                    registry.MakeNode(5, "event.beat")};
+            document.nodes_[0].properties_["columns"] = 1.0;
+            document.nodes_[0].properties_["rows"] = 1.0;
+            document.nodes_[0].properties_["center_y"] = 0.2;
+            document.edges_ = {{1, 1, 2, "points"},
+                               {2, 2, 3, "points"},
+                               {3, 3, 4, "source"},
+                               {4, 5, 2, "reset"}};
+            document.output_ = 4;
+            const auto plan = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+            auto renderer = render::Renderer::CreateNull();
+            runtime::Runtime runtime;
+            const auto evaluate = [&](double seconds) {
+                renderer.BeginFrame();
+                auto result = runtime.Evaluate(plan, {seconds}, renderer);
+                renderer.EndFrame();
+                return Output(result, 2);
+            };
+            const auto initial = evaluate(0);
+            auto falling = initial;
+            for (int index = 1; index < 30; ++index) falling = evaluate(index / 60.0);
+            Check(falling.points_->front().y_ > initial.points_->front().y_,
+                  "physics fixture did not fall");
+            const auto restarted = evaluate(0.5);
+            Check(restarted.points_->front().y_ == initial.points_->front().y_ &&
+                          restarted.points_generation_ != initial.points_generation_,
+                  "event reset did not restore physics input and point identity");
+        }
+        std::cout
+                << "Targeted CPU/GPU/physics event resets preserve unrelated state and deduplicate "
+                   "repeated frames\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

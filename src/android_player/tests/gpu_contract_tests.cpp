@@ -14,6 +14,7 @@
 #include "scene_compositor_probe.h"
 
 namespace rhythm::validation {
+void VerifyEventPixels(render::Renderer& renderer);
 void VerifyPointPixels(render::Renderer& renderer);
 void VerifyEffectPixels(render::Renderer& renderer);
 void VerifyVideoUploadPixels(render::Renderer& renderer);
@@ -343,6 +344,11 @@ void VerifyAffine(rhythm::render::Renderer& renderer) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+        if (argc == 2 && std::string_view(argv[1]) == "--events") {
+            auto renderer = platform::Host::CreateRenderer();
+            validation::VerifyEventPixels(renderer);
+            return 0;
+        }
         if (argc == 2 && std::string_view(argv[1]) == "--fxaa") {
             auto renderer = platform::Host::CreateRenderer();
             validation::VerifyFxaa(renderer);

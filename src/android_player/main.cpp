@@ -206,6 +206,8 @@ int main(int, char**) {
                        << " devices=" << devices << " " << error;
                 if (imports.Busy()) status << " loading";
                 if (output.budget_) status << " render.resource_budget";
+                if (output.rejected_event_total_)
+                    status << " event_rejections=" << output.rejected_event_total_;
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
                 if (music_frame.inputs_.audio_)
                     status << " rms=" << music_frame.inputs_.audio_->rms_;

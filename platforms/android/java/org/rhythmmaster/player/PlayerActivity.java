@@ -88,7 +88,8 @@ public final class PlayerActivity extends SDLActivity {
             String text = nativeStatus().replace("playing", getString(R.string.playing))
                     .replace("paused", getString(R.string.paused))
                     .replace("audio_error", getString(R.string.audio_error))
-                    .replace("package_error", getString(R.string.package_error));
+                    .replace("package_error", getString(R.string.package_error))
+                    .replace("event_rejections", getString(R.string.event_rejections));
             status_.setText(text);
             double duration = nativeDuration();
             double position = nativePosition();
