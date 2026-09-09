@@ -107,6 +107,7 @@ std::string_view Category(graph::Operation operation) {
         case kMaterialUnlit:
         case kMaterialPbr:
         case kMaterialTextures:
+        case kMaterialShader:
         case kDirectionalLight:
         case kPointLight:
         case kSpotLight:

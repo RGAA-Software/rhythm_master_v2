@@ -23,6 +23,7 @@ class ShaderPanel final {
     std::uint64_t load_generation_ = 0;
     std::string document_{};
     graph::NodeId node_ = 0;
+    std::string type_{};
     assets::AssetId asset_{};
     std::array<char, image_shader::kMaximumSourceBytes + 1> buffer_{};
     std::string error_{};
@@ -32,6 +33,7 @@ class ShaderPanel final {
     struct Pending {
         std::string document_{};
         graph::NodeId node_ = 0;
+        std::string type_{};
         assets::AssetId asset_{};
     };
     std::optional<Pending> pending_{};

@@ -50,9 +50,9 @@ class Studio::Impl final {
    public:
     Impl(const std::filesystem::path& resources, const std::filesystem::path& project)
         : project_(project) {
-        shader_panel_.SetTools({resources / "shader_tools/shaderc.exe",
-                                resources / "shader_tools/include",
-                                resources / "shader_tools/varying.def.sc"});
+        shader_panel_.SetTools(
+                {resources / "shader_tools/shaderc.exe", resources / "shader_tools/include",
+                 resources / "shader_tools/varying.def.sc", resources / "shader_tools/surface"});
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         audio_panel_.SetDemoFile(resources / "content/audio/resonance_demo.wav");
         assets_.SetBuiltinFont(resources / "content/fonts/NotoSansCJKsc-Regular.otf",
@@ -470,6 +470,7 @@ class Studio::Impl final {
                                 instruction.operation_ != graph::Operation::kTextureImage &&
                                 instruction.operation_ != graph::Operation::kTextureText &&
                                 instruction.operation_ != graph::Operation::kTextureShader &&
+                                instruction.operation_ != graph::Operation::kMaterialShader &&
                                 instruction.operation_ != graph::Operation::kTextureVideo)
                                 return true;
                             const auto& id = std::get<assets::AssetId>(
@@ -560,6 +561,7 @@ class Studio::Impl final {
             frame.resources_ = prepared_resources_->models_;
             frame.images_ = prepared_resources_->images_;
             frame.shaders_ = prepared_resources_->shaders_;
+            frame.surfaces_ = prepared_resources_->surfaces_;
             frame.videos_ = videos_.Update(*plan_, *prepared_resources_, playback_seconds, reset_);
             if (!videos_.Error().empty()) status_ = Text("video.playback_failed");
             if (!timeline_.Paused() || transport_changed || audio_frame.playback_) {

@@ -786,7 +786,7 @@
     "shader.literal_limit": "A numeric literal must be finite and no larger than 1000000.",
     "shader.nesting_limit": "At most 32 levels of parentheses are supported.",
     "shader.parentheses": "Unbalanced parentheses.",
-    "shader.token": "Unsupported syntax; enter one RGBA expression.",
+    "shader.token": "Unsupported syntax; enter one expression.",
     "shader.location": "Line : column",
     "shader.timeout": "Shader compilation timed out.",
     "shader.loading": "Loading shader source…",
@@ -1285,5 +1285,11 @@
     "scene_antialiasing": "Scene antialiasing",
     "scene.aa_none": "Off",
     "scene.aa_supersample_2x": "2x supersampling (4x scene pixels)",
-    "runtime.scene_sampling_extent": "2x supersampling requires output dimensions at most 4096. Reduce the canvas or disable supersampling."
+    "runtime.scene_sampling_extent": "2x supersampling requires output dimensions at most 4096. Reduce the canvas or disable supersampling.",
+    "material.shader": "Surface shader",
+    "shader.surface_editor": "Surface RGB expression",
+    "shader.surface_help": "Return vec3 RGB tint before lighting. Inputs: uv, position, normal (world), time, a/b/c/d. Use explicit vector components. Tint is clamped to 0..1; material alpha and lighting are preserved.",
+    "help.material.shader": "Apply a compiled RGB tint to the input material. Connect time or audio-driven a/b/c/d, then use the material on scene instances.",
+    "shader.surface_tools": "Surface compiler files are missing. Restore the complete Studio deploy folder.",
+    "shader.read": "Could not read the shader source."
 }

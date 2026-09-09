@@ -133,6 +133,9 @@ def deploy(config):
                 copy_file(dependency, tool_root / dependency.name)
             copy_file(source_root / "third_party/sources/bgfx/src/bgfx_shader.sh", tool_root / "include/bgfx_shader.sh")
             copy_file(source_root / "src/rhythm_render/shaders/varying.def.sc", tool_root / "varying.def.sc")
+            for name in ("scene_varying.def.sc", "godot_brdf.sh", "godot_lights.sh",
+                         "godot_shadow.sh", "godot_environment.sh"):
+                copy_file(source_root / "src/rhythm_render/shaders" / name, tool_root / "surface" / name)
             copy_file(tool_profile, tool_root / "validated-profile.json")
             copy_file(source_root / "provenance/shaderc_host.json", tool_root / "source-origin.json")
             if tool_profile.name == "shaderc_rebuilt_host.json":

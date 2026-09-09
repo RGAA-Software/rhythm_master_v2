@@ -28,6 +28,7 @@ runtime::PreparationProgress Session::PrepareGraphics(double monotonic_seconds,
         context.resources_ = resources_->models_;
         context.images_ = resources_->images_;
         context.shaders_ = resources_->shaders_;
+        context.surfaces_ = resources_->surfaces_;
         context.external_ = inputs;
         context.external_.controls_ = parameters::EvaluateControls(Controls(), ControlSequence(),
                                                                    Seconds(), inputs.controls_);

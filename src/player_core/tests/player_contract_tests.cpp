@@ -10,6 +10,51 @@ namespace {
 void Check(bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
 }
+void VerifySurfacePackage(const std::filesystem::path& path) {
+    using namespace rhythm;
+    player::Session session;
+    session.Open(path);
+    auto renderer = render::Renderer::CreateNull();
+    renderer.BeginFrame();
+    const auto first = session.Tick(0, false, {64, 64}, renderer);
+    renderer.EndFrame();
+    Check(renderer.IsValid(first.final_) && renderer.Stats().surface_programs_ == 1,
+          "published surface program reaches Player output");
+    session.ReleaseGraphics();
+    Check(renderer.Stats().surface_programs_ == 0 && !renderer.IsValid(first.final_),
+          "Player release frees surface program and old output");
+    runtime::PreparationProgress prepared;
+    for (unsigned step = 0; step < 32; ++step) {
+        renderer.BeginFrame();
+        prepared =
+                session.PrepareGraphics(step + 1, {64, 64}, renderer, {}, {0, 42, true}, {1, 100});
+        renderer.EndFrame();
+        Check(prepared.state_ != runtime::PreparationState::kFailed,
+              "surface candidate preparation");
+        if (prepared.state_ == runtime::PreparationState::kReady) break;
+    }
+    Check(prepared.state_ == runtime::PreparationState::kReady && prepared.output_ &&
+                  renderer.IsValid(prepared.output_->final_) &&
+                  renderer.Stats().surface_programs_ == 1,
+          "staged Player recreates surface shader");
+    renderer.BeginFrame();
+    const auto paused =
+            session.Tick(40, false, {64, 64}, renderer, {}, runtime::PlaybackSample{0, 42, true});
+    renderer.EndFrame();
+    Check(paused.final_ == prepared.output_->final_ && renderer.Stats().passes_ == 0,
+          "paused Player reuses prepared surface frame");
+    renderer.BeginFrame();
+    const auto live =
+            session.Tick(41, false, {64, 64}, renderer, {}, runtime::PlaybackSample{1, 42, false});
+    renderer.EndFrame();
+    Check(renderer.IsValid(live.final_) && renderer.Stats().passes_ > 0 &&
+                  renderer.Stats().surface_programs_ == 1,
+          "surface time resumes without recompiling a program");
+    session.ReleaseGraphics();
+    Check(renderer.Stats().surface_programs_ == 0, "surface program is released deterministically");
+    std::cout
+            << "Surface Player: package, staged preparation, pause/resume and recreation passed\n";
+}
 void VerifyPreparation() {
     using namespace rhythm;
     graph::Registry registry;
@@ -59,9 +104,13 @@ void VerifyPreparation() {
     Check(renderer.Stats().texture_bytes_ == 0, "cancel releases partial candidate resources");
 }
 }  // namespace
-int main() {
+int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+        if (argc == 2)
+            VerifySurfacePackage(argv[1]);
+        else
+            Check(argc == 1, "optional surface package path");
         VerifyPreparation();
         using player::PlaybackExtent;
         using player::RenderQuality;

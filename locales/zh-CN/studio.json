@@ -786,7 +786,7 @@
     "shader.literal_limit": "数值常量必须有限且不超过 1000000。",
     "shader.nesting_limit": "括号嵌套最多 32 层。",
     "shader.parentheses": "括号不匹配。",
-    "shader.token": "语法不受支持，请输入一个 RGBA 表达式。",
+    "shader.token": "语法不受支持，请输入一个表达式。",
     "shader.location": "行 : 列",
     "shader.timeout": "Shader 编译超时。",
     "shader.loading": "正在加载 Shader 源码…",
@@ -1285,5 +1285,11 @@
     "scene_antialiasing": "场景抗锯齿",
     "scene.aa_none": "关闭",
     "scene.aa_supersample_2x": "2倍超采样（4倍场景像素）",
-    "runtime.scene_sampling_extent": "2倍超采样要求输出宽高不超过4096；请减小画布或关闭超采样。"
+    "runtime.scene_sampling_extent": "2倍超采样要求输出宽高不超过4096；请减小画布或关闭超采样。",
+    "material.shader": "表面 Shader",
+    "shader.surface_editor": "表面 RGB 表达式",
+    "shader.surface_help": "返回光照前的 vec3 RGB 染色。输入：uv、position、normal（世界空间）、time、a/b/c/d。向量请明确写出各分量。染色限制在 0..1，继承材质透明度与光照。",
+    "help.material.shader": "为输入材质应用编译后的 RGB 染色。连接时间或音乐驱动的 a/b/c/d，再将材质用于场景实例。",
+    "shader.surface_tools": "缺少表面编译文件，请恢复完整的 Studio deploy 目录。",
+    "shader.read": "无法读取 Shader 源码。"
 }

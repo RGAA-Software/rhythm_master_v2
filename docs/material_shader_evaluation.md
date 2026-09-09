@@ -196,3 +196,18 @@ Android 目标编译、源码往返、保存重开、发布／准备、非法源
 `out/p6-surface-authoring-tests.log`。改为显式三个分量的向量后通过；当前表达式
 使用 bgfx 跨目标语法，不能假定任意 GLSL 构造写法都跨平台可用。尚待 Studio
 面板与实际作品交付，不能以后台编译成功宣称 UI 热更新完成。
+
+## 面板与 Player 接入检查
+
+材质／灯光分类增加表面 Shader。面板按节点类型选择 RGB／RGBA profile；异步
+编译绑定同时核对节点类型，读取源码使用合法的独立最小图，未连接节点也能编辑。
+部署脚本补齐规范场景 varying 和四份现有 include。英文／中文帮助说明输入和范围。
+`out/p6-surface-panel-tests.log` 通过两种 profile 的实际输入控件、双目标编译、
+替换、撤销／重做及完整源码恢复，导航回归见
+`out/p6-surface-studio-navigation-tests.log`。此处仍是控件／模块验证，尚待可见
+Studio 的从空白创作及完整 deploy 交付。
+
+Player 正常播放和分帧准备均传递表面资源；从真实编译服务发布的包通过 Windows
+`out/p6-surface-player-tests.log` 和 USB Android
+`out/p6-surface-player-android-tests.log` 的加载、释放、逐节点准备、暂停缓存、
+时间恢复与资源回收。这两项使用 Null Renderer，不能替代实际应用 GPU 验收。
