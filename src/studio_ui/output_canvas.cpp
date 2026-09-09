@@ -24,6 +24,22 @@ OutputEdit OutputCanvas::Draw(const editor::Snapshot& snapshot, graph::NodeId se
                               bool current_output, const std::map<std::string, std::string>& text,
                               std::span<const runtime::NodeOutput> outputs,
                               const std::map<graph::NodeId, graph::AuthorNode>& authors) {
+    auto automation = automation_.Draw(snapshot, selected, outputs, editable && current_output,
+                                       Active(), text);
+    const auto author_action =
+            automation.committed_.has_value() || automation.selected_.has_value();
+    auto result = DrawCanvas(snapshot, selected, texture, extent, editable && !author_action,
+                             current_output, text, outputs, authors);
+    if (automation.committed_) result.committed_ = std::move(automation.committed_);
+    if (automation.selected_) result.selected_ = automation.selected_;
+    return result;
+}
+OutputEdit OutputCanvas::DrawCanvas(const editor::Snapshot& snapshot, graph::NodeId selected,
+                                    std::uint64_t texture, geometry2d::Size extent, bool editable,
+                                    bool current_output,
+                                    const std::map<std::string, std::string>& text,
+                                    std::span<const runtime::NodeOutput> outputs,
+                                    const std::map<graph::NodeId, graph::AuthorNode>& authors) {
     OutputEdit result;
     const auto& nodes = snapshot.document_.nodes_;
     const auto scene_node = [&](graph::NodeId id, const std::string& type) {

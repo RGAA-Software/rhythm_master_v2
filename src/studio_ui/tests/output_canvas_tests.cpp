@@ -49,13 +49,29 @@ class Fixture final {
         Frame("canvas.edit");
         Frame();
     }
-    void Frame(const std::string& activate = {}) {
+    void Frame(const std::string& activate = {}, const std::string& property = {}) {
         ImGui::NewFrame();
         ImGui::SetNextWindowPos({0, 0});
         ImGui::SetNextWindowSize({width_, 700});
         ImGui::Begin("Output test", nullptr,
                      ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
-        if (!activate.empty()) ImGui::ActivateItemByID(ImGui::GetID(("###" + activate).c_str()));
+        if (!activate.empty()) {
+            auto seed = ImGui::GetCurrentWindow()->ID;
+            if (!property.empty()) {
+                bool found = false;
+                for (const auto* window : ImGui::GetCurrentContext()->Windows)
+                    if (std::string_view(window->Name).find("transform_driver.sources") !=
+                        std::string_view::npos) {
+                        seed = ImHashStr(property.c_str(), 0, window->ID);
+                        found = true;
+                        break;
+                    }
+                Check(found, "driver child exists before field activation");
+            }
+            ImGui::ActivateItemByID(ImHashStr(("###" + activate).c_str(), 0, seed));
+            if (activate == "transform_driver.value")
+                ImGui::GetCurrentContext()->NavNextActivateFlags = ImGuiActivateFlags_PreferInput;
+        }
         const auto extent = history_.Current().document_.canvas_;
         auto result = canvas_.Draw(history_.Current(), selected_, 1,
                                    {double(extent.width_), double(extent.height_)}, editable_,
@@ -265,6 +281,91 @@ void ComponentSelection(const std::filesystem::path& locale) {
     Check(fixture.selected_ == 20 && fixture.requested_author_ == graph::AuthorNode{{20, 7}, 3},
           "same shared definition's second instance retains distinct scope");
 }
+void Automation(const std::filesystem::path& locale, const std::filesystem::path& root) {
+    Fixture fixture(locale);
+    graph::Registry registry;
+    auto snapshot = fixture.history_.Current();
+    auto& document = snapshot.document_;
+    document.nodes_.push_back(registry.MakeNode(4, "scalar.curve"));
+    document.nodes_.push_back(registry.MakeNode(5, "core.time"));
+    document.nodes_.push_back(registry.MakeNode(6, "scalar.constant"));
+    document.nodes_[3].properties_["curve"] = parameters::Curve({{0, 0}, {1, .5}});
+    document.nodes_[5].properties_["value"] = .5;
+    document.edges_.push_back({3, 5, 4, "time"});
+    document.edges_.push_back({4, 4, 2, "translate_x"});
+    document.edges_.push_back({5, 6, 2, "scale"});
+    document.signals_ = {{"motion", 4}};
+    document.bindings_ = {{2, "translate_y", "motion"}};
+    for (const auto& [id, value] : std::map<graph::NodeId, double>{{4, .25}, {5, .5}, {6, .5}}) {
+        runtime::NodeOutput output;
+        output.node_ = id;
+        output.scalar_ = value;
+        fixture.outputs_.push_back(output);
+    }
+    Check(fixture.history_.Apply(snapshot, fixture.history_.Current().document_.revision_),
+          "install driven affine");
+    fixture.Frame();
+    fixture.Mode("transform_driver.title");
+    fixture.current_ = false;
+    fixture.Mode("transform_driver.freeze");
+    Check(fixture.commits_ == 0, "stale output cannot freeze automation");
+    fixture.current_ = true;
+    fixture.Frame();
+    fixture.Frame("transform_driver.value", "translate_x");
+    fixture.Frame();
+    Check(ImGui::GetActiveID() != 0, "keyframe value input activated");
+    ImGui::GetIO().AddKeyEvent(ImGuiMod_Ctrl, true);
+    ImGui::GetIO().AddKeyEvent(ImGuiKey_A, true);
+    fixture.Frame();
+    ImGui::GetIO().AddKeyEvent(ImGuiKey_A, false);
+    ImGui::GetIO().AddKeyEvent(ImGuiMod_Ctrl, false);
+    fixture.Frame();
+    ImGui::GetIO().AddInputCharactersUTF8("-0.35");
+    fixture.Frame();
+    ImGui::GetIO().AddKeyEvent(ImGuiKey_Enter, true);
+    fixture.Frame();
+    ImGui::GetIO().AddKeyEvent(ImGuiKey_Enter, false);
+    fixture.Frame();
+    fixture.Frame("transform_driver.record", "translate_x");
+    fixture.Frame();
+    Check(fixture.commits_ == 1, "one explicit keyframe action commits once");
+    const auto recorded = fixture.history_.Current();
+    const auto& curve =
+            std::get<parameters::Curve>(recorded.document_.nodes_[3].properties_.at("curve"));
+    Check(curve.Keys().size() == 3 && curve.Keys()[1].seconds_ == .5 &&
+                  std::abs(curve.Keys()[1].value_ + .35) < 1e-8 &&
+                  recorded.document_.edges_ == document.edges_ &&
+                  recorded.document_.bindings_ == document.bindings_,
+          "actual numeric entry writes local-time shared key and preserves automation");
+    const auto encoded = project::EncodePackage(recorded.document_, recorded.title_);
+    Check(project::EncodeProgram(project::DecodePackage(encoded).program_) ==
+                  project::EncodeProgram(std::get<graph::ExecutionPlan>(
+                          graph::Compile(recorded.document_, registry))),
+          "recorded curve publishes intact");
+    fixture.outputs_[0].scalar_ = -.35;
+    fixture.Frame("transform_driver.follow", "translate_x");
+    fixture.Frame();
+    Check(fixture.selected_ == 4 && fixture.commits_ == 1,
+          "source navigation changes selection, not history");
+    fixture.selected_ = 2;
+    fixture.Frame();
+    fixture.Mode("transform_driver.freeze");
+    Check(fixture.commits_ == 2, "explicit freeze is one transaction");
+    const auto frozen = fixture.history_.Current();
+    Check(frozen.document_.bindings_.empty() && frozen.document_.edges_.size() == 3 &&
+                  std::abs(graph::Scalar(frozen.document_.nodes_[1], "translate_y", 0) + .35) <
+                          1e-8,
+          "freeze removes only target drivers and holds the current sample");
+    const auto saved_path = std::filesystem::path(root.string() + "-drivers");
+    project::Save(saved_path, frozen);
+    Check(project::EncodeGraph(project::Load(saved_path).snapshot_.document_) ==
+                  project::EncodeGraph(frozen.document_),
+          "frozen sources and graph survive save/reopen");
+    Check(fixture.history_.Undo() &&
+                  fixture.history_.Current().document_.edges_ == document.edges_ &&
+                  fixture.history_.Current().document_.bindings_ == document.bindings_,
+          "undo freeze restores automation");
+}
 void Run(const std::filesystem::path& locale, const std::filesystem::path& root) {
     Fixture fixture(locale);
     const auto initial = fixture.history_.Current();
@@ -370,6 +471,7 @@ int main(int argc, char* argv[]) {
         Run(argv[1], argv[2]);
         Selection(argv[1]);
         ComponentSelection(argv[1]);
+        Automation(argv[1], argv[2]);
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

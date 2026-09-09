@@ -29,6 +29,11 @@ if(BUILD_TESTING)
     add_test(NAME output_canvas_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-output-canvas-gpu.py"
         --executable "$<TARGET_FILE:output_canvas_gpu_tests>" --resources "${CMAKE_CURRENT_BINARY_DIR}"
         --output "${PROJECT_BINARY_DIR}/output-canvas-gpu")
+    add_test(NAME transform_automation_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-output-canvas-gpu.py"
+        --executable "$<TARGET_FILE:output_canvas_gpu_tests>" --resources "${CMAKE_CURRENT_BINARY_DIR}"
+        --output "${PROJECT_BINARY_DIR}/transform-automation-gpu" --automation)
+    set_tests_properties(transform_automation_gpu PROPERTIES TIMEOUT 100 RUN_SERIAL TRUE
+        ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     set_tests_properties(output_canvas_gpu PROPERTIES TIMEOUT 100 RUN_SERIAL TRUE
         ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     add_test(NAME scene_canvas_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-output-canvas-gpu.py"

@@ -1,6 +1,18 @@
 # P4：视图直接编辑实施记录
 
-P3 已收口，当前推进 P4.1；此文不把坐标基础等同于已完成编辑手柄。
+当前推进 P4.5（2026-09-09）。最新状态如下；后文按开发顺序保留阶段证据，
+其中“当时未交付”的说明不覆盖本表和末尾的更新。
+
+| 工作 | 当前已验证范围 | 仍需推进 |
+| --- | --- | --- |
+| P4.1 | 根图 affine 四种手柄、吸附、事务、实际 Studio 像素/保存发布 | 非坐标保持图像路径继续明确限制 |
+| P4.2 | 根图 3D 作者手柄、静态几何拾取、当前帧相机/对象、两端共享基础 | GPU 变形/骨骼/morph 拾取受限，不用未变形几何猜测 |
+| P4.3 | 精确组件作者路径、共享/独立实例编辑、生成批次显式保护、真实像素/持久化 | 组件内部目前通过作者属性编辑；不是逐生成实例网格写回 |
+| P4.4 | 固定当前值、曲线局部时间插帧、双语言 UI、实际 GPU 和 Windows 部署 | 不含手柄自动录制；先固定值再拖动，或显式数值插帧 |
+| P4.5 | 待实施的大图定位和输出域检查 | 退出作品、完整创作流程与两端验收 |
+
+Windows 已包含 P4.4 增量；Android 当前仍是 `31d43eb` 阶段的共享运行版本，
+本次只增加编辑器操作；共享编辑合同另外通过手机原生测试。详见文末证据。
 
 ## 已实现的基础
 
@@ -231,3 +243,35 @@ Android 构建与宿主内容验证：`out/p4-scene-scope-android-delivery.log`�
 后台恢复、队列消费和保存列表不变检查通过：`out/p4-scene-scope-android-program.log`，
 证据 `out/android-continuous-program/386d90c2280f4c53aaf80053467f0eac/`。
 手机验证的是共享运行与原有 Player，不含移动编辑器或声学回录。
+
+
+### P4.4 参数来源和显式编辑（进行中）
+
+复用现有 Registry/ResolveEdges、History 和已获验证的 `parameters::Curve`，
+没有第二套表达式或曲线求值器。Curve 的既有 TiXL 参考和 MIT 记录继续见
+`provenance/curves.json`。新增编辑层只处理当前帧观测值、目标输入和作者事务。
+
+“保留当前值并断开驱动”只移除所选 transform 的数值输入和命名绑定，按该算子的
+范围固定实际观测值，保留生产者、信号定义及其他消费者。曲线操作显式修改共享
+源的关键帧，使用 Curve 输入端的观测时间；插入/替换键保留其他键、已有切线和
+连线。不尝试反解表达式、录制任意音频源或偷偷覆盖绑定。当前仍先固定变换再用
+画布手柄；曲线入口是明确的数值插帧，不宣称已实现拖动手柄自动录制关键帧。
+
+`out/p4-transform-drivers-tests.log` 与手机原生
+`out/p4-transform-drivers-android-tests.log` 通过：命名/普通连接、按算子限幅、
+其他消费者不变、局部时间、插入/替换键、键数预算、旧 revision 和无效值保护。
+`out/p4-transform-automation-ui-tests.log` 双语言及边界检查通过：实际数字输入、
+记录键、定位来源、旧输出禁用、固定值、撤销、保存重开和运行包曲线一致性。
+驱动列表放在限高滚动区域，结构说明按 revision/选择缓存，只在展开时读取所需
+来源值；当前已接受计划仍是启用操作的前提。
+
+`out/p4-transform-automation-gpu-tests.log` 两项通过：实际 Studio 从连接驱动的
+affine 固定当前值，确认新计划和画面位置保持，再鼠标拖动、保存/发布、撤销和
+重开；同时运行根图 3D 拖动回归。证据目录
+`out/windows-release/transform-automation-gpu/2116bd39ad32489ab687fc8b849360df/`。
+曲线数值插帧由上述双语言实际输入和包数据检查覆盖，不用常量 GPU 用例冒充
+曲线画面或音频响应测试。
+
+Windows Python 增量构建和完整 deploy 已完成：
+`out/p4-transform-automation-delivery.log`，四项强制模板应用回归全通过。
+验收入口 `out/windows-release/src/windows_spike/deploy/rhythm_master.exe`。

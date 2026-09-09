@@ -3,6 +3,7 @@
 #include "output_edit.h"
 #include "rhythm/editor/canvas_edit.h"
 #include "scene_canvas.h"
+#include "transform_automation.h"
 
 namespace rhythm::studio {
 // UI-thread image viewport and captured author-transform gesture. History and
@@ -21,6 +22,12 @@ class OutputCanvas final {
     bool Cancel();
 
    private:
+    OutputEdit DrawCanvas(const editor::Snapshot& snapshot, graph::NodeId selected,
+                          std::uint64_t texture, geometry2d::Size extent, bool editable,
+                          bool current_output, const std::map<std::string, std::string>& text,
+                          std::span<const runtime::NodeOutput> outputs,
+                          const std::map<graph::NodeId, graph::AuthorNode>& authors);
+    TransformAutomation automation_{};
     std::optional<editor::CanvasEdit> edit_{};
     std::optional<geometry2d::Rect> captured_viewport_{};
     SceneCanvas scene_{};

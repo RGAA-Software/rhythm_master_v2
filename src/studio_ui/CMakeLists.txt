@@ -6,6 +6,7 @@ target_link_libraries(studio_ui PUBLIC platform_sdl PRIVATE graph_runtime editor
     cyber_ui shader_authoring asset_store prepared_assets content_catalog semantic_catalog audio_ui control_ui player_core spike_imgui spike_node_editor nlohmann_json::nlohmann_json)
 target_sources(studio_ui PRIVATE control_inspector.cpp operator_help.cpp beat_performance.cpp)
 target_sources(studio_ui PRIVATE output_canvas.cpp scene_canvas.cpp scene_selection.cpp)
+target_sources(studio_ui PRIVATE transform_automation.cpp)
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/third_party/sources/imguizmo/ImGuizmo.cpp")
     message(FATAL_ERROR "Run vcpkg install imguizmo:x64-windows, then python tools/prepare-imguizmo.py")
 endif()

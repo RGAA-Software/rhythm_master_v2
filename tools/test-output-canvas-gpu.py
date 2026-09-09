@@ -15,6 +15,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--scene", action="store_true")
     parser.add_argument("--scope", action="store_true")
+    parser.add_argument("--automation", action="store_true")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     output = args.output.resolve() / uuid.uuid4().hex
@@ -28,9 +29,12 @@ def main():
     command = [str(args.executable.resolve()), str(args.resources.resolve()), str(output)]
     if args.scene:
         command.append("--scene")
+    if args.automation:
+        command.append("--automation")
     subprocess.run(command,
                    check=True, timeout=85)
-    for name in ["before", "moved", "undone", "reopened"]:
+    captures = (["driven"] if args.automation else []) + ["before", "moved", "undone", "reopened"]
+    for name in captures:
         rect = json.loads((output / (name + ".json")).read_text(encoding="utf-8"))
         rows = capture.read_tga(output / (name + ".tga"))
         moved = name in {"moved", "reopened"}
@@ -48,7 +52,12 @@ def main():
                         valid = max(pixel) < 45
                     if not valid:
                         raise AssertionError(f"{name} at {fraction}: {pixel}, red={red}; {output}")
-    print("Actual output pixels match edit, unaffected-instance, undo and saved-reopen expectations")
+    if args.scope:
+        print("Actual pixels match edited and unaffected instances, undo and saved reopen")
+    elif args.automation:
+        print("Actual pixels preserve position when freezing the driver, then match drag, undo and saved reopen")
+    else:
+        print("Actual pixels match drag, undo and saved reopen")
 
 
 if __name__ == "__main__":

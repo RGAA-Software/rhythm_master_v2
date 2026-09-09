@@ -54,6 +54,7 @@ int main(int argc, char* argv[]) {
     try {
         Check(argc == 3 || argc == 4, "resources output [--scene]");
         const bool scene_mode = argc == 4 && std::string_view(argv[3]) == "--scene";
+        const bool automation_mode = argc == 4 && std::string_view(argv[3]) == "--automation";
         const std::filesystem::path resources(argv[1]), root(argv[2]);
         const auto path = root / "Projects/canvas.rhythmproj";
         const auto package = root / "Published/canvas.rhythmpack";
@@ -72,6 +73,12 @@ int main(int argc, char* argv[]) {
         doc.edges_ = {{1, 1, 2, "source"}, {2, 2, 3, "source"}};
         doc.output_ = 3;
         initial.positions_ = {{1, {0, 0}}, {2, {300, 0}}, {3, {600, 0}}};
+        if (automation_mode) {
+            doc.nodes_.push_back(registry.MakeNode(4, "scalar.constant"));
+            doc.nodes_.back().properties_["value"] = 0.0;
+            doc.edges_.push_back({3, 4, 2, "translate_x"});
+            initial.positions_[4] = {0, 300};
+        }
         if (scene_mode) {
             doc.nodes_ = {
                     registry.MakeNode(1, "geometry.cube"),  registry.MakeNode(2, "scene.transform"),
@@ -155,6 +162,16 @@ int main(int argc, char* argv[]) {
             bgfx::requestScreenShot(BGFX_INVALID_HANDLE, (root / name).string().c_str());
             settle();
         };
+        if (automation_mode) {
+            capture("driven");
+            const auto before_freeze = studio.Workflow().requested_generation_;
+            Activate("###output", "###transform_driver.title");
+            settle();
+            Activate("###output", "###transform_driver.freeze");
+            ready();
+            Check(studio.Workflow().requested_generation_ > before_freeze,
+                  "explicit driver freeze did not compile an authored change");
+        }
         capture("before");
         const auto rect = OutputRect();
         ImGui::GetIO().AddMousePosEvent(rect.GetCenter().x, rect.GetCenter().y);
@@ -184,7 +201,9 @@ int main(int argc, char* argv[]) {
         Check(std::abs(graph::Scalar(saved.document_.nodes_[1], "translate_x", 0) -
                        expected_translation) < .005 &&
                       saved.document_.edges_.size() == (scene_mode ? 6 : 2) &&
-                      saved.document_.nodes_.size() == (scene_mode ? 7 : 3),
+                      saved.document_.nodes_.size() == (scene_mode        ? 7
+                                                        : automation_mode ? 4
+                                                                          : 3),
               "actual Studio drag not saved or altered graph connections");
         Check(project::EncodeProgram(published.program_) ==
                       project::EncodeProgram(std::get<graph::ExecutionPlan>(
