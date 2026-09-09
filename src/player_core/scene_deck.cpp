@@ -17,7 +17,7 @@ void SceneDeck::EnableAudioTransitions(bool enabled) {
 std::uint64_t SceneDeck::AudioPendingId() const { return audio_clock_->Id(); }
 bool SceneDeck::AudioReady() const { return Transitioning() && warmed_ && audio_clock_->Active(); }
 bool SceneDeck::CanPrepareNext() const {
-    return !incoming_ && !retired_ && !audio_clock_->Active();
+    return !transition_started_ && !retired_ && !audio_clock_->Active();
 }
 std::optional<media::SoundtrackSource> SceneDeck::IncomingSoundtrack() const {
     return incoming_ ? incoming_->Soundtrack() : std::nullopt;
@@ -50,7 +50,7 @@ void SceneDeck::LoadPrepared(PreparedPackage package) {
     ResetClock();
 }
 bool SceneDeck::StartTransition(PreparedPackage package, double duration, bool synchronize_audio) {
-    if (!CanPrepareNext()) {
+    if (!CanPrepareNext() || incoming_) {
         error_ = SceneTransitionError::kBusy;
         return false;
     }
@@ -61,17 +61,22 @@ bool SceneDeck::StartTransition(PreparedPackage package, double duration, bool s
     }
     auto next = std::make_unique<Session>();
     next->LoadPrepared(std::move(package));
-    ++transition_id_;
-    if (synchronize_audio || (audio_enabled_ && next->Soundtrack()))
-        audio_clock_->Begin(transition_id_, duration, scene_generation_);
     incoming_ = std::move(next);
-    duration_ = duration;
-    progress_ = 0;
     warmed_ = false;
     preparation_ = {};
+    ActivateTransition(duration, synchronize_audio);
+    return true;
+}
+void SceneDeck::ActivateTransition(double duration, bool synchronize_audio) {
+    ++transition_id_;
+    if (synchronize_audio || (audio_enabled_ && incoming_->Soundtrack()))
+        audio_clock_->Begin(transition_id_, duration, scene_generation_);
+    duration_ = duration;
+    progress_ = 0;
+    transition_started_ = true;
+    origin_set_ = false;
     error_ = SceneTransitionError::kNone;
     error_detail_.clear();
-    return true;
 }
 void SceneDeck::SetPaused(bool paused) {
     master_.SetPaused(paused);
@@ -98,6 +103,10 @@ void SceneDeck::CancelTransition() {
     DiscardTransition();
 }
 void SceneDeck::DiscardTransition() {
+    if (queue_id_) discarded_queue_id_ = queue_id_;
+    queue_id_ = 0;
+    transition_started_ = false;
+    origin_set_ = false;
     if (transition_action_) actions_.Cancel(*transition_action_);
     transition_action_.reset();
     incoming_.reset();
@@ -177,6 +186,12 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
         current_time = audio_frame.previous_;
         scene_generation_ = current_time.generation_;
     }
+    // A quality change invalidates queue readiness before a due Go can consume it.
+    if (queue_id_ && incoming_ && warmed_ &&
+        PlaybackExtent(incoming_->Canvas(), quality) != preparation_extent_) {
+        incoming_->ReleaseGraphics();
+        warmed_ = false;
+    }
     ApplyPerformance(current_time, queue);
     if (!synchronized && audio_clock_->Active()) {
         synchronized = true;
@@ -204,8 +219,13 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
         audio_clock_->Reset();
         preserve_audio_origin_ = false;
     }
-    if (!incoming_ || (cancel_requested_ && !audio_frame.committed_)) return result;
-    if (!warmed_) incoming_origin_ = seconds;
+    PrepareQueue(monotonic_seconds, quality, renderer, inputs, queue);
+    if (!incoming_ || !transition_started_ || (cancel_requested_ && !audio_frame.committed_))
+        return result;
+    if (!warmed_ || !origin_set_) {
+        incoming_origin_ = seconds;
+        origin_set_ = true;
+    }
     const double incoming_seconds = std::max(0.0, seconds - incoming_origin_);
     runtime::PlaybackSample incoming_time{
             incoming_seconds, scene_generation_, master_.Paused(), {}};
@@ -257,6 +277,7 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
             retired_ = std::move(current_);
             current_ = std::move(incoming_);
             current_passes_ = preparation_.required_passes_;
+            transition_started_ = false;
             cancel_requested_ = false;
             origin_ = incoming_origin_;
             result.output_ = next;

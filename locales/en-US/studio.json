@@ -890,6 +890,8 @@
     "scene.queue_full": "Queue full: up to 16 works.",
     "scene.waiting": "Waiting",
     "scene.loading": "Preparing",
+    "scene.cpu_ready": "CPU assets ready",
+    "scene.gpu_preparing": "Preparing scene graphics",
     "scene.ready": "Ready",
     "scene.failed": "Preparation failed",
     "scene.remove": "Remove selected",

@@ -79,7 +79,8 @@ final class SceneQueueDialog {
                 ids_.clear();
                 ArrayList<String> labels = new ArrayList<>();
                 int[] states = {R.string.scene_waiting, R.string.scene_loading,
-                        R.string.scene_ready, R.string.scene_failed};
+                        R.string.scene_cpu_ready, R.string.scene_failed,
+                        R.string.scene_gpu_preparing, R.string.scene_ready};
                 int[] resolutions = {R.string.program_exact, R.string.program_updated,
                         R.string.program_missing, R.string.program_changed, R.string.program_ambiguous};
                 for (int i = 0; i < items.length(); ++i) {
@@ -88,6 +89,7 @@ final class SceneQueueDialog {
                     String label = item.getString("title") + " · " + activity_.getString(states[item.getInt("state")]);
                     if (item.optBoolean("program_entry")) label += " · " + activity_.getString(resolutions[item.getInt("resolution")]);
                     if (!item.optString("resolution_error").isEmpty()) label += " · " + item.getString("resolution_error");
+                    if (!item.optString("preparation_error").isEmpty()) label += " · " + item.getString("preparation_error");
                     labels.add(label);
                 }
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(activity_, android.R.layout.simple_spinner_item, labels);
@@ -112,11 +114,13 @@ final class SceneQueueDialog {
             }
             program_entry_ = program_entry;
             go_.setEnabled(data.optBoolean("can_go"));
-            cancel_.setEnabled(data.optBoolean("transitioning"));
+            cancel_.setEnabled(data.optBoolean("transitioning") || data.optBoolean("gpu_preparing"));
             int error = data.optInt("error");
             status_.setText(error != 0 ? activity_.getString(error == 3 ? R.string.scene_budget :
                     error == 6 ? R.string.scene_audio_failed : R.string.scene_interrupted) +
                     (data.optString("error_detail").isEmpty() ? "" : "\n" + data.optString("error_detail")) :
+                    data.optBoolean("gpu_preparing") ? activity_.getString(R.string.scene_gpu_preparing) +
+                    " · " + data.optInt("prepared_nodes") + " / " + data.optInt("total_nodes") :
                     data.optBoolean("audio_pending") && !data.optBoolean("transitioning") ?
                     activity_.getString(R.string.scene_audio_recover) :
                     data.optBoolean("audio_pending") && data.optDouble("progress") == 0 ?

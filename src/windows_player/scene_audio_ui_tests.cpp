@@ -103,7 +103,7 @@ void Run(const std::filesystem::path& root, const std::filesystem::path& fixture
         const auto input = audio.Frame();
         heard |= input.features_ && input.features_->rms_ > 0.1F;
         if (!started && heard && !queue.Items().empty() &&
-            queue.Items().front().state_ == player::ScenePreparation::kReady) {
+            deck.QueueReady(queue.Items().front().id_)) {
             Activate("###scene.queue", "###scene.go");
             started = true;
             consumed = input.file_.consumed_frames_;

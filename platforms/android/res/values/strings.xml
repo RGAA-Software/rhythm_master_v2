@@ -43,6 +43,8 @@
     <string name="scene_enqueue">Add built-in work</string>
     <string name="scene_waiting">Waiting</string>
     <string name="scene_loading">Preparing</string>
+    <string name="scene_cpu_ready">CPU assets ready</string>
+    <string name="scene_gpu_preparing">Preparing scene graphics</string>
     <string name="scene_ready">Ready</string>
     <string name="scene_failed">Failed</string>
     <string name="scene_remove">Remove selected</string>

@@ -1,7 +1,7 @@
 # P3.4 分帧 GPU 准备
 
-状态：Runtime 分步执行已在 Windows D3D11 / Android GLES 验证；Session、队列和
-Player 调度正在接入，尚未作为应用功能交付。2026-09-09，基线实现 `f7b8011`。
+状态：Runtime、Session、队首预备与两端 Player 已接入并短操作交付；
+正在补齐逐准备帧性能记录，P3.5 连续演出与资源不足策略尚未完成。2026-09-09，基线实现 `f7b8011`。
 
 ## 复用与实施约束
 
@@ -97,3 +97,28 @@ Windows `out/p3-deck-preparation-windows-tests.log` 6 项通过，详情留在
 没有比基线全面改善；不能仅凭第 10 帧下降就宣布卡顿已解决。接下来记录每一个
 准备帧，并将 GPU 准备提前到队首等待阶段，避免在 Go 后才开始准备。
 尚未更新两端应用 UI 或交付 APK，本增量是 SceneDeck 原生/实际像素验证。
+
+### 队首准备与两端交付
+
+队首状态为 Queued → Loading → CPU Ready → GPU Preparing → Presentable；素材
+已准备不再等同可切场。SceneDeck 在旧场正常运行期间准备唯一候选场，行/稳定 ID
+保留到合法 Go。GPU 失败保留原行和确切错误，可重试；删除、清空、列表替换
+丢弃旧候选，表面释放与画质变化撤销 GPU 就绪并重新准备。Go 仅消费匹配的
+Presentable 行；量化动作在候选可呈现后由用户发出，准备不再挤占 Go 后的首帧。
+这仍不消除音频设备队列延迟，不把量化请求时间声称为实际可听开始时间。
+
+Windows 核心 `out/p3-queue-preparation-core-tests.log` 首次失败为压力 fixture 按
+1280×720 估算，而实际默认画布为 640×360，未造成预期资源拒绝；修正 fixture
+压力后 `out/p3-queue-preparation-pressure-tests.log` 通过。其余核心检查及 Android
+`out/p3-queue-preparation-android-core-tests.log` 通过，覆盖失败行、诊断、重试、
+旧场保留、稳定 ID、表面重建和量化接管。
+
+Windows `out/p3-queue-preparation-player-tests.log` 的 scene_queue_ui、scene_audio_ui、
+windows_player_smoke、source_boundaries 及媒体 fixture 5 项通过。
+`out/windows-release/src/windows_player/deploy/rhythm_player.exe` 已携 20 DLL/资源部署。
+Android 覆盖安装 APK SHA256
+`6b2ee4ba68c5ae97f2bea981cd797a03df86e790bc7c66baf5020def4f4a3e40`，真实触摸证据
+`out/android-scene-audio/d77d874cbbd94851bda1f3ef08a37835/`，列表重开证据
+`out/android-program-ui/462579d0fb8149ea9fd7c07f6493a281/`。
+实际 AAudio 消费帧 107520 → 119040 → 167424，完成切场，保存列表逐字节未变；
+检查结束保留应用并暂停。不含声学回录、听感或长时间验收。

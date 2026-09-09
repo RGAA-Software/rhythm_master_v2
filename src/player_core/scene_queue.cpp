@@ -51,6 +51,7 @@ bool SceneQueue::Retry() {
     if (items_.front().entry_ && !items_.front().bytes_.Valid()) return false;
     items_.front().state_ = ScenePreparation::kQueued;
     items_.front().error_ = PackageLoadError::kNone;
+    items_.front().preparation_error_.clear();
     return true;
 }
 void SceneQueue::Pump(bool can_prepare) {
@@ -86,6 +87,33 @@ std::optional<PreparedPackage> SceneQueue::TakeReady() {
     auto result = std::exchange(ready_, std::nullopt);
     items_.erase(items_.begin());
     return result;
+}
+std::optional<PreparedPackage> SceneQueue::BeginGraphics() {
+    if (items_.empty() || items_.front().state_ != ScenePreparation::kReady || !ready_) return {};
+    items_.front().state_ = ScenePreparation::kGpuPreparing;
+    return std::exchange(ready_, std::nullopt);
+}
+bool SceneQueue::UpdateGraphics(std::uint64_t id, bool ready) {
+    if (items_.empty() || items_.front().id_ != id ||
+        (items_.front().state_ != ScenePreparation::kGpuPreparing &&
+         items_.front().state_ != ScenePreparation::kPresentable))
+        return false;
+    items_.front().state_ =
+            ready ? ScenePreparation::kPresentable : ScenePreparation::kGpuPreparing;
+    return true;
+}
+bool SceneQueue::FailGraphics(std::uint64_t id, std::string error) {
+    if (!UpdateGraphics(id, false)) return false;
+    items_.front().state_ = ScenePreparation::kFailed;
+    items_.front().preparation_error_ = std::move(error);
+    return true;
+}
+bool SceneQueue::ConsumeGraphics(std::uint64_t id) {
+    if (items_.empty() || items_.front().id_ != id ||
+        items_.front().state_ != ScenePreparation::kPresentable)
+        return false;
+    items_.erase(items_.begin());
+    return true;
 }
 bool SceneQueue::ReplacePerformance(std::span<const ResolvedWork> works) {
     if (works.size() > kMaximumItems ||

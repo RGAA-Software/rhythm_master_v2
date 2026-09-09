@@ -6,7 +6,7 @@
 #include "rhythm/player/resolved_work.h"
 
 namespace rhythm::player {
-enum class ScenePreparation { kQueued, kLoading, kReady, kFailed };
+enum class ScenePreparation { kQueued, kLoading, kReady, kFailed, kGpuPreparing, kPresentable };
 struct SceneQueueItem {
     std::uint64_t id_ = 0;
     std::filesystem::path source_{};
@@ -17,6 +17,7 @@ struct SceneQueueItem {
     std::optional<performance::ListEntry> entry_{};
     performance::ResolutionState resolution_ = performance::ResolutionState::kExact;
     std::string resolution_error_{};
+    std::string preparation_error_{};
 };
 // Host-thread FIFO. At most one prepared package or active preparation worker;
 // only lightweight source metadata is retained for later entries. The loader
@@ -34,6 +35,11 @@ class SceneQueue final {
     void Clear();
     void Pump(bool can_prepare);
     std::optional<PreparedPackage> TakeReady();
+    // Transfer CPU data without removing its row. GPU failure remains retryable.
+    std::optional<PreparedPackage> BeginGraphics();
+    bool UpdateGraphics(std::uint64_t id, bool ready);
+    bool FailGraphics(std::uint64_t id, std::string error);
+    bool ConsumeGraphics(std::uint64_t id);
     std::span<const SceneQueueItem> Items() const { return items_; }
     bool Busy() const { return loader_.Busy(); }
     static constexpr std::size_t kMaximumItems = 16;

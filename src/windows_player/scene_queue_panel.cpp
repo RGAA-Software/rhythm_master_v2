@@ -44,8 +44,9 @@ void SceneQueuePanel::Draw(player::SceneQueue& queue, player::SceneDeck& deck,
                                        [&](const auto& item) { return item.id_ == selected_; }))
         selected_ = items.front().id_;
     if (ImGui::BeginChild("###scene.rows", {0, 110}, ImGuiChildFlags_Borders)) {
-        static constexpr std::array kStates{"scene.waiting", "scene.loading", "scene.ready",
-                                            "scene.failed"};
+        static constexpr std::array kStates{"scene.waiting",       "scene.loading",
+                                            "scene.cpu_ready",     "scene.failed",
+                                            "scene.gpu_preparing", "scene.ready"};
         for (const auto& item : items) {
             auto title = item.title_ + " | " +
                          text.at(kStates.at(static_cast<std::size_t>(item.state_))) + " ";
@@ -60,6 +61,9 @@ void SceneQueuePanel::Draw(player::SceneQueue& queue, player::SceneDeck& deck,
         }
     }
     ImGui::EndChild();
+    for (const auto& item : items)
+        if (item.id_ == selected_ && !item.preparation_error_.empty())
+            ImGui::TextWrapped("%s", item.preparation_error_.c_str());
     for (const auto& item : items)
         if (item.id_ == selected_ && !item.resolution_error_.empty()) {
             const auto translated = text.find(item.resolution_error_);
@@ -92,8 +96,8 @@ void SceneQueuePanel::Draw(player::SceneQueue& queue, player::SceneDeck& deck,
                     next_entry->transition_seconds_,
                     text.at(modes.at(static_cast<std::size_t>(next_entry->quantization_))).c_str());
     }
-    const bool can_go = deck.CanPrepareNext() && !queue.Items().empty() &&
-                        queue.Items().front().state_ == player::ScenePreparation::kReady;
+    const bool can_go = !queue.Items().empty() && deck.QueueReady(queue.Items().front().id_) &&
+                        queue.Items().front().state_ == player::ScenePreparation::kPresentable;
     ImGui::BeginDisabled(!can_go);
     // Keyboard/navigation activation may have been queued on a previous frame.
     // Recheck domain availability even when the current button is disabled.
@@ -103,12 +107,20 @@ void SceneQueuePanel::Draw(player::SceneQueue& queue, player::SceneDeck& deck,
                               item.entry_ ? item.entry_->quantization_ : mode);
     }
     ImGui::EndDisabled();
-    if (deck.Transitioning()) {
+    if (deck.Transitioning() || deck.PreparingGraphics()) {
         ImGui::SameLine();
         if (ImGui::Button(label("scene.cancel").c_str())) deck.CancelTransition();
-        ImGui::ProgressBar(static_cast<float>(deck.Progress()), {-1, 0},
-                           deck.IncomingTitle().c_str());
-        if (deck.AudioPendingId() && deck.Progress() == 0)
+        const auto& preparation = deck.GraphicsPreparation();
+        const auto progress =
+                deck.PreparingGraphics()
+                        ? (preparation.total_nodes_
+                                   ? double(preparation.completed_nodes_) / preparation.total_nodes_
+                                   : 0)
+                        : deck.Progress();
+        ImGui::ProgressBar(static_cast<float>(progress), {-1, 0}, deck.IncomingTitle().c_str());
+        if (deck.PreparingGraphics())
+            ImGui::TextUnformatted(text.at("scene.gpu_preparing").c_str());
+        else if (deck.AudioPendingId() && deck.Progress() == 0)
             ImGui::TextUnformatted(text.at("scene.audio_wait").c_str());
     } else if (deck.AudioPendingId())
         ImGui::TextUnformatted(text.at("scene.audio_recover").c_str());

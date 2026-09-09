@@ -45,8 +45,7 @@ int main(int argc, char* argv[]) {
             if (frame == 2) Activate("Harness", "###scene.queue");
             if (frame == 5) Activate("###scene.queue", "###scene.go");
             if (frame == 7) Activate("###scene.queue", "###scene.enqueue");
-            if (!started && !queue.Items().empty() &&
-                queue.Items().front().state_ == player::ScenePreparation::kReady) {
+            if (!started && !queue.Items().empty() && deck.QueueReady(queue.Items().front().id_)) {
                 Activate("###scene.queue", "###scene.go");
                 started = true;
             }

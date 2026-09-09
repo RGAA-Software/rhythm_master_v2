@@ -54,10 +54,11 @@ void SceneDeck::ApplyPerformance(const runtime::PlaybackSample& sample,
         }
     }
     if (const auto action = actions_.TakeDue(PerformanceActionKind::kNextScene)) {
-        if (queue && CanPrepareNext() && !queue->get().Items().empty() &&
-            queue->get().Items().front().id_ == action->target_) {
-            if (auto package = queue->get().TakeReady();
-                package && StartTransition(std::move(*package), requested_duration_)) {
+        if (queue && CanPrepareNext() && QueueReady(action->target_) &&
+            !queue->get().Items().empty() && queue->get().Items().front().id_ == action->target_) {
+            if (queue->get().ConsumeGraphics(action->target_)) {
+                queue_id_ = 0;
+                ActivateTransition(requested_duration_);
                 transition_action_ = action->id_;
                 return;
             }

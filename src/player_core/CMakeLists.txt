@@ -1,5 +1,6 @@
 add_library(player_core STATIC session.cpp prepared_package.cpp package_loader.cpp render_quality.cpp)
 target_sources(player_core PRIVATE session_preparation.cpp)
+target_sources(player_core PRIVATE scene_preparation.cpp)
 target_include_directories(player_core PUBLIC include PRIVATE "${PROJECT_SOURCE_DIR}/third_party/sources/picosha2")
 target_sources(player_core PRIVATE scene_queue.cpp scene_compositor.cpp scene_deck.cpp performance_actions.cpp scene_performance.cpp scene_audio_clock.cpp)
 target_sources(player_core PRIVATE work_library.cpp performance_program.cpp)

@@ -80,9 +80,14 @@ class SceneDeck final {
                         const std::optional<runtime::PlaybackSample>& playback = {},
                         const std::optional<std::reference_wrapper<SceneQueue>>& queue = {},
                         const std::optional<SceneAudioSample>& audio = {});
-    bool Transitioning() const { return bool(incoming_) && !cancel_requested_; }
+    bool Transitioning() const {
+        return bool(incoming_) && transition_started_ && !cancel_requested_;
+    }
     bool CanPrepareNext() const;
-    bool PreparingGraphics() const { return Transitioning() && !warmed_; }
+    bool QueueReady(std::uint64_t id) const {
+        return incoming_ && queue_id_ == id && warmed_ && !transition_started_;
+    }
+    bool PreparingGraphics() const { return incoming_ && !warmed_ && !cancel_requested_; }
     const runtime::PreparationProgress& GraphicsPreparation() const { return preparation_; }
     double Progress() const { return progress_; }
     std::string IncomingTitle() const { return incoming_ ? incoming_->Title() : std::string{}; }
@@ -93,6 +98,10 @@ class SceneDeck final {
     void ResetClock();
     void DiscardTransition();
     void ResetPerformance();
+    void ActivateTransition(double duration, bool synchronize_audio = false);
+    void PrepareQueue(double monotonic_seconds, RenderQuality quality, render::Renderer& renderer,
+                      const runtime::ExternalInputs& inputs,
+                      const std::optional<std::reference_wrapper<SceneQueue>>& queue);
     void ApplyPerformance(const runtime::PlaybackSample& sample,
                           const std::optional<std::reference_wrapper<SceneQueue>>& queue);
     std::unique_ptr<Session> current_ = std::make_unique<Session>();
@@ -125,5 +134,10 @@ class SceneDeck final {
     std::string error_detail_{};
     runtime::PreparationProgress preparation_{};
     std::uint32_t current_passes_ = 0;
+    bool transition_started_ = false;
+    bool origin_set_ = false;
+    std::uint64_t queue_id_ = 0;
+    std::uint64_t discarded_queue_id_ = 0;
+    render::Extent preparation_extent_{};
 };
 }  // namespace rhythm::player

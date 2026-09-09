@@ -183,7 +183,7 @@ int main(int, char**) {
                     scene_queue.ReplacePerformance(*resolved);
             }
             android_host::PublishProgram(program, program_error);
-            if (scene_commands.action_ == 1 && deck.CanPrepareNext() &&
+            if (scene_commands.action_ == 1 && deck.QueueReady(scene_commands.id_) &&
                 !scene_queue.Items().empty() &&
                 scene_queue.Items().front().id_ == scene_commands.id_) {
                 const auto entry = scene_queue.Items().front().entry_;

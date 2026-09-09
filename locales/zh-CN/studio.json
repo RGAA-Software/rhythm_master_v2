@@ -890,6 +890,8 @@
     "scene.queue_full": "队列已满，最多 16 场。",
     "scene.waiting": "等待",
     "scene.loading": "正在预备",
+    "scene.cpu_ready": "素材已准备",
+    "scene.gpu_preparing": "正在准备场景画面",
     "scene.ready": "已就绪",
     "scene.failed": "预备失败",
     "scene.remove": "移除所选",

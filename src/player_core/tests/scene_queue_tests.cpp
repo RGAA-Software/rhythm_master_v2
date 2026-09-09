@@ -119,6 +119,10 @@ int main(int argc, char* argv[]) {
             const auto action = deck.RequestNextScene(id, 0, parameters::Quantization::kBeat);
             Check(!tick(0.49).switched_ && queue.Items().front().id_ == id,
                   "pending next scene retains queue ownership");
+            Check(deck.QueueReady(id) &&
+                          queue.Items().front().state_ == player::ScenePreparation::kPresentable &&
+                          !deck.Transitioning(),
+                  "GPU preparation precedes Go without consuming the pending row");
             Check(tick(0.5).switched_ && queue.Items().empty() &&
                           deck.Current().Title() == "Survivor scene" &&
                           deck.ActionStatus(player::PerformanceActionKind::kNextScene).id_ ==
@@ -138,6 +142,35 @@ int main(int argc, char* argv[]) {
                           deck.ActionStatus(player::PerformanceActionKind::kNextScene).state_ ==
                                   player::PerformanceActionState::kFailed,
                   "stale target cannot switch to a different queue item");
+            Check(deck.QueueReady(survivor_id), "surviving queue head prepares independently");
+            queue.Clear();
+            tick(1.2);
+            Check(deck.CanPrepareNext() && !deck.PreparingGraphics(),
+                  "clear discards a GPU prepared candidate on the next host frame");
+            const auto failing_id = queue.Enqueue(good, "Budget retry").value();
+            wait(player::ScenePreparation::kReady);
+            {
+                // Leave room for the accepted 640x360 output, but not a second.
+                auto pressure = renderer.CreateTexture({8192, 8148});
+                tick(1.3);
+                Check(queue.Items().front().id_ == failing_id &&
+                              queue.Items().front().state_ == player::ScenePreparation::kFailed &&
+                              !queue.Items().front().preparation_error_.empty() &&
+                              !deck.QueueReady(failing_id) &&
+                              deck.Current().Title() == "Survivor scene",
+                      "GPU rejection retains failed row, exact diagnostic and old scene");
+            }
+            Check(queue.Retry(), "GPU failure supports explicit retry");
+            wait(player::ScenePreparation::kReady);
+            tick(1.4);
+            Check(deck.QueueReady(failing_id), "retry becomes presentable after resource release");
+            deck.ReleaseGraphics();
+            Check(!deck.QueueReady(failing_id), "surface release invalidates queue GPU readiness");
+            tick(1.5);
+            Check(deck.QueueReady(failing_id), "surface restoration prepares the same stable row");
+            deck.RequestNextScene(failing_id, 0, parameters::Quantization::kImmediate);
+            Check(tick(1.6).switched_ && queue.Items().empty(),
+                  "retried candidate is consumed only by a valid Go");
             deck.ReleaseGraphics();
         }
         std::cout << "bounded scene preparation, retry, cancellation and move handoff pass\n";

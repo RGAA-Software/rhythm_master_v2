@@ -29,15 +29,20 @@ void PublishSceneQueue(const player::SceneQueue& queue, const player::SceneDeck&
             {"error", static_cast<int>(deck.Error())},
             {"error_detail", deck.ErrorDetail()},
             {"audio_pending", deck.AudioPendingId() != 0},
-            {"can_go", deck.CanPrepareNext() && !queue.Items().empty() &&
-                               queue.Items().front().state_ == player::ScenePreparation::kReady}};
+            {"gpu_preparing", deck.PreparingGraphics()},
+            {"prepared_nodes", deck.GraphicsPreparation().completed_nodes_},
+            {"total_nodes", deck.GraphicsPreparation().total_nodes_},
+            {"can_go",
+             !queue.Items().empty() && deck.QueueReady(queue.Items().front().id_) &&
+                     queue.Items().front().state_ == player::ScenePreparation::kPresentable}};
     for (const auto& item : items)
         result["items"].push_back({{"id", std::to_string(item.id_)},
                                    {"title", item.title_},
                                    {"state", static_cast<int>(item.state_)},
                                    {"program_entry", item.entry_.has_value()},
                                    {"resolution", static_cast<int>(item.resolution_)},
-                                   {"resolution_error", item.resolution_error_}});
+                                   {"resolution_error", item.resolution_error_},
+                                   {"preparation_error", item.preparation_error_}});
     if (!items.empty() && items.front().entry_) {
         const auto& entry = *items.front().entry_;
         result["entry_duration"] = entry.transition_seconds_;

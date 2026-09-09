@@ -43,6 +43,8 @@
     <string name="scene_enqueue">添加内置作品</string>
     <string name="scene_waiting">等待</string>
     <string name="scene_loading">预备中</string>
+    <string name="scene_cpu_ready">素材已准备</string>
+    <string name="scene_gpu_preparing">正在准备场景画面</string>
     <string name="scene_ready">已就绪</string>
     <string name="scene_failed">预备失败</string>
     <string name="scene_remove">移除所选</string>
