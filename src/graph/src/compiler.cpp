@@ -105,6 +105,12 @@ CompileResult Compile(const Document& document, const Registry& registry,
         stack.pop_back();
         if (demanded[node]) continue;
         demanded[node] = true;
+        // A Cue event source depends on the saved Cue/snapshot bank even when
+        // those macro values have no continuous connection to the final image.
+        if (descriptors[node].operation_ == Operation::kEventCue)
+            for (std::size_t control = 0; control < descriptors.size(); ++control)
+                if (descriptors[control].operation_ == Operation::kControlScalar)
+                    stack.push_back(control);
         for (std::size_t port = 0; port < inputs[node].size(); ++port) {
             if (inputs[node][port])
                 stack.push_back(*inputs[node][port]);

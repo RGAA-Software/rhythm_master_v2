@@ -160,6 +160,21 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
             versions.push_back(frame.advance_state_ ? 1 : 0);
         if (operation == graph::Operation::kTextureVideo)
             versions.push_back(videos_.Revision(node.id_));
+        if (detail::IsEventOperation(operation)) {
+            versions.push_back(std::bit_cast<std::uint64_t>(frame.seconds_));
+            versions.push_back(frame.advance_state_ ? 1 : 0);
+            if (plan.beat_grid_) {
+                versions.push_back(std::bit_cast<std::uint64_t>(plan.beat_grid_->bpm_));
+                versions.push_back(plan.beat_grid_->beats_per_bar_);
+                versions.push_back(plan.beat_grid_->beat_unit_);
+                versions.push_back(std::bit_cast<std::uint64_t>(plan.beat_grid_->origin_seconds_));
+            }
+            if (operation == graph::Operation::kEventAudio && frame.external_.audio_) {
+                versions.push_back(frame.external_.audio_->generation_);
+                versions.push_back(frame.external_.audio_->onset_id_);
+                versions.push_back(frame.external_.audio_->valid_ ? 1 : 0);
+            }
+        }
         const auto external_value = detail::ExternalScalar(instruction, frame);
         if (external_value) versions.push_back(std::bit_cast<std::uint64_t>(*external_value));
         if (operation == graph::Operation::kAudioSpectrum ||
@@ -177,240 +192,263 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
             render::DrawList list;
             list.width_ = extent.width_;
             list.height_ = extent.height_;
-            switch (operation) {
-                case graph::Operation::kTextureTrail: {
-                    if (!state.trail_ || redraw)
-                        state.trail_ = std::make_unique<detail::TrailPass>();
-                    const auto half_life = instruction.inputs_[1]
+            if (detail::IsEventOperation(operation)) {
+                if (!state.events_) state.events_ = std::make_unique<detail::EventNode>();
+                auto event = state.events_->Evaluate(instruction, result.outputs_, frame, plan,
+                                                     next_event_sequence_);
+                state.output_.scalar_ = event.scalar_;
+                state.output_.events_ = std::move(event.events_);
+                state.output_.rejected_events_ = event.rejected_;
+            } else
+                switch (operation) {
+                    case graph::Operation::kTextureTrail: {
+                        if (!state.trail_ || redraw)
+                            state.trail_ = std::make_unique<detail::TrailPass>();
+                        const auto half_life =
+                                instruction.inputs_[1]
+                                        ? input(1).scalar_
+                                        : graph::Scalar(node, "trail_half_life", 0.5);
+                        const detail::TrailSettings settings{
+                                std::clamp(half_life, 0.0, 5.0),
+                                graph::Scalar(node, "trail_zoom_rate", 0),
+                                graph::Scalar(node, "trail_rotation_rate", 0)};
+                        state.output_.texture_ =
+                                state.trail_->Draw(input(0).texture_, extent, frame.seconds_,
+                                                   frame.advance_state_, settings, renderer);
+                        break;
+                    }
+                    case graph::Operation::kTextureVideo: {
+                        if (!state.target_.Handle().device_)
+                            state.target_ = renderer.CreateTexture(extent, {}, precision);
+                        renderer.Submit(state.target_.Handle(), videos_.Draw(node, extent),
+                                        0x00000000);
+                        state.output_.texture_ = state.target_.Handle();
+                        break;
+                    }
+                    case graph::Operation::kTextureShader: {
+                        if (!state.target_.Handle().device_)
+                            state.target_ = acquire(extent, precision);
+                        renderer.Submit(state.target_.Handle(),
+                                        shaders_.Draw(instruction, result.outputs_, frame.seconds_,
+                                                      white_.Handle(), extent, shaders, renderer),
+                                        0);
+                        state.output_.texture_ = state.target_.Handle();
+                        break;
+                    }
+                    case graph::Operation::kTextureImage: {
+                        if (!state.target_.Handle().device_)
+                            state.target_ = renderer.CreateTexture(extent, {}, precision);
+                        renderer.Submit(state.target_.Handle(),
+                                        images_.Draw(node, extent, images, renderer), 0x00000000);
+                        state.output_.texture_ = state.target_.Handle();
+                        break;
+                    }
+                    case graph::Operation::kGaussianBlur: {
+                        if (!state.blur_) state.blur_ = std::make_unique<detail::BlurPass>();
+                        const auto value = instruction.inputs_[1]
                                                    ? input(1).scalar_
-                                                   : graph::Scalar(node, "trail_half_life", 0.5);
-                    const detail::TrailSettings settings{
-                            std::clamp(half_life, 0.0, 5.0),
-                            graph::Scalar(node, "trail_zoom_rate", 0),
-                            graph::Scalar(node, "trail_rotation_rate", 0)};
-                    state.output_.texture_ =
-                            state.trail_->Draw(input(0).texture_, extent, frame.seconds_,
-                                               frame.advance_state_, settings, renderer);
-                    break;
-                }
-                case graph::Operation::kTextureVideo: {
-                    if (!state.target_.Handle().device_)
-                        state.target_ = renderer.CreateTexture(extent, {}, precision);
-                    renderer.Submit(state.target_.Handle(), videos_.Draw(node, extent), 0x00000000);
-                    state.output_.texture_ = state.target_.Handle();
-                    break;
-                }
-                case graph::Operation::kTextureShader: {
-                    if (!state.target_.Handle().device_) state.target_ = acquire(extent, precision);
-                    renderer.Submit(state.target_.Handle(),
-                                    shaders_.Draw(instruction, result.outputs_, frame.seconds_,
-                                                  white_.Handle(), extent, shaders, renderer),
-                                    0);
-                    state.output_.texture_ = state.target_.Handle();
-                    break;
-                }
-                case graph::Operation::kTextureImage: {
-                    if (!state.target_.Handle().device_)
-                        state.target_ = renderer.CreateTexture(extent, {}, precision);
-                    renderer.Submit(state.target_.Handle(),
-                                    images_.Draw(node, extent, images, renderer), 0x00000000);
-                    state.output_.texture_ = state.target_.Handle();
-                    break;
-                }
-                case graph::Operation::kGaussianBlur: {
-                    if (!state.blur_) state.blur_ = std::make_unique<detail::BlurPass>();
-                    const auto value = instruction.inputs_[1]
-                                               ? input(1).scalar_
-                                               : graph::Scalar(node, "blur_radius", 6);
-                    // Authoring radius uses pixels at a 720-pixel short edge so
-                    // inline previews and portrait/square profiles keep the same look.
-                    const auto radius = static_cast<float>(std::clamp(value, 0.0, 32.0)) *
-                                        std::min(extent.width_, extent.height_) / 720.0f;
-                    state.output_.texture_ = state.blur_->Draw(input(0).texture_, extent, radius,
-                                                               renderer, precision);
-                    break;
-                }
-                case graph::Operation::kPathHelix:
-                case graph::Operation::kPathFromPoints:
-                case graph::Operation::kPathResample:
-                case graph::Operation::kGeometryTube:
-                    detail::EvaluatePath(instruction, result.outputs_, state.output_);
-                    break;
-                case graph::Operation::kGeometryDeform:
-                    detail::EvaluateDeformation(instruction, result.outputs_, state.output_);
-                    break;
-                case graph::Operation::kGeometryAnimate:
-                    detail::EvaluateAnimation(instruction, result.outputs_, state.output_,
-                                              frame.seconds_);
-                    break;
-                case graph::Operation::kGeometryMorph:
-                    detail::EvaluateMorph(instruction, result.outputs_, state.output_);
-                    break;
-                case graph::Operation::kGeometryCube:
-                case graph::Operation::kGeometryTorus:
-                case graph::Operation::kGeometrySphere:
-                case graph::Operation::kGeometryGlb:
-                case graph::Operation::kMaterialUnlit:
-                case graph::Operation::kMaterialPbr:
-                case graph::Operation::kMaterialTextures:
-                case graph::Operation::kDirectionalLight:
-                case graph::Operation::kPointLight:
-                case graph::Operation::kSpotLight:
-                case graph::Operation::kSceneInstance:
-                case graph::Operation::kSceneTransform:
-                case graph::Operation::kSceneMerge:
-                case graph::Operation::kSceneEnvironment:
-                case graph::Operation::kSceneShadow:
-                case graph::Operation::kSceneCamera:
-                    detail::EvaluateScene(instruction, result.outputs_, state.output_, resources);
-                    break;
-                case graph::Operation::kGpuParticleEmitter:
-                    if (!state.gpu_particles_)
-                        state.gpu_particles_ = std::make_unique<detail::GpuParticlePass>();
-                    state.output_.gpu_points_ = state.gpu_particles_->Evaluate(
-                            instruction, result.outputs_, frame, renderer);
-                    break;
-                case graph::Operation::kGpuPointRender: {
-                    if (!state.target_.Handle().device_) state.target_ = acquire(extent, precision);
-                    const auto opacity = instruction.inputs_[1] ? input(1).scalar_
-                                                                : graph::Scalar(node, "opacity", 1);
-                    const render::GpuPointStyle style{
-                            float(std::isfinite(opacity) ? std::clamp(opacity, 0.0, 1.0) : 1),
-                            graph::Scalar(node, "point_blend", 1) == 1};
-                    renderer.SubmitGpuPoints(state.target_.Handle(), input(0).gpu_points_, style);
-                    state.output_.texture_ = state.target_.Handle();
-                    break;
-                }
-                case graph::Operation::kPointInstances:
-                    state.output_.scene_ =
-                            detail::PointInstances(instruction, result.outputs_, frame.external_);
-                    break;
-                case graph::Operation::kSceneCapture: {
-                    if (!input(0).scene_) throw std::invalid_argument("runtime.scene_input");
-                    if (!state.capture_) state.capture_ = std::make_unique<detail::SceneCapture>();
-                    const auto camera =
-                            instruction.inputs_[1] ? input(1).camera_.value() : scene::Camera{};
-                    state.output_.scene_image_ = state.capture_->Draw(
-                            *input(0).scene_, camera, extent, precision, renderer, result.outputs_);
-                    break;
-                }
-                case graph::Operation::kSceneColor:
-                    state.output_.texture_ = input(0).scene_image_.value().color_;
-                    break;
-                case graph::Operation::kSceneDepth:
-                    state.output_.depth_ = input(0).scene_image_.value().depth_;
-                    break;
-                case graph::Operation::kSceneRender: {
-                    if (!input(0).scene_) throw std::invalid_argument("runtime.scene_input");
-                    if (!state.scene_) state.scene_ = std::make_unique<detail::ScenePass>();
-                    if (!state.target_.Handle().device_)
-                        state.target_ = renderer.CreateTexture(extent, {}, precision);
-                    const auto camera =
-                            instruction.inputs_[1] ? input(1).camera_.value() : scene::Camera{};
-                    const auto scene_draw = state.scene_->Build(*input(0).scene_, camera, extent,
-                                                                renderer, result.outputs_);
-                    renderer.SubmitScene(state.target_.Handle(), scene_draw);
-                    state.output_.texture_ = state.target_.Handle();
-                    break;
-                }
-                case graph::Operation::kPointGrid:
-                    state.output_.points_ = detail::GridPoints(node);
-                    state.output_.points_generation_ = next_points_generation_++;
-                    break;
-                case graph::Operation::kParticleEmitter:
-                    if (!state.points_) state.points_ = std::make_unique<detail::PointState>();
-                    if (!state.output_.points_generation_ || !state.node_ ||
-                        graph::Scalar(*state.node_, "seed", 1) != graph::Scalar(node, "seed", 1) ||
-                        (state.points_->last_seconds_ &&
-                         frame.seconds_ < *state.points_->last_seconds_))
-                        state.output_.points_generation_ = next_points_generation_++;
-                    state.output_.points_ =
-                            detail::EmitPoints(*state.points_, instruction, result.outputs_, frame);
-                    break;
-                case graph::Operation::kPointTransform:
-                    state.output_.points_generation_ = input(0).points_generation_;
-                    state.output_.points_ = detail::TransformPoints(
-                            instruction, result.outputs_,
-                            static_cast<double>(extent.width_) / extent.height_);
-                    break;
-                case graph::Operation::kPointPhysics: {
-                    if (!state.physics_) state.physics_ = std::make_unique<detail::PointPhysics>();
-                    const auto generation = state.physics_->Generation();
-                    state.output_.points_ =
-                            state.physics_->Evaluate(instruction, result.outputs_, frame);
-                    if (generation != state.physics_->Generation())
-                        state.output_.points_generation_ = next_points_generation_++;
-                    break;
-                }
-                case graph::Operation::kPointRender: {
-                    if (!input(0).points_) throw std::invalid_argument("runtime.points");
-                    if (!state.target_.Handle().device_) state.target_ = acquire(extent, precision);
-                    auto sprite = white_.Handle();
-                    if (instruction.inputs_[1])
-                        sprite = input(1).texture_;
-                    else if (graph::Scalar(node, "point_style", 0) == 0) {
-                        if (!point_sprite_.Handle().device_)
-                            point_sprite_ = detail::CreatePointSprite(renderer);
-                        sprite = point_sprite_.Handle();
+                                                   : graph::Scalar(node, "blur_radius", 6);
+                        // Authoring radius uses pixels at a 720-pixel short edge so
+                        // inline previews and portrait/square profiles keep the same look.
+                        const auto radius = static_cast<float>(std::clamp(value, 0.0, 32.0)) *
+                                            std::min(extent.width_, extent.height_) / 720.0f;
+                        state.output_.texture_ = state.blur_->Draw(input(0).texture_, extent,
+                                                                   radius, renderer, precision);
+                        break;
                     }
-                    detail::DrawPoints(*input(0).points_, sprite,
-                                       graph::Scalar(node, "point_blend", 0) == 0
-                                               ? render::BlendMode::kSourceOver
-                                               : render::BlendMode::kAdd,
-                                       list);
-                    renderer.Submit(state.target_.Handle(), list);
-                    state.output_.texture_ = state.target_.Handle();
-                    break;
-                }
-                case graph::Operation::kSessionTime:
-                case graph::Operation::kParticipantRole:
-                case graph::Operation::kSharedControl:
-                case graph::Operation::kAudioFeature:
-                case graph::Operation::kControlScalar:
-                case graph::Operation::kAudioBand:
-                    state.output_.scalar_ = external_value.value();
-                    break;
-                case graph::Operation::kTime:
-                case graph::Operation::kOscillator:
-                case graph::Operation::kSample:
-                case graph::Operation::kConstant:
-                case graph::Operation::kExpression:
-                case graph::Operation::kMath:
-                case graph::Operation::kLocalTime:
-                case graph::Operation::kTimeEnvelope:
-                case graph::Operation::kCurve:
-                case graph::Operation::kMap:
-                case graph::Operation::kCompare:
-                case graph::Operation::kSelect:
-                case graph::Operation::kNoise:
-                    state.output_.scalar_ =
-                            detail::EvaluateScalar(instruction, result.outputs_, frame.seconds_);
-                    break;
-                case graph::Operation::kOutput:
-                    state.output_.texture_ = input(0).texture_;
-                    break;
-                case graph::Operation::kFeedback:
-                    if (!state.target_.Handle().device_) {
-                        state.target_ = renderer.CreateTexture(extent, {}, precision);
-                        state.history_ = renderer.CreateTexture(extent, {}, precision);
-                        renderer.Submit(state.target_.Handle(), list, 0x000000ff);
-                        renderer.Submit(state.history_.Handle(), list, 0x000000ff);
+                    case graph::Operation::kPathHelix:
+                    case graph::Operation::kPathFromPoints:
+                    case graph::Operation::kPathResample:
+                    case graph::Operation::kGeometryTube:
+                        detail::EvaluatePath(instruction, result.outputs_, state.output_);
+                        break;
+                    case graph::Operation::kGeometryDeform:
+                        detail::EvaluateDeformation(instruction, result.outputs_, state.output_);
+                        break;
+                    case graph::Operation::kGeometryAnimate:
+                        detail::EvaluateAnimation(instruction, result.outputs_, state.output_,
+                                                  frame.seconds_);
+                        break;
+                    case graph::Operation::kGeometryMorph:
+                        detail::EvaluateMorph(instruction, result.outputs_, state.output_);
+                        break;
+                    case graph::Operation::kGeometryCube:
+                    case graph::Operation::kGeometryTorus:
+                    case graph::Operation::kGeometrySphere:
+                    case graph::Operation::kGeometryGlb:
+                    case graph::Operation::kMaterialUnlit:
+                    case graph::Operation::kMaterialPbr:
+                    case graph::Operation::kMaterialTextures:
+                    case graph::Operation::kDirectionalLight:
+                    case graph::Operation::kPointLight:
+                    case graph::Operation::kSpotLight:
+                    case graph::Operation::kSceneInstance:
+                    case graph::Operation::kSceneTransform:
+                    case graph::Operation::kSceneMerge:
+                    case graph::Operation::kSceneEnvironment:
+                    case graph::Operation::kSceneShadow:
+                    case graph::Operation::kSceneCamera:
+                        detail::EvaluateScene(instruction, result.outputs_, state.output_,
+                                              resources);
+                        break;
+                    case graph::Operation::kGpuParticleEmitter:
+                        if (!state.gpu_particles_)
+                            state.gpu_particles_ = std::make_unique<detail::GpuParticlePass>();
+                        state.output_.gpu_points_ = state.gpu_particles_->Evaluate(
+                                instruction, result.outputs_, frame, renderer);
+                        break;
+                    case graph::Operation::kGpuPointRender: {
+                        if (!state.target_.Handle().device_)
+                            state.target_ = acquire(extent, precision);
+                        const auto opacity = instruction.inputs_[1]
+                                                     ? input(1).scalar_
+                                                     : graph::Scalar(node, "opacity", 1);
+                        const render::GpuPointStyle style{
+                                float(std::isfinite(opacity) ? std::clamp(opacity, 0.0, 1.0) : 1),
+                                graph::Scalar(node, "point_blend", 1) == 1};
+                        renderer.SubmitGpuPoints(state.target_.Handle(), input(0).gpu_points_,
+                                                 style);
+                        state.output_.texture_ = state.target_.Handle();
+                        break;
                     }
-                    state.output_.texture_ = state.history_.Handle();
-                    break;
-                default:
-                    if (!state.target_.Handle().device_) state.target_ = acquire(extent, precision);
-                    const auto clear = detail::DrawTexture(instruction, result.outputs_,
-                                                           frame.external_, white_.Handle(), list);
-                    renderer.Submit(state.target_.Handle(), list, clear);
-                    state.output_.texture_ = state.target_.Handle();
-                    break;
-            }
+                    case graph::Operation::kPointInstances:
+                        state.output_.scene_ = detail::PointInstances(instruction, result.outputs_,
+                                                                      frame.external_);
+                        break;
+                    case graph::Operation::kSceneCapture: {
+                        if (!input(0).scene_) throw std::invalid_argument("runtime.scene_input");
+                        if (!state.capture_)
+                            state.capture_ = std::make_unique<detail::SceneCapture>();
+                        const auto camera =
+                                instruction.inputs_[1] ? input(1).camera_.value() : scene::Camera{};
+                        state.output_.scene_image_ =
+                                state.capture_->Draw(*input(0).scene_, camera, extent, precision,
+                                                     renderer, result.outputs_);
+                        break;
+                    }
+                    case graph::Operation::kSceneColor:
+                        state.output_.texture_ = input(0).scene_image_.value().color_;
+                        break;
+                    case graph::Operation::kSceneDepth:
+                        state.output_.depth_ = input(0).scene_image_.value().depth_;
+                        break;
+                    case graph::Operation::kSceneRender: {
+                        if (!input(0).scene_) throw std::invalid_argument("runtime.scene_input");
+                        if (!state.scene_) state.scene_ = std::make_unique<detail::ScenePass>();
+                        if (!state.target_.Handle().device_)
+                            state.target_ = renderer.CreateTexture(extent, {}, precision);
+                        const auto camera =
+                                instruction.inputs_[1] ? input(1).camera_.value() : scene::Camera{};
+                        const auto scene_draw = state.scene_->Build(
+                                *input(0).scene_, camera, extent, renderer, result.outputs_);
+                        renderer.SubmitScene(state.target_.Handle(), scene_draw);
+                        state.output_.texture_ = state.target_.Handle();
+                        break;
+                    }
+                    case graph::Operation::kPointGrid:
+                        state.output_.points_ = detail::GridPoints(node);
+                        state.output_.points_generation_ = next_points_generation_++;
+                        break;
+                    case graph::Operation::kParticleEmitter:
+                        if (!state.points_) state.points_ = std::make_unique<detail::PointState>();
+                        if (!state.output_.points_generation_ || !state.node_ ||
+                            graph::Scalar(*state.node_, "seed", 1) !=
+                                    graph::Scalar(node, "seed", 1) ||
+                            (state.points_->last_seconds_ &&
+                             frame.seconds_ < *state.points_->last_seconds_))
+                            state.output_.points_generation_ = next_points_generation_++;
+                        state.output_.points_ = detail::EmitPoints(*state.points_, instruction,
+                                                                   result.outputs_, frame);
+                        break;
+                    case graph::Operation::kPointTransform:
+                        state.output_.points_generation_ = input(0).points_generation_;
+                        state.output_.points_ = detail::TransformPoints(
+                                instruction, result.outputs_,
+                                static_cast<double>(extent.width_) / extent.height_);
+                        break;
+                    case graph::Operation::kPointPhysics: {
+                        if (!state.physics_)
+                            state.physics_ = std::make_unique<detail::PointPhysics>();
+                        const auto generation = state.physics_->Generation();
+                        state.output_.points_ =
+                                state.physics_->Evaluate(instruction, result.outputs_, frame);
+                        if (generation != state.physics_->Generation())
+                            state.output_.points_generation_ = next_points_generation_++;
+                        break;
+                    }
+                    case graph::Operation::kPointRender: {
+                        if (!input(0).points_) throw std::invalid_argument("runtime.points");
+                        if (!state.target_.Handle().device_)
+                            state.target_ = acquire(extent, precision);
+                        auto sprite = white_.Handle();
+                        if (instruction.inputs_[1])
+                            sprite = input(1).texture_;
+                        else if (graph::Scalar(node, "point_style", 0) == 0) {
+                            if (!point_sprite_.Handle().device_)
+                                point_sprite_ = detail::CreatePointSprite(renderer);
+                            sprite = point_sprite_.Handle();
+                        }
+                        detail::DrawPoints(*input(0).points_, sprite,
+                                           graph::Scalar(node, "point_blend", 0) == 0
+                                                   ? render::BlendMode::kSourceOver
+                                                   : render::BlendMode::kAdd,
+                                           list);
+                        renderer.Submit(state.target_.Handle(), list);
+                        state.output_.texture_ = state.target_.Handle();
+                        break;
+                    }
+                    case graph::Operation::kSessionTime:
+                    case graph::Operation::kParticipantRole:
+                    case graph::Operation::kSharedControl:
+                    case graph::Operation::kAudioFeature:
+                    case graph::Operation::kControlScalar:
+                    case graph::Operation::kAudioBand:
+                        state.output_.scalar_ = external_value.value();
+                        break;
+                    case graph::Operation::kTime:
+                    case graph::Operation::kOscillator:
+                    case graph::Operation::kSample:
+                    case graph::Operation::kConstant:
+                    case graph::Operation::kExpression:
+                    case graph::Operation::kMath:
+                    case graph::Operation::kLocalTime:
+                    case graph::Operation::kTimeEnvelope:
+                    case graph::Operation::kCurve:
+                    case graph::Operation::kMap:
+                    case graph::Operation::kCompare:
+                    case graph::Operation::kSelect:
+                    case graph::Operation::kNoise:
+                        state.output_.scalar_ = detail::EvaluateScalar(instruction, result.outputs_,
+                                                                       frame.seconds_);
+                        break;
+                    case graph::Operation::kOutput:
+                        state.output_.texture_ = input(0).texture_;
+                        break;
+                    case graph::Operation::kFeedback:
+                        if (!state.target_.Handle().device_) {
+                            state.target_ = renderer.CreateTexture(extent, {}, precision);
+                            state.history_ = renderer.CreateTexture(extent, {}, precision);
+                            renderer.Submit(state.target_.Handle(), list, 0x000000ff);
+                            renderer.Submit(state.history_.Handle(), list, 0x000000ff);
+                        }
+                        state.output_.texture_ = state.history_.Handle();
+                        break;
+                    default:
+                        if (!state.target_.Handle().device_)
+                            state.target_ = acquire(extent, precision);
+                        const auto clear =
+                                detail::DrawTexture(instruction, result.outputs_, frame.external_,
+                                                    white_.Handle(), list);
+                        renderer.Submit(state.target_.Handle(), list, clear);
+                        state.output_.texture_ = state.target_.Handle();
+                        break;
+                }
             state.node_ = node;
             state.input_versions_ = std::move(versions);
             state.target_retired_ = false;
         }
         result.outputs_[index] = state.output_;
+        result.rejected_events_ += state.output_.rejected_events_;
         if (frame.profile_nodes_) {
             const auto after = renderer.Stats();
             result.profiles_[index] = {

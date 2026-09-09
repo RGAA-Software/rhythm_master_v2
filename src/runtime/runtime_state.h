@@ -1,6 +1,7 @@
 #pragma once
 
 #include "blur_pass.h"
+#include "event_ops.h"
 #include "gpu_particle_pass.h"
 #include "image_pass.h"
 #include "point_ops.h"
@@ -58,6 +59,7 @@ class Runtime::Impl final {
         std::unique_ptr<detail::SceneCapture> capture_{};
         std::unique_ptr<detail::BlurPass> blur_{};
         std::unique_ptr<detail::TrailPass> trail_{};
+        std::unique_ptr<detail::EventNode> events_{};
     };
     std::map<graph::NodeId, State> states_{};
     render::Texture white_{};
@@ -70,6 +72,8 @@ class Runtime::Impl final {
     render::Extent extent_{};
     std::uint64_t next_points_generation_ = 1;
     std::uint64_t next_output_version_ = 1;
+    // Keep monotonic IDs across per-node/resource reconstruction and graph edits.
+    std::uint64_t next_event_sequence_ = 1;
     std::uint64_t presentation_generation_ = 0;
 };
 }  // namespace rhythm::runtime

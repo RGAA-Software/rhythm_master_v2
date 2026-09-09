@@ -87,3 +87,33 @@ Windows/Android `event_graph_tests` 通过，日志
 才重新分配。已按此合同核对展开后事件输入仍指向外部源；失败记录保留在
 `out/p2-event-graph-android-tests.log`。当前只完成图模块，运行执行、UI 标签/预览、
 资产版本与应用流程尚未交付，不把可编译的节点声明当成功能可用。
+
+### Runtime 接入
+
+`runtime::detail::EventNode` 独立管理来源与消费者状态，图按既有拓扑顺序传递不可变
+EventBatch；同一输出可以分支，合流及消费者按身份去重。序号由 Runtime 统一发放，
+节点属性/类型编辑及资源重建不会复用先前的事件 ID；事件节点才分配状态，普通节点
+不增加事件数组。快照、音频设备、UI 和图编译线程不直接修改此状态。
+
+首批 beat、Cue、audio-onset、带迟滞的 scalar-edge、merge、ADSR、step、gate、
+latch、reset 转换已在真实 Runtime 空渲染器路径检查。gate 的 pulse 切换开关，gate
+事件显式设开/关；latch 在触发帧捕获输入，gate-off 不清空，reset 恢复初值。step
+按有界整数模运算步进。这里的 reset 转换尚未接入粒子/反馈状态入口。
+
+节拍/Cue 使用配置的媒体时间。音频 FFT 瞬态有检测延迟，来源在首次观察到新的
+onset_id 的显示帧发出事件，时间记录该显示帧，不冒充在过去的 onset 拍点已经显示。
+音频代次变化不补发旧瞬态；band_first..band_last 的峰值筛选触发，峰值为载荷幅度。
+首次求值/seek 只建立当前时间基线，不回补跳过的 Cue。Cue 来源还显式要求编译器
+保留其快照所需宏节点，避免不连画面的宏被裁剪后连同 Cue 丢失。
+
+原生图批次上限为 256，合并临时集合上限 512，消费者去重来源 128。超限报告
+FrameResult/NodeOutput.rejected_events，不默默声称所有触发都已执行；来源在异常
+大时间跳变时截断本帧剩余事件，下一帧不补发被拒绝部分。该图内传播策略与宿主
+EventQueue（1024 等待、256 派发并保留积压）分别适用，不把队列预算扩张到每条图边。
+主机 UI 的可见提示、总图传播成本、记录重放以及完整作品验收仍在下一增量。
+
+Windows/Android Runtime 检查通过：日志
+`out/p2-event-runtime-identity-windows-tests.log`、
+`out/p2-event-runtime-identity-android-tests.log`。覆盖合流去重、逐帧清除脉冲、暂停、
+来源属性变化、Runtime 重建不复用序号、包络、音频重启/静音过滤、门控、锁存、
+reset 转换、无连续宏连接的 Cue、显式重启与异常跳变预算。不等于 GPU/UI 完成。

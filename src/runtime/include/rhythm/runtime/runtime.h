@@ -5,6 +5,7 @@
 #include "rhythm/assets/images.h"
 #include "rhythm/graph/compiler.h"
 #include "rhythm/image_shader/resources.h"
+#include "rhythm/parameters/events.h"
 #include "rhythm/particles/types.h"
 #include "rhythm/render/budget.h"
 #include "rhythm/render/renderer.h"
@@ -62,6 +63,8 @@ struct NodeOutput {
     std::optional<SceneImage> scene_image_{};
     std::optional<DepthView> depth_{};
     std::shared_ptr<const scene::Path> path_{};
+    std::shared_ptr<const parameters::EventBatch> events_{};
+    std::size_t rejected_events_ = 0;
 };
 // Optional host-thread CPU/submission measurements, not GPU timestamp timings.
 struct NodeProfile {
@@ -79,6 +82,7 @@ struct FrameResult {
     std::optional<render::Budget> budget_{};
     std::uint32_t recycled_textures_ = 0;
     std::vector<NodeProfile> profiles_{};
+    std::size_t rejected_events_ = 0;
 };
 // Evaluation and resource ownership are host-thread confined. The immutable plan
 // may be compiled elsewhere; no UI or platform objects are retained here.

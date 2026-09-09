@@ -76,6 +76,18 @@ int main() {
         audio.properties_["band_first"] = 40.0;
         audio.properties_["band_last"] = 20.0;
         Check(!registry.ValidateNode(audio).empty(), "reversed onset bands accepted");
+        graph.components_.clear();
+        graph.nodes_[0] = registry.MakeNode(1, "event.cue");
+        graph.nodes_[1] = registry.MakeNode(2, "event.envelope");
+        graph.edges_[0].input_ = "events";
+        graph.nodes_.push_back(registry.MakeNode(9, "control.scalar"));
+        graph.control_snapshots_ = {{1, "Cue source", {{9, 0.5}}}};
+        graph.control_cues_ = {{1, "First", 0.5, 1}};
+        result = Compile(graph, registry);
+        Check(std::holds_alternative<ExecutionPlan>(result) &&
+                      std::get<ExecutionPlan>(result).control_sequence_.has_value() &&
+                      std::get<ExecutionPlan>(result).instructions_.size() == 5,
+              "Cue events lost a bank without continuous macro connections");
         std::cout << "Event port separation, component references, property ranges and cycle "
                      "rejection passed\n";
     } catch (const std::exception& error) {
