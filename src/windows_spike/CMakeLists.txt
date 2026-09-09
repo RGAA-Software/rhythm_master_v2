@@ -197,6 +197,14 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/harmonic_city"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/harmonic-city-export")
         set_tests_properties(harmonic_city_export_ui_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME ink_tide_export_ui_gpu COMMAND export_ui_gpu_tests
+            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/ink_tide"
+            --arranged "${PROJECT_BINARY_DIR}/ink-tide-export-ui")
+        set_tests_properties(ink_tide_export_ui_gpu PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME export_failure_ui_gpu COMMAND export_ui_gpu_tests
+            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/ink_tide"
+            --arranged "${PROJECT_BINARY_DIR}/export-failure-ui" --existing-output)
+        set_tests_properties(export_failure_ui_gpu PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE)
         add_executable(export_gpu_tests tests/export_gpu_tests.cpp)
         target_link_libraries(export_gpu_tests PRIVATE export_core platform_sdl media_video)
         rhythm_project_target(export_gpu_tests)

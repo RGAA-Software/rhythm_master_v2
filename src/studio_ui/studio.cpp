@@ -773,6 +773,27 @@ FrameStatus Studio::Status() const {
             impl_->preview_routing_.Pages(),
             impl_->timeline_.ClipWaveformSources()};
 }
+WorkflowStatus Studio::Workflow() const {
+    WorkflowStatus result;
+    result.requested_generation_ = impl_->generation_;
+    result.installed_generation_ = impl_->plan_generation_;
+    for (const auto& diagnostic : impl_->diagnostics_)
+        result.graph_errors_.push_back(diagnostic.code_);
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+    const auto job = impl_->export_panel_.Snapshot();
+    static constexpr std::array states{"idle",     "preparing", "rendering", "publishing",
+                                       "complete", "canceled",  "failed"};
+    static constexpr std::array phases{"idle",       "preparing",  "launching", "rendering",
+                                       "finalizing", "publishing", "complete"};
+    result.export_state_ = states.at(static_cast<std::size_t>(job.state_));
+    result.export_phase_ = phases.at(static_cast<std::size_t>(job.phase_));
+    result.exported_frames_ = job.progress_.completed_frames_;
+    result.export_total_frames_ = job.progress_.total_frames_;
+    result.export_error_ =
+            impl_->export_panel_.Error().empty() ? job.error_ : impl_->export_panel_.Error();
+#endif
+    return result;
+}
 void Studio::LoadAudioFile(const std::filesystem::path& path, float volume) {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
     impl_->audio_panel_.SetVolume(volume);

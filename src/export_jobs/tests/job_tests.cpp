@@ -69,7 +69,8 @@ int main(int argc, char* argv[]) {
                 "busy export admits another job");
         const auto complete = wait(false);
         if (complete.state_ != JobState::kComplete) throw std::runtime_error(complete.error_);
-        Require(complete.progress_.completed_frames_ == 120 && responsive_frames > 5,
+        Require(complete.phase_ == exporting::JobPhase::kComplete &&
+                        complete.progress_.completed_frames_ == 120 && responsive_frames > 5,
                 "background export did not preserve parent frame progress");
         {
             media::VideoDecoder decoder(output);
@@ -80,7 +81,10 @@ int main(int argc, char* argv[]) {
         const auto original = Read(output);
         Require(jobs.Start(argv[1], project, root / "assets", settings, output),
                 "resubmit existing path");
-        Require(wait(false).state_ == JobState::kFailed && Read(output) == original,
+        const auto existing = wait(false);
+        Require(existing.state_ == JobState::kFailed &&
+                        existing.phase_ == exporting::JobPhase::kPreparing &&
+                        Read(output) == original,
                 "existing output was overwritten");
         settings.frames_ = 108000;
         const auto canceled_path = root / "canceled.mp4";
@@ -95,6 +99,7 @@ int main(int argc, char* argv[]) {
                 "submit failed worker");
         const auto failed = wait(false);
         Require(failed.state_ == JobState::kFailed && !failed.error_.empty() &&
+                        failed.phase_ == exporting::JobPhase::kRendering &&
                         !std::filesystem::exists(failed_path),
                 "failed child was reported as success");
         for (const auto& entry : std::filesystem::directory_iterator(root))

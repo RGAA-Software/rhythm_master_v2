@@ -148,6 +148,10 @@ ownership is explicitly transferred to the project.
   render plan must never count as success for a newly applied or edited graph.
 - Record user-reported regressions, root causes, missed test paths and permanent
   checks in `docs/validation/`; consult them when changing the affected workflow.
+- Run Windows GPU/UI checks through `tools/verify_windows.py` and delivery builds
+  through `tools/build-windows.py`. They share an OS-owned cross-process lease;
+  direct CTest/executable launches bypass it. Do not run independent graphics
+  checks concurrently. Preserve per-run logs, including failed runs.
 
 - Prioritize feature delivery. Defer long-duration soak, thermal and endurance
   tests to the final integrated acceptance stage. Keep affected-target builds,

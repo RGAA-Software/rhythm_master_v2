@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 
 import shader_tools
+from verify_windows import run_ctest, verification_lease
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -99,21 +100,10 @@ def main():
         expected_tests = {'editor_contracts', 'template_contracts',
                           'template_switch_gpu_en-US', 'template_switch_gpu_zh-CN'}
         pattern = '^(' + '|'.join(sorted(expected_tests)) + ')$'
-        listing = subprocess.run(['ctest', '--test-dir', str(build), '--show-only=json-v1',
-                                  '-R', pattern], env=environment, capture_output=True, check=True)
-        available_tests = {test['name'] for test in json.loads(listing.stdout)['tests']}
-        if available_tests != expected_tests:
-            raise RuntimeError('Mandatory Studio delivery tests are missing: ' +
-                               ', '.join(sorted(expected_tests - available_tests)))
-        result = subprocess.run([
-            'ctest', '--test-dir', str(build), '--output-on-failure', '--no-tests=error',
-            '-R', pattern
-        ], env=environment, capture_output=True)
-        (build / 'studio-delivery-tests.log').write_bytes(result.stdout + result.stderr)
-        print((result.stdout + result.stderr).decode('utf-8', errors='replace'), end='')
-        result.check_returncode()
+        run_ctest(build, pattern, expected_tests, build / 'studio-delivery-tests.log', environment)
     print(f"Windows {args.configuration} build completed: {build}")
 
 
 if __name__ == "__main__":
-    main()
+    with verification_lease():
+        main()

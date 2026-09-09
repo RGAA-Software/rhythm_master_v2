@@ -31,7 +31,11 @@ class ExportJobs::Impl final {
         std::lock_guard lock(mutex_);
         if (Busy(snapshot_.state_)) return false;
         cancel_ = {};
-        snapshot_ = {JobState::kPreparing, {0, settings.frames_, 0}, destination, {}};
+        snapshot_ = {JobState::kPreparing,
+                     {0, settings.frames_, 0},
+                     destination,
+                     {},
+                     JobPhase::kPreparing};
         const auto stop = cancel_.get_token();
         const auto submitted = executor_.TryPost([this, executable = std::move(executable),
                                                   project = std::move(snapshot),
@@ -40,7 +44,7 @@ class ExportJobs::Impl final {
                                                   destination = std::move(destination), stop] {
             try {
                 Execute(executable, project, assets, settings, destination, stop);
-                SetState(JobState::kComplete);
+                SetState(JobState::kComplete, JobPhase::kComplete);
             } catch (const std::exception& error) {
                 std::lock_guard completed_lock(mutex_);
                 snapshot_.state_ = stop.stop_requested() ? JobState::kCanceled : JobState::kFailed;
@@ -65,9 +69,10 @@ class ExportJobs::Impl final {
     }
 
    private:
-    void SetState(JobState state) {
+    void SetState(JobState state, JobPhase phase) {
         std::lock_guard lock(mutex_);
         snapshot_.state_ = state;
+        snapshot_.phase_ = phase;
     }
     void Execute(const std::filesystem::path& executable, const editor::Snapshot& project,
                  const std::filesystem::path& assets, const ExportSettings& settings,
@@ -80,9 +85,10 @@ class ExportJobs::Impl final {
         if (settings.music_) workspace.CopyMusic(*settings.music_, stop);
         if (stop.stop_requested()) throw std::runtime_error("export.canceled");
         detail::WriteRequest(directory, settings);
-        SetState(JobState::kRendering);
+        SetState(JobState::kRendering, JobPhase::kLaunching);
         {
             detail::ExportProcess process(executable, directory);
+            SetState(JobState::kRendering, JobPhase::kRendering);
             auto advanced = std::chrono::steady_clock::now();
             std::uint64_t completed = 0;
             while (!process.Done()) {
@@ -96,6 +102,7 @@ class ExportJobs::Impl final {
                     completed = progress->completed_frames_;
                     std::lock_guard lock(mutex_);
                     snapshot_.progress_ = *progress;
+                    if (completed == settings.frames_) snapshot_.phase_ = JobPhase::kFinalizing;
                 }
                 if (std::chrono::steady_clock::now() - advanced > std::chrono::seconds(90))
                     throw std::runtime_error("export.worker_timeout");
@@ -114,6 +121,7 @@ class ExportJobs::Impl final {
             std::lock_guard lock(mutex_);
             if (stop.stop_requested()) throw std::runtime_error("export.canceled");
             snapshot_.state_ = JobState::kPublishing;
+            snapshot_.phase_ = JobPhase::kPublishing;
             snapshot_.progress_ = *final;
         }
         storage::PublishNew(directory / "output.mp4", destination);

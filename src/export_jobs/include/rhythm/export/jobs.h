@@ -5,11 +5,22 @@
 
 namespace rhythm::exporting {
 enum class JobState { kIdle, kPreparing, kRendering, kPublishing, kComplete, kCanceled, kFailed };
+// Last reached stage is retained on failure/cancellation for diagnostics.
+enum class JobPhase {
+    kIdle,
+    kPreparing,
+    kLaunching,
+    kRendering,
+    kFinalizing,
+    kPublishing,
+    kComplete
+};
 struct JobSnapshot {
     JobState state_ = JobState::kIdle;
     ExportProgress progress_{};
     std::filesystem::path output_{};
     std::string error_{};
+    JobPhase phase_ = JobPhase::kIdle;
 };
 // Host-thread controller; one bounded worker prepares an immutable project/music
 // snapshot, owns an isolated rendering process and publishes completed output.

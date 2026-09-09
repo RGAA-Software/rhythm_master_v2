@@ -12,6 +12,7 @@
 #include "rhythm/media/video_decoder.h"
 #include "rhythm/project/store.h"
 #include "rhythm/studio/studio.h"
+#include "workflow_evidence.h"
 
 namespace {
 void Activate(const char* window_name, const char* item) {
@@ -23,7 +24,11 @@ void Activate(const char* window_name, const char* item) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        if (argc != 5) throw std::invalid_argument("export_ui resources template music output");
+        if (argc != 5 && argc != 6)
+            throw std::invalid_argument(
+                    "export_ui resources template music output [--existing-output]");
+        const bool existing_output = argc == 6 && std::string_view(argv[5]) == "--existing-output";
+        if (argc == 6 && !existing_output) throw std::invalid_argument("export_ui test option");
         const auto root =
                 std::filesystem::path(argv[4]) /
                 std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
@@ -32,26 +37,55 @@ int main(int argc, char* argv[]) {
         const auto output_path = root / "Exports" / std::filesystem::path(u8"音画验收.mp4");
         const auto prepared = project::PrepareTemplate(argv[2], project_path / "assets");
         project::Save(project_path, prepared.snapshot_);
+        if (existing_output) {
+            std::filesystem::create_directories(output_path.parent_path());
+            std::ofstream file(output_path, std::ios::binary);
+            file.exceptions(std::ios::failbit | std::ios::badbit);
+            file << "existing output must survive";
+        }
         platform::Host host(true);
         host.Resize({1920, 1080});
         ImGui::GetIO().IniFilename = nullptr;
         auto renderer = host.CreateRenderer();
         auto font = host.CreateFontTexture(renderer);
         studio::Studio studio(argv[1], project_path);
+        testing::WorkflowEvidence evidence(root);
+        std::cout << "evidence: " << root.string() << std::endl;
         const bool arranged = std::string_view(argv[3]) == "--arranged";
         if (!arranged) studio.LoadAudioFile(argv[3], 0);
         const auto start = std::chrono::steady_clock::now();
         const auto deadline = start + std::chrono::seconds(80);
         std::vector<double> frame_ms;
         int completed_frame = -1;
+        std::string action = "load";
         for (int frame = 0;; ++frame) {
-            if (!host.Poll() || std::chrono::steady_clock::now() > deadline)
-                throw std::runtime_error("export UI did not complete");
+            if (!host.Poll()) {
+                evidence.Record("host_closed", studio);
+                throw std::runtime_error("export UI host closed; see workflow.log");
+            }
+            if (std::chrono::steady_clock::now() > deadline) {
+                evidence.Record("timeout", studio);
+                const auto capture = (root / "export-timeout").string();
+                bgfx::requestScreenShot(BGFX_INVALID_HANDLE, capture.c_str());
+                for (int settle = 0; settle < 3; ++settle) {
+                    renderer.BeginFrame();
+                    renderer.EndFrame();
+                }
+                throw std::runtime_error("export UI timed out; see workflow.log");
+            }
             const auto frame_start = std::chrono::steady_clock::now();
             host.BeginUi();
             renderer.BeginFrame();
-            if (frame == 20) Activate("###graph", "###export.open");
-            if (frame == 25) Activate("###export.open", "###export.start");
+            if (frame == 20) {
+                action = "open_export";
+                evidence.Record(action, studio);
+                Activate("###graph", "###export.open");
+            }
+            if (frame == 25) {
+                action = "start_export";
+                evidence.Record(action, studio);
+                Activate("###export.open", "###export.start");
+            }
             const auto elapsed = std::chrono::duration<double>(frame_start - start).count();
             studio.Frame(host, renderer, elapsed);
             const auto draw = host.EndUi();
@@ -65,15 +99,39 @@ int main(int argc, char* argv[]) {
                 bgfx::requestScreenShot(BGFX_INVALID_HANDLE, capture.c_str());
             }
             renderer.EndFrame();
+            evidence.Record(action, studio);
             if (frame > 25 && completed_frame < 0)
                 frame_ms.push_back(std::chrono::duration<double, std::milli>(
                                            std::chrono::steady_clock::now() - frame_start)
                                            .count());
             if (studio.Status().budget_limited_)
                 throw std::runtime_error("export blocked live graph budget");
-            if (completed_frame < 0 && std::filesystem::is_regular_file(output_path))
-                completed_frame = frame;
+            const auto workflow = studio.Workflow();
+            if (completed_frame < 0) {
+                if (workflow.export_state_ == "failed" || !workflow.export_error_.empty()) {
+                    evidence.Record("export_failed", studio);
+                    if (!existing_output || workflow.export_state_ != "failed" ||
+                        workflow.export_phase_ != "preparing")
+                        throw std::runtime_error("export failed: " + workflow.export_error_);
+                    completed_frame = frame;
+                } else if (workflow.export_state_ == "complete") {
+                    if (existing_output || !std::filesystem::is_regular_file(output_path))
+                        throw std::runtime_error("export publication state mismatch");
+                    completed_frame = frame;
+                }
+            }
             if (completed_frame >= 0 && frame > completed_frame + 20) break;
+        }
+        if (existing_output) {
+            std::ifstream file(output_path, std::ios::binary);
+            const std::string contents{std::istreambuf_iterator<char>(file),
+                                       std::istreambuf_iterator<char>()};
+            if (contents != "existing output must survive" ||
+                studio.Workflow().export_error_ != "export.destination_exists")
+                throw std::runtime_error(
+                        "existing output failure lost its diagnostic or changed the file");
+            std::cout << "Studio export failure retains preparing stage and original output\n";
+            return 0;
         }
         if (!studio.HasValidPlan() ||
             studio.Status().authored_nodes_ != prepared.snapshot_.document_.nodes_.size() ||

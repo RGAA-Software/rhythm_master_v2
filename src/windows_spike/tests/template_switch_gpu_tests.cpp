@@ -12,6 +12,7 @@
 #include "rhythm/project/package.h"
 #include "rhythm/project/store.h"
 #include "rhythm/studio/studio.h"
+#include "workflow_evidence.h"
 
 namespace {
 void Check(bool value, const char* message) {
@@ -63,6 +64,9 @@ int main(int argc, char* argv[]) {
         auto renderer = host.CreateRenderer();
         auto font = host.CreateFontTexture(renderer);
         studio::Studio studio(resources, project_path);
+        testing::WorkflowEvidence evidence(root);
+        std::cout << "evidence: " << root.string() << std::endl;
+        std::string action = "default";
         int frame = 0;
         const auto start = std::chrono::steady_clock::now();
         const auto tick = [&] {
@@ -76,6 +80,7 @@ int main(int argc, char* argv[]) {
             studio.Frame(host, renderer, frame++ / 60.0);
             renderer.Submit({}, host.EndUi(), 0x111822ff);
             renderer.EndFrame();
+            evidence.Record(action, studio);
         };
         for (int index = 0; index < 20; ++index) {
             tick();
@@ -85,6 +90,7 @@ int main(int argc, char* argv[]) {
         Check(studio.HasValidPlan(), "default Studio output not ready");
         bool timeline_open = false;
         for (const std::string name : {"ink_tide", "chromatic_loom", "crystal_choir"}) {
+            action = "select:" + name;
             const auto entry = std::find_if(entries.begin(), entries.end(), [&](const auto& value) {
                 return value.id_ == "official.templates." + name;
             });
@@ -110,7 +116,10 @@ int main(int argc, char* argv[]) {
                 if (step == 7) io.AddInputCharactersUTF8(entry->titles_.at(locale).c_str());
                 if (step == 8 || step == 9) io.AddKeyEvent(ImGuiKey_Enter, step == 8);
                 if (step == 12) PopupAction("###title", "catalog.entries", selected);
-                if (step == 16) PopupAction(text.at("catalog.use"), "catalog.detail");
+                if (step == 16) {
+                    action = "apply:" + name;
+                    PopupAction(text.at("catalog.use"), "catalog.detail");
+                }
                 if (step == 24 && !timeline_open) {
                     Activate("###graph", "###timeline");
                     timeline_open = true;

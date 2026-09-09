@@ -19,6 +19,7 @@ class ExportPanel final {
     void Start(const std::filesystem::path& executable, editor::Snapshot snapshot,
                const std::filesystem::path& assets, ExportRequest request);
     exporting::JobSnapshot Snapshot() const;
+    const std::string& Error() const { return error_; }
 
    private:
     void SetPath(std::array<char, 4096>& buffer, const std::filesystem::path& path);

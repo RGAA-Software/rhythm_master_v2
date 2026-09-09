@@ -1,6 +1,8 @@
 #pragma once
 #include <filesystem>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "rhythm/platform/host.h"
 namespace rhythm::studio {
@@ -20,6 +22,19 @@ struct FrameStatus {
     std::size_t preview_groups_ = 0;
     std::size_t clip_waveform_sources_ = 0;
 };
+// UI-thread value snapshot for support/acceptance evidence. No backend objects,
+// generated schema or media resources cross this inspection boundary.
+struct WorkflowStatus {
+    std::uint64_t requested_generation_ = 0;
+    std::uint64_t installed_generation_ = 0;
+    std::vector<std::string> graph_errors_{};
+    std::string export_state_ = "unavailable";
+    std::string export_phase_ = "idle";
+    std::uint64_t exported_frames_ = 0;
+    std::uint64_t export_total_frames_ = 0;
+    std::string export_error_{};
+    bool operator==(const WorkflowStatus&) const = default;
+};
 class Studio final {
    public:
     Studio(const std::filesystem::path& resources, const std::filesystem::path& project);
@@ -34,6 +49,7 @@ class Studio final {
     // previous output while loading or diagnosing a new graph is not success.
     bool HasValidPlan() const;
     FrameStatus Status() const;
+    WorkflowStatus Workflow() const;
 
    private:
     class Impl;
