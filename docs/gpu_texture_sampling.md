@@ -35,5 +35,26 @@
   `out/p5-gpu-sampling-gles-tests.log`：NDK 构建的当前程序通过 USB 在 Android
   运行同一组合同及 GLES 像素检查；强制要求设备支持 GPU 点，不将“不支持”当通过。
 
-下一步接入显式纹理采样节点、点输出视图、资源保留和实际作品；上述后端验证不等同于
-Studio 创作、Android 应用或运行包交付已完成。
+## 图运行时增量
+
+`gpu.texture_sample` 接收原始 GPU 点、纹理和可选颜色／大小混合量标量，输出
+带采样属性的 GPU 点视图。`gpu.render` 和节点预览使用同一视图，原始输出仍可
+单独绘制。一个视图支持一个映射；连续采样会明确报错，需要多个映射时先合成
+纹理，避免后一节点悄悄忽略前一映射。
+
+采样纹理会固定保留到实际绘制和预览，不能在别名节点之后就被纹理池回收。
+同一源的多个视图共用点缓冲；新增合同只包含项目句柄和值，不传播 bgfx 类型。
+端口和属性使用既有 GPU 点／纹理／标量 wire 类型，旧 Player 按未知算子拒绝。
+
+`out/p5-gpu-sampling-graph-tests.log` 和 `out/p5-gpu-sampling-runtime-tests.log`
+通过图合同、数值驱动视图、单缓冲复用、源纹理保留、节点预览、链式拒绝和 Reset
+释放；原有粒子／纹理生命周期和源码边界检查通过。
+`out/p5-gpu-sampling-content-tests.log` 验证默认预设覆盖；中英文属性／帮助已接入。
+Android 同一原生运行时合同通过，记录
+`out/p5-gpu-sampling-runtime-android-build.log` 和
+`out/p5-gpu-sampling-runtime-android-tests.log`。
+
+`glyph_current` 实际从空白创作、同包 PCM 输出、MP4 导出、Windows 完整部署和
+Android 当前 APK／GLES／应用内选择及暂停恢复已验证，见
+[作品交付与人工看图记录](validation/data_bridges_authoring_2026-09-10.md)。
+记录保留首次画面过暗的失败及修正，不以模块通过或非黑像素替代呈现验收。

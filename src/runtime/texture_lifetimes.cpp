@@ -116,6 +116,7 @@ void TextureLifetimes::Prepare(const graph::ExecutionPlan& plan,
                 instruction.operation_ == graph::Operation::kGaussianBlur ||
                 instruction.operation_ == graph::Operation::kTextureTrail ||
                 instruction.operation_ == graph::Operation::kMaterialTextures ||
+                instruction.operation_ == graph::Operation::kGpuTextureSample ||
                 instruction.operation_ == graph::Operation::kSceneEnvironment)
                 pinned.at(*input) = true;
         }

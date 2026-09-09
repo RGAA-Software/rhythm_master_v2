@@ -1274,5 +1274,11 @@
     "point.spectrum": "Spectrum to points",
     "point_count": "Sample count",
     "spectrum_height": "Spectrum displacement",
-    "help.point.spectrum": "Sample canonical log-frequency bands into ordered points. Magnitude controls position and color; connect to point rendering, paths or geometry instances. X/Y are normalized by canvas width/height independently: radial points appear elliptical on a wide canvas, while world paths use their projection span. Silence retains the baseline."
+    "help.point.spectrum": "Sample canonical log-frequency bands into ordered points. Magnitude controls position and color; connect to point rendering, paths or geometry instances. X/Y are normalized by canvas width/height independently: radial points appear elliptical on a wide canvas, while world paths use their projection span. Silence retains the baseline.",
+    "gpu.texture_sample": "Texture to point attributes",
+    "sample_color": "Color and alpha sampling",
+    "sample_size": "Luminance-driven size",
+    "help.gpu.texture_sample": "Sample the image at each GPU point center to control color, alpha and size. Original points stay unchanged; preview the result or connect it to GPU point rendering. To combine maps, composite the textures before sampling.",
+    "graph.gpu_sample_chain": "A point view supports one texture sample. Composite multiple textures first, then sample them from the original GPU points.",
+    "render.gpu_point_sampling": "Invalid point-sampling texture or blend amount. The output target and depth textures cannot be sampled here."
 }

@@ -386,6 +386,23 @@ FrameResult Runtime::Impl::EvaluateRange(
                         state.output_.gpu_points_ = state.gpu_particles_->Evaluate(
                                 instruction, result.outputs_, frame, renderer);
                         break;
+                    case graph::Operation::kGpuTextureSample: {
+                        if (input(0).gpu_sampling_)
+                            throw std::invalid_argument("graph.gpu_sample_chain");
+                        const auto amount = [&](std::size_t port, std::string_view key,
+                                                double fallback) {
+                            const auto value = instruction.inputs_[port]
+                                                       ? input(port).scalar_
+                                                       : graph::Scalar(node, key, fallback);
+                            return static_cast<float>(
+                                    std::isfinite(value) ? std::clamp(value, 0.0, 1.0) : fallback);
+                        };
+                        state.output_.gpu_points_ = input(0).gpu_points_;
+                        state.output_.gpu_sampling_ = render::GpuPointSampling{
+                                input(1).texture_, amount(2, "sample_color", 1),
+                                amount(3, "sample_size", 0)};
+                        break;
+                    }
                     case graph::Operation::kGpuPointRender: {
                         if (!state.target_.Handle().device_)
                             state.target_ = acquire(extent, precision);
@@ -394,7 +411,7 @@ FrameResult Runtime::Impl::EvaluateRange(
                                                      : graph::Scalar(node, "opacity", 1);
                         const render::GpuPointStyle style{
                                 float(std::isfinite(opacity) ? std::clamp(opacity, 0.0, 1.0) : 1),
-                                graph::Scalar(node, "point_blend", 1) == 1};
+                                graph::Scalar(node, "point_blend", 1) == 1, input(0).gpu_sampling_};
                         renderer.SubmitGpuPoints(state.target_.Handle(), input(0).gpu_points_,
                                                  style);
                         state.output_.texture_ = state.target_.Handle();

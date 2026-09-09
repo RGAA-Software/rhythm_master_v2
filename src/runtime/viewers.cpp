@@ -81,7 +81,8 @@ void Viewers::Capture(const FrameResult& frame, std::span<const graph::NodeId> n
                 entry.extent_ = extent;
             }
             if (renderer.IsValid(source->gpu_points_)) {
-                renderer.SubmitGpuPoints(entry.target_.Handle(), source->gpu_points_);
+                renderer.SubmitGpuPoints(entry.target_.Handle(), source->gpu_points_,
+                                         {1, true, source->gpu_sampling_});
             } else {
                 if (!entry.preview_ || entry.version_ != source->version_) {
                     entry.preview_ = detail::PreviewScene(*source);

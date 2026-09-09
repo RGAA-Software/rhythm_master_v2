@@ -51,8 +51,10 @@ P5 矢量基础和运行时合同已通过 Windows/Android 原生测试，“矢
 含 Android 应用内选择和暂停／恢复截图核对。
 见 [矢量实施与证据](vector_graphics.md)。频谱转点／路径已通过两端原生合同及
 Windows 实际 Studio 创作／PCM 图像，见 [数据域桥接](data_domain_bridges.md)，
-继续纹理采样和本作品两端交付。P5 桥接、其他资产局部缓存与系统输入法
-专项，以及 P6–P9 未完成。
+纹理采样也已通过两端实际 GPU 像素及运行时合同。“频域花冠”和“字潮”已完成
+Windows 实际创作、MP4、完整部署和 Android 当前 APK／PCM/GLES／应用内选择、
+暂停恢复截图核对，见 [桥接作品交付](validation/data_bridges_authoring_2026-09-10.md)。
+P5 其他资产局部缓存与系统输入法专项，以及 P6–P9 未完成。
 
 ## 1. 产品目标、阶段终点与优先级
 

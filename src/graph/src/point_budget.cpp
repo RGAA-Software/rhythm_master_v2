@@ -12,6 +12,14 @@ std::optional<Diagnostic> ValidatePointBudget(const ExecutionPlan& plan) {
     std::uint32_t gpu_buffers = 0;
     for (std::size_t index = 0; index < plan.instructions_.size(); ++index) {
         const auto& instruction = plan.instructions_[index];
+        if (instruction.operation_ == Operation::kGpuTextureSample) {
+            if (instruction.inputs_.empty() || !instruction.inputs_[0] ||
+                *instruction.inputs_[0] >= index)
+                return Diagnostic{"graph.gpu_points_budget", instruction.node_.id_};
+            if (plan.instructions_[*instruction.inputs_[0]].operation_ ==
+                Operation::kGpuTextureSample)
+                return Diagnostic{"graph.gpu_sample_chain", instruction.node_.id_};
+        }
         if (instruction.operation_ == Operation::kGpuParticleEmitter) {
             const auto capacity = Scalar(instruction.node_, "particle_capacity", 65536);
             if (!std::isfinite(capacity) || capacity < 1 || capacity > 262144 ||

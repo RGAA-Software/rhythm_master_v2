@@ -102,7 +102,8 @@ enum class Operation : std::uint8_t {
     kTextureText,
     kVectorFill,
     kVectorStroke,
-    kSpectrumPoints
+    kSpectrumPoints,
+    kGpuTextureSample
 };
 constexpr bool HasEventReset(Operation operation) {
     return operation == Operation::kFeedback || operation == Operation::kTextureTrail ||

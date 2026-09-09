@@ -2048,6 +2048,19 @@
                 "spectrum_layout": 1,
                 "spectrum_gain": 2
             }
+        },
+        {
+            "id": "official.gpu.texture_sample.default",
+            "version": "1.0.0",
+            "operator": "gpu.texture_sample",
+            "titles": {
+                "zh-CN": "默认 · 纹理采样点属性",
+                "en-US": "Default · Texture to point attributes"
+            },
+            "properties": {
+                "sample_color": 1,
+                "sample_size": 0
+            }
         }
     ]
 }

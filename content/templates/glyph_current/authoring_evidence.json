@@ -1,0 +1,16 @@
+{
+    "run": "out/windows-release/from-empty-studio-gpu-sampling/d34597e614764408b9c20e2597d4119d",
+    "recipe": "content/authoring/glyph_current.json",
+    "recipe_sha256": "348b7bc96dea3356c660f0411a561897815bcb8c5409c12b20f9a252023e4cd3",
+    "saved_graph_sha256": "2ec206ec3d8cf1d3f56cdd5480b283026ad977f120238992ce5568d3e3426972",
+    "published_sha256": "4ec614de6f99ef533556b80cbe6afbd61b58e46b7ec09290941321a78ec6769b",
+    "acceptance": {
+        "recipe": "p5-glyph-current",
+        "recipe_sha256": "348b7bc96dea3356c660f0411a561897815bcb8c5409c12b20f9a252023e4cd3",
+        "ui_authoring": "passed",
+        "decoded_pcm_gpu": "passed",
+        "visual_review": "pending",
+        "android": "pending",
+        "acoustic_capture": false
+    }
+}
