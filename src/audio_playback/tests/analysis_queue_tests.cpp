@@ -79,6 +79,25 @@ int main() {
         queue.Consume(53256);
         Check(queue.Generation() == 11 && queue.Position() == 1,
               "tiny loop blocks account for allocated capacity and release it on consume");
+        queue.AppendHandoff(Block(12, 9601));
+        Check(queue.Generation() == 11 && queue.Position() == 1,
+              "nonzero handoff is not audible when merely appended");
+        queue.Consume(53257);
+        Check(queue.Generation() == 12 && queue.Position() == 9602 && !queue.Snapshot(),
+              "handoff resets analysis to the already-advanced source at consumption");
+        queue.Consume(57352);
+        bool old_handoff_rejected = false;
+        try {
+            queue.AppendHandoff(Block(12, 13697));
+        } catch (const std::invalid_argument&) {
+            old_handoff_rejected = true;
+        }
+        Check(old_handoff_rejected, "explicit handoff still requires a fresh generation");
+        queue.Append(Block(12, 13697));
+        queue.Consume(61448);
+        Check(queue.Generation() == 12 && queue.Position() == 17793 && queue.Snapshot() &&
+                      queue.Snapshot()->generation_ == 12,
+              "handoff resumes normal continuity and feature production");
         std::cout << "loop consumption boundaries, feature generations and PCM queue bounds pass\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

@@ -67,3 +67,10 @@ media_audio 和 source_boundaries 四项通过；Android
 Android 再次 push 后执行权限被重置；typed 日志为启动失败，恢复执行权限后才获得
 上述 final 日志，不把 adb push 成功或 shell 最后一条命令成功视为检查通过。
 此增量仍未改变宿主切场行为，不作为已经完成 P3.3 的证据。
+
+消费队列增量：`AnalysisQueue::AppendHandoff` 明确准许新的来源从非零样本开始，
+普通 Append 的循环必须从零开始等约束不变。排队不改变公开时间/FFT 代次，第一帧
+被 Consume 后才重置到新来源已经推进的位置；旧代次和错误连续性仍拒绝。
+Windows `out/p3-audible-handoff-windows-tests.log` 的 playback_analysis、audio_playback、
+media_audio 通过；Android `out/p3-audible-handoff-android-tests.log` 通过相同分析队列
+检查。这里只验证设备消费计数的映射，尚未接入宿主画面过渡。

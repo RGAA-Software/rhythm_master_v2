@@ -13,10 +13,16 @@ AnalysisQueue::AnalysisQueue(std::uint64_t generation, std::uint64_t first_sampl
         throw std::invalid_argument("invalid playback analysis origin");
     }
 }
-void AnalysisQueue::Append(media::AudioBlock block) {
+void AnalysisQueue::Append(media::AudioBlock block) { AppendChecked(std::move(block), false); }
+void AnalysisQueue::AppendHandoff(media::AudioBlock block) {
+    AppendChecked(std::move(block), true);
+}
+void AnalysisQueue::AppendChecked(media::AudioBlock block, bool handoff) {
     const auto frames = block.samples_.size() / media::kAudioChannels;
-    const bool loop = block.generation_ > append_generation_ && block.first_sample_ == 0;
-    if ((!loop &&
+    const bool boundary =
+            block.generation_ > append_generation_ && (handoff || block.first_sample_ == 0);
+    if ((handoff && !boundary) ||
+        (!boundary &&
          (block.generation_ != append_generation_ || block.first_sample_ != next_sample_)) ||
         block.samples_.size() % media::kAudioChannels != 0 || frames == 0 ||
         frames > media::kAudioBlockFrames || submitted_ - consumed_ + frames > 32768 ||
@@ -39,7 +45,7 @@ void AnalysisQueue::Consume(std::uint64_t frames) {
         const auto& block = blocks_.front();
         if (block.generation_ != generation_) {
             if (!analyzer_.Reset(media::kAudioSampleRate, block.generation_, block.first_sample_))
-                throw std::runtime_error("playback loop analysis reset");
+                throw std::runtime_error("playback source analysis reset");
             generation_ = block.generation_;
         }
         const auto available = block.samples_.size() / media::kAudioChannels - front_offset_;

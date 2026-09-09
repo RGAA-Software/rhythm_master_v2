@@ -13,6 +13,10 @@ class AnalysisQueue final {
    public:
     AnalysisQueue(std::uint64_t generation, std::uint64_t first_sample);
     void Append(media::AudioBlock block);
+    // Explicit source handoff may begin at a nonzero source-local sample after
+    // a fade. Ordinary Append retains its stricter zero-origin loop contract.
+    // Neither operation publishes a generation until device consumption.
+    void AppendHandoff(media::AudioBlock block);
     void Consume(std::uint64_t frames);
     std::optional<Features> Snapshot() const;
     std::uint64_t Consumed() const { return consumed_; }
@@ -20,6 +24,7 @@ class AnalysisQueue final {
     std::uint64_t Position() const { return position_; }
 
    private:
+    void AppendChecked(media::AudioBlock block, bool handoff);
     Analyzer analyzer_{};
     std::deque<media::AudioBlock> blocks_{};
     std::uint64_t generation_ = 0;
