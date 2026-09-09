@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <set>
 
 #include "rhythm/project/package.h"
 #include "rhythm/project/store.h"
@@ -82,6 +83,7 @@ int main(int argc, char* argv[]) {
             finish();
         }
         Check(studio.HasValidPlan(), "default Studio output not ready");
+        bool timeline_open = false;
         for (const std::string name : {"ink_tide", "chromatic_loom", "crystal_choir"}) {
             const auto entry = std::find_if(entries.begin(), entries.end(), [&](const auto& value) {
                 return value.id_ == "official.templates." + name;
@@ -90,6 +92,10 @@ int main(int argc, char* argv[]) {
             const auto expected = project::LoadRevision(entry->directory_).snapshot_;
             const auto expected_plan = std::get<graph::ExecutionPlan>(
                     graph::Compile(expected.document_, graph::Registry{}));
+            std::set<std::string> audio_sources;
+            if (expected.soundtrack_)
+                for (const auto& clip : expected.soundtrack_->clips_)
+                    audio_sources.insert(clip.asset_.sha256_);
             const int selected = static_cast<int>(entry - entries.begin());
             bool complete = false;
             for (int step = 0; step < 500 && !complete; ++step) {
@@ -105,6 +111,15 @@ int main(int argc, char* argv[]) {
                 if (step == 8 || step == 9) io.AddKeyEvent(ImGuiKey_Enter, step == 8);
                 if (step == 12) PopupAction("###title", "catalog.entries", selected);
                 if (step == 16) PopupAction(text.at("catalog.use"), "catalog.detail");
+                if (step == 24 && !timeline_open) {
+                    Activate("###graph", "###timeline");
+                    timeline_open = true;
+                }
+                if (step == 26)
+                    if (auto* window = ImGui::FindWindowByName("###timeline")) {
+                        ImGui::SetWindowPos(window, {20, 480}, ImGuiCond_Always);
+                        ImGui::SetWindowSize(window, {1060, 510}, ImGuiCond_Always);
+                    }
                 if (step > 25 && step % 20 == 10 && studio.HasValidPlan())
                     Activate("###graph", "###save");
                 if (step > 45 && step % 20 == 0 && studio.HasValidPlan())
@@ -112,6 +127,7 @@ int main(int argc, char* argv[]) {
                 finish();
                 if (step < 50 || !studio.HasValidPlan() ||
                     studio.Status().authored_nodes_ != expected.document_.nodes_.size() ||
+                    studio.Status().clip_waveform_sources_ != audio_sources.size() ||
                     !std::filesystem::exists(package_path) ||
                     !std::filesystem::exists(project_path / "CURRENT"))
                     continue;
@@ -135,8 +151,9 @@ int main(int argc, char* argv[]) {
                     finish();
                 }
                 complete = true;
-                std::cout << name
-                          << ": real Studio selection, current output, save and publish passed\n";
+                std::cout << name << ": real Studio selection, current output, "
+                          << audio_sources.size()
+                          << " cached clip waveforms, save and publish passed\n";
             }
             Check(complete, "template application did not replace the current output");
         }

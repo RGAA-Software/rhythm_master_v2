@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <stop_token>
 
+#include "rhythm/assets/store.h"
 #include "rhythm/foundation/blocking_executor.h"
 #include "rhythm/media/audio_decoder.h"
 #include "rhythm/storage/file_bytes.h"
@@ -50,14 +51,13 @@ class WaveformScanner::Impl final {
         executor_.RequestStop(foundation::ShutdownMode::kDrain);
         executor_.Join();
     }
-    bool Start(std::filesystem::path source) {
+    bool Start(std::filesystem::path source, std::optional<assets::AssetRecord> asset = {}) {
         if (Busy()) return false;
         stop_ = {};
         frames_.store(0);
         auto task = std::make_shared<std::packaged_task<WaveformResult()>>(
-                [this, source = std::move(source), stop = stop_.get_token()] {
-                    return Scan(source, stop);
-                });
+                [this, source = std::move(source), asset = std::move(asset),
+                 stop = stop_.get_token()] { return Scan(source, asset, stop); });
         auto result = task->get_future();
         if (executor_.TryPost([task] { (*task)(); }) != foundation::SubmitResult::kAccepted)
             return false;
@@ -76,11 +76,15 @@ class WaveformScanner::Impl final {
     double SecondsScanned() const { return static_cast<double>(frames_.load()) / kAudioSampleRate; }
 
    private:
-    WaveformResult Scan(const std::filesystem::path& source, std::stop_token stop) {
+    WaveformResult Scan(const std::filesystem::path& source,
+                        const std::optional<assets::AssetRecord>& asset, std::stop_token stop) {
         try {
             if (stop.stop_requested()) return {{}, "waveform.canceled"};
             const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(120);
-            AudioDecoder decoder(storage::FileBytes::Open(source, 256ULL * 1024 * 1024), 1, stop);
+            const auto input =
+                    asset ? assets::Store(source).Open(*asset, 256ULL * 1024 * 1024, stop)
+                          : storage::FileBytes::Open(source, 256ULL * 1024 * 1024);
+            AudioDecoder decoder(input, 1, stop);
             WaveformAccumulator accumulator;
             while (const auto block = decoder.Read(stop)) {
                 accumulator.Append(block->samples_, block->first_sample_);
@@ -102,6 +106,9 @@ WaveformScanner::WaveformScanner() : impl_(std::make_unique<Impl>()) {}
 WaveformScanner::~WaveformScanner() = default;
 bool WaveformScanner::Start(std::filesystem::path source) {
     return impl_->Start(std::move(source));
+}
+bool WaveformScanner::StartAsset(std::filesystem::path directory, assets::AssetRecord asset) {
+    return impl_->Start(std::move(directory), std::move(asset));
 }
 bool WaveformScanner::Busy() const { return impl_->Busy(); }
 void WaveformScanner::Cancel() { impl_->Cancel(); }

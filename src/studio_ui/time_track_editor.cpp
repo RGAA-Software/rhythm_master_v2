@@ -24,7 +24,8 @@ void TimeTrackEditor::Reset() {
 TimelineEdit TimeTrackEditor::Draw(const editor::Snapshot& base, double playhead, double duration,
                                    const std::map<std::string, std::string>& text,
                                    const std::function<graph::NodeId()>& reserve_id,
-                                   const std::string& section_action, double bpm) {
+                                   const std::string& section_action, double bpm,
+                                   const ClipWaveforms& waveforms) {
     TimelineEdit edit;
     if (draft_ && (draft_->document_.revision_ != base.document_.revision_ ||
                    draft_->document_.id_ != base.document_.id_)) {
@@ -34,8 +35,8 @@ TimelineEdit TimeTrackEditor::Draw(const editor::Snapshot& base, double playhead
     const auto& source = draft_ ? *draft_ : base;
     if (source.soundtrack_ && !source.soundtrack_->clips_.empty()) {
         ImGui::BeginDisabled(draft_ && !audio_draft_);
-        const auto audio =
-                audio_clips_.Draw(source.soundtrack_->clips_, playhead, duration, bpm, text);
+        const auto audio = audio_clips_.Draw(source.soundtrack_->clips_, playhead, duration, bpm,
+                                             text, waveforms);
         ImGui::EndDisabled();
         if (audio.clips_) {
             if (!draft_) draft_ = base;

@@ -20,9 +20,11 @@ class TimelinePanel final {
     TimelineEdit Draw(const editor::Snapshot& base, bool seekable,
                       const std::map<std::string, std::string>& text,
                       const std::optional<std::filesystem::path>& music = {},
-                      const std::function<graph::NodeId()>& reserve_id = {});
+                      const std::function<graph::NodeId()>& reserve_id = {},
+                      const std::filesystem::path& asset_directory = {});
     void CancelMediaPreview();
     std::size_t WaveformBins() const;
+    std::size_t ClipWaveformSources() const;
     void Restart();
     runtime::PlaybackCommand TakePlaybackCommand();
     void ResetEdit() { tracks_.Reset(); }

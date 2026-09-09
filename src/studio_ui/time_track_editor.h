@@ -21,7 +21,8 @@ class TimeTrackEditor final {
     TimelineEdit Draw(const editor::Snapshot& base, double playhead, double duration,
                       const std::map<std::string, std::string>& text,
                       const std::function<graph::NodeId()>& reserve_id = {},
-                      const std::string& section_action = "timeline.add_section", double bpm = 120);
+                      const std::string& section_action = "timeline.add_section", double bpm = 120,
+                      const ClipWaveforms& waveforms = {});
     void Reset();
     const std::optional<editor::Snapshot>& Preview() const { return draft_; }
 

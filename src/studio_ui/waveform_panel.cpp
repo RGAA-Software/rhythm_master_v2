@@ -65,7 +65,11 @@ std::optional<double> DrawWaveform(const media::WaveformOverview& overview, doub
     return seek ? std::optional(fraction * overview.Duration()) : std::nullopt;
 }
 void WaveformPanel::Clear() {
-    if (scanner_) scanner_->Cancel();
+    if (scanner_) {
+        scanner_->Cancel();
+        if (scanner_->Take()) scanner_.reset();
+    }
+    clips_.Clear();
     source_.reset();
     overview_.reset();
     error_.clear();
@@ -75,15 +79,20 @@ void WaveformPanel::Clear() {
 std::optional<double> WaveformPanel::Draw(const std::optional<std::filesystem::path>& source,
                                           double seconds,
                                           const std::map<std::string, std::string>& text) {
+    clips_.Clear();
+    if (clips_.Busy()) return {};
     if (source != source_) {
         Clear();
         source_ = source;
         needs_scan_ = source.has_value();
     }
     if (scanner_)
-        if (auto result = scanner_->Take(); result && active_generation_ == generation_) {
-            overview_ = std::move(result->overview_);
-            error_ = std::move(result->error_);
+        if (auto result = scanner_->Take()) {
+            if (active_generation_ == generation_) {
+                overview_ = std::move(result->overview_);
+                error_ = std::move(result->error_);
+            }
+            scanner_.reset();
         }
     if (!source_) return {};
     if (needs_scan_ && (!scanner_ || !scanner_->Busy())) {
@@ -116,5 +125,43 @@ std::optional<double> WaveformPanel::Draw(const std::optional<std::filesystem::p
     if (!overview_) return {};
     ImGui::TextWrapped("%s", text.at("waveform.help").c_str());
     return DrawWaveform(*overview_, seconds);
+}
+ClipWaveforms WaveformPanel::DrawClips(const std::filesystem::path& directory,
+                                       std::span<const media::AudioClip> clips,
+                                       std::span<const assets::AssetRecord> assets,
+                                       const std::map<std::string, std::string>& text) {
+    if (source_ || overview_ || scanner_) Clear();
+    if (scanner_) return {};
+    std::vector<rhythm::assets::AssetRecord> records;
+    bool missing = false;
+    for (const auto& clip : clips) {
+        if (std::any_of(records.begin(), records.end(),
+                        [&](const auto& record) { return record.id_ == clip.asset_; }))
+            continue;
+        const auto found = std::find_if(assets.begin(), assets.end(), [&](const auto& record) {
+            return record.id_ == clip.asset_;
+        });
+        if (found == assets.end())
+            missing = true;
+        else
+            records.push_back(*found);
+    }
+    clips_.Update(directory, records);
+    ImGui::Text("%s %zu / %zu", text.at("waveform.clips").c_str(), clips_.ReadyCount(),
+                records.size());
+    if (clips_.Busy()) {
+        ImGui::SameLine();
+        ImGui::TextUnformatted(text.at("waveform.scanning").c_str());
+    }
+    if (missing || clips_.FailureCount()) {
+        ImGui::TextWrapped("%s", text.at("waveform.failed").c_str());
+        if (ImGui::SmallButton((text.at("waveform.refresh") + "###waveform.clips_retry").c_str()))
+            clips_.Retry();
+    }
+    ClipWaveforms result;
+    for (const auto& record : records)
+        if (auto waveform = clips_.Find(record.id_))
+            result.emplace(record.id_.sha256_, std::move(waveform));
+    return result;
 }
 }  // namespace rhythm::studio

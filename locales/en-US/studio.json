@@ -972,5 +972,6 @@
     "help.texture.video": "Video decoding uses the shared media clock. Connect its texture to compositing; embedded video audio is not mixed automatically.",
     "help.control.scalar": "Expose a named performance control for Studio and Player. Saved defaults, snapshots and cue fades share the same control.",
     "component.library_preparing": "Preparing component assets…",
-    "content.semantic_assets_required": "Insert through the component browser to prepare the required assets."
+    "content.semantic_assets_required": "Insert through the component browser to prepare the required assets.",
+    "waveform.clips": "Clip source waveforms:"
 }

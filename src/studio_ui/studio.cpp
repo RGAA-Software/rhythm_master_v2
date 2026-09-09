@@ -626,8 +626,9 @@ class Studio::Impl final {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
                 music = audio_panel_.SelectedFile();
 #endif
-                auto edit = timeline_.Draw(history_->Current(), seekable, catalogs_.at(locale_),
-                                           music, [&] { return history_->ReserveNodeId(); });
+                auto edit = timeline_.Draw(
+                        history_->Current(), seekable, catalogs_.at(locale_), music,
+                        [&] { return history_->ReserveNodeId(); }, project_ / "assets");
                 ImGui::EndDisabled();
                 if (edit.committed_)
                     Apply(std::move(*edit.committed_));
@@ -769,7 +770,8 @@ FrameStatus Studio::Status() const {
             impl_->signal_previews_.Traces().size(),
             impl_->timeline_.WaveformBins(),
             impl_->preview_routing_.Page(),
-            impl_->preview_routing_.Pages()};
+            impl_->preview_routing_.Pages(),
+            impl_->timeline_.ClipWaveformSources()};
 }
 void Studio::LoadAudioFile(const std::filesystem::path& path, float volume) {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA

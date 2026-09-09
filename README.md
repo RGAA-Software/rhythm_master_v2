@@ -39,6 +39,8 @@ named timeline cues, interrupted fades, beat snapping and seek/export consistenc
 overlapping video tracks with timeline editing and shared FFmpeg playback/export.
 [Multitrack audio arrangement](docs/audio_arrangement.md) adds shared playback/export PCM,
 editable audio clips and the built-in Luminous Concerto media performance.
+[Per-clip source waveforms](docs/validation/clip_waveforms_2026-09-09.md) now share an
+asynchronous asset cache and follow source trims, placement, looping and fades in Studio.
 [Scene preparation and transitions](docs/scene_transition_plan.md) now provide a bounded
 performance queue and shared-clock two-scene fades on Windows and Android.
 R6 [asset maintenance](docs/asset_maintenance_plan.md) adds reference replacement/undo,

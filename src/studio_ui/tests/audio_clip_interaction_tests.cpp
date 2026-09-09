@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "export_panel.h"
+#include "rhythm/media/waveform_index.h"
 #include "time_track_editor.h"
 
 namespace {
@@ -40,6 +41,18 @@ int main(int argc, char* argv[]) {
                                   {{1, "First", {std::string(64, 'a')}, {2, 4, 0.2, 4.2}}}};
         editor::History history(initial);
         studio::TimeTrackEditor panel;
+        media::WaveformOverview overview;
+        overview.count_ = 4;
+        overview.frames_per_peak_ = 48000;
+        overview.frames_ = 192000;
+        overview.peaks_[0] = {-0.2F, 0.4F};
+        overview.peaks_[1] = {-0.5F, 0.8F};
+        overview.peaks_[2] = {-0.1F, 0.3F};
+        overview.peaks_[3] = {-0.7F, 0.9F};
+        const studio::ClipWaveforms waveforms{
+                {std::string(64, 'a'), std::make_shared<const media::WaveformIndex>(overview)}};
+        bool show_waveforms = false;
+        int vertices = 0;
         ImVec2 origin{};
         float width = 0;
         int commits = 0;
@@ -49,7 +62,8 @@ int main(int argc, char* argv[]) {
             ImGui::SetNextWindowSize({1100, 1100});
             ImGui::Begin("Audio clip UI", nullptr, ImGuiWindowFlags_NoDecoration);
             if (activate) ImGui::ActivateItemByID(ImGui::GetID(activate));
-            auto edit = panel.Draw(history.Current(), 2, 10, text);
+            auto edit = panel.Draw(history.Current(), 2, 10, text, {}, "timeline.add_section", 120,
+                                   show_waveforms ? waveforms : studio::ClipWaveforms{});
             if (edit.committed_) {
                 Check(history.Apply(std::move(*edit.committed_),
                                     history.Current().document_.revision_),
@@ -65,9 +79,15 @@ int main(int argc, char* argv[]) {
                 }
             ImGui::End();
             ImGui::Render();
+            vertices = ImGui::GetDrawData()->TotalVtxCount;
         };
         frame();
         frame();
+        const auto without_waveform = vertices;
+        show_waveforms = true;
+        frame();
+        frame();
+        Check(vertices > without_waveform + 100, "ready source envelope reaches clip drawing");
         const auto drag = [&](double from, double to) {
             const int before = commits;
             io.AddMousePosEvent(origin.x + width * static_cast<float>(from / 10), origin.y + 16);
@@ -135,8 +155,8 @@ int main(int argc, char* argv[]) {
         }
         Check(request && request->settings_.encoding_.audio_ && !request->settings_.music_,
               "export includes arranged PCM without a file override");
-        std::cout
-                << "audio clip drag/snap/resize/undo/overlap/removal and arranged export UI pass\n";
+        std::cout << "audio clip waveform/drag/snap/resize/undo/overlap/removal and arranged "
+                     "export UI pass\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

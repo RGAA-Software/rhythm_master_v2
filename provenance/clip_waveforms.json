@@ -1,0 +1,32 @@
+{
+    "source_url": "https://github.com/tixl3d/tixl",
+    "revision": "fbc994d923e8a0142d2ff1b772e4d12248c5b0ba",
+    "license": "MIT",
+    "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+    "source_files": [
+        {
+            "path": "Editor/Gui/Windows/TimeLine/TimeClips/AudioClipBodyRenderer.cs",
+            "sha256": "6f613c67b88dc0da9f70cbc8ad75a28b063542151aa6f9284abef0aa3058449b"
+        },
+        {
+            "path": "Core/Audio/WaveFormProcessing.cs",
+            "sha256": "9558f59d24f4d9c9cb438996025a7ef0f244ee8ad238d3ba502c7f8e3adc9b6e"
+        }
+    ],
+    "imported_files": [],
+    "usage": "Study cropped and repeated source-waveform display in timeline clips. No third-party source copied.",
+    "modifications": [
+        "TiXL uses C#/BASS global audio analysis and SharpDX waveform textures. Those dependencies do not fit the sole-FFmpeg media contract or portable project handles. Reuse the existing project FFmpeg scanner, immutable asset store and clip timing; add a bounded source cache and range-extrema index for visible ImGui rows."
+    ],
+    "target_modules": [
+        "media_waveform",
+        "studio_ui"
+    ],
+    "first_party_reuse": [
+        "src/media/waveform.cpp",
+        "src/assets/store.cpp",
+        "src/parameters/clip_interval.cpp",
+        "src/studio_ui/audio_clip_editor.cpp"
+    ],
+    "outbound_license": "Unselected; no third-party source relicensed."
+}

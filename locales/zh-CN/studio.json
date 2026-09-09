@@ -972,5 +972,6 @@
     "help.texture.video": "视频解码使用共享媒体时钟。将纹理连接到合成；视频内音轨不会自动混入配乐。",
     "help.control.scalar": "公开命名演出控件供 Studio 和 Player 使用。默认值、参数快照和提示点渐变共用此控件。",
     "component.library_preparing": "正在准备组件资源…",
-    "content.semantic_assets_required": "请通过组件库插入，以便自动准备所需资源。"
+    "content.semantic_assets_required": "请通过组件库插入，以便自动准备所需资源。",
+    "waveform.clips": "片段源波形："
 }

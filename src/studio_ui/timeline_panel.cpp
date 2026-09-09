@@ -8,6 +8,13 @@
 #include <utility>
 
 namespace rhythm::studio {
+std::size_t TimelinePanel::ClipWaveformSources() const {
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+    return waveform_.ClipSourceCount();
+#else
+    return 0;
+#endif
+}
 std::size_t TimelinePanel::WaveformBins() const {
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
     return waveform_.BinCount();
@@ -39,7 +46,8 @@ double TimelinePanel::Advance(double host_seconds, bool,
 TimelineEdit TimelinePanel::Draw(const editor::Snapshot& base, bool seekable,
                                  const std::map<std::string, std::string>& text,
                                  const std::optional<std::filesystem::path>& music,
-                                 const std::function<graph::NodeId()>& reserve_id) {
+                                 const std::function<graph::NodeId()>& reserve_id,
+                                 const std::filesystem::path& asset_directory) {
     if (ImGui::Button(text.at(Paused() ? "timeline.play" : "timeline.pause").c_str())) {
         clock_.SetPaused(!Paused());
         command_.paused_ = Paused();
@@ -90,15 +98,23 @@ TimelineEdit TimelinePanel::Draw(const editor::Snapshot& base, bool seekable,
     ImGui::EndDisabled();
     if (clock_.FollowingMedia()) ImGui::TextWrapped("%s", text.at("timeline.media_clock").c_str());
     if (!seekable) ImGui::TextWrapped("%s", text.at("timeline.stateful").c_str());
+    ClipWaveforms waveforms;
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
-    if (const auto seek = waveform_.Draw(music, clock_.Seconds(), text)) {
+    if (base.soundtrack_ && !base.soundtrack_->clips_.empty()) {
+        if (!asset_directory.empty())
+            waveforms = waveform_.DrawClips(asset_directory, base.soundtrack_->clips_, base.assets_,
+                                            text);
+        else
+            waveform_.Clear();
+    } else if (const auto seek = waveform_.Draw(music, clock_.Seconds(), text)) {
         clock_.Seek(*seek);
         command_.seek_ = *seek;
     }
 #else
     (void)music;
+    (void)asset_directory;
 #endif
     return tracks_.Draw(base, clock_.Seconds(), duration_, text, reserve_id, "timeline.add_section",
-                        bpm_);
+                        bpm_, waveforms);
 }
 }  // namespace rhythm::studio

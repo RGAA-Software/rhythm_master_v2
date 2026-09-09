@@ -8,6 +8,8 @@
 #include <span>
 #include <string>
 
+#include "rhythm/assets/types.h"
+
 namespace rhythm::media {
 inline constexpr std::size_t kMaximumWaveformBins = 4096;
 struct WaveformPeak {
@@ -47,6 +49,9 @@ class WaveformScanner final {
     WaveformScanner(const WaveformScanner&) = delete;
     WaveformScanner& operator=(const WaveformScanner&) = delete;
     bool Start(std::filesystem::path source);
+    // The asset directory and record are values; verification and opening occur
+    // on the scanner's worker, through the existing immutable asset store.
+    bool StartAsset(std::filesystem::path directory, assets::AssetRecord asset);
     bool Busy() const;
     void Cancel();
     std::optional<WaveformResult> Take();

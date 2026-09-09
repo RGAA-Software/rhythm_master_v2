@@ -8,6 +8,10 @@
 #include <cstring>
 #include <limits>
 
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+#include "rhythm/media/waveform_index.h"
+#endif
+
 namespace rhythm::studio {
 void AudioClipEditor::Reset() {
     drag_.reset();
@@ -17,7 +21,11 @@ void AudioClipEditor::Reset() {
 }
 AudioClipEdit AudioClipEditor::Draw(const std::vector<media::AudioClip>& clips, double playhead,
                                     double duration, double bpm,
-                                    const std::map<std::string, std::string>& text) {
+                                    const std::map<std::string, std::string>& text,
+                                    const ClipWaveforms& waveforms) {
+#ifndef RHYTHM_HAS_LOCAL_MEDIA
+    (void)waveforms;
+#endif
     AudioClipEdit edit;
     if (clips.empty()) {
         Reset();
@@ -53,7 +61,7 @@ AudioClipEdit AudioClipEditor::Draw(const std::vector<media::AudioClip>& clips, 
                                                       : seconds;
     };
     const auto range = std::clamp(std::isfinite(duration) ? duration : 10.0, 0.01, 604800.0);
-    const float row_height = 32 + ImGui::GetStyle().ItemSpacing.y;
+    const float row_height = 54 + ImGui::GetStyle().ItemSpacing.y;
     ImGui::BeginDisabled(property_active_);
     if (ImGui::BeginChild("###audio.clip_rows",
                           {0, std::min(180.0F, 24 + clips.size() * row_height)},
@@ -66,7 +74,7 @@ AudioClipEdit AudioClipEditor::Draw(const std::vector<media::AudioClip>& clips, 
                 ImGui::PushID(std::to_string(clip.id_).c_str());
                 const auto origin = ImGui::GetCursorScreenPos();
                 const float width = std::max(1.0F, ImGui::GetContentRegionAvail().x);
-                ImGui::InvisibleButton("###audio.clip_bar", {width, 32});
+                ImGui::InvisibleButton("###audio.clip_bar", {width, 54});
                 const auto x = [&](double seconds) {
                     return origin.x +
                            static_cast<float>(std::clamp(seconds / range, 0.0, 1.0)) * width;
@@ -111,19 +119,45 @@ AudioClipEdit AudioClipEditor::Draw(const std::vector<media::AudioClip>& clips, 
                 }
                 if (ImGui::IsItemHovered()) ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
                 auto& draw = *ImGui::GetWindowDrawList();
-                draw.AddRectFilled(origin, {origin.x + width, origin.y + 28},
+                draw.AddRectFilled(origin, {origin.x + width, origin.y + 50},
                                    ImGui::GetColorU32(ImGuiCol_FrameBg), 3);
                 draw.AddRectFilled(
-                        {left, origin.y + 2}, {std::max(left + 1, right), origin.y + 26},
-                        ImGui::GetColorU32(clip.muted_             ? ImGuiCol_TextDisabled
+                        {left, origin.y + 2}, {std::max(left + 1, right), origin.y + 48},
+                        ImGui::GetColorU32(clip.muted_             ? ImGuiCol_FrameBgHovered
                                            : selected_ == clip.id_ ? ImGuiCol_SliderGrabActive
                                                                    : ImGuiCol_SliderGrab),
                         3);
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+                if (const auto found = waveforms.find(clip.asset_.sha256_);
+                    found != waveforms.end() && found->second && right > left) {
+                    const parameters::ClipInterval interval(clip.timing_);
+                    const auto& waveform = *found->second;
+                    const int columns =
+                            std::clamp(static_cast<int>(std::ceil(right - left)), 1, 1024);
+                    draw.PushClipRect({left, origin.y + 22}, {right, origin.y + 48}, true);
+                    for (int column = 0; column < columns; ++column) {
+                        const auto begin_x = left + (right - left) * column / columns;
+                        const auto end_x = left + (right - left) * (column + 1) / columns;
+                        const auto begin = (begin_x - origin.x) / width * range;
+                        const auto end = (end_x - origin.x) / width * range;
+                        const auto peak = media::ClipWaveformPeak(waveform, interval, begin, end);
+                        const auto gain =
+                                static_cast<float>(interval.Sample((begin + end) / 2).gain_) *
+                                clip.gain_;
+                        const auto middle = (begin_x + end_x) / 2;
+                        draw.AddLine({middle, origin.y + 35 - peak.maximum_ * gain * 12},
+                                     {middle, origin.y + 35 - peak.minimum_ * gain * 12},
+                                     ImGui::GetColorU32(clip.muted_ ? ImGuiCol_TextDisabled
+                                                                    : ImGuiCol_PlotLines));
+                    }
+                    draw.PopClipRect();
+                }
+#endif
                 for (const auto edge : {left, right})
-                    draw.AddLine({edge, origin.y + 4}, {edge, origin.y + 24},
+                    draw.AddLine({edge, origin.y + 4}, {edge, origin.y + 46},
                                  ImGui::GetColorU32(ImGuiCol_Text));
                 const auto cursor = x(playhead);
-                draw.AddLine({cursor, origin.y}, {cursor, origin.y + 28},
+                draw.AddLine({cursor, origin.y}, {cursor, origin.y + 50},
                              ImGui::GetColorU32(ImGuiCol_PlotLines));
                 draw.AddText({origin.x + 6, origin.y + 6}, ImGui::GetColorU32(ImGuiCol_Text),
                              clip.title_.c_str());
