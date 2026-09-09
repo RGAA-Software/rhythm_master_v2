@@ -12,6 +12,7 @@
 #include "rhythm/parameters/control_sequence.h"
 #include "rhythm/parameters/controls.h"
 #include "rhythm/parameters/curve.h"
+#include "rhythm/parameters/event_track.h"
 #include "rhythm/parameters/expression.h"
 
 namespace rhythm::graph {
@@ -52,7 +53,7 @@ struct UnknownProperty {
     bool operator==(const UnknownProperty&) const = default;
 };
 using Property = std::variant<double, Color, parameters::Curve, UnknownProperty,
-                              parameters::Expression, assets::AssetId>;
+                              parameters::Expression, assets::AssetId, parameters::EventTrack>;
 struct Node {
     NodeId id_ = 0;
     std::string type_{};

@@ -97,7 +97,8 @@ enum class Operation : std::uint8_t {
     kEventStep,
     kEventGate,
     kEventLatch,
-    kEventReset
+    kEventReset,
+    kEventInput
 };
 constexpr bool HasEventReset(Operation operation) {
     return operation == Operation::kFeedback || operation == Operation::kTextureTrail ||

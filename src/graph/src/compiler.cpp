@@ -41,8 +41,12 @@ CompileResult Compile(const Document& document, const Registry& registry,
     }
     std::unordered_map<NodeId, std::size_t> index;
     std::vector<OperatorDescriptor> descriptors;
+    std::size_t recorded_events = 0;
     for (std::size_t i = 0; i < document.nodes_.size(); ++i) {
         const auto& node = document.nodes_[i];
+        for (const auto& [key, property] : node.properties_)
+            if (const auto track = std::get_if<parameters::EventTrack>(&property))
+                recorded_events += track->Events().size();
         if (!node.id_ || !index.emplace(node.id_, i).second) fail("graph.duplicate_node", node.id_);
         const auto descriptor = registry.Find(node.type_);
         if (!descriptor || node.version_ != 1) {
@@ -54,6 +58,7 @@ CompileResult Compile(const Document& document, const Registry& registry,
         const auto properties = registry.ValidateNode(node);
         diagnostics.insert(diagnostics.end(), properties.begin(), properties.end());
     }
+    if (recorded_events > 16384) fail("event.graph_track_limit");
     if (!diagnostics.empty()) return diagnostics;
     parameters::ControlBank controls;
     try {

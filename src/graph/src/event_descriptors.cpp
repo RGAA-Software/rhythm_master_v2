@@ -3,6 +3,12 @@
 namespace rhythm::graph {
 void AppendEventDescriptors(std::vector<OperatorDescriptor>& operators) {
     using Type = ValueType;
+    operators.push_back({"event.input",
+                         Operation::kEventInput,
+                         Type::kEvent,
+                         {},
+                         {{"actions", parameters::EventTrack{}}},
+                         true});
     operators.push_back({"event.beat",
                          Operation::kEventBeat,
                          Type::kEvent,

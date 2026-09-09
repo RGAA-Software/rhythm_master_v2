@@ -15,6 +15,10 @@ int main() {
     using namespace rhythm::graph;
     try {
         Registry registry;
+        const auto recorded = registry.MakeNode(100, "event.input");
+        Check(std::holds_alternative<rhythm::parameters::EventTrack>(
+                      recorded.properties_.at("actions")),
+              "event input does not own a typed action track");
         Document graph;
         graph.id_ = "event-graph";
         graph.beat_grid_ = rhythm::parameters::BeatSettings{};
