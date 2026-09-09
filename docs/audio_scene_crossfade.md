@@ -60,8 +60,10 @@ audio_mixer 三项通过；Android 同源原生程序见
 
 Windows `out/p3-dual-pcm-windows-tests.log` 的 transition_stream、原有 audio_playback、
 media_audio 和 source_boundaries 四项通过；Android
-`out/p3-dual-pcm-typed-android-tests.log` 的真实 FFmpeg 双源检查通过。
+`out/p3-dual-pcm-final-android-tests.log` 的真实 FFmpeg 双源检查通过。
 独立参考 PCM 逐样本比较 48/44.1 kHz 混合、作者增益、9601 帧交接、循环相位、
 短源结束、延迟坏素材、取消/seek、未来四片段峰值。Windows 首次构建的测试字节
 构造窄化告警已修正，失败日志保留；没有关闭告警或放宽项目规则。
+Android 再次 push 后执行权限被重置；typed 日志为启动失败，恢复执行权限后才获得
+上述 final 日志，不把 adb push 成功或 shell 最后一条命令成功视为检查通过。
 此增量仍未改变宿主切场行为，不作为已经完成 P3.3 的证据。
