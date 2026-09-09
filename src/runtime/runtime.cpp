@@ -27,6 +27,7 @@ void Runtime::Impl::ResetResources() {
     point_sprite_ = {};
     images_ = {};
     shaders_ = {};
+    surfaces_ = {};
     videos_ = {};
     vectors_ = {};
     document_id_.clear();
@@ -56,6 +57,8 @@ FrameResult Runtime::Impl::EvaluateRange(
         throw std::length_error("runtime.scene_budget");
     static const image_shader::Resources kNoShaders;
     const auto& shaders = frame.shaders_ ? *frame.shaders_ : kNoShaders;
+    static const surface_shader::Resources kNoSurfaces;
+    const auto& surfaces = frame.surfaces_ ? *frame.surfaces_ : kNoSurfaces;
     FrameResult result;
     const auto presentation_generation = renderer.Stats().presentation_generation_;
     const bool initialized = preparation && preparation->get().initialized_;
@@ -83,6 +86,7 @@ FrameResult Runtime::Impl::EvaluateRange(
         images_.Retain(plan, images);
         vectors_.Retain(plan);
         shaders_.Retain(plan, shaders);
+        surfaces_.Retain(plan, surfaces);
         if (preparation)
             videos_.Retain(plan);
         else
@@ -195,7 +199,9 @@ FrameResult Runtime::Impl::EvaluateRange(
                                              value.texture_.slot_, value.texture_.generation_});
         }
         if (operation == graph::Operation::kTime ||
-            (operation == graph::Operation::kTextureShader && !instruction.inputs_[1]) ||
+            ((operation == graph::Operation::kTextureShader ||
+              operation == graph::Operation::kMaterialShader) &&
+             !instruction.inputs_[1]) ||
             (operation == graph::Operation::kGeometryAnimate && !instruction.inputs_[1]) ||
             operation == graph::Operation::kTextureTrail ||
             operation == graph::Operation::kParticleEmitter ||
@@ -311,6 +317,16 @@ FrameResult Runtime::Impl::EvaluateRange(
                         renderer.Submit(state.target_.Handle(), videos_.Draw(node, extent),
                                         0x00000000);
                         state.output_.texture_ = state.target_.Handle();
+                        break;
+                    }
+                    case graph::Operation::kMaterialShader: {
+                        if (!input(0).material_)
+                            throw std::invalid_argument("runtime.material_input");
+                        state.output_.surface_program_ = surfaces_.Bind(
+                                instruction, result.outputs_, frame.seconds_, surfaces, renderer);
+                        auto material = *input(0).material_;
+                        material.surface_node_ = node.id_;
+                        state.output_.material_ = material;
                         break;
                     }
                     case graph::Operation::kTextureShader: {

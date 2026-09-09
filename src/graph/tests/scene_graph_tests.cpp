@@ -23,6 +23,29 @@ void Run() {
     Require(std::holds_alternative<ExecutionPlan>(Compile(document, registry)),
             "typed scene compiles");
     {
+        auto shaded = document;
+        auto material = registry.MakeNode(8, "material.shader");
+        material.properties_["asset"] = rhythm::assets::AssetId{std::string(64, 'a')};
+        shaded.nodes_.push_back(material);
+        shaded.nodes_.push_back(registry.MakeNode(9, "scalar.constant"));
+        shaded.edges_[1].from_ = 8;
+        shaded.edges_.push_back({7, 2, 8, "material"});
+        shaded.edges_.push_back({8, 9, 8, "a"});
+        Require(std::holds_alternative<ExecutionPlan>(Compile(shaded, registry)),
+                "surface asset and scalar drive a material output");
+        shaded.edges_.back().from_ = 1;
+        Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(shaded, registry)),
+                "geometry is not a surface scalar");
+        shaded.edges_.pop_back();
+        shaded.nodes_[7].properties_["a"] = 1e7;
+        Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(shaded, registry)),
+                "surface parameter property bounds enforced");
+        shaded.nodes_[7].properties_["a"] = 0.0;
+        shaded.edges_.pop_back();
+        Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(shaded, registry)),
+                "surface modifier requires an input material");
+    }
+    {
         auto sampled = document;
         sampled.nodes_[5].properties_["scene_antialiasing"] = 1.0;
         Require(std::holds_alternative<ExecutionPlan>(Compile(sampled, registry)),

@@ -12,6 +12,7 @@
 #include "scene_color.h"
 #include "scene_pass.h"
 #include "shader_pass.h"
+#include "surface_pass.h"
 #include "texture_lifetimes.h"
 #include "trail_pass.h"
 #include "vector_pass.h"
@@ -53,6 +54,7 @@ class Runtime::Impl final {
         std::shared_ptr<const scene::Resources> resources_{};
         std::shared_ptr<const assets::Images> images_{};
         std::shared_ptr<const image_shader::Resources> shaders_{};
+        std::shared_ptr<const surface_shader::Resources> surfaces_{};
         std::optional<std::vector<graph::NodeId>> retained_{};
         render::Budget budget_ = render::Budget::kTextureBytes;
     };
@@ -90,6 +92,7 @@ class Runtime::Impl final {
     render::Texture point_sprite_{};
     detail::ImageUploads images_{};
     detail::ShaderPrograms shaders_{};
+    detail::SurfacePrograms surfaces_{};
     detail::VideoUploads videos_{};
     detail::VectorMeshes vectors_{};
     std::string document_id_{};

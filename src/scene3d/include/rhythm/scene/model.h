@@ -35,6 +35,8 @@ struct Material {
     bool unlit_ = true;
     bool double_sided_ = false;
     MaterialTextures textures_{};
+    // Stable graph producer identity; Runtime resolves its accepted surface program.
+    std::uint64_t surface_node_ = 0;
 };
 struct Vertex {
     float x_ = 0;

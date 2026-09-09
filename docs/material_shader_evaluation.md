@@ -144,3 +144,30 @@ Android 原生对应日志为 `out/p6-surface-android-surface_program_contract_t
 `out/p6-surface-renderer-adapter-boundaries.log` 通过，没有放宽业务层的禁用类型规则。
 
 仍待接入材质节点、Runtime 资产复用、Studio 编译／热更、发布与实际作品。
+
+## 材质节点与 Runtime 基础接入
+
+`material.shader` 为材质修饰节点：必需材质输入，可选统一时间／a／b／c／d 标量，
+资产引用使用既有 AssetId 属性；新操作枚举追加，不重排旧值。Scalar 属性限 ±1e6，
+运行时有限值检查／钳位与图像表达式一致。后一个表面修饰替换前一个表面程序，
+其余 PBR／贴图属性继承输入材质。Scene3D 仅保存稳定生产节点 ID，不保存 GPU 句柄。
+
+Runtime 以资产 SHA 共享程序，把独立节点参数值发布到当前帧输出；ScenePass 按
+生产节点 ID 取得当前绑定。含表面表达式的 unlit 材质也计算世界法线矩阵，保证
+normal 输入符合变换。显式时间输入覆盖作品时钟，暂停可缓存；参数／时间变化
+复用程序，资产替换和 Reset 回收旧资源，预算失败重试条件包含表面资源集合。
+
+`out/p6-surface-graph-tests.log` 通过类型、必需材质和参数范围检查。
+`out/p6-surface-runtime-preparation-tests.log` 通过共享资源、标量／100000 秒统一时间、
+三个材质／场景预览、暂停、显式时钟、资产替换、分帧准备和释放的 Null 合同。
+`out/p6-surface-runtime-regression.log` 保持既有材质、2× 超采样和源码边界检查通过。
+Android 当前原生对应合同为 `out/p6-surface-android-scene_graph_tests.log`、
+`out/p6-surface-android-surface_runtime_tests.log`、
+`out/p6-surface-android-material_runtime_tests.log`、
+`out/p6-surface-android-scene_sampling_tests.log`，全部通过；这不是图内材质音乐的 GPU 验收。
+
+首次图测试的资产命名空间拼写错误保留在 `out/p6-surface-graph-build.log`；修正
+命名空间及常量节点类型后构建／测试通过。首次 Runtime 测试使用了超出既有上限
+的 1000 ms 准备预算，`out/p6-surface-runtime-tests.log` 正确拒绝；改为合法的
+100 ms／单节点测试预算后通过，没有放宽实际 Runtime 上限。
+仍待资产加载／发布消费者、Studio 编译／热更和实际音乐作品交付。

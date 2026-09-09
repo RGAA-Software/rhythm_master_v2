@@ -3,6 +3,21 @@
 namespace rhythm::graph {
 void AppendSceneDescriptors(std::vector<OperatorDescriptor>& operators) {
     using Type = ValueType;
+    operators.push_back({"material.shader",
+                         Operation::kMaterialShader,
+                         Type::kMaterial,
+                         {{"material", Type::kMaterial},
+                          {"time", Type::kScalar, false},
+                          {"a", Type::kScalar, false},
+                          {"b", Type::kScalar, false},
+                          {"c", Type::kScalar, false},
+                          {"d", Type::kScalar, false}},
+                         {{"asset", assets::AssetId{}},
+                          {"a", 0.0, -1e6, 1e6},
+                          {"b", 0.0, -1e6, 1e6},
+                          {"c", 0.0, -1e6, 1e6},
+                          {"d", 0.0, -1e6, 1e6}},
+                         true});
     operators.push_back({"scene.environment",
                          Operation::kSceneEnvironment,
                          Type::kScene,

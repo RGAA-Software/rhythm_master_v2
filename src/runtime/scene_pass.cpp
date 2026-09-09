@@ -32,6 +32,9 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
         scene.lights_.size() + scene.positional_lights_.size() > 4 || !renderer.SupportsScenes())
         throw std::invalid_argument("runtime.scene");
     const auto view = scene::View(camera);
+    std::map<graph::NodeId, render::SurfaceProgramInput> surfaces;
+    for (const auto& output : outputs)
+        if (output.surface_program_) surfaces.emplace(output.node_, *output.surface_program_);
     std::map<graph::NodeId, render::TextureHandle> textures;
     for (const auto& output : outputs)
         if (output.texture_.device_) textures.emplace(output.node_, output.texture_);
@@ -188,6 +191,12 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                              {float(modifier.pivot_.x_), float(modifier.pivot_.y_),
                               float(modifier.pivot_.z_)}});
                 draw.unlit_ = material.unlit_;
+                if (material.surface_node_) {
+                    const auto found = surfaces.find(material.surface_node_);
+                    if (found == surfaces.end() || !renderer.IsValid(found->second.program_))
+                        throw std::invalid_argument("runtime.material_surface");
+                    draw.surface_program_ = found->second;
+                }
                 draw.textures_.color_srgb_ = material.textures_.color_srgb_;
                 draw.textures_.normal_scale_ = material.textures_.normal_scale_;
                 draw.textures_.uv_transform_ = material.textures_.uv_transform_;
@@ -214,7 +223,8 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                 draw.emissive_ = {static_cast<float>(material.emissive_.x_),
                                   static_cast<float>(material.emissive_.y_),
                                   static_cast<float>(material.emissive_.z_)};
-                if (!material.unlit_) draw.normal_ = Matrix(scene::NormalTransform(transform));
+                if (!material.unlit_ || material.surface_node_)
+                    draw.normal_ = Matrix(scene::NormalTransform(transform));
             }
         }
     }

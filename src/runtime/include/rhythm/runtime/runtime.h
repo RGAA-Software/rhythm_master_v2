@@ -15,6 +15,7 @@
 #include "rhythm/scene/path.h"
 #include "rhythm/scene/resources.h"
 #include "rhythm/scene/scene.h"
+#include "rhythm/surface_shader/program.h"
 
 namespace rhythm::runtime {
 struct FrameContext {
@@ -34,6 +35,7 @@ struct FrameContext {
     std::optional<std::vector<graph::NodeId>> retained_textures_{};
     bool profile_nodes_ = false;
     std::shared_ptr<const image_shader::Resources> shaders_{};
+    std::shared_ptr<const surface_shader::Resources> surfaces_{};
     bool operator==(const FrameContext&) const = default;
 };
 // Observers of a scene capture, with the exact projection used to write depth.
@@ -64,6 +66,7 @@ struct NodeOutput {
     std::shared_ptr<const scene::Geometry> geometry_{};
     std::shared_ptr<const scene::Scene> scene_{};
     std::optional<scene::Material> material_{};
+    std::optional<render::SurfaceProgramInput> surface_program_{};
     std::optional<scene::Camera> camera_{};
     // Borrowed value handle; Runtime owns the mutable GPU state.
     render::GpuPointHandle gpu_points_{};
