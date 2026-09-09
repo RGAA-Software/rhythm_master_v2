@@ -46,6 +46,7 @@
     <string name="scene_cpu_ready">CPU assets ready</string>
     <string name="scene_gpu_preparing">Preparing scene graphics</string>
     <string name="scene_audio_hard_cut_hint">The fade exceeds the audio track limit. Set transition duration to 0 for a hard cut; a short gap is possible.</string>
+    <string name="scene_transitioning">Transitioning</string>
     <string name="scene_ready">Ready</string>
     <string name="scene_failed">Failed</string>
     <string name="scene_remove">Remove selected</string>

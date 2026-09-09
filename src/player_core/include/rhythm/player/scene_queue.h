@@ -6,7 +6,15 @@
 #include "rhythm/player/resolved_work.h"
 
 namespace rhythm::player {
-enum class ScenePreparation { kQueued, kLoading, kReady, kFailed, kGpuPreparing, kPresentable };
+enum class ScenePreparation {
+    kQueued,
+    kLoading,
+    kReady,
+    kFailed,
+    kGpuPreparing,
+    kPresentable,
+    kTransitioning
+};
 struct SceneQueueItem {
     std::uint64_t id_ = 0;
     std::filesystem::path source_{};
@@ -39,7 +47,8 @@ class SceneQueue final {
     std::optional<PreparedPackage> BeginGraphics();
     bool UpdateGraphics(std::uint64_t id, bool ready);
     bool FailGraphics(std::uint64_t id, std::string error);
-    bool ConsumeGraphics(std::uint64_t id);
+    bool StartGraphics(std::uint64_t id);
+    bool FinishGraphics(std::uint64_t id, bool accepted, std::string error = {});
     std::span<const SceneQueueItem> Items() const { return items_; }
     bool Busy() const { return loader_.Busy(); }
     static constexpr std::size_t kMaximumItems = 16;

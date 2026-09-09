@@ -143,3 +143,25 @@ CPU 最大单节点约 0.035 ms 并不等于 GPU 驱动工作耗时；Android �
 证据 `out/android-scene-audio/8fcb29cadffc4fc5941a94d6cf55fef1/`，
 汇总 `out/p3-compositor-preparation-apk-touch-tests.log`。
 APK SHA256 `e95aec2ef7016f925c75c4f0e722088fbb8f8b839d1c1a006d8f0d00b33976f1`。
+
+
+### P3.5：活动队列行的最终结果
+
+Go 现在把行标为 Transitioning，并保留稳定 ID；只有 SceneDeck 确认成功接管才
+移除它。运行中资源拒绝、音频失败、取消或被新作品替换，都保留失败行与具体
+原因供重试。队列删除/清空仍不替代显式取消已发出的切场命令。
+此更新替代上文“Go 消费队列行”的旧行为；预备源文件也随行存活到最终结果。
+
+核心回归覆盖：Go 后强制耗尽离屏 pass，旧场与失败行保留；重试原 ID、取消、
+最终成功才移除，以及准备/合成目标复用。首个 build 的测试 DrawList 聚合字段
+顺序写错，日志 `out/p3-active-queue-core-build.log` 保留，改为显式宽高字段后
+`out/p3-active-queue-core-corrected-build.log` 构建成功。
+Windows `out/p3-active-queue-core-tests.log` 6 项与 Android
+`out/p3-active-queue-android-core-tests.log` 4 项通过。
+Windows `out/p3-active-queue-player-windows-tests.log` 6 项通过，含实际队列 UI、
+普通淡化、四路对四路显式硬切 UI/像素和完整 deploy smoke。
+
+Android 覆盖安装后实际 AAudio 淡化与队列触摸通过，
+`out/android-scene-audio/ef835ee1de1e49f59fb78384d2f09a97/`；脚本新增完成后打开
+队列检查，确认 3 行恰好剩 2 行、下一行身份正确，保存列表逐字节不变。
+当前 APK SHA256 `8400aeab7952fae839579a711884a0851f3f0b8fa373920b17a065040542c537`。

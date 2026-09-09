@@ -3,6 +3,12 @@
 #include "rhythm/player/scene_deck.h"
 
 namespace rhythm::player {
+void SceneDeck::ReportQueueOutcome(const std::optional<std::reference_wrapper<SceneQueue>>& queue) {
+    if (!queue_outcome_ || !queue) return;
+    queue->get().FinishGraphics(queue_outcome_->id_, queue_outcome_->accepted_,
+                                queue_outcome_->error_);
+    queue_outcome_.reset();
+}
 void SceneDeck::PrepareQueue(double monotonic_seconds, RenderQuality quality,
                              render::Renderer& renderer, render::TextureHandle current_output,
                              const runtime::ExternalInputs& inputs,

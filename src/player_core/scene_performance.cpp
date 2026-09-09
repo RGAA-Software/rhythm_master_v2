@@ -56,8 +56,9 @@ void SceneDeck::ApplyPerformance(const runtime::PlaybackSample& sample,
     if (const auto action = actions_.TakeDue(PerformanceActionKind::kNextScene)) {
         if (queue && CanPrepareNext() && QueueReady(action->target_) &&
             !queue->get().Items().empty() && queue->get().Items().front().id_ == action->target_) {
-            if (queue->get().ConsumeGraphics(action->target_)) {
+            if (queue->get().StartGraphics(action->target_)) {
                 queue_id_ = 0;
+                active_queue_id_ = action->target_;
                 ActivateTransition(requested_duration_);
                 transition_action_ = action->id_;
                 return;

@@ -173,10 +173,51 @@ int main(int argc, char* argv[]) {
             Check(deck.QueueReady(failing_id), "surface restoration prepares the same stable row");
             const auto warmed_bytes = renderer.Stats().texture_bytes_;
             deck.RequestNextScene(failing_id, 1, parameters::Quantization::kImmediate);
-            Check(!tick(1.6).switched_ && queue.Items().empty() && deck.Transitioning() &&
-                          renderer.Stats().texture_bytes_ == warmed_bytes,
-                  "valid Go consumes retried candidate and reuses its prepared dissolve target");
-            Check(tick(2.7).switched_, "retried candidate completes the requested fade");
+            Check(!tick(1.6).switched_ && queue.Items().size() == 1 &&
+                          queue.Items().front().state_ ==
+                                  player::ScenePreparation::kTransitioning &&
+                          deck.Transitioning() && renderer.Stats().texture_bytes_ == warmed_bytes,
+                  "valid Go retains active row and reuses its prepared dissolve target");
+            Check(tick(2.7).switched_ && queue.Items().empty(),
+                  "only successful takeover removes its queue row");
+            tick(2.8);
+            const auto old_title = deck.Current().Title();
+            const auto retry_id = queue.Enqueue(survivor, "Active failure").value();
+            wait(player::ScenePreparation::kReady);
+            tick(2.9);
+            deck.RequestNextScene(retry_id, 1, parameters::Quantization::kImmediate);
+            tick(3.0);
+            {
+                auto pressure_target = renderer.CreateTexture({8, 8});
+                render::DrawList pressure;
+                pressure.width_ = pressure.height_ = 8;
+                renderer.BeginFrame();
+                for (unsigned pass = 0; pass < render::kMaximumOffscreenPasses; ++pass)
+                    renderer.Submit(pressure_target.Handle(), pressure, 0);
+                const auto failed =
+                        deck.Tick(monotonic += 0.1, false, player::RenderQuality::kOriginal,
+                                  renderer, {}, runtime::PlaybackSample{3.1, 1, false}, queue);
+                renderer.EndFrame();
+                Check(renderer.IsValid(failed.output_.final_) &&
+                              deck.Current().Title() == old_title &&
+                              queue.Items().front().id_ == retry_id &&
+                              queue.Items().front().state_ == player::ScenePreparation::kFailed &&
+                              queue.Items().front().preparation_error_ == "render.resource_budget",
+                      "failure after Go retains accepted output and retryable row with exact "
+                      "error");
+            }
+            Check(queue.Retry(), "active transition failure is retryable");
+            wait(player::ScenePreparation::kReady);
+            tick(3.2);
+            deck.RequestNextScene(retry_id, 1, parameters::Quantization::kImmediate);
+            tick(3.3);
+            deck.CancelTransition();
+            tick(3.4);
+            Check(queue.Items().front().state_ == player::ScenePreparation::kFailed &&
+                          queue.Items().front().preparation_error_ ==
+                                  "player.transition_cancelled" &&
+                          deck.Current().Title() == old_title,
+                  "canceled active scene retains its row and leaves current identity intact");
             deck.ReleaseGraphics();
         }
         std::cout << "bounded scene preparation, retry, cancellation and move handoff pass\n";

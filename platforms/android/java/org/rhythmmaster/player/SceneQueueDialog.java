@@ -80,7 +80,7 @@ final class SceneQueueDialog {
                 ArrayList<String> labels = new ArrayList<>();
                 int[] states = {R.string.scene_waiting, R.string.scene_loading,
                         R.string.scene_cpu_ready, R.string.scene_failed,
-                        R.string.scene_gpu_preparing, R.string.scene_ready};
+                        R.string.scene_gpu_preparing, R.string.scene_ready, R.string.scene_transitioning};
                 int[] resolutions = {R.string.program_exact, R.string.program_updated,
                         R.string.program_missing, R.string.program_changed, R.string.program_ambiguous};
                 for (int i = 0; i < items.length(); ++i) {

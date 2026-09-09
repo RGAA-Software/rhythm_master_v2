@@ -44,9 +44,9 @@ void SceneQueuePanel::Draw(player::SceneQueue& queue, player::SceneDeck& deck,
                                        [&](const auto& item) { return item.id_ == selected_; }))
         selected_ = items.front().id_;
     if (ImGui::BeginChild("###scene.rows", {0, 110}, ImGuiChildFlags_Borders)) {
-        static constexpr std::array kStates{"scene.waiting",       "scene.loading",
-                                            "scene.cpu_ready",     "scene.failed",
-                                            "scene.gpu_preparing", "scene.ready"};
+        static constexpr std::array kStates{
+                "scene.waiting",       "scene.loading", "scene.cpu_ready",    "scene.failed",
+                "scene.gpu_preparing", "scene.ready",   "scene.transitioning"};
         for (const auto& item : items) {
             auto title = item.title_ + " | " +
                          text.at(kStates.at(static_cast<std::size_t>(item.state_))) + " ";

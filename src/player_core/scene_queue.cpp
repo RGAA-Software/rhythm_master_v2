@@ -108,11 +108,23 @@ bool SceneQueue::FailGraphics(std::uint64_t id, std::string error) {
     items_.front().preparation_error_ = std::move(error);
     return true;
 }
-bool SceneQueue::ConsumeGraphics(std::uint64_t id) {
+bool SceneQueue::StartGraphics(std::uint64_t id) {
     if (items_.empty() || items_.front().id_ != id ||
         items_.front().state_ != ScenePreparation::kPresentable)
         return false;
-    items_.erase(items_.begin());
+    items_.front().state_ = ScenePreparation::kTransitioning;
+    return true;
+}
+bool SceneQueue::FinishGraphics(std::uint64_t id, bool accepted, std::string error) {
+    if (items_.empty() || items_.front().id_ != id ||
+        items_.front().state_ != ScenePreparation::kTransitioning)
+        return false;
+    if (accepted) {
+        items_.erase(items_.begin());
+    } else {
+        items_.front().state_ = ScenePreparation::kFailed;
+        items_.front().preparation_error_ = std::move(error);
+    }
     return true;
 }
 bool SceneQueue::ReplacePerformance(std::span<const ResolvedWork> works) {

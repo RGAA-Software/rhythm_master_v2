@@ -96,7 +96,8 @@ class SceneDeck final {
 
    private:
     void ResetClock();
-    void DiscardTransition();
+    void DiscardTransition(std::string reason = "player.transition_cancelled");
+    void ReportQueueOutcome(const std::optional<std::reference_wrapper<SceneQueue>>& queue);
     void ResetPerformance();
     void ActivateTransition(double duration, bool synchronize_audio = false);
     void PrepareQueue(double monotonic_seconds, RenderQuality quality, render::Renderer& renderer,
@@ -137,6 +138,13 @@ class SceneDeck final {
     bool transition_started_ = false;
     bool origin_set_ = false;
     std::uint64_t queue_id_ = 0;
+    std::uint64_t active_queue_id_ = 0;
+    struct QueueOutcome {
+        std::uint64_t id_ = 0;
+        bool accepted_ = false;
+        std::string error_{};
+    };
+    std::optional<QueueOutcome> queue_outcome_{};
     std::uint64_t discarded_queue_id_ = 0;
     render::Extent preparation_extent_{};
 };

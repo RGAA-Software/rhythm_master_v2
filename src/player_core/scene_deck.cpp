@@ -102,7 +102,11 @@ void SceneDeck::CancelTransition() {
     }
     DiscardTransition();
 }
-void SceneDeck::DiscardTransition() {
+void SceneDeck::DiscardTransition(std::string reason) {
+    if (active_queue_id_) {
+        queue_outcome_ = QueueOutcome{active_queue_id_, false, std::move(reason)};
+        active_queue_id_ = 0;
+    }
     if (queue_id_) discarded_queue_id_ = queue_id_;
     queue_id_ = 0;
     transition_started_ = false;
@@ -199,7 +203,8 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
     }
     if (synchronized && audio_frame.abort_ && incoming_) {
         if (transition_action_) actions_.Resolve(*transition_action_, false);
-        DiscardTransition();
+        DiscardTransition(audio && !audio->error_.empty() ? audio->error_
+                                                          : "player.transition_cancelled");
         if (audio && (audio->phase_ == SceneAudioPhase::kFailed || !audio->error_.empty())) {
             error_ = SceneTransitionError::kAudio;
             error_detail_ = audio->error_;
@@ -219,6 +224,7 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
         audio_clock_->Reset();
         preserve_audio_origin_ = false;
     }
+    ReportQueueOutcome(queue);
     PrepareQueue(monotonic_seconds, quality, renderer, result.output_.final_, inputs, queue);
     if (!incoming_ || !transition_started_ || (cancel_requested_ && !audio_frame.committed_))
         return result;
@@ -276,6 +282,10 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
         } else {
             retired_ = std::move(current_);
             current_ = std::move(incoming_);
+            if (active_queue_id_) {
+                queue_outcome_ = QueueOutcome{active_queue_id_, true, {}};
+                active_queue_id_ = 0;
+            }
             current_passes_ = preparation_.required_passes_;
             transition_started_ = false;
             cancel_requested_ = false;
@@ -294,16 +304,17 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
             }
             ResetPerformance();
         }
-    } catch (const render::BudgetExceeded&) {
+    } catch (const render::BudgetExceeded& error) {
         if (transition_action_) actions_.Resolve(*transition_action_, false);
-        DiscardTransition();
+        DiscardTransition(error.what());
         error_ = SceneTransitionError::kBudget;
     } catch (const std::exception& error) {
         if (transition_action_) actions_.Resolve(*transition_action_, false);
-        DiscardTransition();
+        DiscardTransition(error.what());
         error_ = SceneTransitionError::kRender;
         error_detail_ = error.what();
     }
+    ReportQueueOutcome(queue);
     return result;
 }
 }  // namespace rhythm::player

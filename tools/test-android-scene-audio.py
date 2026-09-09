@@ -137,6 +137,25 @@ def main():
         shot("committed")
         (output / "audio-flinger.txt").write_bytes(adb("shell", "dumpsys", "media.audio_flinger"))
         adb("shell", "input", "tap", round(width * .783), round(height * .134))
+        # Successful commitment, not Go, removes the active row. Inspect the
+        # actual queue UI after pausing instead of trusting the native log alone.
+        adb("shell", "input", "tap", round(width * .675), round(height * .458))
+        root = hierarchy()
+        spinner = next(node for node in root.iter("node")
+                       if node.get("class") == "android.widget.Spinner")
+        remaining = len(program["entries"]) - 1
+        if remaining:
+            x1, y1, x2, y2 = map(int, re.findall(r"\d+", spinner.get("bounds", "")))
+            adb("shell", "input", "tap", (x1 + x2) // 2, (y1 + y2) // 2)
+            rows_ui = [node.get("text") for node in hierarchy().iter("node")
+                       if node.get("class") == "android.widget.CheckedTextView"]
+            if len(rows_ui) != remaining or not rows_ui[0].startswith(program["entries"][1]["title"]):
+                raise RuntimeError("Committed scene did not remove exactly its queue row")
+            adb("shell", "input", "keyevent", 4)
+        elif any(node.get("text") for node in spinner.iter("node")):
+            raise RuntimeError("Committed last scene left a queue row")
+        shot("queue-after-commit")
+        adb("shell", "input", "keyevent", 4)
         if saved() != original:
             raise RuntimeError("Playback changed the saved performance program")
         result = {"status": "passed", "serial": args.serial, "driver": completed[6].decode(),
@@ -144,6 +163,7 @@ def main():
                   "transition_id": int(completed[0]), "consumed_frames": counters,
                   "previous_seconds": float(completed[4]), "incoming_seconds": float(completed[5]),
                   "hard_cut_head_draft": args.hard_cut_head,
+                  "remaining_queue_rows": remaining,
                   "saved_program_unchanged": True, "acoustic_capture": False}
         (output / "result.json").write_text(json.dumps(result, indent=4) + "\n", encoding="utf-8")
         print("APK queue touch / paused Go / production audio / scene commitment passed", flush=True)
