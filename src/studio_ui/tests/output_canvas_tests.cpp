@@ -11,6 +11,7 @@
 #include "output_canvas.h"
 #include "rhythm/project/package.h"
 #include "rhythm/project/store.h"
+#include "rhythm/runtime/runtime.h"
 
 namespace {
 using namespace rhythm;
@@ -58,7 +59,8 @@ class Fixture final {
         const auto extent = history_.Current().document_.canvas_;
         auto result = canvas_.Draw(history_.Current(), selected_, 1,
                                    {double(extent.width_), double(extent.height_)}, editable_,
-                                   current_, text_);
+                                   current_, text_, outputs_);
+        if (result.selected_) selected_ = *result.selected_;
         const auto first = ImGui::GetItemRectMin(), last = ImGui::GetItemRectMax();
         image_ = {first.x, first.y, last.x - first.x, last.y - first.y};
         if (result.committed_) {
@@ -97,6 +99,7 @@ class Fixture final {
     }
     std::unique_ptr<ImGuiContext, ContextDeleter> context_{};
     studio::OutputCanvas canvas_{};
+    std::vector<runtime::NodeOutput> outputs_{};
     editor::History history_{Base()};
     std::map<std::string, std::string> text_{};
     geometry2d::Rect image_{};
@@ -107,6 +110,63 @@ class Fixture final {
     bool changed_ = false;
     float width_ = 800;
 };
+void Selection(const std::filesystem::path& locale) {
+    Fixture fixture(locale);
+    graph::Registry registry;
+    editor::Snapshot snapshot;
+    auto& document = snapshot.document_;
+    document.id_ = fixture.history_.Current().document_.id_;
+    document.canvas_ = {200, 100};
+    document.nodes_ = {
+            registry.MakeNode(1, "geometry.cube"),  registry.MakeNode(2, "scene.transform"),
+            registry.MakeNode(3, "output.texture"), registry.MakeNode(4, "scene.instance"),
+            registry.MakeNode(5, "scene.render"),   registry.MakeNode(6, "scene.camera")};
+    document.output_ = 3;
+    document.edges_ = {{1, 1, 4, "geometry"},
+                       {2, 4, 2, "scene"},
+                       {3, 2, 5, "scene"},
+                       {4, 6, 5, "camera"},
+                       {5, 5, 3, "source"}};
+    auto geometry = std::make_shared<scene::Geometry>();
+    geometry->model_ = std::make_shared<const scene::Model>(scene::Cube());
+    auto scene = std::make_shared<scene::Scene>();
+    scene->instances_.push_back({geometry, scene::ComposeEuler({{.4, 0, 0}}), {}, {4, 2}});
+    runtime::NodeOutput scene_output;
+    scene_output.node_ = 2;
+    scene_output.scene_ = scene;
+    runtime::NodeOutput camera_output;
+    camera_output.node_ = 6;
+    camera_output.camera_ = scene::Camera{};
+    camera_output.camera_->kind_ = scene::ProjectionKind::kOrthographic;
+    fixture.outputs_ = {scene_output, camera_output};
+    Check(fixture.history_.Apply(snapshot, fixture.history_.Current().document_.revision_),
+          "install scene fixture");
+    fixture.selected_ = 0;
+    fixture.current_ = false;
+    fixture.Frame();
+    fixture.Move(fixture.Point(.6, .6));
+    fixture.Button(true);
+    fixture.Button(false);
+    Check(fixture.selected_ == 0, "stale scene output is not selectable");
+    fixture.current_ = true;
+    fixture.Frame();
+    fixture.Move(fixture.Point(.6, .6));
+    fixture.Button(true);
+    fixture.Button(false);
+    Check(fixture.selected_ == 2 && fixture.commits_ == 0 && !fixture.canvas_.Active(),
+          "image click selects author without changing document or dragging");
+    const auto hit = studio::PickSceneOutput(document, fixture.outputs_, 2, .6, .6);
+    Check(hit.hit_ && hit.selected_ == 2 && std::abs(hit.hit_->position_.x_ - .4) < 1e-8,
+          "selection uses actual frame camera and transform");
+    scene->instances_[0].origin_.transform_ = 999;
+    Check(studio::PickSceneOutput(document, fixture.outputs_, 2, .6, .6).error_ ==
+                  "scene_pick.component_scope",
+          "expanded internal ID cannot target a root node");
+    fixture.outputs_.clear();
+    Check(studio::PickSceneOutput(document, fixture.outputs_, 2, .6, .6).error_ ==
+                  "canvas.wait_output",
+          "missing current scene diagnosed");
+}
 void Run(const std::filesystem::path& locale, const std::filesystem::path& root) {
     Fixture fixture(locale);
     const auto initial = fixture.history_.Current();
@@ -210,6 +270,7 @@ int main(int argc, char* argv[]) {
     try {
         Check(argc == 3, "locale root");
         Run(argv[1], argv[2]);
+        Selection(argv[1]);
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

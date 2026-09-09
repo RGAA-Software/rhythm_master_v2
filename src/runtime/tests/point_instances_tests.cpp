@@ -50,6 +50,14 @@ void Run() {
     Require(quiet->instances_.size() == 1024 && renderer.Stats().live_meshes_ == 1,
             "one geometry backs a thousand bounded instance records");
     const auto& first = quiet->instances_.front();
+    const auto source = std::find_if(frame.outputs_.begin(), frame.outputs_.end(),
+                                     [](const auto& output) { return output.node_ == 2; });
+    Require(source != frame.outputs_.end() && source->points_, "point source available");
+    for (std::size_t index = 0; index < quiet->instances_.size(); ++index)
+        Require(quiet->instances_[index].origin_ ==
+                        scene::InstanceOrigin{3, 0, source->points_->at(index).id_,
+                                              source->points_generation_},
+                "point instances retain stable source element and generation");
     Require(std::abs(first.transform_.values_[5] - 0.2) < 1e-6 &&
                     std::abs(first.transform_.values_[13] - 0.1) < 1e-6,
             "normalized point size maps to world scale and a floor-centered column");
@@ -61,6 +69,8 @@ void Run() {
     context.external_.audio_->mono_bands_.fill(0.5f);
     frame = evaluate();
     const auto active = scene_output(frame);
+    Require(active->instances_.front().origin_ == first.origin_,
+            "music animation preserves object identity");
     Require(std::abs(active->instances_.front().transform_.values_[5] - 1.4) < 1e-6,
             "audio changes invalidate cached instances and drive height");
     Require(first.transform_.values_[5] < 0.201 &&

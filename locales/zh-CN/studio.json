@@ -1144,7 +1144,7 @@
     "canvas.stale_edit": "图已改变，本次拖动已取消。",
     "scene_edit.world": "世界轴",
     "gizmo.world_scale_unsupported": "缩放使用局部轴；当前不支持世界轴缩放。",
-    "scene_edit.select_transform": "请在节点图中选择三维变换节点。",
+    "scene_edit.select_transform": "点击画面中的对象，或在节点图中选择三维变换节点。",
     "scene_edit.driven": "此变换或相机由连接、绑定、曲线或表达式驱动。",
     "scene_edit.camera_scope": "此相机来源尚不支持直接编辑。",
     "scene_edit.invalid_graph": "图结构或画布尺寸无效。",
@@ -1154,5 +1154,11 @@
     "scene_edit.unsupported_route": "此场景路径暂不支持视图直接编辑。",
     "scene_edit.image_warp": "渲染后的图像处理尚未建立手柄坐标映射。",
     "scene_edit.non_trs": "结果包含剪切或奇异变换，无法写入当前参数。",
-    "scene_edit.stale": "工程已改变，本次三维拖动已取消。"
+    "scene_edit.stale": "工程已改变，本次三维拖动已取消。",
+    "scene_pick.budget": "拾取检查超过预算，请聚焦较小的场景分支。",
+    "scene_pick.deformation": "场景包含 GPU 变形、骨骼或形态动画，请在节点图选择作者节点。",
+    "scene_pick.geometry": "场景几何不可用或无效。",
+    "scene_pick.ray": "当前相机无法生成有效的拾取射线。",
+    "scene_pick.route": "请在直接的三维场景输出中选择对象，当前图像路径尚不支持拾取。",
+    "scene_pick.component_scope": "对象属于组件，请在节点图中打开对应的作者范围。"
 }

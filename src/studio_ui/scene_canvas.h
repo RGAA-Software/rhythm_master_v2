@@ -3,13 +3,15 @@
 #include "gizmo.h"
 #include "output_edit.h"
 #include "rhythm/editor/scene_edit.h"
+#include "scene_selection.h"
 
 namespace rhythm::studio {
 class SceneCanvas final {
    public:
     OutputEdit Draw(const editor::Snapshot& snapshot, graph::NodeId selected, std::uint64_t texture,
                     geometry2d::Size extent, bool editable, bool current_output, bool& enabled,
-                    const std::map<std::string, std::string>& text);
+                    const std::map<std::string, std::string>& text,
+                    std::span<const runtime::NodeOutput> outputs = {});
     bool Active() const { return edit_.has_value(); }
     const editor::Snapshot& Preview() const { return edit_.value().Preview(); }
     bool Cancel();

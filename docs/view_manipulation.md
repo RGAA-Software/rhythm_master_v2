@@ -144,3 +144,44 @@ scene route/图像后处理明确提示，不能当作与竞品全部直接编�
    选择及手柄，透视/正交/局部/世界轴和父变换一起测试。
 5. P4.3/4.5 补组件/实例编辑和大图定位；完成空图 2D 音乐构图、3D 音乐雕塑，
    保存重开/发布/Android 输出验收。手机不增加节点编辑器。
+
+
+### P4.2 几何拾取增量（2026-09-09，UI 验证进行中）
+
+共享场景实例新增作者来源：producer、最近的 transform、点 element 和 generation。
+几何上传身份不作为作者身份；外层组变换保留最近的对象变换，合并和点阵保留来源。
+Windows `out/p4-instance-origin-tests.log` 与手机原生
+`out/p4-instance-origin-android-tests.log` 已通过。
+
+`scene3d/picking` 直接复用已安装 GLM 的射线三角形求交和矩阵逆；Godot Camera3D
+为坐标参考。记录见 `provenance/view_manipulation.json`。相机生成近远裁剪段，
+使用当前场景实例及模型节点姿态求交，局部射线不归一化，保证非均匀缩放下距离
+可比较。背面规则与后端的镜像绕序修正一致。共享网格包围盒只在单次点击内建立；
+默认最多 16,384 实例、65,536 节点/引用工作、1,000,000 顶点、250,000 三角形。
+超预算或无法检查的对象使整个拾取失败，不返回未证实的部分最近结果。
+
+`out/p4-scene-picking-tests.log` 与手机原生
+`out/p4-scene-picking-android-tests.log` 通过：裁剪、透视/正交、最近对象、隐藏、
+镜像/非均匀缩放、身份/预算，以及 8,192 个共享实例只进入 12 个三角形精测。
+此处是几何选择，不是逐片元对象 ID：不评估纹理 alpha/遮罩；当前 GPU twist/taper、
+骨骼和 morph 场景明确拒绝，不用未变形网格猜测。组件内部作者映射继续在 P4.3 补齐。
+
+前一 3D 作者事务版本已覆盖安装 APK SHA256
+`3004179bf4feee695fcb1370440c58a58aa617005d8fe6aa7d494b781af2aea5`。
+`out/p4-scene-pose-android-program.log` 的实际内置横/竖/横节目单通过；证据目录
+`out/android-continuous-program/9e9d10d256414a7f8d2af0daf3dcf858/`。
+这份 APK 是共享 Euler 渲染交付，不包含手机编辑器，也不是本次拾取 UI 的证据。
+
+
+实际 Studio 拾取已通过 `out/p4-scene-selection-tests.log` 中的 `scene_canvas_gpu`：
+从最终输出点击立方体选中 transform，随后用手柄移动，校验新计划代次、画面像素、
+保存/发布、撤销/重开。证据目录
+`out/windows-release/scene-canvas-gpu/ee26acecd014446aae38e9ba31251b09/`。
+两语言 UI 回归 `out/p4-scene-selection-fixture-tests.log` 通过，补充旧输出不可拾取、
+点击选择不提交文档、使用当前帧相机/实例、未知内部 ID 不误映射到根节点。
+失败记录保留：首次新增测试漏链接 graph_runtime；随后 fixture 跨工程 ID 提交被
+History 正确拒绝，测试改为同工程替换图，未削弱产品校验。
+
+Windows Studio/Player 已完成本次 Python 自动部署，`out/p4-scene-selection-delivery.log`
+含强制四项模板应用回归全通过；Studio deploy 路径同上。当前依然只有 Windows
+Studio 提供视图编辑，手机共享模块原生测试通过，不把这些测试说成 Android 编辑 UI。

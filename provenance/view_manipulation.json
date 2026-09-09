@@ -1,5 +1,5 @@
 {
-    "status": "P4.1 coordinate foundation; interactive authoring still in progress",
+    "status": "P4.1 root affine and P4.2 root scene author gestures delivered; geometric picking integration in progress",
     "dependencies": [
         {
             "source_url": "https://github.com/g-truc/glm",
@@ -9,10 +9,12 @@
             "notice": "third_party/notices/glm/LICENSE.txt",
             "package_manifest": "provenance/glm.json",
             "imported_files": [],
-            "usage": "Use installed vcpkg x64-windows and arm64-android headers: glm/glm.hpp, glm/gtc/matrix_transform.hpp and their transitive headers. Private matrix multiplication, inversion and rotation adapter; no upstream changes or new source vendoring.",
+            "usage": "Use installed vcpkg x64-windows and arm64-android GLM headers, including gtx/intersect.hpp and gtc/type_ptr.hpp. Reuse matrix inversion and intersectRayTriangle through private adapters; no upstream modifications or additional vendoring.",
             "target_modules": [
                 "src/geometry2d",
-                "src/runtime/affine.cpp"
+                "src/runtime/affine.cpp",
+                "src/scene3d/pose.cpp",
+                "src/scene3d/picking.cpp"
             ]
         }
     ],
@@ -26,12 +28,22 @@
             "sha256": "601d94fb56c441df1e093a0641a3030941f5ff77ee553ef763ba679cd140cb45",
             "imported_files": [],
             "decision": "Read selection-scoped transformation and viewport conversion responsibilities. C# operator callbacks/ImGuiNET/System.Numerics/global editor state do not fit our value history contracts; use existing first-party History and GLM adapters. No verbatim source copied."
+        },
+        {
+            "source_url": "https://github.com/godotengine/godot",
+            "revision": "f62fdbde15035c5576dad93e586201f4d41ef0cb",
+            "license": "MIT",
+            "notice": "third_party/notices/godot/LICENSE.txt",
+            "source_file": "scene/3d/camera_3d.cpp",
+            "sha256": "bdc8954e471a35d0c4398d971dabc0a2e9cc5f9c47ab1343a2d0c76a7e2d8be2",
+            "imported_files": [],
+            "decision": "Read project_ray_normal/project_ray_origin viewport and orthographic handling. Reuse existing project Godot-derived camera matrices with GLM inverse unprojection and ray-triangle intersection; no Godot scene tree or viewport type enters contracts. Project adds clipped segment, immutable instance identity, shared mesh bounds and bounded work. GLM has no ray-AABB helper; private slab interval handles broad-phase only. No verbatim source copied."
         }
     ],
     "project_contracts": [
         "Canvas-relative pivot/translation, signed scale, clockwise degrees in +Y-down coordinates.",
         "Runtime and editing share the same affine computation. Parent composition and inverse reject singular/nonfinite mappings.",
         "Aspect-fit hit coordinates exclude letterboxes before capture; captured drags can leave the image.",
-        "ImGuizmo remains pending: local vcpkg port 1.10 exists, installed project ImGui source is 1.91.9b; compatibility not yet validated."
+        "ImGuizmo source adapter is validated; installed binary has an incompatible ImGui layout. See provenance/imguizmo.json for exact source/build exception and evidence."
     ]
 }

@@ -95,6 +95,22 @@ void Run() {
         return frame;
     };
     auto frame = evaluate();
+    Require(frame.outputs_[2].scene_->instances_[0].origin_ == scene::InstanceOrigin{3, 0, 0, 0} &&
+                    frame.outputs_[3].scene_->instances_[0].origin_ ==
+                            scene::InstanceOrigin{3, 4, 0, 0},
+            "producer and nearest author transform identities are independent of geometry");
+    document.nodes_.push_back(registry.MakeNode(9, "scene.transform"));
+    document.edges_[3].to_ = 9;
+    document.edges_.push_back({6, 9, 5, "scene"});
+    const auto nested = evaluate();
+    const auto outer = std::find_if(nested.outputs_.begin(), nested.outputs_.end(),
+                                    [](const auto& output) { return output.node_ == 9; });
+    Require(outer != nested.outputs_.end() && outer->scene_->instances_[0].origin_.transform_ == 4,
+            "outer group transform preserves nearest object author identity");
+    document.nodes_.pop_back();
+    document.edges_.pop_back();
+    document.edges_[3].to_ = 5;
+    frame = evaluate();
     const auto geometry = frame.outputs_[0].geometry_;
     Require(renderer.IsValid(frame.final_) && renderer.Stats().live_meshes_ == 1,
             "typed geometry to scene to texture reaches render backend");

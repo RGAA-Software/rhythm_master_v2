@@ -5,7 +5,7 @@ target_sources(studio_ui PRIVATE shader_panel.cpp template_browser.cpp catalog_p
 target_link_libraries(studio_ui PUBLIC platform_sdl PRIVATE graph_runtime editor_application project_io
     cyber_ui shader_authoring asset_store prepared_assets content_catalog semantic_catalog audio_ui control_ui player_core spike_imgui spike_node_editor nlohmann_json::nlohmann_json)
 target_sources(studio_ui PRIVATE control_inspector.cpp operator_help.cpp beat_performance.cpp)
-target_sources(studio_ui PRIVATE output_canvas.cpp scene_canvas.cpp)
+target_sources(studio_ui PRIVATE output_canvas.cpp scene_canvas.cpp scene_selection.cpp)
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/third_party/sources/imguizmo/ImGuizmo.cpp")
     message(FATAL_ERROR "Run vcpkg install imguizmo:x64-windows, then python tools/prepare-imguizmo.py")
 endif()
@@ -31,7 +31,7 @@ if(BUILD_TESTING)
         "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     add_executable(output_canvas_tests tests/output_canvas_tests.cpp)
     target_include_directories(output_canvas_tests PRIVATE .)
-    target_link_libraries(output_canvas_tests PRIVATE studio_ui editor_application project_io runtime_package spike_imgui nlohmann_json::nlohmann_json)
+    target_link_libraries(output_canvas_tests PRIVATE studio_ui editor_application project_io runtime_package graph_runtime spike_imgui nlohmann_json::nlohmann_json)
     rhythm_project_target(output_canvas_tests)
     foreach(locale en-US zh-CN)
         add_test(NAME output_canvas_${locale} COMMAND output_canvas_tests

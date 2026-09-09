@@ -24,10 +24,20 @@ struct Geometry {
     std::vector<Deformation> deformations_{};
     std::shared_ptr<const AnimationPose> pose_{};
 };
+// Stable values within the accepted execution plan. Generated point IDs carry
+// their source generation; geometry identity is intentionally separate.
+struct InstanceOrigin {
+    std::uint64_t producer_ = 0;
+    std::uint64_t transform_ = 0;
+    std::uint64_t element_ = 0;
+    std::uint64_t generation_ = 0;
+    bool operator==(const InstanceOrigin&) const = default;
+};
 struct Instance {
     std::shared_ptr<const Geometry> geometry_{};
     Matrix transform_{};
     std::optional<Material> material_{};
+    InstanceOrigin origin_{};
 };
 struct ShadowSettings {
     std::uint32_t light_ = 0;

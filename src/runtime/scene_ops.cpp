@@ -96,7 +96,8 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
             scene.instances_.push_back(
                     {input(0).geometry_,
                      {},
-                     instruction.inputs_.at(1) ? input(1).material_ : std::nullopt});
+                     instruction.inputs_.at(1) ? input(1).material_ : std::nullopt,
+                     {node.id_}});
             output.scene_ = std::make_shared<const scene::Scene>(std::move(scene));
             break;
         }
@@ -240,6 +241,7 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
                                               position.z_ - origin.z_});
                 }
                 for (auto& instance : scene.instances_) {
+                    if (!instance.origin_.transform_) instance.origin_.transform_ = node.id_;
                     instance.transform_ = scene::Multiply(transform, instance.transform_);
                     if (!scene::ValidAffine(instance.transform_))
                         throw std::invalid_argument("runtime.scene_transform");

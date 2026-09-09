@@ -16,7 +16,8 @@ bool SceneCanvas::Cancel() {
 OutputEdit SceneCanvas::Draw(const editor::Snapshot& snapshot, graph::NodeId selected,
                              std::uint64_t texture, geometry2d::Size extent, bool editable,
                              bool current_output, bool& enabled,
-                             const std::map<std::string, std::string>& text) {
+                             const std::map<std::string, std::string>& text,
+                             std::span<const runtime::NodeOutput> outputs) {
     OutputEdit result;
     if (selected_ != selected || revision_ != snapshot.document_.revision_) error_.clear();
     selected_ = selected;
@@ -87,7 +88,25 @@ OutputEdit SceneCanvas::Draw(const editor::Snapshot& snapshot, graph::NodeId sel
     const auto rect = geometry2d::AspectFit(extent, {origin.x, origin.y, available.x, available.y});
     ImGui::SetCursorScreenPos({float(rect.x_), float(rect.y_)});
     ImGui::Image(texture, {float(rect.width_), float(rect.height_)});
-    if (!target) return result;
+    const auto pick = [&] {
+        if (!enabled || !editable || !current_output || Active() || !ImGui::IsItemHovered() ||
+            !ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+            return;
+        const auto mouse = ImGui::GetMousePos();
+        const auto selection = PickSceneOutput(
+                snapshot.document_, outputs, extent.width_ / extent.height_,
+                (mouse.x - rect.x_) / rect.width_, (mouse.y - rect.y_) / rect.height_);
+        if (selection.selected_) {
+            result.selected_ = selection.selected_;
+            error_.clear();
+        } else if (!selection.error_.empty()) {
+            error_ = selection.error_;
+        }
+    };
+    if (!target) {
+        pick();
+        return result;
+    }
     if (captured_viewport_ && (std::abs(rect.x_ - captured_viewport_->x_) > .01 ||
                                std::abs(rect.y_ - captured_viewport_->y_) > .01 ||
                                std::abs(rect.width_ - captured_viewport_->width_) > .01 ||
@@ -106,6 +125,7 @@ OutputEdit SceneCanvas::Draw(const editor::Snapshot& snapshot, graph::NodeId sel
     input.snap_ = snap_ ? (mode_ == GizmoOperation::kRotate ? 15 : .1) : 0;
     try {
         const auto interaction = gizmo_.Draw(input);
+        if (!interaction.active_ && !interaction.hovered_ && !interaction.canceled_) pick();
         if (interaction.canceled_) {
             result.preview_changed_ |= Cancel();
             return result;

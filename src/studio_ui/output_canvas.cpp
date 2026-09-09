@@ -21,7 +21,8 @@ bool OutputCanvas::Cancel() {
 }
 OutputEdit OutputCanvas::Draw(const editor::Snapshot& snapshot, graph::NodeId selected,
                               std::uint64_t texture, geometry2d::Size extent, bool editable,
-                              bool current_output, const std::map<std::string, std::string>& text) {
+                              bool current_output, const std::map<std::string, std::string>& text,
+                              std::span<const runtime::NodeOutput> outputs) {
     OutputEdit result;
     const auto& nodes = snapshot.document_.nodes_;
     const auto scene_node = [&](graph::NodeId id, const std::string& type) {
@@ -39,7 +40,7 @@ OutputEdit OutputCanvas::Draw(const editor::Snapshot& snapshot, graph::NodeId se
         edit_.reset();
         captured_viewport_.reset();
         auto scene_result = scene_.Draw(snapshot, selected, texture, extent, editable,
-                                        current_output, enabled_, text);
+                                        current_output, enabled_, text, outputs);
         scene_result.preview_changed_ |= canceled;
         return scene_result;
     }

@@ -52,6 +52,7 @@ std::shared_ptr<const scene::Scene> PointInstances(const graph::Instruction& ins
         const auto width = std::clamp(point.size_ * span * scale, 0.001, 100.0);
         const auto vertical = std::clamp(width * (height + amplitude * gain), 0.001, 100.0);
         scene::Instance instance;
+        instance.origin_ = {node.id_, 0, point.id_, input(1).points_generation_};
         instance.geometry_ = geometry;
         instance.transform_ = scene::Compose(
                 {(point.x_ - 0.5) * span, vertical * 0.5, (point.y_ - 0.5) * span},

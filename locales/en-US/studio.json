@@ -1144,7 +1144,7 @@
     "canvas.stale_edit": "The graph changed; this drag was canceled.",
     "scene_edit.world": "World axes",
     "gizmo.world_scale_unsupported": "Scale uses local axes; world-axis scaling is not supported.",
-    "scene_edit.select_transform": "Select a scene transform in the node graph.",
+    "scene_edit.select_transform": "Click an object in the image or select a 3D transform node in the graph.",
     "scene_edit.driven": "This transform or camera is driven by a connection, binding, curve or expression.",
     "scene_edit.camera_scope": "This camera source is not supported for direct editing yet.",
     "scene_edit.invalid_graph": "Invalid graph structure or canvas size.",
@@ -1154,5 +1154,11 @@
     "scene_edit.unsupported_route": "This scene route does not support direct editing yet.",
     "scene_edit.image_warp": "Post-render image processing has no gizmo coordinate mapping yet.",
     "scene_edit.non_trs": "The result contains shear or a singular transform and cannot be represented by these parameters.",
-    "scene_edit.stale": "The project changed; this 3D drag was canceled."
+    "scene_edit.stale": "The project changed; this 3D drag was canceled.",
+    "scene_pick.budget": "Selection exceeded its work budget. Focus a smaller scene branch.",
+    "scene_pick.deformation": "This scene contains GPU deformation, skinning or morphs; select its author node in the graph.",
+    "scene_pick.geometry": "Scene geometry is unavailable or invalid.",
+    "scene_pick.ray": "The current camera cannot produce a valid selection ray.",
+    "scene_pick.route": "Select objects in a direct 3D scene output; this image route is not supported yet.",
+    "scene_pick.component_scope": "This object belongs to a component. Open its authoring scope in the graph."
 }

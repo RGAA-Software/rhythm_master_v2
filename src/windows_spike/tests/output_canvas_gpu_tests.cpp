@@ -127,14 +127,24 @@ int main(int argc, char* argv[]) {
             ImGui::GetIO().AddMouseButtonEvent(0, false);
             frame();
         };
-        // Use actual graph selection, including the existing auto-fit mapping.
-        for (int y = 300; y < 950 && studio.Workflow().selected_author_node_ != 2; y += 60)
-            for (int x = 50; x < 790 && studio.Workflow().selected_author_node_ != 2; x += 60)
-                click(float(x), float(y));
-        Check(studio.Workflow().selected_author_node_ == 2, "could not pick affine author node");
+        if (!scene_mode) {
+            // Use actual graph selection, including the existing auto-fit mapping.
+            for (int y = 300; y < 950 && studio.Workflow().selected_author_node_ != 2; y += 60)
+                for (int x = 50; x < 790 && studio.Workflow().selected_author_node_ != 2; x += 60)
+                    click(float(x), float(y));
+            Check(studio.Workflow().selected_author_node_ == 2,
+                  "could not pick affine author node");
+        }
         ready();
         Activate("###output", "###canvas.edit");
         settle();
+        if (scene_mode) {
+            const auto image = OutputRect();
+            click(image.Min.x + image.GetWidth() * .35f, image.Min.y + image.GetHeight() * .65f);
+            Check(studio.Workflow().selected_author_node_ == 2,
+                  "clicking rendered cube did not select its author transform");
+            settle();
+        }
         const auto capture = [&](const std::string& name) {
             ready();
             const auto rect = OutputRect();

@@ -716,7 +716,9 @@ class Studio::Impl final {
             auto edit = output_canvas_.Draw(
                     history_->Current(), canvas_.Selection(), host.RegisterTexture(output.final_),
                     {double(output.extent_.width_), double(output.extent_.height_)}, editable,
-                    plan_generation_ == generation_ && diagnostics_.empty(), catalogs_.at(locale_));
+                    plan_generation_ == generation_ && diagnostics_.empty(), catalogs_.at(locale_),
+                    output.outputs_);
+            if (edit.selected_) canvas_.Select(*edit.selected_);
             if (edit.committed_)
                 Apply(std::move(*edit.committed_));
             else if (edit.preview_changed_)
