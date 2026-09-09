@@ -91,6 +91,20 @@ void Run() {
             "nested viewer observes the selected instance parameter override");
     const auto other_scope = std::get<ExpandedComponentScope>(
             ExpandComponentScope(document, registry, std::array<NodeId, 1>{10}));
+    Require(scope.authors_.size() == scope.document_.nodes_.size() &&
+                    scope.authors_.at(20) == AuthorNode{{20, 1}, 2} &&
+                    scope.authors_.at(scope.nodes_.at(1)) == AuthorNode{{20, 1}, 1} &&
+                    scope.authors_.at(10) == AuthorNode{{10}, 2} &&
+                    scope.authors_.at(40) == AuthorNode{{}, 40},
+            "root aliases and generated IDs retain exact nested author identities");
+    Require(other_scope.authors_ == scope.authors_,
+            "author identities do not depend on the inspected preview scope");
+    const auto reserved_scope = std::get<ExpandedComponentScope>(
+            ExpandComponentScope(document, registry, std::array<NodeId, 2>{20, 1}, 1000));
+    Require(reserved_scope.nodes_.at(1) >= 1000 &&
+                    reserved_scope.authors_.at(reserved_scope.nodes_.at(1)) ==
+                            AuthorNode{{20, 1}, 1},
+            "reserved executable IDs preserve the same authored location");
     Require(other_scope.nodes_.at(1) != scope.nodes_.at(1) &&
                     std::any_of(other_scope.document_.edges_.begin(),
                                 other_scope.document_.edges_.end(),

@@ -26,6 +26,7 @@ struct Expansion {
     std::vector<NodeId> path_{};
     std::vector<NodeId> requested_path_{};
     std::map<NodeId, NodeId> scope_nodes_{};
+    std::map<NodeId, AuthorNode> authors_{};
     bool scope_found_ = false;
 };
 NodeId Allocate(Expansion& state) {
@@ -65,6 +66,7 @@ void ExpandScope(const Document& body, const std::map<NodeId, NodeId>& ids,
         if (!validation.empty()) throw Failure{validation.front()};
         if (descriptor->operation_ != Operation::kComponent) {
             Require(state.result_.nodes_.size() < 10000, id);
+            Require(state.authors_.emplace(id, AuthorNode{state.path_, node.id_}).second, id);
             auto expanded = node;
             expanded.id_ = id;
             state.result_.nodes_.push_back(std::move(expanded));
@@ -153,7 +155,8 @@ ComponentScopeExpansion ExpandComponentScope(const Document& document, const Reg
         }
         ExpandScope(document, ids, {}, document.components_, registry, state);
         if (!state.scope_found_) return std::vector<Diagnostic>{{"graph.missing_viewer"}};
-        return ExpandedComponentScope{std::move(state.result_), std::move(state.scope_nodes_)};
+        return ExpandedComponentScope{std::move(state.result_), std::move(state.scope_nodes_),
+                                      std::move(state.authors_)};
     } catch (const Failure& failure) {
         return std::vector<Diagnostic>{failure.diagnostic_};
     }

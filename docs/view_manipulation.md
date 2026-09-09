@@ -185,3 +185,15 @@ History 正确拒绝，测试改为同工程替换图，未削弱产品校验。
 Windows Studio/Player 已完成本次 Python 自动部署，`out/p4-scene-selection-delivery.log`
 含强制四项模板应用回归全通过；Studio deploy 路径同上。当前依然只有 Windows
 Studio 提供视图编辑，手机共享模块原生测试通过，不把这些测试说成 Android 编辑 UI。
+
+
+### P4.3 作者身份和编辑范围（进行中）
+
+组件展开现在返回每个可执行 ID 的 `AuthorNode {instance_path, node}` 元数据，
+包括保留为根实例 ID 的嵌套输出；它不能仅凭“ID 在根图存在”就当根作者节点。
+元数据随确定性的同一次展开建立，作用域预览和预留生成 ID 不改变作者路径。
+不修改运行包 ABI，不把中间结果写回资产。Windows
+`out/p4-component-authors-tests.log` 与手机原生
+`out/p4-component-authors-android-tests.log` 已验证嵌套、同源多实例和输出别名。
+后续将此映射接入选择/定位，并复用现有 `DetachComponent` 的完整嵌套副本事务
+提供独立实例编辑入口；目前还不把上述元数据测试算成范围 UI 已交付。
