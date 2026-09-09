@@ -163,6 +163,14 @@ FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameConte
         if (detail::IsEventOperation(operation)) {
             versions.push_back(std::bit_cast<std::uint64_t>(frame.seconds_));
             versions.push_back(frame.advance_state_ ? 1 : 0);
+            if (operation == graph::Operation::kEventInput && frame.external_.events_)
+                for (const auto& event : frame.external_.events_->Events()) {
+                    if (event.source_.node_ != node.id_) continue;
+                    versions.insert(versions.end(), {event.sequence_, event.generation_,
+                                                     std::bit_cast<std::uint64_t>(event.seconds_),
+                                                     static_cast<std::uint64_t>(event.kind_),
+                                                     std::bit_cast<std::uint64_t>(event.value_)});
+                }
             if (plan.beat_grid_) {
                 versions.push_back(std::bit_cast<std::uint64_t>(plan.beat_grid_->bpm_));
                 versions.push_back(plan.beat_grid_->beats_per_bar_);

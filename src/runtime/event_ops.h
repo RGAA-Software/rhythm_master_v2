@@ -31,6 +31,7 @@ class EventNode final {
     double scalar_ = 0;
     double last_event_seconds_ = 0;
     bool high_ = false;
+    bool started_ = false;
     EventObservation observation_{};
 };
 }  // namespace rhythm::runtime::detail

@@ -3,10 +3,12 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <memory>
 #include <optional>
 
 #include "rhythm/audio/features.h"
 #include "rhythm/parameters/controls.h"
+#include "rhythm/parameters/events.h"
 
 namespace rhythm::runtime {
 struct ParticipantInputs {
@@ -29,9 +31,17 @@ struct ExternalInputs {
     ParticipantInputs participant_{};
     std::optional<audio::Features> audio_{};
     parameters::ControlValues controls_{};
+    // Host-owned queue dispatch for this evaluation; targets are stable root
+    // event.input IDs. Sharing is immutable and never carries host callbacks.
+    std::shared_ptr<const parameters::EventBatch> events_{};
     bool operator==(const ExternalInputs&) const = default;
 };
 inline bool ValidExternalInputs(const ExternalInputs& inputs) {
+    if (inputs.events_)
+        for (const auto& event : inputs.events_->Events())
+            if (!parameters::ValidEvent(event) || event.source_.scope_ != 0 ||
+                event.source_.origin_ != parameters::EventOrigin::kManual)
+                return false;
     if (inputs.controls_.size() > parameters::ControlBank::kMaximumControls) return false;
     for (const auto& [id, value] : inputs.controls_)
         if (!id || !std::isfinite(value) || std::abs(value) > 1e6) return false;

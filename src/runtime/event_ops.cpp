@@ -6,7 +6,7 @@
 
 namespace rhythm::runtime::detail {
 bool IsEventOperation(graph::Operation operation) {
-    return operation >= graph::Operation::kEventBeat && operation <= graph::Operation::kEventReset;
+    return operation >= graph::Operation::kEventBeat && operation <= graph::Operation::kEventInput;
 }
 EventEvaluation EventNode::Evaluate(const graph::Instruction& instruction,
                                     std::span<const NodeOutput> outputs, const FrameContext& frame,
@@ -32,6 +32,7 @@ EventEvaluation EventNode::Evaluate(const graph::Instruction& instruction,
         grid_ = plan.beat_grid_;
         generation_ = generation;
         previous_.reset();
+        started_ = false;
         seen_.clear();
         scalar_ = property("initial", 0);
         high_ = scalar_ != 0;
@@ -56,7 +57,50 @@ EventEvaluation EventNode::Evaluate(const graph::Instruction& instruction,
         return true;
     };
     if (frame.advance_state_) {
-        if (operation == Operation::kEventBeat && previous_ && plan.beat_grid_) {
+        if (operation == Operation::kEventInput) {
+            const auto& track = std::get<EventTrack>(node.properties_.at("actions"));
+            std::vector<Event> events;
+            // A paused observation at zero must not consume zero-time actions.
+            // First evaluation after seeking elsewhere does not replay history.
+            if (!started_ && previous_.value_or(frame.seconds_) == 0)
+                for (const auto& action : track.Events()) {
+                    if (action.seconds_ != 0) break;
+                    events.push_back({0,
+                                      {0, node.id_, EventOrigin::kOperator},
+                                      action.id_,
+                                      generation,
+                                      action.kind_,
+                                      action.value_});
+                }
+            if (previous_)
+                for (const auto& action : track.Between(*previous_, frame.seconds_))
+                    events.push_back({action.seconds_,
+                                      {0, node.id_, EventOrigin::kOperator},
+                                      action.id_,
+                                      generation,
+                                      action.kind_,
+                                      action.value_});
+            if (frame.external_.events_)
+                for (const auto& event : frame.external_.events_->Events()) {
+                    if (event.source_.node_ != node.id_) continue;
+                    if (event.generation_ != generation || event.seconds_ > frame.seconds_) {
+                        ++result.rejected_;
+                        continue;
+                    }
+                    auto& sequence = seen_[event.source_];
+                    if (event.sequence_ <= sequence) continue;
+                    sequence = event.sequence_;
+                    auto dispatched = event;
+                    // Record the time at which the action actually reached the
+                    // graph, including bounded host-queue delay.
+                    dispatched.seconds_ = frame.seconds_;
+                    events.push_back(dispatched);
+                }
+            std::sort(events.begin(), events.end(), EventBefore);
+            for (const auto& event : events)
+                emit(event.seconds_, event.source_.origin_, event.kind_, event.value_);
+            started_ = true;
+        } else if (operation == Operation::kEventBeat && previous_ && plan.beat_grid_) {
             const BeatGrid grid(*plan.beat_grid_);
             auto next = grid.NextAfter(*previous_, Quantization::kBeat);
             const auto interval = static_cast<std::int64_t>(property("beat_interval", 1));
@@ -160,7 +204,8 @@ EventEvaluation EventNode::Evaluate(const graph::Instruction& instruction,
         observation_.last_seconds_ = produced.Events().back().seconds_;
         result.events_ = std::make_shared<const EventBatch>(std::move(produced));
     }
-    if (operation <= Operation::kEventMerge || operation == Operation::kEventReset)
+    if (operation <= Operation::kEventMerge || operation == Operation::kEventReset ||
+        operation == Operation::kEventInput)
         result.observation_ = observation_;
     return result;
 }
