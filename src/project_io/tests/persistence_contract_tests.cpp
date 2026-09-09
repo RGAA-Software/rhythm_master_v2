@@ -1,5 +1,6 @@
 #include <google/protobuf/unknown_field_set.h>
 
+#include <atomic>
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -38,6 +39,38 @@ int main(int argc, char* argv[]) {
         if (argc != 3) throw std::invalid_argument("test.arguments");
         const auto initial = project::LoadRevision(argv[1]).snapshot_;
         Check(initial.document_.nodes_.size() == 8);
+        {
+            const auto root = std::filesystem::path(argv[2]) / "concurrent-current";
+            auto snapshot = initial;
+            snapshot.title_ = "revision-a";
+            project::Save(root, snapshot);
+            // Loading normalizes legacy schema defaults in the source fixture.
+            snapshot = project::Load(root).snapshot_;
+            std::atomic<bool> done{false};
+            std::exception_ptr writer_error;
+            std::jthread writer([&] {
+                try {
+                    for (int index = 0; index < 32; ++index) {
+                        auto next = snapshot;
+                        next.title_ = index % 2 ? "revision-a" : "revision-b";
+                        project::Save(root, next);
+                    }
+                } catch (...) {
+                    writer_error = std::current_exception();
+                }
+                done.store(true);
+            });
+            std::size_t reads = 0;
+            do {
+                const auto read = project::Load(root).snapshot_;
+                Check(read.document_ == snapshot.document_ &&
+                      (read.title_ == "revision-a" || read.title_ == "revision-b"));
+                ++reads;
+            } while (!done.load());
+            writer.join();
+            if (writer_error) std::rethrow_exception(writer_error);
+            Check(reads > 0);
+        }
         {
             auto musical = initial;
             musical.document_.beat_grid_ = parameters::BeatSettings{97, 6, 8, -0.25};

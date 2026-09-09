@@ -50,6 +50,13 @@ bool Covers(const graph::ExecutionPlan& plan, const Resources& resources) {
 std::shared_ptr<const Resources> Prepare(const graph::ExecutionPlan& plan,
                                          std::span<const project::PackagedAsset> assets,
                                          std::stop_token stop) {
+    detail::TextCache cache;
+    return detail::PrepareWithTextCache(plan, assets, cache, stop);
+}
+
+std::shared_ptr<const Resources> detail::PrepareWithTextCache(
+        const graph::ExecutionPlan& plan, std::span<const project::PackagedAsset> assets,
+        TextCache& cache, std::stop_token stop) {
     auto result = std::make_shared<Resources>();
     // Existing model preparation also verifies every record, hash and byte budget.
     result->models_ = model_assets::Prepare(plan, assets, stop);
@@ -96,7 +103,7 @@ std::shared_ptr<const Resources> Prepare(const graph::ExecutionPlan& plan,
     if (stop.stop_requested()) throw std::runtime_error("asset.cancelled");
     std::size_t model_image_bytes = 0;
     for (const auto& model : result->models_->models_) model_image_bytes += model.image_bytes_;
-    detail::PrepareText(plan, assets, *images, model_image_bytes, stop);
+    detail::PrepareText(plan, assets, *images, model_image_bytes, cache, stop);
     result->images_ = std::move(images);
     result->videos_ = detail::PrepareVideos(plan, assets, stop);
     result->shaders_ = detail::PrepareShaders(plan, assets, stop);

@@ -6,6 +6,9 @@
 #include "rhythm/prepared_assets/prepare.h"
 
 namespace rhythm::prepared_assets {
+namespace detail {
+class TextCache;
+}
 struct LoadRequest {
     graph::ExecutionPlan plan_{};
     std::vector<assets::AssetRecord> assets_{};
@@ -23,6 +26,7 @@ struct LoadResult {
 // are suppressed; host generation checks also cover edits still compiling.
 class Loader final {
    public:
+    Loader();
     ~Loader();
     void Submit(LoadRequest request);
     void Cancel();
@@ -35,5 +39,7 @@ class Loader final {
     std::future<LoadResult> pending_{};
     std::optional<LoadRequest> latest_{};
     std::stop_source cancellation_{};
+    // Accessed only by the joined worker; never shared with UI/render state.
+    std::unique_ptr<detail::TextCache> text_cache_{};
 };
 }  // namespace rhythm::prepared_assets

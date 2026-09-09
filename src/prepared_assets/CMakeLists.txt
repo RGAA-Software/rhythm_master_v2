@@ -11,6 +11,8 @@ rhythm_project_target(prepared_assets)
 if(BUILD_TESTING)
     add_executable(text_preparation_tests tests/text_preparation_tests.cpp)
     target_include_directories(text_preparation_tests PRIVATE "${PROJECT_SOURCE_DIR}/third_party/sources/picosha2")
+    target_include_directories(text_preparation_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_link_libraries(text_preparation_tests PRIVATE text_layout)
     target_link_libraries(text_preparation_tests PRIVATE prepared_assets graph_runtime runtime_package)
     rhythm_project_target(text_preparation_tests)
     add_test(NAME text_preparation COMMAND text_preparation_tests

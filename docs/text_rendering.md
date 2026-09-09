@@ -55,8 +55,25 @@ Studio 的多行输入按应用或 Enter 提交，Ctrl+Enter 换行，避免每�
 留下内容寻址的孤立 blob，但不会留下半套作品资产记录。
 
 位置、颜色和音乐控制复用现有变换与合成节点，避免按帧重新排版或重复上传静态文字。
-派生图像按字体 SHA 和精确文字/布局键区分。glyph 缓存目前在一次后台准备内共享，
-跨文字修改的持久字体缓存仍待完成，不能宣称 P5.5 已闭环。
+派生图像按字体 SHA 和精确文字/布局键区分。后台 Loader 已接入跨文字修改的
+持久 glyph 缓存，由唯一工作线程拥有，销毁先取消并 join，再释放缓存。最多两套
+字体，常驻字体字节不超过 64 MiB、glyph 存储不超过 16 MiB；新字体先构造再淘汰
+旧字体，构造期间最多另加 32 MiB。缓存不绕过源记录和 SHA 校验，不发布到 UI。
+
+Windows `out/p5-text-persistent-cache-tests.log` 中缓存合同通过：重排已有字符
+不增加栅格化次数，字号改变产生新字形，淘汰字体后正确重建，热缓存拒绝损坏源。
+实际 UI 路径复测发现并修复了 [并发工程读取问题](validation/concurrent_project_read_2026-09-10.md)。
+尚未复用其他不变图片／模型的后台解码结果，也未实现动态文字信号输入，不能宣称
+P5.5 已闭环。
+
+`out/p5-text-persistent-cache-android-tests.log` 与 `out/p5-current-read-android-tests.log`
+分别通过 USB Android 原生缓存和并发持久化合同。更新交付见
+`out/p5-cache-current-windows-delivery.log`（5 项强制检查通过）与
+`out/p5-cache-current-android-delivery.log`。新 APK 已覆盖安装，SHA256 为
+`d8de4f5b7d6d3bd82debcfe0d18b4fcdf1e51702243c1c2bb5afe57aca59b348`。
+`out/p5-cache-current-android-ui.log` 保存实际 UI 复测，目录
+`out/android-authored-works/eb27e6e56b9b48fda7da20fef7209912/`；已人工核对正确的
+`Prismatic Title`、中文和频谱，暂停 0.59 秒后恢复至 1.57 秒，原节目单保持不变。
 
 2026-09-10 证据：`out/p5-text-layout-build.log`、`out/p5-text-layout-tests.log`、
 `out/p5-text-layout-android-build.log`、`out/p5-text-layout-android-tests.log`。

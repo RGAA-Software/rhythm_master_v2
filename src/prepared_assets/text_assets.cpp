@@ -8,10 +8,33 @@
 #include "rhythm/text/rasterizer.h"
 
 namespace rhythm::prepared_assets::detail {
+text::Mask TextCache::Render(const project::PackagedAsset& font, const text::Layout& layout) {
+    const auto& key = font.record_.id_.sha256_;
+    auto found = fonts_.find(key);
+    if (found == fonts_.end()) {
+        // Input records/hashes have already been verified by model preparation.
+        // Construct before eviction so a malformed font cannot poison the cache.
+        auto rasterizer = std::make_unique<text::Rasterizer>(std::span<const std::uint8_t>(
+                reinterpret_cast<const std::uint8_t*>(font.bytes_.data()), font.bytes_.size()));
+        if (fonts_.size() == 2) {
+            const auto oldest = std::min_element(
+                    fonts_.begin(), fonts_.end(), [](const auto& first, const auto& second) {
+                        return first.second.used_ < second.second.used_;
+                    });
+            fonts_.erase(oldest);
+        }
+        found = fonts_.emplace(key, Entry{std::move(rasterizer), 0}).first;
+    }
+    auto& entry = found->second;
+    entry.used_ = ++sequence_;
+    const auto before = entry.font_->Stats().rasterizations_;
+    auto mask = entry.font_->Render(layout);
+    rasterizations_ += entry.font_->Stats().rasterizations_ - before;
+    return mask;
+}
 void PrepareText(const graph::ExecutionPlan& plan, std::span<const project::PackagedAsset> assets,
-                 assets::Images& images, std::size_t model_image_bytes, std::stop_token stop) {
-    std::map<std::string, std::unique_ptr<text::Rasterizer>> fonts;
-    std::size_t font_bytes = 0;
+                 assets::Images& images, std::size_t model_image_bytes, TextCache& cache,
+                 std::stop_token stop) {
     std::size_t image_bytes = model_image_bytes;
     std::size_t layouts = 0;
     for (const auto& image : images.images_) image_bytes += image.rgba_.size();
@@ -26,24 +49,11 @@ void PrepareText(const graph::ExecutionPlan& plan, std::span<const project::Pack
             }))
             continue;
         if (++layouts > 64) throw std::length_error("text.layout_count");
-        auto& font = fonts[id.sha256_];
-        if (!font) {
-            const auto found = std::find_if(assets.begin(), assets.end(), [&](const auto& asset) {
-                return asset.record_.id_ == id;
-            });
-            if (found == assets.end()) throw std::invalid_argument("text.font_missing");
-            if (found->record_.media_type_ != "font/otf" &&
-                found->record_.media_type_ != "font/ttf")
-                throw std::invalid_argument("text.font_media_type");
-            if (found->bytes_.size() > 64 * 1024 * 1024 - font_bytes)
-                throw std::length_error("text.font_budget");
-            font_bytes += found->bytes_.size();
-            // The package owns these bytes during this synchronous call;
-            // Rasterizer copies them into its private font lifetime.
-            font = std::make_unique<text::Rasterizer>(std::span<const std::uint8_t>(
-                    reinterpret_cast<const std::uint8_t*>(found->bytes_.data()),
-                    found->bytes_.size()));
-        }
+        const auto found = std::find_if(assets.begin(), assets.end(),
+                                        [&](const auto& asset) { return asset.record_.id_ == id; });
+        if (found == assets.end()) throw std::invalid_argument("text.font_missing");
+        if (found->record_.media_type_ != "font/otf" && found->record_.media_type_ != "font/ttf")
+            throw std::invalid_argument("text.font_media_type");
         text::Layout layout;
         layout.text_ = std::get<std::string>(node.properties_.at("text_content"));
         layout.width_ = static_cast<std::uint32_t>(graph::Scalar(node, "text_width", 512));
@@ -57,7 +67,7 @@ void PrepareText(const graph::ExecutionPlan& plan, std::span<const project::Pack
         if (image_bytes > assets::kMaximumImageBytes ||
             bytes > assets::kMaximumImageBytes - image_bytes)
             throw std::length_error("image.byte_budget");
-        const auto mask = font->Render(layout);
+        const auto mask = cache.Render(*found, layout);
         assets::ImageResource image;
         image.id_ = id;
         image.width_ = static_cast<std::uint16_t>(mask.width_);

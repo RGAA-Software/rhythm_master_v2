@@ -4,7 +4,6 @@
 #include <atomic>
 #include <chrono>
 #include <cmath>
-#include <fstream>
 #include <nlohmann/json.hpp>
 #include <set>
 #include <stdexcept>
@@ -13,6 +12,7 @@
 #include "rhythm/assets/store.h"
 #include "rhythm/project/store.h"
 #include "rhythm/storage/atomic_file.h"
+#include "rhythm/storage/file_bytes.h"
 #include "soundtrack_codec.h"
 
 namespace rhythm::project {
@@ -33,13 +33,12 @@ Json ParseMetadata(std::string_view bytes) {
 }
 std::string Read(const std::filesystem::path& path, std::size_t maximum) {
     if (std::filesystem::is_symlink(path)) throw std::invalid_argument("project.symlink");
-    const auto size = std::filesystem::file_size(path);
-    if (size > maximum) throw std::length_error("project.file_limit");
-    std::ifstream file(path, std::ios::binary);
-    file.exceptions(std::ios::badbit | std::ios::failbit);
-    std::string bytes(static_cast<std::size_t>(size), '\0');
-    file.read(bytes.data(), static_cast<std::streamsize>(size));
-    return bytes;
+    // Size and bytes belong to one open-file lease. CURRENT may be atomically
+    // replaced between path operations; a path-sized ifstream is not a snapshot.
+    const auto file = storage::FileBytes::Open(path, maximum);
+    std::vector<std::uint8_t> bytes(static_cast<std::size_t>(file.Size()));
+    file.Read(0, bytes);
+    return {bytes.begin(), bytes.end()};
 }
 bool SafeRevision(std::string_view revision) {
     return !revision.empty() && revision.size() <= 96 &&
