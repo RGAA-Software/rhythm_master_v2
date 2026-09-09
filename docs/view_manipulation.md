@@ -96,6 +96,25 @@ ImGui、未导入另一份 ImGui、没有把 SDK 安装成功当作 ABI 兼容�
 静默沿局部轴操作。带剪切的矩阵也不能直接等同现有 TRS 作者参数，接续事务需要
 可表示性验证，不把程序生成的中间网格写回作者资产。
 
+### P4.2 共享 3D 作者事务（已验证，UI 接入中）
+
+`scene::EulerPose` 将平移 × Rz × Ry × Rx × 缩放作为唯一计算约定，内部复用已安装
+GLM `gtx/euler_angles.hpp` 的组合/提取，仍使用 `provenance/glm.json` 的 MIT 分支
+与完整许可。`Runtime scene.transform` 已采用同一组合函数；没有新 schema 或 ABI。
+分解包含镜像和万向节锁测试，剪切/奇异矩阵拒绝，不把近似分解静默写回作者参数。
+
+`SceneEdit` 保存稳定作者 ID、基线 revision、相机和唯一输出路径，四种方面分别
+处理：有驱动则保护；非 TRS 或超范围则拒绝；多次移动保留一个草稿；完成后只产生
+一个 History。平移不改写可等价表达的原始欧拉角分支，保留已被运行时夹限的原有
+轴因子。当前根图 `scene.transform -> transform/merge -> scene.render -> output`
+可追踪；组件、复制分支和图像后处理暂明确拒绝，接续 P4.3/4.5 补语义。
+
+Windows `out/p4-scene-pose-tests.log`、`out/p4-shared-scene-pose-tests.log`
+（含实际场景 GPU 像素）、`out/p4-scene-edit-tests.log` 通过；USB Android 原生
+`out/p4-scene-pose-android-tests.log`、`out/p4-shared-scene-pose-android-tests.log`、
+`out/p4-scene-edit-android-tests.log` 通过。此处新增的 3D 事务还未出现在已交付
+Studio 窗口，最新已安装 APK 仍是前文 `54bb...` 的 P4.1 交付版本。
+
 1. `editor_application` 增加变换编辑事务，保留基线 revision/稳定节点 ID；一次
    鼠标拖动只提交一次 History，Esc/失焦/删除或外部 revision 变化取消草稿。
 2. Studio 最终输出的坐标操作与节点图平移分开；先支持 affine 作者节点的

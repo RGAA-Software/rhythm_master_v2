@@ -2,8 +2,9 @@
 
 #include <algorithm>
 #include <cmath>
-#include <numbers>
 #include <stdexcept>
+
+#include "rhythm/scene/pose.h"
 
 namespace rhythm::runtime::detail {
 void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOutput> outputs,
@@ -205,7 +206,7 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
                                                 input(1).scene_->positional_lights_.end());
             } else {
                 const auto angle = [&](std::size_t port, std::string_view key) {
-                    return control(port, key, 0, -36000, 36000) * std::numbers::pi / 360;
+                    return control(port, key, 0, -36000, 36000);
                 };
                 const auto x = angle(1, "rotation_x"), y = angle(2, "rotation_y"),
                            z = angle(3, "rotation_z");
@@ -215,16 +216,12 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
                 const auto axis = [&](std::size_t port, std::string_view key) {
                     return std::clamp(scale * control(port, key, 1, 0.001, 100), 0.001, 100.0);
                 };
-                // Intrinsic X, then Y, then Z; GLM-backed Compose/Multiply own all matrix math.
-                const auto rx = scene::Compose(
-                        {}, {std::sin(x), 0, 0, std::cos(x)},
-                        {axis(8, "scale_x"), axis(9, "scale_y"), axis(10, "scale_z")});
-                const auto ry = scene::Compose({}, {0, std::sin(y), 0, std::cos(y)}, {1, 1, 1});
-                const auto rz = scene::Compose({control(5, "translate_x", 0, -1000, 1000),
-                                                control(6, "translate_y", 0, -1000, 1000),
-                                                control(7, "translate_z", 0, -1000, 1000)},
-                                               {0, 0, std::sin(z), std::cos(z)}, {1, 1, 1});
-                const auto transform = scene::Multiply(rz, scene::Multiply(ry, rx));
+                const auto transform = scene::ComposeEuler(
+                        {{control(5, "translate_x", 0, -1000, 1000),
+                          control(6, "translate_y", 0, -1000, 1000),
+                          control(7, "translate_z", 0, -1000, 1000)},
+                         {x, y, z},
+                         {axis(8, "scale_x"), axis(9, "scale_y"), axis(10, "scale_z")}});
                 if (scene.shadow_)
                     scene.shadow_->center_ =
                             scene::TransformPoint(transform, scene.shadow_->center_);
