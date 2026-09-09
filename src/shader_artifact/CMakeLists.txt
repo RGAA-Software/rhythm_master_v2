@@ -1,0 +1,8 @@
+add_library(shader_artifact STATIC artifact.cpp)
+target_include_directories(shader_artifact PUBLIC include)
+rhythm_project_target(shader_artifact)
+if(BUILD_TESTING)
+    add_executable(shader_artifact_tests tests/artifact_tests.cpp)
+    target_link_libraries(shader_artifact_tests PRIVATE shader_artifact)
+    rhythm_project_target(shader_artifact_tests)
+endif()

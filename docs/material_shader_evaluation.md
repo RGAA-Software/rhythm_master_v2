@@ -89,3 +89,17 @@ Windows `out/p6-shared-expression-tests.log` 的四项检查通过，包含旧�
 `out/p6-shared-expression-android-tests.log`、
 `out/p6-shared-expression-android-image-source-tests.log`、
 `out/p6-shared-expression-android-image-program-tests.log`。
+
+产物校验抽到 `shader_artifact`，图像入口继续固定 Image profile。Surface 使用场景
+varying、最多 24 个明确命名绑定、五组四元素灯光数组、一个 Mat4、六个采样器及
+既有数值 uniform。D3D 寄存器按 16 字节对齐、不得重叠，常量区不超过 1024 字节
+且必须覆盖已声明绑定；GLES 容器采样器寄存器字段实际为零，不能照搬 D3D 槽位。
+两端仍检查固定 FSH12、容器边界、后端代码结构及尾部数据，不声称证明字节码安全。
+
+`out/p6-shader-artifact-tests.log`、`out/p6-shader-artifact-android-tests.log` 通过三个
+实际编译变体、两种目标、错误 profile／字段／长度／尾部／过小常量区拒绝。
+`out/p6-shader-artifact-image-regression.log` 与
+`out/p6-shader-artifact-android-image-regression.log` 保证原图像编译和容器负例仍通过。
+首次构建发现测试读取器的有符号／无符号比较警告，已明确转换为 streamoff 后修正；
+失败 `out/p6-shader-artifact-build.log` 保留，成功构建为
+`out/p6-shader-artifact-binding-build.log` 和 `out/p6-shader-artifact-android-build.log`。

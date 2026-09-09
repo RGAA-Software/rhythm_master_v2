@@ -1,6 +1,6 @@
 add_library(image_shader STATIC source.cpp artifact.cpp program.cpp)
 target_include_directories(image_shader PUBLIC include)
-target_link_libraries(image_shader PUBLIC shader_expression)
+target_link_libraries(image_shader PUBLIC shader_expression shader_artifact)
 rhythm_project_target(image_shader)
 if(BUILD_TESTING)
     add_executable(image_shader_program_tests tests/program_tests.cpp)
