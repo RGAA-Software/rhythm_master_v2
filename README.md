@@ -226,6 +226,10 @@ task; its executable is not bundled with Player.
 
 For daily acceptance, `python tools/build-windows.py` builds **Release** with
 20 workers and the validated local SDKs, and deploys both Studio and Player.
+Every Studio delivery also runs mandatory template application, save/reopen and
+publication regressions, including real English/Chinese Studio GPU switching.
+This includes no-op builds; missing or failed tests fail the command. See the
+[template-switch regression and prevention](docs/validation/template_switch_regression_2026-09-09.md).
 It preserves the separate `out/windows` Debug cache; use
 `--configuration Debug` for debugging. The Studio launcher defaults to Release.
 Do not use the Debug bundle to assess animation performance.

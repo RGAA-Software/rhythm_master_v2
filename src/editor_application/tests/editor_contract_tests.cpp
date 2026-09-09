@@ -66,17 +66,33 @@ int main() {
             content.document_.id_ = "template.local";
             content.document_.canvas_ = {720, 1280};
             content.document_.nodes_ = {registry.MakeNode(1, "texture.gradient"),
-                                        registry.MakeNode(2, "output.texture")};
+                                        registry.MakeNode(2, "output.texture"),
+                                        registry.MakeNode(3, "control.scalar")};
+            content.document_.edges_ = {{1, 3, 1, "amount"}};
+            content.document_.control_titles_ = {{3, "Color mix"}};
+            content.document_.control_snapshots_ = {{7, "Opening", {{3, 0.8}}}};
+            content.document_.control_cues_ = {{9, "Opening cue", 0, 7, 0}};
             content.document_.output_ = 2;
             content.document_.signals_ = {{"image", 1}};
             content.document_.bindings_ = {{2, "source", "image"}};
             content.positions_ = {{1, {10, 20}}, {2, {200, 20}}};
             content.title_ = "Template";
             const auto before = history.Current();
-            const std::vector<rhythm::graph::NodeId> ids{history.ReserveNodeId(),
-                                                         history.ReserveNodeId()};
+            const std::vector<rhythm::graph::NodeId> ids{
+                    history.ReserveNodeId(), history.ReserveNodeId(), history.ReserveNodeId()};
             const auto instantiated = std::get<rhythm::editor::Snapshot>(
                     rhythm::editor::InstantiateTemplate(before, content, ids));
+            const auto compiled = rhythm::graph::Compile(instantiated.document_, registry);
+            if (!std::holds_alternative<rhythm::graph::ExecutionPlan>(compiled))
+                throw std::runtime_error("template.remapped_controls_do_not_compile");
+            const auto& plan = std::get<rhythm::graph::ExecutionPlan>(compiled);
+            if (instantiated.document_.control_titles_ !=
+                        std::map<rhythm::graph::NodeId, std::string>{{ids[2], "Color mix"}} ||
+                instantiated.document_.control_snapshots_[0].values_ !=
+                        rhythm::parameters::ControlValues{{ids[2], 0.8}} ||
+                instantiated.document_.control_cues_ != content.document_.control_cues_ ||
+                !plan.control_sequence_ || plan.control_sequence_->Sample(0).at(ids[2]) != 0.8)
+                throw std::runtime_error("template.remapped_control_and_cue_semantics");
             if (instantiated.document_.id_ != before.document_.id_ ||
                 instantiated.document_.output_ != ids[1] ||
                 instantiated.positions_.at(ids[0]) != rhythm::editor::Position{10, 20} ||

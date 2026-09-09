@@ -54,6 +54,8 @@ def main():
     parser.add_argument("--jobs", type=int, default=20)
     parser.add_argument("--configure-only", action="store_true")
     args = parser.parse_args()
+    verify_studio = not args.target or any(
+        target in ('rhythm_master', 'studio_deploy', 'all') for target in args.target)
     if not 1 <= args.jobs <= 64:
         parser.error("jobs must be 1..64")
     build = args.build or ROOT / ("out/windows" if args.configuration == "Debug" else "out/windows-release")
@@ -68,6 +70,8 @@ def main():
     options = ["-DCMAKE_BUILD_TYPE=" + args.configuration, "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
                "-DRHYTHM_BUILD_WINDOWS_SPIKE=ON", "-DRHYTHM_BUILD_MEDIA=ON",
                "-DRHYTHM_MEDIA_SDK=" + (ROOT / "out/vcpkg-media-lgpl/x64-windows").as_posix()]
+    if verify_studio:
+        options.append('-DBUILD_TESTING=ON')
     # Transfer validated SDK/tool locations only, never compiler flags or cache files.
     for name in ("RHYTHM_SHADERC", "RHYTHM_SPIKE_SDK", "RHYTHM_IO_SDK", "RHYTHM_MEDIA_SDK",
                  "RHYTHM_PHYSICS_SDK", "RHYTHM_CGLTF_INCLUDE", "RHYTHM_GLM_INCLUDE",
@@ -85,8 +89,29 @@ def main():
     # These existing targets invoke Python deployment even after a no-op build.
     targets = [{"rhythm_master": "studio_deploy", "rhythm_player": "player_deploy"}.get(target, target)
                for target in args.target] or ["studio_deploy", "player_deploy"]
+    if verify_studio:
+        targets.extend(['editor_contract_tests', 'template_contract_tests', 'template_switch_gpu_tests'])
     subprocess.run(["cmake", "--build", str(build), "--parallel", str(args.jobs), "--target", *targets],
                    check=True, env=environment)
+    if verify_studio:
+        # Verify the actual authoring transition on every Studio delivery, even
+        # after a no-op build. Source-template playback alone misses ID remapping.
+        expected_tests = {'editor_contracts', 'template_contracts',
+                          'template_switch_gpu_en-US', 'template_switch_gpu_zh-CN'}
+        pattern = '^(' + '|'.join(sorted(expected_tests)) + ')$'
+        listing = subprocess.run(['ctest', '--test-dir', str(build), '--show-only=json-v1',
+                                  '-R', pattern], env=environment, capture_output=True, check=True)
+        available_tests = {test['name'] for test in json.loads(listing.stdout)['tests']}
+        if available_tests != expected_tests:
+            raise RuntimeError('Mandatory Studio delivery tests are missing: ' +
+                               ', '.join(sorted(expected_tests - available_tests)))
+        result = subprocess.run([
+            'ctest', '--test-dir', str(build), '--output-on-failure', '--no-tests=error',
+            '-R', pattern
+        ], env=environment, capture_output=True)
+        (build / 'studio-delivery-tests.log').write_bytes(result.stdout + result.stderr)
+        print((result.stdout + result.stderr).decode('utf-8', errors='replace'), end='')
+        result.check_returncode()
     print(f"Windows {args.configuration} build completed: {build}")
 
 

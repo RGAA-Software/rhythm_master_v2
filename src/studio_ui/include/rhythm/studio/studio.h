@@ -29,6 +29,8 @@ class Studio final {
     void SetSuspended(bool suspended);
     void SetTextureReuse(bool enabled);
     void LoadAudioFile(const std::filesystem::path& path, float volume = 1);
+    // True only after the current compilation request has succeeded. A retained
+    // previous output while loading or diagnosing a new graph is not success.
     bool HasValidPlan() const;
     FrameStatus Status() const;
 

@@ -437,6 +437,7 @@ class Studio::Impl final {
                 if (listed && !force_asset_reload_ &&
                     prepared_assets::Covers(next, *prepared_resources_)) {
                     plan_ = std::move(next);
+                    plan_generation_ = generation_;
                     preview_routing_.Commit();
                     diagnostics_.clear();
                 } else {
@@ -457,6 +458,7 @@ class Studio::Impl final {
             completed && completed->generation_ == generation_) {
             if (completed->resources_) {
                 plan_ = std::move(completed->plan_);
+                plan_generation_ = generation_;
                 preview_routing_.Commit();
                 prepared_resources_ = std::move(completed->resources_);
                 force_asset_reload_ = false;
@@ -730,6 +732,7 @@ class Studio::Impl final {
     std::optional<double> evaluated_seconds_{};
     std::uint64_t timeline_generation_ = 0;
     std::uint64_t generation_ = 0;
+    std::uint64_t plan_generation_ = 0;
     std::uint64_t reset_ = 0;
     std::uint64_t load_revision_ = 0;
     bool show_viewers_ = true;
@@ -747,7 +750,10 @@ Studio::~Studio() = default;
 void Studio::Frame(platform::Host& host, render::Renderer& renderer, double seconds) {
     impl_->Frame(host, renderer, seconds);
 }
-bool Studio::HasValidPlan() const { return impl_->plan_.has_value(); }
+bool Studio::HasValidPlan() const {
+    return impl_->plan_.has_value() && impl_->plan_generation_ == impl_->generation_ &&
+           impl_->diagnostics_.empty();
+}
 void Studio::SetTextureReuse(bool enabled) { impl_->reuse_textures_ = enabled; }
 void Studio::SetSuspended(bool suspended) { impl_->audio_panel_.SetSuspended(suspended); }
 FrameStatus Studio::Status() const {

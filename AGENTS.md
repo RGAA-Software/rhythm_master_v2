@@ -139,6 +139,16 @@ ownership is explicitly transferred to the project.
 
 ## Verification
 
+- Every Studio delivery build must verify the user-facing template application
+  path, including node-ID remapping, macro/snapshot/Cue references, current output,
+  save/reopen and publication. Direct source-template or package playback is not
+  evidence that applying a template in Studio works. Keep the regression in
+  `tools/build-windows.py` mandatory, including no-op delivery builds.
+- When reporting validation, state the actual path exercised. A retained previous
+  render plan must never count as success for a newly applied or edited graph.
+- Record user-reported regressions, root causes, missed test paths and permanent
+  checks in `docs/validation/`; consult them when changing the affected workflow.
+
 - Prioritize feature delivery. Defer long-duration soak, thermal and endurance
   tests to the final integrated acceptance stage. Keep affected-target builds,
   focused regression tests and short functional/device checks during development.
