@@ -113,3 +113,11 @@ P1.5 可编辑演出示例一起补齐，不能用此处的组件交互检查替
 USB 原生合同与实际 APK 快照/切场/暂停/后台返回检查通过，具体时间、参数和
 刷新竞争修复见 [Android 证据](validation/android_beat_ui_2026-09-09.md)。
 P1.5 示例及 Studio GPU 专项仍需完成，Android 跨画布方向检查随之补充。
+
+### P1.5 收口
+
+上述待补项现已完成：真实 Studio 按钮→跨拍最终输出像素变化→保存/发布/重新打开，
+光幕协奏的中英文模板应用、Android 新 APK 内置选择和量化召回，以及横竖画布切换。
+见 [最终功能证据](validation/beat_studio_example_2026-09-09.md)和
+[示例操作](luminous_concerto_performance.md)。P1 完成不包含 P2 现场录制、P3 音频淡化
+或 P9 长稳。

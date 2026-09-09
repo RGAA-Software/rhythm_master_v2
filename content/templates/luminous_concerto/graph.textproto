@@ -1,4 +1,5 @@
-schema_version: 5
+schema_version: 6
+beat_grid { bpm: 120 beats_per_bar: 4 beat_unit: 4 origin_seconds: 0 }
 id: "official-luminous-concerto"
 output: 85
 canvas { width: 1280 height: 720 }

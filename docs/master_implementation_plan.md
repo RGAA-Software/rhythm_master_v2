@@ -8,8 +8,9 @@
 见 [P0 证据](validation/workflow_diagnostics_2026-09-09.md)。P0.1 的基线已核对，
 内容审核索引仍随 P7.1 建立。P1.1–P1.2 已完成共享合同与两端原生验证；P1.3 的
 Studio/Windows Player 控件和 P1.4 的 Android 控件已实现，实机快照与切场通过。
-P1.5 正在补齐示例、Studio GPU 专项与跨画布方向检查，见
-[节拍实施证据](beat_quantization.md)。其余工作包不因此标记完成。
+P1.5 已完成示例、Studio GPU 专项与跨画布方向检查，见
+[示例交付证据](validation/beat_studio_example_2026-09-09.md)和
+[节拍实施证据](beat_quantization.md)。下一增量为 P2 本地事件，其余工作包不因此标记完成。
 
 ## 1. 产品目标、阶段终点与优先级
 

@@ -6,6 +6,15 @@ target_compile_definitions(render_bgfx PRIVATE BX_CONFIG_DEBUG=0)
 rhythm_project_target(render_bgfx)
 include("${PROJECT_SOURCE_DIR}/cmake/RenderShaders.cmake")
 if(BUILD_TESTING)
+    add_executable(beat_studio_gpu_tests tests/beat_studio_gpu_tests.cpp)
+    target_link_libraries(beat_studio_gpu_tests PRIVATE studio_ui project_io runtime_package spike_imgui spike_bgfx nlohmann_json::nlohmann_json)
+    rhythm_project_target(beat_studio_gpu_tests)
+    add_dependencies(beat_studio_gpu_tests studio_resources)
+    add_test(NAME beat_studio_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-beat-studio-gpu.py"
+        --executable "$<TARGET_FILE:beat_studio_gpu_tests>" --resources "${CMAKE_CURRENT_BINARY_DIR}"
+        --output "${PROJECT_BINARY_DIR}/beat-studio-gpu")
+    set_tests_properties(beat_studio_gpu PROPERTIES TIMEOUT 90 RUN_SERIAL TRUE
+        ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     add_executable(template_switch_gpu_tests tests/template_switch_gpu_tests.cpp)
     target_link_libraries(template_switch_gpu_tests PRIVATE studio_ui project_io runtime_package spike_imgui spike_bgfx nlohmann_json::nlohmann_json)
     rhythm_project_target(template_switch_gpu_tests)

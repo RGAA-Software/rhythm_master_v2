@@ -89,7 +89,8 @@ int main(int argc, char* argv[]) {
         }
         Check(studio.HasValidPlan(), "default Studio output not ready");
         bool timeline_open = false;
-        for (const std::string name : {"ink_tide", "chromatic_loom", "crystal_choir"}) {
+        for (const std::string name :
+             {"ink_tide", "chromatic_loom", "crystal_choir", "luminous_concerto"}) {
             action = "select:" + name;
             const auto entry = std::find_if(entries.begin(), entries.end(), [&](const auto& value) {
                 return value.id_ == "official.templates." + name;
@@ -151,6 +152,8 @@ int main(int argc, char* argv[]) {
                               published.program_.controls_.Definitions().size() ==
                                       expected_plan.controls_.Definitions().size() &&
                               saved.document_.control_cues_ == expected.document_.control_cues_ &&
+                              saved.document_.beat_grid_ == expected.document_.beat_grid_ &&
+                              published.program_.beat_grid_ == expected.document_.beat_grid_ &&
                               !studio.Status().budget_limited_,
                       "current output/save/publication lost template structure or controls");
                 const auto capture = (root / (locale + "-" + name)).string();

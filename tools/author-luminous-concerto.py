@@ -133,7 +133,7 @@ def main():
     for identity, seconds, snapshot, fade in [(1, 0, 1, 0), (2, 4, 2, 2), (3, 12, 3, 3)]:
         controls.append(f' cues {{ id: {identity} title: "Part {identity}" seconds: {seconds} snapshot: {snapshot} fade: {fade} smooth: true }}')
     controls.append('}')
-    (destination / 'graph.textproto').write_text(f'schema_version: 5\nid: "official-luminous-concerto"\noutput: {final}\ncanvas {{ width: 1280 height: 720 }}\n' + '\n'.join(graph.nodes + graph.edges + controls) + '\n', encoding='utf-8')
+    (destination / 'graph.textproto').write_text(f'schema_version: 6\nbeat_grid {{ bpm: 120 beats_per_bar: 4 beat_unit: 4 origin_seconds: 0 }}\nid: "official-luminous-concerto"\noutput: {final}\ncanvas {{ width: 1280 height: 720 }}\n' + '\n'.join(graph.nodes + graph.edges + controls) + '\n', encoding='utf-8')
     (destination / 'editor.json').write_text(json.dumps(dict(version=2, positions=graph.positions), indent=4) + '\n', encoding='utf-8')
     clips = []
     for identity, title, source, start, duration, source_in, source_out, gain, pan in [
