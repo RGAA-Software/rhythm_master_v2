@@ -3,12 +3,12 @@
 #include <chrono>
 #include <set>
 
+#include "preparation_cache.h"
 #include "rhythm/assets/store.h"
-#include "text_assets.h"
 
 namespace rhythm::prepared_assets {
 namespace {
-LoadResult Load(LoadRequest request, detail::TextCache& cache, std::stop_token stop) {
+LoadResult Load(LoadRequest request, detail::PreparationCache& cache, std::stop_token stop) {
     LoadResult result;
     result.generation_ = request.generation_;
     result.plan_ = std::move(request.plan_);
@@ -32,14 +32,14 @@ LoadResult Load(LoadRequest request, detail::TextCache& cache, std::stop_token s
             remaining -= bytes.size();
             packaged.push_back({record, std::move(bytes)});
         }
-        result.resources_ = detail::PrepareWithTextCache(result.plan_, packaged, cache, stop);
+        result.resources_ = cache.Prepare(result.plan_, packaged, stop);
     } catch (const std::exception& error) {
         result.error_ = error.what();
     }
     return result;
 }
 }  // namespace
-Loader::Loader() : text_cache_(std::make_unique<detail::TextCache>()) {}
+Loader::Loader() : preparation_cache_(std::make_unique<detail::PreparationCache>()) {}
 Loader::~Loader() {
     Cancel();
     executor_.RequestStop(foundation::ShutdownMode::kDrain);
@@ -62,7 +62,7 @@ void Loader::StartLatest() {
     cancellation_ = {};
     auto task = std::make_shared<std::packaged_task<LoadResult()>>(
             [request = std::move(*latest_), stop = cancellation_.get_token(),
-             cache = std::ref(*text_cache_)]() mutable {
+             cache = std::ref(*preparation_cache_)]() mutable {
                 return Load(std::move(request), cache.get(), stop);
             });
     latest_.reset();

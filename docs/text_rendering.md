@@ -63,8 +63,10 @@ Studio 的多行输入按应用或 Enter 提交，Ctrl+Enter 换行，避免每�
 Windows `out/p5-text-persistent-cache-tests.log` 中缓存合同通过：重排已有字符
 不增加栅格化次数，字号改变产生新字形，淘汰字体后正确重建，热缓存拒绝损坏源。
 实际 UI 路径复测发现并修复了 [并发工程读取问题](validation/concurrent_project_read_2026-09-10.md)。
-尚未复用其他不变图片／模型的后台解码结果，也未实现动态文字信号输入，不能宣称
-P5.5 已闭环。
+后续已增加其他不变图片／模型／视频／Shader 和完整文字布局的准备复用，
+Windows 与 Android 原生检查通过，见
+[局部准备与边界](validation/preparation_reuse_2026-09-10.md)。
+仍未实现动态文字信号输入；系统输入法与本次应用交付回归正在继续。
 
 `out/p5-text-persistent-cache-android-tests.log` 与 `out/p5-current-read-android-tests.log`
 分别通过 USB Android 原生缓存和并发持久化合同。更新交付见

@@ -53,6 +53,23 @@ int main(int argc, char** argv) {
               "upstream Cesium Box geometry counts");
         Check(model_assets::Covers(plan, *resources), "prepared catalog coverage");
         Check(!model_assets::Covers(plan, {}), "missing catalog must reject");
+        model_assets::Cache cache;
+        const auto cold = cache.Prepare(plan, assets);
+        const auto warm = cache.Prepare(plan, assets);
+        Check(cold->models_[0].model_ == warm->models_[0].model_,
+              "unchanged verified GLB was parsed again");
+        auto damaged = assets;
+        damaged[0].bytes_[0] ^= 1;
+        Reject([&] { cache.Prepare(plan, damaged); });
+        Reject([&] { cache.Prepare(plan, {}); });
+        auto wrong_type = assets;
+        wrong_type[0].record_.media_type_ = "image/png";
+        Reject([&] { cache.Prepare(plan, wrong_type); });
+        Check(cache.Prepare(plan, assets)->models_[0].model_ == cold->models_[0].model_,
+              "failed load poisoned last successful model cache");
+        Check(cache.Prepare({}, {})->models_.empty(), "unused model retained in catalog");
+        Check(cache.Prepare(plan, assets)->models_[0].model_ != cold->models_[0].model_,
+              "model cache retained removed assets");
         auto duplicate = plan;
         duplicate.instructions_.insert(duplicate.instructions_.begin(), plan.instructions_[0]);
         duplicate.instructions_[0].node_.id_ = 50;

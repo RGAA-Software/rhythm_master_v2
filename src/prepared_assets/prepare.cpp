@@ -4,6 +4,7 @@
 #include <set>
 #include <stdexcept>
 
+#include "preparation_cache.h"
 #include "rhythm/graph/text.h"
 #include "shader_assets.h"
 #include "text_assets.h"
@@ -50,16 +51,16 @@ bool Covers(const graph::ExecutionPlan& plan, const Resources& resources) {
 std::shared_ptr<const Resources> Prepare(const graph::ExecutionPlan& plan,
                                          std::span<const project::PackagedAsset> assets,
                                          std::stop_token stop) {
-    detail::TextCache cache;
-    return detail::PrepareWithTextCache(plan, assets, cache, stop);
+    detail::PreparationCache cache;
+    return cache.Prepare(plan, assets, stop);
 }
 
-std::shared_ptr<const Resources> detail::PrepareWithTextCache(
+std::shared_ptr<const Resources> detail::PreparationCache::Prepare(
         const graph::ExecutionPlan& plan, std::span<const project::PackagedAsset> assets,
-        TextCache& cache, std::stop_token stop) {
+        std::stop_token stop) {
     auto result = std::make_shared<Resources>();
     // Existing model preparation also verifies every record, hash and byte budget.
-    result->models_ = model_assets::Prepare(plan, assets, stop);
+    result->models_ = models_.Prepare(plan, assets, stop);
     auto images = std::make_shared<assets::Images>();
     std::set<std::string> ids;
 #if defined(RHYTHM_HAS_IMAGE_DECODER)
@@ -84,6 +85,16 @@ std::shared_ptr<const Resources> detail::PrepareWithTextCache(
             mime != "image/bmp")
             throw std::invalid_argument("image.media_type");
 #if defined(RHYTHM_HAS_IMAGE_DECODER)
+        const auto cached = std::find_if(
+                previous_->images_->images_.begin(), previous_->images_->images_.end(),
+                [&](const auto& image) { return image.id_ == id && image.variant_key_.empty(); });
+        if (cached != previous_->images_->images_.end()) {
+            if (cached->rgba_.size() > assets::kMaximumImageBytes - total)
+                throw std::length_error("image.byte_budget");
+            total += cached->rgba_.size();
+            images->images_.push_back(*cached);
+            continue;
+        }
         const auto bytes = std::span<const std::uint8_t>(
                 reinterpret_cast<const std::uint8_t*>(found->bytes_.data()), found->bytes_.size());
         media::VideoDecoder decoder(bytes, 1, stop);
@@ -103,10 +114,12 @@ std::shared_ptr<const Resources> detail::PrepareWithTextCache(
     if (stop.stop_requested()) throw std::runtime_error("asset.cancelled");
     std::size_t model_image_bytes = 0;
     for (const auto& model : result->models_->models_) model_image_bytes += model.image_bytes_;
-    detail::PrepareText(plan, assets, *images, model_image_bytes, cache, stop);
+    detail::PrepareText(plan, assets, *images, model_image_bytes, text_, stop, *previous_->images_);
     result->images_ = std::move(images);
-    result->videos_ = detail::PrepareVideos(plan, assets, stop);
-    result->shaders_ = detail::PrepareShaders(plan, assets, stop);
+    result->videos_ = detail::PrepareVideos(plan, assets, stop, previous_->videos_);
+    result->shaders_ = detail::PrepareShaders(plan, assets, stop, *previous_->shaders_);
+    if (stop.stop_requested()) throw std::runtime_error("asset.cancelled");
+    previous_ = result;
     return result;
 }
 }  // namespace rhythm::prepared_assets

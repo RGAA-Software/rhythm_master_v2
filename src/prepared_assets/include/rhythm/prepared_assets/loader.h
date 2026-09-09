@@ -7,7 +7,7 @@
 
 namespace rhythm::prepared_assets {
 namespace detail {
-class TextCache;
+class PreparationCache;
 }
 struct LoadRequest {
     graph::ExecutionPlan plan_{};
@@ -40,6 +40,6 @@ class Loader final {
     std::optional<LoadRequest> latest_{};
     std::stop_source cancellation_{};
     // Accessed only by the joined worker; never shared with UI/render state.
-    std::unique_ptr<detail::TextCache> text_cache_{};
+    std::unique_ptr<detail::PreparationCache> preparation_cache_{};
 };
 }  // namespace rhythm::prepared_assets

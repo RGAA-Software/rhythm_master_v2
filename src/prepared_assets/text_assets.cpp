@@ -29,12 +29,13 @@ text::Mask TextCache::Render(const project::PackagedAsset& font, const text::Lay
     entry.used_ = ++sequence_;
     const auto before = entry.font_->Stats().rasterizations_;
     auto mask = entry.font_->Render(layout);
+    ++layout_renders_;
     rasterizations_ += entry.font_->Stats().rasterizations_ - before;
     return mask;
 }
 void PrepareText(const graph::ExecutionPlan& plan, std::span<const project::PackagedAsset> assets,
                  assets::Images& images, std::size_t model_image_bytes, TextCache& cache,
-                 std::stop_token stop) {
+                 std::stop_token stop, const assets::Images& previous) {
     std::size_t image_bytes = model_image_bytes;
     std::size_t layouts = 0;
     for (const auto& image : images.images_) image_bytes += image.rgba_.size();
@@ -54,6 +55,17 @@ void PrepareText(const graph::ExecutionPlan& plan, std::span<const project::Pack
         if (found == assets.end()) throw std::invalid_argument("text.font_missing");
         if (found->record_.media_type_ != "font/otf" && found->record_.media_type_ != "font/ttf")
             throw std::invalid_argument("text.font_media_type");
+        const auto cached = std::find_if(
+                previous.images_.begin(), previous.images_.end(),
+                [&](const auto& image) { return image.id_ == id && image.variant_key_ == key; });
+        if (cached != previous.images_.end()) {
+            if (image_bytes > assets::kMaximumImageBytes ||
+                cached->rgba_.size() > assets::kMaximumImageBytes - image_bytes)
+                throw std::length_error("image.byte_budget");
+            image_bytes += cached->rgba_.size();
+            images.images_.push_back(*cached);
+            continue;
+        }
         text::Layout layout;
         layout.text_ = std::get<std::string>(node.properties_.at("text_content"));
         layout.width_ = static_cast<std::uint32_t>(graph::Scalar(node, "text_width", 512));

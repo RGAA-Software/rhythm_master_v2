@@ -6,7 +6,7 @@
 namespace rhythm::prepared_assets::detail {
 std::shared_ptr<const image_shader::Resources> PrepareShaders(
         const graph::ExecutionPlan& plan, std::span<const project::PackagedAsset> assets,
-        std::stop_token stop) {
+        std::stop_token stop, const image_shader::Resources& previous) {
     auto resources = std::make_shared<image_shader::Resources>();
     std::size_t total = 0;
     for (const auto& instruction : plan.instructions_) {
@@ -24,6 +24,11 @@ std::shared_ptr<const image_shader::Resources> PrepareShaders(
             found->bytes_.size() > image_shader::kMaximumProgramBytes - total)
             throw std::length_error("shader.program_budget");
         total += found->bytes_.size();
+        const auto cached = previous.programs_.find(id.sha256_);
+        if (cached != previous.programs_.end()) {
+            resources->programs_.emplace(id.sha256_, cached->second);
+            continue;
+        }
         // Package records and hashes have already been checked by model preparation.
         const auto bytes = std::span<const std::uint8_t>(
                 reinterpret_cast<const std::uint8_t*>(found->bytes_.data()), found->bytes_.size());

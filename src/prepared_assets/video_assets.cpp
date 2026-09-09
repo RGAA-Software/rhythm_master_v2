@@ -11,7 +11,8 @@
 namespace rhythm::prepared_assets::detail {
 std::vector<VideoSource> PrepareVideos(const graph::ExecutionPlan& plan,
                                        std::span<const project::PackagedAsset> assets,
-                                       std::stop_token stop) {
+                                       std::stop_token stop,
+                                       [[maybe_unused]] std::span<const VideoSource> previous) {
     std::vector<VideoSource> result;
     std::set<std::string> seen;
     std::size_t instances = 0;
@@ -30,6 +31,12 @@ std::vector<VideoSource> PrepareVideos(const graph::ExecutionPlan& plan,
             mime != "video/quicktime")
             throw std::invalid_argument("video.media_type");
 #if defined(RHYTHM_HAS_IMAGE_DECODER)
+        const auto cached = std::find_if(previous.begin(), previous.end(),
+                                         [&](const auto& video) { return video.id_ == id; });
+        if (cached != previous.end()) {
+            result.push_back(*cached);
+            continue;
+        }
         auto bytes = std::make_shared<const std::vector<std::uint8_t>>(found->bytes_.begin(),
                                                                        found->bytes_.end());
         media::VideoDecoder decoder(std::span<const std::uint8_t>(*bytes), 0, stop);

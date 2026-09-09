@@ -13,6 +13,7 @@ class TextCache final {
     text::Mask Render(const project::PackagedAsset& font, const text::Layout& layout);
     std::size_t FontCount() const { return fonts_.size(); }
     std::uint64_t Rasterizations() const { return rasterizations_; }
+    std::uint64_t LayoutRenders() const { return layout_renders_; }
 
    private:
     struct Entry {
@@ -22,11 +23,9 @@ class TextCache final {
     std::map<std::string, Entry> fonts_{};
     std::uint64_t sequence_ = 0;
     std::uint64_t rasterizations_ = 0;
+    std::uint64_t layout_renders_ = 0;
 };
 void PrepareText(const graph::ExecutionPlan& plan, std::span<const project::PackagedAsset> assets,
                  assets::Images& images, std::size_t model_image_bytes, TextCache& cache,
-                 std::stop_token stop);
-std::shared_ptr<const Resources> PrepareWithTextCache(
-        const graph::ExecutionPlan& plan, std::span<const project::PackagedAsset> assets,
-        TextCache& cache, std::stop_token stop);
+                 std::stop_token stop, const assets::Images& previous);
 }  // namespace rhythm::prepared_assets::detail

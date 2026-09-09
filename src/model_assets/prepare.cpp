@@ -39,6 +39,13 @@ bool Covers(const graph::ExecutionPlan& plan, const scene::Resources& resources)
 std::shared_ptr<const scene::Resources> Prepare(const graph::ExecutionPlan& plan,
                                                 std::span<const project::PackagedAsset> assets,
                                                 std::stop_token stop) {
+    Cache cache;
+    return cache.Prepare(plan, assets, stop);
+}
+
+std::shared_ptr<const scene::Resources> Cache::Prepare(
+        const graph::ExecutionPlan& plan, std::span<const project::PackagedAsset> assets,
+        std::stop_token stop) {
     CheckCancelled(stop);
     if (assets.size() > project::kMaximumPackageAssets || plan.instructions_.size() > 10000)
         throw std::length_error("model.asset_count");
@@ -70,9 +77,20 @@ std::shared_ptr<const scene::Resources> Prepare(const graph::ExecutionPlan& plan
         const auto found = std::find_if(assets.begin(), assets.end(),
                                         [&](const auto& asset) { return asset.record_.id_ == id; });
         if (found == assets.end()) throw std::invalid_argument("model.asset_missing");
+        if (found->record_.media_type_ != "model/gltf-binary")
+            throw std::invalid_argument("model.media_type");
         const auto bytes = std::span<const std::uint8_t>(
                 reinterpret_cast<const std::uint8_t*>(found->bytes_.data()), found->bytes_.size());
-        auto model = scene::DescribeModel(id, model_import::ReadGlb(bytes, stop));
+        // Validate the current source bytes even on a cache hit. A caller cannot
+        // supply a fabricated catalog; previous_ only contains successful loads.
+        scene::ModelResource model;
+        if (previous_) {
+            const auto cached =
+                    std::find_if(previous_->models_.begin(), previous_->models_.end(),
+                                 [&](const auto& candidate) { return candidate.id_ == id; });
+            if (cached != previous_->models_.end()) model = *cached;
+        }
+        if (!model.model_) model = scene::DescribeModel(id, model_import::ReadGlb(bytes, stop));
         if (model.image_bytes_ > scene::kMaximumModelImageBytes - image_bytes)
             throw std::length_error("image.byte_budget");
         image_bytes += model.image_bytes_;
@@ -84,6 +102,7 @@ std::shared_ptr<const scene::Resources> Prepare(const graph::ExecutionPlan& plan
     CheckCancelled(stop);
     const auto budgets = Budgets(plan, *resources);
     if (graph::ValidateSceneBudget(plan, budgets)) throw std::length_error("graph.scene_budget");
+    previous_ = resources;
     return resources;
 }
 }  // namespace rhythm::model_assets

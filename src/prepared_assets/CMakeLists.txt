@@ -9,6 +9,22 @@ if(RHYTHM_BUILD_MEDIA)
 endif()
 rhythm_project_target(prepared_assets)
 if(BUILD_TESTING)
+    if(RHYTHM_BUILD_MEDIA)
+        add_executable(mixed_cache_tests tests/mixed_cache_tests.cpp)
+        target_include_directories(mixed_cache_tests PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/third_party/sources/picosha2")
+        target_link_libraries(mixed_cache_tests PRIVATE prepared_assets text_layout)
+        rhythm_project_target(mixed_cache_tests)
+        if(WIN32)
+            add_test(NAME mixed_preparation_cache COMMAND mixed_cache_tests
+                "${PROJECT_SOURCE_DIR}/third_party/assets/noto-cjk/NotoSansCJKsc-Regular.otf"
+                "${PROJECT_SOURCE_DIR}/third_party/assets/khronos-box/Box.glb"
+                "${PROJECT_SOURCE_DIR}/src/media/tests/fixtures/alpha.png"
+                "${PROJECT_BINARY_DIR}/video-playback-fixtures/视频.mkv")
+            set_tests_properties(mixed_preparation_cache PROPERTIES
+                FIXTURES_REQUIRED video_playback_media TIMEOUT 60)
+        endif()
+    endif()
     add_executable(text_preparation_tests tests/text_preparation_tests.cpp)
     target_include_directories(text_preparation_tests PRIVATE "${PROJECT_SOURCE_DIR}/third_party/sources/picosha2")
     target_include_directories(text_preparation_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
