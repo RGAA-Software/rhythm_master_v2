@@ -10,6 +10,8 @@
 
 #include "graph_canvas.h"
 #include "operator_help.h"
+#include "rhythm/editor/commands.h"
+#include "rhythm/graph/compiler.h"
 
 namespace {
 using rhythm::editor::Position;
@@ -294,6 +296,45 @@ void PanCursor() {
     Check(fixture.snapshot_ == snapshot, "Panning must not change graph data or node layout");
 }
 
+void ReplaceDeletedOutput() {
+    CanvasFixture fixture;
+    auto& document = fixture.snapshot_.document_;
+    document.nodes_ = {fixture.registry_.MakeNode(1, "texture.gradient"),
+                       fixture.registry_.MakeNode(2, "texture.affine"),
+                       fixture.registry_.MakeNode(3, "output.texture")};
+    document.edges_ = {{1, 1, 2, "source"}, {2, 2, 3, "source"}};
+    document.output_ = 3;
+    ++document.revision_;
+    fixture.canvas_.RestoreLayout();
+    for (int frame = 0; frame < 6; ++frame) fixture.Frame();
+    const auto before = fixture.snapshot_;
+    const auto position = fixture.snapshot_.positions_.at(3);
+    fixture.Move(fixture.canvas_.ToScreen({position.x_ + 20, position.y_ + 14}));
+    fixture.Button(ImGuiMouseButton_Left, true);
+    fixture.Button(ImGuiMouseButton_Left, false);
+    fixture.Frame();
+    Check(fixture.canvas_.Selection() == 3, "select existing output before deletion");
+    ImGui::GetIO().AddKeyEvent(ImGuiKey_Delete, true);
+    fixture.Frame();
+    ImGui::GetIO().AddKeyEvent(ImGuiKey_Delete, false);
+    fixture.Frame();
+    fixture.Frame();
+    Check(document.nodes_.size() == 2 && document.output_ == 0,
+          "deleting the active output must clear its author reference");
+    rhythm::editor::History history(before);
+    Check(history.Apply(fixture.snapshot_, before.document_.revision_) && history.Undo() &&
+                  history.Current().document_.output_ == 3,
+          "undo must restore the deleted output and its reference together");
+    auto rebuilt = std::get<rhythm::editor::Snapshot>(rhythm::editor::AddNode(
+            fixture.snapshot_, fixture.registry_, "output.texture", {800, 100}, 4));
+    rebuilt = std::get<rhythm::editor::Snapshot>(
+            rhythm::editor::Connect(rebuilt, fixture.registry_, 2, 4, "source"));
+    Check(rebuilt.document_.output_ == 4 &&
+                  std::holds_alternative<rhythm::graph::ExecutionPlan>(
+                          rhythm::graph::Compile(rebuilt.document_, fixture.registry_)),
+          "replacement output must compile without retaining the deleted ID");
+}
+
 void InlinePreviewVisibility() {
     CanvasFixture fixture;
     fixture.previews_.enabled_ = true;
@@ -376,6 +417,7 @@ int main(int argc, char** argv) {
         DragWithOverlappingDomainIds();
         DragNodeAndConnect();
         PanCursor();
+        ReplaceDeletedOutput();
         InlinePreviewVisibility();
         EventPreviewAndHelp();
         ThousandNodeCanvas();

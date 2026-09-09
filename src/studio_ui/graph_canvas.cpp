@@ -245,6 +245,7 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
             if (ed::AcceptDeletedItem()) {
                 auto& edited = edit();
                 const auto node_id = impl_->reverse_nodes_.at(node.Get());
+                if (edited.document_.output_ == node_id) edited.document_.output_ = 0;
                 std::erase_if(edited.document_.nodes_,
                               [&](const auto& item) { return item.id_ == node_id; });
                 std::erase_if(edited.document_.edges_, [&](const auto& edge) {
