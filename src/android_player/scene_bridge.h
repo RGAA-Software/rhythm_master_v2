@@ -10,6 +10,7 @@ struct SceneCommands {
     int action_ = 0;
     std::uint64_t id_ = 0;
     double duration_ = 1;
+    parameters::Quantization mode_ = parameters::Quantization::kImmediate;
 };
 SceneCommands TakeSceneCommands();
 void PublishSceneQueue(const player::SceneQueue& queue, const player::SceneDeck& deck);

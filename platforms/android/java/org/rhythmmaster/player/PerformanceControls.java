@@ -25,6 +25,7 @@ final class PerformanceControls {
     private long generation_ = 0;
     private AlertDialog dialog_ = null;
     private TextView cue_ = null;
+    private BeatControls beats_ = null;
     private final Handler handler_ = new Handler(Looper.getMainLooper());
     private final Runnable update_ = new Runnable() {
         @Override public void run() {
@@ -33,10 +34,11 @@ final class PerformanceControls {
             if (dialog_.isShowing()) handler_.postDelayed(this, 200);
         }
     };
-    private static native String nativeDescribe();
+    static native String nativeDescribe();
     private static native boolean nativeValue(long generation, long id, double value);
     private static native boolean nativeBlend(long generation, long first, long second, double amount);
     private static native boolean nativeFollow(long generation);
+    private static native boolean nativeRecall(long generation, long id);
 
     private PerformanceControls(Activity activity) { activity_ = activity; }
     static void Show(Activity activity) { new PerformanceControls(activity).Open(); }
@@ -49,6 +51,7 @@ final class PerformanceControls {
         try {
             JSONObject data = new JSONObject(nativeDescribe());
             if (data.getLong("generation") != generation_) { Stale(); return; }
+            if (beats_ != null) beats_.Refresh(data);
             if (cue_ != null) cue_.setText(data.optString("cue") +
                     (data.optBoolean("overridden") ? " · " + activity_.getString(R.string.controls_override) : ""));
             JSONArray controls = data.getJSONArray("controls");
@@ -67,13 +70,10 @@ final class PerformanceControls {
             JSONObject data = new JSONObject(nativeDescribe());
             generation_ = data.getLong("generation");
             JSONArray controls = data.getJSONArray("controls");
-            if (controls.length() == 0) {
-                Toast.makeText(activity_, R.string.controls_empty, Toast.LENGTH_SHORT).show();
-                return;
-            }
             LinearLayout content = new LinearLayout(activity_);
             content.setOrientation(LinearLayout.VERTICAL);
             content.setPadding(24, 8, 24, 8);
+            beats_ = new BeatControls(activity_, generation_, content, data);
             if (data.optBoolean("automated")) {
                 cue_ = new TextView(activity_);
                 content.addView(cue_);
@@ -127,7 +127,7 @@ final class PerformanceControls {
                 recall.setText(R.string.controls_recall);
                 recall.setOnClickListener(view -> {
                     long id = ids[first.getSelectedItemPosition()];
-                    if (!nativeBlend(generation_, id, id, 0)) Stale();
+                    if (!nativeRecall(generation_, id)) Stale();
                     else { blend.setProgress(0); Refresh(); }
                 });
                 content.addView(recall);

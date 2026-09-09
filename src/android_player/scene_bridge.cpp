@@ -7,6 +7,8 @@
 #include <nlohmann/json.hpp>
 #include <utility>
 
+#include "control_bridge.h"
+
 namespace rhythm::android_host {
 namespace {
 std::mutex scene_mutex;
@@ -71,10 +73,12 @@ extern "C" JNIEXPORT void JNICALL Java_org_rhythmmaster_player_SceneQueueDialog_
     if (action < 1 || action > 5 || id < 0 || !std::isfinite(duration) || duration < 0 ||
         duration > 5)
         return;
+    const auto mode = CurrentQuantization();
     std::lock_guard lock(scene_mutex);
     // One pending gesture; UI refreshes from the host snapshot after it applies.
     pending.action_ = action;
     pending.id_ = static_cast<std::uint64_t>(id);
     pending.duration_ = duration;
+    pending.mode_ = mode;
 }
 }  // namespace rhythm::android_host

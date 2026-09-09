@@ -28,6 +28,8 @@ final class SceneQueueDialog {
     private TextView status_ = null;
     private Button go_ = null;
     private Button cancel_ = null;
+    private Button cancel_pending_ = null;
+    private TextView timing_ = null;
     private long head_ = 0;
     // Main UI thread preference, retained when the dialog is reopened.
     private static double last_duration = 1;
@@ -64,6 +66,9 @@ final class SceneQueueDialog {
     private void Refresh() {
         try {
             JSONObject data = new JSONObject(nativeDescribe());
+            JSONObject timing = new JSONObject(PerformanceControls.nativeDescribe());
+            timing_.setText(BeatControls.Summary(activity_, timing));
+            cancel_pending_.setEnabled(BeatControls.HasPendingScene(timing));
             JSONArray items = data.optJSONArray("items");
             if (items == null) return;
             if (!items.toString().equals(rows_json_)) {
@@ -101,6 +106,15 @@ final class SceneQueueDialog {
         status_ = new TextView(activity_);
         status_.setMinLines(2);
         content.addView(status_);
+        timing_ = new TextView(activity_);
+        content.addView(timing_);
+        LinearLayout timing_actions = new LinearLayout(activity_);
+        Button(timing_actions, R.string.beat_settings, () -> {
+            dialog_.dismiss();
+            PerformanceControls.Show(activity_);
+        });
+        cancel_pending_ = Button(timing_actions, R.string.beat_cancel_scene, () -> BeatControls.CancelScene());
+        content.addView(timing_actions);
         LinearLayout add = new LinearLayout(activity_);
         Button(add, R.string.scene_enqueue, add_);
         content.addView(add);

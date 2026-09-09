@@ -105,3 +105,11 @@ Windows Studio 完整部署完成，四项强制模板回归通过（13.26 秒�
 `out/p1-studio-beat-delivery.log`；交互日志
 `out/p1-studio-beat-interaction-fixed-tests.log`。量化快照的 Studio GPU 专项检查随
 P1.5 可编辑演出示例一起补齐，不能用此处的组件交互检查替代。
+
+### Android 共享控制接入
+
+原生演出控件和队列页现已接入同一网格、量化模式及有界请求。JNI 提交值命令，
+渲染线程应用并发布实际状态；提供敲击定速、原点、取消及跨页面状态。
+USB 原生合同与实际 APK 快照/切场/暂停/后台返回检查通过，具体时间、参数和
+刷新竞争修复见 [Android 证据](validation/android_beat_ui_2026-09-09.md)。
+P1.5 示例及 Studio GPU 专项仍需完成，Android 跨画布方向检查随之补充。

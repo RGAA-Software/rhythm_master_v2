@@ -68,7 +68,7 @@ int main(int, char**) {
         apply_soundtrack();
 #endif
         android_host::PublishScene(deck.Current().Canvas(), deck.Current().Title());
-        android_host::PublishControls(deck.Current().Controls(), deck.Current().ControlSequence());
+        android_host::PublishControls(deck);
         std::uint64_t frames = 0;
         std::uint64_t devices = 0;
         std::uint64_t surface_generation = 0;
@@ -129,8 +129,7 @@ int main(int, char**) {
                     scene_queue.Clear();
                     const bool paused = deck.Current().Paused();
                     deck.LoadPrepared(std::move(*loaded->package_));
-                    android_host::PublishControls(deck.Current().Controls(),
-                                                  deck.Current().ControlSequence());
+                    android_host::PublishControls(deck);
                     deck.SetPaused(paused);
                     android_host::PublishScene(deck.Current().Canvas(), deck.Current().Title());
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
@@ -147,6 +146,7 @@ int main(int, char**) {
                 }
             }
             const auto scene_commands = android_host::TakeSceneCommands();
+            android_host::ApplyControlCommands(deck);
             if (!scene_commands.path_.empty() &&
                 !queued_imports.Request(scene_commands.path_, scene_commands.title_))
                 error = "package_error";
@@ -154,8 +154,8 @@ int main(int, char**) {
             if (scene_commands.action_ == 1 && deck.CanPrepareNext() &&
                 !scene_queue.Items().empty() &&
                 scene_queue.Items().front().id_ == scene_commands.id_) {
-                if (auto ready = scene_queue.TakeReady())
-                    deck.StartTransition(std::move(*ready), scene_commands.duration_);
+                deck.RequestNextScene(scene_commands.id_, scene_commands.duration_,
+                                      scene_commands.mode_);
             }
             if (scene_commands.action_ == 2) scene_queue.Remove(scene_commands.id_);
             if (scene_commands.action_ == 3) scene_queue.Clear();
@@ -169,9 +169,8 @@ int main(int, char**) {
             renderer->BeginFrame();
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
             auto music_frame = music.Frame();
-            music_frame.inputs_.controls_ = android_host::CurrentControls();
             const auto frame = deck.Tick(seconds, false, render_quality, *renderer,
-                                         music_frame.inputs_, music_frame.playback_);
+                                         music_frame.inputs_, music_frame.playback_, scene_queue);
             if (music_frame.failed_) error = "audio_error";
             android_host::PublishPlayback(
                     music_frame.playback_ ? music_frame.playback_->seconds_
@@ -180,12 +179,11 @@ int main(int, char**) {
                     music.Loop());
 #else
             runtime::ExternalInputs inputs;
-            inputs.controls_ = android_host::CurrentControls();
-            const auto frame = deck.Tick(seconds, false, render_quality, *renderer, inputs);
+            const auto frame =
+                    deck.Tick(seconds, false, render_quality, *renderer, inputs, {}, scene_queue);
 #endif
             if (frame.switched_) {
-                android_host::PublishControls(deck.Current().Controls(),
-                                              deck.Current().ControlSequence());
+                android_host::PublishControls(deck);
                 android_host::PublishScene(deck.Current().Canvas(), deck.Current().Title());
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
                 if (const auto track = deck.Current().Soundtrack()) {
@@ -198,7 +196,7 @@ int main(int, char**) {
             const auto& output = frame.output_;
             if (frames % 12 == 0) android_host::PublishSceneQueue(scene_queue, deck);
             renderer->Submit({}, Present(output.final_, size, deck.Current().Canvas()), 0x111822ff);
-            android_host::PublishControlTime(deck.Current().Seconds());
+            android_host::PublishControlFrame(deck);
             renderer->EndFrame();
             ++frames;
             if (frames % 30 == 0) {

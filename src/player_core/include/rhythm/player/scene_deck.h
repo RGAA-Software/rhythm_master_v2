@@ -34,6 +34,7 @@ class SceneDeck final {
     void SetBeatGrid(std::optional<parameters::BeatSettings> grid);
     void EditControls(const parameters::ControlValues& changes);
     void FollowCues();
+    bool HasControlOverrides() const { return !live_controls_.empty(); }
     std::uint64_t RequestSnapshot(std::uint64_t snapshot, parameters::Quantization mode);
     std::uint64_t RequestNextScene(std::uint64_t queue_item, double duration,
                                    parameters::Quantization mode);
