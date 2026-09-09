@@ -94,12 +94,16 @@ def main():
         width, height = shot('startup')
         if width <= height:
             raise RuntimeError('This landscape authoring check requires a landscape startup scene')
-        queries = {'contour_pulse': 'contour', 'resonant_armillary': 'armillary',
-                   'prismatic_title': 'title', 'vector_resonance': 'vector',
-                   'spectral_corolla': 'corolla', 'glyph_current': 'glyph'}
         for name in args.effect or ['contour_pulse', 'resonant_armillary']:
-            query = queries[name]
             entry = catalog[name]
+            words = re.findall(r'[a-z]+', entry['titles']['en-US'].lower())
+            if not words:
+                raise RuntimeError('Effect title has no hardware-key search term')
+            # Derive a selective ASCII query from the actual APK catalog. Adding
+            # a work must not require extending a second hard-coded name table.
+            query = min(words, key=lambda word: (
+                sum(word in item['titles']['en-US'].lower() for item in catalog.values()),
+                -len(word)))
             tap(width * .675, height * .134)  # Existing landscape Choose effect button.
             picker = hierarchy(name + '-picker')
             field = next((node for node in picker.iter('node')

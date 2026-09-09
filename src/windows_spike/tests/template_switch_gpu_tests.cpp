@@ -89,8 +89,8 @@ int main(int argc, char* argv[]) {
         }
         Check(studio.HasValidPlan(), "default Studio output not ready");
         bool timeline_open = false;
-        for (const std::string name :
-             {"ink_tide", "chromatic_loom", "crystal_choir", "luminous_concerto"}) {
+        for (const std::string name : {"ink_tide", "chromatic_loom", "crystal_choir",
+                                       "luminous_concerto", "spectral_glaze"}) {
             action = "select:" + name;
             const auto entry = std::find_if(entries.begin(), entries.end(), [&](const auto& value) {
                 return value.id_ == "official.templates." + name;

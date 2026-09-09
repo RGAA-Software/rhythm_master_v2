@@ -65,12 +65,14 @@ P6.3 已完成相交透明／移动细线的 D3D11 和 GLES 基线及 1080p 短�
 有声导出／Windows deploy／Android 当前包真实 PCM 与应用内播放验收。
 见 [画质分项决定与证据](render_quality_evaluation.md)。相交透明排序仍待独立
 方案比较，P6 其余工作包和 P7–P9 继续推进，不因这项交付宣布 P6 完成。
-P6.1 已完成 RGB 表面表达式双目标编译、D3D11／GLES 六种场景顶点变体及材质绑定
-对照、图／Runtime／后台资产准备和 Player 资源生命周期检查。Studio 面板编译及
-源码恢复通过双语言控件回归；仍待完整可见创作／导出／两端作品交付。
-见 [材质候选验证](material_shader_evaluation.md)。期间复现并修复
+P6.1 限制采用 RGB 表面染色，完成双目标编译、D3D11／GLES 六种场景顶点变体及
+材质绑定对照、图／Runtime／资产准备和 Player 生命周期。“光谱釉球”26 节点已通过
+真实 Studio 空白创作、错误热更、源码恢复、模板切换、PCM 图像、有声导出及两端
+内置交付。见 [材质决定](material_shader_evaluation.md)和
+[作者与交付证据](validation/surface_authoring_2026-09-10.md)。期间复现并修复
 [Shader 恢复源码漏测](validation/shader_source_reopen_2026-09-10.md)，不再以保留旧
-资产判定恢复成功；P6.1 尚不标记已交付。
+资产判定恢复成功。P6.1 的受限工作包收口，P6.2、P6.3 剩余透明比较、P6.4 及
+P7–P9 继续；功能示例不计为已满足 P7 品质数量。
 
 ## 1. 产品目标、阶段终点与优先级
 

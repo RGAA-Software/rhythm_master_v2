@@ -36,7 +36,8 @@
     "author": "Rhythm Master",
     "license_status": "First-party Studio-authored graph and original demo music; existing attributed renderer adapters; outbound license pending",
     "compatible_players": [
-        "windows"
+        "windows",
+        "android"
     ],
     "external_assets": [],
     "descriptions": {

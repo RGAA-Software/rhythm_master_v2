@@ -26,6 +26,11 @@ and the editable music-driven Aurora Braid work. [GPU twist/taper](docs/mesh_def
 now shares mesh/image uploads across music changes and includes Torque Garden.
 [Image shader authoring](docs/image_shader.md) now supports dual-target compilation,
 immutable hot replacement, undo/redo and the editable Phase Loom work on Windows/Android.
+[Bounded surface shaders](docs/material_shader_evaluation.md) add editable RGB tint before
+scene lighting, with dual-target compilation and the music-driven Spectral Glaze example.
+[Authoring evidence](docs/validation/surface_authoring_2026-09-10.md) covers failed hot updates,
+source restoration, template application, MP4 export and Android playback; full material
+languages and general compute remain separate capability decisions.
 [Model animation](docs/model_animation.md) now includes GLB node tracks, unified time and
 music-driven clip mixing with shared uploads. 48-bone GPU skinning passes Windows/Android
 checks. Four-target GPU morph, weight animation/music controls and the editable

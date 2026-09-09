@@ -369,7 +369,7 @@ CMake/Ninja 20 workers 在项目内重建 shaderc 1.19.157。两端全部 48 个
 限制采用现有 bgfx／Godot 适配材质路径上的 RGB 染色表达式，不增加依赖。
 复用已验证的 shaderc 1.19.157 和 vcpkg stb 词法适配，场景绑定、六种顶点变体
 与 D3D11／GLES 实际像素验证已通过；独立表面格式避免放宽旧图像格式。
-Studio 双目标编译、错误热更、源码恢复及真实音乐作品检查已通过，完整两端
-交付正在收口。范围仅为光照前 RGB 乘数，保留透明度、法线／贴图及光照契约；
+Studio 双目标编译、错误热更、源码恢复、真实音乐作品、导出及两端内置交付
+已通过。范围仅为光照前 RGB 乘数，保留透明度、法线／贴图及光照契约；
 不是完整材质语言、通用 compute 或 Apple 编译支持。具体范围、失败和证据见
 [材质评估](material_shader_evaluation.md)与[作者验收](validation/surface_authoring_2026-09-10.md)。
