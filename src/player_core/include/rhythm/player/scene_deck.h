@@ -162,5 +162,6 @@ class SceneDeck final {
     std::optional<QueueOutcome> queue_outcome_{};
     std::uint64_t discarded_queue_id_ = 0;
     render::Extent preparation_extent_{};
+    std::optional<std::uint64_t> presentation_generation_{};
 };
 }  // namespace rhythm::player

@@ -92,3 +92,30 @@ AssetId/SHA-256。新增代码仅实现项目列表合同与适配，不新增�
   成功，`out/p3-android-program-final-ui-tests.log` 验证已保存的三项重启/重开/准备，
   证据 `out/android-program-ui/a0ff74a021d444d38d7bd6f5fc9e013b`。
   完整新增项触屏与最终重开检查分别列出，没有把后者说成重跑全部手势。
+
+
+## P3 功能流程收口：连续三场（2026-09-09）
+
+此更新替代前文对应的待办状态。P3.1–P3.5 的功能闭环已交付；声学/听感和长稳
+仍需最终验收，不由这些短测代替。开始 P4 视图直接编辑。
+
+同一列表：光幕协奏（横屏/配乐）→ 光雕粒子回响（竖屏/保留音乐）→ 织光机
+（横屏/新配乐）。Windows `scene_program_ui` 使用实际队列按钮、三个包、两次
+消费确认，检查标题/画布/队列身份及实际 RGB 读回；下一场准备时真实窗口 resize，
+第二场后暂停、seek=0.25、释放/恢复图形资源，再继续第三场。
+`out/p3-presentation-recovery-windows-tests.log` 8 项通过，Windows Player 已重新
+自动 deploy（20 DLL 和资源）。RGB 范围分别 1:178、0:255、4:247，只证明当前
+作品实际输出，不能作为内容品质评级。
+
+Android 通过内置目录和节目单 UI 建立临时三场，每项显式立即模式，不保存修改。
+每次暂停 Go 不接管，恢复后依序接受横/竖/横画布，队列剩 2/1/0 行；第二场包含
+短暂后台/恢复。最终实机证据：
+`out/android-continuous-program/e1574ccf6f9848f7ab751a4288676263/`，
+`out/p3-mixed-program-android-presentation-fixed.log`。保存节目单逐字节不变。
+APK 已覆盖安装 SHA256
+`0f21c36617b961d06f63616b680110362fb541683ff636b54669ee1fa5bd0569`。
+原生 `scene_queue_tests` 手机检查也通过，但不替代该实际 APK 流程。
+
+本次发现并固定了宿主呈现尺寸变化发生在图提交之后、使下一场分帧准备跨代次
+失效的时序漏洞。根因、漏测路径、失败及修复证据见
+[呈现重置回归](validation/presentation_preparation_reset_2026-09-09.md)。

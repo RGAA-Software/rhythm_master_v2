@@ -208,6 +208,140 @@ void Run(const std::filesystem::path& root, const std::filesystem::path& fixture
     if (serial_gpu)
         std::cout << "GPU and audio budgets both exceeded: explicit serial replacement UI passed\n";
 }
+void Program(const std::filesystem::path& root, const std::filesystem::path& fixture) {
+    const auto packages = fixture.parent_path() / "content/packages";
+    const std::array names{"luminous_concerto", "scene_particle_echo", "chromatic_loom"};
+    player::WorkLibrary library(fixture / "mixed-program-works");
+    std::vector<player::ResolvedWork> works;
+    std::vector<render::Extent> canvases;
+    for (const auto name : names) {
+        const auto path = packages / (std::string(name) + ".rhythmpack");
+        const auto imported = library.Import(path);
+        works.push_back({{works.size() + 1, imported.reference_, imported.title_, 0.5,
+                          parameters::Quantization::kImmediate},
+                         performance::ResolutionState::kExact,
+                         library.Open(imported.reference_)});
+        player::Session scene;
+        scene.Open(path);
+        canvases.push_back(scene.Canvas());
+    }
+    platform::Host host(true);
+    host.Resize({1280, 720});
+    ImGui::GetIO().IniFilename = nullptr;
+    auto renderer = host.CreateRenderer();
+    auto font = host.CreateFontTexture(renderer);
+    player::SceneDeck deck;
+    deck.Open(packages / "luminous_concerto.rhythmpack");
+    deck.EnableAudioTransitions(true);
+    audio_ui::AudioPanel audio;
+    audio.SetVolume(0);
+    audio.LoadSoundtrack(*deck.Current().Soundtrack());
+    player_audio::SceneAudioBridge bridge;
+    player::SceneQueue queue;
+    Require(queue.ReplacePerformance(works), "install one mixed-canvas performance instance");
+    player_ui::SceneQueuePanel panel;
+    std::ifstream catalog(root / "locales/en-US/studio.json");
+    const auto text = nlohmann::json::parse(catalog).get<std::map<std::string, std::string>>();
+    const auto started = std::chrono::steady_clock::now();
+    std::size_t accepted = 0;
+    bool requested = false;
+    bool paused = false;
+    bool resized_during_preparation = false;
+    double resume_at = 0;
+    for (unsigned frame_index = 0; accepted < works.size(); ++frame_index) {
+        const double seconds =
+                std::chrono::duration<double>(std::chrono::steady_clock::now() - started).count();
+        Require(seconds < 20 && host.Poll(), "mixed performance deadline");
+        if (paused && seconds >= resume_at) {
+            deck.SetPaused(false);
+            audio.ApplyPlayback({false, std::nullopt});
+            paused = false;
+        }
+        queue.Pump(deck.CanPrepareNext());
+        auto input = audio.Frame();
+        if (!resized_during_preparation && deck.PreparingGraphics() &&
+            deck.GraphicsPreparation().completed_nodes_ > 0) {
+            host.Resize({1000, 650});
+            resized_during_preparation = true;
+        }
+        host.BeginUi();
+        renderer.BeginFrame();
+        if (frame_index == 2) Activate("Program harness", "###scene.queue");
+        if (!requested && !paused && frame_index > 4 && input.features_ &&
+            input.features_->rms_ > 0 && deck.QueueReady(queue.Items().front().id_)) {
+            Activate("###scene.queue", "###scene.go");
+            requested = true;
+        }
+        ImGui::Begin("Program harness");
+        panel.Draw(queue, deck, {}, "en-US", text);
+        ImGui::End();
+        const auto sample = bridge.Poll(
+                deck, input.file_,
+                [&](const auto& source, double duration, bool hold) {
+                    return audio.BeginSoundtrackTransition(source, duration, hold);
+                },
+                [&](std::uint64_t id) { return audio.CancelSoundtrackTransition(id); });
+        runtime::ExternalInputs inputs;
+        inputs.audio_ = input.features_;
+        const auto frame = deck.Tick(seconds, false, player::RenderQuality::kBalanced, renderer,
+                                     inputs, input.playback_, queue, sample);
+        Require(deck.Error() == player::SceneTransitionError::kNone && !frame.output_.budget_,
+                "mixed program keeps exact accepted graph without fallback");
+        std::optional<render::Readback> ticket;
+        if (frame.switched_) {
+            Require(deck.Current().Title() == works[accepted].entry_.title_ &&
+                            deck.Current().Canvas() == canvases[accepted] &&
+                            queue.Items().size() == works.size() - accepted - 1,
+                    "mixed program title, canvas and remaining row identity");
+            Require(frame.audio_synchronized_ == (accepted != 1),
+                    "visual-only work preserves existing music");
+            if (const auto track = deck.Current().Soundtrack())
+                audio.AdoptSoundtrack(*track, input.file_.transition_.id_);
+            ticket.emplace(renderer.RequestReadback(frame.output_.final_));
+            ++accepted;
+            requested = false;
+        }
+        renderer.Submit({}, host.EndUi(), 0x111822ff);
+        renderer.EndFrame();
+        if (ticket) {
+            bool captured = false;
+            for (unsigned attempt = 0; attempt < 16; ++attempt) {
+                if (const auto image = ticket->Poll()) {
+                    std::uint8_t low = 255, high = 0;
+                    for (std::size_t offset = 0; offset < image->rgba_.size(); offset += 4)
+                        for (unsigned channel = 0; channel < 3; ++channel) {
+                            low = std::min(low, image->rgba_[offset + channel]);
+                            high = std::max(high, image->rgba_[offset + channel]);
+                        }
+                    Require(high - low > 16, "authored work rendered nonuniform pixels");
+                    std::cout << "program accepted=" << accepted
+                              << " canvas=" << deck.Current().Canvas().width_ << 'x'
+                              << deck.Current().Canvas().height_ << " rgb_range=" << int(low) << ':'
+                              << int(high) << '\n';
+                    captured = true;
+                    break;
+                }
+                renderer.BeginFrame();
+                renderer.EndFrame();
+            }
+            Require(captured, "mixed program actual pixel readback");
+            if (accepted == 2) {
+                deck.SetPaused(true);
+                audio.ApplyPlayback({true, 0.25});
+                deck.Seek(0.25);
+                deck.ReleaseGraphics();
+                paused = true;
+                resume_at = seconds + 0.3;
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+    Require(queue.Items().empty() && resized_during_preparation,
+            "mixed performance completed all rows after a real pending-preparation resize");
+    deck.ReleaseGraphics();
+    std::cout << "Mixed program UI: three built-ins, two soundtracks, portrait canvas, "
+                 "pause/seek/graphics recovery passed\n";
+}
 void Arrangement(const std::filesystem::path& package) {
     player::Session work;
     work.Open(package);
@@ -250,10 +384,13 @@ void Arrangement(const std::filesystem::path& package) {
 int main(int argc, char** argv) {
     try {
         if (argc != 3 && !(argc == 4 && (std::string_view(argv[3]) == "--serial" ||
-                                         std::string_view(argv[3]) == "--serial-gpu")))
+                                         std::string_view(argv[3]) == "--serial-gpu" ||
+                                         std::string_view(argv[3]) == "--program")))
             throw std::invalid_argument("expected root, media fixture and optional --serial");
         if (std::string_view(argv[1]) == "--arrangement")
             Arrangement(argv[2]);
+        else if (argc == 4 && std::string_view(argv[3]) == "--program")
+            Program(argv[1], argv[2]);
         else
             Run(argv[1], argv[2], argc == 4,
                 argc == 4 && std::string_view(argv[3]) == "--serial-gpu");

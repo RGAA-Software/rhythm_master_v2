@@ -34,6 +34,14 @@ void SceneReplacement::ReleaseGraphics() {
     if (phase_ == Phase::kRetired) phase_ = Phase::kIdle;
     progress_ = {};
 }
+void SceneReplacement::PresentationChanged(Session& current) {
+    if (!Restoring()) return;
+    current.ReleaseGraphics();
+    phase_ = Phase::kRecovering;
+    progress_ = {};
+    // A presentation reset preserves existing texture allocations. Keep the
+    // accepted frozen image; only a device release invalidates that ownership.
+}
 ReplacementFrame SceneReplacement::TickCurrent(Session& current, double monotonic_seconds,
                                                render::Extent extent, render::Renderer& renderer,
                                                const runtime::ExternalInputs& inputs,

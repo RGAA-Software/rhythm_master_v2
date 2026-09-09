@@ -19,6 +19,7 @@ class SceneReplacement final {
     void Finish();
     void BeginFrame();
     void ReleaseGraphics();
+    void PresentationChanged(Session& current);
     bool Active() const { return phase_ != Phase::kIdle && phase_ != Phase::kRetired; }
     bool Restoring() const { return phase_ == Phase::kRecovering || phase_ == Phase::kFailed; }
     ReplacementFrame TickCurrent(Session& current, double monotonic_seconds, render::Extent extent,

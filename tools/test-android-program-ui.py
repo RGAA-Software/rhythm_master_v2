@@ -27,9 +27,13 @@ def main():
     parser.add_argument("--reopen-only", action="store_true")
     parser.add_argument("--hard-cut-head", action="store_true",
                         help="Set the first entry's draft duration to zero through UI; do not save")
+    parser.add_argument("--mixed-draft", action="store_true",
+                        help="Prepare a temporary landscape/portrait/music list through UI; do not save")
     args = parser.parse_args()
     if args.hard_cut_head and not args.reopen_only:
         parser.error("--hard-cut-head requires --reopen-only to preserve the saved program")
+    if args.mixed_draft and (not args.reopen_only or args.hard_cut_head):
+        parser.error("--mixed-draft requires --reopen-only and excludes --hard-cut-head")
     output = ROOT / "out/android-program-ui" / uuid.uuid4().hex
     output.mkdir(parents=True)
     print(f"Device evidence: {output}", flush=True)
@@ -163,6 +167,40 @@ def main():
             shot("reopened")
         startup()
         assert saved() == snapshot, "restart changed persisted program"
+        mixed = ("luminous_concerto", "scene_particle_echo", "chromatic_loom")
+        if args.mixed_draft:
+            for _ in snapshot["entries"]:
+                action("program_remove", True)
+            for effect in mixed:
+                action("program_add")
+                root = hierarchy("choose-effect")
+                # Use actual catalog filters; synthesizing keys through the
+                # installed Chinese IME can cancel a composing search string.
+                if effect != "luminous_concerto":
+                    filter_key, value = (("catalog_shape", "portrait_effect") if effect == "scene_particle_echo"
+                                         else ("catalog_tier", "catalog_advanced"))
+                    touch(find(root, strings[filter_key]))
+                    touch(find(hierarchy("catalog-filter"), strings[value]))
+                title = json.loads((ROOT / "content/templates" / effect / "manifest.json").read_text(encoding="utf-8"))["titles"][args.locale]
+                for _ in range(20):
+                    root = hierarchy("filtered-effect")
+                    row = next((n for n in root.iter("node") if n.get("text", "").startswith(title + " · ")), None)
+                    if row is not None:
+                        touch(row)
+                        break
+                    scroll = next(n for n in root.iter("node") if n.get("class") == "android.widget.ListView")
+                    x1, y1, x2, y2 = bounds(scroll)
+                    adb("shell", "input", "swipe", (x1 + x2) // 2, y2 - 30,
+                        (x1 + x2) // 2, y1 + 30, 350)
+                else:
+                    raise RuntimeError("Built-in mixed program effect not found: " + effect)
+                locate("program_apply", True)
+                root = hierarchy("entry-timing")
+                mode_labels = {strings[key] for key in ("beat_immediate", "beat_next_beat", "beat_next_bar")}
+                touch(next(n for n in root.iter("node") if n.get("text") in mode_labels))
+                touch(find(hierarchy("immediate-mode"), strings["beat_immediate"]))
+                action("program_apply", True)
+            assert saved() == snapshot, "temporary mixed program must not change saved entries"
         if args.hard_cut_head:
             locate("program_up", True)
             root = hierarchy("select-head")
@@ -182,7 +220,12 @@ def main():
         touch(spinner)
         root = hierarchy("queue-rows")
         rows = [n.get("text") for n in root.iter("node") if n.get("class") == "android.widget.CheckedTextView"]
-        assert len(rows) == len(snapshot["entries"]), "restarted draft was not restored into queue"
+        expected_count = len(mixed) if args.mixed_draft else len(snapshot["entries"])
+        assert len(rows) == expected_count, "draft was not restored into queue"
+        if args.mixed_draft:
+            for row, effect in zip(rows, mixed):
+                title = json.loads((ROOT / "content/templates" / effect / "manifest.json").read_text(encoding="utf-8"))["titles"][args.locale]
+                assert row.startswith(title), "mixed program row identity mismatch"
         if rows:
             assert strings["scene_ready"] in rows[0], "saved head work was not prepared"
             assert not any(strings["scene_failed"] in row for row in rows), "program contains an unresolved work"
@@ -190,6 +233,7 @@ def main():
         shot("prepared")
         (output / "result.json").write_text(json.dumps({"serial": args.serial, "entries": len(snapshot["entries"]),
                 "queue_rows": rows, "reopen_only": args.reopen_only,
+                "mixed_draft": args.mixed_draft,
                 "hard_cut_head_draft": args.hard_cut_head, "status": "passed"}, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
         print("Android touch program restart/reopen/prepare passed" if args.reopen_only else
               "Android touch program add/duplicate/order/settings/save/reopen/restart/prepare passed", flush=True)

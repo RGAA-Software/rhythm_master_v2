@@ -20,9 +20,11 @@ P3.1–P3.2 的持久演出列表、稳定作品引用、托管副本与两端�
 [列表实施与证据](performance_lists.md)。P3.3 常规预算内音画淡化已接入两端，Windows 实际 UI/像素与 Android AAudio
 短操作通过，见 [音频切场证据](audio_scene_crossfade.md)。P3.4 分帧 GPU 准备、
 队首先准备后 Go、合成目标预热及两端交付已完成，见
-[GPU 准备证据](scene_gpu_preparation.md)。继续 P3.5 综合演出流程，含超出双场
-资源准入时的明确硬切路径；P3 整体、内容
-品质审核与 P7 数量目标仍未完成。
+[GPU 准备证据](scene_gpu_preparation.md)。P3.5 的显式 GPU/音频超预算硬切、
+失败恢复和同一节目单横/竖/横连续演出已交付，含两端实际 UI/输出检查；期间修复
+[呈现重置中断下一场准备](validation/presentation_preparation_reset_2026-09-09.md)。
+P3 功能工作流收口，声学回录/听感与长稳仍列入最终集成验收，不宣称无缝或采样精确
+切场。开始 P4 视图直接编辑；P4–P9、内容品质审核及 P7 数量目标尚未完成。
 
 ## 1. 产品目标、阶段终点与优先级
 

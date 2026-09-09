@@ -31,6 +31,9 @@ if(BUILD_TESTING)
         add_test(NAME scene_audio_ui COMMAND scene_audio_ui_tests "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}/audio-decoder-tests")
         add_test(NAME scene_audio_serial_ui COMMAND scene_audio_ui_tests "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}/audio-decoder-tests" --serial)
         add_test(NAME scene_audio_serial_gpu_ui COMMAND scene_audio_ui_tests "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}/audio-decoder-tests" --serial-gpu)
+        add_test(NAME scene_program_ui COMMAND scene_audio_ui_tests "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}/audio-decoder-tests" --program)
+        set_tests_properties(scene_program_ui PROPERTIES TIMEOUT 40 RUN_SERIAL TRUE
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
         set_tests_properties(scene_audio_ui scene_audio_serial_ui scene_audio_serial_gpu_ui PROPERTIES FIXTURES_REQUIRED local_audio_media TIMEOUT 30 RUN_SERIAL TRUE
             ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
         add_test(NAME scene_audio_arrangement COMMAND scene_audio_ui_tests --arrangement

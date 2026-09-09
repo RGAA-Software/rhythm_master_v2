@@ -131,6 +131,7 @@ void SceneDeck::DiscardTransition(std::string reason) {
     error_detail_.clear();
 }
 void SceneDeck::ReleaseGraphics() {
+    presentation_generation_.reset();
     replacement_->ReleaseGraphics();
     current_->ReleaseGraphics();
     if (incoming_) {
@@ -165,6 +166,20 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
     if (!runtime::ValidExternalInputs(inputs))
         throw std::invalid_argument("runtime.external_inputs");
     replacement_->BeginFrame();
+    const auto presentation_generation = renderer.Stats().presentation_generation_;
+    if (presentation_generation_ && *presentation_generation_ != presentation_generation) {
+        // Host presentation can reset after this deck's submissions, e.g. when
+        // an accepted portrait canvas rotates the surface. Restart pending GPU
+        // work before it is consumed, retaining queue and audio identities.
+        if (incoming_ && preparation_.state_ != runtime::PreparationState::kFailed) {
+            incoming_->ReleaseGraphics();
+            warmed_ = false;
+            preparation_ = {};
+        }
+        compositor_.ReleaseGraphics();
+        replacement_->PresentationChanged(*current_);
+    }
+    presentation_generation_ = presentation_generation;
     if (retired_) {
         retired_.reset();
         compositor_.ReleaseGraphics();
