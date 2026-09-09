@@ -9,13 +9,10 @@
 #include <stop_token>
 #include <thread>
 
-#include "analysis_queue.h"
-#include "rhythm/audio/output.h"
-#include "stream_source.h"
+#include "playback_engine.h"
 
 namespace rhythm::audio {
 namespace {
-using Clock = std::chrono::steady_clock;
 struct Request {
     bool loop_ = false;
     detail::PlaybackSource source_{};
@@ -118,12 +115,8 @@ class FilePlayback::Impl final {
             source_generation_ = source_generation;
         }
     }
-    std::optional<std::uint64_t> ReserveLoop(std::uint64_t source_generation) {
+    std::uint64_t ReserveGeneration() {
         std::lock_guard lock(mutex_);
-        if (request_.generation_ != source_generation || !request_.loop_) return {};
-        // Reserve a future audible generation without replacing the source or
-        // its cancellation token. Publication changes only when consumption
-        // reaches this generation's first PCM block.
         return ++next_generation_;
     }
     void Repeat(std::uint64_t generation) {
@@ -135,122 +128,41 @@ class FilePlayback::Impl final {
         RestartRequest();
     }
     void Run(std::stop_token stop) {
-        std::unique_ptr<detail::AudioStream> decoder;
-        std::unique_ptr<OutputDevice> device;
-        std::unique_ptr<detail::AnalysisQueue> analysis;
-        std::optional<Clock::time_point> drain_started;
+        std::unique_ptr<detail::PlaybackEngine> engine;
         PlaybackSnapshot state{};
         std::uint64_t active_generation = 0;
-        std::uint64_t origin = 0;
-        std::uint64_t decoded_end = 0;
-        bool ended_input = false;
         bool failed = false;
         for (;;) {
-            if (stop.stop_requested()) {
-                return;
-            }
+            if (stop.stop_requested()) return;
             const auto request = Desired();
             try {
                 if (request.generation_ != active_generation) {
-                    device.reset();
-                    decoder.reset();
-                    analysis.reset();
-                    drain_started.reset();
+                    engine.reset();
                     active_generation = request.generation_;
                     state = {};
                     state.generation_ = active_generation;
                     failed = false;
-                    ended_input = false;
-                    origin = request.first_sample_;
-                    decoded_end = origin;
                     if (HasSource(request)) {
-                        decoder = std::make_unique<detail::AudioStream>(
-                                request.source_, active_generation, request.cancel_);
-                        if (origin) {
-                            decoder->Seek(origin, active_generation, request.cancel_);
-                        }
-                        device = std::make_unique<OutputDevice>();
-                        analysis =
-                                std::make_unique<detail::AnalysisQueue>(active_generation, origin);
-                        state.duration_seconds_ = decoder->Info().duration_seconds_;
-                        state.position_seconds_ =
-                                static_cast<double>(origin) / media::kAudioSampleRate;
-                        state.state_ = PlaybackState::kPaused;
+                        engine = std::make_unique<detail::PlaybackEngine>(
+                                request.source_,
+                                detail::StreamOptions{active_generation, 1, request.loop_},
+                                active_generation, request.first_sample_, request.cancel_);
+                        state = engine->Snapshot();
                     }
                     Publish(state, active_generation);
                 }
-                if (device && !failed && state.state_ != PlaybackState::kEnded) {
-                    device->SetVolume(request.volume_);
-                    if (device->Snapshot().paused_ != request.paused_) {
-                        device->Pause(request.paused_);
-                    }
-                    state.state_ =
-                            request.paused_ ? PlaybackState::kPaused : PlaybackState::kPlaying;
-                    if (!request.paused_) {
-                        if (!ended_input && device->Snapshot().queued_frames_ < 8192) {
-                            auto block = decoder->Read(request.cancel_);
-                            if (!block) {
-                                state.duration_seconds_ =
-                                        static_cast<double>(decoded_end) / media::kAudioSampleRate;
-                                if (const auto generation = ReserveLoop(active_generation)) {
-                                    decoder->Seek(0, *generation, request.cancel_);
-                                    block = decoder->Read(request.cancel_);
-                                    if (!block) throw std::runtime_error("empty audio loop");
-                                }
-                            }
-                            if (block) {
-                                if (!device->Queue(block->samples_)) {
-                                    throw std::runtime_error("playback queue budget exceeded");
-                                }
-                                decoded_end = block->first_sample_ +
-                                              block->samples_.size() / media::kAudioChannels;
-                                analysis->Append(std::move(*block));
-                            } else {
-                                ended_input = true;
-                                device->FinishInput();
-                            }
-                        }
-                        const auto output = device->Snapshot();
-                        const auto latency_frames = static_cast<std::uint64_t>(
-                                std::ceil(output.device_buffer_seconds_ * media::kAudioSampleRate));
-                        auto heard = output.pulled_frames_ -
-                                     std::min(output.pulled_frames_, latency_frames);
-                        if (ended_input && output.queued_frames_ == 0) {
-                            if (!drain_started) {
-                                drain_started = Clock::now();
-                            }
-                            const double elapsed =
-                                    std::chrono::duration<double>(Clock::now() - *drain_started)
-                                            .count();
-                            const auto progressed =
-                                    static_cast<std::uint64_t>(elapsed * media::kAudioSampleRate);
-                            heard = std::min(output.submitted_frames_, heard + progressed);
-                            if (heard == output.submitted_frames_) {
-                                state.state_ = PlaybackState::kEnded;
-                                device->Pause(true);
-                            }
-                        }
-                        analysis->Consume(std::max(heard, analysis->Consumed()));
-                        state.generation_ = analysis->Generation();
-                        state.position_seconds_ =
-                                static_cast<double>(analysis->Position()) / media::kAudioSampleRate;
-                        state.features_ = analysis->Snapshot();
-                        state.queued_frames_ = output.queued_frames_;
-                        state.submitted_frames_ = output.submitted_frames_;
-                        state.consumed_frames_ = analysis->Consumed();
-                    } else {
-                        // Paused wall time must not advance an in-progress tail drain.
-                        drain_started.reset();
-                    }
+                if (engine && !failed) {
+                    engine->Step(request.paused_, request.volume_, request.loop_, request.cancel_,
+                                 [this] { return ReserveGeneration(); });
+                    state = engine->Snapshot();
                     Publish(state, active_generation);
                 }
                 if (state.state_ == PlaybackState::kEnded) Repeat(active_generation);
-            } catch (const std::exception&) {
-                device.reset();
-                decoder.reset();
-                analysis.reset();
+            } catch (const std::exception& error) {
+                engine.reset();
                 failed = true;
                 state.state_ = PlaybackState::kFailed;
+                state.error_ = error.what();
                 state.features_.reset();
                 state.queued_frames_ = 0;
                 Publish(state, active_generation);

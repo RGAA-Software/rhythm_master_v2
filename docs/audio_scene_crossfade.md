@@ -92,3 +92,21 @@ Windows `out/p3-dual-clock-windows-tests.log` 四项通过，Android
 `out/p3-dual-clock-android-tests.log` 两项通过；检查对照规范 Analyzer 的完整 Features
 值、不同循环位置、暂停消费不变、非零位置交接、旧源回退和拒绝后的连续性。
 待接入 FilePlayback 的实际设备循环及两端场景控制，不宣称音画过渡已经交付。
+
+设备循环增量：FilePlayback 的原有设备/PCM/分析生命周期已委托私有 PlaybackEngine，
+其 mailbox、取消和单工作线程保留。引擎 Begin/Cancel 已连接两场 PCM、同一设备队列、
+消费确认和恢复标记；公开异步过渡命令及宿主仍待连接。只有设备消费超过交接边界
+才确认成功；排队回退在恢复标记被消费后进入 Canceled/Failed。短源都在淡化期间
+结束时，用明确的 drained handoff 发布最终来源，不额外塞入假 PCM 或清零设备计数；
+最后的有意静音尾段计入本次播放时间线长度，原始媒体元数据保持原样。
+
+Windows `out/p3-device-fade-windows-tests.log` 六项通过，实际设备设主音量零；
+`out/p3-device-fade-tail-windows-tests.log` 验证短源收尾时间线。Android
+`out/p3-device-fade-android-dummy-tests.log` 四项及
+`out/p3-device-fade-tail-android-dummy-tests.log` 通过，**这是 SDL dummy 测试设备**，
+不是 APK/硬件出声验收。首次独立 native playback 测试未经过 SDL Android 入口，
+失败日志为 `p3-device-engine-android-dummy-tests.log` 和 diagnostic 版本；补充
+`PlaybackSnapshot.error_` 后定位为缺少 main-ready 初始化。仅测试宿主增加
+SDL_SetMainReady 和显式 dummy 选择，生产宿主/后端不做 fallback。
+原有实际 Windows 文件/编排播放、暂停、seek、快速替换、循环、共享文件释放和 EOF
+回归继续通过；增加的引擎检查包括 101 帧淡化排队取消、60001 帧短源尾段和延迟坏素材。

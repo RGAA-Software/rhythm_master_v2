@@ -10,6 +10,10 @@
 #include "rhythm/media/audio_arrangement.h"
 #include "rhythm/storage/file_bytes.h"
 
+#if defined(__ANDROID__)
+#include "audio_test_host.h"
+#endif
+
 namespace {
 using namespace std::chrono_literals;
 void Require(bool value, const char* message) {
@@ -27,7 +31,7 @@ rhythm::audio::PlaybackSnapshot Wait(
             return state;
         }
         if (state.state_ == rhythm::audio::PlaybackState::kFailed) {
-            throw std::runtime_error("playback failed");
+            throw std::runtime_error("playback failed: " + state.error_);
         }
         std::this_thread::sleep_for(5ms);
     }
@@ -190,6 +194,9 @@ void Run(const std::filesystem::path& directory) {
 }  // namespace
 int main(int argc, char* argv[]) {
     try {
+#if defined(__ANDROID__)
+        rhythm::audio::test::InitializeNativeAudioTest();
+#endif
         Require(argc == 2, "usage: audio_playback_tests <media fixture directory>");
         const std::string argument(argv[1]);
         Run(std::filesystem::path(std::u8string(argument.begin(), argument.end())));

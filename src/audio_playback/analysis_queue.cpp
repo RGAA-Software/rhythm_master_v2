@@ -17,6 +17,13 @@ void AnalysisQueue::Append(media::AudioBlock block) { AppendChecked(std::move(bl
 void AnalysisQueue::AppendHandoff(media::AudioBlock block) {
     AppendChecked(std::move(block), true);
 }
+void AnalysisQueue::FinishHandoff(std::uint64_t generation, std::uint64_t first_sample) {
+    if (!blocks_.empty() || consumed_ != submitted_ || generation <= append_generation_ ||
+        !analyzer_.Reset(media::kAudioSampleRate, generation, first_sample))
+        throw std::invalid_argument("audio.undrained_handoff");
+    generation_ = append_generation_ = generation;
+    next_sample_ = position_ = first_sample;
+}
 void AnalysisQueue::AppendChecked(media::AudioBlock block, bool handoff) {
     const auto frames = block.samples_.size() / media::kAudioChannels;
     const bool boundary =

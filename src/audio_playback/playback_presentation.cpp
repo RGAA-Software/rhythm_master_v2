@@ -56,4 +56,12 @@ void PlaybackPresentation::Consume(std::uint64_t frames) {
         spans_.pop_front();
     }
 }
+void PlaybackPresentation::FinishHandoff(StreamPosition position, std::uint64_t generation) {
+    if (!spans_.empty() || !position.identity_.source_ || generation <= appended_generation_)
+        throw std::invalid_argument("audio.undrained_handoff");
+    analysis_.FinishHandoff(generation, position.sample_);
+    sources_ = {position, {}};
+    appended_identity_ = position.identity_;
+    appended_generation_ = generation;
+}
 }  // namespace rhythm::audio::detail

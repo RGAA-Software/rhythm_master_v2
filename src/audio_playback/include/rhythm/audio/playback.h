@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "rhythm/audio/features.h"
+#include "rhythm/audio/transition.h"
 
 namespace rhythm::storage {
 class FileBytes;
@@ -34,6 +35,9 @@ struct PlaybackSnapshot {
     // These reset on source replacement, not at each audible loop generation.
     std::uint64_t submitted_frames_ = 0;
     std::uint64_t consumed_frames_ = 0;
+    AudioTransitionSnapshot transition_{};
+    // Current source/device failure, separate from a rejected incoming scene.
+    std::string error_{};
 };
 
 // UI-thread commands publish desired values; a single worker owns file I/O,

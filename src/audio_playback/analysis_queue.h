@@ -17,6 +17,9 @@ class AnalysisQueue final {
     // a fade. Ordinary Append retains its stricter zero-origin loop contract.
     // Neither operation publishes a generation until device consumption.
     void AppendHandoff(media::AudioBlock block);
+    // A fully drained transition may end without any new-source solo PCM.
+    // Publish its terminal source position without resetting device counters.
+    void FinishHandoff(std::uint64_t generation, std::uint64_t first_sample);
     void Consume(std::uint64_t frames);
     std::optional<Features> Snapshot() const;
     std::uint64_t Consumed() const { return consumed_; }

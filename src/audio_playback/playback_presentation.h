@@ -18,6 +18,7 @@ class PlaybackPresentation final {
     PlaybackPresentation(std::uint64_t generation, StreamPosition initial);
     void Append(StreamPcm block, std::uint64_t generation);
     void Consume(std::uint64_t frames);
+    void FinishHandoff(StreamPosition position, std::uint64_t generation);
     PresentedSources Sources() const { return sources_; }
     std::optional<Features> FeaturesSnapshot() const { return analysis_.Snapshot(); }
     std::uint64_t Consumed() const { return analysis_.Consumed(); }
