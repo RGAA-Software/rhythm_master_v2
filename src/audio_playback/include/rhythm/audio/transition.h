@@ -27,6 +27,9 @@ struct AudioTransitionSnapshot {
     bool incoming_presented_ = false;
     std::uint64_t clipped_samples_ = 0;
     std::string error_{};
+    double previous_seconds_ = 0;
+    std::uint64_t previous_iteration_ = 0;
+    bool previous_presented_ = false;
 };
 inline bool AudioTransitionActive(AudioTransitionState state) {
     return state == AudioTransitionState::kPreparing || state == AudioTransitionState::kQueued ||

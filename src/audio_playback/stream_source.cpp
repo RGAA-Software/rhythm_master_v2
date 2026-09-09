@@ -11,6 +11,8 @@ void ValidateSource(const PlaybackSource& source) {
                 using Type = std::decay_t<decltype(value)>;
                 if constexpr (std::is_same_v<Type, std::monostate>)
                     return false;
+                else if constexpr (std::is_same_v<Type, SilentSource>)
+                    return true;
                 else if constexpr (std::is_same_v<Type, std::filesystem::path>)
                     return !value.empty();
                 else if constexpr (std::is_same_v<Type, storage::FileBytes>)
@@ -50,7 +52,9 @@ std::size_t RequiredCursors(const PlaybackSource& source) {
                         peak = std::max(peak, active);
                     }
                     return static_cast<std::size_t>(peak);
-                } else
+                } else if constexpr (std::is_same_v<Type, SilentSource>)
+                    return 0;
+                else
                     return 1;
             },
             source);
@@ -63,9 +67,12 @@ AudioStream::AudioStream(const PlaybackSource& source, std::uint64_t generation,
                 using Type = std::decay_t<decltype(value)>;
                 if constexpr (std::is_same_v<Type, std::monostate>)
                     throw std::invalid_argument("audio.playback_source");
-                else if constexpr (std::is_same_v<
-                                           Type,
-                                           std::shared_ptr<const media::AudioArrangementSource>>)
+                else if constexpr (std::is_same_v<Type, SilentSource>) {
+                    silent_ = true;
+                    silent_generation_ = generation;
+                } else if constexpr (std::is_same_v<
+                                             Type,
+                                             std::shared_ptr<const media::AudioArrangementSource>>)
                     mixer_ = std::make_unique<media::AudioMixer>(*value, generation, budget);
                 else if constexpr (std::is_same_v<
                                            Type,
@@ -78,12 +85,27 @@ AudioStream::AudioStream(const PlaybackSource& source, std::uint64_t generation,
             },
             source);
 }
-media::AudioInfo AudioStream::Info() const { return mixer_ ? mixer_->Info() : decoder_->Info(); }
+media::AudioInfo AudioStream::Info() const {
+    if (silent_) return {media::kAudioSampleRate, media::kAudioChannels, {}};
+    return mixer_ ? mixer_->Info() : decoder_->Info();
+}
 std::optional<media::AudioBlock> AudioStream::Read(std::stop_token stop) {
+    if (silent_) {
+        if (stop.stop_requested()) throw std::runtime_error("audio.canceled");
+        media::AudioBlock block{
+                std::vector<float>(media::kAudioBlockFrames * media::kAudioChannels),
+                silent_sample_, silent_generation_};
+        silent_sample_ += media::kAudioBlockFrames;
+        return block;
+    }
     return mixer_ ? mixer_->Read(stop) : decoder_->Read(stop);
 }
 void AudioStream::Seek(std::uint64_t sample, std::uint64_t generation, std::stop_token stop) {
-    if (mixer_)
+    if (silent_) {
+        if (stop.stop_requested()) throw std::runtime_error("audio.canceled");
+        silent_sample_ = sample;
+        silent_generation_ = generation;
+    } else if (mixer_)
         mixer_->Seek(sample, generation, stop);
     else
         decoder_->Seek(sample, generation, stop);

@@ -5,11 +5,14 @@
 #include "rhythm/media/audio_mixer.h"
 
 namespace rhythm::audio::detail {
+// An explicit empty old bus when a scene has no selected soundtrack. It emits
+// bounded PCM on the same device clock; not a decoder fallback for broken media.
+struct SilentSource {};
 using PlaybackSource =
         std::variant<std::monostate, std::filesystem::path,
                      std::shared_ptr<const std::vector<std::uint8_t>>, storage::FileBytes,
                      std::shared_ptr<const media::AudioArrangementSource>,
-                     std::shared_ptr<const media::AudioArrangementFiles>>;
+                     std::shared_ptr<const media::AudioArrangementFiles>, SilentSource>;
 // Value validation only; file opening and source probing stay on the worker.
 void ValidateSource(const PlaybackSource& source);
 // Conservative peak over the entire arrangement, excluding silent clips.
@@ -29,5 +32,8 @@ class AudioStream final {
     media::AudioCursorBudget::Lease lease_{};
     std::unique_ptr<media::AudioDecoder> decoder_{};
     std::unique_ptr<media::AudioMixer> mixer_{};
+    bool silent_ = false;
+    std::uint64_t silent_sample_ = 0;
+    std::uint64_t silent_generation_ = 0;
 };
 }  // namespace rhythm::audio::detail

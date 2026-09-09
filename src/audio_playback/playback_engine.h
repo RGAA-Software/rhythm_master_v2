@@ -34,6 +34,7 @@ class PlaybackEngine final {
     std::uint64_t submitted_generation_ = 0;
     std::uint64_t decoded_end_ = 0;
     std::uint64_t recovery_frame_ = 0;
+    std::uint64_t previous_source_id_ = 0;
     StreamOptions incoming_options_{};
     bool ended_input_ = false;
     bool last_loop_intent_ = false;

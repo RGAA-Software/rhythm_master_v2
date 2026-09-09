@@ -64,6 +64,9 @@ void Run(const std::filesystem::path& directory) {
                     stream.Progress().state_ == FadeState::kSubmitted &&
                     stream.ActiveCursors() == 2,
             "promoted source has advanced through the mixed frames");
+    Require(next->secondary_ && next->secondary_->identity_ == StreamIdentity{1, 0} &&
+                    next->secondary_->sample_ == origin + kFadeFrames,
+            "decode-ahead retains exact old clock for a pending cancellation");
     for (std::size_t index = 0; index < next->samples_.size(); ++index)
         Require(std::abs(next->samples_[index] - next_pcm[kFadeFrames * 2 + index] * 0.3F) < 1e-6,
                 "incoming PCM remainder preserved across boundary");
@@ -227,6 +230,9 @@ void Run(const std::filesystem::path& directory) {
     Require(old_loop && old_loop->identity_ == StreamIdentity{80, old_loop_position / 9600} &&
                     old_loop->first_sample_ == old_loop_position % 9600,
             "rollback preserves old loop iteration and phase");
+    Require(after_loop_boundary->secondary_ && after_loop_boundary->secondary_->sample_ == 9599 &&
+                    after_loop_boundary->samples_.size() == 2,
+            "decode-ahead block splits at retained old loop boundary");
 
     TransitionStream post_fade_error(ramp, {90});
     post_fade_error.Begin(late_broken, {91}, 101, media::CrossfadeCurve::kLinear);
@@ -244,6 +250,31 @@ void Run(const std::filesystem::path& directory) {
         }
         produced += block->samples_.size() / 2;
     }
+
+    TransitionStream silent(SilentSource{}, {100});
+    Require(silent.ActiveCursors() == 0 && RequiredCursors(SilentSource{}) == 0,
+            "explicit silence consumes no decoder slots");
+    silent.Begin(two, {101}, 101, media::CrossfadeCurve::kLinear);
+    const auto silent_mix = silent.Read();
+    for (std::size_t index = 0; index < silent_mix->samples_.size(); ++index)
+        Require(std::abs(silent_mix->samples_[index] -
+                         short_pcm[index] * (double(index / 2) / 101)) < 1e-6,
+                "silent old bus fades in the decoded incoming PCM");
+    Require(silent.PeakCursors() == 2 && silent.Cancel(),
+            "silence recovery stays within incoming budget");
+    const auto restored_silence = silent.Read();
+    for (const float sample : restored_silence->samples_)
+        Require(sample == 0, "cancel returns to silence");
+
+    TransitionStream linked(ramp, {110});
+    std::stop_source incoming_cancel;
+    linked.Begin(tone, {111}, 4800, media::CrossfadeCurve::kLinear, incoming_cancel.get_token());
+    incoming_cancel.request_stop();
+    const auto canceled_block = linked.Read();
+    Require(canceled_block && canceled_block->first_sample_ == 0 &&
+                    linked.Progress().state_ == FadeState::kCanceled &&
+                    linked.Progress().error_.empty(),
+            "incoming cancellation during a read preserves old source and canceled status");
 }
 }  // namespace
 int main(int argc, char** argv) {

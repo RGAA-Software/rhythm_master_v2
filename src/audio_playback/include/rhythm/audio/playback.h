@@ -62,6 +62,8 @@ class FilePlayback final {
     void LoadSoundtrack(const media::SoundtrackSource& source);
     // UI-thread value commands; decoding/preparation stays on the existing worker.
     // One outstanding transition. Failure preserves the accepted current source.
+    // With no selected source, start an explicit silent old bus at time zero;
+    // the scene host retains its own visual origin when adopting that clock.
     std::uint64_t BeginTransition(const media::SoundtrackSource& source, double duration_seconds,
                                   TransitionCurve curve = TransitionCurve::kLinear);
     bool CancelTransition(std::uint64_t id);

@@ -125,6 +125,29 @@ void Run(const std::filesystem::path& directory) {
     Require(playback.Snapshot().state_ == PlaybackState::kStopped &&
                     playback.Snapshot().transition_.id_ == 0 && !playback.CancelTransition(stale),
             "stop invalidates pending preparation and all late transition publication");
+    const auto silence_id = playback.BeginTransition(next, 0.15);
+    Wait(playback, [&](const auto& state) {
+        return state.transition_.id_ == silence_id &&
+               state.transition_.state_ == AudioTransitionState::kQueued;
+    });
+    Require(playback.CancelTransition(silence_id), "cancel a prepared silent-bus transition");
+    const auto silent_canceled = Wait(playback, [&](const auto& state) {
+        return state.transition_.id_ == silence_id &&
+               state.transition_.state_ == AudioTransitionState::kCanceled;
+    });
+    Require(silent_canceled.paused_ && silent_canceled.consumed_frames_ == 0,
+            "no queued sound means silent-bus cancellation can finish while paused");
+    const auto silent_next = playback.BeginTransition(next, 0.15);
+    playback.Pause(false);
+    const auto silent_completed = Wait(playback, [&](const auto& state) {
+        return state.transition_.id_ == silent_next &&
+               state.transition_.state_ == AudioTransitionState::kCompleted;
+    });
+    Require(silent_completed.transition_.incoming_presented_ &&
+                    silent_completed.position_seconds_ ==
+                            silent_completed.transition_.incoming_seconds_,
+            "no prior music still uses one consumed incoming clock");
+    playback.Stop();
 }
 }  // namespace
 int main(int argc, char** argv) {

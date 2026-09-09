@@ -8,7 +8,7 @@
 namespace rhythm::audio::detail {
 struct PresentedSources {
     StreamPosition current_{};
-    std::optional<StreamPosition> incoming_{};
+    std::optional<StreamPosition> secondary_{};
 };
 // Maps the SAME consumed PCM counter to FFT and both source-local clocks.
 // Metadata is bounded by the analysis backlog (32768 frames, each span >= 1).

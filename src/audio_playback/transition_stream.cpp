@@ -90,6 +90,7 @@ class TransitionStream::Lane final {
         if (loop) ended_ = false;
     }
     float Gain() const { return options_.gain_; }
+    StreamPosition Position() const { return {{options_.source_id_, iteration_}, position_}; }
     std::size_t Required() const { return required_; }
     media::AudioInfo Info() const { return stream_->Info(); }
 
@@ -157,7 +158,7 @@ std::optional<StreamPcm> TransitionStream::Read(std::stop_token stop) {
         if (previous_available) frames = std::min(frames, previous_available);
         auto previous = current_->Take(frames);
         auto next = incoming_->Take(frames);
-        previous.incoming_ = StreamPosition{next.identity_, next.first_sample_};
+        previous.secondary_ = StreamPosition{next.identity_, next.first_sample_};
         auto mixed = media::MixCrossfade(previous.samples_, next.samples_, progress_.frames_,
                                          progress_.duration_, curve_, current_->Gain(),
                                          incoming_->Gain());
@@ -179,8 +180,15 @@ std::optional<StreamPcm> TransitionStream::Read(std::stop_token stop) {
         return Read(stop);
     }
     if (!frames) return {};
-    if (rollback_) rollback_->Advance(frames, stop);
+    std::optional<StreamPosition> secondary;
+    if (rollback_) {
+        const auto available = rollback_->Available(stop);
+        if (available) frames = std::min(frames, available);
+        secondary = rollback_->Position();
+        rollback_->Advance(frames, stop);
+    }
     auto result = current_->Take(frames);
+    result.secondary_ = secondary;
     for (auto& sample : result.samples_) sample *= current_->Gain();
     return result;
 }

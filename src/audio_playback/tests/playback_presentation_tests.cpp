@@ -29,19 +29,19 @@ void Run() {
     presentation.Append(second, 1);
     presentation.Append(Block({20, 1}, 4096), 2);
     Require(presentation.Position() == 1200 && presentation.Sources().current_.sample_ == 1200 &&
-                    !presentation.Sources().incoming_ && !presentation.FeaturesSnapshot(),
+                    !presentation.Sources().secondary_ && !presentation.FeaturesSnapshot(),
             "decode ahead does not present either source or features");
     presentation.Consume(4096);
     auto sources = presentation.Sources();
-    Require(sources.current_.sample_ == 5296 && sources.incoming_ &&
-                    sources.incoming_->identity_ == StreamIdentity{20, 0} &&
-                    sources.incoming_->sample_ == 13096,
+    Require(sources.current_.sample_ == 5296 && sources.secondary_ &&
+                    sources.secondary_->identity_ == StreamIdentity{20, 0} &&
+                    sources.secondary_->sample_ == 13096,
             "last frame before incoming loop retains its exact prior iteration");
     presentation.Consume(4097);
     sources = presentation.Sources();
     Require(presentation.Generation() == 1 && sources.current_.sample_ == 5297 &&
-                    sources.incoming_->identity_ == StreamIdentity{20, 1} &&
-                    sources.incoming_->sample_ == 1,
+                    sources.secondary_->identity_ == StreamIdentity{20, 1} &&
+                    sources.secondary_->sample_ == 1,
             "incoming loop changes independently of old scene and mixed FFT generation");
     presentation.Consume(8192);
     audio::Analyzer reference;
@@ -54,13 +54,14 @@ void Run() {
     const auto paused_sources = presentation.Sources();
     presentation.Consume(8192);
     Require(presentation.Sources().current_.sample_ == paused_sources.current_.sample_ &&
-                    presentation.Sources().incoming_->sample_ == paused_sources.incoming_->sample_,
+                    presentation.Sources().secondary_->sample_ ==
+                            paused_sources.secondary_->sample_,
             "unchanged consumed count freezes both scene clocks");
     presentation.Consume(8193);
     sources = presentation.Sources();
     Require(presentation.Generation() == 2 && presentation.Position() == 4097 &&
                     sources.current_.identity_ == StreamIdentity{20, 1} &&
-                    sources.current_.sample_ == 4097 && !sources.incoming_ &&
+                    sources.current_.sample_ == 4097 && !sources.secondary_ &&
                     !presentation.FeaturesSnapshot(),
             "audible handoff publishes actual incoming sample and clears old FFT");
     presentation.Consume(12288);

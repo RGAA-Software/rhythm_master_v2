@@ -125,3 +125,13 @@ Windows `out/p3-async-fade-windows-tests.log` 六项通过，补充取消连接�
 检查直接调用公开异步 API，覆盖暂停/取消、旧 epoch 保持、消费完成、作者增益在 seek
 后保留且主音量仍静音、坏媒体拒绝后继续播放，以及 Stop 后不得有过期结果。
 下一步是宿主的 GPU 可呈现准备与音画交接；当前 DLL/APK 尚未更新，P3.3 仍未整体验收。
+
+宿主边界增量：没有选中旧音乐时，BeginTransition 建立显式静音旧总线（零解码游标），
+仍复用同一设备/分析时钟；坏媒体不会自动替换成静音。场景宿主需在接管该零起点时
+保留原有画面时间原点。两场 PCM 元数据改为主/次来源；新场独占 PCM 已排队但尚未
+确认期间，次来源记录仍被保留的旧场实际位置，且在旧源循环边界拆分。公开 transition
+快照可同时报告新旧位置，供宿主取消回退和场景时钟使用。
+Windows `out/p3-silent-scene-windows-tests.log` 七项通过；Android
+`out/p3-silent-scene-android-dummy-tests.log` 五项通过（播放检查为 dummy 设备）。
+新增零音乐起始、暂停下无积压取消、静音淡入 PCM、旧源循环处的次来源位置与独立
+来场取消 token 检查。仍未以这些检查替代 Player 界面、实际画面和 Android 硬件音频验收。

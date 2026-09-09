@@ -75,9 +75,16 @@ class FilePlayback::Impl final {
             (curve != TransitionCurve::kLinear && curve != TransitionCurve::kEqualPower))
             throw std::invalid_argument("audio.transition_options");
         std::lock_guard lock(mutex_);
-        if (!HasSource(request_) || request_.transition_ ||
-            snapshot_.state_ == PlaybackState::kFailed || snapshot_.state_ == PlaybackState::kEnded)
+        if (request_.transition_ || snapshot_.state_ == PlaybackState::kFailed ||
+            snapshot_.state_ == PlaybackState::kEnded)
             throw std::logic_error("audio.transition_not_ready");
+        if (!HasSource(request_)) {
+            request_.source_ = detail::SilentSource{};
+            request_.source_gain_ = 0;
+            request_.loop_ = false;
+            request_.first_sample_ = 0;
+            RestartRequest();
+        }
         const auto id = ++next_generation_;
         transition_cancel_ = std::stop_source{};
         request_.transition_ = std::make_shared<const TransitionRequest>(TransitionRequest{

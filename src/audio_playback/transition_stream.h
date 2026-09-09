@@ -17,9 +17,9 @@ struct StreamPcm {
     std::vector<float> samples_{};
     StreamIdentity identity_{};
     std::uint64_t first_sample_ = 0;
-    // During mixing, the incoming source advances through these same samples.
-    // Device-consumption mapping uses this value instead of duration estimates.
-    std::optional<StreamPosition> incoming_{};
+    // The other lane: new source during mixing, retained old source during
+    // decode-ahead. Both clocks follow actual samples, not duration estimates.
+    std::optional<StreamPosition> secondary_{};
 };
 struct StreamOptions {
     std::uint64_t source_id_ = 0;

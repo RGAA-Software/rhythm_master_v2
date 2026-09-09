@@ -37,6 +37,7 @@ void PlaybackEngine::Begin(const PlaybackSource& source, StreamOptions options,
                           0,
                           duration};
     incoming_options_ = options;
+    previous_source_id_ = presentation_->Sources().current_.identity_.source_;
 }
 void PlaybackEngine::Recover(std::string error, std::uint64_t boundary) {
     state_.transition_.state_ = AudioTransitionState::kRecovering;
@@ -79,11 +80,21 @@ void PlaybackEngine::Submit(std::stop_token stop,
 void PlaybackEngine::Observe(std::uint64_t heard, bool ended) {
     auto& fade = state_.transition_;
     const auto sources = presentation_->Sources();
+    std::optional<StreamPosition> previous;
+    if (sources.current_.identity_.source_ == previous_source_id_)
+        previous = sources.current_;
+    else if (sources.secondary_ && sources.secondary_->identity_.source_ == previous_source_id_)
+        previous = sources.secondary_;
+    fade.previous_presented_ = previous.has_value();
+    if (previous) {
+        fade.previous_seconds_ = double(previous->sample_) / media::kAudioSampleRate;
+        fade.previous_iteration_ = previous->identity_.iteration_;
+    }
     std::optional<StreamPosition> incoming;
     if (sources.current_.identity_.source_ == fade.id_)
         incoming = sources.current_;
-    else if (sources.incoming_ && sources.incoming_->identity_.source_ == fade.id_)
-        incoming = sources.incoming_;
+    else if (sources.secondary_ && sources.secondary_->identity_.source_ == fade.id_)
+        incoming = sources.secondary_;
     fade.incoming_presented_ = incoming.has_value();
     if (incoming) {
         fade.incoming_seconds_ = double(incoming->sample_) / media::kAudioSampleRate;
@@ -146,9 +157,9 @@ void PlaybackEngine::Step(bool paused, float volume, bool loop, std::stop_token 
         stream_->Progress().state_ == FadeState::kSubmitted &&
         AudioTransitionActive(state_.transition_.state_)) {
         const auto sources = presentation_->Sources();
-        if (sources.incoming_ &&
-            sources.incoming_->identity_.source_ == incoming_options_.source_id_)
-            presentation_->FinishHandoff(*sources.incoming_, next_generation());
+        if (sources.secondary_ &&
+            sources.secondary_->identity_.source_ == incoming_options_.source_id_)
+            presentation_->FinishHandoff(*sources.secondary_, next_generation());
     }
     state_.generation_ = presentation_->Generation();
     state_.position_seconds_ = double(presentation_->Position()) / media::kAudioSampleRate;

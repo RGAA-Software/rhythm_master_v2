@@ -52,7 +52,9 @@ void Run(const std::filesystem::path& directory) {
                            state.features_.has_value();
                 },
                 true);
-        Require(mixed.transition_.incoming_presented_ &&
+        Require(mixed.transition_.previous_presented_ &&
+                        mixed.transition_.previous_seconds_ == mixed.position_seconds_ &&
+                        mixed.transition_.incoming_presented_ &&
                         mixed.transition_.elapsed_frames_ < 12000 &&
                         mixed.features_->generation_ == mixed.generation_,
                 "heard mixed PCM has one FFT");

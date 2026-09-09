@@ -22,11 +22,11 @@ void PlaybackPresentation::Append(StreamPcm block, std::uint64_t generation) {
         submitted_ > maximum ||
         (changed && block.identity_.source_ == appended_identity_.source_ &&
          block.identity_.iteration_ <= appended_identity_.iteration_) ||
-        (block.incoming_ &&
-         (!block.incoming_->identity_.source_ || block.incoming_->sample_ > maximum ||
-          block.incoming_->identity_.source_ == block.identity_.source_)))
+        (block.secondary_ &&
+         (!block.secondary_->identity_.source_ || block.secondary_->sample_ > maximum ||
+          block.secondary_->identity_.source_ == block.identity_.source_)))
         throw std::invalid_argument("audio.presentation_identity");
-    Span span{{{block.identity_, block.first_sample_}, block.incoming_}, submitted_, frames};
+    Span span{{{block.identity_, block.first_sample_}, block.secondary_}, submitted_, frames};
     // Metadata allocation precedes PCM append, so allocation failure cannot
     // leave the analysis queue without its matching source identity span.
     spans_.push_back(span);
@@ -51,7 +51,7 @@ void PlaybackPresentation::Consume(std::uint64_t frames) {
         const auto offset = std::min(frames - span.start_, span.frames_);
         sources_ = span.sources_;
         sources_.current_.sample_ += offset;
-        if (sources_.incoming_) sources_.incoming_->sample_ += offset;
+        if (sources_.secondary_) sources_.secondary_->sample_ += offset;
         if (offset < span.frames_) break;
         spans_.pop_front();
     }
