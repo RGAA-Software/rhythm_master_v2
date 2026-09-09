@@ -35,14 +35,27 @@ RENDER_ADAPTERS.update({"src/rhythm_render/src/bgfx_image_programs.h", "src/rhyt
 RENDER_ADAPTERS.add("src/rhythm_render/tests/gpu_execution_probe.cpp")
 
 
+CPP_NON_CODE = re.compile(
+    r'R"(?P<delimiter>[^ ()\\\t\r\n]{0,16})\(.*?\)(?P=delimiter)"'
+    r'|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\''
+    r'|/\*.*?\*/|//[^\n]*', re.S)
+RAW_POINTER = re.compile(
+    r"\b(?!(?:return|co_return|throw)\b)[A-Za-z_]\w*(?:::\w+)*(?:\s+const)?\s*\*")
+MANUAL_OWNERSHIP = re.compile(r"\bnew\b\s*(?:\w|\()|\bdelete\s*\[\s*\]|\bdelete\s+(?![;=])")
+
+
 def without_comments(text):
-    return re.sub(r"/\*.*?\*/|//[^\n]*", "", text, flags=re.S)
+    return CPP_NON_CODE.sub(lambda match: " " if match[0].startswith("/") else match[0], text)
+
+
+def code_tokens(text):
+    return CPP_NON_CODE.sub(" ", text)
 
 
 def main():
     failures = []
     checked = 0
-    for module in ("graph", "runtime", "parameters", "particles", "scene3d", "image_shader", "model_assets", "prepared_assets", "video_playback", "video_sources", "export_core", "audio_analysis", "audio_playback", "cluster", "cluster_auth", "cluster_player", "foundation", "qr", "player_core", "editor_application", "rhythm_render"):
+    for module in ("graph", "runtime", "parameters", "performance", "particles", "scene3d", "image_shader", "model_assets", "prepared_assets", "video_playback", "video_sources", "export_core", "audio_analysis", "audio_playback", "cluster", "cluster_auth", "cluster_player", "foundation", "qr", "player_core", "editor_application", "rhythm_render"):
         for path in (ROOT / "src" / module).rglob("*"):
             if path.suffix not in (".h", ".cpp") or path.relative_to(ROOT).as_posix() in RENDER_ADAPTERS:
                 continue
@@ -59,16 +72,16 @@ def main():
         code = without_comments(path.read_text(encoding="utf-8-sig"))
         if FORBIDDEN.search(code) or re.search(r"\bglm(?:::|/)", code):
             failures.append(f"{path.relative_to(ROOT)}: backend type in public contract")
-        if re.search(r"\b[A-Za-z_]\w*(?:::\w+)*(?:\s+const)?\s*\*", code):
+        if RAW_POINTER.search(code_tokens(code)):
             failures.append(f"{path.relative_to(ROOT)}: raw pointer in public contract")
     for path in (ROOT / "src").rglob("*"):
         if path.suffix not in (".h", ".cpp"):
             continue
         text = path.read_text(encoding="utf-8-sig")
-        code = without_comments(text)
+        code = code_tokens(text)
         if "\t" in text:
             failures.append(f"{path.relative_to(ROOT)}: tab in owned C++")
-        if re.search(r"\bnew\s+\w|\bdelete\s+(?![;=])", code):
+        if MANUAL_OWNERSHIP.search(code):
             failures.append(f"{path.relative_to(ROOT)}: manual owning allocation")
     catalogs = [json.loads(path.read_text(encoding="utf-8-sig"))
                 for path in sorted((ROOT / "locales").glob("*/studio.json"))]
