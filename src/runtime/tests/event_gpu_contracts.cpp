@@ -57,6 +57,51 @@ void VerifyEventPixels(render::Renderer& renderer) {
                   "event envelope did not change actual GPU pixels at its timestamps");
         }
     }
+    parameters::EventTrack take;
+    std::vector<render::ReadbackImage> live_images;
+    for (const bool replay : {false, true}) {
+        auto document = envelope;
+        document.beat_grid_.reset();
+        document.nodes_[0] = registry.MakeNode(1, "event.input");
+        document.nodes_[0].properties_["actions"] = take;
+        const auto plan = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+        runtime::Runtime runtime;
+        parameters::EventRecorder recorder;
+        if (!replay) recorder.Begin({}, {0, 1, parameters::EventOrigin::kManual}, 1, 0);
+        std::size_t index = 0;
+        for (const auto [seconds, expected] :
+             {std::pair{0.0, 64}, {0.49, 64}, {0.5, 255}, {0.9, 64}}) {
+            runtime::FrameContext context{seconds, 0, {64, 64}};
+            if (!replay && seconds == 0.5) {
+                parameters::EventBatch live;
+                Check(live.Append({seconds, {0, 1, parameters::EventOrigin::kManual}, 1, 1}),
+                      "live GPU action admission");
+                context.external_.events_ = std::make_shared<const parameters::EventBatch>(live);
+            }
+            renderer.BeginFrame();
+            const auto frame = runtime.Evaluate(plan, context, renderer);
+            Check(!frame.rejected_events_, "live/recorded GPU action rejected");
+            if (!replay)
+                for (const auto& output : frame.outputs_)
+                    if (output.node_ == 1 && output.events_)
+                        for (const auto& event : output.events_->Events())
+                            Check(recorder.Capture(event) ==
+                                          parameters::RecordingAdmission::kRecorded,
+                                  "GPU action was not recorded from real dispatch");
+            auto ticket = renderer.RequestReadback(frame.final_);
+            renderer.EndFrame();
+            auto image = Complete(renderer, ticket);
+            Check(std::abs(Brightness(image) - expected) <= 2,
+                  "live/recorded action did not produce expected GPU pixels");
+            if (replay)
+                Check(image.rgba_ == live_images[index].rgba_,
+                      "recorded GPU replay differs from live pixels");
+            else
+                live_images.push_back(std::move(image));
+            ++index;
+        }
+        if (!replay) take = recorder.Finish();
+    }
     for (const auto history_type : {"texture.trail", "texture.feedback"}) {
         graph::Document document;
         document.id_ = history_type;
