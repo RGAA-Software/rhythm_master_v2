@@ -79,3 +79,21 @@ Windows `out/p3-session-preparation-windows-tests.log` 的 player_contracts、vi
 `out/p3-session-preparation-android-tests.log` 同样通过原生 Session/视频检查。
 25 步图准备期间时间为零，首次暂停呈现复用原句柄且不新增 pass；两路重叠裁剪
 片段均就绪后才完成准备，取消释放部分资源。SceneDeck/队列交付仍待后续增量。
+
+### SceneDeck 分步切场
+
+SceneDeck 来场使用 Session 准备，正式淡化计时在准备完成后开始；共享纹理准入
+及已观测旧场 + 候选累计 pass + 合成 pass 准入生效。动态分支后续成本仍由后端
+逐帧限制，冻结首帧成本不是全作品上界。33 节点链覆盖旧场连续播放、隐藏中间
+输出、取消释放、重新准备和最终接管；音频必须等 Graphics Ready 才发出请求。
+Windows `out/p3-deck-preparation-windows-tests.log` 6 项通过，详情留在
+`out/p3-deck-preparation-windows-detail.log`。Android scene_deck / scene_audio_deck
+通过；首次调用 bridge 探针参数错误（要求 fixture 目录），失败日志保留在
+`out/p3-deck-preparation-android-tests.log`，修正参数后的 bridge 与真实 GLES 切场
+通过，见 `out/p3-deck-preparation-android-corrected-tests.log`。
+
+本次 Android 来场第 10 帧仅增加 4 B 白纹理，包含 EndFrame 13.53 ms；100 帧范围
+峰值纹理仍为 40,323,464 B，34 pass。双场范围 EndFrame p95 17.46 / max 28.93 ms，
+没有比基线全面改善；不能仅凭第 10 帧下降就宣布卡顿已解决。接下来记录每一个
+准备帧，并将 GPU 准备提前到队首等待阶段，避免在 Go 后才开始准备。
+尚未更新两端应用 UI 或交付 APK，本增量是 SceneDeck 原生/实际像素验证。

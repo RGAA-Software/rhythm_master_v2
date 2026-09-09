@@ -23,6 +23,7 @@ std::optional<media::SoundtrackSource> SceneDeck::IncomingSoundtrack() const {
     return incoming_ ? incoming_->Soundtrack() : std::nullopt;
 }
 void SceneDeck::ResetClock() {
+    current_passes_ = 0;
     master_ = {};
     master_generation_ = master_.Generation();
     ++scene_generation_;
@@ -67,6 +68,7 @@ bool SceneDeck::StartTransition(PreparedPackage package, double duration, bool s
     duration_ = duration;
     progress_ = 0;
     warmed_ = false;
+    preparation_ = {};
     error_ = SceneTransitionError::kNone;
     error_detail_.clear();
     return true;
@@ -103,6 +105,7 @@ void SceneDeck::DiscardTransition() {
     compositor_.ReleaseGraphics();
     progress_ = 0;
     warmed_ = false;
+    preparation_ = {};
     error_ = SceneTransitionError::kNone;
     error_detail_.clear();
 }
@@ -111,6 +114,7 @@ void SceneDeck::ReleaseGraphics() {
     if (incoming_) {
         incoming_->ReleaseGraphics();
         warmed_ = false;
+        preparation_ = {};
     }
     retired_.reset();
     compositor_.ReleaseGraphics();
@@ -190,8 +194,10 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
     for (const auto& [id, value] : live_controls_) current_inputs.controls_[id] = value;
     const auto extent = PlaybackExtent(current_->Canvas(), quality);
     SceneDeckFrame result;
+    const auto previous_passes = renderer.Stats().passes_;
     result.output_ = current_->Tick(monotonic_seconds, false, extent, renderer, current_inputs,
                                     current_time);
+    current_passes_ = std::max(current_passes_, renderer.Stats().passes_ - previous_passes);
     if (synchronized && !incoming_ && audio_frame.terminal_) {
         if (const auto offset = audio_clock_->PreviousOffset()) origin_ = -*offset;
         if (playback) handoff_generation_ = playback->generation_;
@@ -211,9 +217,26 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
         // Public macro IDs belong to the active work, unlike shared audio/input
         // snapshots. The incoming work starts from its own authored controls.
         incoming_inputs.controls_.clear();
-        const auto next = incoming_->Tick(monotonic_seconds, false,
-                                          PlaybackExtent(incoming_->Canvas(), quality), renderer,
-                                          incoming_inputs, incoming_time);
+        runtime::FrameResult next;
+        if (!warmed_) {
+            auto fixed_time = incoming_time;
+            fixed_time.paused_ = true;
+            preparation_ = incoming_->PrepareGraphics(monotonic_seconds,
+                                                      PlaybackExtent(incoming_->Canvas(), quality),
+                                                      renderer, incoming_inputs, fixed_time);
+            if (preparation_.state_ == runtime::PreparationState::kPending) return result;
+            if (preparation_.budget_) throw render::BudgetExceeded(*preparation_.budget_);
+            if (preparation_.state_ == runtime::PreparationState::kFailed)
+                throw std::runtime_error(preparation_.error_);
+            if (preparation_.required_passes_ + current_passes_ + 1 >
+                render::kMaximumOffscreenPasses)
+                throw render::BudgetExceeded(render::Budget::kPasses);
+            next = *preparation_.output_;
+        } else {
+            next = incoming_->Tick(monotonic_seconds, false,
+                                   PlaybackExtent(incoming_->Canvas(), quality), renderer,
+                                   incoming_inputs, incoming_time);
+        }
         if (next.budget_) throw render::BudgetExceeded(*next.budget_);
         if (!renderer.IsValid(next.final_)) throw std::runtime_error("player.transition_output");
         if (!synchronized || audio_frame.running_ || audio_frame.committed_) {
@@ -233,6 +256,7 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
         } else {
             retired_ = std::move(current_);
             current_ = std::move(incoming_);
+            current_passes_ = preparation_.required_passes_;
             cancel_requested_ = false;
             origin_ = incoming_origin_;
             result.output_ = next;

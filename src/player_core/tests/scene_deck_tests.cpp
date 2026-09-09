@@ -25,10 +25,62 @@ std::string Package(const std::string& title, rhythm::graph::NodeId id,
     document.output_ = id + 2;
     return project::EncodePackage(document, title);
 }
+void VerifyStagedCandidate() {
+    using namespace rhythm;
+    graph::Registry registry;
+    graph::Document document;
+    document.id_ = "candidate.chain";
+    document.canvas_ = {32, 32};
+    document.nodes_ = {registry.MakeNode(1, "texture.gradient")};
+    for (std::uint64_t id = 2; id <= 32; ++id) {
+        document.nodes_.push_back(registry.MakeNode(id, "texture.transform"));
+        document.edges_.push_back({id, id - 1, id, "source"});
+    }
+    document.nodes_.push_back(registry.MakeNode(33, "output.texture"));
+    document.edges_.push_back({33, 32, 33, "source"});
+    document.output_ = 33;
+    const auto candidate = project::EncodePackage(document, "Candidate");
+    auto renderer = render::Renderer::CreateNull();
+    player::SceneDeck deck;
+    deck.LoadPrepared(player::PreparedPackage(Package("Current", 1)));
+    const auto tick = [&](double time) {
+        renderer.BeginFrame();
+        auto result = deck.Tick(time, false, player::RenderQuality::kOriginal, renderer, {},
+                                runtime::PlaybackSample{time, 7, false});
+        renderer.EndFrame();
+        Check(renderer.IsValid(result.output_.final_), "old output remains valid during steps");
+        return result;
+    };
+    tick(0);
+    const auto baseline = renderer.Stats().texture_bytes_;
+    Check(deck.StartTransition(player::PreparedPackage(candidate), 1), "stage complex candidate");
+    tick(1);
+    Check(deck.PreparingGraphics() && deck.GraphicsPreparation().completed_nodes_ <= 8 &&
+                  !deck.GraphicsPreparation().output_ && deck.Progress() == 0 &&
+                  deck.Current().Seconds() == 1 && deck.Current().Title() == "Current",
+          "bounded candidate work does not stop current playback or start fade early");
+    deck.CancelTransition();
+    Check(renderer.Stats().texture_bytes_ == baseline, "cancel releases partial candidate");
+    Check(deck.StartTransition(player::PreparedPackage(candidate), 1), "retry staged candidate");
+    double now = 2;
+    do {
+        tick(now);
+        Check(deck.Progress() == 0 && deck.Current().Title() == "Current",
+              "fade remains at zero until all preparation steps complete");
+        now += 0.1;
+        Check(now < 4, "candidate preparation converges");
+    } while (deck.PreparingGraphics());
+    const auto promoted = tick(now + 1);
+    Check(promoted.switched_ && deck.Current().Title() == "Candidate",
+          "prepared candidate runs and promotes after its own fade interval");
+    deck.ReleaseGraphics();
+    Check(renderer.Stats().texture_bytes_ == 0, "staged deck resource lifetime closes");
+}
 }  // namespace
 int main() {
     using namespace rhythm;
     try {
+        VerifyStagedCandidate();
         auto renderer = render::Renderer::CreateNull();
         const auto first = Package("First", 1);
         const auto second = Package("Second", 11, {32, 64});

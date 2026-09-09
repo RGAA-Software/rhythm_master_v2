@@ -82,6 +82,8 @@ class SceneDeck final {
                         const std::optional<SceneAudioSample>& audio = {});
     bool Transitioning() const { return bool(incoming_) && !cancel_requested_; }
     bool CanPrepareNext() const;
+    bool PreparingGraphics() const { return Transitioning() && !warmed_; }
+    const runtime::PreparationProgress& GraphicsPreparation() const { return preparation_; }
     double Progress() const { return progress_; }
     std::string IncomingTitle() const { return incoming_ ? incoming_->Title() : std::string{}; }
     SceneTransitionError Error() const { return error_; }
@@ -121,5 +123,7 @@ class SceneDeck final {
     bool media_observed_ = false;
     bool preserve_audio_origin_ = false;
     std::string error_detail_{};
+    runtime::PreparationProgress preparation_{};
+    std::uint32_t current_passes_ = 0;
 };
 }  // namespace rhythm::player
