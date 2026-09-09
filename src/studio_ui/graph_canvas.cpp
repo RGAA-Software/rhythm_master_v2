@@ -89,6 +89,7 @@ class GraphCanvas::Impl final {
     std::size_t visible_nodes_ = 0;
     editor::Position insertion_point_{};
     bool pan_pressed_ = false;
+    bool layout_pressed_ = false;
     std::vector<graph::NodeId> preview_nodes_{};
     std::size_t drawn_previews_ = 0;
 };
@@ -142,6 +143,11 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
     const auto current = [&]() -> const editor::Snapshot& { return next ? *next : snapshot; };
     const auto canvas_size = ImGui::GetContentRegionAvail();
     const auto origin = ImGui::GetCursorScreenPos();
+    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        impl_->layout_pressed_ = ImGui::IsWindowHovered() &&
+                                 ImGui::IsMouseHoveringRect(origin, {origin.x + canvas_size.x,
+                                                                     origin.y + canvas_size.y});
+    if (ImGui::GetIO().AppFocusLost) impl_->layout_pressed_ = false;
     if (!ImGui::IsMouseDown(ImGuiMouseButton_Right)) impl_->pan_pressed_ = false;
     if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && ImGui::IsWindowHovered() &&
         ImGui::IsMouseHoveringRect(origin, {origin.x + canvas_size.x, origin.y + canvas_size.y}))
@@ -282,7 +288,10 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
         impl_->selections_.push_back(
                 impl_->reverse_nodes_.at(selected[static_cast<std::size_t>(index)].Get()));
     if (!impl_->selections_.empty()) impl_->selection_ = impl_->selections_.front();
-    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+    // A release in another editor must not publish rounded/layout-only node
+    // positions and cancel that editor's in-progress author transaction.
+    if (impl_->layout_pressed_ && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+        impl_->layout_pressed_ = false;
         for (const auto& node : current().document_.nodes_) {
             const auto position = ed::GetNodePosition(ed::NodeId(impl_->Node(node.id_)));
             const editor::Position value{position.x, position.y};

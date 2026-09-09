@@ -296,6 +296,19 @@ void PanCursor() {
     Check(fixture.snapshot_ == snapshot, "Panning must not change graph data or node layout");
 }
 
+void UnrelatedMouseRelease() {
+    CanvasFixture fixture;
+    // Upstream owns an unpersisted layout, as happens for a newly added node.
+    // A click outside the canvas must not turn that into an author transaction.
+    fixture.snapshot_.positions_.erase(3);
+    const auto before = fixture.snapshot_;
+    fixture.Move({1100, 750});
+    fixture.Button(ImGuiMouseButton_Left, true);
+    fixture.Button(ImGuiMouseButton_Left, false);
+    fixture.Frame();
+    Check(fixture.snapshot_ == before, "unrelated mouse release must not commit the graph layout");
+}
+
 void ReplaceDeletedOutput() {
     CanvasFixture fixture;
     auto& document = fixture.snapshot_.document_;
@@ -417,6 +430,7 @@ int main(int argc, char** argv) {
         DragWithOverlappingDomainIds();
         DragNodeAndConnect();
         PanCursor();
+        UnrelatedMouseRelease();
         ReplaceDeletedOutput();
         InlinePreviewVisibility();
         EventPreviewAndHelp();
