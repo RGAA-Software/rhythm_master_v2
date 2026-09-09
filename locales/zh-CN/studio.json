@@ -1186,5 +1186,15 @@
     "transform_driver.missing_value": "当前来源值不可用。",
     "transform_driver.not_curve": "此输入不是由可直接编辑的曲线驱动。",
     "transform_driver.range": "目标值超出此变换参数的范围。",
-    "transform_driver.curve_time": "当前曲线输入时间不能保存为关键帧。"
+    "transform_driver.curve_time": "当前曲线输入时间不能保存为关键帧。",
+    "navigation.find": "查找节点",
+    "navigation.fit": "显示全部",
+    "navigation.focus": "定位所选",
+    "navigation.upstream": "上游节点",
+    "navigation.downstream": "下游节点",
+    "navigation.inspect": "检查所选输出",
+    "navigation.invalid_bindings": "请先修复无法解析的信号绑定，再查找上下游。",
+    "navigation.preview_help": "跟随所选节点的动态预览。图像使用现有的 256 x 144 预览分辨率。",
+    "navigation.preview_disabled": "请开启节点预览以检查此输出。",
+    "navigation.preview_wait": "等待当前预览。请保持所选节点可见并选择其预览组；部分输出类型暂不提供可视预览。"
 }

@@ -1,4 +1,5 @@
 add_library(studio_ui STATIC studio.cpp node_palette.cpp semantic_palette.cpp graph_canvas.cpp node_visual.cpp curve_editor.cpp curve_canvas.cpp expression_editor.cpp binding_editor.cpp component_panel.cpp component_workbench.cpp component_interface.cpp property_inspector.cpp asset_panel.cpp canvas_settings.cpp input_preview.cpp timeline_panel.cpp)
+target_sources(studio_ui PRIVATE node_navigation.cpp node_inspection.cpp)
 target_sources(studio_ui PRIVATE time_section_editor.cpp time_track_editor.cpp cue_editor.cpp audio_clip_editor.cpp)
 target_include_directories(studio_ui PUBLIC include)
 target_sources(studio_ui PRIVATE shader_panel.cpp template_browser.cpp catalog_preview.cpp performance_panel.cpp component_library_panel.cpp preview_routing.cpp)
@@ -183,8 +184,15 @@ if(BUILD_TESTING)
     add_executable(canvas_interaction_tests tests/canvas_interaction_tests.cpp)
     target_include_directories(canvas_interaction_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
     target_link_libraries(canvas_interaction_tests PRIVATE studio_ui graph_runtime spike_imgui editor_application)
+    target_link_libraries(canvas_interaction_tests PRIVATE nlohmann_json::nlohmann_json)
     rhythm_project_target(canvas_interaction_tests)
     add_test(NAME canvas_interactions COMMAND canvas_interaction_tests)
+    foreach(locale en-US zh-CN)
+        add_test(NAME node_navigation_${locale} COMMAND canvas_interaction_tests
+            "${PROJECT_SOURCE_DIR}/locales/${locale}/studio.json")
+        set_tests_properties(node_navigation_${locale} PROPERTIES TIMEOUT 30
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/bin")
+    endforeach()
     set_tests_properties(canvas_interactions PROPERTIES TIMEOUT 30
         ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/bin;PATH=path_list_prepend:${RHYTHM_SPIKE_SDK}/debug/bin")
 endif()

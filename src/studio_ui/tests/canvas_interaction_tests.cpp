@@ -1,8 +1,11 @@
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include <cmath>
+#include <fstream>
 #include <iostream>
 #include <memory>
+#include <nlohmann/json.hpp>
 #include <stdexcept>
 
 #include "graph_canvas.h"
@@ -42,14 +45,31 @@ class CanvasFixture final {
         }
         for (int frame = 0; frame < 6; ++frame) Frame();
     }
-    void Frame() {
+    void Frame(const std::string& activate = {}, const std::string& child = {}) {
         ImGui::NewFrame();
         ImGui::SetNextWindowPos({0, 0});
         ImGui::SetNextWindowSize({1000, 700});
         ImGui::Begin("Canvas test", nullptr,
                      ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
                              ImGuiWindowFlags_NoSavedSettings);
-        if (auto next = canvas_.Draw(snapshot_, registry_, {}, previews_)) {
+        if (!activate.empty()) {
+            auto seed = ImGui::GetCurrentWindow()->ID;
+            if (!child.empty()) {
+                bool found = false;
+                for (const auto* window : ImGui::GetCurrentContext()->Windows)
+                    if (std::string_view(window->Name).find(child) != std::string_view::npos &&
+                        window->WasActive) {
+                        seed = window->ID;
+                        found = true;
+                        break;
+                    }
+                Check(found, "navigation child exists");
+            }
+            ImGui::ActivateItemByID(ImHashStr(("###" + activate).c_str(), 0, seed));
+            if (activate == "navigation.search")
+                ImGui::GetCurrentContext()->NavNextActivateFlags = ImGuiActivateFlags_PreferInput;
+        }
+        if (auto next = canvas_.Draw(snapshot_, registry_, text_, previews_)) {
             snapshot_ = std::move(*next);
             ++edits_;
         }
@@ -80,8 +100,104 @@ class CanvasFixture final {
     rhythm::graph::Registry registry_{};
     rhythm::editor::Snapshot snapshot_{};
     rhythm::studio::CanvasPreviews previews_{};
+    std::map<std::string, std::string> text_{};
     int edits_ = 0;
 };
+
+bool InspectionTexture() {
+    for (const auto* window : ImGui::GetCurrentContext()->Windows)
+        if (window->Active &&
+            std::string_view(window->Name).find("###node.inspection.") != std::string_view::npos)
+            for (const auto& command : window->DrawList->CmdBuffer)
+                if (command.ElemCount && command.GetTexID() == 1) return true;
+    return false;
+}
+
+void Navigation(const std::map<std::string, std::string>& text) {
+    for (const auto count : {200, 500, 1000}) {
+        CanvasFixture fixture(count);
+        fixture.text_ = text;
+        const auto before = fixture.snapshot_;
+        fixture.canvas_.Select(count);
+        fixture.Frame("navigation.focus");
+        fixture.Frame();
+        // Activation is queued by ImGui; node-editor applies its navigation
+        // transform when entering the following canvas frame.
+        fixture.Frame();
+        const auto position = before.positions_.at(count);
+        const auto focused = fixture.canvas_.ToScreen({position.x_ + 20, position.y_ + 14});
+        Check(focused.x_ > 0 && focused.x_ < 1000 && focused.y_ > 0 && focused.y_ < 700,
+              "selected node must be visible at editable zoom");
+        const auto unit = fixture.canvas_.ToScreen({position.x_ + 120, position.y_ + 14});
+        std::cout << "Focus " << count << ": node=" << fixture.canvas_.Selection()
+                  << " screen=" << focused.x_ << ',' << focused.y_
+                  << " scale=" << (unit.x_ - focused.x_) / 100 << '\n';
+        Check(unit.x_ - focused.x_ > 60,
+              "focus must zoom into a usable node, not retain full-graph zoom");
+        fixture.Frame("navigation.fit");
+        fixture.Frame();
+        Check(fixture.snapshot_ == before, "focus/fit must preserve document and authored layout");
+    }
+    CanvasFixture fixture(1000);
+    fixture.text_ = text;
+    auto& document = fixture.snapshot_.document_;
+    std::erase_if(document.edges_, [](const auto& edge) { return edge.to_ == 777; });
+    document.signals_ = {{"navigation-clock", 1}};
+    document.bindings_ = {{777, "a", "navigation-clock"}};
+    ++document.revision_;
+    const auto before = fixture.snapshot_;
+    fixture.Frame("navigation.find");
+    fixture.Frame();
+    fixture.Frame();
+    // Popup receives keyboard focus through the real filter input; its child
+    // submits only matching visible rows from the thousand-node author graph.
+    ImGui::GetIO().AddInputCharactersUTF8("777");
+    fixture.Frame();
+    fixture.Frame("node.777", "navigation.rows");
+    fixture.Frame();
+    Check(fixture.canvas_.Selection() == 777, "search result must select the authored node");
+    fixture.Frame("navigation.upstream");
+    fixture.Frame();
+    fixture.Frame("node.1", "navigation.rows");
+    fixture.Frame();
+    Check(fixture.canvas_.Selection() == 1, "upstream must resolve a named signal binding");
+    fixture.Frame("navigation.downstream");
+    fixture.Frame();
+    fixture.Frame("node.777", "navigation.rows");
+    fixture.Frame();
+    Check(fixture.canvas_.Selection() == 777, "downstream must include named consumers");
+    Check(fixture.snapshot_ == before, "search/dependency navigation cannot edit the work");
+
+    document.bindings_.front().signal_ = "missing";
+    ++document.revision_;
+    fixture.Frame("navigation.upstream");
+    fixture.Frame();
+    fixture.Frame("node.1", "navigation.rows");
+    Check(fixture.canvas_.Selection() == 777,
+          "invalid bindings cannot expose a partial dependency result");
+    ImGui::GetIO().AddKeyEvent(ImGuiKey_Escape, true);
+    fixture.Frame();
+    ImGui::GetIO().AddKeyEvent(ImGuiKey_Escape, false);
+    fixture.Frame();
+
+    fixture.canvas_.Select(3);
+    fixture.previews_.enabled_ = true;
+    fixture.previews_.textures_[3] = 1;
+    fixture.previews_.current_ = false;
+    fixture.Frame("navigation.inspect");
+    fixture.Frame();
+    Check(!InspectionTexture(), "retained output cannot appear as the current inspection image");
+    fixture.previews_.current_ = true;
+    fixture.Frame();
+    Check(InspectionTexture(), "inspection must reuse the selected texture capture");
+    fixture.canvas_.Select(1);
+    fixture.Frame();
+    Check(!InspectionTexture(), "changing output domain must not keep the previous texture");
+    fixture.canvas_.Select(3);
+    fixture.previews_.enabled_ = false;
+    fixture.Frame();
+    Check(!InspectionTexture(), "disabled previews must not display retained captures");
+}
 
 void DragWithOverlappingDomainIds() {
     CanvasFixture fixture;
@@ -248,8 +364,15 @@ void EventPreviewAndHelp() {
 }
 }  // namespace
 
-int main() {
+int main(int argc, char** argv) {
     try {
+        if (argc == 2) {
+            std::ifstream input(argv[1]);
+            Navigation(nlohmann::json::parse(input).get<std::map<std::string, std::string>>());
+            std::cout << "Navigation: 200/500/1000-node focus, search, named dependencies, current "
+                         "preview checks pass\n";
+            return 0;
+        }
         DragWithOverlappingDomainIds();
         DragNodeAndConnect();
         PanCursor();

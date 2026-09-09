@@ -12,6 +12,7 @@ struct CanvasPreviews {
     // Frame-local UI texture IDs; native/backend handles stay inside adapters.
     std::map<graph::NodeId, std::uint64_t> textures_{};
     std::map<graph::NodeId, runtime::SignalTrace> signals_{};
+    bool current_ = true;
 };
 class GraphCanvas final {
    public:
@@ -24,6 +25,9 @@ class GraphCanvas final {
     graph::NodeId Selection() const;
     std::span<const graph::NodeId> Selections() const;
     void Select(graph::NodeId node);
+    // UI-thread requests, applied after the next usable canvas layout.
+    void FocusSelection();
+    void FitContent();
     std::size_t VisibleNodes() const;
     editor::Position InsertionPoint() const;
     // UI-thread coordinate conversion for canvas interactions and input tests.

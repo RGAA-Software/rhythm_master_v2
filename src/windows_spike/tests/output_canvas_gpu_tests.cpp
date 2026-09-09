@@ -32,8 +32,8 @@ void Place(const char* name, ImVec2 position, ImVec2 size) {
 }
 // Inspect the actual image item's draw rectangle, so toolbar, DPI and aspect
 // fitting participate in the mouse/pixel test instead of hard-coded centers.
-ImRect OutputRect() {
-    const auto* window = ImGui::FindWindowByName("###output");
+ImRect OutputRect(const char* name = "###output") {
+    const auto* window = ImGui::FindWindowByName(name);
     Check(window != nullptr, "output window missing");
     const auto& draw = *window->DrawList;
     for (const auto& command : draw.CmdBuffer) {
@@ -135,14 +135,54 @@ int main(int argc, char* argv[]) {
             frame();
         };
         if (!scene_mode) {
-            // Use actual graph selection, including the existing auto-fit mapping.
-            for (int y = 300; y < 950 && studio.Workflow().selected_author_node_ != 2; y += 60)
-                for (int x = 50; x < 790 && studio.Workflow().selected_author_node_ != 2; x += 60)
-                    click(float(x), float(y));
+            Activate("###graph", "###navigation.find");
+            settle();
+            ImGui::GetIO().AddInputCharactersUTF8("texture.affine");
+            settle();
+            bool found = false;
+            for (const auto* window : ImGui::GetCurrentContext()->Windows)
+                if (window->Active && std::string_view(window->Name).find("navigation.rows") !=
+                                              std::string_view::npos) {
+                    ImGui::ActivateItemByID(ImHashStr("###node.2", 0, window->ID));
+                    found = true;
+                    break;
+                }
+            Check(found, "actual node search results missing");
+            settle();
             Check(studio.Workflow().selected_author_node_ == 2,
-                  "could not pick affine author node");
+                  "could not find and focus affine author node");
         }
         ready();
+        if (!scene_mode) {
+            Activate("###graph", "###navigation.inspect");
+            ready();
+            std::string inspection;
+            for (const auto* window : ImGui::GetCurrentContext()->Windows)
+                if (window->Active && std::string_view(window->Name).find("###node.inspection.") !=
+                                              std::string_view::npos)
+                    inspection = window->Name;
+            Check(!inspection.empty(), "selected output inspection missing");
+            Place(inspection.c_str(), {100, 350}, {520, 380});
+            ready();
+            const auto image = OutputRect(inspection.c_str());
+            std::ofstream(root / "inspection.json")
+                    << nlohmann::json{{"x", image.Min.x},
+                                      {"y", image.Min.y},
+                                      {"width", image.GetWidth()},
+                                      {"height", image.GetHeight()}};
+            bgfx::requestScreenShot(BGFX_INVALID_HANDLE, (root / "inspection").string().c_str());
+            settle();
+            // Close through the real title-bar button, restoring canvas input.
+            ImVec2 close;
+            if (const auto* window = ImGui::FindWindowByName(inspection.c_str()))
+                close = {window->Pos.x + window->Size.x - 14,
+                         window->Pos.y + window->TitleBarHeight * .5f};
+            click(close.x, close.y);
+            settle();
+            Check(!ImGui::FindWindowByName(inspection.c_str())->Active,
+                  "inspection close button failed");
+            Check(studio.Status().viewers_ <= 8, "inspection exceeded the shared preview budget");
+        }
         Activate("###output", "###canvas.edit");
         settle();
         if (scene_mode) {

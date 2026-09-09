@@ -1186,5 +1186,15 @@
     "transform_driver.missing_value": "A current source value is unavailable.",
     "transform_driver.not_curve": "This input is not driven by a directly editable curve.",
     "transform_driver.range": "The requested value is outside the transform parameter range.",
-    "transform_driver.curve_time": "This curve input time cannot be stored as a keyframe."
+    "transform_driver.curve_time": "This curve input time cannot be stored as a keyframe.",
+    "navigation.find": "Find node",
+    "navigation.fit": "Fit all",
+    "navigation.focus": "Focus selected",
+    "navigation.upstream": "Inputs",
+    "navigation.downstream": "Consumers",
+    "navigation.inspect": "Inspect output",
+    "navigation.invalid_bindings": "Repair unresolved signal bindings before tracing dependencies.",
+    "navigation.preview_help": "Live preview of the selected node. Image previews use the existing 256 x 144 preview resolution.",
+    "navigation.preview_disabled": "Enable node previews to inspect this output.",
+    "navigation.preview_wait": "Waiting for the current preview. Keep the selected node visible and select its preview group; some output types do not provide a visual preview."
 }

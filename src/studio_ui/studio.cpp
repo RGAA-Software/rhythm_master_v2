@@ -594,6 +594,8 @@ class Studio::Impl final {
         }
         CanvasPreviews previews;
         previews.enabled_ = show_viewers_;
+        previews.current_ =
+                plan_generation_ == generation_ && diagnostics_.empty() && !output.budget_;
         previews.signals_ = signal_previews_.Traces();
         for (const auto& value : viewers_.Outputs())
             if (renderer.IsValid(value.texture_))
@@ -718,7 +720,10 @@ class Studio::Impl final {
                     {double(output.extent_.width_), double(output.extent_.height_)}, editable,
                     plan_generation_ == generation_ && diagnostics_.empty(), catalogs_.at(locale_),
                     output.outputs_, preview_routing_.Authors());
-            if (edit.selected_) canvas_.Select(*edit.selected_);
+            if (edit.selected_) {
+                canvas_.Select(*edit.selected_);
+                canvas_.FocusSelection();
+            }
             if (edit.open_author_) {
                 CommitEdits();
                 bool ready = true;

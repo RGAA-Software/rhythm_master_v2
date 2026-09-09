@@ -95,6 +95,7 @@ bool PreviewRouting::TakeInvalidation() { return std::exchange(invalidated_, fal
 CanvasPreviews PreviewRouting::Scoped(const CanvasPreviews& previews) const {
     CanvasPreviews result;
     result.enabled_ = previews.enabled_;
+    result.current_ = previews.current_;
     for (const auto& [local, expanded] : scoped_nodes_) {
         if (const auto texture = previews.textures_.find(expanded);
             texture != previews.textures_.end())

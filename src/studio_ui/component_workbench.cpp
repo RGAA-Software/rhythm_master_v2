@@ -34,6 +34,7 @@ bool ComponentWorkbench::OpenAuthor(const editor::Snapshot& project,
         status_.clear();
         ResetView();
         canvas_.Select(author.node_);
+        canvas_.FocusSelection();
         return true;
     } catch (const std::exception&) {
         return false;

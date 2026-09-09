@@ -34,11 +34,15 @@ def main():
     subprocess.run(command,
                    check=True, timeout=85)
     captures = (["driven"] if args.automation else []) + ["before", "moved", "undone", "reopened"]
+    if not args.scope and not args.scene:
+        captures.insert(0, "inspection")
     for name in captures:
         rect = json.loads((output / (name + ".json")).read_text(encoding="utf-8"))
         rows = capture.read_tga(output / (name + ".tga"))
         moved = name in {"moved", "reopened"}
         probes = [(.37, not moved), (.06, moved), (.78, True)] if args.scope else [(.3, not moved), (.85, moved)]
+        if name == "inspection":
+            probes = [(.5, True)]
         for fraction, red in probes:
             x = round(rect["x"] + rect["width"] * fraction)
             y = round(rect["y"] + rect["height"] * .6)

@@ -7,6 +7,8 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "node_inspection.h"
+#include "node_navigation.h"
 #include "node_visual.h"
 #include "rhythm/editor/commands.h"
 #include "rhythm/graph/controls.h"
@@ -77,6 +79,10 @@ class GraphCanvas::Impl final {
     graph::NodeId selection_ = 0;
     std::vector<graph::NodeId> selections_{};
     std::optional<graph::NodeId> pending_selection_{};
+    bool focus_selection_ = false;
+    bool fit_content_ = false;
+    NodeNavigation navigation_{};
+    NodeInspection inspection_{};
     bool restore_layout_ = true;
     ImVec2 last_size_{};
     int stable_frames_ = 0;
@@ -98,7 +104,11 @@ void GraphCanvas::Select(graph::NodeId node) {
 void GraphCanvas::RestoreLayout() {
     impl_->restore_layout_ = true;
     impl_->stable_frames_ = 0;
+    impl_->navigation_.Reset();
+    impl_->inspection_.Close();
 }
+void GraphCanvas::FocusSelection() { impl_->focus_selection_ = true; }
+void GraphCanvas::FitContent() { impl_->fit_content_ = true; }
 std::size_t GraphCanvas::VisibleNodes() const { return impl_->visible_nodes_; }
 editor::Position GraphCanvas::InsertionPoint() const { return impl_->insertion_point_; }
 std::span<const graph::NodeId> GraphCanvas::PreviewNodes() const { return impl_->preview_nodes_; }
@@ -118,6 +128,11 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
         const auto found = labels.find(key);
         return found == labels.end() ? key : found->second;
     };
+    const auto navigation = impl_->navigation_.Draw(snapshot.document_, Selection(), labels);
+    if (navigation.selected_) Select(*navigation.selected_);
+    if (navigation.focus_) FocusSelection();
+    if (navigation.fit_) FitContent();
+    if (navigation.inspect_) impl_->inspection_.Show();
     ed::SetCurrentEditor(impl_->context_.get());
     std::optional<editor::Snapshot> next;
     const auto edit = [&]() -> editor::Snapshot& {
@@ -291,6 +306,14 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
         ed::NavigateToContent(0);
         impl_->restore_layout_ = false;
     }
+    if (!impl_->restore_layout_ && canvas_size.x >= 100 && canvas_size.y >= 100) {
+        if (impl_->fit_content_)
+            ed::NavigateToContent(0);
+        else if (impl_->focus_selection_ && !impl_->selections_.empty())
+            ed::NavigateToSelection(true, 0);
+        impl_->fit_content_ = false;
+        impl_->focus_selection_ = false;
+    }
     impl_->visible_nodes_ = 0;
     impl_->preview_nodes_.clear();
     const auto center =
@@ -319,6 +342,7 @@ std::optional<editor::Snapshot> GraphCanvas::Draw(const editor::Snapshot& snapsh
         }
     }
     ed::SetCurrentEditor(nullptr);
+    impl_->inspection_.Draw(snapshot.document_, Selection(), previews, labels);
     return next;
 }
 }  // namespace rhythm::studio
