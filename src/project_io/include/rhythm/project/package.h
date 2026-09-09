@@ -12,11 +12,12 @@
 
 namespace rhythm::project {
 inline constexpr std::size_t kMaximumProgramBytes = 8 * 1024 * 1024;
-inline constexpr std::size_t kMaximumPackageBytes = 16 * 1024 * 1024;
+inline constexpr std::size_t kMaximumPackageBytes = 48 * 1024 * 1024;
 inline constexpr std::size_t kMaximumPackageAssets = 64;
-inline constexpr std::size_t kMaximumPackageAssetBytes = 8 * 1024 * 1024;
+// Includes complete redistributable CJK fonts; shared by all ordinary assets.
+inline constexpr std::size_t kMaximumPackageAssetBytes = 32 * 1024 * 1024;
 inline constexpr std::uint64_t kMaximumMusicAssetBytes = 256 * 1024 * 1024;
-inline constexpr std::uint64_t kMaximumFilePackageBytes = 272 * 1024 * 1024;
+inline constexpr std::uint64_t kMaximumFilePackageBytes = 304 * 1024 * 1024;
 enum class PackageProfile {
     kTextureSignalV1,
     kTextureSignalAssetsV1,
@@ -52,7 +53,7 @@ RuntimePackage DecodePackage(std::string_view bytes);
 RuntimePackage ReadPackage(storage::FileBytes source, std::stop_token stop = {});
 RuntimePackage LoadPackage(const std::filesystem::path& path, std::stop_token stop = {});
 // Validates the shared publication/template/import asset budgets. Only the bound
-// soundtrack may use the separate music allowance; ordinary assets remain 8 MiB.
+// soundtrack may use the separate music allowance; ordinary assets share 32 MiB.
 bool RequiresStreamedAudio(std::span<const assets::AssetRecord> records,
                            const std::optional<media::Soundtrack>& soundtrack);
 // Worker-only large-song publication. The ordinary asset/program budgets remain

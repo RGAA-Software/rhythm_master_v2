@@ -13,8 +13,8 @@
 
 大音乐容器前置验证已加入共享文件切片和同一 FFmpeg 自定义 I/O，
 见 [文件音频范围验证](validation/file_audio_ranges_2026-09-08.md)。后续已完成
-`music-performance-v2`：单首音乐最多 256 MiB，普通素材仍共用 8 MiB，归档最多
-272 MiB。Studio 绑定、保存、发布、重开及 Windows/Android 原生播放验证见
+`music-performance-v2`：单首音乐最多 256 MiB，普通素材共用 32 MiB，归档最多
+304 MiB（P5 完整字体集成扩展预算，见 `text_rendering.md`）。Studio 绑定、保存、发布、重开及 Windows/Android 原生播放验证见
 [大音乐运行包记录](validation/large_music_packages_2026-09-08.md)。沿用同一 FFmpeg
 解码器和 miniz，音频工作线程持有文件范围；不把整首音乐读入内存。
 

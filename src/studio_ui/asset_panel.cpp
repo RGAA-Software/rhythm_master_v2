@@ -23,7 +23,8 @@ std::string MediaType(const std::filesystem::path& source) {
             {".glb", "model/gltf-binary"}, {".png", "image/png"},        {".jpg", "image/jpeg"},
             {".jpeg", "image/jpeg"},       {".webp", "image/webp"},      {".bmp", "image/bmp"},
             {".mp4", "video/mp4"},         {".mkv", "video/x-matroska"}, {".webm", "video/webm"},
-            {".mov", "video/quicktime"}};
+            {".mov", "video/quicktime"},   {".otf", "font/otf"},         {".ttf", "font/ttf"},
+            {".txt", "text/plain"}};
     const auto found = types.find(extension);
     return found == types.end() ? "application/octet-stream" : found->second;
 }
@@ -48,6 +49,12 @@ AssetEdit AssetPanel::Draw(const std::filesystem::path& directory, const editor:
     } else if (auto result = importer_.Take()) {
         if (discard_pending_) {
             discard_pending_ = false;
+        } else if (!result->imported_.empty()) {
+            edit.added_ = result->imported_.front();
+            edit.companions_.assign(result->imported_.begin() + 1, result->imported_.end());
+            selected_ = edit.added_->id_;
+            checks_.clear();
+            status_ = "asset.imported";
         } else if (result->asset_) {
             edit.added_ = result->asset_;
             if (replacing_) edit.replaced_ = replacing_->id_;
@@ -99,6 +106,17 @@ AssetEdit AssetPanel::Draw(const std::filesystem::path& directory, const editor:
     }
     ImGui::EndDisabled();
     ImGui::SameLine();
+    ImGui::BeginDisabled(builtin_font_.empty() ||
+                         records.size() + 2 > project::kMaximumPackageAssets || full);
+    if (ImGui::Button((text("text.add_builtin_font") + "###text.add_builtin_font").c_str())) {
+        replacing_.reset();
+        if (importer_.StartBundle(directory,
+                                  {{builtin_font_, "font/otf"}, {builtin_notice_, "text/plain"}},
+                                  project::kMaximumPackageAssetBytes - total))
+            status_ = "asset.importing";
+    }
+    ImGui::EndDisabled();
+    ImGui::SameLine();
     if (ImGui::Button((text("asset.check") + "###asset.check").c_str())) {
         replacing_.reset();
         status_ =
@@ -111,8 +129,10 @@ AssetEdit AssetPanel::Draw(const std::filesystem::path& directory, const editor:
     }
     if (full) ImGui::TextWrapped("%s", text("asset.package_full").c_str());
     if (!status_.empty()) ImGui::TextWrapped("%s", text(status_).c_str());
-    ImGui::Text("%s: %llu / 8 MiB", text("asset.total_bytes").c_str(),
-                static_cast<unsigned long long>(total));
+    ImGui::Text(
+            "%s: %llu / %llu MiB", text("asset.total_bytes").c_str(),
+            static_cast<unsigned long long>(total),
+            static_cast<unsigned long long>(project::kMaximumPackageAssetBytes / (1024 * 1024)));
     if (music_bytes)
         ImGui::Text("%s: %llu / 256 MiB", text("asset.music_bytes").c_str(),
                     static_cast<unsigned long long>(music_bytes));
@@ -139,6 +159,7 @@ AssetEdit AssetPanel::Draw(const std::filesystem::path& directory, const editor:
         ImGui::Text("%s: %zu", text("asset.references").c_str(), uses.size());
         ImGui::BeginDisabled(importer_.Busy());
         const bool replaceable = selected->media_type_.starts_with("image/") ||
+                                 selected->media_type_.starts_with("font/") ||
                                  selected->media_type_.starts_with("video/") ||
                                  selected->media_type_ == "model/gltf-binary";
         const auto without = total >= selected->bytes_ ? total - selected->bytes_ : total;

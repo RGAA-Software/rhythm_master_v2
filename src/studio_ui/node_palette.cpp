@@ -47,6 +47,7 @@ std::string_view Category(graph::Operation operation) {
         case kTextureNoise:
         case kTextureShader:
         case kTextureImage:
+        case kTextureText:
         case kTextureVideo:
             return "palette.generators";
         case kTransform:

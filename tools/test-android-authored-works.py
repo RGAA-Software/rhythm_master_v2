@@ -1,4 +1,4 @@
-"""Select the P4 authored works in the installed APK and preserve the saved program.
+"""Select authored works in the installed APK and preserve the saved program.
 
 Reuses the native touch/dump workflow from test-android-program-ui.py. This is
 application UI, pause/resume and presentation evidence, not acoustic capture.
@@ -23,6 +23,8 @@ APP = 'org.rhythmmaster.player'
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True)
+    parser.add_argument('--effect', action='append',
+                        help='Bundled effect name; defaults to both P4 authored works')
     parser.add_argument('--adb', default='D:/android/sdk/platform-tools/adb.exe')
     parser.add_argument('--apk', type=Path, default=ROOT / 'out/android-arm64-release/apk/rhythm-player-release.apk')
     args = parser.parse_args()
@@ -92,7 +94,10 @@ def main():
         width, height = shot('startup')
         if width <= height:
             raise RuntimeError('This landscape authoring check requires a landscape startup scene')
-        for name, query in (('contour_pulse', 'contour'), ('resonant_armillary', 'armillary')):
+        queries = {'contour_pulse': 'contour', 'resonant_armillary': 'armillary',
+                   'prismatic_title': 'title'}
+        for name in args.effect or ['contour_pulse', 'resonant_armillary']:
+            query = queries[name]
             entry = catalog[name]
             tap(width * .675, height * .134)  # Existing landscape Choose effect button.
             picker = hierarchy(name + '-picker')
@@ -101,13 +106,20 @@ def main():
             touch(field)
             time.sleep(1)  # Let the device IME finish taking focus.
             adb('shell', 'input', 'keyevent', 4)  # Close the keyboard, retaining the catalog.
-            adb('shell', 'input', 'text', query)
+            # Pace hardware-key injection while the native list refreshes. A
+            # burst can race the device IME's cursor updates (observed "iTtle").
+            for character in query:
+                adb('shell', 'input', 'text', character)
+                time.sleep(.1)
             picker = hierarchy(name + '-filtered')
             if not any(node.get('text') == query for node in picker.iter('node')):
                 raise RuntimeError('Catalog query was not entered unchanged')
             title = entry['titles']['zh-CN']
-            touch(next((node for node in picker.iter('node')
-                        if node.get('text', '').startswith(title + ' · ')), None))
+            matches = [node for node in picker.iter('node')
+                       if node.get('text', '').startswith(title + ' · ')]
+            if len(matches) != 1:
+                raise RuntimeError('Catalog title selection is missing or ambiguous')
+            touch(matches[0])
             time.sleep(2)
             current_width, current_height = shot(name + '-playing')
             if current_width <= current_height or entry['canvas']['width'] <= entry['canvas']['height']:

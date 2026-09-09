@@ -9,6 +9,7 @@
 #include "event_descriptors.h"
 #include "point_descriptors.h"
 #include "rhythm/graph/components.h"
+#include "rhythm/graph/text.h"
 #include "rhythm/graph/video_clip.h"
 #include "scene_descriptors.h"
 
@@ -24,6 +25,18 @@ Registry::Registry() {
              {{"value", 0.0, -1e6, 1e6},
               {"control_minimum", 0.0, -1e6, 1e6},
               {"control_maximum", 1.0, -1e6, 1e6}}},
+            {"texture.text",
+             Operation::kTextureText,
+             Type::kTexture,
+             {},
+             {{"asset", assets::AssetId{}},
+              {"text_content", std::string("Rhythm")},
+              {"text_width", 512.0, 16, 2048, {}, true},
+              {"text_height", 256.0, 16, 2048, {}, true},
+              {"text_size", 48.0, 8, 256, {}, true},
+              {"text_spacing", 1.2, .5, 4},
+              {"text_align", 0.0, 0, 2, {"text.left", "text.center", "text.right"}, true},
+              {"text_wrap", 1.0, 0, 1, {}, true}}},
             {"texture.image",
              Operation::kTextureImage,
              Type::kTexture,
@@ -399,6 +412,8 @@ std::vector<Diagnostic> Registry::ValidateNode(
             continue;
         }
         bool valid = true;
+        if (std::holds_alternative<std::string>(value))
+            valid = ValidText(std::get<std::string>(value));
         if (std::holds_alternative<double>(value)) {
             const auto number = std::get<double>(value);
             valid = std::isfinite(number) && number >= expected->minimum_ &&
@@ -418,6 +433,9 @@ std::vector<Diagnostic> Registry::ValidateNode(
         }
         if (!valid) diagnostics.push_back({"graph.property_range", node.id_, key});
     }
+    if (diagnostics.empty() && node.type_ == "texture.text" &&
+        Scalar(node, "text_width", 512) * Scalar(node, "text_height", 256) > 2073600)
+        diagnostics.push_back({"text.layout_budget", node.id_});
     if (diagnostics.empty() && node.type_ == "event.audio_onset" &&
         Scalar(node, "band_first", 0) > Scalar(node, "band_last", 62))
         diagnostics.push_back({"event.band_range", node.id_});

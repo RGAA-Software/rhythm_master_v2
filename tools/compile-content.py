@@ -22,6 +22,9 @@ manifest["editor_sha256"] = hashlib.sha256(editor).hexdigest()
 destination.mkdir(parents=True, exist_ok=True)
 total_asset_bytes = 0
 seen_assets = set()
+if len(manifest.get("assets", [])) > 64:
+    raise ValueError("Template asset count budget")
+# Mirrors project/package.h's ordinary asset budget, including full CJK fonts.
 for record in manifest.get("assets", []):
     digest = record["sha256"]
     if not re.fullmatch(r"[0-9a-f]{64}", digest) or digest in seen_assets:
@@ -32,7 +35,7 @@ for record in manifest.get("assets", []):
     if not source_asset.resolve().is_relative_to((source / "assets").resolve()):
         raise ValueError("Template asset escapes its source directory")
     size = source_asset.stat().st_size
-    if size != record["bytes"] or size > 8 * 1024 * 1024 - total_asset_bytes:
+    if size != record["bytes"] or size > 32 * 1024 * 1024 - total_asset_bytes:
         raise ValueError("Template asset byte budget")
     total_asset_bytes += size
     data = source_asset.read_bytes()
@@ -55,5 +58,5 @@ if (source / "thumbnail.rgba").is_file():
 else:
     (destination / "thumbnail.rgba").unlink(missing_ok=True)
     (destination / "thumbnail.json").unlink(missing_ok=True)
-(destination / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+(destination / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=4), encoding="utf-8")
 content_identity.write_compiled_identity(source, destination)

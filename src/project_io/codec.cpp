@@ -25,7 +25,7 @@ graph::Document DecodeGraph(std::string_view bytes) {
     input.SetRecursionLimit(32);
     input.SetTotalBytesLimit(static_cast<int>(kMaximumGraphBytes));
     if (!message.ParseFromCodedStream(&input) || !input.ConsumedEntireMessage() ||
-        (message.schema_version() < 1 || message.schema_version() > 7))
+        (message.schema_version() < 1 || message.schema_version() > 8))
         throw std::invalid_argument("project.graph_schema");
     if ((message.schema_version() >= 2) != message.has_canvas())
         throw std::invalid_argument("project.canvas_schema");
@@ -60,6 +60,8 @@ graph::Document DecodeGraph(std::string_view bytes) {
         document.components_.push_back(detail::DecodeComponent(record));
     if (message.schema_version() < 7 && detail::HasEvents(document))
         throw std::invalid_argument("project.event_schema");
+    if (message.schema_version() < 8 && detail::HasText(document))
+        throw std::invalid_argument("project.text_schema");
     message.clear_components();
     // Each nested record retains its own unknown extensions.
     message.clear_signals();
@@ -75,7 +77,8 @@ std::string EncodeGraph(const graph::Document& document) {
     schema::GraphProject message;
     if (!document.extensions_.empty() && !message.ParseFromString(document.extensions_))
         throw std::invalid_argument("project.extensions");
-    message.set_schema_version(detail::HasEvents(document)                               ? 7
+    message.set_schema_version(detail::HasText(document)                                 ? 8
+                               : detail::HasEvents(document)                             ? 7
                                : document.beat_grid_                                     ? 6
                                : !document.control_cues_.empty()                         ? 5
                                : !document.components_.empty()                           ? 4

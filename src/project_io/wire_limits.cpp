@@ -149,6 +149,7 @@ std::size_t StringLimit(Kind kind, unsigned field) {
         return 128;
     if (kind == Kind::kProperty && field == 4) return 1024;
     if (kind == Kind::kProperty && field == 5) return 64;
+    if (kind == Kind::kProperty && field == 7) return 16384;
     if ((kind == Kind::kGraph && field == 2) || (kind == Kind::kProgram && field == 4) ||
         (kind == Kind::kNode && field == 2) || (kind == Kind::kInstruction && field == 1))
         return 256;

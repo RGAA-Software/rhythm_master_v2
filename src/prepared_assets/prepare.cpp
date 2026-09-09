@@ -4,7 +4,9 @@
 #include <set>
 #include <stdexcept>
 
+#include "rhythm/graph/text.h"
 #include "shader_assets.h"
+#include "text_assets.h"
 #include "video_assets.h"
 
 #if defined(RHYTHM_HAS_IMAGE_DECODER)
@@ -29,10 +31,17 @@ bool Covers(const graph::ExecutionPlan& plan, const Resources& resources) {
                              [&](const auto& video) { return video.id_ == id; }))
                 return false;
         }
-        if (instruction.operation_ != graph::Operation::kTextureImage) continue;
+        if (instruction.operation_ != graph::Operation::kTextureImage &&
+            instruction.operation_ != graph::Operation::kTextureText)
+            continue;
         const auto& id = std::get<assets::AssetId>(instruction.node_.properties_.at("asset"));
+        const auto key = instruction.operation_ == graph::Operation::kTextureText
+                                 ? graph::TextImageKey(instruction.node_)
+                                 : std::string{};
         if (std::none_of(resources.images_->images_.begin(), resources.images_->images_.end(),
-                         [&](const auto& image) { return image.id_ == id; }))
+                         [&](const auto& image) {
+                             return image.id_ == id && image.variant_key_ == key;
+                         }))
             return false;
     }
     return true;
@@ -85,6 +94,9 @@ std::shared_ptr<const Resources> Prepare(const graph::ExecutionPlan& plan,
 #endif
     }
     if (stop.stop_requested()) throw std::runtime_error("asset.cancelled");
+    std::size_t model_image_bytes = 0;
+    for (const auto& model : result->models_->models_) model_image_bytes += model.image_bytes_;
+    detail::PrepareText(plan, assets, *images, model_image_bytes, stop);
     result->images_ = std::move(images);
     result->videos_ = detail::PrepareVideos(plan, assets, stop);
     result->shaders_ = detail::PrepareShaders(plan, assets, stop);

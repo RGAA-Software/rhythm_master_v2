@@ -6,6 +6,7 @@
 
 #include "curve_editor.h"
 #include "operator_help.h"
+#include "rhythm/graph/text.h"
 
 namespace rhythm::studio {
 namespace {
@@ -55,7 +56,8 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
                                         std::span<const content::Preset> presets,
                                         const std::map<std::string, std::string>& text,
                                         const std::string& locale, const scene::Resources& models,
-                                        double seconds, bool defer_recall) {
+                                        double seconds, bool defer_recall,
+                                        const assets::Images& images) {
     InspectorResult result;
 
     if (draft_ && (draft_->document_.revision_ != base.document_.revision_ ||
@@ -85,6 +87,20 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
             title = definition->title_;
     }
     ImGui::TextUnformatted(title.c_str());
+    if (node.type_ == "texture.text") {
+        const auto asset = node.properties_.find("asset");
+        if (asset != node.properties_.end() &&
+            std::holds_alternative<assets::AssetId>(asset->second))
+            for (const auto& image : images.images_)
+                if (image.id_ == std::get<assets::AssetId>(asset->second) &&
+                    image.variant_key_ == graph::TextImageKey(node)) {
+                    if (image.missing_glyphs_)
+                        ImGui::Text("%s: %u", Text(text, "text.missing_glyphs").c_str(),
+                                    image.missing_glyphs_);
+                    if (image.clipped_)
+                        ImGui::TextWrapped("%s", Text(text, "text.clipped").c_str());
+                }
+    }
     if (node.type_ == "geometry.animate")
         ImGui::TextWrapped("%s", Text(text, "animation.help").c_str());
     if (node.type_ == "geometry.morph") ImGui::TextWrapped("%s", Text(text, "morph.help").c_str());
@@ -178,6 +194,9 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
                     changed = committed = true;
                 }
                 for (const auto& record : snapshot.assets_) {
+                    if (node.type_ == "texture.text" && record.media_type_ != "font/otf" &&
+                        record.media_type_ != "font/ttf")
+                        continue;
                     const auto choice = record.media_type_ + " " +
                                         record.id_.sha256_.substr(0, 12) + "###" +
                                         record.id_.sha256_;
@@ -187,6 +206,11 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
                     }
                 }
                 ImGui::EndCombo();
+            }
+        } else if (std::holds_alternative<std::string>(value)) {
+            if (auto content = text_editor_.Draw(std::get<std::string>(value), label, text)) {
+                edited = std::move(*content);
+                changed = committed = true;
             }
         } else if (std::holds_alternative<parameters::EventTrack>(value)) {
             if (auto track = event_track_editor_.Draw(std::get<parameters::EventTrack>(value),

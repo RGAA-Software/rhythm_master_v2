@@ -6,13 +6,16 @@
 #include <set>
 #include <stdexcept>
 
+#include "rhythm/graph/text.h"
 #include "texture_ops.h"
 
 namespace rhythm::runtime::detail {
 namespace {
-const assets::ImageResource& Find(const assets::Images& images, const assets::AssetId& id) {
-    const auto found = std::find_if(images.images_.begin(), images.images_.end(),
-                                    [&](const auto& image) { return image.id_ == id; });
+const assets::ImageResource& Find(const assets::Images& images, const assets::AssetId& id,
+                                  const std::string& variant) {
+    const auto found = std::find_if(
+            images.images_.begin(), images.images_.end(),
+            [&](const auto& image) { return image.id_ == id && image.variant_key_ == variant; });
     if (found == images.images_.end()) throw std::invalid_argument("image.asset_missing");
     return *found;
 }
@@ -21,11 +24,16 @@ void ImageUploads::Retain(const graph::ExecutionPlan& plan, const assets::Images
     std::set<std::string> required;
     std::size_t bytes = 0;
     for (const auto& instruction : plan.instructions_) {
-        if (instruction.operation_ != graph::Operation::kTextureImage) continue;
+        if (instruction.operation_ != graph::Operation::kTextureImage &&
+            instruction.operation_ != graph::Operation::kTextureText)
+            continue;
         const auto& id = std::get<assets::AssetId>(instruction.node_.properties_.at("asset"));
         if (!assets::ValidId(id)) throw std::invalid_argument("image.asset_missing");
-        if (!required.insert(id.sha256_).second) continue;
-        const auto& image = Find(images, id);
+        const auto variant = instruction.operation_ == graph::Operation::kTextureText
+                                     ? graph::TextImageKey(instruction.node_)
+                                     : std::string{};
+        if (!required.insert(id.sha256_ + variant).second) continue;
+        const auto& image = Find(images, id, variant);
         if (!image.width_ || !image.height_ || image.width_ > 4096 || image.height_ > 4096 ||
             std::uint64_t(image.width_) * image.height_ > 2073600 ||
             image.rgba_.size() != std::size_t(image.width_) * image.height_ * 4 ||
@@ -41,8 +49,9 @@ void ImageUploads::Retain(const graph::ExecutionPlan& plan, const assets::Images
 render::DrawList ImageUploads::Draw(const graph::Node& node, render::Extent extent,
                                     const assets::Images& images, render::Renderer& renderer) {
     const auto& id = std::get<assets::AssetId>(node.properties_.at("asset"));
-    const auto& image = Find(images, id);
-    auto& texture = textures_[id.sha256_];
+    const auto variant = node.type_ == "texture.text" ? graph::TextImageKey(node) : std::string{};
+    const auto& image = Find(images, id, variant);
+    auto& texture = textures_[id.sha256_ + variant];
     if (!renderer.IsValid(texture.Handle()))
         texture = renderer.CreateTexture({image.width_, image.height_}, image.rgba_);
     return FramedImageDraw(texture.Handle(), extent,

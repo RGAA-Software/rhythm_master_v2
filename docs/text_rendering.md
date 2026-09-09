@@ -1,7 +1,9 @@
 # 作品文字实施记录
 
-P5 当前增量是独立文字栅格化模块，尚未接入节点、Studio 或 Player，不能视为文字
-创作已经交付。现有编辑器 UI 字体保持不变。
+P5 已实现文字栅格化、`texture.text` 节点、后台资源准备、图存储和运行包合同，
+并接入 Studio 多行输入与字体资产选择。实际 UI 创作、GPU 画面、MP4 导出和 Android
+应用短功能验收已通过，详见 [文字创作证据](validation/text_authoring_2026-09-10.md)。
+现有编辑器 UI 字体保持不变，P5 整体尚未完成。
 
 ## 依赖与复用
 
@@ -23,6 +25,14 @@ P5 当前增量是独立文字栅格化模块，尚未接入节点、Studio 或 
 
 ## 合同和预算
 
+完整 CJK 字体触发了旧 8 MiB 普通资产限制，失败记录是
+`out/p5-text-preparation-tests.log` 的 `package.asset_bytes`。此次将共享普通资产预算
+提升为 32 MiB、内存归档上限 48 MiB、含独立 256 MiB 音乐的文件归档上限 304 MiB；
+数量仍限 64 项，程序仍限 8 MiB，解压后字节和累计字节仍严格检查，不能绕过压缩炸弹
+边界。旧版本可继续拒绝超出其能力的大包；文字作品另以 schema 8 / ABI 6 拒绝降级。
+既有文档中的 8/16/272 MiB 数字是此前版本的预算，当前以 `project/package.h` 为准。
+文件归档测试使用 40 MiB 素材跨越新内存资产边界，继续检查流式读取及失败保留原文件。
+
 `Rasterizer` 拥有不可变字体字节、FreeType 对象和 glyph 缓存，只在单个工作线程使用；
 渲染端接收值类型灰度 mask。所有 FreeType 资源由私有 RAII 释放，公共头文件没有
 FreeType、图形 API 或宿主类型。缓存不随文字颜色和图变换改变；字号和字形索引属于键，
@@ -35,9 +45,18 @@ FreeType、图形 API 或宿主类型。缓存不随文字颜色和图变换改�
 
 ## 接下来的集成
 
-Windows/Android 原生模块检查和混合中文截图已通过，再接入图文字节点、后台准备、
-字体资产打包与实际 Studio 输入/保存/发布路径。位置、颜色和音乐控制复用现有变换与
-合成节点，避免按帧重新排版或重复上传静态字形。
+Windows/Android 原生模块检查和混合中文截图已通过。Windows 的 graph/schema 8、
+program ABI 6、字体资源准备与旧版本拒绝测试已通过；Android 原生程序也通过完整
+字体包准备测试（`out/p5-text-preparation-android-tests.log`），不等于应用画面验收。
+
+Studio 的多行输入按应用或 Enter 提交，Ctrl+Enter 换行，避免每个按键都触发历史和
+后台准备。字体节点匹配准备结果后显示缺字和裁剪信息。内置字体按钮在一个异步任务
+中导入完整 Noto 和 OFL 许可，只有全部成功才把两项元数据加入同一次历史；失败可能
+留下内容寻址的孤立 blob，但不会留下半套作品资产记录。
+
+位置、颜色和音乐控制复用现有变换与合成节点，避免按帧重新排版或重复上传静态文字。
+派生图像按字体 SHA 和精确文字/布局键区分。glyph 缓存目前在一次后台准备内共享，
+跨文字修改的持久字体缓存仍待完成，不能宣称 P5.5 已闭环。
 
 2026-09-10 证据：`out/p5-text-layout-build.log`、`out/p5-text-layout-tests.log`、
 `out/p5-text-layout-android-build.log`、`out/p5-text-layout-android-tests.log`。

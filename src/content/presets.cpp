@@ -67,6 +67,8 @@ std::vector<Preset> DecodePresets(std::string_view bytes, const graph::Registry&
         for (const auto& [key, value] : properties.items()) {
             if (value.is_number())
                 preset.properties_[key] = value.get<double>();
+            else if (value.is_string())
+                preset.properties_[key] = value.get<std::string>();
             else if (value.is_object() && value.size() == 1 && value.contains("asset_sha256") &&
                      value.at("asset_sha256").is_string())
                 preset.properties_[key] =
@@ -75,7 +77,25 @@ std::vector<Preset> DecodePresets(std::string_view bytes, const graph::Registry&
                      value.at("expression").is_string())
                 preset.properties_[key] =
                         parameters::Expression(value.at("expression").get<std::string>());
-            else if (value.is_array() && value.size() == 4) {
+            else if (value.is_object() && value.contains("event_track") &&
+                     value.at("event_track").is_array()) {
+                if (value.at("event_track").size() > parameters::EventTrack::kMaximumEvents)
+                    throw std::length_error("event.track_count");
+                std::vector<parameters::RecordedEvent> actions;
+                for (const auto& action : value.at("event_track")) {
+                    const auto kind = action.at("kind").get<std::string>();
+                    if (kind != "pulse" && kind != "gate" && kind != "reset")
+                        throw std::invalid_argument("event.track_kind");
+                    actions.push_back({action.at("id").get<std::uint64_t>(),
+                                       action.at("seconds").get<double>(),
+                                       kind == "pulse"  ? parameters::EventKind::kPulse
+                                       : kind == "gate" ? parameters::EventKind::kGate
+                                                        : parameters::EventKind::kReset,
+                                       action.at("value").get<double>()});
+                }
+                preset.properties_[key] = parameters::EventTrack(
+                        std::move(actions), value.value("last_id", std::uint64_t{0}));
+            } else if (value.is_array() && value.size() == 4) {
                 for (const auto& channel : value)
                     if (!channel.is_number()) throw std::invalid_argument("content.color");
                 preset.properties_[key] =

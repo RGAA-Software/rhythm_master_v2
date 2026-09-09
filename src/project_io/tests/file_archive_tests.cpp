@@ -33,7 +33,7 @@ void Run(const std::filesystem::path& directory) {
         std::ofstream output(source, std::ios::binary | std::ios::trunc);
         output.exceptions(std::ios::badbit | std::ios::failbit);
         std::array<char, 65536> buffer{};
-        for (int index = 0; index < 320; ++index) {
+        for (int index = 0; index < 640; ++index) {
             buffer.fill(static_cast<char>(index % 251));
             output.write(buffer.data(), buffer.size());
             hash.process(buffer.begin(), buffer.end());
@@ -45,7 +45,7 @@ void Run(const std::filesystem::path& directory) {
     const detail::PackageEntries entries{{"manifest.json", "{}"},
                                          {"runtime/program.pb", "program"}};
     const detail::ArchiveMedia media{"media/" + digest,
-                                     storage::FileBytes::Open(source, 32 * 1024 * 1024), digest};
+                                     storage::FileBytes::Open(source, 64 * 1024 * 1024), digest};
     detail::WriteFileArchive(path, entries, media);
     const auto opened = detail::ReadFileArchive(
             storage::FileBytes::Open(path, detail::kMaximumFileArchiveBytes));

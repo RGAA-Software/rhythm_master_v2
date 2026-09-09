@@ -55,6 +55,8 @@ class Studio::Impl final {
                                 resources / "shader_tools/varying.def.sc"});
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         audio_panel_.SetDemoFile(resources / "content/audio/resonance_demo.wav");
+        assets_.SetBuiltinFont(resources / "content/fonts/NotoSansCJKsc-Regular.otf",
+                               resources / "content/fonts/LICENSE.txt");
 #endif
         for (const auto& locale : {"zh-CN", "en-US"}) {
             std::ifstream file(resources / "locales" / locale / "studio.json");
@@ -215,6 +217,10 @@ class Studio::Impl final {
                         return asset.id_ == asset_edit.added_->id_;
                     }))
                     next.assets_.push_back(*asset_edit.added_);
+                for (const auto& companion : asset_edit.companions_)
+                    if (std::none_of(next.assets_.begin(), next.assets_.end(),
+                                     [&](const auto& asset) { return asset.id_ == companion.id_; }))
+                        next.assets_.push_back(companion);
                 result = std::move(next);
             }
             if (std::holds_alternative<editor::Snapshot>(result)) {
@@ -355,7 +361,8 @@ class Studio::Impl final {
         auto result = inspector_.Draw(history_->Current(), canvas_.Selection(), registry_, presets_,
                                       catalogs_.at(locale_), locale_, *prepared_resources_->models_,
                                       evaluated_seconds_.value_or(0),
-                                      history_->Current().document_.beat_grid_.has_value());
+                                      history_->Current().document_.beat_grid_.has_value(),
+                                      *prepared_resources_->images_);
         ImGui::EndDisabled();
         if (result.follow_cues_) beat_performance_.Cancel(player::PerformanceActionReason::kUser);
         if (result.recall_) {
@@ -461,6 +468,7 @@ class Studio::Impl final {
                         [&](const auto& instruction) {
                             if (instruction.operation_ != graph::Operation::kGeometryGlb &&
                                 instruction.operation_ != graph::Operation::kTextureImage &&
+                                instruction.operation_ != graph::Operation::kTextureText &&
                                 instruction.operation_ != graph::Operation::kTextureShader &&
                                 instruction.operation_ != graph::Operation::kTextureVideo)
                                 return true;

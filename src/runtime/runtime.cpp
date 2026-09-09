@@ -319,7 +319,8 @@ FrameResult Runtime::Impl::EvaluateRange(
                         state.output_.texture_ = state.target_.Handle();
                         break;
                     }
-                    case graph::Operation::kTextureImage: {
+                    case graph::Operation::kTextureImage:
+                    case graph::Operation::kTextureText: {
                         if (!state.target_.Handle().device_)
                             state.target_ = renderer.CreateTexture(extent, {}, precision);
                         renderer.Submit(state.target_.Handle(),

@@ -23,6 +23,12 @@ if(BUILD_TESTING)
             --music-executable "$<TARGET_FILE:music_gpu_tests>" --fixtures "${PROJECT_BINARY_DIR}/music-fixtures")
         set_tests_properties(from_empty_studio_3d PROPERTIES TIMEOUT 280 RUN_SERIAL TRUE FIXTURES_REQUIRED music_pcm
             ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
+        add_test(NAME from_empty_studio_text COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-from-empty-studio.py"
+            --executable "$<TARGET_FILE:from_empty_studio_tests>" --resources "${CMAKE_CURRENT_BINARY_DIR}"
+            --recipe "${PROJECT_SOURCE_DIR}/content/authoring/prismatic_title.json" --output "${PROJECT_BINARY_DIR}/from-empty-studio-text"
+            --music-executable "$<TARGET_FILE:music_gpu_tests>" --fixtures "${PROJECT_BINARY_DIR}/music-fixtures")
+        set_tests_properties(from_empty_studio_text PROPERTIES TIMEOUT 280 RUN_SERIAL TRUE FIXTURES_REQUIRED music_pcm
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     endif()
     add_executable(scene_scope_gpu_tests tests/scene_scope_gpu_tests.cpp)
     target_link_libraries(scene_scope_gpu_tests PRIVATE studio_ui project_io runtime_package spike_imgui spike_bgfx nlohmann_json::nlohmann_json)
@@ -152,6 +158,8 @@ if(RHYTHM_BUILD_MEDIA)
 endif()
 rhythm_project_target(rhythm_master)
 add_custom_target(studio_resources ALL
+    COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/prepare-work-font.py"
+        --output "${PROJECT_BINARY_DIR}/content/fonts"
     COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/sync-resources.py"
         "${PROJECT_SOURCE_DIR}/content/presets" "${PROJECT_BINARY_DIR}/content/presets"
     COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/sync-resources.py"

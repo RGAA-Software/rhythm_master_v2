@@ -52,8 +52,9 @@ struct UnknownProperty {
     std::string encoded_{};
     bool operator==(const UnknownProperty&) const = default;
 };
-using Property = std::variant<double, Color, parameters::Curve, UnknownProperty,
-                              parameters::Expression, assets::AssetId, parameters::EventTrack>;
+using Property =
+        std::variant<double, Color, parameters::Curve, UnknownProperty, parameters::Expression,
+                     assets::AssetId, parameters::EventTrack, std::string>;
 struct Node {
     NodeId id_ = 0;
     std::string type_{};

@@ -2,8 +2,14 @@
 
 #include <stdexcept>
 
+#include "rhythm/graph/text.h"
+
 namespace rhythm::project::detail {
 graph::Property DecodeProperty(const schema::Property& property, bool preserve_unknown) {
+    if (property.has_text()) {
+        if (!graph::ValidText(property.text())) throw std::invalid_argument("text.invalid_content");
+        return property.text();
+    }
     if (property.has_event_track()) {
         const auto& encoded = property.event_track();
         if (encoded.actions_size() > static_cast<int>(parameters::EventTrack::kMaximumEvents))
@@ -51,7 +57,11 @@ graph::Property DecodeProperty(const schema::Property& property, bool preserve_u
     throw std::invalid_argument("package.property");
 }
 void EncodeProperty(const graph::Property& value, schema::Property& property) {
-    if (std::holds_alternative<double>(value))
+    if (std::holds_alternative<std::string>(value)) {
+        const auto& text = std::get<std::string>(value);
+        if (!graph::ValidText(text)) throw std::invalid_argument("text.invalid_content");
+        property.set_text(text);
+    } else if (std::holds_alternative<double>(value))
         property.set_scalar(std::get<double>(value));
     else if (std::holds_alternative<parameters::Expression>(value))
         property.set_expression(std::string(std::get<parameters::Expression>(value).Source()));

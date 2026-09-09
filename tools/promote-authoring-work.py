@@ -75,11 +75,19 @@ def main():
     for field in ('graph_sha256', 'editor_sha256', 'revision_id'):
         manifest.pop(field, None)
     chinese, english = recipe['title'].split(' / ', 1)
+    license_status = ('First-party Studio-authored graph and original demo music; '
+                      'existing attributed renderer adapters; outbound license pending')
+    if recipe.get('builtin_font', False):
+        provenance = read_json(ROOT / 'third_party/notices/noto-cjk/PROVENANCE.json')
+        assets = {record['sha256'] for record in manifest.get('assets', [])}
+        if any(record['sha256'] not in assets for record in provenance['files']):
+            raise ValueError('The full bundled font and its OFL notice must both be published')
+        license_status += '; unmodified Noto Sans CJK SC under SIL OFL 1.1, font and notice embedded'
     manifest.update(kind='template', content_id='official.templates.' + args.name,
                     content_version='0.1.0', default_locale='zh-CN',
                     titles={'zh-CN': chinese, 'en-US': english}, category='audio', tier='example',
                     maturity='visual-review-pending', author='Rhythm Master',
-                    license_status='First-party Studio-authored graph and original demo music; existing attributed renderer adapters; outbound license pending',
+                    license_status=license_status,
                     compatible_players=['windows'], external_assets=[],
                     descriptions=recipe['descriptions'])
     (destination / 'graph.textproto').write_text(text, encoding='utf-8')

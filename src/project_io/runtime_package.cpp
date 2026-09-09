@@ -148,11 +148,11 @@ RuntimePackage DecodeEntries(const detail::PackageEntries& entries,
             file_music || arranged_music || manifest.at("profile") == "music-performance-v1";
     if (file_music != streamed.has_value()) throw std::invalid_argument("package.media_profile");
     const bool current = music || manifest.at("profile") == "texture-signal-v2";
-    if (!manifest.at("program_abi").is_number_unsigned() || manifest.at("program_abi") > 5)
+    if (!manifest.at("program_abi").is_number_unsigned() || manifest.at("program_abi") > 6)
         throw std::invalid_argument("package.profile");
     const auto abi = manifest.at("program_abi").get<std::uint32_t>();
     if (manifest.at("format") != "rhythm.runtime" || manifest.at("manifest_version") != 1 ||
-        (current ? (abi < 2 || abi > 5) : abi != 1) ||
+        (current ? (abi < 2 || abi > 6) : abi != 1) ||
         (!current && manifest.at("profile") != "texture-signal-v1" &&
          manifest.at("profile") != "texture-signal-assets-v1"))
         throw std::invalid_argument("package.profile");

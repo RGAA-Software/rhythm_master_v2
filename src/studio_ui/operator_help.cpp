@@ -52,6 +52,8 @@ void DrawOperatorHelp(const graph::OperatorDescriptor& descriptor,
             ImGui::TextWrapped("%s: %s", title.c_str(), label("help.color").c_str());
         else if (std::holds_alternative<assets::AssetId>(property.default_))
             ImGui::TextWrapped("%s: %s", title.c_str(), label("help.asset").c_str());
+        else if (std::holds_alternative<std::string>(property.default_))
+            ImGui::TextWrapped("%s: %s", title.c_str(), label("text.edit_help").c_str());
         else if (std::holds_alternative<parameters::EventTrack>(property.default_))
             ImGui::TextWrapped("%s: %s", title.c_str(), label("event.track_help").c_str());
         else

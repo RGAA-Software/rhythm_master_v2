@@ -1,6 +1,7 @@
 #include "rhythm/assets/importer.h"
 
 #include <chrono>
+#include <set>
 
 namespace rhythm::assets {
 Importer::~Importer() {
@@ -32,6 +33,27 @@ bool Importer::StartInspect(std::filesystem::path directory, std::vector<AssetRe
                     result.checks_.push_back({record, store.Inspect(record, stop)});
                 return result;
             });
+}
+bool Importer::StartBundle(std::filesystem::path directory, std::vector<ImportSource> sources,
+                           std::uint64_t maximum_bytes) {
+    if (sources.empty() || sources.size() > 64 || !maximum_bytes ||
+        maximum_bytes > 256 * 1024 * 1024)
+        return false;
+    return StartTask([directory = std::move(directory), sources = std::move(sources),
+                      maximum_bytes](std::stop_token stop) {
+        ImportResult result;
+        auto remaining = maximum_bytes;
+        Store store(directory);
+        std::set<std::string> identities;
+        for (const auto& source : sources) {
+            const auto record = store.Import(source.path_, source.media_type_, remaining, stop);
+            if (!identities.insert(record.id_.sha256_).second)
+                throw std::invalid_argument("asset.duplicate_bundle");
+            remaining -= record.bytes_;
+            result.imported_.push_back(record);
+        }
+        return result;
+    });
 }
 bool Importer::StartRestore(std::filesystem::path directory, std::filesystem::path source,
                             AssetRecord expected) {

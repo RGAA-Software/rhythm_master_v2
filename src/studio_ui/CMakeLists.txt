@@ -1,5 +1,6 @@
 add_library(studio_ui STATIC studio.cpp node_palette.cpp semantic_palette.cpp graph_canvas.cpp node_visual.cpp curve_editor.cpp curve_canvas.cpp expression_editor.cpp binding_editor.cpp component_panel.cpp component_workbench.cpp component_interface.cpp property_inspector.cpp asset_panel.cpp canvas_settings.cpp input_preview.cpp timeline_panel.cpp)
 target_sources(studio_ui PRIVATE node_navigation.cpp node_inspection.cpp)
+target_sources(studio_ui PRIVATE text_editor.cpp)
 target_sources(studio_ui PRIVATE time_section_editor.cpp time_track_editor.cpp cue_editor.cpp audio_clip_editor.cpp)
 target_include_directories(studio_ui PUBLIC include)
 target_sources(studio_ui PRIVATE shader_panel.cpp template_browser.cpp catalog_preview.cpp performance_panel.cpp component_library_panel.cpp preview_routing.cpp)

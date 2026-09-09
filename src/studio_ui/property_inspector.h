@@ -1,13 +1,14 @@
 #pragma once
-
 #include "binding_editor.h"
 #include "curve_editor.h"
 #include "event_track_editor.h"
 #include "expression_editor.h"
+#include "rhythm/assets/images.h"
 #include "rhythm/content/presets.h"
 #include "rhythm/control_ui/control_panel.h"
 #include "rhythm/editor/history.h"
 #include "rhythm/scene/resources.h"
+#include "text_editor.h"
 
 namespace rhythm::studio {
 struct InspectorResult {
@@ -25,13 +26,14 @@ class PropertyInspector final {
                          const graph::Registry& registry, std::span<const content::Preset> presets,
                          const std::map<std::string, std::string>& text, const std::string& locale,
                          const scene::Resources& models = {}, double seconds = 0,
-                         bool defer_recall = false);
+                         bool defer_recall = false, const assets::Images& images = {});
     parameters::ControlValues LiveControls(const parameters::ControlBank& bank) const;
     void PerformControls(parameters::ControlValues values);
     const std::optional<editor::Snapshot>& Preview() const { return draft_; }
     void Reset() {
         draft_.reset();
         expression_editor_.Reset();
+        text_editor_.Reset();
         binding_editor_.Reset();
         curve_editor_.Reset();
         event_track_editor_.Reset();
@@ -49,6 +51,7 @@ class PropertyInspector final {
                       double seconds, bool defer_recall);
     std::optional<editor::Snapshot> draft_{};
     ExpressionEditor expression_editor_{};
+    TextEditor text_editor_{};
     BindingEditor binding_editor_{};
     CurveEditor curve_editor_{};
     EventTrackEditor event_track_editor_{};

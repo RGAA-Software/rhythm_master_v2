@@ -1,0 +1,4 @@
+Text rasterization uses FreeType, from the FreeType Project, under the FreeType License (FTL).
+UTF8-CPP is used under Boost Software License 1.0.
+Unmodified vcpkg binaries/headers; version and dependency notices are retained by target triplet.
+The work font has its separate SIL OFL 1.1 notice under ../noto-cjk.

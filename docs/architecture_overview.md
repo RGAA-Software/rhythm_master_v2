@@ -286,7 +286,7 @@ not become a second decoder or audio-device owner.
 
 Small music-bearing packages use `music-performance-v1`. Larger songs use
 `music-performance-v2`: one stored music attachment up to 256 MiB, ordinary assets
-up to 8 MiB, at most 64 combined records and a 272 MiB file archive. Both use
+up to 32 MiB, at most 64 combined records and a 304 MiB file archive. Both use
 program ABI 2. ZIP metadata, hashing and file copies are bounded; FFmpeg seeks
 inside the retained range without buffering the whole song. The audio worker explicitly acknowledges source
 replacement before host-owned imported files are reclaimed. See

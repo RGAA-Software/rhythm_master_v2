@@ -1,0 +1,16 @@
+{
+    "run": "out/windows-release/from-empty-studio-text/d40b1a31d3ac4524b27b059606b13239",
+    "recipe": "content/authoring/prismatic_title.json",
+    "recipe_sha256": "74e25cde66d6b1ea55ab1875150d6950d3234714202ab9bb036c64cdbe81c160",
+    "saved_graph_sha256": "540f6d8ad4797749e384a2470bec78d66adefc6ce4a537e9a40e2db176af95dc",
+    "published_sha256": "317c50c10cf5b8c2413ed163aa5bebaca0f0d1558237d8e13565b010ac4e0251",
+    "acceptance": {
+        "recipe": "p5-prismatic-title",
+        "recipe_sha256": "74e25cde66d6b1ea55ab1875150d6950d3234714202ab9bb036c64cdbe81c160",
+        "ui_authoring": "passed",
+        "decoded_pcm_gpu": "passed",
+        "visual_review": "pending",
+        "android": "pending",
+        "acoustic_capture": false
+    }
+}

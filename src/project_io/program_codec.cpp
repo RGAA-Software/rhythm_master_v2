@@ -129,7 +129,7 @@ graph::ExecutionPlan DecodeProgram(std::string_view bytes, std::uint32_t require
     input.SetRecursionLimit(32);
     input.SetTotalBytesLimit(static_cast<int>(kMaximumProgramBytes));
     if (!message.ParseFromCodedStream(&input) || !input.ConsumedEntireMessage() ||
-        (message.abi_version() < 1 || message.abi_version() > 5) ||
+        (message.abi_version() < 1 || message.abi_version() > 6) ||
         (required_abi != 0 && message.abi_version() != required_abi))
         throw std::invalid_argument("package.abi");
     if ((message.abi_version() >= 2) != message.has_canvas())
@@ -178,6 +178,8 @@ graph::ExecutionPlan DecodeProgram(std::string_view bytes, std::uint32_t require
         plan.instructions_.push_back(std::move(instruction));
     }
     graph::Document metadata;
+    if (message.abi_version() < 6 && detail::ProgramAbi(plan) == 6)
+        throw std::invalid_argument("package.text_abi");
     if (message.abi_version() < 5 && detail::ProgramAbi(plan) == 5)
         throw std::invalid_argument("package.event_abi");
     detail::DecodeControls(message.controls(), metadata);

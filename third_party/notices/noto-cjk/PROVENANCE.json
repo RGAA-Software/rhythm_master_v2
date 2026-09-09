@@ -17,5 +17,5 @@
         }
     ],
     "modifications": "None. Full upstream OTF; no glyph subsetting.",
-    "target": "Windows Studio/Player packaged UI font; platform-neutral font asset available for future hosts."
+    "target": "Portable work font for texture.text in Studio and Windows/Android Player; full OTF and OFL notice embedded in authored works. Existing UI font unchanged."
 }

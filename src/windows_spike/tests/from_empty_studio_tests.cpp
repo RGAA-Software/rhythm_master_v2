@@ -62,6 +62,31 @@ int main(int argc, char** argv) {
         };
         testing::StudioInput ui(frame);
         ui.Settle(6);
+        if (recipe.value("builtin_font", false)) {
+            const auto generation = studio.Workflow().requested_generation_;
+            ui.Button("###graph", "###asset.manager");
+            ui.Button(testing::StudioInput::Popup(), "###text.add_builtin_font");
+            for (int attempt = 0;
+                 attempt < 500 && studio.Workflow().requested_generation_ == generation; ++attempt)
+                frame();
+            Check(studio.Workflow().requested_generation_ != generation,
+                  "bundled font import not applied");
+            ImGui::GetIO().AddKeyEvent(ImGuiKey_Escape, true);
+            frame();
+            ImGui::GetIO().AddKeyEvent(ImGuiKey_Escape, false);
+            ui.Settle();
+            ui.Button("###graph", "###save");
+            for (int attempt = 0;
+                 attempt < 200 && project::Load(path).snapshot_.assets_.size() != 2; ++attempt)
+                frame();
+            const auto imported = project::Load(path).snapshot_;
+            Check(imported.assets_.size() == 2 &&
+                          std::any_of(imported.assets_.begin(), imported.assets_.end(),
+                                      [](const auto& asset) {
+                                          return asset.media_type_ == "text/plain";
+                                      }),
+                  "font and license not saved together");
+        }
         auto& io = ImGui::GetIO();
         io.AddMousePosEvent(400, 400);
         ui.Settle();
@@ -98,7 +123,13 @@ int main(int argc, char** argv) {
                     ui.Button("###inspector", label);
                     ui.Button(testing::StudioInput::Popup(),
                               "###" + property->choices_.at(value.get<std::size_t>()));
-                } else if (value.is_string())
+                } else if (value.is_object() && value.contains("asset_sha256")) {
+                    ui.Button("###inspector", label);
+                    ui.Button(testing::StudioInput::Popup(),
+                              "###" + value.at("asset_sha256").get<std::string>());
+                } else if (std::holds_alternative<std::string>(property->default_))
+                    ui.Text("###inspector", label, value.get<std::string>());
+                else if (value.is_string())
                     ui.Color(label, value.get<std::string>());
                 else
                     ui.Text("###inspector", label, value.dump());
@@ -142,7 +173,17 @@ int main(int argc, char** argv) {
                   "saved node type differs from recipe");
             const auto properties = step.value("properties", nlohmann::json::object());
             for (const auto& [key, value] : properties.items()) {
-                if (value.is_string()) {
+                if (std::holds_alternative<std::string>(
+                            saved.document_.nodes_[index].properties_.at(key))) {
+                    Check(std::get<std::string>(saved.document_.nodes_[index].properties_.at(
+                                  key)) == value.get<std::string>(),
+                          "UTF-8 text input not saved: " + key);
+                } else if (value.is_object() && value.contains("asset_sha256")) {
+                    Check(std::get<assets::AssetId>(
+                                  saved.document_.nodes_[index].properties_.at(key))
+                                          .sha256_ == value.at("asset_sha256").get<std::string>(),
+                          "font binding not saved");
+                } else if (value.is_string()) {
                     const auto hex = std::stoull(value.get<std::string>(), nullptr, 16);
                     const auto color = std::get<graph::Color>(
                             saved.document_.nodes_[index].properties_.at(key));
@@ -269,11 +310,20 @@ int main(int argc, char** argv) {
                                  std::abs(graph::Scalar(*scaled_node, "scale_y", 1) - 1) +
                                  std::abs(graph::Scalar(*scaled_node, "scale_z", 1) - 1);
         Check(scale_delta > .03, "view scale gesture not saved");
+        // Gesture checks may deliberately tilt the whole composition. A recipe
+        // can restore its intended delivery framing through the same inspector.
+        const auto final_view = recipe.value("final_view", nlohmann::json::object());
+        for (const auto& [key, value] : final_view.items())
+            ui.Text("###inspector", "###property." + std::to_string(view_id) + "." + key,
+                    value.dump());
         ui.Button("###inspector", "###component.panel");
         ui.Text("###inspector", "###component.name",
                 recipe.value("component_title", std::string("Contour Composition")));
         ui.Button("###inspector", "###component.create");
         ui.Button("###graph", "###save");
+        for (int index = 0;
+             index < 200 && project::Load(path).snapshot_.document_.components_.empty(); ++index)
+            frame();
         const auto component = project::Load(path).snapshot_;
         Check(component.document_.components_.size() == 1 &&
                       component.document_.components_[0].nodes_.size() == 1 &&

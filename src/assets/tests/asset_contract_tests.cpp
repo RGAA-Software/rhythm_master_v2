@@ -128,6 +128,26 @@ int main(int argc, char* argv[]) {
             Check(!maintenance.StartInspect(root / "assets",
                                             std::vector<assets::AssetRecord>(65, asset)));
         }
+        {
+            assets::Importer bundle;
+            const auto notice = root / "font-notice.txt";
+            storage::WriteDurable(notice, "font notice");
+            Check(bundle.StartBundle(root / "bundle-assets",
+                                     {{repair, "font/otf"}, {notice, "text/plain"}}, 14));
+            const auto imported = Await(bundle);
+            Check(imported.error_.empty() && imported.imported_.size() == 2);
+            Check(bundle.StartBundle(
+                    root / "bundle-assets",
+                    {{repair, "font/otf"}, {root / "missing-notice", "text/plain"}}, 6));
+            const auto failed = Await(bundle);
+            Check(!failed.error_.empty() && failed.imported_.empty() && !failed.asset_);
+            Check(bundle.StartBundle(root / "bundle-assets",
+                                     {{repair, "font/otf"}, {notice, "text/plain"}}, 13));
+            Check(!Await(bundle).error_.empty());
+            Check(bundle.StartBundle(root / "bundle-assets",
+                                     {{repair, "font/otf"}, {repair, "text/plain"}}, 6));
+            Check(!Await(bundle).error_.empty());
+        }
         const auto restored_time = std::filesystem::last_write_time(blob);
         store.Restore(repair, asset);
         Check(std::filesystem::last_write_time(blob) == restored_time);

@@ -91,13 +91,13 @@ def main():
     targets = [{"rhythm_master": "studio_deploy", "rhythm_player": "player_deploy"}.get(target, target)
                for target in args.target] or ["studio_deploy", "player_deploy"]
     if verify_studio:
-        targets.extend(['editor_contract_tests', 'template_contract_tests', 'template_switch_gpu_tests'])
+        targets.extend(['editor_contract_tests', 'template_contract_tests', 'template_switch_gpu_tests', 'content_contract_tests'])
     subprocess.run(["cmake", "--build", str(build), "--parallel", str(args.jobs), "--target", *targets],
                    check=True, env=environment)
     if verify_studio:
         # Verify the actual authoring transition on every Studio delivery, even
         # after a no-op build. Source-template playback alone misses ID remapping.
-        expected_tests = {'editor_contracts', 'template_contracts',
+        expected_tests = {'editor_contracts', 'template_contracts', 'content_contracts',
                           'template_switch_gpu_en-US', 'template_switch_gpu_zh-CN'}
         pattern = '^(' + '|'.join(sorted(expected_tests)) + ')$'
         run_ctest(build, pattern, expected_tests, build / 'studio-delivery-tests.log', environment)

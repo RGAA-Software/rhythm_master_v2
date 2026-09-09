@@ -96,7 +96,7 @@ std::string Host::ReadAsset(const std::string& name) const {
     std::unique_ptr<SDL_IOStream, StreamDeleter> stream(SDL_IOFromFile(name.c_str(), "rb"));
     if (!stream) throw std::runtime_error("player.asset_open");
     const auto size = SDL_GetIOSize(stream.get());
-    if (size < 1 || size > 16 * 1024 * 1024) throw std::runtime_error("player.asset_size");
+    if (size < 1 || size > 48 * 1024 * 1024) throw std::runtime_error("player.asset_size");
     std::string bytes(static_cast<std::size_t>(size), '\0');
     if (SDL_ReadIO(stream.get(), bytes.data(), bytes.size()) != bytes.size())
         throw std::runtime_error("player.asset_read");

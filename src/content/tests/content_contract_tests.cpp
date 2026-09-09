@@ -37,6 +37,37 @@ int main(int argc, char* argv[]) {
         }
         Check(complete_defaults);
         {
+            auto events = catalog;
+            auto entry = catalog.at("presets").at(0);
+            entry["operator"] = "event.input";
+            entry["properties"] = {
+                    {"actions",
+                     {{"event_track",
+                       {{{"id", 1}, {"seconds", 0.5}, {"kind", "pulse"}, {"value", 1}},
+                        {{"id", 2}, {"seconds", 1.0}, {"kind", "gate"}, {"value", 0}}}},
+                      {"last_id", 2}}}};
+            events["presets"] = nlohmann::json::array({entry});
+            const auto decoded = content::DecodePresets(events.dump(), registry);
+            const auto& track =
+                    std::get<parameters::EventTrack>(decoded[0].properties_.at("actions"));
+            Check(track.Events().size() == 2 && track.LastId() == 2 &&
+                  track.Events()[1].kind_ == parameters::EventKind::kGate &&
+                  track.Events()[0].seconds_ == 0.5);
+            for (int mutation = 0; mutation < 2; ++mutation) {
+                auto bad = events;
+                auto& actions = bad["presets"][0]["properties"]["actions"]["event_track"];
+                if (mutation == 0) actions[1]["id"] = 1;
+                if (mutation == 1) actions[0]["kind"] = "unknown";
+                bool rejected = false;
+                try {
+                    content::DecodePresets(bad.dump(), registry);
+                } catch (const std::exception&) {
+                    rejected = true;
+                }
+                Check(rejected);
+            }
+        }
+        {
             auto hermite = catalog;
             auto entry = catalog.at("presets").at(0);
             entry["operator"] = "scalar.curve";

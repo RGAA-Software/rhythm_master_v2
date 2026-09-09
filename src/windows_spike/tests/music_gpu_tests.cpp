@@ -94,10 +94,15 @@ int main(int argc, char* argv[]) {
                     return instruction.operation_ == graph::Operation::kGeometryAnimate ||
                            instruction.operation_ == graph::Operation::kGeometryMorph;
                 });
+        const auto text_nodes = std::count_if(
+                instructions.begin(), instructions.end(), [](const auto& instruction) {
+                    return instruction.operation_ == graph::Operation::kTextureText;
+                });
         if (instructions.size() != expected_nodes ||
             (bands < 24 && instance_fields == 0 &&
              !((videos || gpu_fields > 0 || materials > 0 || scene_instances > 0 || paths > 0 ||
-                deformations > 0 || shaders > 0 || animated_models > 0 || image_filters > 0) &&
+                deformations > 0 || shaders > 0 || animated_models > 0 || image_filters > 0 ||
+                text_nodes > 0) &&
                bands >= 2)))
             throw std::runtime_error("music.full_graph_not_reachable");
         std::cout << "reachable_instructions=" << instructions.size() << " audio_bands=" << bands

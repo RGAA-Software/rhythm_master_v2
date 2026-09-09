@@ -1876,6 +1876,136 @@
             },
             "reset": true,
             "properties": {}
+        },
+        {
+            "id": "official.text.default",
+            "version": "1.0.0",
+            "operator": "texture.text",
+            "titles": {
+                "zh-CN": "默认 · 文字",
+                "en-US": "Default · Text"
+            },
+            "properties": {
+                "asset": {
+                    "asset_sha256": ""
+                },
+                "text_content": "Rhythm",
+                "text_width": 512,
+                "text_height": 256,
+                "text_size": 48,
+                "text_spacing": 1.2,
+                "text_align": 0,
+                "text_wrap": 1
+            }
+        },
+        {
+            "id": "official.event.input.default",
+            "version": "1.0.0",
+            "operator": "event.input",
+            "titles": {
+                "zh-CN": "默认 · 动作输入",
+                "en-US": "Default · Action input"
+            },
+            "properties": {
+                "actions": {
+                    "event_track": [],
+                    "last_id": 0
+                }
+            }
+        },
+        {
+            "id": "official.event.beat.default",
+            "version": "1.0.0",
+            "operator": "event.beat",
+            "titles": {
+                "zh-CN": "默认 · 节拍事件",
+                "en-US": "Default · Beat event"
+            },
+            "properties": {
+                "beat_interval": 1
+            }
+        },
+        {
+            "id": "official.event.audio_onset.default",
+            "version": "1.0.0",
+            "operator": "event.audio_onset",
+            "titles": {
+                "zh-CN": "默认 · 音频瞬态事件",
+                "en-US": "Default · Audio onset event"
+            },
+            "properties": {
+                "threshold": 0.05,
+                "band_first": 0,
+                "band_last": 62
+            }
+        },
+        {
+            "id": "official.event.edge.default",
+            "version": "1.0.0",
+            "operator": "event.edge",
+            "titles": {
+                "zh-CN": "默认 · 数值边沿事件",
+                "en-US": "Default · Scalar edge event"
+            },
+            "properties": {
+                "threshold": 0.5,
+                "hysteresis": 0.01,
+                "edge_mode": 0
+            }
+        },
+        {
+            "id": "official.event.envelope.default",
+            "version": "1.0.0",
+            "operator": "event.envelope",
+            "titles": {
+                "zh-CN": "默认 · 事件 ADSR 包络",
+                "en-US": "Default · Event ADSR envelope"
+            },
+            "properties": {
+                "attack": 0.01,
+                "decay": 0.1,
+                "sustain": 0.7,
+                "release": 0.3,
+                "duration": 0.3
+            }
+        },
+        {
+            "id": "official.event.step.default",
+            "version": "1.0.0",
+            "operator": "event.step",
+            "titles": {
+                "zh-CN": "默认 · 事件步进计数",
+                "en-US": "Default · Event step counter"
+            },
+            "properties": {
+                "steps": 8,
+                "step": 1,
+                "initial": 0
+            }
+        },
+        {
+            "id": "official.event.gate.default",
+            "version": "1.0.0",
+            "operator": "event.gate",
+            "titles": {
+                "zh-CN": "默认 · 事件门控",
+                "en-US": "Default · Event gate"
+            },
+            "properties": {
+                "initial": 0
+            }
+        },
+        {
+            "id": "official.event.latch.default",
+            "version": "1.0.0",
+            "operator": "event.latch",
+            "titles": {
+                "zh-CN": "默认 · 事件数值锁存",
+                "en-US": "Default · Event value latch"
+            },
+            "properties": {
+                "initial": 0
+            }
         }
     ]
 }

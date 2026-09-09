@@ -6,7 +6,7 @@ namespace rhythm::editor {
 namespace {
 bool Compatible(std::string_view first, std::string_view second) {
     if (first == second) return true;
-    for (const auto family : {"image/", "video/", "audio/"})
+    for (const auto family : {"image/", "video/", "audio/", "font/"})
         if (first.starts_with(family) && second.starts_with(family)) return true;
     return false;
 }

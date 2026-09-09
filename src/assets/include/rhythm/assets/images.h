@@ -14,6 +14,10 @@ struct ImageResource {
     double pixel_aspect_ = 1;
     double clockwise_rotation_ = 0;
     std::vector<std::uint8_t> rgba_{};
+    // Empty for decoded images; exact layout identity for a font-derived mask.
+    std::string variant_key_{};
+    std::uint32_t missing_glyphs_ = 0;
+    bool clipped_ = false;
 };
 struct Images {
     std::vector<ImageResource> images_{};

@@ -1,0 +1,30 @@
+{
+    "id": "p5-prismatic-title",
+    "title": "棱镜星莲 / Prismatic Title",
+    "builtin_font": true,
+    "descriptions": {
+        "zh-CN": "完整中文字体生成透明文字，低频推动标题，高频改变配色，叠加实时频谱和流动背景。",
+        "en-US": "Transparent CJK typography with bass-driven title motion, treble-driven colors, a live spectrum and flowing background."
+    },
+    "view_node": 15,
+    "final_view": {"translate_x": 0, "rotation": 0, "scale_x": 1, "scale_y": 1, "scale": 1},
+    "component_title": "Title Composition",
+    "nodes": [
+        {"type": "core.time"},
+        {"type": "audio.band", "properties": {"audio_band": 12}},
+        {"type": "scalar.map", "properties": {"input_max": 0.15, "output_min": -0.03, "output_max": 0.08}, "inputs": {"value": 2}},
+        {"type": "audio.band", "properties": {"audio_band": 48}},
+        {"type": "scalar.map", "properties": {"input_max": 0.1, "output_min": 0.75, "output_max": 1.0}, "inputs": {"value": 4}},
+        {"type": "texture.text", "properties": {"asset": {"asset_sha256": "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b"}, "text_content": "棱镜星莲\nRHYTHM / 2026", "text_width": 1024, "text_height": 384, "text_size": 96, "text_align": 1}},
+        {"type": "texture.gradient", "properties": {"color_a": "45E5EEFF", "color_b": "EB64BAFF"}, "inputs": {"amount": 5}},
+        {"type": "texture.mask", "inputs": {"source": 7, "mask": 6}},
+        {"type": "texture.affine", "properties": {"scale": 0.85}, "inputs": {"source": 8, "translate_y": 3}},
+        {"type": "texture.noise", "properties": {"color_a": "030A17FF", "color_b": "102541FF", "noise_scale": 3}, "inputs": {"phase": 1}},
+        {"type": "texture.spectrum", "properties": {"color_a": "36A6AFFF", "color_b": "936FB5FF"}},
+        {"type": "texture.affine", "properties": {"scale_y": 0.18, "translate_y": 0.34}, "inputs": {"source": 11}},
+        {"type": "texture.composite", "inputs": {"a": 10, "b": 12}},
+        {"type": "texture.composite", "inputs": {"a": 13, "b": 9}},
+        {"type": "texture.affine", "properties": {"scale": 0.85}, "inputs": {"source": 14}},
+        {"type": "output.texture", "inputs": {"source": 15}}
+    ]
+}
