@@ -133,6 +133,11 @@ if(BUILD_TESTING)
     target_link_libraries(scene_compositor_gpu_tests PRIVATE platform_sdl scene_compositor_probe)
     rhythm_project_target(scene_compositor_gpu_tests)
     add_test(NAME scene_compositor_gpu COMMAND scene_compositor_gpu_tests)
+    add_test(NAME scene_creation_gpu COMMAND scene_compositor_gpu_tests
+        "${PROJECT_BINARY_DIR}/content/packages/luminous_concerto.rhythmpack"
+        "${PROJECT_BINARY_DIR}/content/packages/ink_tide.rhythmpack")
+    set_tests_properties(scene_creation_gpu PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE ENVIRONMENT_MODIFICATION
+        "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     set_tests_properties(scene_compositor_gpu PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE ENVIRONMENT_MODIFICATION
         "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     add_executable(readback_gpu_tests tests/readback_gpu_tests.cpp

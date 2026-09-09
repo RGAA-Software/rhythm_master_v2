@@ -1,6 +1,8 @@
 #include "scene_compositor_probe.h"
 
+#include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -85,7 +87,11 @@ void VerifySceneDeck(render::Renderer& renderer, const std::filesystem::path& fi
     bool switched = false;
     std::uint64_t peak_bytes = baseline;
     std::uint32_t peak_passes = 0;
+    std::vector<double> cpu_ms;
+    std::vector<double> frame_ms;
     for (int frame = 0; frame < 100; ++frame) {
+        const auto started = std::chrono::steady_clock::now();
+        const auto previous_bytes = renderer.Stats().texture_bytes_;
         if (frame == 10)
             Check(deck.StartTransition(std::move(incoming), 1), "complex transition starts");
         runtime::ExternalInputs inputs;
@@ -99,6 +105,16 @@ void VerifySceneDeck(render::Renderer& renderer, const std::filesystem::path& fi
         renderer.BeginFrame();
         const auto result =
                 deck.Tick(frame / 60.0, false, player::RenderQuality::kBalanced, renderer, inputs);
+        const double elapsed = std::chrono::duration<double, std::milli>(
+                                       std::chrono::steady_clock::now() - started)
+                                       .count();
+        if (frame >= 10 && frame < 70) cpu_ms.push_back(elapsed);
+        if (frame == 0 || frame == 10)
+            std::cout << "scene_creation frame=" << frame << " cpu_submit_ms=" << elapsed
+                      << " texture_delta_bytes="
+                      << static_cast<std::int64_t>(renderer.Stats().texture_bytes_) -
+                                 static_cast<std::int64_t>(previous_bytes)
+                      << " passes=" << renderer.Stats().passes_ << '\n';
         Check(!result.output_.budget_ && renderer.IsValid(result.output_.final_),
               "complex scene valid output");
         Check(deck.Error() == player::SceneTransitionError::kNone, "complex transition no failure");
@@ -115,8 +131,16 @@ void VerifySceneDeck(render::Renderer& renderer, const std::filesystem::path& fi
                     ++lit;
             Check(lit > pixels.rgba_.size() / 400, "complex transition visible pixels");
             std::cout << "scene_frame=" << frame << " lit_pixels=" << lit << '\n';
-        } else
+        } else {
             renderer.EndFrame();
+            const double ended = std::chrono::duration<double, std::milli>(
+                                         std::chrono::steady_clock::now() - started)
+                                         .count();
+            if (frame >= 10 && frame < 70) frame_ms.push_back(ended);
+            if (frame == 0 || frame == 10)
+                std::cout << "scene_creation frame=" << frame << " including_end_frame_ms=" << ended
+                          << '\n';
+        }
     }
     Check(switched && !deck.Transitioning() && deck.Current().Title() != first_title,
           "complex incoming work takes over");
@@ -124,5 +148,13 @@ void VerifySceneDeck(render::Renderer& renderer, const std::filesystem::path& fi
     Check(renderer.Stats().texture_bytes_ == baseline, "complex scene resources released");
     std::cout << "complex_scene_frames=100 peak_texture_bytes=" << peak_bytes
               << " peak_passes=" << peak_passes << '\n';
+    std::sort(cpu_ms.begin(), cpu_ms.end());
+    std::cout << "dual_scene_cpu_submit p50_ms=" << cpu_ms[cpu_ms.size() / 2]
+              << " p95_ms=" << cpu_ms[cpu_ms.size() * 95 / 100] << " max_ms=" << cpu_ms.back()
+              << " (not GPU timings or UI FPS)\n";
+    std::sort(frame_ms.begin(), frame_ms.end());
+    std::cout << "dual_scene_including_end_frame p50_ms=" << frame_ms[frame_ms.size() / 2]
+              << " p95_ms=" << frame_ms[frame_ms.size() * 95 / 100] << " max_ms=" << frame_ms.back()
+              << " (readback frames excluded)\n";
 }
 }  // namespace rhythm::validation
