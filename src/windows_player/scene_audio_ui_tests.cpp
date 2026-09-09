@@ -27,8 +27,8 @@ void Activate(const char* window_name, const char* item) {
     ImGui::ActivateItemByID(ImHashStr(item, 0, window->ID));
 }
 std::string Package(const std::string& title, graph::Color color,
-                    std::span<const project::PackagedAsset> assets, float gain,
-                    bool serial = false) {
+                    std::span<const project::PackagedAsset> assets, float gain, bool serial = false,
+                    bool serial_gpu = false) {
     graph::Registry registry;
     graph::Document document;
     document.id_ = title;
@@ -38,6 +38,18 @@ std::string Package(const std::string& title, graph::Color color,
     for (const auto key : {"color_a", "color_b"}) document.nodes_[0].properties_[key] = color;
     document.edges_ = {{1, 1, 2, "source"}};
     document.output_ = 2;
+    if (serial_gpu) {
+        document.nodes_.pop_back();
+        document.edges_.clear();
+        for (std::uint64_t id = 2; id <= 60; ++id) {
+            document.nodes_.push_back(registry.MakeNode(id, "texture.transform"));
+            document.nodes_.back().properties_["scale"] = 1.0;
+            document.edges_.push_back({id, id - 1, id, "source"});
+        }
+        document.nodes_.push_back(registry.MakeNode(61, "output.texture"));
+        document.edges_.push_back({61, 60, 61, "source"});
+        document.output_ = 61;
+    }
     media::Soundtrack soundtrack{assets.front().record_.id_, title, gain, true};
     if (serial)
         for (std::uint64_t id = 1; id <= 4; ++id) {
@@ -70,24 +82,30 @@ void Pixels(render::Renderer& renderer, render::Readback& ticket, double progres
     throw std::runtime_error("audio scene readback timeout");
 }
 void Run(const std::filesystem::path& root, const std::filesystem::path& fixture,
-         bool serial = false) {
+         bool serial = false, bool serial_gpu = false) {
     assets::Store store(fixture / "scene-audio-ui-assets");
     const auto record = store.Import(fixture / "tone.flac", "audio/flac");
     const std::array assets{project::PackagedAsset{record, store.Read(record)}};
     const auto incoming_path = fixture / "scene-audio-ui-next.rhythmpack";
-    project::InstallPackage(incoming_path,
-                            Package("Blue incoming", {0, 0, 1, 1}, assets, 0.25F, serial));
+    project::InstallPackage(incoming_path, Package("Blue incoming", {0, 0, 1, 1}, assets, 0.25F,
+                                                   serial, serial_gpu));
     platform::Host host(true);
     host.Resize({1280, 720});
     ImGui::GetIO().IniFilename = nullptr;
     auto renderer = host.CreateRenderer();
     auto font = host.CreateFontTexture(renderer);
+    render::Texture pressure;
+    if (serial_gpu) {
+        const auto rows =
+                (256 * 1024 * 1024 - renderer.Stats().texture_bytes_ - 327680) / (8192 * 4);
+        pressure = renderer.CreateTexture({8192, static_cast<std::uint16_t>(rows)});
+    }
     audio_ui::AudioPanel audio;
     audio.SetVolume(0);
     player::SceneDeck deck;
     deck.EnableAudioTransitions(true);
-    deck.LoadPrepared(
-            player::PreparedPackage(Package("Red current", {1, 0, 0, 1}, assets, 0.5F, serial)));
+    deck.LoadPrepared(player::PreparedPackage(
+            Package("Red current", {1, 0, 0, 1}, assets, 0.5F, serial, serial_gpu)));
     audio.LoadSoundtrack(*deck.Current().Soundtrack());
     player_audio::SceneAudioBridge bridge;
     player::SceneQueue queue;
@@ -125,8 +143,9 @@ void Run(const std::filesystem::path& root, const std::filesystem::path& fixture
         const auto input = audio.Frame();
         heard |= input.features_ && input.features_->rms_ > 0.1F;
         if (!started && frame_index > 3 && heard && !queue.Items().empty() &&
-            deck.QueueReady(queue.Items().front().id_)) {
-            Activate("###scene.queue", "###scene.go");
+            (serial_gpu ? deck.CanHardCut(queue.Items().front().id_)
+                        : deck.QueueReady(queue.Items().front().id_))) {
+            Activate("###scene.queue", serial_gpu ? "###scene.gpu_hard_cut" : "###scene.go");
             started = true;
             consumed = input.file_.consumed_frames_;
             epoch = input.file_.source_generation_;
@@ -144,7 +163,15 @@ void Run(const std::filesystem::path& root, const std::filesystem::path& fixture
         external.audio_ = input.features_;
         const auto frame = deck.Tick(seconds, false, player::RenderQuality::kOriginal, renderer,
                                      external, input.playback_, queue, sample);
-        Require(deck.Error() == player::SceneTransitionError::kNone && !frame.output_.budget_,
+        if (serial_gpu && deck.Error() != player::SceneTransitionError::kNone)
+            std::cout << "serial_gpu frame=" << frame_index << " requested=" << started
+                      << " transition=" << deck.Transitioning() << " error=" << int(deck.Error())
+                      << " detail=" << deck.ErrorDetail()
+                      << " output_budget=" << frame.output_.budget_.has_value() << '\n';
+        Require((deck.Error() == player::SceneTransitionError::kNone ||
+                 (serial_gpu && deck.TransitionId() == 0 &&
+                  deck.Error() == player::SceneTransitionError::kBudget)) &&
+                        !frame.output_.budget_,
                 "actual UI audio transition retained no hidden failure");
         if (frame.switched_) {
             Require(frame.audio_synchronized_ && input.file_.transition_.state_ ==
@@ -173,10 +200,13 @@ void Run(const std::filesystem::path& root, const std::filesystem::path& fixture
                     queue.Items().empty(),
             "UI enqueue/Go, audible mix and actual pixels all observed");
     deck.ReleaseGraphics();
-    std::cout << "Scene audio UI: enqueue/Go, actual playback snapshot, D3D pixels and continuous "
+    std::cout << "Scene audio UI: explicit action, actual playback snapshot, D3D pixels and "
+                 "confirmed "
                  "takeover passed\n";
     if (serial)
         std::cout << "Four old plus four incoming clips: explicit zero-duration UI Go passed\n";
+    if (serial_gpu)
+        std::cout << "GPU and audio budgets both exceeded: explicit serial replacement UI passed\n";
 }
 void Arrangement(const std::filesystem::path& package) {
     player::Session work;
@@ -219,12 +249,14 @@ void Arrangement(const std::filesystem::path& package) {
 }  // namespace
 int main(int argc, char** argv) {
     try {
-        if (argc != 3 && !(argc == 4 && std::string_view(argv[3]) == "--serial"))
+        if (argc != 3 && !(argc == 4 && (std::string_view(argv[3]) == "--serial" ||
+                                         std::string_view(argv[3]) == "--serial-gpu")))
             throw std::invalid_argument("expected root, media fixture and optional --serial");
         if (std::string_view(argv[1]) == "--arrangement")
             Arrangement(argv[2]);
         else
-            Run(argv[1], argv[2], argc == 4);
+            Run(argv[1], argv[2], argc == 4,
+                argc == 4 && std::string_view(argv[3]) == "--serial-gpu");
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

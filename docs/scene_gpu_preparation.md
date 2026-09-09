@@ -180,3 +180,50 @@ source_boundaries 通过；Android `out/p3-output-lease-android-tests.log` 的�
 合同与实际 GLES 读回通过。检查多持有者、不重复预算、外设备/无效/过期句柄
 拒绝、原持有者释放后蓝色目标的逐像素读回、最后持有者释放后资源失效。
 它们不是完整 GPU 硬切或 APK 功能交付，后续还需验证旧场冻结、新场准入与失败恢复。
+
+
+### P3.5：明确选择的 GPU 串行硬切（已接入两端）
+
+双场 GPU 预算失败时，队列保留失败行及已校验的 CPU 包，释放来场的部分 GPU
+资源。Windows/Android 显示“立即硬切”：本次覆盖条目的时机与时长，按零时长
+串行替换；不会擅自降低画质或扩大 256 MiB/240 pass 上限。正常 Go 仍需预备就绪。
+硬切先保留旧场最后一张输出的 RAII 所有权，再释放旧图，其余节点输出句柄不再
+公开。下一宿主帧才开始分帧准备来场；不额外创建淡化合成目标。配乐仍等待新场
+GPU 就绪并由同一音频设备的消费确认完成接管，四路对四路使用已有串行游标路径。
+
+取消/来场失败时，独立 SceneReplacement 组件在最新媒体时间分帧重建旧图；身份
+不变，模拟历史重新开始，不能复原已释放的反馈历史。恢复失败保留最后图像和
+确切错误，不逐帧重试；提供显式恢复重试，画质尺寸变化也可重新尝试。真实设备/
+surface 丢失不能保存已失效 GPU 图像，恢复期间可能暂时无输出。旧图本身加保留
+图像仍可能超预算；此时需降低画质或释放其他资源，不能承诺任意临界容量都可恢复。
+准备期间画面定格、媒体重开可能有间隙；这不是无缝淡化，也不承诺声音采样精确
+对齐节拍。量化命令到期、提交音频、设备消费三者有不同时间，现有消费帧估计不
+等于声学测量。用户操作提示明确说明本次立即硬切覆盖条目的量化/时长。
+
+验证记录：
+
+- Windows `out/p3-serial-deck-tests.log` 7 项通过；旧场预算、队列取消/恢复/重试、
+  接管才移除、桥接和音频既有合同通过。恢复预算失败不重复创建和显式恢复重试
+  已纳入 scene_replacement。surface 释放后失败条目不会误报正常 Go 就绪。
+- 实际 GPU `out/p3-serial-gpu-identity-windows-tests.log`、手机 GLES
+  `out/p3-serial-gpu-android-tests.log`：60 个静态纹理目标，两套图不能共存；
+  保留红色输出、取消重建红色、再次明确硬切输出蓝色，逐像素核对及资源归还。
+- 第一次 GPU 探针误用每个 transform 默认 scale=0.95，59 次缩放后满屏红色
+  断言失败，保留 `out/p3-serial-gpu-windows-tests.log`；测试显式 scale=1 后通过。
+  Null 预算检查不会验证颜色，因此不能单独代替实际像素证据。
+- Windows 交付 `out/p3-serial-player-windows-tests.log` 中普通淡化、四对四音频
+  硬切、队列 UI、deploy smoke、核心和边界通过；新增 GPU+音频同时超预算 UI
+  用例初次断言早于 ImGui 下一帧消费激活请求而失败，诊断日志保留。修正按实际
+  TransitionId 检查后 `out/p3-serial-player-ui-dispatch-tests.log` 通过，真实 D3D
+  红/蓝像素、同一设备 epoch、消费完成和队列移除均检查。详细输出保留
+  `out/p3-serial-player-ui-dispatch-detail.log`。没有把失败日志改写成成功。
+- Windows Player 已通过 Python 自动 deploy，包含 20 DLL 和资源。
+- Android APK 已覆盖安装，SHA256
+  `3cb55047ee5bfd1ec4e854e1aa21a6e4e57e54ae86950bfaf2d4d5618606f980`。
+  实际 UI 证据 `out/android-scene-audio/99ca4d926d3643d7957d8fddfed7e4e5/`：暂停
+  Go、恢复、AAudio 消费 106752→119040→167424、成功切场后恰剩 2 行，保存列表
+  未变。此 APK 触摸检查是常规一秒淡化；Android 超 GPU 预算硬切的像素证据是
+  独立 GLES 探针，不能把它描述成同一 APK 的压力按钮触摸或声学验收。
+
+P3.5 还需同一演出列表连续切换不同画布/配乐，串联方向、暂停/seek/恢复检查。
+长时间稳定性仍留 P9。此增量不关闭 P3 整体，更不关闭 P4–P9。

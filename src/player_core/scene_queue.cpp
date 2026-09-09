@@ -115,6 +115,15 @@ bool SceneQueue::StartGraphics(std::uint64_t id) {
     items_.front().state_ = ScenePreparation::kTransitioning;
     return true;
 }
+bool SceneQueue::StartReplacement(std::uint64_t id) {
+    if (items_.empty() || items_.front().id_ != id ||
+        items_.front().state_ != ScenePreparation::kFailed ||
+        items_.front().preparation_error_.empty())
+        return false;
+    items_.front().state_ = ScenePreparation::kTransitioning;
+    items_.front().preparation_error_.clear();
+    return true;
+}
 bool SceneQueue::FinishGraphics(std::uint64_t id, bool accepted, std::string error) {
     if (items_.empty() || items_.front().id_ != id ||
         items_.front().state_ != ScenePreparation::kTransitioning)

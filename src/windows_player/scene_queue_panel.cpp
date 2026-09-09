@@ -107,7 +107,18 @@ void SceneQueuePanel::Draw(player::SceneQueue& queue, player::SceneDeck& deck,
                               item.entry_ ? item.entry_->quantization_ : mode);
     }
     ImGui::EndDisabled();
-    if (deck.Transitioning() || deck.PreparingGraphics()) {
+    if (!queue.Items().empty() && deck.CanHardCut(queue.Items().front().id_)) {
+        ImGui::SameLine();
+        if (ImGui::Button(label("scene.gpu_hard_cut").c_str()))
+            deck.RequestHardCut(queue.Items().front().id_);
+        ImGui::TextWrapped("%s", text.at("scene.gpu_hard_cut_hint").c_str());
+    }
+    if (deck.RestoringGraphics()) {
+        ImGui::TextUnformatted(text.at("scene.gpu_recover").c_str());
+        if (deck.GraphicsPreparation().state_ == runtime::PreparationState::kFailed &&
+            ImGui::Button(label("scene.gpu_retry_recovery").c_str()))
+            deck.RetryGraphicsRecovery();
+    } else if (deck.Transitioning() || deck.PreparingGraphics()) {
         ImGui::SameLine();
         if (ImGui::Button(label("scene.cancel").c_str())) deck.CancelTransition();
         const auto& preparation = deck.GraphicsPreparation();

@@ -195,6 +195,8 @@ int main(int, char**) {
             if (scene_commands.action_ == 3) scene_queue.Clear();
             if (scene_commands.action_ == 4) scene_queue.Retry();
             if (scene_commands.action_ == 5) deck.CancelTransition();
+            if (scene_commands.action_ == 6) deck.RequestHardCut(scene_commands.id_);
+            if (scene_commands.action_ == 7) deck.RetryGraphicsRecovery();
             const auto size = host.Size();
             if (!size.width_ || !size.height_) {
                 SDL_Delay(16);

@@ -30,6 +30,11 @@ void PublishSceneQueue(const player::SceneQueue& queue, const player::SceneDeck&
             {"error_detail", deck.ErrorDetail()},
             {"audio_pending", deck.AudioPendingId() != 0},
             {"gpu_preparing", deck.PreparingGraphics()},
+            {"gpu_recovering", deck.RestoringGraphics()},
+            {"can_retry_recovery",
+             deck.RestoringGraphics() &&
+                     deck.GraphicsPreparation().state_ == runtime::PreparationState::kFailed},
+            {"can_hard_cut", !items.empty() && deck.CanHardCut(items.front().id_)},
             {"prepared_nodes", deck.GraphicsPreparation().completed_nodes_},
             {"total_nodes", deck.GraphicsPreparation().total_nodes_},
             {"can_go",
@@ -86,7 +91,7 @@ Java_org_rhythmmaster_player_SceneQueueDialog_nativeDescribe(JNIEnv* env, jclass
 }
 extern "C" JNIEXPORT void JNICALL Java_org_rhythmmaster_player_SceneQueueDialog_nativeAction(
         JNIEnv*, jclass, jint action, jlong id, jdouble duration) {
-    if (action < 1 || action > 5 || id < 0 || !std::isfinite(duration) || duration < 0 ||
+    if (action < 1 || action > 7 || id < 0 || !std::isfinite(duration) || duration < 0 ||
         duration > 5)
         return;
     const auto mode = CurrentQuantization();

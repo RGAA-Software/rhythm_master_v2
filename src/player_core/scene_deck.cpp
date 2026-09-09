@@ -5,9 +5,12 @@
 #include <stdexcept>
 
 #include "scene_audio_clock.h"
+#include "scene_replacement.h"
 
 namespace rhythm::player {
-SceneDeck::SceneDeck() : audio_clock_(std::make_unique<SceneAudioClock>()) {}
+SceneDeck::SceneDeck()
+    : audio_clock_(std::make_unique<SceneAudioClock>()),
+      replacement_(std::make_unique<SceneReplacement>()) {}
 SceneDeck::~SceneDeck() = default;
 void SceneDeck::EnableAudioTransitions(bool enabled) {
     if (enabled != audio_enabled_ && !CanPrepareNext())
@@ -17,7 +20,7 @@ void SceneDeck::EnableAudioTransitions(bool enabled) {
 std::uint64_t SceneDeck::AudioPendingId() const { return audio_clock_->Id(); }
 bool SceneDeck::AudioReady() const { return Transitioning() && warmed_ && audio_clock_->Active(); }
 bool SceneDeck::CanPrepareNext() const {
-    return !transition_started_ && !retired_ && !audio_clock_->Active();
+    return !transition_started_ && !retired_ && !audio_clock_->Active() && !replacement_->Active();
 }
 std::optional<media::SoundtrackSource> SceneDeck::IncomingSoundtrack() const {
     return incoming_ ? incoming_->Soundtrack() : std::nullopt;
@@ -31,6 +34,8 @@ void SceneDeck::ResetClock() {
     clock_observed_ = false;
     handoff_generation_.reset();
     DiscardTransition();
+    replacement_->Finish();
+    replacement_->BeginFrame();
     audio_clock_->Reset();
     media_observed_ = false;
     preserve_audio_origin_ = false;
@@ -93,6 +98,7 @@ void SceneDeck::Seek(double seconds) {
     actions_.CancelAll(PerformanceActionReason::kSourceChanged);
 }
 void SceneDeck::CancelTransition() {
+    hard_cut_request_ = 0;
     if (incoming_ && audio_clock_->Active()) {
         if (transition_action_) actions_.Cancel(*transition_action_);
         transition_action_.reset();
@@ -103,6 +109,7 @@ void SceneDeck::CancelTransition() {
     DiscardTransition();
 }
 void SceneDeck::DiscardTransition(std::string reason) {
+    hard_cut_request_ = 0;
     if (active_queue_id_) {
         queue_outcome_ = QueueOutcome{active_queue_id_, false, std::move(reason)};
         active_queue_id_ = 0;
@@ -114,6 +121,7 @@ void SceneDeck::DiscardTransition(std::string reason) {
     if (transition_action_) actions_.Cancel(*transition_action_);
     transition_action_.reset();
     incoming_.reset();
+    replacement_->Recover();
     cancel_requested_ = false;
     compositor_.ReleaseGraphics();
     progress_ = 0;
@@ -123,11 +131,12 @@ void SceneDeck::DiscardTransition(std::string reason) {
     error_detail_.clear();
 }
 void SceneDeck::ReleaseGraphics() {
+    replacement_->ReleaseGraphics();
     current_->ReleaseGraphics();
     if (incoming_) {
         incoming_->ReleaseGraphics();
         warmed_ = false;
-        preparation_ = {};
+        if (preparation_.state_ != runtime::PreparationState::kFailed) preparation_ = {};
     }
     retired_.reset();
     compositor_.ReleaseGraphics();
@@ -155,6 +164,7 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
                                const std::optional<SceneAudioSample>& audio) {
     if (!runtime::ValidExternalInputs(inputs))
         throw std::invalid_argument("runtime.external_inputs");
+    replacement_->BeginFrame();
     if (retired_) {
         retired_.reset();
         compositor_.ReleaseGraphics();
@@ -215,8 +225,8 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
     const auto extent = PlaybackExtent(current_->Canvas(), quality);
     SceneDeckFrame result;
     const auto previous_passes = renderer.Stats().passes_;
-    result.output_ = current_->Tick(monotonic_seconds, false, extent, renderer, current_inputs,
-                                    current_time);
+    result.output_ =
+            TickAccepted(monotonic_seconds, extent, renderer, current_inputs, current_time);
     current_passes_ = std::max(current_passes_, renderer.Stats().passes_ - previous_passes);
     if (synchronized && !incoming_ && audio_frame.terminal_) {
         if (const auto offset = audio_clock_->PreviousOffset()) origin_ = -*offset;
@@ -225,6 +235,11 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
         preserve_audio_origin_ = false;
     }
     ReportQueueOutcome(queue);
+    if (BeginHardCut(renderer, result.output_, queue)) {
+        // Old node outputs were released. Only the retained final image is valid.
+        result.output_.outputs_.clear();
+        return result;
+    }
     PrepareQueue(monotonic_seconds, quality, renderer, result.output_.final_, inputs, queue);
     if (!incoming_ || !transition_started_ || (cancel_requested_ && !audio_frame.committed_))
         return result;
@@ -254,8 +269,8 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
             if (preparation_.budget_) throw render::BudgetExceeded(*preparation_.budget_);
             if (preparation_.state_ == runtime::PreparationState::kFailed)
                 throw std::runtime_error(preparation_.error_);
-            if (preparation_.required_passes_ + current_passes_ + 1 >
-                render::kMaximumOffscreenPasses)
+            if (!replacement_->Active() && preparation_.required_passes_ + current_passes_ + 1 >
+                                                   render::kMaximumOffscreenPasses)
                 throw render::BudgetExceeded(render::Budget::kPasses);
             next = *preparation_.output_;
         } else {
@@ -275,12 +290,14 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
                         ? audio_frame.progress_
                         : (duration_ > 0 ? std::clamp(incoming_seconds / duration_, 0.0, 1.0) : 1);
         if (synchronized && !audio_frame.running_ && !audio_frame.committed_) return result;
+        if (replacement_->Active() && synchronized && !audio_frame.committed_) return result;
         if (synchronized ? !audio_frame.committed_ : progress_ < 1) {
             result.output_.final_ =
                     compositor_.Blend(renderer, {result.output_.final_, current_->Canvas()},
                                       {next.final_, incoming_->Canvas()}, extent, progress_);
         } else {
             retired_ = std::move(current_);
+            replacement_->Finish();
             current_ = std::move(incoming_);
             if (active_queue_id_) {
                 queue_outcome_ = QueueOutcome{active_queue_id_, true, {}};

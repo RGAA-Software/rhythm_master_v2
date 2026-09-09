@@ -126,4 +126,8 @@
     <string name="scene_audio_wait">正在准备下一场画面和配乐…</string>
     <string name="scene_audio_recover">正在恢复当前配乐…</string>
     <string name="scene_audio_failed">无法切换配乐，保留当前作品。</string>
+    <string name="scene_gpu_hard_cut">立即硬切</string>
+    <string name="scene_gpu_hard_cut_hint">释放旧场景后准备下一场，画面会暂时定格，声音可能短暂停顿。本次操作覆盖下一项的切换时机和时长。</string>
+    <string name="scene_gpu_recover">正在恢复当前场景，重新建立模拟历史。</string>
+    <string name="scene_gpu_retry_recovery">重试恢复场景</string>
 </resources>

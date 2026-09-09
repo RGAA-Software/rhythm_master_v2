@@ -361,6 +361,11 @@ int main(int argc, char* argv[]) {
             validation::VerifyFxaa(renderer);
             return 0;
         }
+        if (argc == 3 && std::string_view(argv[1]) == "--replacement") {
+            auto renderer = platform::Host::CreateRenderer();
+            validation::VerifySceneReplacement(renderer, argv[2]);
+            return 0;
+        }
         if (argc == 4 && std::string_view(argv[1]) == "--scene-deck") {
             auto renderer = platform::Host::CreateRenderer();
             rhythm::validation::VerifySceneDeck(renderer, argv[2], argv[3]);

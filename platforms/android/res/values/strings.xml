@@ -126,4 +126,8 @@
     <string name="scene_audio_wait">Preparing the next picture and soundtrack…</string>
     <string name="scene_audio_recover">Restoring the current soundtrack…</string>
     <string name="scene_audio_failed">Cannot switch soundtrack. Current work retained.</string>
+    <string name="scene_gpu_hard_cut">Hard cut now</string>
+    <string name="scene_gpu_hard_cut_hint">Release the old scene and prepare the next one. The image may freeze and audio may pause briefly. This overrides the next entry timing for this attempt.</string>
+    <string name="scene_gpu_recover">Restoring the current scene with fresh simulation history.</string>
+    <string name="scene_gpu_retry_recovery">Retry scene recovery</string>
 </resources>

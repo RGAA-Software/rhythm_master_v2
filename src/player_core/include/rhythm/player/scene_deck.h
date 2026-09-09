@@ -11,6 +11,7 @@
 
 namespace rhythm::player {
 class SceneAudioClock;
+class SceneReplacement;
 enum class SceneTransitionError {
     kNone,
     kBusy,
@@ -84,11 +85,17 @@ class SceneDeck final {
         return bool(incoming_) && transition_started_ && !cancel_requested_;
     }
     bool CanPrepareNext() const;
+    // Explicit immediate serial replacement after dual-scene GPU admission
+    // failed. Keeps the last image; preparation/recovery may visibly freeze.
+    bool CanHardCut(std::uint64_t id) const;
+    bool RequestHardCut(std::uint64_t id);
+    bool RestoringGraphics() const;
+    void RetryGraphicsRecovery();
     bool QueueReady(std::uint64_t id) const {
         return incoming_ && queue_id_ == id && warmed_ && !transition_started_;
     }
-    bool PreparingGraphics() const { return incoming_ && !warmed_ && !cancel_requested_; }
-    const runtime::PreparationProgress& GraphicsPreparation() const { return preparation_; }
+    bool PreparingGraphics() const;
+    const runtime::PreparationProgress& GraphicsPreparation() const;
     double Progress() const { return progress_; }
     std::string IncomingTitle() const { return incoming_ ? incoming_->Title() : std::string{}; }
     SceneTransitionError Error() const { return error_; }
@@ -100,6 +107,12 @@ class SceneDeck final {
     void ReportQueueOutcome(const std::optional<std::reference_wrapper<SceneQueue>>& queue);
     void ResetPerformance();
     void ActivateTransition(double duration, bool synchronize_audio = false);
+    bool BeginHardCut(render::Renderer& renderer, const runtime::FrameResult& output,
+                      const std::optional<std::reference_wrapper<SceneQueue>>& queue);
+    runtime::FrameResult TickAccepted(double monotonic_seconds, render::Extent extent,
+                                      render::Renderer& renderer,
+                                      const runtime::ExternalInputs& inputs,
+                                      const runtime::PlaybackSample& playback);
     void PrepareQueue(double monotonic_seconds, RenderQuality quality, render::Renderer& renderer,
                       render::TextureHandle current_output, const runtime::ExternalInputs& inputs,
                       const std::optional<std::reference_wrapper<SceneQueue>>& queue);
@@ -110,6 +123,8 @@ class SceneDeck final {
     std::unique_ptr<Session> retired_{};
     SceneCompositor compositor_{};
     std::unique_ptr<SceneAudioClock> audio_clock_{};
+    std::unique_ptr<SceneReplacement> replacement_{};
+    std::uint64_t hard_cut_request_ = 0;
     runtime::PlaybackClock master_{};
     std::uint64_t master_generation_ = 0;
     std::uint64_t scene_generation_ = 1;

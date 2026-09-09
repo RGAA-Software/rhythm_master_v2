@@ -28,6 +28,8 @@ final class SceneQueueDialog {
     private TextView status_ = null;
     private Button go_ = null;
     private Button cancel_ = null;
+    private Button hard_cut_ = null;
+    private Button retry_recovery_ = null;
     private Button cancel_pending_ = null;
     private TextView timing_ = null;
     private TextView duration_label_ = null;
@@ -114,7 +116,10 @@ final class SceneQueueDialog {
             }
             program_entry_ = program_entry;
             go_.setEnabled(data.optBoolean("can_go"));
-            cancel_.setEnabled(data.optBoolean("transitioning") || data.optBoolean("gpu_preparing"));
+            cancel_.setEnabled(!data.optBoolean("gpu_recovering") &&
+                    (data.optBoolean("transitioning") || data.optBoolean("gpu_preparing")));
+            hard_cut_.setVisibility(data.optBoolean("can_hard_cut") ? android.view.View.VISIBLE : android.view.View.GONE);
+            retry_recovery_.setVisibility(data.optBoolean("can_retry_recovery") ? android.view.View.VISIBLE : android.view.View.GONE);
             int error = data.optInt("error");
             status_.setText(error != 0 ? activity_.getString(error == 3 ? R.string.scene_budget :
                     error == 6 ? R.string.scene_audio_failed : R.string.scene_interrupted) +
@@ -130,6 +135,10 @@ final class SceneQueueDialog {
                     activity_.getString(R.string.scene_help));
             if ("audio.transition_cursor_budget".equals(data.optString("error_detail")))
                 status_.append("\n" + activity_.getString(R.string.scene_audio_hard_cut_hint));
+            if (data.optBoolean("can_hard_cut"))
+                status_.append("\n" + activity_.getString(R.string.scene_gpu_hard_cut_hint));
+            if (data.optBoolean("gpu_recovering"))
+                status_.append("\n" + activity_.getString(R.string.scene_gpu_recover));
         } catch (Exception error) { status_.setText(R.string.scene_interrupted); }
     }
     private void Open() {
@@ -182,6 +191,10 @@ final class SceneQueueDialog {
         go_ = Button(actions, R.string.scene_go, () -> nativeAction(1, head_, duration_));
         cancel_ = Button(actions, R.string.scene_cancel, () -> nativeAction(5, 0, duration_));
         content.addView(actions);
+        LinearLayout recovery = new LinearLayout(activity_);
+        hard_cut_ = Button(recovery, R.string.scene_gpu_hard_cut, () -> nativeAction(6, head_, 0));
+        retry_recovery_ = Button(recovery, R.string.scene_gpu_retry_recovery, () -> nativeAction(7, 0, 0));
+        content.addView(recovery);
         ScrollView scroll = new ScrollView(activity_);
         scroll.addView(content);
         dialog_ = new AlertDialog.Builder(activity_).setTitle(R.string.scene_queue).setView(scroll)

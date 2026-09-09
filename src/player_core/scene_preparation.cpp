@@ -18,7 +18,10 @@ void SceneDeck::PrepareQueue(double monotonic_seconds, RenderQuality quality,
         discarded_queue_id_ = 0;
     }
     if (queue_id_ &&
-        (!queue || queue->get().Items().empty() || queue->get().Items().front().id_ != queue_id_)) {
+        (!queue || queue->get().Items().empty() || queue->get().Items().front().id_ != queue_id_ ||
+         (queue->get().Items().front().state_ != ScenePreparation::kGpuPreparing &&
+          queue->get().Items().front().state_ != ScenePreparation::kPresentable &&
+          queue->get().Items().front().state_ != ScenePreparation::kFailed))) {
         DiscardTransition();
         discarded_queue_id_ = 0;
     }
@@ -37,6 +40,7 @@ void SceneDeck::PrepareQueue(double monotonic_seconds, RenderQuality quality,
         }
     }
     if (!incoming_ || !queue_id_) return;
+    if (preparation_.state_ == runtime::PreparationState::kFailed) return;
     const auto extent = PlaybackExtent(incoming_->Canvas(), quality);
     if (warmed_ &&
         (extent != preparation_extent_ || !renderer.IsValid(preparation_.output_->final_))) {
@@ -78,6 +82,15 @@ void SceneDeck::PrepareQueue(double monotonic_seconds, RenderQuality quality,
     const auto error = preparation_.error_;
     const auto budget = preparation_.budget_;
     pending.FailGraphics(queue_id_, error);
+    if (budget) {
+        // Retain CPU data for an explicit serial replacement; release every
+        // partially prepared GPU resource and never retry silently each frame.
+        incoming_->ReleaseGraphics();
+        compositor_.ReleaseGraphics();
+        error_ = SceneTransitionError::kBudget;
+        error_detail_ = error;
+        return;
+    }
     DiscardTransition();
     discarded_queue_id_ = 0;
     error_ = budget ? SceneTransitionError::kBudget : SceneTransitionError::kRender;

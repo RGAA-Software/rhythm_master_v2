@@ -48,6 +48,7 @@ class SceneQueue final {
     bool UpdateGraphics(std::uint64_t id, bool ready);
     bool FailGraphics(std::uint64_t id, std::string error);
     bool StartGraphics(std::uint64_t id);
+    bool StartReplacement(std::uint64_t id);
     bool FinishGraphics(std::uint64_t id, bool accepted, std::string error = {});
     std::span<const SceneQueueItem> Items() const { return items_; }
     bool Busy() const { return loader_.Busy(); }
