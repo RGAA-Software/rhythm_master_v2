@@ -9,10 +9,17 @@ struct StreamIdentity {
     std::uint64_t iteration_ = 0;
     bool operator==(const StreamIdentity&) const = default;
 };
+struct StreamPosition {
+    StreamIdentity identity_{};
+    std::uint64_t sample_ = 0;
+};
 struct StreamPcm {
     std::vector<float> samples_{};
     StreamIdentity identity_{};
     std::uint64_t first_sample_ = 0;
+    // During mixing, the incoming source advances through these same samples.
+    // Device-consumption mapping uses this value instead of duration estimates.
+    std::optional<StreamPosition> incoming_{};
 };
 struct StreamOptions {
     std::uint64_t source_id_ = 0;

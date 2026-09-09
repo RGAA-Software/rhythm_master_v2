@@ -148,6 +148,7 @@ std::optional<StreamPcm> TransitionStream::Read(std::stop_token stop) {
         if (previous_available) frames = std::min(frames, previous_available);
         auto previous = current_->Take(frames);
         auto next = incoming_->Take(frames);
+        previous.incoming_ = StreamPosition{next.identity_, next.first_sample_};
         auto mixed = media::MixCrossfade(previous.samples_, next.samples_, progress_.frames_,
                                          progress_.duration_, curve_, current_->Gain(),
                                          incoming_->Gain());

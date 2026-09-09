@@ -83,3 +83,12 @@ Confirm 才释放旧 lane 并允许下一次过渡。这样无需重新打开旧
 Windows `out/p3-queued-rollback-windows-tests.log` 和 Android
 `out/p3-queued-rollback-android-tests.log` 检查通过：101 帧短淡化后取消、旧源循环
 跨界、新场独占 PCM 已产生后的坏素材回退，以及确认后释放旧源。设备/宿主连接仍待完成。
+
+双场消费位置增量：`StreamPcm` 在混音期间附带新场的循环身份和源内起点；
+`PlaybackPresentation` 把同一个消费计数映射为旧/新场位置及唯一的混合 FFT。
+来场循环不会重置旧场的 FFT 代次；来源交接或回退使用新的分析代次，而作品来源 ID
+保持稳定。元数据按已有 32768 帧分析积压上限有界，PCM 准入失败时同步撤回元数据。
+Windows `out/p3-dual-clock-windows-tests.log` 四项通过，Android
+`out/p3-dual-clock-android-tests.log` 两项通过；检查对照规范 Analyzer 的完整 Features
+值、不同循环位置、暂停消费不变、非零位置交接、旧源回退和拒绝后的连续性。
+待接入 FilePlayback 的实际设备循环及两端场景控制，不宣称音画过渡已经交付。
