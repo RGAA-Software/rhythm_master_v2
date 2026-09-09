@@ -68,6 +68,7 @@ void PreviewRouting::DrawNavigation(const std::map<std::string, std::string>& te
 void PreviewRouting::Stage(const editor::Compilation& compilation) {
     pending_nodes_ = compilation.viewers_;
     pending_scoped_nodes_ = compilation.scoped_nodes_;
+    pending_authors_ = compilation.authors_;
     pending_signal_nodes_.clear();
     if (const auto plan = std::get_if<graph::ExecutionPlan>(&compilation.result_)) {
         const graph::Registry registry;
@@ -87,6 +88,7 @@ void PreviewRouting::Commit() {
     active_nodes_ = std::move(pending_nodes_);
     signal_nodes_ = std::move(pending_signal_nodes_);
     scoped_nodes_ = std::move(pending_scoped_nodes_);
+    authors_ = std::move(pending_authors_);
     invalidated_ = true;
 }
 bool PreviewRouting::TakeInvalidation() { return std::exchange(invalidated_, false); }

@@ -59,8 +59,12 @@ class Fixture final {
         const auto extent = history_.Current().document_.canvas_;
         auto result = canvas_.Draw(history_.Current(), selected_, 1,
                                    {double(extent.width_), double(extent.height_)}, editable_,
-                                   current_, text_, outputs_);
+                                   current_, text_, outputs_, authors_);
         if (result.selected_) selected_ = *result.selected_;
+        if (result.open_author_) {
+            requested_author_ = result.open_author_;
+            unique_instance_ = result.unique_instance_;
+        }
         const auto first = ImGui::GetItemRectMin(), last = ImGui::GetItemRectMax();
         image_ = {first.x, first.y, last.x - first.x, last.y - first.y};
         if (result.committed_) {
@@ -100,6 +104,9 @@ class Fixture final {
     std::unique_ptr<ImGuiContext, ContextDeleter> context_{};
     studio::OutputCanvas canvas_{};
     std::vector<runtime::NodeOutput> outputs_{};
+    std::map<graph::NodeId, graph::AuthorNode> authors_{};
+    std::optional<graph::AuthorNode> requested_author_{};
+    bool unique_instance_ = false;
     editor::History history_{Base()};
     std::map<std::string, std::string> text_{};
     geometry2d::Rect image_{};
@@ -158,6 +165,27 @@ void Selection(const std::filesystem::path& locale) {
     const auto hit = studio::PickSceneOutput(document, fixture.outputs_, 2, .6, .6);
     Check(hit.hit_ && hit.selected_ == 2 && std::abs(hit.hit_->position_.x_ - .4) < 1e-8,
           "selection uses actual frame camera and transform");
+    scene->instances_[0].origin_.element_ = 23;
+    scene->instances_[0].origin_.generation_ = 8;
+    scene->instances_.push_back({geometry, scene::ComposeEuler({{1.2, 0, 0}}), {}, {4, 2, 24, 8}});
+    fixture.Move(fixture.Point(.6, .6));
+    fixture.Button(true);
+    fixture.Button(false);
+    fixture.Frame();
+    fixture.Move(fixture.Point(.5, .5));
+    fixture.Button(true);
+    Check(!fixture.canvas_.Active() && fixture.commits_ == 0,
+          "picking a generated element does not silently edit its entire batch");
+    fixture.Button(false);
+    fixture.Mode("scene_scope.edit_batch");
+    fixture.Move(fixture.Point(.5, .5));
+    fixture.Button(true);
+    Check(fixture.canvas_.Active(), "explicit batch scope enables author gizmo");
+    ImGui::GetIO().AddKeyEvent(ImGuiKey_Escape, true);
+    fixture.Frame();
+    ImGui::GetIO().AddKeyEvent(ImGuiKey_Escape, false);
+    fixture.Button(false);
+    Check(fixture.commits_ == 0, "cancel batch gesture without author mutation");
     scene->instances_[0].origin_.transform_ = 999;
     Check(studio::PickSceneOutput(document, fixture.outputs_, 2, .6, .6).error_ ==
                   "scene_pick.component_scope",
@@ -166,6 +194,76 @@ void Selection(const std::filesystem::path& locale) {
     Check(studio::PickSceneOutput(document, fixture.outputs_, 2, .6, .6).error_ ==
                   "canvas.wait_output",
           "missing current scene diagnosed");
+}
+void ComponentSelection(const std::filesystem::path& locale) {
+    Fixture fixture(locale);
+    graph::Registry registry;
+    editor::Snapshot snapshot;
+    auto& document = snapshot.document_;
+    document.id_ = fixture.history_.Current().document_.id_;
+    document.canvas_ = {200, 100};
+    graph::ComponentDefinition inner;
+    inner.type_ = "component.test.sculpture";
+    inner.nodes_ = {registry.MakeNode(1, "geometry.cube"), registry.MakeNode(2, "scene.instance"),
+                    registry.MakeNode(3, "scene.transform")};
+    inner.output_ = 3;
+    inner.edges_ = {{1, 1, 2, "geometry"}, {2, 2, 3, "scene"}};
+    graph::ComponentDefinition outer;
+    outer.type_ = "component.test.group";
+    outer.nodes_ = {{7, inner.type_}};
+    outer.output_ = 7;
+    document.components_ = {inner, outer};
+    document.nodes_ = {{10, outer.type_},
+                       {20, outer.type_},
+                       registry.MakeNode(30, "scene.merge"),
+                       registry.MakeNode(40, "scene.render"),
+                       registry.MakeNode(50, "output.texture"),
+                       registry.MakeNode(60, "scene.camera")};
+    document.output_ = 50;
+    document.edges_ = {{1, 10, 30, "a"},
+                       {2, 20, 30, "b"},
+                       {3, 30, 40, "scene"},
+                       {4, 60, 40, "camera"},
+                       {5, 40, 50, "source"}};
+    const auto expanded = std::get<graph::ExpandedComponentScope>(
+            graph::ExpandComponentScope(document, registry, {}));
+    fixture.authors_ = expanded.authors_;
+    auto geometry = std::make_shared<scene::Geometry>();
+    geometry->model_ = std::make_shared<const scene::Model>(scene::Cube());
+    auto scene = std::make_shared<scene::Scene>();
+    scene->instances_ = {
+            {geometry, scene::ComposeEuler({{-.6, 0, 0}, {}, {.35, .35, .35}}), {}, {100, 10}},
+            {geometry, scene::ComposeEuler({{.6, 0, 0}, {}, {.35, .35, .35}}), {}, {101, 20}}};
+    runtime::NodeOutput output;
+    output.node_ = 30;
+    output.scene_ = scene;
+    runtime::NodeOutput camera;
+    camera.node_ = 60;
+    camera.camera_ = scene::Camera{};
+    camera.camera_->kind_ = scene::ProjectionKind::kOrthographic;
+    fixture.outputs_ = {output, camera};
+    Check(fixture.history_.Apply(snapshot, fixture.history_.Current().document_.revision_),
+          "install nested component scene");
+    fixture.selected_ = 0;
+    fixture.Frame();
+    fixture.Move(fixture.Point(.35, .55));
+    fixture.Button(true);
+    fixture.Button(false);
+    fixture.Frame();
+    Check(fixture.selected_ == 10 && fixture.commits_ == 0,
+          "pick maps preserved executable ID to root component instance");
+    fixture.Mode("scene_scope.shared");
+    Check(fixture.requested_author_ == graph::AuthorNode{{10, 7}, 3} && !fixture.unique_instance_,
+          "shared edit request carries exact nested author path");
+    fixture.Mode("scene_scope.unique");
+    Check(fixture.requested_author_ == graph::AuthorNode{{10, 7}, 3} && fixture.unique_instance_,
+          "independent instance is explicit, not a runtime mesh mutation");
+    fixture.Move(fixture.Point(.65, .55));
+    fixture.Button(true);
+    fixture.Button(false);
+    fixture.Mode("scene_scope.shared");
+    Check(fixture.selected_ == 20 && fixture.requested_author_ == graph::AuthorNode{{20, 7}, 3},
+          "same shared definition's second instance retains distinct scope");
 }
 void Run(const std::filesystem::path& locale, const std::filesystem::path& root) {
     Fixture fixture(locale);
@@ -271,6 +369,7 @@ int main(int argc, char* argv[]) {
         Check(argc == 3, "locale root");
         Run(argv[1], argv[2]);
         Selection(argv[1]);
+        ComponentSelection(argv[1]);
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

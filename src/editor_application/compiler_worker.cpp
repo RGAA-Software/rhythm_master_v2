@@ -40,11 +40,15 @@ void CompilerWorker::Run(std::stop_token stop) {
         try {
             if (request.viewers_.size() + request.scoped_.nodes_.size() > 16)
                 throw std::length_error("graph.limit");
-            if (request.scoped_.nodes_.empty()) {
+            if (request.scoped_.nodes_.empty() && request.document_.components_.empty()) {
                 result.result_ = graph::Compile(request.document_, registry, request.viewers_);
+                for (const auto& node : request.document_.nodes_)
+                    result.authors_.emplace(node.id_, graph::AuthorNode{{}, node.id_});
             } else {
-                auto expanded = graph::ExpandComponentScope(request.document_, registry,
-                                                            request.scoped_.instance_path_);
+                auto expanded = graph::ExpandComponentScope(
+                        request.document_, registry,
+                        request.scoped_.nodes_.empty() ? std::span<const graph::NodeId>{}
+                                                       : request.scoped_.instance_path_);
                 if (std::holds_alternative<std::vector<graph::Diagnostic>>(expanded)) {
                     result.result_ = std::get<std::vector<graph::Diagnostic>>(std::move(expanded));
                 } else {
@@ -57,6 +61,7 @@ void CompilerWorker::Run(std::stop_token stop) {
                         result.viewers_.push_back(found->second);
                     }
                     result.result_ = graph::Compile(scope.document_, registry, result.viewers_);
+                    result.authors_ = std::move(scope.authors_);
                 }
             }
         } catch (const std::exception&) {

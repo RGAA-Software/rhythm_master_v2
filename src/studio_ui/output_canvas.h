@@ -12,7 +12,8 @@ class OutputCanvas final {
     OutputEdit Draw(const editor::Snapshot& snapshot, graph::NodeId selected, std::uint64_t texture,
                     geometry2d::Size extent, bool editable, bool current_output,
                     const std::map<std::string, std::string>& text,
-                    std::span<const runtime::NodeOutput> outputs = {});
+                    std::span<const runtime::NodeOutput> outputs = {},
+                    const std::map<graph::NodeId, graph::AuthorNode>& authors = {});
     bool Active() const { return edit_.has_value() || scene_.Active(); }
     const editor::Snapshot& Preview() const {
         return scene_.Active() ? scene_.Preview() : edit_.value().Preview();

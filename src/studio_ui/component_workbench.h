@@ -15,6 +15,7 @@ class PreviewRouting;
 class ComponentWorkbench final {
    public:
     void Open(const editor::Snapshot& project, std::string type, graph::NodeId instance = 0);
+    bool OpenAuthor(const editor::Snapshot& project, const graph::AuthorNode& author);
     std::optional<editor::Snapshot> Draw(const editor::Snapshot& project,
                                          const graph::Registry& registry,
                                          const std::map<std::string, std::string>& text,

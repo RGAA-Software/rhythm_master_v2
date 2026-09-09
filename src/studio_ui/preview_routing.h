@@ -24,6 +24,7 @@ class PreviewRouting final {
     bool TakeInvalidation();
     std::span<const graph::NodeId> ActiveNodes() const { return active_nodes_; }
     std::span<const graph::NodeId> SignalNodes() const { return signal_nodes_; }
+    const std::map<graph::NodeId, graph::AuthorNode>& Authors() const { return authors_; }
     CanvasPreviews Scoped(const CanvasPreviews& previews) const;
 
    private:
@@ -33,6 +34,8 @@ class PreviewRouting final {
     std::vector<graph::NodeId> pending_signal_nodes_{};
     std::map<graph::NodeId, graph::NodeId> scoped_nodes_{};
     std::map<graph::NodeId, graph::NodeId> pending_scoped_nodes_{};
+    std::map<graph::NodeId, graph::AuthorNode> authors_{};
+    std::map<graph::NodeId, graph::AuthorNode> pending_authors_{};
     bool invalidated_ = false;
     PreviewRequest demand_{};
     std::string document_id_{};

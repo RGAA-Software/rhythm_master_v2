@@ -717,8 +717,28 @@ class Studio::Impl final {
                     history_->Current(), canvas_.Selection(), host.RegisterTexture(output.final_),
                     {double(output.extent_.width_), double(output.extent_.height_)}, editable,
                     plan_generation_ == generation_ && diagnostics_.empty(), catalogs_.at(locale_),
-                    output.outputs_);
+                    output.outputs_, preview_routing_.Authors());
             if (edit.selected_) canvas_.Select(*edit.selected_);
+            if (edit.open_author_) {
+                CommitEdits();
+                bool ready = true;
+                if (edit.unique_instance_) {
+                    const auto fresh_id = history_->ReserveNodeId();
+                    auto unique =
+                            editor::DetachComponent(history_->Current(), registry_,
+                                                    edit.open_author_->instance_path_.front(),
+                                                    "component.user." + std::to_string(fresh_id));
+                    if (std::holds_alternative<editor::Snapshot>(unique))
+                        Apply(std::get<editor::Snapshot>(std::move(unique)));
+                    else {
+                        ready = false;
+                        status_ = Text(std::get<graph::Diagnostic>(unique).code_);
+                    }
+                }
+                if (ready &&
+                    !component_workbench_.OpenAuthor(history_->Current(), *edit.open_author_))
+                    status_ = Text("scene_pick.component_scope");
+            }
             if (edit.committed_)
                 Apply(std::move(*edit.committed_));
             else if (edit.preview_changed_)

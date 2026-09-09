@@ -17,9 +17,15 @@ OutputEdit SceneCanvas::Draw(const editor::Snapshot& snapshot, graph::NodeId sel
                              std::uint64_t texture, geometry2d::Size extent, bool editable,
                              bool current_output, bool& enabled,
                              const std::map<std::string, std::string>& text,
-                             std::span<const runtime::NodeOutput> outputs) {
+                             std::span<const runtime::NodeOutput> outputs,
+                             const std::map<graph::NodeId, graph::AuthorNode>& authors) {
     OutputEdit result;
     if (selected_ != selected || revision_ != snapshot.document_.revision_) error_.clear();
+    if (revision_ != snapshot.document_.revision_ ||
+        (selection_ && selection_->selected_ != selected)) {
+        selection_.reset();
+        edit_batch_ = false;
+    }
     selected_ = selected;
     revision_ = snapshot.document_.revision_;
     if ((error_ == "canvas.wait_output" && current_output) ||
@@ -72,6 +78,35 @@ OutputEdit SceneCanvas::Draw(const editor::Snapshot& snapshot, graph::NodeId sel
     } else if (enabled) {
         error_ = editable ? "canvas.wait_output" : "canvas.other_edit";
     }
+    if (enabled && selection_) {
+        const auto& author = selection_->author_;
+        if (!author.instance_path_.empty()) {
+            target.reset();
+            if (editable && current_output) error_.clear();
+            ImGui::TextUnformatted(message("scene_scope.author").c_str());
+            ImGui::BeginDisabled(!editable || !current_output || Active());
+            if (ImGui::Button(label("scene_scope.shared").c_str())) result.open_author_ = author;
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("%s", message("scene_scope.shared_help").c_str());
+            ImGui::SameLine();
+            if (ImGui::Button(label("scene_scope.unique").c_str())) {
+                result.open_author_ = author;
+                result.unique_instance_ = true;
+            }
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("%s", message("scene_scope.unique_help").c_str());
+            ImGui::EndDisabled();
+        } else if (selection_->affected_instances_ > 1 || selection_->hit_->origin_.element_) {
+            ImGui::Text("%s %zu", message("scene_scope.batch_count").c_str(),
+                        selection_->affected_instances_);
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("%s", message("scene_scope.generated_help").c_str());
+            ImGui::BeginDisabled(!editable || !current_output || Active());
+            ImGui::Checkbox(label("scene_scope.edit_batch").c_str(), &edit_batch_);
+            ImGui::EndDisabled();
+            if (!edit_batch_) target.reset();
+        }
+    }
     // Reserve one clipped line while editing, so a diagnostic cannot move the
     // image under a captured mouse. Full messages remain available as tooltips.
     if (enabled) {
@@ -95,9 +130,11 @@ OutputEdit SceneCanvas::Draw(const editor::Snapshot& snapshot, graph::NodeId sel
         const auto mouse = ImGui::GetMousePos();
         const auto selection = PickSceneOutput(
                 snapshot.document_, outputs, extent.width_ / extent.height_,
-                (mouse.x - rect.x_) / rect.width_, (mouse.y - rect.y_) / rect.height_);
+                (mouse.x - rect.x_) / rect.width_, (mouse.y - rect.y_) / rect.height_, authors);
         if (selection.selected_) {
             result.selected_ = selection.selected_;
+            selection_ = selection;
+            edit_batch_ = false;
             error_.clear();
         } else if (!selection.error_.empty()) {
             error_ = selection.error_;

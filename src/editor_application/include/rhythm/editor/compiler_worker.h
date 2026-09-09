@@ -5,6 +5,7 @@
 #include <thread>
 
 #include "rhythm/graph/compiler.h"
+#include "rhythm/graph/components.h"
 
 namespace rhythm::editor {
 struct ScopedViewers {
@@ -16,6 +17,8 @@ struct Compilation {
     graph::CompileResult result_{};
     std::vector<graph::NodeId> viewers_{};
     std::map<graph::NodeId, graph::NodeId> scoped_nodes_{};
+    // Same expansion and generation as result_; UI never expands on mouse input.
+    std::map<graph::NodeId, graph::AuthorNode> authors_{};
 };
 // One active job, one latest pending request, one result. No UI/render mutation.
 class CompilerWorker final {

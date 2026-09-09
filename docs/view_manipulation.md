@@ -197,3 +197,37 @@ Studio 提供视图编辑，手机共享模块原生测试通过，不把这些�
 `out/p4-component-authors-android-tests.log` 已验证嵌套、同源多实例和输出别名。
 后续将此映射接入选择/定位，并复用现有 `DetachComponent` 的完整嵌套副本事务
 提供独立实例编辑入口；目前还不把上述元数据测试算成范围 UI 已交付。
+
+
+作者映射已改为随后台 `CompilerWorker` 的同一次展开生成，组件预览请求开关不会
+改变它。`PreviewRouting` 只在对应计划/资源 Commit 时发布映射；点击不重编译或
+重展开组件。`out/p4-author-compilation-tests.log`、
+`out/p4-author-compilation-android-tests.log` 通过。
+
+P4.3 的视图范围入口已接入：组件对象提供“编辑共享定义”和“将此实例独立”，
+前者定位精确的嵌套作者节点，后者复用 `DetachComponent` 的完整嵌套副本事务后
+定位相同作者路径。源工程、其他实例和原定义不变。点阵/同作者多个对象在点击
+后必须显式勾选整个批次编辑才启用手柄；不是单点网格写回，也不宣称已有逐生成
+实例持久化覆盖层。命中保留的是拾取时的 element/generation，编辑目标仍是作者。
+
+`out/p4-scene-scope-ui-tests.log` 六项通过：双语言拾取/范围选择、批次默认保护和
+显式启用/Esc、映射随计划切换、嵌套作者定位/失效路径保护/独立副本，及根图 3D
+实际 GPU 拖动回归。完整 Studio `scene_scope_gpu` 通过
+`out/p4-scene-scope-gpu-tests.log`：点击左侧组件实例 → 独立 → 内部属性输入
+translate_x → 应用 → 新画面 → 保存/发布 → 撤销 → 重开。像素同时检查被编辑实例
+离开的区域、移入的区域和另一个保持原位的共享实例；保存内容检查原定义仍为
+-0.4，独立定义为 -0.65，发布 program 与保存图一致。证据目录
+`out/windows-release/scene-scope-gpu/4cc998ef85e34d8193b3052b6c1b2a8c/`。
+
+P4.4 自动化直接编辑策略、P4.5 输出域聚焦及大图定位继续推进；组件内部目前使用
+作者节点属性编辑，尚未把组件坐标路径全部接到 2D/3D 视图手柄。
+
+本增量已交付 Windows Studio deploy：`out/p4-scene-scope-delivery-retry.log`
+四项模板回归通过。首次链接因正在运行的本项目 exe 占用而失败，按既有授权
+核对路径并结束该进程后完成增量构建；失败日志保留。
+Android 构建与宿主内容验证：`out/p4-scene-scope-android-delivery.log`；覆盖安装
+`out/p4-scene-scope-android-install.log` 成功，APK SHA256
+`f96e225807a93435f0e9256dc922abe75475565f4f695d35c438129adec85c0c`。实际内置横/竖/横节目单、
+后台恢复、队列消费和保存列表不变检查通过：`out/p4-scene-scope-android-program.log`，
+证据 `out/android-continuous-program/386d90c2280f4c53aaf80053467f0eac/`。
+手机验证的是共享运行与原有 Player，不含移动编辑器或声学回录。

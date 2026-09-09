@@ -65,8 +65,18 @@ int main() {
         compilation.viewers_ = {3};
         compilation.result_ = graph::Compile(document, registry, compilation.viewers_);
         compilation.scoped_nodes_ = {{7, 3}};
+        compilation.authors_ = {{3, {{100}, 7}}};
         routing.Stage(compilation);
+        Check(routing.Authors().empty(), "pending author map cannot address retained output");
         routing.Commit();
+        Check(routing.Authors() == compilation.authors_,
+              "author mapping commits with frame routing");
+        compilation.authors_ = {{3, {{200}, 8}}};
+        routing.Stage(compilation);
+        Check(routing.Authors().at(3) == graph::AuthorNode{{100}, 7},
+              "replacement preparation preserves the accepted author's identity");
+        routing.Commit();
+        Check(routing.Authors() == compilation.authors_, "replacement author map published once");
         Check(routing.SignalNodes().size() == 1 && routing.SignalNodes().front() == 3,
               "event routed into texture capture instead of numeric observation");
         studio::CanvasPreviews previews;

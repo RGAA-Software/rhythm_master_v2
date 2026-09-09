@@ -1160,5 +1160,13 @@
     "scene_pick.geometry": "场景几何不可用或无效。",
     "scene_pick.ray": "当前相机无法生成有效的拾取射线。",
     "scene_pick.route": "请在直接的三维场景输出中选择对象，当前图像路径尚不支持拾取。",
-    "scene_pick.component_scope": "对象属于组件，请在节点图中打开对应的作者范围。"
+    "scene_pick.component_scope": "对象属于组件，请在节点图中打开对应的作者范围。",
+    "scene_scope.author": "选中的对象位于组件内部。",
+    "scene_scope.shared": "编辑共享定义",
+    "scene_scope.unique": "将此实例独立",
+    "scene_scope.shared_help": "定位到组件内的作者节点。应用修改会影响使用该定义的所有实例。",
+    "scene_scope.unique_help": "复制此实例及其嵌套定义，再打开作者节点。其他实例保持原定义，可通过撤销恢复共享引用。",
+    "scene_scope.batch_count": "此作者节点影响的对象数：",
+    "scene_scope.edit_batch": "编辑整个生成批次",
+    "scene_scope.generated_help": "点击标识的是拾取时的一个生成实例。其作者变换影响整个批次，不会把单个运行时网格写回源资产。"
 }

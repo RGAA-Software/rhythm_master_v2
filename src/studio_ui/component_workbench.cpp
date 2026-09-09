@@ -9,6 +9,36 @@
 #include "rhythm/runtime/viewers.h"
 
 namespace rhythm::studio {
+bool ComponentWorkbench::OpenAuthor(const editor::Snapshot& project,
+                                    const graph::AuthorNode& author) {
+    if (author.instance_path_.empty()) return false;
+    const auto& nodes = project.document_.nodes_;
+    const auto root = std::find_if(nodes.begin(), nodes.end(), [&](const auto& node) {
+        return node.id_ == author.instance_path_.front();
+    });
+    if (root == nodes.end()) return false;
+    try {
+        editor::ComponentEdit candidate(project, root->type_);
+        for (std::size_t index = 1; index < author.instance_path_.size(); ++index)
+            if (!candidate.Enter(author.instance_path_[index])) return false;
+        const auto body = candidate.Body();
+        if (!std::any_of(body.document_.nodes_.begin(), body.document_.nodes_.end(),
+                         [&](const auto& node) { return node.id_ == author.node_; }))
+            return false;
+        edit_ = std::move(candidate);
+        instance_path_ = author.instance_path_;
+        preview_body_.reset();
+        preview_document_.reset();
+        preview_nodes_.clear();
+        ++preview_generation_;
+        status_.clear();
+        ResetView();
+        canvas_.Select(author.node_);
+        return true;
+    } catch (const std::exception&) {
+        return false;
+    }
+}
 void ComponentWorkbench::Open(const editor::Snapshot& project, std::string type,
                               graph::NodeId instance) {
     instance_path_.clear();

@@ -152,6 +152,24 @@ int main() {
             completed->viewers_.back() != completed->scoped_nodes_.at(2) ||
             std::get<rhythm::graph::ExecutionPlan>(completed->result_).instructions_.size() != 3)
             throw std::runtime_error("compiler.scoped_viewer_only_branch");
+        if (completed->authors_.at(10) != rhythm::graph::AuthorNode{{10}, 1} ||
+            completed->authors_.at(completed->scoped_nodes_.at(2)) !=
+                    rhythm::graph::AuthorNode{{10}, 2} ||
+            completed->authors_.at(20) != rhythm::graph::AuthorNode{{}, 20})
+            throw std::runtime_error("compiler.authored_scope_mapping");
+        const auto authors = completed->authors_;
+        const auto root_generation = worker.Submit(latest);
+        completed.reset();
+        const auto root_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+        while (!completed && std::chrono::steady_clock::now() < root_deadline) {
+            completed = worker.Take();
+            std::this_thread::yield();
+        }
+        if (!completed || completed->generation_ != root_generation ||
+            !std::holds_alternative<rhythm::graph::ExecutionPlan>(completed->result_) ||
+            completed->authors_ != authors || !completed->scoped_nodes_.empty() ||
+            std::get<rhythm::graph::ExecutionPlan>(completed->result_).instructions_.size() != 2)
+            throw std::runtime_error("compiler.authors_without_preview_demand");
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

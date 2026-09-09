@@ -165,6 +165,33 @@ void Run() {
                     std::get<editor::Snapshot>(unpacked).document_.nodes_.back().type_ ==
                             "texture.shape",
             "unpack UI action reaches the pure authoring command");
+    graph::ComponentDefinition outer;
+    outer.type_ = "component.test.nested";
+    outer.nodes_ = {{7, definition.type_}};
+    outer.output_ = 7;
+    project.document_.components_.push_back(outer);
+    project.document_.nodes_[0] = {10, outer.type_};
+    project.document_.nodes_.push_back({30, outer.type_});
+    Require(workbench.OpenAuthor(project, {{10, 7}, 1}), "open exact nested picked author");
+    for (int index = 0; index < 4; ++index) frame();
+    Require(workbench.PreviewViewers().instance_path_ == std::vector<graph::NodeId>{10, 7} &&
+                    workbench.PreviewDocument(),
+            "picked author navigates the concrete nested instance");
+    Require(!workbench.OpenAuthor(project, {{10, 99}, 1}) &&
+                    workbench.PreviewViewers().instance_path_ == std::vector<graph::NodeId>{10, 7},
+            "invalid author path preserves the current workbench");
+    const auto detached = std::get<editor::Snapshot>(
+            editor::DetachComponent(project, registry, 10, "component.user.picked"));
+    Require(detached.document_.nodes_.back().type_ == outer.type_ &&
+                    project.document_.nodes_[0].type_ == outer.type_,
+            "unique picked instance leaves other instance and source snapshot unchanged");
+    project = detached;
+    Require(workbench.OpenAuthor(project, {{10, 7}, 1}),
+            "same author IDs locate unique nested copy");
+    for (int index = 0; index < 4; ++index) frame();
+    Require(workbench.PreviewViewers().instance_path_ == std::vector<graph::NodeId>{10, 7} &&
+                    workbench.PreviewDocument()->nodes_[0].type_ == "component.user.picked",
+            "unique workbench previews the new definition closure");
     std::cout << "component UI: simultaneous canvases, draft isolation, apply and close passed\n";
 }
 }  // namespace

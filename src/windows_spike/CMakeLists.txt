@@ -6,6 +6,15 @@ target_compile_definitions(render_bgfx PRIVATE BX_CONFIG_DEBUG=0)
 rhythm_project_target(render_bgfx)
 include("${PROJECT_SOURCE_DIR}/cmake/RenderShaders.cmake")
 if(BUILD_TESTING)
+    add_executable(scene_scope_gpu_tests tests/scene_scope_gpu_tests.cpp)
+    target_link_libraries(scene_scope_gpu_tests PRIVATE studio_ui project_io runtime_package spike_imgui spike_bgfx nlohmann_json::nlohmann_json)
+    rhythm_project_target(scene_scope_gpu_tests)
+    add_dependencies(scene_scope_gpu_tests studio_resources)
+    add_test(NAME scene_scope_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-output-canvas-gpu.py"
+        --executable "$<TARGET_FILE:scene_scope_gpu_tests>" --resources "${CMAKE_CURRENT_BINARY_DIR}"
+        --output "${PROJECT_BINARY_DIR}/scene-scope-gpu" --scope)
+    set_tests_properties(scene_scope_gpu PROPERTIES TIMEOUT 100 RUN_SERIAL TRUE
+        ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     add_library(imgui_sdk_layout OBJECT tests/imgui_sdk_layout.cpp)
     target_include_directories(imgui_sdk_layout SYSTEM PRIVATE "${RHYTHM_SPIKE_SDK}/include")
     rhythm_project_target(imgui_sdk_layout)

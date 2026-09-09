@@ -8,7 +8,8 @@
 namespace rhythm::studio {
 SceneSelection PickSceneOutput(const graph::Document& document,
                                std::span<const runtime::NodeOutput> outputs, double aspect,
-                               double x, double y) {
+                               double x, double y,
+                               const std::map<graph::NodeId, graph::AuthorNode>& authors) {
     SceneSelection result;
     try {
         const auto input = [&](graph::NodeId node, const std::string& port) {
@@ -51,11 +52,27 @@ SceneSelection PickSceneOutput(const graph::Document& document,
         if (!picked.error_.empty()) throw std::invalid_argument(picked.error_);
         if (!picked.hit_) return result;
         const auto& origin = picked.hit_->origin_;
-        const auto selected = origin.transform_ ? origin.transform_ : origin.producer_;
+        const auto executable = origin.transform_ ? origin.transform_ : origin.producer_;
+        if (const auto found = authors.find(executable); found != authors.end())
+            result.author_ = found->second;
+        else if (document.components_.empty())
+            result.author_ = {{}, executable};
+        else
+            throw std::invalid_argument("scene_pick.component_scope");
+        const auto selected = result.author_.instance_path_.empty()
+                                      ? result.author_.node_
+                                      : result.author_.instance_path_.front();
         if (!selected || !std::any_of(document.nodes_.begin(), document.nodes_.end(),
                                       [&](const auto& node) { return node.id_ == selected; }))
             throw std::invalid_argument("scene_pick.component_scope");
         result.selected_ = selected;
+        result.affected_instances_ =
+                std::count_if(frame->scene_->instances_.begin(), frame->scene_->instances_.end(),
+                              [&](const auto& instance) {
+                                  const auto& identity = instance.origin_;
+                                  return (identity.transform_ ? identity.transform_
+                                                              : identity.producer_) == executable;
+                              });
         result.hit_ = std::move(picked.hit_);
     } catch (const std::exception& error) {
         result.error_ = error.what();

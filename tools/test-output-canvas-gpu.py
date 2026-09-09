@@ -14,6 +14,7 @@ def main():
     parser.add_argument("--resources", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--scene", action="store_true")
+    parser.add_argument("--scope", action="store_true")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     output = args.output.resolve() / uuid.uuid4().hex
@@ -33,7 +34,8 @@ def main():
         rect = json.loads((output / (name + ".json")).read_text(encoding="utf-8"))
         rows = capture.read_tga(output / (name + ".tga"))
         moved = name in {"moved", "reopened"}
-        for fraction, red in [(.3, not moved), (.85, moved)]:
+        probes = [(.37, not moved), (.06, moved), (.78, True)] if args.scope else [(.3, not moved), (.85, moved)]
+        for fraction, red in probes:
             x = round(rect["x"] + rect["width"] * fraction)
             y = round(rect["y"] + rect["height"] * .6)
             for dy in range(-3, 4):
@@ -46,7 +48,7 @@ def main():
                         valid = max(pixel) < 45
                     if not valid:
                         raise AssertionError(f"{name} at {fraction}: {pixel}, red={red}; {output}")
-    print("Actual output moved right; undo restored it and reopen kept the saved transform")
+    print("Actual output pixels match edit, unaffected-instance, undo and saved-reopen expectations")
 
 
 if __name__ == "__main__":

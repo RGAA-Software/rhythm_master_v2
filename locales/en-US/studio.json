@@ -1160,5 +1160,13 @@
     "scene_pick.geometry": "Scene geometry is unavailable or invalid.",
     "scene_pick.ray": "The current camera cannot produce a valid selection ray.",
     "scene_pick.route": "Select objects in a direct 3D scene output; this image route is not supported yet.",
-    "scene_pick.component_scope": "This object belongs to a component. Open its authoring scope in the graph."
+    "scene_pick.component_scope": "This object belongs to a component. Open its authoring scope in the graph.",
+    "scene_scope.author": "Selected object is inside a component.",
+    "scene_scope.shared": "Edit shared definition",
+    "scene_scope.unique": "Make this instance unique",
+    "scene_scope.shared_help": "Open the authored node. Applying changes affects every instance using this definition.",
+    "scene_scope.unique_help": "Copy this instance and its nested definitions, then open the authored node. Other instances retain their definitions. Undo can restore the shared reference.",
+    "scene_scope.batch_count": "Objects affected by this author:",
+    "scene_scope.edit_batch": "Edit the entire generated batch",
+    "scene_scope.generated_help": "The clicked element identifies a generated instance at pick time. Its author transform affects the whole batch; individual generated meshes are not written back to the source asset."
 }
