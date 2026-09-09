@@ -27,4 +27,5 @@ void VerifyColorPipeline(render::Renderer& renderer);
 void VerifyFxaa(render::Renderer& renderer);
 void VerifyGpuParticles(render::Renderer& renderer);
 void VerifySceneInstances(render::Renderer& renderer);
+void MeasureQualityBaseline(render::Renderer& renderer, const std::filesystem::path& directory);
 }  // namespace rhythm::validation

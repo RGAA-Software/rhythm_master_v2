@@ -128,6 +128,7 @@ if(BUILD_TESTING)
             "${RHYTHM_SHADERC}" ${render_shader_includes}
         VERBATIM)
     add_library(gpu_execution_probe STATIC
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/quality_baseline_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/fxaa_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/color_pipeline_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/depth_gpu.cpp"
