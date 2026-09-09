@@ -4,6 +4,7 @@
 #include <memory>
 #include <stdexcept>
 
+#include "rhythm/control_ui/beat_panel.h"
 #include "rhythm/control_ui/control_panel.h"
 
 namespace {
@@ -32,6 +33,8 @@ int main() {
         ImVec2 origin{};
         ImVec2 capture{};
         std::string captured;
+        bool defer_recall = false;
+        std::optional<std::uint64_t> recalled;
         const auto frame = [&] {
             ImGui::NewFrame();
             ImGui::SetNextWindowPos({0, 0});
@@ -39,7 +42,8 @@ int main() {
             ImGui::Begin("Controls", nullptr,
                          ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
             origin = ImGui::GetCursorScreenPos();
-            auto edit = panel.Draw(bank, values, {}, true);
+            auto edit = panel.Draw(bank, values, {}, true, defer_recall);
+            if (edit.recall_) recalled = edit.recall_;
             if (edit.values_)
                 for (const auto& [id, value] : *edit.values_) values[id] = value;
             if (edit.committed_) ++commits;
@@ -70,10 +74,47 @@ int main() {
         frame();
         drag(capture, capture);
         Check(captured == "Stage look" && commits == 1);
+        defer_recall = true;
+        const auto before_recall = values;
+        const ImVec2 recall{origin.x + 40, capture.y - row * 3};
+        drag(recall, recall);
+        Check(recalled == 1 && values == before_recall && commits == 1);
         panel.Reset();
         bank = {};
         values.clear();
         frame();
+        {
+            control_ui::BeatPanel beats;
+            std::optional<parameters::BeatSettings> grid;
+            const auto beat_frame = [&] {
+                ImGui::NewFrame();
+                ImGui::SetNextWindowPos({0, 0});
+                ImGui::SetNextWindowSize({640, 640});
+                ImGui::Begin("Beat", nullptr,
+                             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
+                origin = ImGui::GetCursorScreenPos();
+                const auto edit = beats.Draw(grid, 1.25, {});
+                if (edit.changed_) grid = edit.grid_;
+                ImGui::End();
+                ImGui::Render();
+            };
+            const auto click = [&](float x, float y) {
+                io.AddMousePosEvent(x, y);
+                beat_frame();
+                io.AddMouseButtonEvent(0, true);
+                beat_frame();
+                io.AddMouseButtonEvent(0, false);
+                beat_frame();
+            };
+            for (int index = 0; index < 3; ++index) beat_frame();
+            click(origin.x + 20, origin.y + 9);       // Expand tempo panel.
+            click(origin.x + 9, origin.y + row + 9);  // Enable optional grid.
+            Check(grid == parameters::BeatSettings{});
+            click(origin.x + 40, origin.y + row * 6 + 9);  // Mark current media time as origin.
+            Check(grid->origin_seconds_ == 1.25);
+            click(origin.x + 9, origin.y + row + 9);
+            Check(!grid && beats.Mode() == parameters::Quantization::kImmediate);
+        }
         std::cout << "Control UI: live slider, one gesture commit, named capture and package reset "
                      "passed\n";
     } catch (const std::exception& error) {

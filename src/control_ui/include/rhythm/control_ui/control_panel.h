@@ -13,12 +13,14 @@ struct Edit {
     bool committed_ = false;
     std::string capture_{};
     std::uint64_t remove_ = 0;
+    std::optional<std::uint64_t> recall_{};
 };
 // UI-thread gesture state only. Hosts own values and commit/undo policy.
 class ControlPanel final {
    public:
     Edit Draw(const parameters::ControlBank& bank, const parameters::ControlValues& current,
-              const std::map<std::string, std::string>& text, bool authoring = false);
+              const std::map<std::string, std::string>& text, bool authoring = false,
+              bool defer_recall = false);
     void Reset() { *this = ControlPanel{}; }
 
    private:

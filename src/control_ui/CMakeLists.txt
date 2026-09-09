@@ -1,6 +1,6 @@
-add_library(control_ui STATIC control_panel.cpp)
+add_library(control_ui STATIC control_panel.cpp beat_panel.cpp)
 target_include_directories(control_ui PUBLIC include)
-target_link_libraries(control_ui PUBLIC parameters PRIVATE spike_imgui)
+target_link_libraries(control_ui PUBLIC parameters player_core PRIVATE spike_imgui)
 rhythm_project_target(control_ui)
 if(BUILD_TESTING)
     add_executable(control_interaction_tests tests/control_interaction_tests.cpp)

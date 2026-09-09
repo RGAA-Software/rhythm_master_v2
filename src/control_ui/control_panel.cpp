@@ -7,7 +7,8 @@
 namespace rhythm::control_ui {
 Edit ControlPanel::Draw(const parameters::ControlBank& bank,
                         const parameters::ControlValues& current,
-                        const std::map<std::string, std::string>& text, bool authoring) {
+                        const std::map<std::string, std::string>& text, bool authoring,
+                        bool defer_recall) {
     Edit result;
     if (bank.Definitions().empty()) return result;
     const auto label = [&](const std::string& key) {
@@ -57,10 +58,13 @@ Edit ControlPanel::Draw(const parameters::ControlBank& bank,
         choose("controls.first", first_);
         choose("controls.second", second_);
         if (ImGui::Button(label("controls.recall").c_str())) {
-            values = bank.Snapshot(first_);
-            changes = values;
             blend_ = 0;
-            changed = result.committed_ = true;
+            result.recall_ = first_;
+            if (!defer_recall) {
+                values = bank.Snapshot(first_);
+                changes = values;
+                changed = result.committed_ = true;
+            }
         }
         if (authoring) {
             ImGui::SameLine();

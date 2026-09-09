@@ -8,7 +8,8 @@
 namespace rhythm::player_ui {
 void SceneQueuePanel::Draw(player::SceneQueue& queue, player::SceneDeck& deck,
                            std::span<const SceneChoice> choices, const std::string& locale,
-                           const std::map<std::string, std::string>& text) {
+                           const std::map<std::string, std::string>& text,
+                           parameters::Quantization mode) {
     const auto label = [&](const std::string& key) { return text.at(key) + "###" + key; };
     if (ImGui::Button(label("scene.queue").c_str())) {
         visible_ = true;
@@ -69,10 +70,13 @@ void SceneQueuePanel::Draw(player::SceneQueue& queue, player::SceneDeck& deck,
     ImGui::SetNextItemWidth(180);
     ImGui::SliderFloat(label("scene.duration").c_str(), &duration_, 0, 5, "%.2f s",
                        ImGuiSliderFlags_AlwaysClamp);
-    ImGui::BeginDisabled(!deck.CanPrepareNext() || queue.Items().empty() ||
-                         queue.Items().front().state_ != player::ScenePreparation::kReady);
-    if (ImGui::Button(label("scene.go").c_str()))
-        if (auto package = queue.TakeReady()) deck.StartTransition(std::move(*package), duration_);
+    const bool can_go = deck.CanPrepareNext() && !queue.Items().empty() &&
+                        queue.Items().front().state_ == player::ScenePreparation::kReady;
+    ImGui::BeginDisabled(!can_go);
+    // Keyboard/navigation activation may have been queued on a previous frame.
+    // Recheck domain availability even when the current button is disabled.
+    if (ImGui::Button(label("scene.go").c_str()) && can_go)
+        deck.RequestNextScene(queue.Items().front().id_, duration_, mode);
     ImGui::EndDisabled();
     if (deck.Transitioning()) {
         ImGui::SameLine();

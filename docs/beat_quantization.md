@@ -75,3 +75,17 @@ Windows 与 Android 原生 `scene_deck_tests`、`scene_queue_tests` 通过，覆
 `SceneDeck::Tick` 的空渲染器路径、快照当帧值、暂停/恢复、手动覆盖、改 BPM 取消、
 量化队列切场与删除目标。日志 `out/p1-performance-deck-tests.log` 和
 `out/p1-performance-deck-android-tests.log`。这尚不是 GPU/UI 或 APK 控件验收。
+
+### Windows Player 控件增量
+
+共享 `BeatPanel` 提供启用网格、BPM、拍号、原点、四次以上敲击定速、量化模式和位置。
+Windows Player 快照与下一场使用同一模式，显示请求状态、目标秒数及取消入口；
+播放器调整目前是本场临时设置，工程保存由 Studio 接入负责。改网格取消旧请求，
+切换作品恢复作品自身设置。
+
+真实鼠标检查验证启用/关闭网格、标记当前位置、延迟快照按钮不提前改变数值；
+Windows `control_interactions` 通过。Player `scene_queue_ui` 在 GPU 上验证点击
+内置队列→量化 Go→目标拍点开始过渡→实际接管，`windows_player_smoke` 同轮通过。
+过程中发现并修复空队列延迟激活崩溃，见
+[回归记录](validation/quantized_scene_ui_2026-09-09.md)。Studio 和 Android UI 尚未完成，
+不将本增量算作整个 P1 验收。

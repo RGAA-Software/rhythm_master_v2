@@ -10,6 +10,7 @@
 #include <string_view>
 
 #include "rhythm/audio_ui/audio_panel.h"
+#include "rhythm/control_ui/beat_panel.h"
 #include "rhythm/control_ui/control_panel.h"
 #include "rhythm/platform/host.h"
 #include "rhythm/player/package_loader.h"
@@ -56,7 +57,7 @@ int main(int argc, char* argv[]) {
         rhythm::player::PackageLoader package_loader;
         rhythm::audio_ui::AudioPanel audio_panel;
         rhythm::control_ui::ControlPanel control_panel;
-        rhythm::parameters::ControlValues control_values;
+        rhythm::control_ui::BeatPanel beat_panel;
         const auto set_paused = [&](bool paused) {
             audio_panel.ApplyPlayback({paused, {}});
             deck.SetPaused(paused);
@@ -110,7 +111,7 @@ int main(int argc, char* argv[]) {
                 if (result->package_) {
                     deck.LoadPrepared(std::move(*result->package_));
                     scene_queue.Clear();
-                    control_values.clear();
+                    beat_panel.Reset();
                     control_panel.Reset();
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
                     apply_soundtrack();
@@ -140,16 +141,25 @@ int main(int argc, char* argv[]) {
             if (ImGui::Button(chinese ? "重新播放##restart" : "Restart##restart")) restart();
             ImGui::SameLine();
             ImGui::Text("%.2f s", deck.Current().Seconds());
+            const auto& text = catalogs.at(chinese ? "zh-CN" : "en-US");
+            if (const auto beat = beat_panel.Draw(deck.BeatGrid(), deck.Current().Seconds(), text);
+                beat.changed_)
+                deck.SetBeatGrid(beat.grid_);
+            for (const auto kind : {rhythm::player::PerformanceActionKind::kSnapshot,
+                                    rhythm::player::PerformanceActionKind::kNextScene}) {
+                const auto& action = deck.ActionStatus(kind);
+                if (rhythm::control_ui::DrawPerformanceAction(action, text))
+                    deck.CancelAction(action.id_);
+            }
             audio_panel.Draw(catalogs.at(chinese ? "zh-CN" : "en-US"));
-            if (auto edit = control_panel.Draw(deck.Current().Controls(),
-                                               deck.Current().CurrentControls(),
-                                               catalogs.at(chinese ? "zh-CN" : "en-US"));
-                edit.values_)
-                for (const auto& [id, value] : *edit.values_) control_values[id] = value;
+            const auto edit = control_panel.Draw(
+                    deck.Current().Controls(), deck.Current().CurrentControls(), text, false, true);
+            if (edit.values_) deck.EditControls(*edit.values_);
+            if (edit.recall_) deck.RequestSnapshot(*edit.recall_, beat_panel.Mode());
             if (deck.Current().ControlSequence()) {
                 if (ImGui::Button(chinese ? "回到自动编排##follow_cues"
                                           : "Follow cues##follow_cues")) {
-                    control_values.clear();
+                    deck.FollowCues();
                     control_panel.Reset();
                 }
                 if (const auto active =
@@ -188,20 +198,19 @@ int main(int argc, char* argv[]) {
                         chinese ? "无法打开运行包，继续播放当前内容。"
                                 : "Cannot open package. Current playback is retained.");
             scene_panel.Draw(scene_queue, deck, scene_choices, chinese ? "zh-CN" : "en-US",
-                             catalogs.at(chinese ? "zh-CN" : "en-US"));
+                             catalogs.at(chinese ? "zh-CN" : "en-US"), beat_panel.Mode());
             const auto available = ImGui::GetContentRegionAvail();
             const auto width = std::max(1.0f, available.x);
             const auto height = std::max(1.0f, available.y);
             rhythm::runtime::ExternalInputs inputs;
-            inputs.controls_ = control_values;
             const auto audio_frame = audio_panel.Frame();
             inputs.audio_ = audio_frame.features_;
             observed_audio |= inputs.audio_ && inputs.audio_->valid_ && inputs.audio_->rms_ > 0;
             const auto frame = deck.Tick(smoke ? frames / 60.0 : elapsed, false,
                                          rhythm::player::RenderQuality::kOriginal, renderer, inputs,
-                                         audio_frame.playback_);
+                                         audio_frame.playback_, scene_queue);
             if (frame.switched_) {
-                control_values.clear();
+                beat_panel.Reset();
                 control_panel.Reset();
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
                 if (const auto track = deck.Current().Soundtrack()) {

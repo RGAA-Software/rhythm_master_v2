@@ -16,7 +16,8 @@ class SceneQueuePanel final {
    public:
     void Draw(player::SceneQueue& queue, player::SceneDeck& deck,
               std::span<const SceneChoice> choices, const std::string& locale,
-              const std::map<std::string, std::string>& text);
+              const std::map<std::string, std::string>& text,
+              parameters::Quantization mode = parameters::Quantization::kImmediate);
 
    private:
     std::size_t choice_ = 0;
