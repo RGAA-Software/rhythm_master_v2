@@ -103,3 +103,16 @@ varying、最多 24 个明确命名绑定、五组四元素灯光数组、一个
 首次构建发现测试读取器的有符号／无符号比较警告，已明确转换为 streamoff 后修正；
 失败 `out/p6-shader-artifact-build.log` 保留，成功构建为
 `out/p6-shader-artifact-binding-build.log` 和 `out/p6-shader-artifact-android-build.log`。
+
+`surface_shader` 已实现独立 `RMSF001` 包：源码、编译器 SHA、Windows／GLES 产物。
+未知版本、错误长度、尾部数据、非法表达式或目标产物拒绝，原图像解码器明确拒绝
+该包。`surface_template.py` 从唯一场景片元生成 C++ 包装器模板，保持全部 PBR
+实现来源；探针也复用该生成器，避免维护两份材质代码。GLES 表面计算指定 highp。
+当前资产模块仍未接入 Studio／Renderer，不能仅凭包合同宣称材质功能交付。
+
+`out/p6-surface-bundle-tests.log` 从新包装器重新编译两目标，检查包往返、负例及
+C++ 生成包装器与实际编译源码一致，目录为
+`out/surface-bundle-profile/12441af80d0b41228444e20da82db180/`。
+`out/p6-surface-bundle-android-tests.log` 通过同一包合同；重新构建两端原生探针后，
+`out/p6-surface-bundle-d3d.log`、`out/p6-surface-bundle-gles.log` 通过改色与七组 PBR
+绑定像素对照。`out/p6-surface-bundle-boundaries.log` 通过。

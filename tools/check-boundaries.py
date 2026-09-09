@@ -58,7 +58,7 @@ def code_tokens(text):
 def main():
     failures = []
     checked = 0
-    for module in ("graph", "runtime", "parameters", "performance", "particles", "scene3d", "shader_expression", "shader_artifact", "image_shader", "model_assets", "prepared_assets", "video_playback", "video_sources", "export_core", "audio_analysis", "audio_playback", "cluster", "cluster_auth", "cluster_player", "foundation", "qr", "player_core", "player_audio", "editor_application", "rhythm_render"):
+    for module in ("graph", "runtime", "parameters", "performance", "particles", "scene3d", "shader_expression", "shader_artifact", "surface_shader", "image_shader", "model_assets", "prepared_assets", "video_playback", "video_sources", "export_core", "audio_analysis", "audio_playback", "cluster", "cluster_auth", "cluster_player", "foundation", "qr", "player_core", "player_audio", "editor_application", "rhythm_render"):
         for path in (ROOT / "src" / module).rglob("*"):
             if path.suffix not in (".h", ".cpp") or path.relative_to(ROOT).as_posix() in RENDER_ADAPTERS:
                 continue

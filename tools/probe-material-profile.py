@@ -7,6 +7,9 @@ import json
 from pathlib import Path
 import shutil
 import struct
+import subprocess
+
+import surface_template
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,28 +45,10 @@ def metadata(path):
 
 
 def fragment(expression):
-    source = (SHADERS / "scene_fragment.sc").read_text(encoding="utf-8")
-    marker = "void main()"
-    application = "    vec3 color = base;"
-    if source.count(marker) != 1 or source.count(application) != 1:
-        raise ValueError("Scene wrapper changed; review material injection semantics")
-    function = """uniform vec4 u_surface_params;
-uniform vec4 u_surface_info;
-vec3 SurfaceTint(vec2 uv, vec3 position, vec3 normal, float time,
-                 float a, float b, float c, float d) {
-    return EXPRESSION;
-}
-""".replace("EXPRESSION", expression)
-    source = source.replace(marker, function + marker)
-    return source.replace(application, """    vec3 tint = SurfaceTint(uv, v_world_position, v_world_normal,
-        u_surface_info.x, u_surface_params.x, u_surface_params.y,
-        u_surface_params.z, u_surface_params.w);
-    if (any(notEqual(tint, tint))) tint = vec3_splat(0.0);
-    base *= clamp(tint, vec3_splat(0.0), vec3_splat(1.0));
-""" + application)
+    return surface_template.fragment(expression)
 
 
-def probe(compiler, output):
+def probe(compiler, output, bundle_test=None):
     output = output.resolve()
     if not output.is_relative_to(ROOT / "out"):
         raise ValueError("Probe artifacts must stay in project out")
@@ -129,11 +114,16 @@ def probe(compiler, output):
         records.append({"platform": platform, "baseline": baseline, "vertices": vertices,
                         "materials": results, "rejected": rejected})
         print(f"{platform}: 6 vertex contracts, 3 repeated fragments, 2 rejected expressions", flush=True)
+    if bundle_test:
+        subprocess.run([str(bundle_test.resolve()), str(output)], check=True, timeout=30)
+        generated = (output / "surface-generated.sc").read_text(encoding="utf-8")
+        if generated != fragment(cases["parameter_surface"]):
+            raise ValueError("Embedded surface wrapper differs from the compiled experiment")
     report = {"scope": "Host compilation and header compatibility only; no native GPU linking, "
                        "pixels, package validation, hot replacement or runtime adoption claimed",
               "compiler_sha256": hashlib.sha256(compiler.read_bytes()).hexdigest(),
               "scene_source_sha256": hashlib.sha256((SHADERS / "scene_fragment.sc").read_bytes()).hexdigest(),
-              "records": records}
+              "records": records, "bundle_contracts_checked": bundle_test is not None}
     (output / "results.json").write_text(json.dumps(report, indent=4) + "\n", encoding="utf-8")
 
 
@@ -141,8 +131,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--compiler", type=Path, default=ROOT / "out/shader-tool/build/shaderc.exe")
     parser.add_argument("--output", type=Path, default=ROOT / "out/material-profile")
+    parser.add_argument("--bundle-test", type=Path)
     args = parser.parse_args()
-    probe(args.compiler.resolve(), args.output)
+    probe(args.compiler.resolve(), args.output, args.bundle_test)
 
 
 if __name__ == "__main__":
