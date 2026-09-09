@@ -39,6 +39,7 @@ import java.util.concurrent.Executors;
 public final class PlayerActivity extends SDLActivity {
     private static final int kOpenPackage = 10;
     private static final int kOpenMusic = 11;
+    private static final int kImportProgram = 12;
     private final Handler handler_ = new Handler(Looper.getMainLooper());
     private final ExecutorService importer_ = Executors.newSingleThreadExecutor();
     private TextView status_ = null;
@@ -133,6 +134,9 @@ public final class PlayerActivity extends SDLActivity {
         AddButton(settings, R.string.performance_controls, () -> PerformanceControls.Show(this));
         LinearLayout scenes = new LinearLayout(this);
         AddButton(scenes, R.string.scene_queue, () -> SceneQueueDialog.Show(this, () -> ChooseQueuedEffect()));
+        AddButton(scenes, R.string.program_title, () -> PerformanceProgramDialog.Show(this,
+                () -> ChooseProgramEffect(), () -> ImportProgram(),
+                () -> SceneQueueDialog.Show(this, () -> ChooseQueuedEffect())));
         AddButton(scenes, R.string.fullscreen, () -> presentation_.Enter());
         controls.addView(settings);
         controls.addView(scenes);
@@ -199,6 +203,21 @@ public final class PlayerActivity extends SDLActivity {
             return;
         }
         effects_.Show(this, asset -> StartImport(null, false, asset, effects_.Title(asset)));
+    }
+    private void ChooseProgramEffect() {
+        if (effects_ == null) return;
+        effects_.Show(this, asset -> {
+            if (!PerformanceProgramDialog.AddBuiltin(effects_.ContentId(asset), effects_.Title(asset)))
+                Toast.makeText(this, R.string.program_rejected, Toast.LENGTH_SHORT).show();
+        });
+    }
+    private void ImportProgram() {
+        if (importing_) return;
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/octet-stream");
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/octet-stream", "application/zip"});
+        startActivityForResult(intent, kImportProgram);
     }
 
     private void ApplySceneOrientation() {
@@ -285,9 +304,10 @@ public final class PlayerActivity extends SDLActivity {
 
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
-        if ((request != kOpenPackage && request != kOpenMusic) || result != Activity.RESULT_OK ||
+        if ((request != kOpenPackage && request != kOpenMusic && request != kImportProgram) || result != Activity.RESULT_OK ||
                 data == null || data.getData() == null || importing_) return;
-        StartImport(data.getData(), request == kOpenMusic);
+        if (request == kImportProgram) StartImport(data.getData(), false, null, null, true);
+        else StartImport(data.getData(), request == kOpenMusic);
     }
 
     private void StartImport(Uri uri, boolean music) {
@@ -299,6 +319,9 @@ public final class PlayerActivity extends SDLActivity {
     }
 
     private void StartImport(Uri uri, boolean music, String asset, String queue_title) {
+        StartImport(uri, music, asset, queue_title, false);
+    }
+    private void StartImport(Uri uri, boolean music, String asset, String queue_title, boolean program) {
         if (importing_ || (music && !RequestAudioFocus())) return;
         importing_ = true;
         importer_.execute(() -> {
@@ -321,7 +344,8 @@ public final class PlayerActivity extends SDLActivity {
                     }
                     output.getFD().sync();
                 }
-                boolean accepted = queue_title != null ? SceneQueueDialog.Enqueue(staging.getAbsolutePath(), queue_title) :
+                boolean accepted = program ? PerformanceProgramDialog.Import(staging.getAbsolutePath()) :
+                        queue_title != null ? SceneQueueDialog.Enqueue(staging.getAbsolutePath(), queue_title) :
                         music ? nativeMusic(staging.getAbsolutePath()) : nativeOpen(staging.getAbsolutePath());
                 if (!accepted) throw new java.io.IOException("Import queue full");
             } catch (Exception error) {

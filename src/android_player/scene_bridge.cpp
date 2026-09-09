@@ -20,6 +20,7 @@ SceneCommands TakeSceneCommands() {
     return std::exchange(pending, {});
 }
 void PublishSceneQueue(const player::SceneQueue& queue, const player::SceneDeck& deck) {
+    const auto items = queue.Items();
     nlohmann::json result{
             {"items", nlohmann::json::array()},
             {"transitioning", deck.Transitioning()},
@@ -28,10 +29,18 @@ void PublishSceneQueue(const player::SceneQueue& queue, const player::SceneDeck&
             {"error", static_cast<int>(deck.Error())},
             {"can_go", deck.CanPrepareNext() && !queue.Items().empty() &&
                                queue.Items().front().state_ == player::ScenePreparation::kReady}};
-    for (const auto& item : queue.Items())
+    for (const auto& item : items)
         result["items"].push_back({{"id", std::to_string(item.id_)},
                                    {"title", item.title_},
-                                   {"state", static_cast<int>(item.state_)}});
+                                   {"state", static_cast<int>(item.state_)},
+                                   {"program_entry", item.entry_.has_value()},
+                                   {"resolution", static_cast<int>(item.resolution_)},
+                                   {"resolution_error", item.resolution_error_}});
+    if (!items.empty() && items.front().entry_) {
+        const auto& entry = *items.front().entry_;
+        result["entry_duration"] = entry.transition_seconds_;
+        result["entry_mode"] = static_cast<int>(entry.quantization_);
+    }
     auto text = result.dump(-1, ' ', true);
     std::lock_guard lock(scene_mutex);
     description = std::move(text);

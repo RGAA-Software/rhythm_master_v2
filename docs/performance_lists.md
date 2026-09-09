@@ -1,8 +1,8 @@
 # 持久演出列表与连续播放
 
 P3 实施记录，2026-09-09。对应 `master_implementation_plan.md` P3.1–P3.5。
-列表合同、原子存储与托管包/队列适配已通过两端原生检查，Windows Player 列表 UI
-已交付；Android UI、音频淡化和分阶段 GPU 准备尚未交付。
+P3.1–P3.2 列表合同、原子存储、托管包/队列适配与两端 UI 已交付；P3.3 音频淡化、
+P3.4 分阶段 GPU 准备和 P3.5 完整连续演出验收仍在后续增量。
 
 ## 保存语义
 
@@ -78,3 +78,17 @@ AssetId/SHA-256。新增代码仅实现项目列表合同与适配，不新增�
   激活操作覆盖保存文件与重开/队列顺序；既有队列 GPU 切场、最终 deploy Player smoke
   与源码边界通过。UI 用例不是手机触屏证据。已生成
   `out/windows-release/src/windows_player/deploy/rhythm_player.exe`，含 20 个 DLL 和资源。
+- Android：APK 目录新增完整 content ID/version；原生 worker 通过现有 SDL 资产适配器
+  以 64 KiB 块读取 APK，复用 WorkLibrary 保存/验证不可变副本。节目单从应用按钮进入，
+  内置选择不使用文件夹；文件导入才使用文档选择器，临时源由 ImportFile 单独持有。
+  `out/p3-android-program-ui-picker-tests.log` 为实际触屏添加/复制/排序/设置/保存/
+  删除后重开/进程重启/准备队列，证据目录
+  `out/android-program-ui/1ff189aaf00f4f218e2caa86587a54e2`。条目 ID 顺序 `1,3,2`，
+  复制的晶瓣合唱是 `2.5 s + Bar`，保存文件没有缓存路径；重启后队列首项光幕协奏
+  就绪，其包哈希为 `687b452812339dd225291676d19f9bed0153652f83ba170632243b7939dfa7ea`。
+- Android 导入边界追加了重复/忙/缺失/外部文件检查：同一临时文件重复请求不能
+  获得第二个删除所有者，忙时拒绝的独立副本回收，缺失路径不能让宿主抛出退出。
+  `out/p3-android-program-import-tests.log` 原生通过。修正版 APK 再次 `adb install -r`
+  成功，`out/p3-android-program-final-ui-tests.log` 验证已保存的三项重启/重开/准备，
+  证据 `out/android-program-ui/a0ff74a021d444d38d7bd6f5fc9e013b`。
+  完整新增项触屏与最终重开检查分别列出，没有把后者说成重跑全部手势。

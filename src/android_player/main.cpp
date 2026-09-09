@@ -8,6 +8,7 @@
 #include "control_bridge.h"
 #include "host.h"
 #include "package_imports.h"
+#include "program_bridge.h"
 #include "queued_imports.h"
 #include "scene_bridge.h"
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
@@ -44,6 +45,19 @@ int main(int, char**) {
         player::SceneDeck deck;
         android_host::QueuedImports queued_imports(host.CacheDirectory());
         auto& scene_queue = queued_imports.Queue();
+        const auto program_directory = host.DataDirectory() / "performance";
+        const auto program_cache = std::filesystem::canonical(host.CacheDirectory());
+        const auto builtin_works =
+                android_host::ReadBuiltinWorks(host.ReadAsset("effects/catalog.json"));
+        std::vector<performance::WorkReference> catalog;
+        for (const auto& work : builtin_works) catalog.push_back(work.reference_);
+        // Declared before the program: its worker joins before removing an import copy.
+        std::optional<android_host::ImportFile> program_import;
+        player::PerformanceProgram program(
+                program_directory, std::move(catalog),
+                android_host::BuiltinReader(program_directory, builtin_works));
+        program.Load();
+        std::string program_error;
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         android_host::MusicPlayback music(host.CacheDirectory());
 #endif
@@ -151,11 +165,26 @@ int main(int, char**) {
                 !queued_imports.Request(scene_commands.path_, scene_commands.title_))
                 error = "package_error";
             queued_imports.Pump(deck.CanPrepareNext());
+            program.Pump();
+            if (!program.Busy()) program_import.reset();
+            if (const auto command = android_host::TakeProgramCommand(); command.action_) {
+                program_error = android_host::ApplyProgramCommand(command, program, builtin_works,
+                                                                  program_cache, program_import)
+                                        ? ""
+                                        : "performance.request_rejected";
+            }
+            if (deck.CanPrepareNext()) {
+                if (auto resolved = program.TakeResolved())
+                    scene_queue.ReplacePerformance(*resolved);
+            }
+            android_host::PublishProgram(program, program_error);
             if (scene_commands.action_ == 1 && deck.CanPrepareNext() &&
                 !scene_queue.Items().empty() &&
                 scene_queue.Items().front().id_ == scene_commands.id_) {
-                deck.RequestNextScene(scene_commands.id_, scene_commands.duration_,
-                                      scene_commands.mode_);
+                const auto entry = scene_queue.Items().front().entry_;
+                deck.RequestNextScene(scene_commands.id_,
+                                      entry ? entry->transition_seconds_ : scene_commands.duration_,
+                                      entry ? entry->quantization_ : scene_commands.mode_);
             }
             if (scene_commands.action_ == 2) scene_queue.Remove(scene_commands.id_);
             if (scene_commands.action_ == 3) scene_queue.Clear();

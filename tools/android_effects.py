@@ -58,6 +58,7 @@ def prepare(package_directory, assets):
         with zipfile.ZipFile(package) as archive:
             runtime = json.loads(archive.read("manifest.json"))
         entry = {"id": effect_id, "titles": authored["titles"], "canvas": runtime["canvas"],
+                 "content_id": authored["content_id"], "content_version": authored["content_version"],
                  "source_sha256": content_identity.verify_package_source(manifest_path.parent, package),
                  "tier": authored.get("tier", "example"),
                  "descriptions": authored.get("descriptions", {"zh-CN": "", "en-US": ""}),

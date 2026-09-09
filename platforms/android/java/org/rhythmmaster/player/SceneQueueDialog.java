@@ -30,6 +30,9 @@ final class SceneQueueDialog {
     private Button cancel_ = null;
     private Button cancel_pending_ = null;
     private TextView timing_ = null;
+    private TextView duration_label_ = null;
+    private SeekBar duration_slider_ = null;
+    private boolean program_entry_ = false;
     private long head_ = 0;
     // Main UI thread preference, retained when the dialog is reopened.
     private static double last_duration = 1;
@@ -77,10 +80,15 @@ final class SceneQueueDialog {
                 ArrayList<String> labels = new ArrayList<>();
                 int[] states = {R.string.scene_waiting, R.string.scene_loading,
                         R.string.scene_ready, R.string.scene_failed};
+                int[] resolutions = {R.string.program_exact, R.string.program_updated,
+                        R.string.program_missing, R.string.program_changed, R.string.program_ambiguous};
                 for (int i = 0; i < items.length(); ++i) {
                     JSONObject item = items.getJSONObject(i);
                     ids_.add(Long.parseLong(item.getString("id")));
-                    labels.add(item.getString("title") + " · " + activity_.getString(states[item.getInt("state")]));
+                    String label = item.getString("title") + " · " + activity_.getString(states[item.getInt("state")]);
+                    if (item.optBoolean("program_entry")) label += " · " + activity_.getString(resolutions[item.getInt("resolution")]);
+                    if (!item.optString("resolution_error").isEmpty()) label += " · " + item.getString("resolution_error");
+                    labels.add(label);
                 }
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(activity_, android.R.layout.simple_spinner_item, labels);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -90,6 +98,19 @@ final class SceneQueueDialog {
                 rows_json_ = items.toString();
             }
             head_ = ids_.isEmpty() ? 0 : ids_.get(0);
+            boolean program_entry = data.has("entry_duration");
+            duration_slider_.setEnabled(!program_entry);
+            if (program_entry) {
+                duration_slider_.setProgress((int) Math.round(data.getDouble("entry_duration") * 20));
+                int[] modes = {R.string.beat_immediate, R.string.beat_next_beat, R.string.beat_next_bar};
+                duration_label_.setText(activity_.getString(R.string.program_entry_settings) + " · " +
+                        activity_.getString(R.string.scene_duration, data.getDouble("entry_duration")) + " · " +
+                        activity_.getString(modes[data.getInt("entry_mode")]));
+            } else if (program_entry_) {
+                duration_slider_.setProgress((int) Math.round(duration_ * 20));
+                duration_label_.setText(activity_.getString(R.string.scene_duration, duration_));
+            }
+            program_entry_ = program_entry;
             go_.setEnabled(data.optBoolean("can_go"));
             cancel_.setEnabled(data.optBoolean("transitioning"));
             int error = data.optInt("error");
@@ -126,16 +147,20 @@ final class SceneQueueDialog {
         Button(edit, R.string.scene_retry, () -> nativeAction(4, head_, duration_));
         content.addView(edit);
         TextView duration = new TextView(activity_);
+        duration_label_ = duration;
         duration.setText(activity_.getString(R.string.scene_duration, duration_));
         content.addView(duration);
         SeekBar slider = new SeekBar(activity_);
+        duration_slider_ = slider;
         slider.setMax(100);
         slider.setProgress((int) Math.round(duration_ * 20));
         slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar bar, int progress, boolean fromUser) {
-                duration_ = progress / 20.0;
-                last_duration = duration_;
-                duration.setText(activity_.getString(R.string.scene_duration, duration_));
+                if (fromUser) {
+                    duration_ = progress / 20.0;
+                    last_duration = duration_;
+                    duration.setText(activity_.getString(R.string.scene_duration, duration_));
+                }
             }
             @Override public void onStartTrackingTouch(SeekBar bar) {}
             @Override public void onStopTrackingTouch(SeekBar bar) {}

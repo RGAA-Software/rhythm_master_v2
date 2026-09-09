@@ -21,6 +21,7 @@ final class EffectCatalog {
     static final class Entry {
         String title_ = "";
         String asset_ = "";
+        String content_id_ = "";
         String description_ = "";
         String search_ = "";
         String tier_ = "example";
@@ -50,6 +51,7 @@ final class EffectCatalog {
             Entry entry = new Entry();
             entry.title_ = record.getJSONObject("titles").getString(chinese ? "zh-CN" : "en-US");
             entry.asset_ = record.getString("package");
+            entry.content_id_ = record.getString("content_id");
             JSONObject titles = record.getJSONObject("titles");
             JSONObject descriptions = record.getJSONObject("descriptions");
             entry.description_ = descriptions.getString(chinese ? "zh-CN" : "en-US");
@@ -73,6 +75,10 @@ final class EffectCatalog {
     String Title(String asset) {
         for (Entry entry : entries_) if (entry.asset_.equals(asset)) return entry.title_;
         return asset;
+    }
+    String ContentId(String asset) {
+        for (Entry entry : entries_) if (entry.asset_.equals(asset)) return entry.content_id_;
+        return "";
     }
 
     void Show(Activity activity, Selection selection) {
