@@ -10,11 +10,11 @@
             "sha256": "87a6df29072dff6dcb174849cd5c27bb2c3e425d5d28755cdee1ca83f96c5111"
         }
     ],
-    "target": "src/rhythm_render/shaders/attribute_probe_map.sc",
+    "target": "src/rhythm_render/shaders/gpu_point_map.sc",
     "modifications": [
         "Retain independent source/result buffers, 64-lane bounds guard and copy-then-modify point semantics.",
         "Adapt the fixed record to existing four-vec4 point data and bgfx compute bindings.",
-        "Probe only canvas-space affine position, color multiplication and point size; retain age, velocity/lifetime and other shape fields.",
-        "Omit quaternion orientation, coordinate-space modes and FX weighting; no new user compute language or runtime layout is adopted by this experiment."
+        "Map canvas-space affine position, color multiplication and point size; retain age, velocity/lifetime and other shape fields. Clamp position to +/-10000 and size to [0,1].",
+        "Omit quaternion orientation, coordinate-space modes and FX weighting. Adopt the existing fixed record layout behind typed Renderer handles; no user compute language."
     ]
 }

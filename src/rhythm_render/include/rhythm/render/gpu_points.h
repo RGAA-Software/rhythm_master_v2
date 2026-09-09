@@ -43,6 +43,17 @@ struct GpuParticleStep {
     std::array<float, 4> color_a_{0.05f, 0.6f, 1, 1};
     std::array<float, 4> color_b_{1, 0.1f, 0.4f, 1};
 };
+// Independent whole-buffer copy/map; source and destination must be distinct,
+// valid, equal-capacity handles and source must already be initialized. Device
+// thread and open frame only; each successful call consumes one ordered pass.
+// Column-major affine position transform, finite coefficients in [-16,16].
+// Position output clamps to +/-10000, size to [0,1]; color factors are [0,1].
+// Age, velocity, lifetime, rotation and reserved fields are copied unchanged.
+struct GpuPointMapping {
+    std::array<float, 16> transform_{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+    std::array<float, 4> color_{1, 1, 1, 1};
+    float size_ = 1;  // Multiplier [0,16].
+};
 // A lazy attribute view: sample the current premultiplied image at each point's
 // canvas-normalized center. Source point records remain unchanged. UVs clamp at
 // image edges, and luminance-based size uses premultiplied RGB (transparent = 0).

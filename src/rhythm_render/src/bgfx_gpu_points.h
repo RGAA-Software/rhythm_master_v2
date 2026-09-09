@@ -11,6 +11,8 @@ class BgfxGpuPoints final {
     void Release(GpuPointHandle handle) noexcept;
     bool IsValid(GpuPointHandle handle) const { return store_.IsValid(handle); }
     void Update(bgfx::ViewId view, GpuPointHandle handle, const GpuParticleStep& step);
+    void Map(bgfx::ViewId view, GpuPointHandle source, GpuPointHandle destination,
+             const GpuPointMapping& mapping);
     void ValidateDraw(GpuPointHandle handle, const GpuPointStyle& style) const {
         store_.ValidateDraw(handle, style);
     }
@@ -25,6 +27,10 @@ class BgfxGpuPoints final {
     std::vector<GpuHandle<bgfx::DynamicVertexBufferHandle>> buffers_{};
     GpuHandle<bgfx::ProgramHandle> compute_{};
     GpuHandle<bgfx::ProgramHandle> render_{};
+    GpuHandle<bgfx::ProgramHandle> map_{};
+    GpuHandle<bgfx::UniformHandle> map_transform_{};
+    GpuHandle<bgfx::UniformHandle> map_info_{};
+    GpuHandle<bgfx::UniformHandle> map_color_{};
     GpuHandle<bgfx::VertexBufferHandle> quad_{};
     GpuHandle<bgfx::IndexBufferHandle> indices_{};
     std::array<GpuHandle<bgfx::UniformHandle>, 7> uniforms_{};

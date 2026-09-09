@@ -126,7 +126,7 @@ if(BUILD_TESTING)
             "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/probe_color.sc"
             "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/probe_update.sc"
             "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/attribute_probe_vertex.sc"
-            "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/attribute_probe_map.sc"
+            "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/gpu_point_map.sc"
             "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/attribute_probe_varying.def.sc"
             "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/probe_varying.def.sc"
             "${RHYTHM_SHADERC}" ${render_shader_includes}
@@ -176,6 +176,7 @@ add_custom_command(OUTPUT "${gpu_point_shader_header}"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/gpu_point_vertex.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/gpu_point_fragment.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/gpu_particle_update.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/gpu_point_map.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/gpu_point_varying.def.sc"
         "${RHYTHM_SHADERC}" ${render_shader_includes}
     VERBATIM)

@@ -97,6 +97,15 @@ class NullBackend final : public Backend {
         points_.Updated(handle);
         ++passes_;
     }
+    void MapGpuPoints(GpuPointHandle source, GpuPointHandle destination,
+                      const GpuPointMapping& mapping) override {
+        resources_.CheckReady();
+        if (!in_frame_) throw std::logic_error("render.frame_not_open");
+        points_.ValidateMap(source, destination, mapping);
+        if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
+        points_.Updated(destination);
+        ++passes_;
+    }
     void SubmitGpuPoints(TextureHandle target, GpuPointHandle handle,
                          const GpuPointStyle& style) override {
         resources_.CheckReady();

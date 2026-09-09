@@ -26,6 +26,55 @@ void Update(render::Renderer& renderer, render::GpuPointHandle points,
     renderer.UpdateGpuParticles(points, step);
     renderer.EndFrame();
 }
+void Mapping(render::Renderer& renderer) {
+    auto source = renderer.CreateGpuPoints(65);
+    auto first = renderer.CreateGpuPoints(65);
+    auto second = renderer.CreateGpuPoints(65);
+    auto reference = renderer.CreateGpuPoints(65);
+    auto target = renderer.CreateTexture({128, 128});
+    render::GpuParticleStep step;
+    step.reset_ = true;
+    step.spawn_count_ = 1;
+    step.center_ = {.25f, .5f, 0};
+    step.radius_ = step.speed_ = step.flow_ = 0;
+    step.size_ = .2f;
+    step.color_a_ = step.color_b_ = {1, 1, 1, 1};
+    Update(renderer, source.Handle(), step);
+    const auto original = Capture(renderer, target.Handle(), source.Handle());
+    for (const auto shift : {.125f, -.0625f}) {
+        render::GpuPointMapping mapping;
+        mapping.transform_[12] = shift;
+        mapping.color_ = {.5f, 1, .25f, 1};
+        mapping.size_ = .5f;
+        renderer.BeginFrame();
+        renderer.MapGpuPoints(source.Handle(), first.Handle(), mapping);
+        renderer.MapGpuPoints(first.Handle(), second.Handle(), mapping);
+        renderer.EndFrame();
+        auto expected_step = step;
+        expected_step.center_[0] += shift * 2;
+        expected_step.size_ *= .25f;
+        expected_step.color_a_ = expected_step.color_b_ = {.25f, 1, .0625f, 1};
+        Update(renderer, reference.Handle(), expected_step);
+        const auto actual = Capture(renderer, target.Handle(), second.Handle());
+        const auto expected = Capture(renderer, target.Handle(), reference.Handle());
+        std::uint64_t energy = 0;
+        for (std::size_t i = 0; i < actual.rgba_.size(); ++i) {
+            energy += actual.rgba_[i];
+            if (std::abs(int(actual.rgba_[i]) - int(expected.rgba_[i])) > 2)
+                throw std::runtime_error("gpu_point_mapping.reference_pixels");
+        }
+        if (energy < 100) throw std::runtime_error("gpu_point_mapping.empty_result");
+        if (Capture(renderer, target.Handle(), source.Handle()).rgba_ != original.rgba_)
+            throw std::runtime_error("gpu_point_mapping.source_mutation");
+    }
+    const auto retained = Capture(renderer, target.Handle(), second.Handle());
+    source = {};
+    first = {};
+    if (Capture(renderer, target.Handle(), second.Handle()).rgba_ != retained.rgba_)
+        throw std::runtime_error("gpu_point_mapping.output_lifetime");
+    std::cout << "GPU point mapping public API: two-stage pixels, changed parameters, "
+                 "unchanged input and independent output lifetime passed\n";
+}
 void SamplingOrientation(render::Renderer& renderer) {
     const std::array<std::uint8_t, 4> white{255, 255, 255, 255};
     auto source = renderer.CreateTexture({1, 1}, white);
@@ -69,6 +118,7 @@ void VerifyGpuParticles(render::Renderer& renderer) {
         std::cout << "gpu_particles unsupported on this device/profile\n";
         return;
     }
+    Mapping(renderer);
     SamplingOrientation(renderer);
     auto target = renderer.CreateTexture({64, 64});
     // Non-workgroup-aligned capacity and wrapping ring exercise bounds guards.

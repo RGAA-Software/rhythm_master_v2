@@ -13,6 +13,8 @@ class GpuPointStore final {
     bool IsValid(GpuPointHandle handle) const { return !lost_ && Owns(handle); }
     std::uint32_t Capacity(GpuPointHandle handle) const;
     void Validate(GpuPointHandle handle, const GpuParticleStep& step) const;
+    void ValidateMap(GpuPointHandle source, GpuPointHandle destination,
+                     const GpuPointMapping& mapping) const;
     void Updated(GpuPointHandle handle);
     void ValidateDraw(GpuPointHandle handle, const GpuPointStyle& style) const;
     void AddStats(FrameStats& stats) const;

@@ -287,6 +287,15 @@ class BgfxBackend final : public Backend {
         gpu_points_->Update(static_cast<bgfx::ViewId>(passes_), handle, step);
         ++passes_;
     }
+    void MapGpuPoints(GpuPointHandle source, GpuPointHandle destination,
+                      const GpuPointMapping& mapping) override {
+        resources_.CheckReady();
+        if (!in_frame_) throw std::logic_error("render.frame_not_open");
+        if (!gpu_points_) throw std::invalid_argument("render.invalid_gpu_points");
+        if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
+        gpu_points_->Map(static_cast<bgfx::ViewId>(passes_), source, destination, mapping);
+        ++passes_;
+    }
     void SubmitGpuPoints(TextureHandle target, GpuPointHandle handle,
                          const GpuPointStyle& style) override {
         resources_.CheckReady();

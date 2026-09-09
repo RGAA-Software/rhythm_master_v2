@@ -44,6 +44,9 @@ class Backend {
     virtual void UpdateGpuParticles(GpuPointHandle, const GpuParticleStep&) {
         throw std::logic_error("render.gpu_points_unsupported");
     }
+    virtual void MapGpuPoints(GpuPointHandle, GpuPointHandle, const GpuPointMapping&) {
+        throw std::logic_error("render.gpu_points_unsupported");
+    }
     virtual void SubmitGpuPoints(TextureHandle, GpuPointHandle, const GpuPointStyle&) {
         throw std::logic_error("render.gpu_points_unsupported");
     }

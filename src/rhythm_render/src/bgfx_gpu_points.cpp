@@ -82,6 +82,36 @@ void BgfxGpuPoints::Update(bgfx::ViewId view, GpuPointHandle handle, const GpuPa
     bgfx::dispatch(view, compute_.Get(), (capacity + 63) / 64);
     store_.Updated(handle);
 }
+void BgfxGpuPoints::Map(bgfx::ViewId view, GpuPointHandle source, GpuPointHandle destination,
+                        const GpuPointMapping& mapping) {
+    store_.ValidateMap(source, destination, mapping);
+    // Lazily own mapping resources so existing particle-only works pay no cost.
+    if (!bgfx::isValid(map_.Get())) {
+        GpuHandle shader(
+                bgfx::createShader(bgfx::copy(kGpuPointMapShader, sizeof(kGpuPointMapShader))));
+        auto program = GpuHandle(bgfx::createProgram(shader.Get(), false));
+        auto transform =
+                GpuHandle(bgfx::createUniform("u_attribute_transform", bgfx::UniformType::Mat4));
+        auto info = GpuHandle(bgfx::createUniform("u_attribute_info", bgfx::UniformType::Vec4));
+        auto color = GpuHandle(bgfx::createUniform("u_attribute_color", bgfx::UniformType::Vec4));
+        map_transform_ = std::move(transform);
+        map_info_ = std::move(info);
+        map_color_ = std::move(color);
+        map_ = std::move(program);
+    }
+    const auto count = store_.Capacity(source);
+    const std::array<float, 4> info{float(count), mapping.size_, 0, 0};
+    bgfx::resetView(view);
+    bgfx::setViewMode(view, bgfx::ViewMode::Sequential);
+    bgfx::setViewName(view, "GPU point attribute mapping");
+    bgfx::setUniform(map_transform_.Get(), mapping.transform_.data());
+    bgfx::setUniform(map_info_.Get(), info.data());
+    bgfx::setUniform(map_color_.Get(), mapping.color_.data());
+    bgfx::setBuffer(0, buffers_[source.slot_].Get(), bgfx::Access::Read);
+    bgfx::setBuffer(1, buffers_[destination.slot_].Get(), bgfx::Access::Write);
+    bgfx::dispatch(view, map_.Get(), (count + 63) / 64);
+    store_.Updated(destination);
+}
 void BgfxGpuPoints::Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Extent extent,
                          bool invert, GpuPointHandle handle, const GpuPointStyle& style,
                          bool float_target, bgfx::TextureHandle sampling_texture) {

@@ -63,6 +63,25 @@ void GpuPointStore::Validate(GpuPointHandle handle, const GpuParticleStep& step)
         for (const auto value : color)
             if (!within(value, 0, 1)) throw std::invalid_argument("render.gpu_particle_color");
 }
+void GpuPointStore::ValidateMap(GpuPointHandle source, GpuPointHandle destination,
+                                const GpuPointMapping& mapping) const {
+    const auto source_capacity = Capacity(source);
+    const auto destination_capacity = Capacity(destination);
+    if (source == destination || source_capacity != destination_capacity ||
+        !slots_[source.slot_].initialized_)
+        throw std::invalid_argument("render.gpu_point_mapping_buffers");
+    for (const auto value : mapping.transform_)
+        if (!std::isfinite(value) || value < -16 || value > 16)
+            throw std::invalid_argument("render.gpu_point_mapping_transform");
+    const auto& matrix = mapping.transform_;
+    if (matrix[3] != 0 || matrix[7] != 0 || matrix[11] != 0 || matrix[15] != 1)
+        throw std::invalid_argument("render.gpu_point_mapping_affine");
+    for (const auto value : mapping.color_)
+        if (!std::isfinite(value) || value < 0 || value > 1)
+            throw std::invalid_argument("render.gpu_point_mapping_color");
+    if (!std::isfinite(mapping.size_) || mapping.size_ < 0 || mapping.size_ > 16)
+        throw std::invalid_argument("render.gpu_point_mapping_size");
+}
 void GpuPointStore::Updated(GpuPointHandle handle) { slots_.at(handle.slot_).initialized_ = true; }
 void GpuPointStore::ValidateDraw(GpuPointHandle handle, const GpuPointStyle& style) const {
     (void)Capacity(handle);

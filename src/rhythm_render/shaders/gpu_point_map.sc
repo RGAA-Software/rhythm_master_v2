@@ -1,4 +1,4 @@
-// P6.2 probe adapted from TiXL TransformPoints.hlsl (MIT).
+// Point mapping adapted from TiXL TransformPoints.hlsl (MIT).
 // provenance/tixl_point_attributes.json; third_party/notices/tixl-effects/LICENSE.txt.
 #include <bgfx_compute.sh>
 BUFFER_RO(s_attribute_source, vec4, 0);
@@ -16,9 +16,10 @@ void main()
     vec4 velocity = s_attribute_source[base + 1u];
     vec4 color = s_attribute_source[base + 2u];
     vec4 shape = s_attribute_source[base + 3u];
-    position.xyz = mul(u_attribute_transform, vec4(position.xyz, 1.0)).xyz;
+    position.xyz = clamp(mul(u_attribute_transform, vec4(position.xyz, 1.0)).xyz,
+                         vec3(-10000.0, -10000.0, -10000.0), vec3(10000.0, 10000.0, 10000.0));
     color *= u_attribute_color;
-    shape.x *= u_attribute_info.y;
+    shape.x = clamp(shape.x * u_attribute_info.y, 0.0, 1.0);
     s_attribute_result[base] = position;
     s_attribute_result[base + 1u] = velocity;
     s_attribute_result[base + 2u] = color;

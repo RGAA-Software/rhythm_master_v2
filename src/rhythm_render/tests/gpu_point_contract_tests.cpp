@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <utility>
 
+#include "rhythm/render/budget.h"
 #include "rhythm/render/renderer.h"
 
 namespace {
@@ -18,6 +19,72 @@ void Reject(Function function) {
         rejected = true;
     }
     Require(rejected, "invalid GPU point operation accepted");
+}
+void Mapping() {
+    using namespace rhythm::render;
+    auto renderer = Renderer::CreateNull();
+    auto other = Renderer::CreateNull();
+    auto source = renderer.CreateGpuPoints(65);
+    auto first = renderer.CreateGpuPoints(65);
+    auto second = renderer.CreateGpuPoints(65);
+    auto wrong_size = renderer.CreateGpuPoints(64);
+    auto foreign = other.CreateGpuPoints(65);
+    auto target = renderer.CreateTexture({16, 16});
+    Reject([&] { renderer.MapGpuPoints(source.Handle(), first.Handle()); });
+    renderer.BeginFrame();
+    Reject([&] { renderer.MapGpuPoints(source.Handle(), first.Handle()); });
+    Reject([&] { renderer.SubmitGpuPoints(target.Handle(), first.Handle()); });
+    GpuParticleStep step;
+    step.reset_ = true;
+    step.spawn_count_ = 65;
+    renderer.UpdateGpuParticles(source.Handle(), step);
+    Reject([&] { renderer.MapGpuPoints(source.Handle(), source.Handle()); });
+    Reject([&] { renderer.MapGpuPoints(source.Handle(), wrong_size.Handle()); });
+    Reject([&] { renderer.MapGpuPoints(source.Handle(), foreign.Handle()); });
+    Reject([&] { renderer.MapGpuPoints(foreign.Handle(), first.Handle()); });
+    GpuPointMapping mapping;
+    for (const auto invalid : {std::nanf(""), 17.0f, -17.0f}) {
+        mapping.transform_[0] = invalid;
+        Reject([&] { renderer.MapGpuPoints(source.Handle(), first.Handle(), mapping); });
+    }
+    mapping = {};
+    mapping.transform_[3] = .1f;
+    Reject([&] { renderer.MapGpuPoints(source.Handle(), first.Handle(), mapping); });
+    mapping = {};
+    for (const auto invalid : {std::nanf(""), 1.1f, -.1f}) {
+        mapping.color_[3] = invalid;
+        Reject([&] { renderer.MapGpuPoints(source.Handle(), first.Handle(), mapping); });
+    }
+    mapping = {};
+    for (const auto invalid : {std::nanf(""), 17.0f, -.1f}) {
+        mapping.size_ = invalid;
+        Reject([&] { renderer.MapGpuPoints(source.Handle(), first.Handle(), mapping); });
+    }
+    Reject([&] { renderer.SubmitGpuPoints(target.Handle(), first.Handle()); });
+    Require(renderer.Stats().passes_ == 1, "failed maps consumed passes");
+    renderer.MapGpuPoints(source.Handle(), first.Handle());
+    renderer.MapGpuPoints(first.Handle(), second.Handle());
+    renderer.SubmitGpuPoints(target.Handle(), second.Handle());
+    renderer.EndFrame();
+    const auto stale = first.Handle();
+    first = {};
+    first = renderer.CreateGpuPoints(65);
+    renderer.BeginFrame();
+    Reject([&] { renderer.MapGpuPoints(stale, second.Handle()); });
+    Reject([&] { renderer.MapGpuPoints(source.Handle(), stale); });
+    Reject([&] { renderer.MapGpuPoints(first.Handle(), second.Handle()); });
+    for (std::uint32_t i = 0; i < kMaximumOffscreenPasses; ++i)
+        renderer.MapGpuPoints(source.Handle(), second.Handle());
+    Reject([&] { renderer.MapGpuPoints(source.Handle(), first.Handle()); });
+    renderer.EndFrame();
+    renderer.BeginFrame();
+    Reject([&] { renderer.MapGpuPoints(first.Handle(), second.Handle()); });
+    renderer.MapGpuPoints(source.Handle(), first.Handle());
+    renderer.EndFrame();
+    renderer.Invalidate();
+    Reject([&] { renderer.MapGpuPoints(source.Handle(), second.Handle()); });
+    std::cout << "GPU point map contracts: alias, capacity, initialization, parameters, "
+                 "generations and pass rejection passed (Null backend)\n";
 }
 void Run() {
     using namespace rhythm::render;
@@ -91,6 +158,7 @@ void Run() {
 int main() {
     try {
         Run();
+        Mapping();
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

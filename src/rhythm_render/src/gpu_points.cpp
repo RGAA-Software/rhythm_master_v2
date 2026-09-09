@@ -34,6 +34,11 @@ void Renderer::UpdateGpuParticles(GpuPointHandle handle, const GpuParticleStep& 
     if (!backend_) throw std::logic_error("render.moved_from");
     backend_->UpdateGpuParticles(handle, step);
 }
+void Renderer::MapGpuPoints(GpuPointHandle source, GpuPointHandle destination,
+                            const GpuPointMapping& mapping) {
+    if (!backend_) throw std::logic_error("render.moved_from");
+    backend_->MapGpuPoints(source, destination, mapping);
+}
 void Renderer::SubmitGpuPoints(TextureHandle target, GpuPointHandle points,
                                const GpuPointStyle& style) {
     if (!backend_) throw std::logic_error("render.moved_from");

@@ -292,6 +292,8 @@ class Renderer final {
     GpuPoints CreateGpuPoints(std::uint32_t capacity);
     [[nodiscard]] bool IsValid(GpuPointHandle handle) const;
     void UpdateGpuParticles(GpuPointHandle handle, const GpuParticleStep& step);
+    void MapGpuPoints(GpuPointHandle source, GpuPointHandle destination,
+                      const GpuPointMapping& mapping = {});
     void SubmitGpuPoints(TextureHandle target, GpuPointHandle points,
                          const GpuPointStyle& style = {});
     [[nodiscard]] bool SupportsReadback() const;
