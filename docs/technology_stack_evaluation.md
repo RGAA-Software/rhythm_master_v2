@@ -178,6 +178,7 @@ FFmpeg 的唯一性不等于它自动解决设备、主时钟、seek、循环和
 | 包与资产 | 版本化目录/发布包、内容哈希 | 原子提交、校验、大小和解压限制；不写 exe 目录 |
 | 字体 | FreeType，首选 | 栅格化和 glyph 缓存，不负责语言排版 |
 | 文字塑形 | HarfBuzz，候选 | 与编辑光标/选择/IME 的整合需要专门验证 |
+| 作品文字栅格化增量 | vcpkg FreeType Windows 2.12.1#3 / Android 2.14.3 | 两端原生模块及中文截图通过；[文字实施记录](text_rendering.md)。节点、资产发布及输入体验继续推进，不等于 P5 全部交付 |
 | Unicode/语言格式 | ICU，候选 | bidi、复数/格式/locale 服务与数据裁剪评估，不是普通字符串替换 |
 | 日志 | GammaRay 适配 + fmt/spdlog，首选 | 节流、脱敏、轮转；日志实现和重头文件不扩散 |
 | 异步 | GammaRay async + 私有 Asio，首选 | 有界任务、取消、drain；不能一设备一线程 |
