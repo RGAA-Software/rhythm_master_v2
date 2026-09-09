@@ -43,6 +43,7 @@ TextureHandle ResourceTable::Allocate(Extent extent, std::span<const std::uint8_
     slot->extent_ = extent;
     slot->precision_ = precision;
     slot->live_ = true;
+    slot->owners_ = 1;
     slot->render_target_ = rgba.empty();
     slot->depth_ = false;
     slot->depth_texture_ = false;
@@ -73,15 +74,25 @@ bool ResourceTable::Owns(TextureHandle handle) const {
            slots_[handle.slot_].live_ && slots_[handle.slot_].generation_ == handle.generation_;
 }
 
-void ResourceTable::Release(TextureHandle handle) noexcept {
+void ResourceTable::Retain(TextureHandle handle) {
+    CheckReady();
+    if (!IsValid(handle)) throw std::invalid_argument("render.stale_texture");
+    auto& owners = slots_[handle.slot_].owners_;
+    if (owners == std::numeric_limits<std::uint32_t>::max())
+        throw std::overflow_error("render.texture_owners");
+    ++owners;
+}
+bool ResourceTable::Release(TextureHandle handle) noexcept {
     if (std::this_thread::get_id() != thread_) std::terminate();
-    if (!Owns(handle)) return;
+    if (!Owns(handle)) return false;
     auto& slot = slots_[handle.slot_];
+    if (--slot.owners_) return false;
     bytes_ -= std::uint64_t{slot.extent_.width_} * slot.extent_.height_ *
               ((slot.precision_ == TexturePrecision::kFloat16 ? 8 : 4) + (slot.depth_ ? 4 : 0));
     slot.live_ = false;
     ++slot.generation_;
     --live_;
+    return true;
 }
 
 Extent ResourceTable::Size(TextureHandle handle) const {

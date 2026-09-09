@@ -37,6 +37,24 @@ int main() {
         Reject([&] { absent.Poll(); });
         auto second = Renderer::CreateNull();
         {
+            auto original = renderer.CreateTexture({32, 32});
+            const auto handle = original.Handle();
+            auto retained = renderer.RetainTexture(handle);
+            Check(renderer.Stats().texture_bytes_ == 32 * 32 * 4 &&
+                  renderer.Stats().live_textures_ == 1);
+            Reject([&] { second.RetainTexture(handle); });
+            Reject([&] { renderer.RetainTexture({}); });
+            original = {};
+            Check(renderer.IsValid(handle));
+            auto last = renderer.RetainTexture(retained.Handle());
+            retained = {};
+            Check(renderer.IsValid(last.Handle()) &&
+                  renderer.Stats().texture_bytes_ == 32 * 32 * 4);
+            last = {};
+            Check(!renderer.IsValid(handle) && renderer.Stats().texture_bytes_ == 0);
+            Reject([&] { renderer.RetainTexture(handle); });
+        }
+        {
             const std::array<std::uint8_t, 4> pixel{120, 40, 200, 64};
             auto image = renderer.CreateTexture({1, 1}, pixel);
             auto target = renderer.CreateTexture({1, 1});

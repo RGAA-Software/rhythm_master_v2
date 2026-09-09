@@ -192,12 +192,12 @@ class BgfxBackend final : public Backend {
                                });
     }
     void Release(TextureHandle handle) noexcept override {
-        if (!resources_.Owns(handle)) return;
+        if (!resources_.Release(handle)) return;
         if (scene_) scene_->ReleaseTarget(handle);
         textures_[handle.slot_].framebuffer_ = {};
         textures_[handle.slot_].texture_ = {};
-        resources_.Release(handle);
     }
+    void Retain(TextureHandle handle) override { resources_.Retain(handle); }
     bool IsValid(TextureHandle handle) const override { return resources_.IsValid(handle); }
     TexturePrecision Precision(TextureHandle handle) const override {
         return resources_.Precision(handle);

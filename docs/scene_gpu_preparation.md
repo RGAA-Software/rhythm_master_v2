@@ -165,3 +165,18 @@ Android 覆盖安装后实际 AAudio 淡化与队列触摸通过，
 `out/android-scene-audio/ef835ee1de1e49f59fb78384d2f09a97/`；脚本新增完成后打开
 队列检查，确认 3 行恰好剩 2 行、下一行身份正确，保存列表逐字节不变。
 当前 APK SHA256 `8400aeab7952fae839579a711884a0851f3f0b8fa373920b17a065040542c537`。
+
+
+### P3.5 GPU 顺序替换的输出保留基础
+
+`Renderer::RetainTexture` 返回宿主线程 RAII 持有权，复用 ResourceTable/Texture
+现有句柄与后端资源；同一纹理只计一次字节/slot，最后一个持有者释放时才销毁。
+保留不会复制像素，也不会禁止写入；冻结画面的调用方必须停止原生产者。
+此公共合同只暴露项目 Texture/TextureHandle，不新增原生/backend 类型或依赖。
+用于后续保留旧场最后一张输出、释放其余 GPU 资源后准备新场，尚未接入播放器。
+
+Windows `out/p3-output-lease-windows-tests.log` 的 render_contracts、readback_gpu、
+source_boundaries 通过；Android `out/p3-output-lease-android-tests.log` 的同类
+合同与实际 GLES 读回通过。检查多持有者、不重复预算、外设备/无效/过期句柄
+拒绝、原持有者释放后蓝色目标的逐像素读回、最后持有者释放后资源失效。
+它们不是完整 GPU 硬切或 APK 功能交付，后续还需验证旧场冻结、新场准入与失败恢复。

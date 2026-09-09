@@ -14,7 +14,8 @@ class ResourceTable final {
     TextureHandle AllocateDepth(Extent extent);
     bool IsDepth(TextureHandle handle) const;
     void ValidateSceneDepth(TextureHandle color, TextureHandle depth) const;
-    void Release(TextureHandle handle) noexcept;
+    void Retain(TextureHandle handle);
+    bool Release(TextureHandle handle) noexcept;
     bool IsValid(TextureHandle handle) const;
     bool Owns(TextureHandle handle) const;
     void Invalidate();
@@ -40,6 +41,7 @@ class ResourceTable final {
         std::uint32_t generation_ = 1;
         Extent extent_{};
         bool live_ = false;
+        std::uint32_t owners_ = 0;
         bool render_target_ = false;
         bool depth_ = false;
         bool depth_texture_ = false;

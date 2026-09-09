@@ -103,6 +103,21 @@ void VerifyReadbackPixels(render::Renderer& renderer) {
         }
         Require(renderer.Stats().texture_bytes_ == baseline + 4 * 16 * 16 * 4,
                 "cancellation reclaims staging after completion");
+        const auto handle = target.Handle();
+        auto retained = renderer.RetainTexture(handle);
+        target = {};
+        Require(renderer.IsValid(handle), "retained presentation survives original owner release");
+        renderer.BeginFrame();
+        auto frozen = renderer.RequestReadback(retained.Handle());
+        renderer.EndFrame();
+        const auto frozen_pixels = Complete(renderer, frozen);
+        for (std::size_t offset = 0; offset < frozen_pixels.rgba_.size(); offset += 4)
+            Require(frozen_pixels.rgba_[offset] == 0 && frozen_pixels.rgba_[offset + 1] == 0 &&
+                            frozen_pixels.rgba_[offset + 2] == 255 &&
+                            frozen_pixels.rgba_[offset + 3] == 255,
+                    "retained target preserves pixels after releasing its producing owner");
+        retained = {};
+        Require(!renderer.IsValid(handle), "last presentation lease releases native texture");
     }
     Require(renderer.Stats().texture_bytes_ == baseline, "readback contract releases resources");
     std::cout << "readback: ordered RGBA frames, three-slot budget, move-only delivery and "

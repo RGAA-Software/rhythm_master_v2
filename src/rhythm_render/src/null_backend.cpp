@@ -16,6 +16,7 @@ class NullBackend final : public Backend {
         return resources_.Allocate(extent, rgba, precision);
     }
     void Release(TextureHandle handle) noexcept override { resources_.Release(handle); }
+    void Retain(TextureHandle handle) override { resources_.Retain(handle); }
     void Update(TextureHandle handle, std::span<const std::uint8_t> rgba) override {
         resources_.ValidateUpload(handle, rgba);
         if (!in_frame_) throw std::logic_error("render.frame_not_open");

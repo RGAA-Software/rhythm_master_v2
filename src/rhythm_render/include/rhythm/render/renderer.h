@@ -264,6 +264,10 @@ class Renderer final {
     // and compositing preserve coverage across repeated render passes.
     Texture CreateTexture(Extent extent, std::span<const std::uint8_t> rgba = {},
                           TexturePrecision precision = TexturePrecision::kUnorm8);
+    // Host-thread owning lease on an existing texture. Does not copy pixels or
+    // reserve the bytes twice. The last lease releases the resource. Callers
+    // must stop writes separately when retaining a frozen presentation frame.
+    Texture RetainTexture(TextureHandle texture);
     // Host thread, after BeginFrame and before this texture is sampled. Replaces all
     // straight-alpha pixels of an uploaded RGBA8 texture, preserving its handle
     // and extent. Render targets cannot be overwritten through this operation.
