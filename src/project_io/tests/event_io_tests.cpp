@@ -122,6 +122,60 @@ int main(int argc, char* argv[]) {
         Reject([&] { project::DecodeProgram(program, 4); });
         program_message.set_abi_version(4);
         Reject([&] { project::DecodeProgram(program_message.SerializeAsString()); });
+        // The event source itself now belongs to the component. Its track must
+        // follow template IDs, packing/unpacking, deletion and history as data.
+        editor::Snapshot recorded;
+        recorded.document_.id_ = "recorded-template";
+        recorded.document_.nodes_ = {
+                registry.MakeNode(1, "event.input"), registry.MakeNode(2, "event.envelope"),
+                registry.MakeNode(3, "texture.gradient"), registry.MakeNode(4, "output.texture")};
+        const parameters::EventTrack track({{42, 0.5, parameters::EventKind::kPulse, 1},
+                                            {43, 1.5, parameters::EventKind::kReset, 1}});
+        recorded.document_.nodes_[0].properties_["actions"] = track;
+        recorded.document_.edges_ = {{1, 1, 2, "events"}, {2, 2, 3, "amount"}, {3, 3, 4, "source"}};
+        recorded.document_.output_ = 4;
+        recorded.positions_ = {{1, {0, 0}}, {2, {300, 0}}, {3, {600, 0}}, {4, {900, 0}}};
+        Check(std::abs(Envelope(recorded.document_) - 0.5) < 1e-9, "track package replay failed");
+        auto malformed = project::EncodeGraph(recorded.document_);
+        Check(graph_message.ParseFromString(malformed), "track schema parse");
+        auto& action = *(*graph_message.mutable_nodes(0)->mutable_properties())["actions"]
+                                .mutable_event_track()
+                                ->mutable_actions(0);
+        action.set_kind(schema::EventTrack::KIND_UNSPECIFIED);
+        Reject([&] { project::DecodeGraph(graph_message.SerializeAsString()); });
+        action.set_kind(schema::EventTrack::KIND_GATE);
+        action.set_value(0.5);
+        Reject([&] { project::DecodeGraph(graph_message.SerializeAsString()); });
+        const std::array<graph::NodeId, 3> recorded_selection{1, 2, 3};
+        recorded = std::get<editor::Snapshot>(
+                editor::MakeComponent(recorded, registry, recorded_selection, 5, "Recorded color"));
+        editor::History recording_history(destination);
+        fresh.clear();
+        for (std::size_t index = 0; index < recorded.document_.nodes_.size(); ++index)
+            fresh.push_back(recording_history.ReserveNodeId());
+        auto recorded_applied = std::get<editor::Snapshot>(
+                editor::InstantiateTemplate(recording_history.Current(), recorded, fresh));
+        Check(recording_history.Apply(recorded_applied,
+                                      recording_history.Current().document_.revision_),
+              "recorded template transaction");
+        project::Save(directory / "recorded", recording_history.Current());
+        const auto recorded_reopened = project::Load(directory / "recorded");
+        auto unpacked = std::get<editor::Snapshot>(
+                editor::ExpandAllComponents(recorded_reopened.snapshot_, registry, 2000));
+        Check(std::abs(Envelope(unpacked.document_) - 0.5) < 1e-9,
+              "recorded component/template/save/unpack/package output differs");
+        bool found_track = false;
+        for (const auto& node : unpacked.document_.nodes_)
+            if (node.type_ == "event.input") {
+                found_track = true;
+                Check(node.id_ != 1 && std::get<parameters::EventTrack>(
+                                               node.properties_.at("actions")) == track,
+                      "remapped owner lost action identity or content");
+            }
+        Check(found_track && recording_history.Undo() && recording_history.Redo(),
+              "recorded template undo/redo failed");
+        Check(std::abs(Envelope(recording_history.Current().document_) - 0.5) < 1e-9,
+              "recorded history replay changed output");
         std::cout << "Event component/template remapping, history, save/reopen, package replay "
                      "and minimum schema/ABI passed\n";
     } catch (const std::exception& error) {

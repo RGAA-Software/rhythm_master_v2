@@ -18,7 +18,7 @@ inline std::uint32_t ProgramAbi(const graph::ExecutionPlan& plan) {
     if (std::any_of(plan.instructions_.begin(), plan.instructions_.end(),
                     [](const auto& instruction) {
                         return instruction.operation_ >= graph::Operation::kEventBeat &&
-                               instruction.operation_ <= graph::Operation::kEventReset;
+                               instruction.operation_ <= graph::Operation::kEventInput;
                     }))
         return 5;
     return plan.beat_grid_ ? 4 : plan.control_sequence_ ? 3 : 2;

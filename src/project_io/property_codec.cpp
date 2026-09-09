@@ -4,6 +4,22 @@
 
 namespace rhythm::project::detail {
 graph::Property DecodeProperty(const schema::Property& property, bool preserve_unknown) {
+    if (property.has_event_track()) {
+        const auto& encoded = property.event_track();
+        if (encoded.actions_size() > static_cast<int>(parameters::EventTrack::kMaximumEvents))
+            throw std::length_error("event.track_count");
+        std::vector<parameters::RecordedEvent> actions;
+        actions.reserve(encoded.actions_size());
+        for (const auto& action : encoded.actions()) {
+            if (action.kind() < schema::EventTrack::KIND_PULSE ||
+                action.kind() > schema::EventTrack::KIND_RESET)
+                throw std::invalid_argument("event.track_kind");
+            actions.push_back({action.id(), action.seconds(),
+                               static_cast<parameters::EventKind>(action.kind() - 1),
+                               action.value()});
+        }
+        return parameters::EventTrack(std::move(actions));
+    }
     if (property.has_scalar()) return property.scalar();
     if (property.has_expression()) return parameters::Expression(property.expression());
     if (property.has_asset_sha256()) {
@@ -69,6 +85,23 @@ void EncodeProperty(const graph::Property& value, schema::Property& property) {
                     static_cast<int>(key.interpolation_) + 1));
             encoded.set_in_slope(key.in_slope_);
             encoded.set_out_slope(key.out_slope_);
+        }
+    } else if (std::holds_alternative<parameters::EventTrack>(value)) {
+        auto& track = *property.mutable_event_track();
+        const auto original = track.actions();
+        std::map<std::uint64_t, int> indices;
+        for (int index = 0; index < original.size(); ++index)
+            indices.emplace(original.Get(index).id(), index);
+        track.clear_actions();
+        for (const auto& action : std::get<parameters::EventTrack>(value).Events()) {
+            auto& encoded = *track.add_actions();
+            if (const auto previous = indices.find(action.id_); previous != indices.end())
+                encoded = original.Get(previous->second);
+            encoded.set_id(action.id_);
+            encoded.set_seconds(action.seconds_);
+            encoded.set_kind(
+                    static_cast<schema::EventTrack::Kind>(static_cast<int>(action.kind_) + 1));
+            encoded.set_value(action.value_);
         }
     } else if (!property.ParseFromString(std::get<graph::UnknownProperty>(value).encoded_))
         throw std::invalid_argument("project.extensions");

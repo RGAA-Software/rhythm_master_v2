@@ -18,7 +18,23 @@ message Property {
     Curve curve = 3;
     string expression = 4; // Bounded pure arithmetic; compiled and validated on load.
     string asset_sha256 = 5; // Typed content address; empty means unassigned in the editor.
+    EventTrack event_track = 6; // Owned by event.input; schema 7 / program ABI 5.
   }
+}
+message EventTrack {
+  enum Kind {
+    KIND_UNSPECIFIED = 0;
+    KIND_PULSE = 1;
+    KIND_GATE = 2;
+    KIND_RESET = 3;
+  }
+  message Action {
+    uint64 id = 1;
+    double seconds = 2;
+    Kind kind = 3;
+    double value = 4;
+  }
+  repeated Action actions = 1; // Maximum 4096; stable IDs preserve extensions on edits.
 }
 message Curve {
   enum Interpolation {

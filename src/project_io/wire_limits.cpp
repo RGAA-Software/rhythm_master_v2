@@ -29,7 +29,9 @@ enum class Kind {
     kControlSnapshot,
     kControlValue,
     kControlCue,
-    kBeatGrid
+    kBeatGrid,
+    kEventTrack,
+    kRecordedEvent
 };
 struct Budget {
     std::size_t fields_ = 0;
@@ -128,6 +130,8 @@ std::optional<Child> Nested(Kind kind, unsigned field) {
     if (kind == Kind::kMap && field == 2) return Child{Kind::kProperty};
     if (kind == Kind::kProperty && field == 2) return Child{Kind::kColor};
     if (kind == Kind::kProperty && field == 3) return Child{Kind::kCurve};
+    if (kind == Kind::kProperty && field == 6) return Child{Kind::kEventTrack};
+    if (kind == Kind::kEventTrack && field == 1) return Child{Kind::kRecordedEvent, 4096};
     if (kind == Kind::kCurve && field == 1) return Child{Kind::kKey, 1024};
     return std::nullopt;
 }
