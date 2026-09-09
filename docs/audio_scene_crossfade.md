@@ -1,0 +1,51 @@
+# 跨作品音频淡化实施
+
+P3.3，2026-09-09。本节是实施合同，尚不表示两端切场已实现音频淡化。
+
+## 复用与边界
+
+已读本地 TiXL `fbc994d923e8a0142d2ff1b772e4d12248c5b0ba`（MIT，
+`https://github.com/tixl3d/tixl`）的 `Core/Audio/AudioMixerManager.cs`、
+`SoundtrackClipStream.cs` 和 `SpatialOperatorAudioStream.cs::Apply3DToBuffer`：
+统一 mixer/设备与正弦/余弦等功率权重可参考，其实现依赖 ManagedBass/BASS，
+不能替换本项目 FFmpeg 唯一媒体后端。此次不复制其源文件。
+
+已直接阅读 vcpkg 缓存 `ffmpeg-ffmpeg-n8.1.1.tar.gz` 中
+`libavfilter/af_afade.c` 的 `fade_gain`、`activate` 与 acrossfade 配置
+（FFmpeg n8.1.1，`https://github.com/FFmpeg/FFmpeg`，Paul B Mahol，LGPL-2.1-or-later）。
+该 acrossfade 保留第一路末尾样本并等待 EOF，再衔接第二路；本项目需要现场触发、
+量化、任意播放位置、取消和失败保留当前场。不能直接用文件拼接滤镜代替此合同。
+没有自行编译 FFmpeg、没有导入该文件或新增 libavfilter 依赖。复用现有 FFmpeg
+AudioDecoder、AudioMixer、文件 lease、设备队列和 AnalysisQueue，新增部分限于
+两场准入、包络和交接状态；普通线性/三角函数权重不是另一个解码/播放后端。
+
+## 第一轮合同与验证顺序
+
+- 先以样本索引实现线性与等功率包络对照。默认线性保证两路已限幅相关信号不会
+  在中点叠加超过输入峰值；等功率对于不相关信号保持能量更合适，但必须最后统一
+  限幅并记录削波样本，不能宣称任意输入无削波。已知信号和实际文件听感分别记录。
+- 两个来源共享 **4 个活动 PCM 解码游标**，含每份 AudioMixer 的活动片段。用同一
+  RAII 预算计数，失败/取消/片段结束归还；不是每场各 4 路。沿用 AudioDecoder 精确
+  seek 的原子重开语义，其单个游标重建时可短暂持有旧/新 FFmpeg context；这不算
+  新播放路，但必须在准备/性能证据中区分逻辑游标与瞬时原生 context，不隐藏峰值。
+- 声音混合后才送入现有设备队列和同一 AnalysisQueue，两场读取同一混合 PCM 特征。
+  后台 worker 独占解码、混音和设备提交；UI/render 不读取文件，不创建第二设备时钟。
+- 已排队声音不能被声称立即改变。开始/结束按设备消费确认，画面交接必须依据
+  已确认的音频边界；暂停不推进淡化，seek/换源/取消清晰撤销待执行交接。
+- 来场音频准备或预算失败保留当前源及画面，不能把整台 FilePlayback 标为失败后
+  静音退出。过渡中途失败保留当前场，已送出声音不可逆，恢复时间需有明确证据。
+- 无配乐作品保留已有音乐，两端一致；有配乐作品应用各自作者增益，设备主音量
+  保持用户意图。整场导出仍在独立后续范围，不改现有单作品导出语义。
+
+按“包络与游标预算 → 双源 PCM → 设备消费交接 → SceneDeck 准备/显示同步 →
+两端操作、取消/失败、不同采样率/长度/多片段”逐个受影响模块实现和检查。
+
+## 增量证据
+
+2026-09-09：`media_mixer` 已加入共享 `AudioCursorBudget` 和样本索引淡化包络。
+Windows `out/p3-crossfade-budget-windows-tests.log` 的 crossfade、media_audio、
+audio_mixer 三项通过；Android 同源原生程序见
+`out/p3-crossfade-budget-android-tests.log`。检查包含真实 FFmpeg PCM、两场四路
+准入、第五路拒绝后旧场继续读取、释放后重新准入、线性相关信号峰值、等功率
+不相关信号能量、削波计数、零时长、无效输入和 RAII 异常释放。
+这些只证明底层混音合同，尚未经过设备声音、画面交接或两端切场 UI 验收。

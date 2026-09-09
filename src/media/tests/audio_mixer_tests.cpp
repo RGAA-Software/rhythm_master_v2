@@ -89,6 +89,30 @@ int main(int argc, char** argv) {
                 const auto expected = std::clamp(decoded[source_sample] * 4, -1.0F, 1.0F);
                 check(block->samples_[index] == expected);
             }
+        // Two different scenes share the same four-cursor admission, rather
+        // than silently allocating four decoders per scene during a fade.
+        media::AudioCursorBudget budget;
+        const media::AudioArrangementSource two{media::AudioArrangement({summed[0], summed[1]}),
+                                                {{id, {}, file}}};
+        media::AudioMixer previous(two, 1, budget);
+        std::optional<media::AudioMixer> next(std::in_place, two, 2, budget);
+        check(previous.Read().has_value() && next->Read().has_value() && budget.Active() == 4);
+        media::AudioMixer excess({media::AudioArrangement({summed[0]}), {{id, {}, file}}}, 3,
+                                 budget);
+        bool limited = false;
+        try {
+            (void)excess.Read();
+        } catch (const std::length_error&) {
+            limited = true;
+        }
+        check(limited && budget.Active() == 4 && previous.Read().has_value());
+        next.reset();
+        check(budget.Active() == 2);
+        excess.Seek(0, 4);
+        check(excess.Read().has_value() && budget.Active() == 3 && budget.Peak() == 4);
+        previous.Seek(0, 5);
+        excess.Seek(0, 6);
+        check(budget.Active() == 0);
         std::cout << "FFmpeg mixer: exact PCM, trimmed loops, overlap, fades, balance, mute and "
                      "seek passed\n";
     } catch (const std::exception& error) {

@@ -23,8 +23,8 @@ AudioArrangementSource OpenFiles(AudioArrangementFiles files, std::stop_token st
 static_assert(AudioArrangement::kSampleRate == kAudioSampleRate);
 class AudioMixer::Impl final {
    public:
-    explicit Impl(AudioArrangementSource source, std::uint64_t generation)
-        : source_(std::move(source)), generation_(generation) {
+    explicit Impl(AudioArrangementSource source, std::uint64_t generation, AudioCursorBudget budget)
+        : source_(std::move(source)), budget_(std::move(budget)), generation_(generation) {
         if (source_.arrangement_.Clips().empty() || source_.assets_.empty() ||
             source_.assets_.size() > AudioArrangement::kMaximumClips)
             throw std::invalid_argument("audio.arrangement_source");
@@ -126,6 +126,7 @@ class AudioMixer::Impl final {
 
    private:
     struct Entry {
+        AudioCursorBudget::Lease lease_{};
         std::unique_ptr<AudioDecoder> decoder_{};
         std::optional<AudioBlock> block_{};
     };
@@ -133,17 +134,20 @@ class AudioMixer::Impl final {
         auto& entry = entries_[index];
         const auto& asset = source_.assets_[asset_indices_[index]];
         if (!entry.decoder_) {
-            entry.decoder_ =
+            auto lease = budget_.Acquire();
+            auto decoder =
                     asset.bytes_
                             ? std::make_unique<AudioDecoder>(asset.bytes_, generation_, stop)
                             : std::make_unique<AudioDecoder>(asset.file_bytes_, generation_, stop);
-            const auto info = entry.decoder_->Info();
+            const auto info = decoder->Info();
             const auto source_out = source_.arrangement_.Samples()[index].source_out_;
             if (info.duration_seconds_ && std::isfinite(*info.duration_seconds_) &&
                 double(source_out) / kAudioSampleRate >
                         *info.duration_seconds_ + 1.0 / kAudioSampleRate)
                 throw std::invalid_argument("audio.clip_source_range");
-            if (sample) entry.decoder_->Seek(sample, generation_, stop);
+            if (sample) decoder->Seek(sample, generation_, stop);
+            entry.decoder_ = std::move(decoder);
+            entry.lease_ = std::move(lease);
         }
         if (entry.block_ && (sample < entry.block_->first_sample_ ||
                              sample > entry.block_->first_sample_ +
@@ -162,6 +166,7 @@ class AudioMixer::Impl final {
         return {entry.block_->samples_[offset], entry.block_->samples_[offset + 1]};
     }
     AudioArrangementSource source_{};
+    AudioCursorBudget budget_{};
     std::vector<std::size_t> asset_indices_{};
     std::vector<std::size_t> order_{};
     std::vector<Entry> entries_{};
@@ -169,10 +174,12 @@ class AudioMixer::Impl final {
     std::uint64_t generation_ = 1;
     bool failed_ = false;
 };
-AudioMixer::AudioMixer(AudioArrangementSource source, std::uint64_t generation)
-    : impl_(std::make_unique<Impl>(std::move(source), generation)) {}
-AudioMixer::AudioMixer(AudioArrangementFiles files, std::uint64_t generation, std::stop_token stop)
-    : AudioMixer(OpenFiles(std::move(files), stop), generation) {}
+AudioMixer::AudioMixer(AudioArrangementSource source, std::uint64_t generation,
+                       AudioCursorBudget budget)
+    : impl_(std::make_unique<Impl>(std::move(source), generation, std::move(budget))) {}
+AudioMixer::AudioMixer(AudioArrangementFiles files, std::uint64_t generation, std::stop_token stop,
+                       AudioCursorBudget budget)
+    : AudioMixer(OpenFiles(std::move(files), stop), generation, std::move(budget)) {}
 AudioMixer::~AudioMixer() = default;
 AudioMixer::AudioMixer(AudioMixer&&) noexcept = default;
 AudioMixer& AudioMixer::operator=(AudioMixer&&) noexcept = default;

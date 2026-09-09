@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rhythm/media/audio_arrangement.h"
+#include "rhythm/media/audio_cursor_budget.h"
 #include "rhythm/media/audio_decoder.h"
 
 namespace rhythm::media {
@@ -19,9 +20,10 @@ struct AudioArrangementFiles {
 // clips once after summation. The same cursor serves playback and export.
 class AudioMixer final {
    public:
-    explicit AudioMixer(AudioArrangementSource source, std::uint64_t generation = 1);
+    explicit AudioMixer(AudioArrangementSource source, std::uint64_t generation = 1,
+                        AudioCursorBudget budget = {});
     explicit AudioMixer(AudioArrangementFiles files, std::uint64_t generation = 1,
-                        std::stop_token stop = {});
+                        std::stop_token stop = {}, AudioCursorBudget budget = {});
     ~AudioMixer();
     AudioMixer(AudioMixer&&) noexcept;
     AudioMixer& operator=(AudioMixer&&) noexcept;
