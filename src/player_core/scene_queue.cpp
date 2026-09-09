@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <set>
 #include <utility>
 
 namespace rhythm::player {
@@ -47,6 +48,7 @@ void SceneQueue::Clear() {
 }
 bool SceneQueue::Retry() {
     if (items_.empty() || items_.front().state_ != ScenePreparation::kFailed) return false;
+    if (items_.front().entry_ && !items_.front().bytes_.Valid()) return false;
     items_.front().state_ = ScenePreparation::kQueued;
     items_.front().error_ = PackageLoadError::kNone;
     return true;
@@ -84,5 +86,38 @@ std::optional<PreparedPackage> SceneQueue::TakeReady() {
     auto result = std::exchange(ready_, std::nullopt);
     items_.erase(items_.begin());
     return result;
+}
+bool SceneQueue::ReplacePerformance(std::span<const ResolvedWork> works) {
+    if (works.size() > kMaximumItems ||
+        next_id_ > std::numeric_limits<std::uint64_t>::max() - works.size())
+        return false;
+    std::vector<SceneQueueItem> replacement;
+    std::set<std::uint64_t> entries;
+    auto next = next_id_;
+    for (const auto& work : works) {
+        if (!performance::ValidEntry(work.entry_) || !entries.insert(work.entry_.id_).second)
+            return false;
+        if (work.bytes_.Valid() && (!work.error_.empty() || !work.bytes_.Size() ||
+                                    work.bytes_.Size() > project::kMaximumFilePackageBytes ||
+                                    (work.state_ != performance::ResolutionState::kExact &&
+                                     work.state_ != performance::ResolutionState::kUpdated)))
+            return false;
+        SceneQueueItem item;
+        item.id_ = next++;
+        item.title_ = work.entry_.title_;
+        item.bytes_ = work.bytes_;
+        item.entry_ = work.entry_;
+        item.resolution_ = work.state_;
+        item.resolution_error_ = work.error_;
+        if (!item.bytes_.Valid()) {
+            item.state_ = ScenePreparation::kFailed;
+            item.error_ = PackageLoadError::kRead;
+        }
+        replacement.push_back(std::move(item));
+    }
+    Clear();
+    items_ = std::move(replacement);
+    next_id_ = next;
+    return true;
 }
 }  // namespace rhythm::player

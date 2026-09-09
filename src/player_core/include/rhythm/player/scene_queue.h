@@ -3,6 +3,7 @@
 #include <span>
 
 #include "rhythm/player/package_loader.h"
+#include "rhythm/player/resolved_work.h"
 
 namespace rhythm::player {
 enum class ScenePreparation { kQueued, kLoading, kReady, kFailed };
@@ -13,6 +14,9 @@ struct SceneQueueItem {
     ScenePreparation state_ = ScenePreparation::kQueued;
     PackageLoadError error_ = PackageLoadError::kNone;
     storage::FileBytes bytes_{};
+    std::optional<performance::ListEntry> entry_{};
+    performance::ResolutionState resolution_ = performance::ResolutionState::kExact;
+    std::string resolution_error_{};
 };
 // Host-thread FIFO. At most one prepared package or active preparation worker;
 // only lightweight source metadata is retained for later entries. The loader
@@ -22,6 +26,9 @@ class SceneQueue final {
    public:
     std::optional<std::uint64_t> Enqueue(std::filesystem::path source, std::string title);
     std::optional<std::uint64_t> EnqueueBytes(storage::FileBytes source, std::string title);
+    // Installs a resolved performance in one host-thread mutation. Missing rows
+    // stay visible and cannot silently fall through to the next work. Never plays.
+    bool ReplacePerformance(std::span<const ResolvedWork> works);
     bool Remove(std::uint64_t id);
     bool Retry();
     void Clear();
