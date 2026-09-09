@@ -41,6 +41,14 @@ if(BUILD_TESTING)
         --output "${PROJECT_BINARY_DIR}/scene-canvas-gpu" --scene)
     set_tests_properties(scene_canvas_gpu PROPERTIES TIMEOUT 100 RUN_SERIAL TRUE
         ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
+    add_test(NAME named_output_canvas_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-output-canvas-gpu.py"
+        --executable "$<TARGET_FILE:output_canvas_gpu_tests>" --resources "${CMAKE_CURRENT_BINARY_DIR}"
+        --output "${PROJECT_BINARY_DIR}/named-output-canvas-gpu" --named)
+    add_test(NAME named_scene_canvas_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-output-canvas-gpu.py"
+        --executable "$<TARGET_FILE:output_canvas_gpu_tests>" --resources "${CMAKE_CURRENT_BINARY_DIR}"
+        --output "${PROJECT_BINARY_DIR}/named-scene-canvas-gpu" --scene --named)
+    set_tests_properties(named_output_canvas_gpu named_scene_canvas_gpu PROPERTIES TIMEOUT 100 RUN_SERIAL TRUE
+        ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     add_executable(beat_studio_gpu_tests tests/beat_studio_gpu_tests.cpp)
     target_link_libraries(beat_studio_gpu_tests PRIVATE studio_ui project_io runtime_package spike_imgui spike_bgfx nlohmann_json::nlohmann_json)
     rhythm_project_target(beat_studio_gpu_tests)

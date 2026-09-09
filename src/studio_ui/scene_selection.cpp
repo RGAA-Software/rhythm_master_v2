@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <stdexcept>
 
+#include "rhythm/graph/bindings.h"
 #include "rhythm/runtime/runtime.h"
 
 namespace rhythm::studio {
@@ -12,14 +13,13 @@ SceneSelection PickSceneOutput(const graph::Document& document,
                                const std::map<graph::NodeId, graph::AuthorNode>& authors) {
     SceneSelection result;
     try {
+        const auto resolved = graph::ResolveEdges(document);
+        if (!std::holds_alternative<std::vector<graph::Edge>>(resolved))
+            throw std::invalid_argument("scene_pick.route");
+        const auto& edges = std::get<std::vector<graph::Edge>>(resolved);
         const auto input = [&](graph::NodeId node, const std::string& port) {
-            if (std::any_of(document.bindings_.begin(), document.bindings_.end(),
-                            [&](const auto& binding) {
-                                return binding.node_ == node && binding.input_ == port;
-                            }))
-                throw std::invalid_argument("scene_pick.route");
             graph::NodeId source = 0;
-            for (const auto& edge : document.edges_)
+            for (const auto& edge : edges)
                 if (edge.to_ == node && edge.input_ == port) {
                     if (source) throw std::invalid_argument("scene_pick.route");
                     source = edge.from_;

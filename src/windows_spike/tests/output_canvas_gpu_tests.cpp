@@ -52,9 +52,18 @@ ImRect OutputRect(const char* name = "###output") {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        Check(argc == 3 || argc == 4, "resources output [--scene]");
-        const bool scene_mode = argc == 4 && std::string_view(argv[3]) == "--scene";
-        const bool automation_mode = argc == 4 && std::string_view(argv[3]) == "--automation";
+        Check(argc >= 3 && argc <= 5, "resources output [--scene|--automation] [--named]");
+        bool scene_mode = false, automation_mode = false, named_mode = false;
+        for (int index = 3; index < argc; ++index) {
+            const std::string_view flag(argv[index]);
+            Check(flag == "--scene" || flag == "--automation" || flag == "--named",
+                  "unknown canvas mode");
+            scene_mode |= flag == "--scene";
+            automation_mode |= flag == "--automation";
+            named_mode |= flag == "--named";
+        }
+        Check(!(scene_mode && automation_mode) && !(named_mode && automation_mode),
+              "incompatible canvas modes");
         const std::filesystem::path resources(argv[1]), root(argv[2]);
         const auto path = root / "Projects/canvas.rhythmproj";
         const auto package = root / "Published/canvas.rhythmpack";
@@ -93,7 +102,18 @@ int main(int argc, char* argv[]) {
             initial.positions_ = {{1, {0, 0}},     {7, {0, 250}}, {4, {300, 0}}, {2, {600, 0}},
                                   {5, {600, 330}}, {6, {900, 0}}, {3, {1200, 0}}};
         }
+        if (named_mode) {
+            for (const auto& edge : doc.edges_) {
+                const auto name = "source-" + std::to_string(edge.from_);
+                if (!std::any_of(doc.signals_.begin(), doc.signals_.end(),
+                                 [&](const auto& signal) { return signal.name_ == name; }))
+                    doc.signals_.push_back({name, edge.from_});
+                doc.bindings_.push_back({edge.to_, edge.input_, name});
+            }
+            doc.edges_.clear();
+        }
         project::Save(path, initial);
+        const auto initial_saved = project::Load(path).snapshot_.document_;
         platform::Host host(true);
         host.Resize({1600, 1000});
         ImGui::GetIO().IniFilename = nullptr;
@@ -240,11 +260,17 @@ int main(int argc, char* argv[]) {
         const auto expected_translation = scene_mode ? .2 * 320 / 180 : .2;
         Check(std::abs(graph::Scalar(saved.document_.nodes_[1], "translate_x", 0) -
                        expected_translation) < .005 &&
-                      saved.document_.edges_.size() == (scene_mode ? 6 : 2) &&
+                      saved.document_.edges_.size() == (named_mode   ? 0
+                                                        : scene_mode ? 6
+                                                                     : 2) &&
                       saved.document_.nodes_.size() == (scene_mode        ? 7
                                                         : automation_mode ? 4
                                                                           : 3),
               "actual Studio drag not saved or altered graph connections");
+        if (named_mode)
+            Check(saved.document_.bindings_ == initial_saved.bindings_ &&
+                          saved.document_.signals_ == initial_saved.signals_,
+                  "canvas edit replaced authored named routes");
         Check(project::EncodeProgram(published.program_) ==
                       project::EncodeProgram(std::get<graph::ExecutionPlan>(
                               graph::Compile(saved.document_, registry))),

@@ -31,6 +31,30 @@ editor::Snapshot Base() {
 void Run() {
     const auto base = Base();
     const auto target = std::get<editor::SceneTarget>(editor::InspectSceneTarget(base, 3));
+    auto named = base;
+    for (const auto& edge : named.document_.edges_) {
+        const auto name = "source-" + std::to_string(edge.from_);
+        named.document_.signals_.push_back({name, edge.from_});
+        named.document_.bindings_.push_back({edge.to_, edge.input_, name});
+    }
+    named.document_.edges_.clear();
+    const auto named_target = std::get<editor::SceneTarget>(editor::InspectSceneTarget(named, 3));
+    Check(named_target.parent_ == target.parent_ &&
+                  named_target.render_node_ == target.render_node_ &&
+                  named_target.scene_source_ == target.scene_source_ &&
+                  named_target.camera_.kind_ == target.camera_.kind_,
+          "named scene, image and camera routes retain the same author coordinates");
+    editor::SceneEdit named_edit(named, 3);
+    auto named_pose = named_target.pose_;
+    named_pose.translation_.x_ = .5;
+    Check(named_edit.Update(scene::ComposeEuler(named_pose)), "move through named scene route");
+    const auto named_result = std::get<editor::Snapshot>(named_edit.Finish(named));
+    Check(named_result.document_.bindings_ == named.document_.bindings_ &&
+                  named_result.document_.edges_.empty(),
+          "direct editing must preserve authored named routes");
+    named.document_.signals_.clear();
+    Check(std::holds_alternative<graph::Diagnostic>(editor::InspectSceneTarget(named, 3)),
+          "unresolved scene routes cannot authorize an edit");
     Check(target.render_node_ == 6 && target.scene_source_ == 4 &&
                   target.camera_.kind_ == scene::ProjectionKind::kOrthographic,
           "trace render/camera scope");
@@ -74,6 +98,8 @@ void Run() {
                   "scene_edit.driven",
           "expression cannot be overwritten");
     driven = base;
+    driven.document_.nodes_.push_back(graph::Registry{}.MakeNode(8, "scalar.constant"));
+    driven.document_.signals_.push_back({"music", 8});
     driven.document_.bindings_.push_back({4, "scale", "music"});
     Check(std::get<graph::Diagnostic>(editor::InspectSceneTarget(driven, 3)).code_ ==
                   "scene_edit.driven",

@@ -181,6 +181,25 @@ void Selection(const std::filesystem::path& locale) {
     const auto hit = studio::PickSceneOutput(document, fixture.outputs_, 2, .6, .6);
     Check(hit.hit_ && hit.selected_ == 2 && std::abs(hit.hit_->position_.x_ - .4) < 1e-8,
           "selection uses actual frame camera and transform");
+    auto named = snapshot;
+    for (const auto& edge : named.document_.edges_) {
+        const auto name = "scene-source-" + std::to_string(edge.from_);
+        named.document_.signals_.push_back({name, edge.from_});
+        named.document_.bindings_.push_back({edge.to_, edge.input_, name});
+    }
+    named.document_.edges_.clear();
+    Check(fixture.history_.Apply(named, fixture.history_.Current().document_.revision_),
+          "install named scene routes");
+    fixture.selected_ = 0;
+    fixture.Frame();
+    fixture.Move(fixture.Point(.6, .6));
+    fixture.Button(true);
+    fixture.Button(false);
+    Check(fixture.selected_ == 2 && fixture.commits_ == 0,
+          "bound render output must select through its current named scene and camera");
+    Check(fixture.history_.Apply(snapshot, fixture.history_.Current().document_.revision_),
+          "restore wire scene for batch gesture checks");
+    fixture.Frame();
     scene->instances_[0].origin_.element_ = 23;
     scene->instances_[0].origin_.generation_ = 8;
     scene->instances_.push_back({geometry, scene::ComposeEuler({{1.2, 0, 0}}), {}, {4, 2, 24, 8}});

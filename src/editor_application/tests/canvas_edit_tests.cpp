@@ -28,6 +28,21 @@ editor::Snapshot Base() {
 void Run() {
     const auto base = Base();
     const auto target = std::get<editor::CanvasTarget>(editor::InspectCanvasTarget(base, 2));
+    auto named = base;
+    for (const auto& edge : named.document_.edges_) {
+        const auto name = "image-" + std::to_string(edge.from_);
+        named.document_.signals_.push_back({name, edge.from_});
+        named.document_.bindings_.push_back({edge.to_, edge.input_, name});
+    }
+    named.document_.edges_.clear();
+    const auto named_target = std::get<editor::CanvasTarget>(editor::InspectCanvasTarget(named, 2));
+    Require(named_target.parent_.values_ == target.parent_.values_ &&
+                    named_target.node_ == target.node_,
+            "named image routes must preserve parent coordinates and author identity");
+    auto unresolved = named;
+    unresolved.document_.signals_.clear();
+    Require(std::holds_alternative<graph::Diagnostic>(editor::InspectCanvasTarget(unresolved, 2)),
+            "unresolved image sources cannot authorize a canvas edit");
     const auto screen = [&](geometry2d::Point point) {
         return geometry2d::Transform(target.parent_, point);
     };

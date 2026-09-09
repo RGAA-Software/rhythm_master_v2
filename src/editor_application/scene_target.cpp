@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "rhythm/editor/scene_edit.h"
+#include "rhythm/graph/bindings.h"
 
 namespace rhythm::editor {
 namespace {
@@ -68,9 +69,13 @@ SceneInspection InspectSceneTarget(const Snapshot& snapshot, graph::NodeId selec
         if (!nodes.contains(selected) ||
             document.nodes_[nodes.at(selected)].type_ != "scene.transform")
             throw std::invalid_argument("scene_edit.select_transform");
+        const auto resolved = graph::ResolveEdges(document);
+        if (!std::holds_alternative<std::vector<graph::Edge>>(resolved))
+            throw std::invalid_argument("scene_edit.invalid_graph");
+        const auto& edges = std::get<std::vector<graph::Edge>>(resolved);
         std::map<graph::NodeId, std::vector<std::size_t>> incoming, outgoing;
-        for (std::size_t index = 0; index < document.edges_.size(); ++index) {
-            const auto& edge = document.edges_[index];
+        for (std::size_t index = 0; index < edges.size(); ++index) {
+            const auto& edge = edges[index];
             incoming[edge.to_].push_back(index);
             outgoing[edge.from_].push_back(index);
         }
@@ -80,7 +85,7 @@ SceneInspection InspectSceneTarget(const Snapshot& snapshot, graph::NodeId selec
             const auto id = pending.back();
             pending.pop_back();
             if (!reachable.insert(id).second) continue;
-            for (const auto edge : incoming[id]) pending.push_back(document.edges_[edge].from_);
+            for (const auto edge : incoming[id]) pending.push_back(edges[edge].from_);
         }
         if (!reachable.contains(selected)) throw std::invalid_argument("scene_edit.not_in_output");
         SceneTarget result;
@@ -95,12 +100,12 @@ SceneInspection InspectSceneTarget(const Snapshot& snapshot, graph::NodeId selec
             if (!visited.insert(id).second) throw std::invalid_argument("scene_edit.invalid_graph");
             std::optional<std::size_t> next;
             for (const auto edge : outgoing[id])
-                if (reachable.contains(document.edges_[edge].to_)) {
+                if (reachable.contains(edges[edge].to_)) {
                     if (next) throw std::invalid_argument("scene_edit.ambiguous_route");
                     next = edge;
                 }
             if (!next) throw std::invalid_argument("scene_edit.not_in_output");
-            const auto& edge = document.edges_[*next];
+            const auto& edge = edges[*next];
             id = edge.to_;
             if (!nodes.contains(id)) throw std::invalid_argument("scene_edit.invalid_graph");
             const auto& node = document.nodes_[nodes.at(id)];
@@ -115,15 +120,12 @@ SceneInspection InspectSceneTarget(const Snapshot& snapshot, graph::NodeId selec
                     result.render_node_ = id;
                     result.scene_source_ = edge.from_;
                     for (const auto input : incoming[id]) {
-                        const auto& camera_edge = document.edges_[input];
+                        const auto& camera_edge = edges[input];
                         if (camera_edge.input_ != "camera") continue;
                         if (!nodes.contains(camera_edge.from_))
                             throw std::invalid_argument("scene_edit.invalid_graph");
                         result.camera_ = Camera(document.nodes_[nodes.at(camera_edge.from_)]);
                     }
-                    for (const auto& binding : document.bindings_)
-                        if (binding.node_ == id && binding.input_ == "camera")
-                            throw std::invalid_argument("scene_edit.camera_scope");
                 } else {
                     throw std::invalid_argument("scene_edit.unsupported_route");
                 }

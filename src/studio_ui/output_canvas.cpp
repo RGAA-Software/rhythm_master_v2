@@ -46,12 +46,25 @@ OutputEdit OutputCanvas::DrawCanvas(const editor::Snapshot& snapshot, graph::Nod
         return std::any_of(nodes.begin(), nodes.end(),
                            [&](const auto& node) { return node.id_ == id && node.type_ == type; });
     };
-    const auto direct_scene = std::any_of(snapshot.document_.edges_.begin(),
-                                          snapshot.document_.edges_.end(), [&](const auto& edge) {
-                                              return edge.to_ == snapshot.document_.output_ &&
-                                                     edge.input_ == "source" &&
-                                                     scene_node(edge.from_, "scene.render");
-                                          });
+    const auto direct_scene =
+            std::any_of(snapshot.document_.edges_.begin(), snapshot.document_.edges_.end(),
+                        [&](const auto& edge) {
+                            return edge.to_ == snapshot.document_.output_ &&
+                                   edge.input_ == "source" &&
+                                   scene_node(edge.from_, "scene.render");
+                        }) ||
+            std::any_of(snapshot.document_.bindings_.begin(), snapshot.document_.bindings_.end(),
+                        [&](const auto& binding) {
+                            return binding.node_ == snapshot.document_.output_ &&
+                                   binding.input_ == "source" &&
+                                   std::any_of(snapshot.document_.signals_.begin(),
+                                               snapshot.document_.signals_.end(),
+                                               [&](const auto& signal) {
+                                                   return signal.name_ == binding.signal_ &&
+                                                          scene_node(signal.source_,
+                                                                     "scene.render");
+                                               });
+                        });
     if (direct_scene || scene_node(selected, "scene.transform")) {
         const auto canceled = edit_.has_value();
         edit_.reset();

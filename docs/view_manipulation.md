@@ -281,3 +281,28 @@ Windows Python 增量构建和完整 deploy 已完成：
 导航和选中输出检查已实现并通过受影响 UI/GPU 检查；具体路径、压力规模、
 失败记录和输出域限制见 [预览导航](preview_navigation.md)。本阶段退出作品与
 跨平台同作品验收继续推进，不能以导航验收代替完整 P4 完成。
+
+### 命名图像/场景/相机链路
+
+从零创作继续复用既有 BindingEditor 的类型化命名连接。补齐视图识别：
+`InspectCanvasTarget`、`InspectSceneTarget` 和场景拾取使用与编译器相同的
+`ResolveEdges`，让命名图像、场景和相机输入与普通连线遵循相同的路径与坐标规则。
+此前“根输出绑定不支持”的限制在此增量解除；非坐标保持图像处理、组件内部视图
+手柄、动态变换保护、预算和 GPU 变形拾取限制继续保留。不会把命名连接改写成连线。
+
+共享 Windows `out/p4-named-view-routes-tests.log` 和 USB 手机原生
+`out/p4-named-view-routes-android-tests.log` 通过，覆盖同一父矩阵/作者/相机、
+绑定保持、无法解析的来源拒绝及原静态/驱动保护。双语言 UI 拾取
+`out/p4-named-route-ui-tests.log` 通过。
+
+实际 GPU `out/p4-named-route-gpu-roundtrip-tests.log` 两项通过：命名连接的
+2D 搜索/预览/拖动与 3D 拾取/拖动、当前新计划、保存发布、撤销和重开像素；
+保存工程保留原绑定、源身份以及序列化扩展字段。首次测试直接比较内存夹具与
+加载后的 protobuf 扩展字段而失败，改为比较编辑前后实际加载的记录；未删减
+字段校验，失败日志 `out/p4-named-route-gpu-tests.log` 保留。
+
+GPU 证据目录分别为
+`out/windows-release/named-output-canvas-gpu/cbde8695e81f4c1f8a0e29dd11d7f307/` 和
+`out/windows-release/named-scene-canvas-gpu/9a679acf5af5408ba4f1042f3c51ee54/`。
+`out/p4-named-route-delivery.log` 已完成 Windows Studio Python deploy 和四项
+强制模板回归。此增量只有作者视图路径变化，Android Player 运行 ABI/内容未改动。

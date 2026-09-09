@@ -16,6 +16,7 @@ def main():
     parser.add_argument("--scene", action="store_true")
     parser.add_argument("--scope", action="store_true")
     parser.add_argument("--automation", action="store_true")
+    parser.add_argument("--named", action="store_true")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     output = args.output.resolve() / uuid.uuid4().hex
@@ -31,6 +32,8 @@ def main():
         command.append("--scene")
     if args.automation:
         command.append("--automation")
+    if args.named:
+        command.append("--named")
     subprocess.run(command,
                    check=True, timeout=85)
     captures = (["driven"] if args.automation else []) + ["before", "moved", "undone", "reopened"]

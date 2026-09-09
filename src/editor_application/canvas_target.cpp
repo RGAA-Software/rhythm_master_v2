@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "rhythm/editor/canvas_edit.h"
+#include "rhythm/graph/bindings.h"
 
 namespace rhythm::editor {
 namespace {
@@ -59,9 +60,13 @@ CanvasInspection InspectCanvasTarget(const Snapshot& snapshot, graph::NodeId sel
         target.uniform_scale_ = graph::Scalar(node, "scale", 1);
         if (!geometry2d::Inverse(geometry2d::Compose(target.pose_, target.canvas_)))
             throw std::invalid_argument("canvas.singular_transform");
+        const auto resolved = graph::ResolveEdges(document);
+        if (!std::holds_alternative<std::vector<graph::Edge>>(resolved))
+            throw std::invalid_argument("canvas.invalid_graph");
+        const auto& edges = std::get<std::vector<graph::Edge>>(resolved);
         std::map<graph::NodeId, std::vector<std::size_t>> incoming, outgoing;
-        for (std::size_t index = 0; index < document.edges_.size(); ++index) {
-            const auto& edge = document.edges_[index];
+        for (std::size_t index = 0; index < edges.size(); ++index) {
+            const auto& edge = edges[index];
             incoming[edge.to_].push_back(index);
             outgoing[edge.from_].push_back(index);
         }
@@ -71,7 +76,7 @@ CanvasInspection InspectCanvasTarget(const Snapshot& snapshot, graph::NodeId sel
             const auto id = pending.back();
             pending.pop_back();
             if (!reachable.insert(id).second) continue;
-            for (const auto index : incoming[id]) pending.push_back(document.edges_[index].from_);
+            for (const auto index : incoming[id]) pending.push_back(edges[index].from_);
         }
         if (!reachable.contains(selected)) throw std::invalid_argument("canvas.not_in_output");
         std::set<graph::NodeId> visited;
@@ -80,12 +85,12 @@ CanvasInspection InspectCanvasTarget(const Snapshot& snapshot, graph::NodeId sel
             if (!visited.insert(id).second) throw std::invalid_argument("canvas.invalid_graph");
             std::optional<std::size_t> next;
             for (const auto index : outgoing[id])
-                if (reachable.contains(document.edges_[index].to_)) {
+                if (reachable.contains(edges[index].to_)) {
                     if (next) throw std::invalid_argument("canvas.ambiguous_route");
                     next = index;
                 }
             if (!next) throw std::invalid_argument("canvas.not_in_output");
-            const auto& edge = document.edges_[*next];
+            const auto& edge = edges[*next];
             id = edge.to_;
             if (!indices.contains(id)) throw std::invalid_argument("canvas.invalid_graph");
             const auto& parent = document.nodes_[indices.at(id)];
