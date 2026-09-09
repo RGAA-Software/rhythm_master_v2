@@ -74,3 +74,12 @@ Android 再次 push 后执行权限被重置；typed 日志为启动失败，恢
 Windows `out/p3-audible-handoff-windows-tests.log` 的 playback_analysis、audio_playback、
 media_audio 通过；Android `out/p3-audible-handoff-android-tests.log` 通过相同分析队列
 检查。这里只验证设备消费计数的映射，尚未接入宿主画面过渡。
+
+回退窗口增量：PCM 已提交而设备未确认交接时，保留旧 lane 并随新场输出同步推进，
+仍共享四游标预算。Cancel 或新场后续解码失败恢复到第一帧尚未提交的旧 PCM；
+Confirm 才释放旧 lane 并允许下一次过渡。这样无需重新打开旧音乐或猜测循环位置，
+也不会允许同时存在三场。这个 Cancel 不清除设备队列，恢复标记仍需由宿主消费层
+跟踪，不能把旧声恢复的排队延迟写成零。
+Windows `out/p3-queued-rollback-windows-tests.log` 和 Android
+`out/p3-queued-rollback-android-tests.log` 检查通过：101 帧短淡化后取消、旧源循环
+跨界、新场独占 PCM 已产生后的坏素材回退，以及确认后释放旧源。设备/宿主连接仍待完成。

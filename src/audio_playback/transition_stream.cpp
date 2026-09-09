@@ -61,6 +61,15 @@ class TransitionStream::Lane final {
         position_ += frames;
         return result;
     }
+    void Advance(std::size_t frames, std::stop_token stop) {
+        while (frames) {
+            const auto available = Available(stop);
+            const auto count = available ? std::min(frames, available) : frames;
+            if (!ended_) offset_ += count * media::kAudioChannels;
+            position_ += count;
+            frames -= count;
+        }
+    }
     void Seek(std::uint64_t sample, std::stop_token stop) {
         stream_->Seek(sample, options_.source_id_, stop);
         samples_.clear();
@@ -100,7 +109,7 @@ void TransitionStream::Begin(const PlaybackSource& source, StreamOptions options
     ValidateOptions(options);
     (void)media::CrossfadeAt(0, duration, curve);
     CheckStop(stop);
-    if (incoming_) throw std::logic_error("audio.transition_busy");
+    if (incoming_ || rollback_) throw std::logic_error("audio.transition_busy");
     if (options.source_id_ <= last_source_id_) throw std::invalid_argument("audio.source_identity");
     if (current_->Required() + RequiredCursors(source) > media::AudioCursorBudget::kMaximum)
         throw std::length_error("audio.transition_cursor_budget");
@@ -115,6 +124,7 @@ void TransitionStream::Begin(const PlaybackSource& source, StreamOptions options
 std::optional<StreamPcm> TransitionStream::Read(std::stop_token stop) {
     CheckStop(stop);
     if (incoming_ && progress_.frames_ == progress_.duration_) {
+        rollback_ = std::move(current_);
         current_ = std::move(incoming_);
         progress_.state_ = FadeState::kSubmitted;
     }
@@ -146,23 +156,48 @@ std::optional<StreamPcm> TransitionStream::Read(std::stop_token stop) {
         progress_.frames_ += frames;
         return previous;
     }
-    const auto frames = current_->Available(stop);
+    std::size_t frames = 0;
+    try {
+        frames = current_->Available(stop);
+    } catch (const std::exception& error) {
+        if (stop.stop_requested() || !rollback_) throw;
+        current_ = std::move(rollback_);
+        progress_.state_ = FadeState::kFailed;
+        progress_.error_ = error.what();
+        return Read(stop);
+    }
     if (!frames) return {};
+    if (rollback_) rollback_->Advance(frames, stop);
     auto result = current_->Take(frames);
     for (auto& sample : result.samples_) sample *= current_->Gain();
     return result;
 }
 bool TransitionStream::Cancel() {
-    if (!incoming_) return false;
+    if (!incoming_ && !rollback_) return false;
+    if (rollback_) current_ = std::move(rollback_);
     incoming_.reset();
     progress_.state_ = FadeState::kCanceled;
     return true;
 }
+bool TransitionStream::Confirm() {
+    if (!rollback_ || progress_.state_ != FadeState::kSubmitted) return false;
+    rollback_.reset();
+    return true;
+}
 void TransitionStream::Seek(std::uint64_t sample, std::stop_token stop) {
-    current_->Seek(sample, stop);
+    if (rollback_) {
+        rollback_->Seek(sample, stop);
+        current_ = std::move(rollback_);
+    } else
+        current_->Seek(sample, stop);
     incoming_.reset();
     progress_ = {};
 }
-void TransitionStream::SetLoop(bool loop) { current_->SetLoop(loop); }
+void TransitionStream::SetLoop(bool loop) {
+    if (rollback_)
+        rollback_->SetLoop(loop);
+    else
+        current_->SetLoop(loop);
+}
 media::AudioInfo TransitionStream::Info() const { return current_->Info(); }
 }  // namespace rhythm::audio::detail

@@ -44,8 +44,13 @@ class TransitionStream final {
     void Begin(const PlaybackSource& source, StreamOptions options, std::uint64_t duration,
                media::CrossfadeCurve curve, std::stop_token stop = {});
     std::optional<StreamPcm> Read(std::stop_token stop = {});
-    // Cancels only PCM not yet completed. Queued sound cannot be retracted here.
+    // Restores the old lane at the first frame not yet produced, including the
+    // device's decode-ahead period after the last mixed frame. Already queued
+    // sound cannot be retracted here; caller tracks its recovery boundary.
     bool Cancel();
+    // Device has consumed the fade end: release the rollback lane. Until this
+    // acknowledgment, its cursor advances with every produced new-source block.
+    bool Confirm();
     void Seek(std::uint64_t sample, std::stop_token stop = {});
     void SetLoop(bool loop);
     media::AudioInfo Info() const;
@@ -58,6 +63,7 @@ class TransitionStream final {
     media::AudioCursorBudget budget_{};
     std::unique_ptr<Lane> current_{};
     std::unique_ptr<Lane> incoming_{};
+    std::unique_ptr<Lane> rollback_{};
     FadeProgress progress_{};
     media::CrossfadeCurve curve_ = media::CrossfadeCurve::kLinear;
     std::uint64_t last_source_id_ = 0;

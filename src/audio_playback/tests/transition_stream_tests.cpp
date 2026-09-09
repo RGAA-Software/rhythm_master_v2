@@ -62,12 +62,13 @@ void Run(const std::filesystem::path& directory) {
     const auto next = stream.Read();
     Require(next && next->identity_ == StreamIdentity{2, 0} && next->first_sample_ == kFadeFrames &&
                     stream.Progress().state_ == FadeState::kSubmitted &&
-                    stream.ActiveCursors() == 1,
+                    stream.ActiveCursors() == 2,
             "promoted source has advanced through the mixed frames");
     for (std::size_t index = 0; index < next->samples_.size(); ++index)
         Require(std::abs(next->samples_[index] - next_pcm[kFadeFrames * 2 + index] * 0.3F) < 1e-6,
                 "incoming PCM remainder preserved across boundary");
-    Require(!stream.Cancel(), "completed PCM cannot be retracted without host rollback");
+    Require(stream.Confirm() && stream.ActiveCursors() == 1 && !stream.Cancel(),
+            "audible confirmation releases rollback, completed PCM cannot be canceled");
 
     TransitionStream failure(ramp, {10});
     auto consumed = failure.Read()->samples_.size() / 2;
@@ -114,7 +115,7 @@ void Run(const std::filesystem::path& directory) {
     }
     Require(rejected && failure.ActiveCursors() == 1, "canceled preparation has no lease");
     failure.Begin(tone, {15}, 0, media::CrossfadeCurve::kLinear);
-    Require(failure.Read()->identity_.source_ == 15 && failure.ActiveCursors() == 1,
+    Require(failure.Read()->identity_.source_ == 15 && failure.ActiveCursors() == 2,
             "zero-duration handoff emits new source immediately");
 
     const auto file =
@@ -126,7 +127,8 @@ void Run(const std::filesystem::path& directory) {
     Require(budget.ActiveCursors() == 4 && budget.PeakCursors() == 4,
             "two scenes share four cursors");
     while (budget.Progress().state_ == FadeState::kMixing) budget.Read();
-    Require(budget.ActiveCursors() == 2, "old mixer leases released after promotion");
+    Require(budget.Confirm() && budget.ActiveCursors() == 2,
+            "old mixer leases released after audible promotion");
     const auto late_four = Arrangement(file, 4, 0.5);
     TransitionStream limited(tone, {30});
     const auto before_limit = limited.Read();
@@ -198,6 +200,50 @@ void Run(const std::filesystem::path& directory) {
     }
     Require(!short_source.Read() && short_source.Progress().state_ == FadeState::kSubmitted,
             "short next source ends after exact fade duration");
+
+    TransitionStream rollback(ramp, {70});
+    rollback.Begin(tone, {71}, 101, media::CrossfadeCurve::kLinear);
+    Require(rollback.Read()->samples_.size() == 202, "short fade exact boundary");
+    const auto ahead = rollback.Read();
+    Require(ahead && ahead->identity_.source_ == 71 && rollback.ActiveCursors() == 2,
+            "new PCM queued while old lane retained");
+    Require(rollback.Cancel() && rollback.ActiveCursors() == 1, "cancel decode-ahead handoff");
+    const auto restored = rollback.Read();
+    const auto resume_sample = 101 + ahead->samples_.size() / 2;
+    Require(restored && restored->identity_.source_ == 70 &&
+                    restored->first_sample_ == resume_sample,
+            "rollback advances old cursor through all produced new PCM");
+    for (std::size_t index = 0; index < restored->samples_.size(); ++index)
+        Require(restored->samples_[index] == old_pcm[resume_sample * 2 + index],
+                "rollback PCM has no repeated or skipped old samples");
+
+    TransitionStream rollback_loop(two, {80, 1, true});
+    rollback_loop.Begin(tone, {81}, 9599, media::CrossfadeCurve::kLinear);
+    while (rollback_loop.Progress().frames_ < 9599) rollback_loop.Read();
+    const auto after_loop_boundary = rollback_loop.Read();
+    Require(after_loop_boundary && rollback_loop.Cancel(), "rollback across old loop boundary");
+    const auto old_loop = rollback_loop.Read();
+    const auto old_loop_position = 9599 + after_loop_boundary->samples_.size() / 2;
+    Require(old_loop && old_loop->identity_ == StreamIdentity{80, old_loop_position / 9600} &&
+                    old_loop->first_sample_ == old_loop_position % 9600,
+            "rollback preserves old loop iteration and phase");
+
+    TransitionStream post_fade_error(ramp, {90});
+    post_fade_error.Begin(late_broken, {91}, 101, media::CrossfadeCurve::kLinear);
+    produced = 0;
+    while (post_fade_error.Progress().state_ != FadeState::kFailed) {
+        const auto block = post_fade_error.Read();
+        Require(block && produced < 24000,
+                "post-fade source failure recovered before confirmation");
+        if (post_fade_error.Progress().state_ == FadeState::kFailed) {
+            Require(block->identity_.source_ == 90 && block->first_sample_ == produced,
+                    "late decode-ahead error restores old source at exact recovery boundary");
+            for (std::size_t index = 0; index < block->samples_.size(); ++index)
+                Require(block->samples_[index] == old_pcm[produced * 2 + index],
+                        "post-fade failed source does not lose current PCM");
+        }
+        produced += block->samples_.size() / 2;
+    }
 }
 }  // namespace
 int main(int argc, char** argv) {
