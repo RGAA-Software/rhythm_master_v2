@@ -5,3 +5,6 @@ third_party/** -text
 dependencies/vcpkg/ports/**/*.patch -text
 dependencies/vcpkg/ports/**/*.diff -text
 *.rgba binary
+
+# A content-addressed asset's identity includes every byte, including line endings.
+**/assets/sha256/** -text
