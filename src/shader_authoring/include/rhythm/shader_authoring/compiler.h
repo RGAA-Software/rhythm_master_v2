@@ -11,11 +11,14 @@ struct Toolchain {
     std::filesystem::path compiler_{};
     std::filesystem::path includes_{};
     std::filesystem::path varying_{};
+    // Canonical surface includes and scene_varying.def.sc; host tools only.
+    std::filesystem::path surface_sources_{};
 };
 struct Request {
     Toolchain tools_{};
     std::filesystem::path assets_{};
     std::string expression_{};
+    shader_expression::Profile profile_ = shader_expression::Profile::kImageRgba;
 };
 struct Result {
     std::optional<assets::AssetRecord> asset_{};

@@ -2,7 +2,7 @@ add_library(shader_authoring STATIC compiler.cpp process.cpp)
 target_include_directories(shader_authoring PUBLIC include
     PRIVATE "${PROJECT_SOURCE_DIR}/third_party/sources/picosha2")
 target_link_libraries(shader_authoring PUBLIC asset_store image_shader foundation_async
-    PRIVATE SDL3::SDL3-static)
+    PRIVATE SDL3::SDL3-static surface_shader)
 rhythm_project_target(shader_authoring)
 add_executable(shader_author_tool tool.cpp)
 target_link_libraries(shader_author_tool PRIVATE shader_authoring)

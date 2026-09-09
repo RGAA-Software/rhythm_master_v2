@@ -183,3 +183,16 @@ Prepared Assets 现在独立加载表面程序，覆盖检查包含材质 Shader
 缺失资产、取消恢复和异步加载检查。Windows 既有视频、混合缓存、文本与源码边界
 回归见 `out/p6-surface-preparation-regression.log`。这些是资产加载验证，尚不是
 Studio 编辑、发布与手机实际作品的完整验收。
+
+## 作者编译服务
+
+编译服务增加显式 RGB 表面 profile，默认仍为图像 RGBA；两者共用有界后台任务、
+工具身份、取消、临时目录 RAII 和成功后发布流程。表面 profile 使用规范场景
+varying 与四份现有 Godot 适配 include，各自执行产物验证与资产编码，不混用格式。
+`out/p6-surface-authoring-constructor-tests.log` 通过两种 profile 的真实 Windows／
+Android 目标编译、源码往返、保存重开、发布／准备、非法源码拒绝、不可变替换和取消。
+
+首次表面测试的 `vec3(scalar)` 写法被 D3D 编译器拒绝，失败保留在
+`out/p6-surface-authoring-tests.log`。改为显式三个分量的向量后通过；当前表达式
+使用 bgfx 跨目标语法，不能假定任意 GLSL 构造写法都跨平台可用。尚待 Studio
+面板与实际作品交付，不能以后台编译成功宣称 UI 热更新完成。
