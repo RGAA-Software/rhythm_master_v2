@@ -10,10 +10,59 @@ namespace {
 void Check(bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
 }
+void VerifyPreparation() {
+    using namespace rhythm;
+    graph::Registry registry;
+    graph::Document document;
+    document.id_ = "session.preparation";
+    document.canvas_ = {32, 32};
+    document.nodes_ = {registry.MakeNode(1, "core.time"), registry.MakeNode(2, "texture.gradient")};
+    document.edges_ = {{1, 1, 2, "amount"}};
+    for (std::uint64_t id = 3; id <= 24; ++id) {
+        document.nodes_.push_back(registry.MakeNode(id, "texture.transform"));
+        document.edges_.push_back({id, id - 1, id, "source"});
+    }
+    document.nodes_.push_back(registry.MakeNode(25, "output.texture"));
+    document.edges_.push_back({25, 24, 25, "source"});
+    document.output_ = 25;
+    player::Session session;
+    session.Load(project::EncodePackage(document, "Prepared"));
+    auto renderer = render::Renderer::CreateNull();
+    runtime::PreparationProgress prepared;
+    for (unsigned step = 0; step < 25; ++step) {
+        renderer.BeginFrame();
+        prepared = session.PrepareGraphics(step, {32, 32}, renderer, {}, {0, 42, true}, {1, 100});
+        renderer.EndFrame();
+        Check(prepared.state_ != runtime::PreparationState::kFailed && session.Seconds() == 0 &&
+                      prepared.completed_nodes_ == step + 1,
+              "candidate preparation holds time and advances bounded steps");
+        if (step != 24) Check(!prepared.output_, "candidate partial output remains private");
+    }
+    Check(prepared.state_ == runtime::PreparationState::kReady, "candidate is presentable");
+    renderer.BeginFrame();
+    const auto first =
+            session.Tick(25, false, {32, 32}, renderer, {}, runtime::PlaybackSample{0, 42, true});
+    renderer.EndFrame();
+    Check(first.final_ == prepared.output_->final_ && renderer.Stats().passes_ == 0,
+          "first paused presentation reuses prepared GPU state across clock binding");
+    renderer.BeginFrame();
+    const auto live = session.Tick(26, false, {32, 32}, renderer, {},
+                                   runtime::PlaybackSample{0.5, 42, false});
+    renderer.EndFrame();
+    Check(renderer.IsValid(live.final_) && live.outputs_.front().scalar_ == 0.5,
+          "accepted candidate advances from its scene-local clock");
+    session.ReleaseGraphics();
+    renderer.BeginFrame();
+    session.PrepareGraphics(27, {32, 32}, renderer, {}, {0, 43, true}, {3, 100});
+    renderer.EndFrame();
+    session.ReleaseGraphics();
+    Check(renderer.Stats().texture_bytes_ == 0, "cancel releases partial candidate resources");
+}
 }  // namespace
 int main() {
     using namespace rhythm;
     try {
+        VerifyPreparation();
         using player::PlaybackExtent;
         using player::RenderQuality;
         Check(PlaybackExtent({1280, 720}, RenderQuality::kBalanced) == render::Extent{960, 540},

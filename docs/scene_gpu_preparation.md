@@ -68,3 +68,14 @@ Android `out/p3-staged-pass-budget-android-tests.log`：相同 Runtime/渲染合
 像素及随后 3 个动态帧与一次执行逐像素相同，覆盖动态纹理复用与冻结反馈历史。
 这组 Android 证据是独立原生探针，不是 APK 交互；首帧准备也不代表预加载了
 未来所有视频片段或任意动态分支。
+
+### Session 接入
+
+`Session::PrepareGraphics` 固定场景时间/输入并绑定随后的播放时钟代次；异步等待
+当前时间所有活动视频首帧（含裁剪与偏移），最多等待 10 秒，再执行 Runtime 分步。
+未到齐时不创建候选图 GPU 输出；失败保留诊断，显式释放/重新加载后才能重试。
+Windows `out/p3-session-preparation-windows-tests.log` 的 player_contracts、video_player、
+视频 fixture 与 source_boundaries 通过；Android
+`out/p3-session-preparation-android-tests.log` 同样通过原生 Session/视频检查。
+25 步图准备期间时间为零，首次暂停呈现复用原句柄且不新增 pass；两路重叠裁剪
+片段均就绪后才完成准备，取消释放部分资源。SceneDeck/队列交付仍待后续增量。

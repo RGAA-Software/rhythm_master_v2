@@ -66,6 +66,9 @@ parameters::ControlValues Session::CurrentControls() const {
                    : external_.controls_;
 }
 void Session::ReleaseGraphics() {
+    preparation_context_.reset();
+    preparation_progress_ = {};
+    preparation_started_ = false;
     frame_ = {};
     runtime_.Reset();
     extent_ = {};
@@ -77,6 +80,9 @@ runtime::FrameResult Session::Tick(double monotonic_seconds, bool suspended, ren
                                    const std::optional<runtime::PlaybackSample>& playback) {
     if (!runtime::ValidExternalInputs(inputs))
         throw std::invalid_argument("runtime.external_inputs");
+    if (preparation_context_ && preparation_progress_.state_ != runtime::PreparationState::kReady)
+        throw std::logic_error("player.preparation_pending");
+    preparation_context_.reset();
     const auto previous_seconds = Seconds();
     clock_.Advance(monotonic_seconds, suspended, playback);
     const bool media_position_changed = playback && Seconds() != previous_seconds;

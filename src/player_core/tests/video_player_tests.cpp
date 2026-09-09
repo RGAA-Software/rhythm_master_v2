@@ -95,6 +95,22 @@ void RunClips(const std::vector<rhythm::project::PackagedAsset>& assets,
                              directory / "video.rhythmproj" / "assets");
     player::Session session;
     session.Open(directory / "clips.rhythmpack");
+    runtime::PreparationProgress prepared;
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+    while (prepared.state_ == runtime::PreparationState::kPending) {
+        Check(std::chrono::steady_clock::now() < deadline, "video candidate preparation deadline");
+        renderer.BeginFrame();
+        prepared = session.PrepareGraphics(0, {128, 128}, renderer, {}, {2.4, 5, true}, {1, 100});
+        renderer.EndFrame();
+        if (prepared.state_ == runtime::PreparationState::kPending) {
+            Check(!prepared.output_, "video candidate cannot expose unfinished output");
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    }
+    Check(prepared.state_ == runtime::PreparationState::kReady &&
+                  renderer.IsValid(prepared.output_->final_) && prepared.required_passes_ >= 3,
+          "trimmed overlapping video candidate waits for both decoded frames before rendering");
+    session.ReleaseGraphics();
     session.SetPaused(true);
     session.Seek(2.4);
     renderer.BeginFrame();

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <chrono>
+
 #include "rhythm/player/prepared_package.h"
 #include "rhythm/project/package.h"
 #include "rhythm/runtime/playback_clock.h"
@@ -34,6 +36,15 @@ class Session final {
     // Completed-frame boundary only; release before destroying a host device.
     // Playback time survives surface replacement, simulation history is reset.
     void ReleaseGraphics();
+    // Candidate sessions only. Captures the supplied scene-local time and inputs
+    // once, waits asynchronously for active video frames, then prepares bounded
+    // GPU steps on the host thread. Never advances simulation history. Finish or
+    // ReleaseGraphics before Tick. Returned partial progress contains no output.
+    runtime::PreparationProgress PrepareGraphics(double monotonic_seconds, render::Extent extent,
+                                                 render::Renderer& renderer,
+                                                 const runtime::ExternalInputs& inputs,
+                                                 const runtime::PlaybackSample& playback,
+                                                 runtime::PreparationBudget budget = {});
     // One immutable input snapshot per host-thread frame. Pause/suspension hold
     // the last evaluated audio/session snapshot, including during surface replacement.
     // Explicit public controls remain editable while paused. Missing
@@ -58,5 +69,9 @@ class Session final {
     render::Extent extent_{};
     std::uint64_t generation_ = 0;
     std::uint64_t clock_generation_ = 0;
+    std::optional<runtime::FrameContext> preparation_context_{};
+    runtime::PreparationProgress preparation_progress_{};
+    bool preparation_started_ = false;
+    std::chrono::steady_clock::time_point video_wait_started_{};
 };
 }  // namespace rhythm::player
