@@ -100,7 +100,7 @@ class SceneDeck final {
     void ResetPerformance();
     void ActivateTransition(double duration, bool synchronize_audio = false);
     void PrepareQueue(double monotonic_seconds, RenderQuality quality, render::Renderer& renderer,
-                      const runtime::ExternalInputs& inputs,
+                      render::TextureHandle current_output, const runtime::ExternalInputs& inputs,
                       const std::optional<std::reference_wrapper<SceneQueue>>& queue);
     void ApplyPerformance(const runtime::PlaybackSample& sample,
                           const std::optional<std::reference_wrapper<SceneQueue>>& queue);

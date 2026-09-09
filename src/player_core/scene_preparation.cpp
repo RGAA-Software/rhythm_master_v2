@@ -4,7 +4,8 @@
 
 namespace rhythm::player {
 void SceneDeck::PrepareQueue(double monotonic_seconds, RenderQuality quality,
-                             render::Renderer& renderer, const runtime::ExternalInputs& inputs,
+                             render::Renderer& renderer, render::TextureHandle current_output,
+                             const runtime::ExternalInputs& inputs,
                              const std::optional<std::reference_wrapper<SceneQueue>>& queue) {
     if (queue && discarded_queue_id_) {
         queue->get().FailGraphics(discarded_queue_id_, "player.preparation_cancelled");
@@ -15,7 +16,7 @@ void SceneDeck::PrepareQueue(double monotonic_seconds, RenderQuality quality,
         DiscardTransition();
         discarded_queue_id_ = 0;
     }
-    if (!queue || !CanPrepareNext()) return;
+    if (!queue || !CanPrepareNext() || !renderer.IsValid(current_output)) return;
     auto& pending = queue->get();
     if (!incoming_ && !pending.Items().empty()) {
         const auto id = pending.Items().front().id_;
@@ -41,14 +42,27 @@ void SceneDeck::PrepareQueue(double monotonic_seconds, RenderQuality quality,
     preparation_extent_ = extent;
     auto incoming_inputs = inputs;
     incoming_inputs.controls_.clear();
-    preparation_ = incoming_->PrepareGraphics(monotonic_seconds, extent, renderer, incoming_inputs,
-                                              {0, scene_generation_, true});
-    if (preparation_.state_ == runtime::PreparationState::kPending) return;
-    if (preparation_.state_ == runtime::PreparationState::kReady &&
-        preparation_.required_passes_ + current_passes_ + 1 > render::kMaximumOffscreenPasses) {
+    try {
+        preparation_ = incoming_->PrepareGraphics(monotonic_seconds, extent, renderer,
+                                                  incoming_inputs, {0, scene_generation_, true});
+        if (preparation_.state_ == runtime::PreparationState::kPending) return;
+        if (preparation_.state_ == runtime::PreparationState::kReady) {
+            if (preparation_.required_passes_ + current_passes_ + 1 >
+                render::kMaximumOffscreenPasses)
+                throw render::BudgetExceeded(render::Budget::kPasses);
+            // Reserve the dissolve target/program before publishing queue readiness.
+            // The private warm-up result never replaces the accepted output.
+            compositor_.Blend(renderer, {current_output, current_->Canvas()},
+                              {preparation_.output_->final_, incoming_->Canvas()},
+                              PlaybackExtent(current_->Canvas(), quality), 0);
+        }
+    } catch (const render::BudgetExceeded& error) {
         preparation_.state_ = runtime::PreparationState::kFailed;
-        preparation_.budget_ = render::Budget::kPasses;
-        preparation_.error_ = "render.pass_budget";
+        preparation_.budget_ = error.Kind();
+        preparation_.error_ = error.what();
+    } catch (const std::exception& error) {
+        preparation_.state_ = runtime::PreparationState::kFailed;
+        preparation_.error_ = error.what();
     }
     if (preparation_.state_ == runtime::PreparationState::kReady) {
         warmed_ = true;

@@ -1,7 +1,7 @@
 # P3.4 分帧 GPU 准备
 
 状态：Runtime、Session、队首预备与两端 Player 已接入并短操作交付；
-正在补齐逐准备帧性能记录，P3.5 连续演出与资源不足策略尚未完成。2026-09-09，基线实现 `f7b8011`。
+逐准备帧性能记录已补齐，P3.4 已交付；P3.5 连续演出与资源不足策略尚未完成。2026-09-09，基线实现 `f7b8011`。
 
 ## 复用与实施约束
 
@@ -122,3 +122,24 @@ Android 覆盖安装 APK SHA256
 `out/android-program-ui/462579d0fb8149ea9fd7c07f6493a281/`。
 实际 AAudio 消费帧 107520 → 119040 → 167424，完成切场，保存列表逐字节未变；
 检查结束保留应用并暂停。不含声学回录、听感或长时间验收。
+
+### 逐准备帧与合成目标收口
+
+同一 100 帧探针的 34 节点《墨潮》在第 10–14 帧按 8/16/24/32/34 节点推进。
+新增纹理分别为 4、2,073,600、6,220,800、4,147,200、2,073,600 B；首个来场
+单帧约 14.5 MB 的分配分散到 5 帧，最大单帧约 6.2 MB。Windows 包含 EndFrame
+的准备帧最大 17.05 ms；Android 为 4.52、4.98、21.60、5.03、5.01 ms。
+CPU 最大单节点约 0.035 ms 并不等于 GPU 驱动工作耗时；Android 第 12 帧仍超过
+16.7 ms。此短测说明资源创建被分散，不证明所有作品达到 60 FPS 或彻底无卡顿。
+日志 `out/p3-preparation-frame-metrics-windows-detail.log`、
+`out/p3-preparation-frame-metrics-android-tests.log` 保留逐帧数据与实际像素检查。
+
+队首准备还预先创建淡化合成目标/程序，其私有预热结果不替换当前输出；合成目标
+资源拒绝同样保留旧场和失败队列行。scene_queue 检查一秒过渡 Go 当帧纹理分配
+不增加，Windows 的真实 UI、音频/像素、完整 deploy 6 项检查通过，见
+`out/p3-compositor-preparation-windows-tests.log`；Android 原生队列检查
+`out/p3-compositor-preparation-android-tests.log` 通过。
+最终 APK 再次覆盖安装，触摸/暂停 Go/AAudio 消费接管/保存列表不变检查通过，
+证据 `out/android-scene-audio/8fcb29cadffc4fc5941a94d6cf55fef1/`，
+汇总 `out/p3-compositor-preparation-apk-touch-tests.log`。
+APK SHA256 `e95aec2ef7016f925c75c4f0e722088fbb8f8b839d1c1a006d8f0d00b33976f1`。

@@ -219,7 +219,7 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
         audio_clock_->Reset();
         preserve_audio_origin_ = false;
     }
-    PrepareQueue(monotonic_seconds, quality, renderer, inputs, queue);
+    PrepareQueue(monotonic_seconds, quality, renderer, result.output_.final_, inputs, queue);
     if (!incoming_ || !transition_started_ || (cancel_requested_ && !audio_frame.committed_))
         return result;
     if (!warmed_ || !origin_set_) {

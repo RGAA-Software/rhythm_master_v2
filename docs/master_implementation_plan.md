@@ -18,8 +18,10 @@ P2.4 可编辑动作轨、现场录制、一次撤销、组件/模板/保存发�
 [Android 旧内容打包漏洞](validation/android_stale_content_2026-09-09.md)。
 P3.1–P3.2 的持久演出列表、稳定作品引用、托管副本与两端操作已交付，见
 [列表实施与证据](performance_lists.md)。P3.3 常规预算内音画淡化已接入两端，Windows 实际 UI/像素与 Android AAudio
-短操作通过，见 [音频切场证据](audio_scene_crossfade.md)。继续完成 P3.4 分帧 GPU
-准备和 P3.5 综合演出流程，含超出双场资源准入时的明确硬切路径；P3 整体、内容
+短操作通过，见 [音频切场证据](audio_scene_crossfade.md)。P3.4 分帧 GPU 准备、
+队首先准备后 Go、合成目标预热及两端交付已完成，见
+[GPU 准备证据](scene_gpu_preparation.md)。继续 P3.5 综合演出流程，含超出双场
+资源准入时的明确硬切路径；P3 整体、内容
 品质审核与 P7 数量目标仍未完成。
 
 ## 1. 产品目标、阶段终点与优先级

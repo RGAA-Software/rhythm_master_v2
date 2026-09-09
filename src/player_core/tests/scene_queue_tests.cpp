@@ -123,6 +123,7 @@ int main(int argc, char* argv[]) {
                           queue.Items().front().state_ == player::ScenePreparation::kPresentable &&
                           !deck.Transitioning(),
                   "GPU preparation precedes Go without consuming the pending row");
+            const auto prepared_bytes = renderer.Stats().texture_bytes_;
             Check(tick(0.5).switched_ && queue.Items().empty() &&
                           deck.Current().Title() == "Survivor scene" &&
                           deck.ActionStatus(player::PerformanceActionKind::kNextScene).id_ ==
@@ -130,6 +131,8 @@ int main(int argc, char* argv[]) {
                           deck.ActionStatus(player::PerformanceActionKind::kNextScene).state_ ==
                                   player::PerformanceActionState::kCompleted,
                   "next scene displays at the requested beat");
+            Check(renderer.Stats().texture_bytes_ == prepared_bytes,
+                  "Go reuses prepared scene and compositor allocations");
             tick(0.6);
             deck.SetBeatGrid(parameters::BeatSettings{});
             const auto stale = queue.Enqueue(good, "Removed").value();
@@ -168,9 +171,12 @@ int main(int argc, char* argv[]) {
             Check(!deck.QueueReady(failing_id), "surface release invalidates queue GPU readiness");
             tick(1.5);
             Check(deck.QueueReady(failing_id), "surface restoration prepares the same stable row");
-            deck.RequestNextScene(failing_id, 0, parameters::Quantization::kImmediate);
-            Check(tick(1.6).switched_ && queue.Items().empty(),
-                  "retried candidate is consumed only by a valid Go");
+            const auto warmed_bytes = renderer.Stats().texture_bytes_;
+            deck.RequestNextScene(failing_id, 1, parameters::Quantization::kImmediate);
+            Check(!tick(1.6).switched_ && queue.Items().empty() && deck.Transitioning() &&
+                          renderer.Stats().texture_bytes_ == warmed_bytes,
+                  "valid Go consumes retried candidate and reuses its prepared dissolve target");
+            Check(tick(2.7).switched_, "retried candidate completes the requested fade");
             deck.ReleaseGraphics();
         }
         std::cout << "bounded scene preparation, retry, cancellation and move handoff pass\n";

@@ -103,11 +103,24 @@ void VerifySceneDeck(render::Renderer& renderer, const std::filesystem::path& fi
         audio.rms_ = audio.loudness_ = 0.45f;
         audio.mono_bands_.fill(0.4f);
         renderer.BeginFrame();
+        const bool was_preparing = deck.PreparingGraphics();
         const auto result =
                 deck.Tick(frame / 60.0, false, player::RenderQuality::kBalanced, renderer, inputs);
         const double elapsed = std::chrono::duration<double, std::milli>(
                                        std::chrono::steady_clock::now() - started)
                                        .count();
+        const bool preparation_frame = was_preparing || deck.PreparingGraphics();
+        if (preparation_frame) {
+            const auto& preparation = deck.GraphicsPreparation();
+            std::cout << "preparation_frame=" << frame << " nodes=" << preparation.completed_nodes_
+                      << '/' << preparation.total_nodes_ << " state=" << int(preparation.state_)
+                      << " step_cpu_ms=" << preparation.cpu_ms_
+                      << " maximum_node_ms=" << preparation.maximum_node_ms_
+                      << " tick_cpu_ms=" << elapsed << " texture_delta_bytes="
+                      << static_cast<std::int64_t>(renderer.Stats().texture_bytes_) -
+                                 static_cast<std::int64_t>(previous_bytes)
+                      << " passes=" << renderer.Stats().passes_ << '\n';
+        }
         if (frame >= 10 && frame < 70) cpu_ms.push_back(elapsed);
         if (frame == 0 || frame == 10)
             std::cout << "scene_creation frame=" << frame << " cpu_submit_ms=" << elapsed
@@ -137,6 +150,9 @@ void VerifySceneDeck(render::Renderer& renderer, const std::filesystem::path& fi
                                          std::chrono::steady_clock::now() - started)
                                          .count();
             if (frame >= 10 && frame < 70) frame_ms.push_back(ended);
+            if (preparation_frame)
+                std::cout << "preparation_frame=" << frame << " including_end_frame_ms=" << ended
+                          << '\n';
             if (frame == 0 || frame == 10)
                 std::cout << "scene_creation frame=" << frame << " including_end_frame_ms=" << ended
                           << '\n';
