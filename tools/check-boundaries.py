@@ -26,6 +26,7 @@ RENDER_ADAPTERS = {
         "bgfx_scene_morph.h", "bgfx_scene_morph.cpp",
         "bgfx_scene_environment.h", "bgfx_scene_environment.cpp",
         "bgfx_gpu_points.h", "bgfx_gpu_points.cpp",
+        "bgfx_surface_programs.h", "bgfx_surface_programs.cpp",
         "bgfx_texture_programs.h", "bgfx_texture_programs.cpp")
 }
 RENDER_ADAPTERS.update({"src/rhythm_render/src/bgfx_image_programs.h", "src/rhythm_render/src/bgfx_image_programs.cpp"})

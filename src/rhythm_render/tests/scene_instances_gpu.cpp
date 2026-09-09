@@ -20,7 +20,8 @@ render::ReadbackImage Complete(render::Renderer& renderer, render::Readback tick
     throw std::runtime_error("instances.readback_timeout");
 }
 }  // namespace
-void VerifySceneInstances(render::Renderer& renderer) {
+void VerifySceneInstances(render::Renderer& renderer,
+                          std::optional<render::SurfaceProgramInput> surface) {
     constexpr std::uint32_t kCount = 16;
     const std::array<render::MeshVertex, 4> vertices{{{-0.8f, -0.8f, 0, 0.6f, 0, 0.8f},
                                                       {0.8f, -0.8f, 0, 0.6f, 0, 0.8f},
@@ -39,6 +40,7 @@ void VerifySceneInstances(render::Renderer& renderer) {
         list.projection_[5] = 0.9f;
         for (std::uint32_t i = 0; i < kCount; ++i) {
             render::MeshDraw draw;
+            draw.surface_program_ = surface;
             draw.mesh_ = mesh.Handle();
             draw.color_ = {0.3f, 0.7f, 0.9f, scenario == 5 ? 0.5f : 1.0f};
             draw.unlit_ = scenario != 1 && scenario != 4;
@@ -96,6 +98,7 @@ void VerifySceneInstances(render::Renderer& renderer) {
         list.draws_.reserve(count);
         for (std::uint32_t i = 0; i < count; ++i) {
             render::MeshDraw draw;
+            draw.surface_program_ = surface;
             draw.mesh_ = mesh.Handle();
             draw.model_[0] = draw.model_[5] = 0.009f;
             draw.model_[12] = float(i % 100) * 0.02f - 0.99f;

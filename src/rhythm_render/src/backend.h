@@ -26,6 +26,11 @@ class Backend {
     }
     virtual bool SupportsGpuPoints() const { return false; }
     virtual ImageProgramTarget ImageTarget() const { return ImageProgramTarget::kWindowsSm5; }
+    virtual SurfaceProgramHandle CreateSurfaceProgram(std::span<const std::uint8_t>) {
+        throw std::logic_error("render.surface_program_unsupported");
+    }
+    virtual void ReleaseSurfaceProgram(SurfaceProgramHandle) noexcept {}
+    virtual bool IsValid(SurfaceProgramHandle) const { return false; }
     virtual ImageProgramHandle CreateImageProgram(std::span<const std::uint8_t>) {
         throw std::logic_error("render.image_program_unsupported");
     }

@@ -10,6 +10,7 @@
 #include "rhythm/render/gpu_points.h"
 #include "rhythm/render/image_program.h"
 #include "rhythm/render/scene.h"
+#include "rhythm/render/surface_program.h"
 
 namespace rhythm::platform {
 class Host;
@@ -184,6 +185,8 @@ struct FrameStats {
     // Surface resets can discard submissions made earlier in that frame.
     // Cached producers must redraw when this generation changes.
     std::uint64_t presentation_generation_ = 0;
+    std::uint32_t surface_programs_ = 0;
+    std::uint64_t surface_program_bytes_ = 0;
     std::uint32_t image_programs_ = 0;
     std::uint64_t image_program_bytes_ = 0;  // Compiled payload, not driver allocation size.
 };
@@ -280,6 +283,9 @@ class Renderer final {
     [[nodiscard]] bool IsValid(MeshHandle handle) const;
     [[nodiscard]] bool SupportsScenes() const;
     [[nodiscard]] bool SupportsGpuPoints() const;
+    [[nodiscard]] SurfaceProgramTarget SurfaceTarget() const;
+    SurfaceProgram CreateSurfaceProgram(std::span<const std::uint8_t> artifact);
+    [[nodiscard]] bool IsValid(SurfaceProgramHandle handle) const;
     [[nodiscard]] ImageProgramTarget ImageTarget() const;
     ImageProgram CreateImageProgram(std::span<const std::uint8_t> artifact);
     [[nodiscard]] bool IsValid(ImageProgramHandle handle) const;

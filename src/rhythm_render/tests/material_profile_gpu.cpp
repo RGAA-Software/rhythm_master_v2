@@ -12,11 +12,12 @@
 
 #include "bgfx_handles.h"
 #include "gpu_execution_probe.h"
+#include "rhythm/render/renderer.h"
 
 namespace rhythm::validation {
 namespace {
 using render::detail::GpuHandle;
-GpuHandle<bgfx::ShaderHandle> LoadShader(const std::filesystem::path& path) {
+std::vector<std::uint8_t> ReadArtifact(const std::filesystem::path& path) {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     const auto size = file.tellg();
     if (!file || size < 24 || size > 1024 * 1024)
@@ -25,6 +26,10 @@ GpuHandle<bgfx::ShaderHandle> LoadShader(const std::filesystem::path& path) {
     file.seekg(0);
     file.read(reinterpret_cast<char*>(bytes.data()), size);
     if (!file) throw std::runtime_error("material_probe.read");
+    return bytes;
+}
+GpuHandle<bgfx::ShaderHandle> LoadShader(const std::filesystem::path& path) {
+    const auto bytes = ReadArtifact(path);
     return GpuHandle(bgfx::createShader(bgfx::copy(bytes.data(), std::uint32_t(bytes.size()))));
 }
 }  // namespace
@@ -192,5 +197,72 @@ void VerifyMaterialProfile(std::span<std::uint8_t, 32 * 16 * 4> pixels,
     std::cout << "24 scene program pairs created; ordinary surface tint and 7 PBR binding controls "
                  "passed; "
                  "deformed geometry, generated shadows and runtime adoption remain separate\n";
+}
+void VerifySurfacePrograms(render::Renderer& renderer, const std::filesystem::path& directory) {
+    using namespace render;
+    const auto original_count = renderer.Stats().surface_programs_;
+    auto artifact = ReadArtifact(directory / "parameter_surface.bin");
+    auto program = renderer.CreateSurfaceProgram(artifact);
+    auto neutral = renderer.CreateSurfaceProgram(ReadArtifact(directory / "neutral.bin"));
+    const auto count = renderer.Stats().surface_programs_;
+    artifact[4] = 0;
+    bool rejected = false;
+    try {
+        renderer.CreateSurfaceProgram(artifact);
+    } catch (const std::invalid_argument&) {
+        rejected = true;
+    }
+    if (!rejected || renderer.Stats().surface_programs_ != count ||
+        !renderer.IsValid(program.Handle()))
+        throw std::runtime_error("surface.atomic_admission");
+    constexpr std::array<MeshVertex, 4> kPlane{
+            {{-.35f, -.35f, 0}, {.35f, -.35f, 0}, {.35f, .35f, 0}, {-.35f, .35f, 0}}};
+    constexpr std::array<std::uint32_t, 6> kIndices{0, 1, 2, 0, 2, 3};
+    auto mesh = renderer.CreateMesh(kPlane, kIndices);
+    auto target = renderer.CreateTexture({64, 64});
+    SceneDrawList scene;
+    for (float x : {-.5f, .5f}) {
+        MeshDraw draw;
+        draw.mesh_ = mesh.Handle();
+        draw.model_[12] = x;
+        draw.double_sided_ = true;
+        draw.surface_program_ = SurfaceProgramInput{program.Handle(), {0, 1, 0, 1}};
+        scene.draws_.push_back(draw);
+    }
+    for (int phase = 0; phase < 2; ++phase) {
+        scene.draws_[0].surface_program_->parameters_ =
+                phase ? std::array<float, 4>{0, 1, 0, 1} : std::array<float, 4>{1, 0, 0, 1};
+        renderer.BeginFrame();
+        renderer.SubmitScene(target.Handle(), scene);
+        if (renderer.Stats().draws_ != (phase ? 1u : 2u))
+            throw std::runtime_error("surface.instance_parameter_key");
+        auto ticket = renderer.RequestReadback(target.Handle());
+        renderer.EndFrame();
+        std::optional<ReadbackImage> image;
+        for (int wait = 0; wait < 64; ++wait) {
+            image = ticket.Poll();
+            if (image) break;
+            renderer.BeginFrame();
+            renderer.EndFrame();
+        }
+        if (!image) throw std::runtime_error("surface.readback_timeout");
+        for (int side = 0; side < 2; ++side) {
+            const auto offset = (32 * 64 + (side ? 48 : 16)) * 4;
+            const bool green = phase || side;
+            if (image->rgba_[offset + (green ? 1 : 0)] < 245 ||
+                image->rgba_[offset + (green ? 0 : 1)] > 10)
+                throw std::runtime_error("surface.parameter_pixels");
+        }
+    }
+    const SurfaceProgramInput neutral_input{neutral.Handle()};
+    VerifySceneInstances(renderer, neutral_input);
+    VerifyMeshSkinning(renderer, neutral_input);
+    VerifyMeshMorph(renderer, neutral_input);
+    program = {};
+    neutral = {};
+    if (renderer.Stats().surface_programs_ != original_count)
+        throw std::runtime_error("surface.resource_release");
+    std::cout << "Surface Renderer: atomic admission, split/merged parameter draws, "
+                 "instance/skin/morph pixels and release passed\n";
 }
 }  // namespace rhythm::validation

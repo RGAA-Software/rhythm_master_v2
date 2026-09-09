@@ -250,6 +250,19 @@ class BgfxBackend final : public Backend {
             image_programs_ = std::make_unique<BgfxImagePrograms>(resources_.DeviceId());
         return image_programs_->Create(artifact);
     }
+    SurfaceProgramHandle CreateSurfaceProgram(std::span<const std::uint8_t> artifact) override {
+        resources_.CheckReady();
+        if (!scene_) scene_ = std::make_unique<BgfxScene>(resources_.DeviceId());
+        return scene_->CreateSurface(artifact);
+    }
+    void ReleaseSurfaceProgram(SurfaceProgramHandle handle) noexcept override {
+        resources_.CheckThread();
+        if (scene_) scene_->ReleaseSurface(handle);
+    }
+    bool IsValid(SurfaceProgramHandle handle) const override {
+        resources_.CheckThread();
+        return scene_ && scene_->IsValid(handle);
+    }
     void ReleaseImageProgram(ImageProgramHandle handle) noexcept override {
         resources_.CheckThread();
         if (image_programs_) image_programs_->Release(handle);

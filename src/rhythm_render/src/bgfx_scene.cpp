@@ -6,7 +6,7 @@
 #include "scene_shader.h"
 
 namespace rhythm::render::detail {
-BgfxScene::BgfxScene(std::uint64_t device) : meshes_(device) {
+BgfxScene::BgfxScene(std::uint64_t device) : meshes_(device), device_(device) {
     layout_.begin()
             .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
             .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
@@ -165,7 +165,10 @@ std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std:
             state |= context.invert_ != Mirrored(draw.model_) ? BGFX_STATE_CULL_CCW
                                                               : BGFX_STATE_CULL_CW;
         bgfx::setState(state);
-        bgfx::submit(view, mesh.morph_.targets_ ? morph_->Program(count > 1)
+        bgfx::submit(view, draw.surface_program_
+                                   ? surfaces_->Bind(*draw.surface_program_, !draw.bones_.empty(),
+                                                     mesh.morph_.targets_ != 0, count > 1)
+                           : mesh.morph_.targets_ ? morph_->Program(count > 1)
                            : !draw.bones_.empty()
                                    ? skin_->Program(count > 1)
                                    : (count > 1 ? instances_.Program() : program_.Get()));
@@ -173,5 +176,23 @@ std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std:
         ++submissions;
     }
     return submissions;
+}
+SurfaceProgramHandle BgfxScene::CreateSurface(std::span<const std::uint8_t> artifact) {
+    if (!surfaces_) surfaces_ = std::make_unique<BgfxSurfacePrograms>(device_);
+    return surfaces_->Create(artifact);
+}
+void BgfxScene::ReleaseSurface(SurfaceProgramHandle handle) noexcept {
+    if (surfaces_) surfaces_->Release(handle);
+}
+bool BgfxScene::IsValid(SurfaceProgramHandle handle) const {
+    return surfaces_ && surfaces_->IsValid(handle);
+}
+void BgfxScene::Validate(const SceneDrawList& list) const {
+    meshes_.Validate(list);
+    for (const auto& draw : list.draws_) {
+        if (!draw.surface_program_) continue;
+        if (!surfaces_) throw std::invalid_argument("render.surface_program_input");
+        surfaces_->Validate(*draw.surface_program_);
+    }
 }
 }  // namespace rhythm::render::detail

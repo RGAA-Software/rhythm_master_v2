@@ -21,6 +21,7 @@ add_custom_command(OUTPUT "${render_shader_header}"
     VERBATIM)
 target_sources(render_bgfx PRIVATE "${render_shader_header}")
 target_sources(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_image_programs.cpp")
+target_sources(render_bgfx PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_surface_programs.cpp")
 target_link_libraries(render_bgfx PRIVATE image_shader)
 
 set(filter_shader_header "${PROJECT_BINARY_DIR}/generated/render/texture_filter_shader.h")

@@ -116,3 +116,31 @@ C++ 生成包装器与实际编译源码一致，目录为
 `out/p6-surface-bundle-android-tests.log` 通过同一包合同；重新构建两端原生探针后，
 `out/p6-surface-bundle-d3d.log`、`out/p6-surface-bundle-gles.log` 通过改色与七组 PBR
 绑定像素对照。`out/p6-surface-bundle-boundaries.log` 通过。
+
+## Renderer 资源与六种绘制变体
+
+`SurfaceProgram` 为移动专有 RAII 资源，公开句柄仅含设备／槽位／代次，最终释放
+限定宿主线程。每设备最多 32 个已接受表面资产、16 MiB 单目标编译字节，统计
+不是驱动显存大小。Null 只检查资源与输入合同，真实后端额外进行完整产物校验。
+bgfx 私有组件为每个资产持有六种场景程序；全部创建成功才发布句柄，失败回滚。
+普通颜色和颜色／深度捕获都会验证引用，失效／跨设备、NaN 参数和越界时间拒绝。
+实例合批键加入程序、四参数和时间；相同材质仍可批量绘制，不同材质不能互相覆盖。
+
+`out/p6-surface-renderer-d3d.log` 和 `out/p6-surface-renderer-gles.log` 通过真实 Renderer
+的非法产物拒绝并保留原资源、不同参数两次提交／相同参数一次提交及对应红绿像素。
+中性表达式复用原有实例、骨架、morph 对照：1000／10000 实例可见，48 骨骼，
+四个 morph 目标／3721 顶点，普通与实例模式、morph＋skin 对照均通过，骨骼和
+morph 与 CPU 参考的平均像素差均为零。释放后资源计数恢复。
+
+Windows Null／旧图像／旧场景合同在 `out/p6-surface-resources-tests.log` 通过，
+原有完整 GPU 场景回归在 `out/p6-surface-renderer-existing-gpu.log` 通过。
+Android 原有 GPU 场景回归在 `out/p6-surface-renderer-existing-gles.log` 通过。
+Android 原生对应日志为 `out/p6-surface-android-surface_program_contract_tests.log`、
+`out/p6-surface-android-image_program_contract_tests.log`、
+`out/p6-surface-android-scene_render_contract_tests.log`。
+首次测试使用了不存在的 CreateDepth 名称，已改为既有 CreateDepthTexture；
+失败 `out/p6-surface-resources-build.log` 保留。新增私有适配器遗漏边界清单导致
+`out/p6-surface-renderer-contracts.log` 失败，补齐准确文件路径后
+`out/p6-surface-renderer-adapter-boundaries.log` 通过，没有放宽业务层的禁用类型规则。
+
+仍待接入材质节点、Runtime 资产复用、Studio 编译／热更、发布与实际作品。

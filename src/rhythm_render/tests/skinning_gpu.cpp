@@ -19,7 +19,8 @@ render::ReadbackImage CompleteSkinReadback(render::Renderer& renderer, render::R
     throw std::runtime_error("skin.readback_timeout");
 }
 }  // namespace
-void VerifyMeshSkinning(render::Renderer& renderer) {
+void VerifyMeshSkinning(render::Renderer& renderer,
+                        std::optional<render::SurfaceProgramInput> surface) {
     using namespace render;
     std::vector<MeshVertex> vertices;
     std::vector<std::uint32_t> indices;
@@ -79,6 +80,7 @@ void VerifyMeshSkinning(render::Renderer& renderer) {
             scene.lights_ = {{{0, 0, 1}, {1, 0.7f, 0.5f}}};
             for (int copy = 0; copy < 2; ++copy) {
                 MeshDraw draw;
+                draw.surface_program_ = surface;
                 draw.mesh_ = mode == 2           ? reference.Handle()
                              : mode == 0 && copy ? alternate.Handle()
                                                  : mesh.Handle();

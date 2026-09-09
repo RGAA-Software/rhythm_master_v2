@@ -5,6 +5,7 @@
 #include <optional>
 #include <vector>
 
+#include "rhythm/render/surface_program.h"
 #include "rhythm/render/texture_handle.h"
 
 namespace rhythm::render {
@@ -72,6 +73,7 @@ struct MeshDraw {
     std::array<float, 3> emissive_{};
     bool unlit_ = true;
     MaterialTextures textures_{};
+    std::optional<SurfaceProgramInput> surface_program_{};
     std::vector<MeshDeformation> deformations_{};  // At most four.
     std::vector<Matrix4> bones_{};                 // Mesh-local skin matrices, at most 48.
     std::array<float, 4> morph_weights_{};

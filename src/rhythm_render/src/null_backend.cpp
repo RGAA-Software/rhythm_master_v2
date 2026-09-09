@@ -6,6 +6,7 @@
 #include "mesh_store.h"
 #include "resource_table.h"
 #include "rhythm/render/budget.h"
+#include "surface_program_store.h"
 
 namespace rhythm::render::detail {
 namespace {
@@ -43,6 +44,8 @@ class NullBackend final : public Backend {
         resources_.ValidateSceneDepth(color, depth);
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         meshes_.Validate(list);
+        for (const auto& draw : list.draws_)
+            if (draw.surface_program_) surface_programs_.Validate(*draw.surface_program_);
         resources_.ValidateSceneMaterials(color, list, depth);
         resources_.RecordSceneSamples(list);
         if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
@@ -53,6 +56,18 @@ class NullBackend final : public Backend {
     GpuPointHandle CreateGpuPoints(std::uint32_t capacity) override {
         resources_.CheckReady();
         return points_.Allocate(capacity);
+    }
+    SurfaceProgramHandle CreateSurfaceProgram(std::span<const std::uint8_t> artifact) override {
+        resources_.CheckReady();
+        return surface_programs_.Allocate(artifact);
+    }
+    void ReleaseSurfaceProgram(SurfaceProgramHandle handle) noexcept override {
+        resources_.CheckThread();
+        surface_programs_.Release(handle);
+    }
+    bool IsValid(SurfaceProgramHandle handle) const override {
+        resources_.CheckThread();
+        return surface_programs_.IsValid(handle);
     }
     ImageProgramHandle CreateImageProgram(std::span<const std::uint8_t> artifact) override {
         resources_.CheckReady();
@@ -113,6 +128,8 @@ class NullBackend final : public Backend {
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         if (!resources_.IsRenderTarget(target)) throw std::invalid_argument("render.scene_target");
         meshes_.Validate(list);
+        for (const auto& draw : list.draws_)
+            if (draw.surface_program_) surface_programs_.Validate(*draw.surface_program_);
         resources_.ValidateSceneMaterials(target, list);
         resources_.RecordSceneSamples(list);
         if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
@@ -151,6 +168,7 @@ class NullBackend final : public Backend {
         meshes_.AddStats(stats);
         points_.AddStats(stats);
         image_programs_.AddStats(stats);
+        surface_programs_.AddStats(stats);
         stats.frame_ = frame_;
         stats.passes_ = passes_;
         stats.draws_ = draws_;
@@ -162,6 +180,7 @@ class NullBackend final : public Backend {
         meshes_.Invalidate();
         points_.Invalidate();
         image_programs_.Invalidate();
+        surface_programs_.Invalidate();
     }
 
    private:
@@ -169,6 +188,7 @@ class NullBackend final : public Backend {
     MeshStore meshes_{resources_.DeviceId()};
     GpuPointStore points_{resources_.DeviceId()};
     ImageProgramStore image_programs_{resources_.DeviceId()};
+    SurfaceProgramStore surface_programs_{resources_.DeviceId()};
     bool in_frame_ = false;
     std::uint64_t frame_ = 0;
     std::uint32_t passes_ = 0;

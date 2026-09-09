@@ -11,6 +11,7 @@ int main(int argc, char* argv[]) {
         auto renderer = host.CreateRenderer();
         if (argc == 3 && std::string_view(argv[1]) == "--material-profile") {
             rhythm::validation::VerifyMaterialProfile(pixels, argv[2]);
+            rhythm::validation::VerifySurfacePrograms(renderer, argv[2]);
             return 0;
         }
         if (argc == 3 && std::string_view(argv[1]) == "--quality-baseline") {

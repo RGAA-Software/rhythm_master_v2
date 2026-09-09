@@ -11,6 +11,7 @@
 #include "bgfx_scene_shadow.h"
 #include "bgfx_scene_skin.h"
 #include "bgfx_scene_textures.h"
+#include "bgfx_surface_programs.h"
 #include "mesh_store.h"
 
 namespace rhythm::render::detail {
@@ -30,15 +31,24 @@ class BgfxScene final {
                       std::span<const SkinWeights> skin, std::span<const MorphTarget> morphs);
     void Release(MeshHandle mesh) noexcept;
     bool IsValid(MeshHandle mesh) const { return meshes_.IsValid(mesh); }
-    void Validate(const SceneDrawList& list) const { meshes_.Validate(list); }
+    void Validate(const SceneDrawList& list) const;
+    SurfaceProgramHandle CreateSurface(std::span<const std::uint8_t> artifact);
+    void ReleaseSurface(SurfaceProgramHandle handle) noexcept;
+    bool IsValid(SurfaceProgramHandle handle) const;
     bgfx::FrameBufferHandle Target(TextureHandle target, bgfx::TextureHandle color, Extent extent,
                                    TextureHandle depth_observer = {},
                                    bgfx::TextureHandle depth = BGFX_INVALID_HANDLE);
     void ReleaseTarget(TextureHandle target) noexcept;
     std::uint32_t Draw(SceneView view, const SceneDrawList& list, std::uint32_t clear,
                        const SceneTextureResolver& resolve);
-    void AddStats(FrameStats& stats) const { meshes_.AddStats(stats); }
-    void Invalidate() { meshes_.Invalidate(); }
+    void AddStats(FrameStats& stats) const {
+        meshes_.AddStats(stats);
+        if (surfaces_) surfaces_->AddStats(stats);
+    }
+    void Invalidate() {
+        meshes_.Invalidate();
+        if (surfaces_) surfaces_->Invalidate();
+    }
 
    private:
     struct Geometry {
@@ -54,6 +64,8 @@ class BgfxScene final {
         GpuHandle<bgfx::FrameBufferHandle> framebuffer_{};
     };
     MeshStore meshes_{0};
+    std::uint64_t device_ = 0;
+    std::unique_ptr<BgfxSurfacePrograms> surfaces_{};
     std::vector<Geometry> geometry_{};
     std::map<std::uint32_t, DepthTarget> targets_{};
     bgfx::VertexLayout layout_{};
