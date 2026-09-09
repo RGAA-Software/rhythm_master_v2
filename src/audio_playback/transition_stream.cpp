@@ -23,11 +23,14 @@ class TransitionStream::Lane final {
         : source_(source),
           options_(options),
           required_(RequiredCursors(source)),
-          stream_(std::make_unique<AudioStream>(source, options.source_id_, stop, budget)) {}
+          budget_(budget),
+          stream_(std::make_unique<AudioStream>(source, options.source_id_, stop, budget)),
+          info_(stream_->Info()) {}
     std::size_t Available(std::stop_token stop) {
         CheckStop(stop);
         if (offset_ < samples_.size()) return (samples_.size() - offset_) / media::kAudioChannels;
         if (ended_) return 0;
+        Resume(stop);
         auto block = stream_->Read(stop);
         if (!block && options_.loop_) {
             if (iteration_ == std::numeric_limits<std::uint64_t>::max())
@@ -46,6 +49,7 @@ class TransitionStream::Lane final {
             throw std::runtime_error("audio.invalid_block");
         samples_ = std::move(block->samples_);
         position_ = block->first_sample_;
+        resume_sample_ = position_ + samples_.size() / media::kAudioChannels;
         offset_ = 0;
         return samples_.size() / media::kAudioChannels;
     }
@@ -79,10 +83,13 @@ class TransitionStream::Lane final {
         }
     }
     void Seek(std::uint64_t sample, std::stop_token stop) {
+        if (!stream_)
+            stream_ = std::make_unique<AudioStream>(source_, options_.source_id_, stop, budget_);
         stream_->Seek(sample, options_.source_id_, stop);
         samples_.clear();
         offset_ = 0;
         position_ = sample;
+        resume_sample_ = sample;
         iteration_ = 0;
         ended_ = false;
     }
@@ -101,16 +108,30 @@ class TransitionStream::Lane final {
         if (reserved + RequiredCursors(source_, end) > media::AudioCursorBudget::kMaximum)
             throw std::length_error("audio.transition_cursor_budget");
     }
-    media::AudioInfo Info() const { return stream_->Info(); }
+    media::AudioInfo Info() const { return stream_ ? stream_->Info() : info_; }
+    void Suspend() {
+        if (stream_) info_ = stream_->Info();
+        stream_.reset();
+    }
+    bool Suspended() const { return !stream_; }
 
    private:
+    void Resume(std::stop_token stop) {
+        if (stream_) return;
+        auto restored = std::make_unique<AudioStream>(source_, options_.source_id_, stop, budget_);
+        if (resume_sample_) restored->Seek(resume_sample_, options_.source_id_, stop);
+        stream_ = std::move(restored);
+    }
     PlaybackSource source_{};
     StreamOptions options_{};
     std::size_t required_ = 0;
+    media::AudioCursorBudget budget_{};
     std::unique_ptr<AudioStream> stream_{};
+    media::AudioInfo info_{};
     std::vector<float> samples_{};
     std::size_t offset_ = 0;
     std::uint64_t position_ = 0;
+    std::uint64_t resume_sample_ = 0;
     std::uint64_t iteration_ = 0;
     bool ended_ = false;
 };
@@ -130,8 +151,13 @@ void TransitionStream::Begin(const PlaybackSource& source, StreamOptions options
     if (incoming_ || rollback_) throw std::logic_error("audio.transition_busy");
     if (options.source_id_ <= last_source_id_) throw std::invalid_argument("audio.source_identity");
     if (current_->Required() + RequiredCursors(source, duration + media::kAudioBlockFrames) >
-        media::AudioCursorBudget::kMaximum)
-        throw std::length_error("audio.transition_cursor_budget");
+        media::AudioCursorBudget::kMaximum) {
+        if (duration) throw std::length_error("audio.transition_cursor_budget");
+        // Explicit hard cut: retain immutable source and bounded PCM, not a
+        // second decoder set. A failed/canceled preparation resumes lazily on
+        // the worker's next Read, using its global cancellation token.
+        current_->Suspend();
+    }
     auto prepared = std::make_unique<Lane>(source, options, budget_, stop);
     if (!prepared->Available(stop)) throw std::invalid_argument("audio.empty_transition_source");
     CheckStop(stop);
@@ -181,7 +207,7 @@ std::optional<StreamPcm> TransitionStream::Read(std::stop_token stop) {
     }
     std::size_t frames = 0;
     try {
-        if (rollback_) current_->CheckReservation(rollback_->Required());
+        if (rollback_ && !rollback_->Suspended()) current_->CheckReservation(rollback_->Required());
         frames =
                 rollback_ ? current_->Available(stop, incoming_cancel_) : current_->Available(stop);
     } catch (const std::exception& error) {
@@ -194,7 +220,7 @@ std::optional<StreamPcm> TransitionStream::Read(std::stop_token stop) {
     }
     if (!frames) return {};
     std::optional<StreamPosition> secondary;
-    if (rollback_) {
+    if (rollback_ && !rollback_->Suspended()) {
         const auto available = rollback_->Available(stop);
         if (available) frames = std::min(frames, available);
         secondary = rollback_->Position();
@@ -218,12 +244,9 @@ bool TransitionStream::Confirm() {
     return true;
 }
 void TransitionStream::Seek(std::uint64_t sample, std::stop_token stop) {
-    if (rollback_) {
-        rollback_->Seek(sample, stop);
-        current_ = std::move(rollback_);
-    } else
-        current_->Seek(sample, stop);
+    if (rollback_) current_ = std::move(rollback_);
     incoming_.reset();
+    current_->Seek(sample, stop);
     progress_ = {};
 }
 void TransitionStream::SetLoop(bool loop) {

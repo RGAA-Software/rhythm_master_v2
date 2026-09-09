@@ -211,3 +211,30 @@ Android `out/p3-final-audio-host-android-tests.log` 三项通过（桥接/场景
 创建峰值、量化边界与准备排队延迟、完整列表取消/失败/画布方向工作流，以及
 超过双场准入时用户明确选择的零时长替换路径；当前零时长仍走双场保留准入，
 不能宣称任意 4+4 编排都支持无缝硬切。P3 整体仍未关闭。
+
+
+## P3.5 显式顺序硬切：音频增量（2026-09-09）
+
+P3.4 已交付，见 [GPU 准备证据](scene_gpu_preparation.md)。本节更新上面的历史
+零时长限制：音频流层与 FilePlayback 现支持在用户明确请求 0 秒时，以顺序替换
+处理四路旧编排 → 四路新编排；非零过渡仍按共享四游标准入拒绝，绝不自动扩大
+预算或偷偷把淡化改为硬切。复用现有 FFmpeg AudioStream、Mixer、FileBytes、
+TransitionStream 的 RAII 游标和有界 PCM，不引入第二套播放器或新依赖。
+
+顺序替换释放旧解码器，保留来源、下一段解码位置、未提交 PCM、gain/loop/iteration
+等恢复信息，然后准备新源。旧来源在等待确认期间不继续解码或虚构旧 PCM 时钟；
+准备失败或未确认取消后，在原音频工作线程按需重新打开旧源，从未提交位置继续。
+恢复使用该工作线程的取消令牌，不使用已经取消的新场请求令牌。
+已经消费的新音频不能撤回；重新打开/seek 可能产生短暂间隙，原来源必须仍可读。
+不可将此路径宣传为任意 4+4 无缝淡化。GPU 双场容量不足时的顺序替换仍待实现。
+
+Windows `out/p3-serial-cut-stream-windows-tests.log` 5 项通过：独立解码 PCM 对照、
+失败/取消恢复、确认接管、seek 与峰值四游标；现有引擎/异步正常淡化回归通过。
+Android `out/p3-serial-cut-stream-android-tests.log` 对应流/引擎/异步检查通过，
+引擎使用原生 dummy 音频宿主，并非 APK 生产驱动验收。
+新增 FilePlayback 四路对四路用例覆盖先拒绝非零淡化、暂停时准备零时长、取消、
+再硬切、消费确认、不重建设备 epoch、后续 seek 保留新源增益。
+Windows `out/p3-serial-cut-public-windows-tests.log` 及 Android
+`out/p3-serial-cut-public-android-tests.log` 通过（Android 为 dummy）。
+两端 Player 画面时钟、UI 提示与实际硬切交付尚待后续增量，不能把上述音频测试
+记成完整应用硬切验收。

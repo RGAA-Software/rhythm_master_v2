@@ -29,6 +29,70 @@ PlaybackSource Arrangement(const storage::FileBytes& file, std::size_t count, do
     return std::make_shared<const media::AudioArrangementSource>(
             media::AudioArrangementSource{media::AudioArrangement(clips), {{id, {}, file}}});
 }
+void VerifySerialCuts(const storage::FileBytes& file) {
+    const auto four = Arrangement(file, 4);
+    const auto reference = Decode(four);
+    TransitionStream serial(four, {100});
+    const auto first = serial.Read();
+    bool rejected = false;
+    try {
+        serial.Begin(four, {101}, 4800, media::CrossfadeCurve::kLinear);
+    } catch (const std::length_error&) {
+        rejected = true;
+    }
+    const auto second = serial.Read();
+    Require(rejected && second->first_sample_ == first->samples_.size() / 2,
+            "four plus four fade rejects before disturbing accepted PCM");
+    const auto checkpoint = second->first_sample_ + second->samples_.size() / 2;
+    serial.Begin(four, {102}, 0, media::CrossfadeCurve::kLinear);
+    Require(serial.ActiveCursors() == 4 && serial.PeakCursors() == 4,
+            "explicit serial cut releases old decoders before opening four new ones");
+    const auto incoming = serial.Read();
+    Require(incoming && incoming->identity_.source_ == 102 && incoming->first_sample_ == 0 &&
+                    !incoming->secondary_,
+            "serial cut outputs new PCM without inventing a decoded old clock");
+    Require(serial.Cancel(), "serial cut cancels before consumed confirmation");
+    const auto restored = serial.Read();
+    Require(restored && restored->identity_.source_ == 100 &&
+                    restored->first_sample_ == checkpoint && serial.PeakCursors() == 4,
+            "serial rollback reopens exact unsubmitted old position within four cursors");
+    for (std::size_t index = 0; index < restored->samples_.size(); ++index)
+        Require(restored->samples_[index] == reference[checkpoint * 2 + index],
+                "serial rollback PCM equals independent decoding");
+
+    serial.Seek(0);
+    serial.Begin(four, {103}, 0, media::CrossfadeCurve::kLinear);
+    Require(serial.Read()->identity_.source_ == 103 && serial.Confirm() && !serial.Cancel() &&
+                    serial.Read()->identity_.source_ == 103 && serial.PeakCursors() == 4,
+            "confirmed serial cut retains new source and drops rollback checkpoint");
+    serial.Begin(four, {104}, 0, media::CrossfadeCurve::kLinear);
+    serial.Read();
+    serial.Seek(100);
+    Require(serial.Read()->first_sample_ == 100 && serial.PeakCursors() == 4,
+            "seek releases incoming decoders before reopening the accepted checkpoint");
+
+    const auto source = std::get<std::shared_ptr<const media::AudioArrangementSource>>(four);
+    const auto invalid = std::make_shared<const std::vector<std::uint8_t>>(32, std::uint8_t{0});
+    const PlaybackSource broken =
+            std::make_shared<const media::AudioArrangementSource>(media::AudioArrangementSource{
+                    source->arrangement_, {{source->assets_.front().id_, invalid, {}}}});
+    TransitionStream failed(four, {200});
+    const auto before = failed.Read();
+    rejected = false;
+    try {
+        failed.Begin(broken, {201}, 0, media::CrossfadeCurve::kLinear);
+    } catch (const std::exception&) {
+        rejected = true;
+    }
+    const auto recovered = failed.Read();
+    Require(rejected && recovered->identity_.source_ == 200 &&
+                    recovered->first_sample_ == before->samples_.size() / 2 &&
+                    failed.PeakCursors() == 4,
+            "failed serial preparation restores old source without expanding cursor budget");
+    for (std::size_t index = 0; index < recovered->samples_.size(); ++index)
+        Require(recovered->samples_[index] == reference[recovered->first_sample_ * 2 + index],
+                "failed serial preparation preserves exact old PCM");
+}
 void Run(const std::filesystem::path& directory) {
     const PlaybackSource ramp = directory / std::filesystem::path(u8"音乐 ramp.wav");
     const PlaybackSource tone = directory / "tone44100.wav";
@@ -123,6 +187,7 @@ void Run(const std::filesystem::path& directory) {
 
     const auto file =
             storage::FileBytes::Open(std::get<std::filesystem::path>(ramp), 16 * 1024 * 1024);
+    VerifySerialCuts(file);
     const auto two = Arrangement(file, 2);
     TransitionStream budget(two, {20});
     budget.Read();

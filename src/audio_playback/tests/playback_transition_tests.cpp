@@ -37,6 +37,67 @@ media::SoundtrackSource Source(const std::filesystem::path& path, float gain) {
     result.file_bytes_ = storage::FileBytes::Open(path, 16 * 1024 * 1024);
     return result;
 }
+void VerifySerialCut(const std::filesystem::path& directory) {
+    auto old = Source(directory / "tone.flac", 0.5F);
+    const auto file = old.file_bytes_;
+    old.file_bytes_ = {};
+    for (std::uint64_t id = 1; id <= 4; ++id) {
+        media::AudioClip clip{id, "Concurrent", old.binding_.asset_};
+        clip.timing_ = {0, 1, 0, 1};
+        clip.gain_ = 0.2F;
+        old.binding_.clips_.push_back(clip);
+    }
+    old.arrangement_ = media::AudioArrangementSource{media::AudioArrangement(old.binding_.clips_),
+                                                     {{old.binding_.asset_, {}, file}}};
+    auto next = old;
+    next.binding_.gain_ = 0.25F;
+    FilePlayback playback;
+    playback.SetVolume(0);
+    playback.LoadSoundtrack(old);
+    const auto initial =
+            Wait(playback, [](const auto& state) { return state.features_.has_value(); });
+    playback.Pause(true);
+    Wait(playback, [](const auto& state) { return state.state_ == PlaybackState::kPaused; });
+    const auto refused = playback.BeginTransition(next, 0.5);
+    const auto failed = Wait(playback, [&](const auto& state) {
+        return state.transition_.id_ == refused &&
+               state.transition_.state_ == AudioTransitionState::kFailed;
+    });
+    Require(failed.transition_.error_ == "audio.transition_cursor_budget" && failed.paused_,
+            "four plus four fade fails explicitly without replacing accepted audio");
+    const auto cancel_id = playback.BeginTransition(next, 0);
+    const auto queued = Wait(playback, [&](const auto& state) {
+        return state.transition_.id_ == cancel_id &&
+               state.transition_.state_ == AudioTransitionState::kQueued;
+    });
+    Require(queued.paused_ && queued.consumed_frames_ == failed.consumed_frames_ &&
+                    playback.CancelTransition(cancel_id),
+            "serial cut remains queued while paused and can be canceled");
+    playback.Pause(false);
+    const auto canceled = Wait(playback, [&](const auto& state) {
+        return state.transition_.id_ == cancel_id &&
+               state.transition_.state_ == AudioTransitionState::kCanceled;
+    });
+    const auto accepted = playback.BeginTransition(next, 0);
+    const auto complete = Wait(playback, [&](const auto& state) {
+        return state.transition_.id_ == accepted &&
+               state.transition_.state_ == AudioTransitionState::kCompleted;
+    });
+    Require(complete.transition_.incoming_presented_ &&
+                    complete.transition_.duration_frames_ == 0 &&
+                    complete.consumed_frames_ > canceled.consumed_frames_ &&
+                    complete.source_generation_ == initial.source_generation_ &&
+                    complete.position_seconds_ == complete.transition_.incoming_seconds_,
+            "serial four plus four handoff preserves device epoch and waits for consumed new PCM");
+    playback.Seek(0.2);
+    const auto sought = Wait(playback, [&](const auto& state) {
+        return state.features_ && state.generation_ > complete.generation_ &&
+               state.position_seconds_ > 0.25;
+    });
+    Require(sought.features_->rms_ > 0.02F && sought.features_->rms_ < 0.08F,
+            "serial handoff retains accepted source gain through later seek");
+    playback.Stop();
+}
 void Run(const std::filesystem::path& directory) {
     auto old = Source(directory / "tone.flac", 0.25F);
     auto next = Source(directory / "tone44100.wav", 0.6F);
@@ -157,6 +218,7 @@ int main(int argc, char** argv) {
 #endif
         Require(argc == 2, "media fixture directory required");
         Run(std::filesystem::path(argv[1]));
+        VerifySerialCut(std::filesystem::path(argv[1]));
         std::cout << "async transitions: stable IDs, pause/cancel, consumed handoff, gain/master, "
                      "seek, failed preparation and stop passed\n";
     } catch (const std::exception& error) {

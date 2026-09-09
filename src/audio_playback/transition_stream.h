@@ -46,8 +46,11 @@ class TransitionStream final {
     ~TransitionStream();
     TransitionStream(const TransitionStream&) = delete;
     TransitionStream& operator=(const TransitionStream&) = delete;
-    // Strong preparation: failure leaves the current cursor and any existing
-    // fade unchanged. Reject a second in-flight fade instead of dropping it.
+    // Failure preserves the next old PCM position and any existing fade. An
+    // explicit zero-duration cut that cannot retain both decoder sets closes
+    // the old cursors and keeps their source/buffer checkpoint for lazy recovery.
+    // Reopening may introduce a gap; it never increases the shared cursor limit.
+    // Reject a second in-flight fade instead of dropping it.
     void Begin(const PlaybackSource& source, StreamOptions options, std::uint64_t duration,
                media::CrossfadeCurve curve, std::stop_token stop = {});
     std::optional<StreamPcm> Read(std::stop_token stop = {});
