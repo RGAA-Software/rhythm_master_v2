@@ -73,3 +73,17 @@ Windows 与 USB Android `event_envelope_tests` 通过，覆盖完整阶段、持
 `out/p2-envelope-windows-tests.log`、`out/p2-envelope-android-tests.log`。
 首次 MSVC 测试文件缺直接 `<string>` 包含已修复（Clang 的传递包含未暴露问题），
 失败日志 `out/p2-envelope-windows-build.log` 保留。这仍是计算合同，节点端口接入继续。
+
+### 图类型增量
+
+图注册表新增独立 Event 类型，定义 beat/Cue/audio-onset/edge 来源，以及 merge、
+envelope、step、gate、latch、reset 算子合同。连续数值与事件不能隐式互连；
+组件输入从内部端口推导事件类型。被求值的节拍源必须有工程网格，音频频段范围
+和初始步数在编译前校验。无延迟事件环沿用现有全图拓扑检查而拒绝。
+
+Windows/Android `event_graph_tests` 通过，日志
+`out/p2-event-graph-windows-tests.log`、`out/p2-event-graph-android-fixed-tests.log`。
+测试最初误认为组件输出会分配更大 ID；实际合同规定输出保留实例 ID，内部其他节点
+才重新分配。已按此合同核对展开后事件输入仍指向外部源；失败记录保留在
+`out/p2-event-graph-android-tests.log`。当前只完成图模块，运行执行、UI 标签/预览、
+资产版本与应用流程尚未交付，不把可编译的节点声明当成功能可用。

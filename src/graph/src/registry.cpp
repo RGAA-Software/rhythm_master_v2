@@ -6,6 +6,7 @@
 
 #include "color_descriptors.h"
 #include "depth_descriptors.h"
+#include "event_descriptors.h"
 #include "point_descriptors.h"
 #include "rhythm/graph/components.h"
 #include "rhythm/graph/video_clip.h"
@@ -359,6 +360,7 @@ Registry::Registry() {
                           true});
     AppendDepthDescriptors(operators_);
     AppendColorDescriptors(operators_);
+    AppendEventDescriptors(operators_);
 }
 std::optional<OperatorDescriptor> Registry::Find(
         std::string_view type, std::span<const ComponentDefinition> components) const {
@@ -413,6 +415,12 @@ std::vector<Diagnostic> Registry::ValidateNode(
         }
         if (!valid) diagnostics.push_back({"graph.property_range", node.id_, key});
     }
+    if (diagnostics.empty() && node.type_ == "event.audio_onset" &&
+        Scalar(node, "band_first", 0) > Scalar(node, "band_last", 62))
+        diagnostics.push_back({"event.band_range", node.id_});
+    if (diagnostics.empty() && node.type_ == "event.step" &&
+        Scalar(node, "initial", 0) >= Scalar(node, "steps", 8))
+        diagnostics.push_back({"event.initial_step", node.id_});
     if (diagnostics.empty() && node.type_ == "texture.video_clip") {
         try {
             (void)DescribeVideoClip(node);

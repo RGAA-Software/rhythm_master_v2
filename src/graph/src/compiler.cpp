@@ -115,6 +115,12 @@ CompileResult Compile(const Document& document, const Registry& registry,
     }
     if (!diagnostics.empty()) return diagnostics;
 
+    for (std::size_t node = 0; node < descriptors.size(); ++node)
+        if (demanded[node] && descriptors[node].operation_ == Operation::kEventBeat &&
+            !document.beat_grid_)
+            fail("event.beat_grid_required", document.nodes_[node].id_);
+    if (!diagnostics.empty()) return diagnostics;
+
     // Validate ordinary cycles across the whole document; culling is not a way to hide invalid
     // cycles.
     std::vector<std::vector<std::size_t>> dependents(inputs.size());
