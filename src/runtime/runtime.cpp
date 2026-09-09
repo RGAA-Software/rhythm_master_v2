@@ -13,6 +13,7 @@
 #include "runtime_state.h"
 #include "scalar_ops.h"
 #include "scene_ops.h"
+#include "spectrum_points.h"
 #include "texture_ops.h"
 
 namespace rhythm::runtime {
@@ -234,7 +235,8 @@ FrameResult Runtime::Impl::EvaluateRange(
         const auto external_value = detail::ExternalScalar(instruction, frame);
         if (external_value) versions.push_back(std::bit_cast<std::uint64_t>(*external_value));
         if (operation == graph::Operation::kAudioSpectrum ||
-            operation == graph::Operation::kPointInstances)
+            operation == graph::Operation::kPointInstances ||
+            operation == graph::Operation::kSpectrumPoints)
             for (const auto band : detail::SpectrumBands(node, frame.external_))
                 versions.push_back(std::bit_cast<std::uint32_t>(band));
         const bool dirty = redraw || !state.node_ || *state.node_ != node ||
@@ -432,6 +434,14 @@ FrameResult Runtime::Impl::EvaluateRange(
                         state.output_.texture_ = state.target_.Handle();
                         break;
                     }
+                    case graph::Operation::kSpectrumPoints:
+                        state.output_.points_ = detail::SpectrumPoints(instruction, result.outputs_,
+                                                                       frame.external_);
+                        if (!state.output_.points_generation_ || !state.node_ ||
+                            graph::Scalar(*state.node_, "point_count", 128) !=
+                                    graph::Scalar(node, "point_count", 128))
+                            state.output_.points_generation_ = next_points_generation_++;
+                        break;
                     case graph::Operation::kPointGrid:
                         state.output_.points_ = detail::GridPoints(node);
                         state.output_.points_generation_ = next_points_generation_++;

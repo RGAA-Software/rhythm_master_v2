@@ -29,6 +29,7 @@ std::string_view Category(graph::Operation operation) {
         case kAudioFeature:
         case kAudioBand:
         case kAudioSpectrum:
+        case kSpectrumPoints:
             return "palette.audio";
         case kEventBeat:
         case kEventCue:

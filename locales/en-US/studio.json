@@ -1270,5 +1270,9 @@
     "vector.input": "Vector input is disconnected or invalid.",
     "vector.path": "Vector input has no path.",
     "vector.hole": "Hole input has no path.",
-    "vector.extent": "Invalid vector canvas dimensions."
+    "vector.extent": "Invalid vector canvas dimensions.",
+    "point.spectrum": "Spectrum to points",
+    "point_count": "Sample count",
+    "spectrum_height": "Spectrum displacement",
+    "help.point.spectrum": "Sample canonical log-frequency bands into ordered points. Magnitude controls position and color; connect to point rendering, paths or geometry instances. X/Y are normalized by canvas width/height independently: radial points appear elliptical on a wide canvas, while world paths use their projection span. Silence retains the baseline."
 }

@@ -24,7 +24,11 @@ std::optional<Diagnostic> ValidatePointBudget(const ExecutionPlan& plan) {
         double count = 0;
         if (instruction.operation_ == Operation::kParticleEmitter)
             count = Scalar(instruction.node_, "particle_capacity", 2048);
-        else if (instruction.operation_ == Operation::kPointGrid)
+        else if (instruction.operation_ == Operation::kSpectrumPoints) {
+            count = Scalar(instruction.node_, "point_count", 128);
+            if (!std::isfinite(count) || count < 3 || count > 512 || std::floor(count) != count)
+                return Diagnostic{"graph.points_budget", instruction.node_.id_};
+        } else if (instruction.operation_ == Operation::kPointGrid)
             count = Scalar(instruction.node_, "columns", 16) * Scalar(instruction.node_, "rows", 9);
         else if (instruction.operation_ == Operation::kPointTransform ||
                  instruction.operation_ == Operation::kPointPhysics) {

@@ -1270,5 +1270,9 @@
     "vector.input": "矢量输入未连接或无效。",
     "vector.path": "矢量输入缺少路径。",
     "vector.hole": "孔洞输入缺少路径。",
-    "vector.extent": "矢量画布尺寸无效。"
+    "vector.extent": "矢量画布尺寸无效。",
+    "point.spectrum": "频谱转点",
+    "point_count": "采样点数",
+    "spectrum_height": "频谱位移幅度",
+    "help.point.spectrum": "将选定声道的对数频段采样为有序点，幅度控制位置与配色，可接点绘制、路径或几何实例。坐标以画布宽高分别归一化；环形在宽屏点预览中为椭圆，转世界路径后按路径跨度投影。静音保留基线。"
 }

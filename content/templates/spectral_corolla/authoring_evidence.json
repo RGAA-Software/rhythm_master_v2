@@ -1,0 +1,16 @@
+{
+    "run": "out/windows-release/from-empty-studio-spectrum/2010e3e9cffc4db98b9dce2372def787",
+    "recipe": "content/authoring/spectral_corolla.json",
+    "recipe_sha256": "95f647eac5bc7641e37473d1f523f55add8c5a5f2181932ea98df4c3088c2de5",
+    "saved_graph_sha256": "ed455be7dbff53d333f5995b6ba898c7b70123a6b8f4ba4bd24ae2483ac38528",
+    "published_sha256": "35ab3b9adaa4216565aee4378a491d9cee244f4d0a1390b96b412f0422212c6e",
+    "acceptance": {
+        "recipe": "p5-spectral-corolla",
+        "recipe_sha256": "95f647eac5bc7641e37473d1f523f55add8c5a5f2181932ea98df4c3088c2de5",
+        "ui_authoring": "passed",
+        "decoded_pcm_gpu": "passed",
+        "visual_review": "pending",
+        "android": "pending",
+        "acoustic_capture": false
+    }
+}

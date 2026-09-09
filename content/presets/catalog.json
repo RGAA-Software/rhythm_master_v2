@@ -2034,6 +2034,20 @@
                 "path_plane": 0,
                 "path_samples": 512
             }
+        },
+        {
+            "id": "official.point.spectrum.default",
+            "version": "1.0.0",
+            "operator": "point.spectrum",
+            "titles": {
+                "zh-CN": "默认 · 频谱转点",
+                "en-US": "Default · Spectrum to points"
+            },
+            "properties": {
+                "point_count": 128,
+                "spectrum_layout": 1,
+                "spectrum_gain": 2
+            }
         }
     ]
 }

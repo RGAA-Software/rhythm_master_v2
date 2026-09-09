@@ -3,6 +3,23 @@
 namespace rhythm::graph {
 void AppendPointDescriptors(std::vector<OperatorDescriptor>& operators) {
     using Type = ValueType;
+    operators.push_back({"point.spectrum",
+                         Operation::kSpectrumPoints,
+                         Type::kPoints,
+                         {{"spectrum_gain", Type::kScalar, false}},
+                         {{"point_count", 128.0, 3, 512, {}, true},
+                          {"spectrum_gain", 2.0, 0, 100},
+                          {"spectrum_radius", 0.2, 0, 1},
+                          {"spectrum_height", 0.25, 0, 2},
+                          {"spectrum_layout", 1.0, 0, 1, {"spectrum.linear", "spectrum.radial"}},
+                          {"audio_channel", 0.0, 0, 2, {"audio.mono", "audio.left", "audio.right"}},
+                          {"band_first", 0.0, 0, 62, {}, true},
+                          {"band_last", 62.0, 0, 62, {}, true},
+                          {"center_x", 0.5, -4, 4},
+                          {"center_y", 0.5, -4, 4},
+                          {"point_size", 0.008, 0, 1},
+                          {"color_a", Color{0.1, 0.8, 0.9, 1}},
+                          {"color_b", Color{1, 0.3, 0.6, 1}}}});
     operators.push_back({"gpu.particles",
                          Operation::kGpuParticleEmitter,
                          Type::kGpuPoints,

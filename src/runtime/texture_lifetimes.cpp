@@ -15,6 +15,7 @@ bool DynamicSource(graph::Operation operation) {
         case kAudioFeature:
         case kAudioBand:
         case kAudioSpectrum:
+        case kSpectrumPoints:
         case kPointInstances:
         case kFeedback:
         case kTextureTrail:
@@ -53,6 +54,8 @@ bool OrdinaryTarget(graph::Operation operation) {
         case kTextureDisplace:
         case kTextureStack:
         case kTextureShader:
+        case kVectorFill:
+        case kVectorStroke:
             return true;
         default:
             return false;

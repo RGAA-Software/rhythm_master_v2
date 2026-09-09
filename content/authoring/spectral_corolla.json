@@ -1,0 +1,38 @@
+{
+    "id": "p5-spectral-corolla",
+    "title": "频域花冠 / Spectral Corolla",
+    "builtin_font": true,
+    "descriptions": {
+        "zh-CN": "完整频谱生成有序点与平滑闭合路径，形成带孔花冠；高频控制几何增益，低频推动中文标题，叠加透明填充、描边与柔光。",
+        "en-US": "The full spectrum becomes ordered points and a smooth closed path with a hole. Treble changes geometric gain while bass moves the CJK title, combining transparent fill, strokes and glow."
+    },
+    "view_node": 23,
+    "final_view": {"translate_x": 0, "rotation": 0, "scale_x": 1, "scale_y": 1, "scale": 1},
+    "component_title": "Spectral Composition",
+    "nodes": [
+        {"type": "core.time"},
+        {"type": "audio.band", "properties": {"audio_band": 12}},
+        {"type": "scalar.map", "properties": {"input_max": 0.15, "output_min": -6, "output_max": 6}, "inputs": {"value": 2}},
+        {"type": "audio.band", "properties": {"audio_band": 48}},
+        {"type": "scalar.map", "properties": {"input_max": 0.1, "output_min": 6, "output_max": 18}, "inputs": {"value": 4}},
+        {"type": "point.spectrum", "properties": {"point_count": 128, "spectrum_radius": 0.2, "spectrum_height": 0.18}, "inputs": {"spectrum_gain": 5}},
+        {"type": "path.from_points", "properties": {"path_closed": 1}, "inputs": {"points": 6}},
+        {"type": "path.resample", "properties": {"path_samples": 256}, "inputs": {"path": 7}},
+        {"type": "texture.path_stroke", "properties": {"vector_width": 3, "color_a": "6EF1F4FF"}, "inputs": {"path": 8}},
+        {"type": "point.spectrum", "properties": {"point_count": 96, "spectrum_gain": 0, "spectrum_radius": 0.15}},
+        {"type": "path.from_points", "properties": {"path_closed": 1}, "inputs": {"points": 10}},
+        {"type": "texture.path_fill", "properties": {"color_a": "186A9370"}, "inputs": {"path": 8, "hole": 11}},
+        {"type": "texture.blur", "properties": {"blur_radius": 16}, "inputs": {"source": 9}},
+        {"type": "texture.composite", "inputs": {"a": 13, "b": 9}},
+        {"type": "texture.composite", "inputs": {"a": 12, "b": 14}},
+        {"type": "texture.noise", "properties": {"noise_scale": 3, "color_a": "070817FF", "color_b": "12263CFF"}, "inputs": {"phase": 1}},
+        {"type": "texture.composite", "inputs": {"a": 16, "b": 15}},
+        {"type": "texture.text", "properties": {"asset": {"asset_sha256": "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b"}, "text_content": "频域花冠\nSPECTRAL COROLLA", "text_width": 1024, "text_height": 256, "text_size": 64, "text_align": 1}},
+        {"type": "texture.affine", "properties": {"scale": 0.55, "translate_y": 0.32}, "inputs": {"source": 18, "rotation": 3}},
+        {"type": "texture.composite", "inputs": {"a": 17, "b": 19}},
+        {"type": "texture.fxaa", "inputs": {"source": 20}},
+        {"type": "texture.affine", "properties": {"scale": 0.95}, "inputs": {"source": 21}},
+        {"type": "texture.affine", "properties": {"scale": 0.85}, "inputs": {"source": 22}},
+        {"type": "output.texture", "inputs": {"source": 23}}
+    ]
+}

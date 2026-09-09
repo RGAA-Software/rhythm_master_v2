@@ -23,6 +23,16 @@ std::span<const float> SpectrumBands(const graph::Node& node, const ExternalInpu
            : channel == 2 ? std::span(frame.right_bands_)
                           : std::span(frame.mono_bands_);
 }
+float SpectrumSample(std::span<const float> bands, double index) {
+    if (bands.empty() || !std::isfinite(index)) return 0;
+    const auto sample = std::clamp(index, 0.0, static_cast<double>(bands.size() - 1));
+    const auto lower = static_cast<std::size_t>(sample);
+    const auto upper = std::min(lower + 1, bands.size() - 1);
+    const auto value =
+            bands[lower] +
+            (bands[upper] - bands[lower]) * static_cast<float>(sample - static_cast<double>(lower));
+    return std::isfinite(value) ? value : 0;
+}
 void DrawSpectrum(const graph::Node& node, std::span<const float> bands,
                   render::TextureHandle white, render::DrawList& list) {
     if (bands.empty()) return;
@@ -39,13 +49,7 @@ void DrawSpectrum(const graph::Node& node, std::span<const float> bands,
     for (std::uint32_t bar = 0; bar < count; ++bar) {
         const double sample =
                 static_cast<double>(bar) * static_cast<double>(bands.size() - 1) / (count - 1);
-        const auto lower = static_cast<std::size_t>(sample);
-        const auto upper = std::min(lower + 1, bands.size() - 1);
-        const float amount = std::clamp(
-                (bands[lower] + (bands[upper] - bands[lower]) *
-                                        static_cast<float>(sample - static_cast<double>(lower))) *
-                        gain,
-                0.0f, 1.0f);
+        const float amount = std::clamp(SpectrumSample(bands, sample) * gain, 0.0f, 1.0f);
         if (amount == 0) continue;
         const auto base = static_cast<std::uint32_t>(list.vertices_.size());
         if (!radial) {
