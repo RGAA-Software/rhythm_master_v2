@@ -4,16 +4,28 @@
 
 #include "rhythm/player/performance_actions.h"
 #include "rhythm/player/render_quality.h"
+#include "rhythm/player/scene_audio.h"
 #include "rhythm/player/scene_compositor.h"
 #include "rhythm/player/scene_queue.h"
 #include "rhythm/player/session.h"
 
 namespace rhythm::player {
-enum class SceneTransitionError { kNone, kBusy, kInvalid, kBudget, kRender, kDiscontinuity };
+class SceneAudioClock;
+enum class SceneTransitionError {
+    kNone,
+    kBusy,
+    kInvalid,
+    kBudget,
+    kRender,
+    kDiscontinuity,
+    kAudio
+};
 struct SceneDeckFrame {
     runtime::FrameResult output_{};
     bool switched_ = false;
     double entry_seconds_ = 0;
+    std::uint64_t transition_id_ = 0;
+    bool audio_synchronized_ = false;
 };
 // Host-thread performance owner. One master clock drives both sessions using
 // derived scene-local samples; it owns no decoder/device/transport. At most two
@@ -21,10 +33,22 @@ struct SceneDeckFrame {
 // through EndFrame. Retired output owners are released at the next Tick.
 class SceneDeck final {
    public:
+    SceneDeck();
+    ~SceneDeck();
+    SceneDeck(const SceneDeck&) = delete;
+    SceneDeck& operator=(const SceneDeck&) = delete;
     const Session& Current() const { return *current_; }
     void Open(const std::filesystem::path& path);
     void LoadPrepared(PreparedPackage package);
-    bool StartTransition(PreparedPackage package, double duration);
+    bool StartTransition(PreparedPackage package, double duration, bool synchronize_audio = false);
+    // Host opts in after wiring an audio service. Queue transitions with an
+    // authored soundtrack then wait for consumed-audio snapshots.
+    void EnableAudioTransitions(bool enabled);
+    std::uint64_t TransitionId() const { return transition_id_; }
+    std::uint64_t AudioPendingId() const;
+    bool AudioReady() const;
+    double TransitionDuration() const { return duration_; }
+    std::optional<media::SoundtrackSource> IncomingSoundtrack() const;
     void SetPaused(bool paused);
     void Seek(double seconds);
     void Restart() { Seek(0); }
@@ -49,12 +73,14 @@ class SceneDeck final {
     SceneDeckFrame Tick(double monotonic_seconds, bool suspended, RenderQuality quality,
                         render::Renderer& renderer, const runtime::ExternalInputs& inputs = {},
                         const std::optional<runtime::PlaybackSample>& playback = {},
-                        const std::optional<std::reference_wrapper<SceneQueue>>& queue = {});
+                        const std::optional<std::reference_wrapper<SceneQueue>>& queue = {},
+                        const std::optional<SceneAudioSample>& audio = {});
     bool Transitioning() const { return bool(incoming_); }
-    bool CanPrepareNext() const { return !incoming_ && !retired_; }
+    bool CanPrepareNext() const;
     double Progress() const { return progress_; }
     std::string IncomingTitle() const { return incoming_ ? incoming_->Title() : std::string{}; }
     SceneTransitionError Error() const { return error_; }
+    const std::string& ErrorDetail() const { return error_detail_; }
 
    private:
     void ResetClock();
@@ -65,6 +91,7 @@ class SceneDeck final {
     std::unique_ptr<Session> incoming_{};
     std::unique_ptr<Session> retired_{};
     SceneCompositor compositor_{};
+    std::unique_ptr<SceneAudioClock> audio_clock_{};
     runtime::PlaybackClock master_{};
     std::uint64_t master_generation_ = 0;
     std::uint64_t scene_generation_ = 1;
@@ -82,5 +109,10 @@ class SceneDeck final {
     std::uint64_t performance_generation_ = 0;
     std::optional<std::uint64_t> transition_action_{};
     double requested_duration_ = 0;
+    std::uint64_t transition_id_ = 0;
+    bool audio_enabled_ = false;
+    bool media_observed_ = false;
+    bool preserve_audio_origin_ = false;
+    std::string error_detail_{};
 };
 }  // namespace rhythm::player

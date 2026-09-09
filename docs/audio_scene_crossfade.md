@@ -135,3 +135,15 @@ Windows `out/p3-silent-scene-windows-tests.log` 七项通过；Android
 `out/p3-silent-scene-android-dummy-tests.log` 五项通过（播放检查为 dummy 设备）。
 新增零音乐起始、暂停下无积压取消、静音淡入 PCM、旧源循环处的次来源位置与独立
 来场取消 token 检查。仍未以这些检查替代 Player 界面、实际画面和 Android 硬件音频验收。
+
+场景合同增量：SceneDeck 可选择音频驱动的过渡，接受不含音频服务/原生类型的
+SceneAudioSample。先得到来场有效输出才报告 AudioReady；等待阶段保留旧输出，
+溶解使用消费进度，只有明确 Committed 才移交作品。旧/新场循环代次分别处理。
+新静音设备开始时保留旧画面原点；取消期间释放来场 GPU 会话，仍保持旧场消费映射，
+直到音频恢复确认才允许下一场。资源失败与音频失败保留当前作品及具体原因。
+
+Windows `out/p3-scene-audio-deck-windows-tests.log` 五项、Android
+`out/p3-scene-audio-deck-android-tests.log` 四项通过。**这些场景检查使用 Null renderer**，
+证明资源准入合同、实际 Session 当前作品/时间和交接状态，不证明 D3D/GLES 像素。
+原有本地时钟溶解、队列、暂停、seek 和资源释放回归同时通过。两端 Player 入口、
+实际 GPU/音频和当前 deploy/APK 尚待连接与交付，P3.3/P3.5 不据此标为完成。
