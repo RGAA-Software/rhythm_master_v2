@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace rhythm::parameters {
-enum class EventOrigin : std::uint8_t { kBeat, kCue, kAudio, kManual, kOperator };
+enum class EventOrigin : std::uint8_t { kBeat, kCue, kAudio, kManual, kOperator, kRecorded };
 enum class EventKind : std::uint8_t { kPulse, kGate, kReset };
 struct EventSource {
     std::uint64_t scope_ = 0;  // Root is zero; component instances use stable graph IDs.

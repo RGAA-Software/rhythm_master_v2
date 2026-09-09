@@ -66,7 +66,7 @@ EventEvaluation EventNode::Evaluate(const graph::Instruction& instruction,
                 for (const auto& action : track.Events()) {
                     if (action.seconds_ != 0) break;
                     events.push_back({0,
-                                      {0, node.id_, EventOrigin::kOperator},
+                                      {0, node.id_, EventOrigin::kRecorded},
                                       action.id_,
                                       generation,
                                       action.kind_,
@@ -75,7 +75,7 @@ EventEvaluation EventNode::Evaluate(const graph::Instruction& instruction,
             if (previous_)
                 for (const auto& action : track.Between(*previous_, frame.seconds_))
                     events.push_back({action.seconds_,
-                                      {0, node.id_, EventOrigin::kOperator},
+                                      {0, node.id_, EventOrigin::kRecorded},
                                       action.id_,
                                       generation,
                                       action.kind_,

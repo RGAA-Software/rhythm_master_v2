@@ -11,14 +11,22 @@ bool Time(double seconds) { return std::isfinite(seconds) && seconds >= 0 && sec
 }  // namespace
 bool ValidEvent(const Event& event) {
     return Time(event.seconds_) && event.source_.node_ && event.sequence_ && event.generation_ &&
-           event.source_.origin_ <= EventOrigin::kOperator && event.kind_ <= EventKind::kReset &&
+           event.source_.origin_ <= EventOrigin::kRecorded && event.kind_ <= EventKind::kReset &&
            std::isfinite(event.value_) && std::abs(event.value_) <= 1e6 &&
            (event.kind_ != EventKind::kGate || event.value_ == 0 || event.value_ == 1) &&
            (event.kind_ != EventKind::kReset || event.value_ == 1);
 }
 bool EventBefore(const Event& first, const Event& second) {
-    return std::tie(first.seconds_, first.source_, first.sequence_) <
-           std::tie(second.seconds_, second.source_, second.sequence_);
+    // Existing track actions precede a newly performed action at the same node
+    // and time. Appending a take then preserves that order when all are replayed.
+    const auto key = [](const Event& event) {
+        const int origin = event.source_.origin_ == EventOrigin::kRecorded
+                                   ? -1
+                                   : static_cast<int>(event.source_.origin_);
+        return std::tuple(event.seconds_, event.source_.scope_, event.source_.node_, origin,
+                          event.sequence_);
+    };
+    return key(first) < key(second);
 }
 bool EventBatch::Append(const Event& event) {
     if (count_ == kCapacity || !ValidEvent(event)) return false;

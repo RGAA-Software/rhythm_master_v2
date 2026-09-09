@@ -118,6 +118,29 @@ int main() {
         Check(output(result, 1).events_->Events().size() == 256);
         Check(result.rejected_events_ == 4096 - 256);
         Check(!output(evaluate(0.6), 1).events_);
+        const EventTrack same_time({{1, 0.5, EventKind::kReset, 1}});
+        document.nodes_[0].properties_["actions"] = same_time;
+        ++context.reset_generation_;
+        evaluate(0);
+        recorder.Begin(same_time, {0, 1, EventOrigin::kManual}, context.reset_generation_ + 1, 0);
+        EventBatch same_time_live;
+        Check(same_time_live.Append({0.5,
+                                     {0, 1, EventOrigin::kManual},
+                                     3,
+                                     context.reset_generation_ + 1,
+                                     EventKind::kPulse,
+                                     1}));
+        context.external_.events_ = std::make_shared<const EventBatch>(same_time_live);
+        result = evaluate(0.5);
+        Check(output(result, 2).scalar_ == 1);
+        for (const auto& event : output(result, 1).events_->Events())
+            if (event.source_.origin_ == EventOrigin::kManual)
+                Check(recorder.Capture(event) == RecordingAdmission::kRecorded);
+        document.nodes_[0].properties_["actions"] = recorder.Finish();
+        context.external_.events_.reset();
+        ++context.reset_generation_;
+        evaluate(0);
+        Check(output(evaluate(0.5), 2).scalar_ == 1);
         std::cout << "Recorded actions, live dispatch, pause, seek, replay and budgets passed\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

@@ -16,6 +16,14 @@ void Check(bool value, std::source_location location = std::source_location::cur
 int main() {
     using namespace rhythm::parameters;
     try {
+        EventQueue recorded_queue;
+        recorded_queue.Reset(1, 0);
+        const Event manual{1, {0, 1, EventOrigin::kManual}, 1, 1, EventKind::kPulse, 1};
+        const Event recorded{1, {0, 1, EventOrigin::kRecorded}, 42, 1, EventKind::kReset, 1};
+        Check(recorded_queue.Submit(manual) == EventAdmission::kAccepted);
+        Check(recorded_queue.Submit(recorded) == EventAdmission::kAccepted);
+        const auto due = recorded_queue.Drain(1);
+        Check(due.batch_.Events()[0] == recorded && due.batch_.Events()[1] == manual);
         EventQueue queue;
         Event event{0.5, {0, 1, EventOrigin::kBeat}, 1, 1, EventKind::kPulse, 1};
         Check(queue.Submit(event) == EventAdmission::kWrongGeneration);
