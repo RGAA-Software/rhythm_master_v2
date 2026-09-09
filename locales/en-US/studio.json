@@ -1141,5 +1141,18 @@
     "canvas.unsupported_route": "A downstream operation changes coordinates; direct editing here is not supported yet.",
     "canvas.wait_output": "Waiting for the current graph output.",
     "canvas.other_edit": "Finish the other panel or component edit first.",
-    "canvas.stale_edit": "The graph changed; this drag was canceled."
+    "canvas.stale_edit": "The graph changed; this drag was canceled.",
+    "scene_edit.world": "World axes",
+    "gizmo.world_scale_unsupported": "Scale uses local axes; world-axis scaling is not supported.",
+    "scene_edit.select_transform": "Select a scene transform in the node graph.",
+    "scene_edit.driven": "This transform or camera is driven by a connection, binding, curve or expression.",
+    "scene_edit.camera_scope": "This camera source is not supported for direct editing yet.",
+    "scene_edit.invalid_graph": "Invalid graph structure or canvas size.",
+    "scene_edit.not_in_output": "This transform has no traceable route to the final output.",
+    "scene_edit.range": "Transform is outside its authored limits; this result was rejected.",
+    "scene_edit.ambiguous_route": "The transform feeds multiple branches; choose an explicit instance scope first.",
+    "scene_edit.unsupported_route": "This scene route does not support direct editing yet.",
+    "scene_edit.image_warp": "Post-render image processing has no gizmo coordinate mapping yet.",
+    "scene_edit.non_trs": "The result contains shear or a singular transform and cannot be represented by these parameters.",
+    "scene_edit.stale": "The project changed; this 3D drag was canceled."
 }

@@ -115,6 +115,25 @@ Windows `out/p4-scene-pose-tests.log`、`out/p4-shared-scene-pose-tests.log`
 `out/p4-scene-edit-android-tests.log` 通过。此处新增的 3D 事务还未出现在已交付
 Studio 窗口，最新已安装 APK 仍是前文 `54bb...` 的 P4.1 交付版本。
 
+### P4.2 Studio 手柄交付（对象拾取继续推进）
+
+后续 `SceneCanvas` 已接到最终输出：根图直接 scene.render 输出自动切换为 3D
+编辑视图，在节点图选择 scene.transform 后可拖动。支持移动、旋转、局部缩放、
+世界轴切换和 0.1 单位/15 度吸附；世界缩放置灰并说明原因。另一面板草稿、旧输出、
+失焦、Esc、选择/revision/模式变化和视口尺寸改变会取消，失败结果不提交。
+同次补上 2D 输出视口尺寸变化时取消拖动，避免窗口布局变化导致图形跳动。
+
+`out/p4-scene-canvas-tests.log` 同时通过实际 Studio 的 2D 和 3D 图选择、鼠标拖动、
+新输出像素、保存/发布、撤销和重开；3D 证据在
+`out/windows-release/scene-canvas-gpu/11053232b705438d89d4a9cc1a27fe53/`。
+`out/p4-output-resize-tests.log` 验证中英文 2D 捕获后调整窗口尺寸不产生提交。
+Windows `out/p4-scene-canvas-delivery.log` 已自动部署 20 DLL、程序和资源，强制
+四项模板应用回归通过；交付路径仍为前文的 Studio deploy 目录。
+
+这里还不是 P4.2 全部完成：从视图点击对象来拾取、P4.3 实例/组件身份与编辑
+范围、P4.4 自动化策略、P4.5 不同输出域及大图定位仍继续推进。当前不支持的
+scene route/图像后处理明确提示，不能当作与竞品全部直接编辑能力等价。
+
 1. `editor_application` 增加变换编辑事务，保留基线 revision/稳定节点 ID；一次
    鼠标拖动只提交一次 History，Esc/失焦/删除或外部 revision 变化取消草稿。
 2. Studio 最终输出的坐标操作与节点图平移分开；先支持 affine 作者节点的

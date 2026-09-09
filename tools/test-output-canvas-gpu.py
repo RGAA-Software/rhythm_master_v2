@@ -13,6 +13,7 @@ def main():
     parser.add_argument("--executable", type=Path, required=True)
     parser.add_argument("--resources", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--scene", action="store_true")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     output = args.output.resolve() / uuid.uuid4().hex
@@ -23,7 +24,10 @@ def main():
     capture = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(capture)
     print(f"Studio canvas evidence: {output}", flush=True)
-    subprocess.run([str(args.executable.resolve()), str(args.resources.resolve()), str(output)],
+    command = [str(args.executable.resolve()), str(args.resources.resolve()), str(output)]
+    if args.scene:
+        command.append("--scene")
+    subprocess.run(command,
                    check=True, timeout=85)
     for name in ["before", "moved", "undone", "reopened"]:
         rect = json.loads((output / (name + ".json")).read_text(encoding="utf-8"))

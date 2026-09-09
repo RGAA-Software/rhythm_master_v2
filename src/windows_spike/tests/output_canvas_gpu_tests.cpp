@@ -52,7 +52,8 @@ ImRect OutputRect() {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        Check(argc == 3, "resources output");
+        Check(argc == 3 || argc == 4, "resources output [--scene]");
+        const bool scene_mode = argc == 4 && std::string_view(argv[3]) == "--scene";
         const std::filesystem::path resources(argv[1]), root(argv[2]);
         const auto path = root / "Projects/canvas.rhythmproj";
         const auto package = root / "Published/canvas.rhythmpack";
@@ -71,6 +72,20 @@ int main(int argc, char* argv[]) {
         doc.edges_ = {{1, 1, 2, "source"}, {2, 2, 3, "source"}};
         doc.output_ = 3;
         initial.positions_ = {{1, {0, 0}}, {2, {300, 0}}, {3, {600, 0}}};
+        if (scene_mode) {
+            doc.nodes_ = {
+                    registry.MakeNode(1, "geometry.cube"),  registry.MakeNode(2, "scene.transform"),
+                    registry.MakeNode(3, "output.texture"), registry.MakeNode(4, "scene.instance"),
+                    registry.MakeNode(5, "scene.camera"),   registry.MakeNode(6, "scene.render"),
+                    registry.MakeNode(7, "material.unlit")};
+            doc.nodes_[4].properties_["projection"] = 1.0;
+            doc.nodes_[4].properties_["orthographic_height"] = 1.0;
+            doc.nodes_[6].properties_["color_a"] = graph::Color{1, 0, 0, 1};
+            doc.edges_ = {{1, 1, 4, "geometry"}, {2, 7, 4, "material"}, {3, 4, 2, "scene"},
+                          {4, 2, 6, "scene"},    {5, 5, 6, "camera"},   {6, 6, 3, "source"}};
+            initial.positions_ = {{1, {0, 0}},     {7, {0, 250}}, {4, {300, 0}}, {2, {600, 0}},
+                                  {5, {600, 330}}, {6, {900, 0}}, {3, {1200, 0}}};
+        }
         project::Save(path, initial);
         platform::Host host(true);
         host.Resize({1600, 1000});
@@ -155,8 +170,11 @@ int main(int argc, char* argv[]) {
         Check(std::filesystem::exists(package), "edited canvas publication missing");
         const auto saved = project::Load(path).snapshot_;
         const auto published = project::LoadPackage(package);
-        Check(std::abs(graph::Scalar(saved.document_.nodes_[1], "translate_x", 0) - .2) < .005 &&
-                      saved.document_.edges_.size() == 2 && saved.document_.nodes_.size() == 3,
+        const auto expected_translation = scene_mode ? .2 * 320 / 180 : .2;
+        Check(std::abs(graph::Scalar(saved.document_.nodes_[1], "translate_x", 0) -
+                       expected_translation) < .005 &&
+                      saved.document_.edges_.size() == (scene_mode ? 6 : 2) &&
+                      saved.document_.nodes_.size() == (scene_mode ? 7 : 3),
               "actual Studio drag not saved or altered graph connections");
         Check(project::EncodeProgram(published.program_) ==
                       project::EncodeProgram(std::get<graph::ExecutionPlan>(

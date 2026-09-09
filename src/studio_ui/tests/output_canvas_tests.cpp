@@ -51,7 +51,7 @@ class Fixture final {
     void Frame(const std::string& activate = {}) {
         ImGui::NewFrame();
         ImGui::SetNextWindowPos({0, 0});
-        ImGui::SetNextWindowSize({800, 700});
+        ImGui::SetNextWindowSize({width_, 700});
         ImGui::Begin("Output test", nullptr,
                      ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
         if (!activate.empty()) ImGui::ActivateItemByID(ImGui::GetID(("###" + activate).c_str()));
@@ -105,6 +105,7 @@ class Fixture final {
     bool editable_ = true;
     bool current_ = true;
     bool changed_ = false;
+    float width_ = 800;
 };
 void Run(const std::filesystem::path& locale, const std::filesystem::path& root) {
     Fixture fixture(locale);
@@ -173,6 +174,14 @@ void Run(const std::filesystem::path& locale, const std::filesystem::path& root)
     fixture.Frame();
     Check(!fixture.canvas_.Active(), "focus loss cancels");
     ImGui::GetIO().AddFocusEvent(true);
+    fixture.Button(false);
+    fixture.Move(fixture.Point(.5, .5));
+    fixture.Button(true);
+    Check(fixture.canvas_.Active(), "capture before resize");
+    fixture.width_ = 760;
+    fixture.Frame();
+    Check(!fixture.canvas_.Active() && fixture.commits_ == 4,
+          "viewport resize cancels instead of jumping object");
     fixture.Button(false);
     fixture.current_ = false;
     fixture.Frame();

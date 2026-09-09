@@ -14,13 +14,36 @@ double Distance(Point a, Point b) { return std::hypot(a.x_ - b.x_, a.y_ - b.y_);
 }  // namespace
 bool OutputCanvas::Cancel() {
     const auto active = Active();
+    scene_.Cancel();
     edit_.reset();
+    captured_viewport_.reset();
     return active;
 }
 OutputEdit OutputCanvas::Draw(const editor::Snapshot& snapshot, graph::NodeId selected,
                               std::uint64_t texture, geometry2d::Size extent, bool editable,
                               bool current_output, const std::map<std::string, std::string>& text) {
     OutputEdit result;
+    const auto& nodes = snapshot.document_.nodes_;
+    const auto scene_node = [&](graph::NodeId id, const std::string& type) {
+        return std::any_of(nodes.begin(), nodes.end(),
+                           [&](const auto& node) { return node.id_ == id && node.type_ == type; });
+    };
+    const auto direct_scene = std::any_of(snapshot.document_.edges_.begin(),
+                                          snapshot.document_.edges_.end(), [&](const auto& edge) {
+                                              return edge.to_ == snapshot.document_.output_ &&
+                                                     edge.input_ == "source" &&
+                                                     scene_node(edge.from_, "scene.render");
+                                          });
+    if (direct_scene || scene_node(selected, "scene.transform")) {
+        const auto canceled = edit_.has_value();
+        edit_.reset();
+        captured_viewport_.reset();
+        auto scene_result = scene_.Draw(snapshot, selected, texture, extent, editable,
+                                        current_output, enabled_, text);
+        scene_result.preview_changed_ |= canceled;
+        return scene_result;
+    }
+    result.preview_changed_ = scene_.Cancel();
     const auto label = [&](const std::string& key) {
         const auto found = text.find(key);
         return (found == text.end() ? key : found->second) + "###" + key;
@@ -68,6 +91,11 @@ OutputEdit OutputCanvas::Draw(const editor::Snapshot& snapshot, graph::NodeId se
         return result;
     }
     const geometry2d::Rect viewport{origin.x, origin.y, available.x, available.y};
+    if (captured_viewport_ && (std::abs(viewport.x_ - captured_viewport_->x_) > .01 ||
+                               std::abs(viewport.y_ - captured_viewport_->y_) > .01 ||
+                               std::abs(viewport.width_ - captured_viewport_->width_) > .01 ||
+                               std::abs(viewport.height_ - captured_viewport_->height_) > .01))
+        result.preview_changed_ |= Cancel();
     const auto fit = geometry2d::AspectFit(extent, viewport);
     ImGui::SetCursorScreenPos({float(fit.x_), float(fit.y_)});
     ImGui::Image(texture, {float(fit.width_), float(fit.height_)});
@@ -131,7 +159,10 @@ OutputEdit OutputCanvas::Draw(const editor::Snapshot& snapshot, graph::NodeId se
     if (!Active() && target && current_output && hit && ImGui::IsItemHovered() &&
         ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
         const auto point = geometry2d::ScreenToCanvas(mouse, target->canvas_, viewport);
-        if (point) edit_.emplace(snapshot, selected, mode_, *point);
+        if (point) {
+            edit_.emplace(snapshot, selected, mode_, *point);
+            captured_viewport_ = viewport;
+        }
     }
     if (Active()) {
         const auto point =
