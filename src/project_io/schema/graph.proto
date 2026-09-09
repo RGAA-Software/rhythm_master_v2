@@ -35,6 +35,7 @@ message EventTrack {
     double value = 4;
   }
   repeated Action actions = 1; // Maximum 4096; stable IDs preserve extensions on edits.
+  uint64 last_id = 2; // Allocation watermark survives deletions and project reopen.
 }
 message Curve {
   enum Interpolation {

@@ -71,6 +71,13 @@ int main() {
         recorder.Begin(recorded, source, 5, 3);
         recorder.Cancel();
         Check(!recorder.Active() && recorder.Captured() == 0, "cancel retained take");
+        const EventTrack removed({}, recorded.LastId());
+        Check(removed.Events().empty() && removed.LastId() == 6, "deleted ID watermark lost");
+        recorder.Begin(removed, source, 5, 0);
+        Check(recorder.Capture(event) == RecordingAdmission::kRecorded, "record after deletion");
+        const auto appended = recorder.Finish();
+        Check(appended.Events()[0].id_ == 7 && appended.LastId() == 7,
+              "recording reused a deleted action identity");
         std::vector<RecordedEvent> full;
         for (std::uint64_t id = 1; id <= EventTrack::kMaximumEvents; ++id) full.push_back({id, 0});
         recorder.Begin(EventTrack(full), source, 5, 0);

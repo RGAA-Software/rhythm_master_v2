@@ -5,7 +5,7 @@
 
 ## P2.1 身份与准入
 
-`parameters::Event` 是不含外部类型的值：媒体秒数、来源（节拍/Cue/音频/手动/算子）、
+`parameters::Event` 是不含外部类型的值：媒体秒数、来源（节拍/Cue/音频/手动/算子/录制）、
 源节点 ID、组件实例作用域、源内单调序号、播放代次、动作类型及有限标量载荷。
 根作用域为 0；源节点、序号及代次必须非零。首批类型为脉冲、门控与重置；门控只接受
 0/1，重置载荷固定 1，脉冲范围 ±1e6，时间范围沿用现有 0–1e9 秒。
@@ -13,6 +13,8 @@
 身份由来源（含作用域）+代次+序号确定。同源序号必须递增、时间不能倒退；已执行的
 旧序号仍拒绝。因此无须无限保存去重集合。相同时间按作用域、源节点、来源类型、
 序号稳定排序，不依赖宿主回调到达顺序。不同作用域内同一个定义节点不是同一来源。
+同一节点、同一时刻，已有录制动作排在新现场动作前面；将现场录制追加为新 ID 后，
+重放保持相同顺序。已有来源枚举值保持原值，新增 Recorded 来源不冒充音频或节拍。
 
 `EventQueue` 由一个求值所有者使用，构造时预留容量；不是多线程消息中间件。
 宿主只提交值，调用一次 Drain 后把同一个不可变批次交给本帧各消费者/预览。
@@ -216,4 +218,39 @@ MIDI/OSC 回调和墙上时间不能直接满足本项目停止通信开发、�
 和序号；结束返回一个不可变轨值供一次撤销提交，取消不改变原轨。
 纯参数模块已通过 Windows/Android `event_track`，日志
 `out/p2-event-track-windows-tests.log`、`out/p2-event-track-android-tests.log`。
-运行时入口、存储及可操作录制界面仍在实施，这些原生检查不代表 P2.4 已交付。
+这些原生检查不代表 P2.4 完整交付；后续进展如下。
+
+### 动作入口、存储与录制界面
+
+`event.input` 同时重放所属轨和接收根图本地手动事件。固定最多 256 项输出，
+录制轨超过本帧预算的项报告拒绝；宿主队列仍按自身预算保留积压。现场动作使用
+实际分发帧的媒体时间（含排队延迟），只有真正产生的 Manual 输出才进入录制。
+初次在零时刻暂停不吞掉零时动作；跳转到其他时间建立新基线，不补播历史。
+
+运行时已通过 Windows/Android 30/60/144 Hz、暂停、seek、重复帧/输入、代次、
+现场录制后重放、4096 项密集轨截断报告检查：
+`out/p2-event-input-runtime-windows-tests.log`、
+`out/p2-event-input-runtime-android-tests.log`。
+同刻“旧 reset + 新 pulse”再录制、重放保持结果为一步的专项通过：
+`out/p2-recorded-order-runtime-windows-tests.log`、
+`out/p2-recorded-order-runtime-android-tests.log`。
+
+轨数据写入 Property 的 EventTrack 字段，保留 schema 7 / ABI 5。分配水位随删除
+和保存重开保留，不复用已删除动作 ID，未知扩展只跟随原动作。模板重新分配所属
+节点 ID、组件封装/展开、撤销重做、Save/Load、发布并实际运行通过：
+`out/p2-event-track-io-windows-tests.log`、`out/p2-event-track-io-android-tests.log`；
+删除水位、修改时间保留扩展、新动作不继承旧扩展的专项见
+`out/p2-action-watermark-io-windows-tests.log`、
+`out/p2-action-watermark-io-android-tests.log`。
+
+Studio 属性区提供现场脉冲、gate-on/off、reset、开始/结束/取消录制。单次录制
+一次历史提交；已有轨继续重放，不再次录入。暂停不接新点击；跳转、工程编辑或
+渲染预算失败取消未提交 take，界面说明原因。组件内部轨支持编辑和重放，现场
+录制首版从根图 event.input 进入；不把未录音频、现场宏或其他输入声称可复现。
+时间列表和轨标记可选中动作，时间/类型/值显式应用，支持播放位置添加和删除。
+
+真实 ImGui 中英文点击录制/触发/结束、一次撤销、发布后无现场输入重放、暂停与取消
+已通过，连同画布拖动回归：`out/p2-event-authoring-windows-tests.log`。
+第一次 MSVC 构建拦截了轨绘图线宽的 int→float 警告，改为 float 后编译通过；
+失败日志 `out/p2-event-authoring-windows-build.log` 保留。
+当前仍需新动作轨示例、两端 GPU 和完整部署，不能用该原生 UI 检查代替安装版交付。

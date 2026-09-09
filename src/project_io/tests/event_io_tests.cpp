@@ -146,6 +146,37 @@ int main(int argc, char* argv[]) {
         action.set_kind(schema::EventTrack::KIND_GATE);
         action.set_value(0.5);
         Reject([&] { project::DecodeGraph(graph_message.SerializeAsString()); });
+        // Unknown fields belong to a stable action, not a recycled row ID.
+        action.set_kind(schema::EventTrack::KIND_PULSE);
+        action.set_value(1);
+        action.GetReflection()->MutableUnknownFields(&action)->AddVarint(99, 123);
+        auto extended = project::DecodeGraph(graph_message.SerializeAsString());
+        extended.nodes_[0].properties_["actions"] =
+                parameters::EventTrack({{42, 0.75, parameters::EventKind::kPulse, 1}}, 43);
+        schema::GraphProject rewritten;
+        Check(rewritten.ParseFromString(project::EncodeGraph(extended)), "extended track parse");
+        const auto& moved = rewritten.nodes(0).properties().at("actions").event_track().actions(0);
+        Check(moved.id() == 42 && moved.seconds() == 0.75 &&
+                      moved.GetReflection()->GetUnknownFields(moved).field_count() == 1,
+              "retiming lost an action extension");
+        extended.nodes_[0].properties_["actions"] = parameters::EventTrack({}, 43);
+        auto deleted_reopened = project::DecodeGraph(project::EncodeGraph(extended));
+        const auto retired = std::get<parameters::EventTrack>(
+                deleted_reopened.nodes_[0].properties_.at("actions"));
+        Check(retired.Events().empty() && retired.LastId() == 43,
+              "deleted allocation watermark lost on reopen");
+        parameters::EventRecorder replacement;
+        replacement.Begin(retired, {0, 1, parameters::EventOrigin::kManual}, 1, 0);
+        Check(replacement.Capture({0.5, {0, 1, parameters::EventOrigin::kManual}, 1, 1}) ==
+                      parameters::RecordingAdmission::kRecorded,
+              "new action after deletion rejected");
+        extended.nodes_[0].properties_["actions"] = replacement.Finish();
+        Check(rewritten.ParseFromString(project::EncodeGraph(extended)), "new action parse");
+        const auto& fresh_action =
+                rewritten.nodes(0).properties().at("actions").event_track().actions(0);
+        Check(fresh_action.id() == 44 &&
+                      fresh_action.GetReflection()->GetUnknownFields(fresh_action).empty(),
+              "new action inherited a retired action's extension");
         const std::array<graph::NodeId, 3> recorded_selection{1, 2, 3};
         recorded = std::get<editor::Snapshot>(
                 editor::MakeComponent(recorded, registry, recorded_selection, 5, "Recorded color"));

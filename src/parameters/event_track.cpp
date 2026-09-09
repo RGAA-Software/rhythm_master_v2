@@ -11,10 +11,12 @@ namespace rhythm::parameters {
 namespace {
 bool ValidTime(double seconds) { return std::isfinite(seconds) && seconds >= 0 && seconds <= 1e9; }
 }  // namespace
-EventTrack::EventTrack(std::vector<RecordedEvent> events) {
+EventTrack::EventTrack(std::vector<RecordedEvent> events, std::uint64_t last_id)
+    : last_id_(last_id) {
     if (events.size() > kMaximumEvents) throw std::length_error("event.track_limit");
     std::set<std::uint64_t> ids;
     for (const auto& event : events) {
+        last_id_ = std::max(last_id_, event.id_);
         if (!ids.insert(event.id_).second || !ValidEvent({event.seconds_,
                                                           {0, 1, EventOrigin::kManual},
                                                           event.id_,
@@ -46,8 +48,7 @@ void EventRecorder::Begin(EventTrack base, EventSource source, std::uint64_t gen
         throw std::invalid_argument("event.recording_source");
     std::vector<RecordedEvent> captured;
     captured.reserve(EventTrack::kMaximumEvents - base.Events().size());
-    std::uint64_t last_id = 0;
-    for (const auto& event : base.Events()) last_id = std::max(last_id, event.id_);
+    const auto last_id = base.LastId();
     base_ = std::move(base);
     captured_ = std::move(captured);
     source_ = source;
@@ -75,7 +76,7 @@ EventTrack EventRecorder::Finish() {
     if (!Active()) throw std::logic_error("event.recording_inactive");
     std::vector<RecordedEvent> combined(base_.Events().begin(), base_.Events().end());
     combined.insert(combined.end(), captured_.begin(), captured_.end());
-    EventTrack result(std::move(combined));
+    EventTrack result(std::move(combined), last_record_id_);
     Cancel();
     return result;
 }

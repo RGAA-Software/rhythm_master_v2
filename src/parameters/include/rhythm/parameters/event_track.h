@@ -18,14 +18,18 @@ class EventTrack final {
    public:
     static constexpr std::size_t kMaximumEvents = 4096;
     EventTrack() = default;
-    explicit EventTrack(std::vector<RecordedEvent> events);
+    explicit EventTrack(std::vector<RecordedEvent> events, std::uint64_t last_id = 0);
     std::span<const RecordedEvent> Events() const { return events_; }
+    // Persisted allocation watermark, including deleted actions. A new action
+    // must not inherit a retired action's extension fields after save/reopen.
+    std::uint64_t LastId() const { return last_id_; }
     // Half-open traversal (after, through], independent of display frame rate.
     std::span<const RecordedEvent> Between(double after, double through) const;
     bool operator==(const EventTrack&) const = default;
 
    private:
     std::vector<RecordedEvent> events_{};
+    std::uint64_t last_id_ = 0;
 };
 enum class RecordingAdmission {
     kRecorded,

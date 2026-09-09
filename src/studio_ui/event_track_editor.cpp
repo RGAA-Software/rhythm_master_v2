@@ -69,7 +69,7 @@ std::optional<parameters::EventTrack> EventTrackEditor::Draw(
             std::vector<parameters::RecordedEvent>(track.Events().begin(), track.Events().end());
     const auto publish = [&] {
         try {
-            result.emplace(actions);
+            result.emplace(actions, track.LastId());
             error_.clear();
         } catch (const std::exception&) {
             error_ = "event.invalid_action";
@@ -110,8 +110,7 @@ std::optional<parameters::EventTrack> EventTrackEditor::Draw(
             selected_.reset();
         }
     }
-    std::uint64_t last = 0;
-    for (const auto& action : actions) last = std::max(last, action.id_);
+    const auto last = track.LastId();
     ImGui::BeginDisabled(actions.size() == parameters::EventTrack::kMaximumEvents ||
                          last == std::numeric_limits<std::uint64_t>::max());
     if (ImGui::Button(label("event.add_action").c_str())) {

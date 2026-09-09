@@ -168,13 +168,35 @@ int main(int argc, char* argv[]) {
         click(add, track_frame);
         Check(track_commits == 1 && track.Events().size() == 1 &&
               track.Events()[0].seconds_ == 2.5);
+        click({50, add.y - 4 * row}, track_frame);
+        io.AddKeyEvent(ImGuiMod_Ctrl, true);
+        io.AddKeyEvent(ImGuiKey_A, true);
+        track_frame();
+        io.AddKeyEvent(ImGuiKey_A, false);
+        io.AddKeyEvent(ImGuiMod_Ctrl, false);
+        io.AddInputCharactersUTF8("3.75");
+        track_frame();
+        io.AddKeyEvent(ImGuiKey_Enter, true);
+        track_frame();
+        io.AddKeyEvent(ImGuiKey_Enter, false);
+        track_frame();
+        Check(track_commits == 1 && track.Events()[0].seconds_ == 2.5);
+        click({35, add.y - row}, track_frame);
+        Check(track_commits == 2 && track.Events()[0].seconds_ == 3.75);
+        const auto remove_x = 8 + ImGui::CalcTextSize(text.at("event.apply_action").c_str()).x +
+                              2 * ImGui::GetStyle().FramePadding.x +
+                              ImGui::GetStyle().ItemSpacing.x + 25;
+        click({remove_x, add.y - row}, track_frame);
+        Check(track_commits == 3 && track.Events().empty() && track.LastId() == 1);
+        click(add, track_frame);
+        Check(track_commits == 4 && track.Events().size() == 1 && track.Events()[0].id_ == 2);
         std::vector<RecordedEvent> full;
         for (std::uint64_t id = 1; id <= 4096; ++id)
             full.push_back({id, double(id), EventKind::kPulse, 1});
         track = EventTrack(std::move(full));
         track_frame();
         click(add, track_frame);
-        Check(track_commits == 1 && track.Events().size() == 4096);
+        Check(track_commits == 4 && track.Events().size() == 4096);
         std::cout << "ImGui record/trigger/finish, one undo, published replay, "
                      "pause/cancel/seek/edit and bounded track editor passed\n";
     } catch (const std::exception& error) {

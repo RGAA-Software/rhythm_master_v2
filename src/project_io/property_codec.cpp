@@ -18,7 +18,7 @@ graph::Property DecodeProperty(const schema::Property& property, bool preserve_u
                                static_cast<parameters::EventKind>(action.kind() - 1),
                                action.value()});
         }
-        return parameters::EventTrack(std::move(actions));
+        return parameters::EventTrack(std::move(actions), encoded.last_id());
     }
     if (property.has_scalar()) return property.scalar();
     if (property.has_expression()) return parameters::Expression(property.expression());
@@ -88,6 +88,7 @@ void EncodeProperty(const graph::Property& value, schema::Property& property) {
         }
     } else if (std::holds_alternative<parameters::EventTrack>(value)) {
         auto& track = *property.mutable_event_track();
+        track.set_last_id(std::get<parameters::EventTrack>(value).LastId());
         const auto original = track.actions();
         std::map<std::uint64_t, int> indices;
         for (int index = 0; index < original.size(); ++index)
