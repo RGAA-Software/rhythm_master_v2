@@ -12,6 +12,7 @@ struct SceneQueueItem {
     std::string title_{};
     ScenePreparation state_ = ScenePreparation::kQueued;
     PackageLoadError error_ = PackageLoadError::kNone;
+    storage::FileBytes bytes_{};
 };
 // Host-thread FIFO. At most one prepared package or active preparation worker;
 // only lightweight source metadata is retained for later entries. The loader
@@ -20,6 +21,7 @@ struct SceneQueueItem {
 class SceneQueue final {
    public:
     std::optional<std::uint64_t> Enqueue(std::filesystem::path source, std::string title);
+    std::optional<std::uint64_t> EnqueueBytes(storage::FileBytes source, std::string title);
     bool Remove(std::uint64_t id);
     bool Retry();
     void Clear();

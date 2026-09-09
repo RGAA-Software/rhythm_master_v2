@@ -46,6 +46,9 @@ int main(int argc, char* argv[]) {
                       "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad" &&
               asset.bytes_ == 3);
         Check(store.Read(asset) == "abc" && store.Verify(asset));
+        Check(store.OpenId(asset.id_, 3).Size() == 3);
+        Reject([&] { store.OpenId(asset.id_, 2); });
+        Reject([&] { store.OpenId({"../outside"}, 3); });
         {
             const auto opened = store.Open(asset, 3);
             std::array<std::uint8_t, 3> bytes{};
@@ -96,6 +99,7 @@ int main(int argc, char* argv[]) {
         Check(store.Read(asset) == "abc");
         storage::WriteDurable(blob, "bad");
         Check(!store.Verify(asset));
+        Reject([&] { store.OpenId(asset.id_, 3); });
         Reject([&] { store.Open(asset); });
         Check(copied.Read(asset) == "abc");
         Reject([&] { copied.CopyFrom(store, asset); });

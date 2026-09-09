@@ -157,6 +157,14 @@ storage::FileBytes Store::Open(const AssetRecord& asset, std::uint64_t maximum_b
     if (!VerifyFile(asset, bytes, cancellation)) throw std::runtime_error("asset.hash");
     return bytes;
 }
+storage::FileBytes Store::OpenId(const AssetId& id, std::uint64_t maximum_bytes,
+                                 std::stop_token cancellation) const {
+    if (cancellation.stop_requested()) throw std::runtime_error("asset.cancelled");
+    if (maximum_bytes > 1024ull * 1024 * 1024) throw std::length_error("asset.read_budget");
+    auto bytes = storage::FileBytes::Open(BlobPath(id), maximum_bytes);
+    if (HashFile(bytes, cancellation) != id.sha256_) throw std::runtime_error("asset.hash");
+    return bytes;
+}
 AssetRecord Store::CopyFrom(const Store& source, const AssetRecord& asset,
                             std::uint64_t maximum_bytes, std::stop_token cancellation) {
     if (asset.bytes_ > maximum_bytes) throw std::length_error("asset.byte_limit");

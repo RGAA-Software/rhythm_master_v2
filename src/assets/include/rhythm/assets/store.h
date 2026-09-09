@@ -37,6 +37,10 @@ class Store final {
     storage::FileBytes Open(const AssetRecord& asset,
                             std::uint64_t maximum_bytes = 256 * 1024 * 1024,
                             std::stop_token cancellation = {}) const;
+    // Identity-only references (e.g. a managed work) still verify every byte.
+    // Discovers the stored size within the caller's budget, without exposing a path.
+    storage::FileBytes OpenId(const AssetId& id, std::uint64_t maximum_bytes,
+                              std::stop_token cancellation = {}) const;
     AssetRecord CopyFrom(const Store& source, const AssetRecord& asset,
                          std::uint64_t maximum_bytes = 256 * 1024 * 1024,
                          std::stop_token cancellation = {});

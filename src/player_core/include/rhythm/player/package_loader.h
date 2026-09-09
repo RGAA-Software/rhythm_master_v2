@@ -20,6 +20,9 @@ class PackageLoader final {
    public:
     ~PackageLoader();
     bool StartFile(std::filesystem::path source, std::optional<std::filesystem::path> install = {});
+    // Holds a checked immutable file lease across preparation. No platform path
+    // is required when consuming an application-managed work.
+    bool StartBytes(storage::FileBytes source);
     bool Busy() const { return pending_.valid(); }
     void Cancel();
     std::optional<PackageLoadResult> Take();

@@ -14,6 +14,21 @@ std::optional<std::uint64_t> SceneQueue::Enqueue(std::filesystem::path source, s
     items_.push_back({id, std::move(source), std::move(title)});
     return id;
 }
+std::optional<std::uint64_t> SceneQueue::EnqueueBytes(storage::FileBytes source,
+                                                      std::string title) {
+    if (!source.Valid() || !source.Size() || source.Size() > project::kMaximumFilePackageBytes ||
+        title.empty() || title.size() > 512 || title.find('\0') != std::string::npos ||
+        items_.size() >= kMaximumItems || next_id_ == std::numeric_limits<std::uint64_t>::max())
+        return {};
+    const auto id = next_id_++;
+    items_.push_back({id,
+                      {},
+                      std::move(title),
+                      ScenePreparation::kQueued,
+                      PackageLoadError::kNone,
+                      std::move(source)});
+    return id;
+}
 bool SceneQueue::Remove(std::uint64_t id) {
     const auto found = std::find_if(items_.begin(), items_.end(),
                                     [&](const auto& item) { return item.id_ == id; });
@@ -56,7 +71,7 @@ void SceneQueue::Pump(bool can_prepare) {
         items_.front().state_ != ScenePreparation::kQueued)
         return;
     auto& item = items_.front();
-    if (loader_.StartFile(item.source_)) {
+    if (item.bytes_.Valid() ? loader_.StartBytes(item.bytes_) : loader_.StartFile(item.source_)) {
         item.state_ = ScenePreparation::kLoading;
         loading_id_ = item.id_;
     } else {
