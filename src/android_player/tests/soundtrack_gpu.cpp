@@ -6,6 +6,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <map>
 
 #include "rhythm/audio/analyzer.h"
 #include "rhythm/media/audio_decoder.h"
@@ -34,15 +35,20 @@ void Write(const std::filesystem::path& path, const render::ReadbackImage& image
 // Actual packaged PCM, shared analysis and Session on GLES. This offscreen
 // diagnostic does not substitute for Android application audio/lifecycle tests.
 void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path& path,
-                        bool arrangement) {
+                        bool arrangement, std::size_t expected_nodes) {
     const auto package = project::LoadPackage(path);
+    const auto actual_nodes = package.program_.instructions_.size();
+    std::cout << "Music package instructions=" << actual_nodes << " expected=" << expected_nodes
+              << '\n';
+    if (expected_nodes && actual_nodes != expected_nodes)
+        throw std::runtime_error("music.package_node_count");
     const bool videos = std::any_of(
             package.program_.instructions_.begin(), package.program_.instructions_.end(),
             [](const auto& node) { return node.operation_ == graph::Operation::kTextureVideo; });
-    graph::NodeId onset_source = 0;
+    std::map<graph::NodeId, std::uint64_t> onset_sources;
     for (const auto& instruction : package.program_.instructions_)
         if (instruction.operation_ == graph::Operation::kEventAudio)
-            onset_source = instruction.node_.id_;
+            onset_sources[instruction.node_.id_] = 0;
     const auto frames = arrangement ? 960 : 240;
     const std::vector<int> checkpoints =
             arrangement ? std::vector<int>{120, 360, 600, 840} : std::vector<int>{239};
@@ -75,7 +81,7 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
         std::uint64_t peak_bytes = 0;
         std::vector<double> elapsed;
         float maximum_rms = 0;
-        std::uint64_t onset_events = 0;
+        for (auto& [id, count] : onset_sources) count = 0;
         std::optional<render::Readback> ticket;
         const auto collect = [&] {
             if (!ticket) return;
@@ -129,8 +135,8 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
                 throw std::runtime_error("music scene budget/output");
             if (output.rejected_event_total_) throw std::runtime_error("music event rejection");
             for (const auto& value : output.outputs_)
-                if (value.node_ == onset_source && value.event_observation_)
-                    onset_events = value.event_observation_->count_;
+                if (onset_sources.contains(value.node_) && value.event_observation_)
+                    onset_sources[value.node_] = value.event_observation_->count_;
             const bool capture =
                     std::find(checkpoints.begin(), checkpoints.end(), frame) != checkpoints.end();
             if (capture) {
@@ -163,8 +169,15 @@ void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path&
         if (images[silent].size() != checkpoints.size() || (!silent && maximum_rms < 0.01F))
             throw std::runtime_error("music readback/audio");
         std::sort(elapsed.begin(), elapsed.end());
-        if (onset_source && (silent ? onset_events != 0 : onset_events == 0))
-            throw std::runtime_error("packaged PCM onset events missing or fabricated in silence");
+        std::uint64_t onset_events = 0;
+        for (const auto& [id, count] : onset_sources) {
+            std::cout << (silent ? "silence" : "music") << " onset_node=" << id
+                      << " events=" << count << '\n';
+            onset_events += count;
+            if (silent ? count != 0 : count == 0)
+                throw std::runtime_error(
+                        "packaged PCM onset events missing or fabricated in silence");
+        }
         std::cout << (silent ? "silence" : "music") << " native_GLES_frames=" << frames
                   << " extent=640x360 p50_ms=" << elapsed[elapsed.size() / 2]
                   << " p95_ms=" << elapsed[elapsed.size() * 95 / 100]

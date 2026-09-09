@@ -133,7 +133,7 @@ def main():
     beat = node("event.beat", 6100, 1050)
     beat_envelope = node("event.envelope", 6430, 1050, dict(events=beat),
                          attack=0.005, decay=0.08, sustain=0.35, duration=0.1, release=0.28)
-    onset = node("event.audio_onset", 6100, 1550, threshold=0.015, band_first=0, band_last=28)
+    onset = node("event.audio_onset", 6100, 1550, threshold=0.0001, band_first=42, band_last=62)
     onset_envelope = node("event.envelope", 6430, 1550, dict(events=onset),
                           attack=0.005, decay=0.1, sustain=0.3, duration=0.12, release=0.22)
     cue = node("event.cue", 6100, 2050)
@@ -144,6 +144,34 @@ def main():
     display = node("texture.color_adjust", 7100, 0,
                    dict(source=display, exposure=exposure, saturation=saturation))
     final = node("output.texture", 7440, 0, dict(source=display))
+    # Keep every previously shipped node ID, including the output. New local
+    # action and band-trigger branches remain ordinary editable graph nodes.
+    manual = node("event.input", 5750, 1050)
+    actions = ' '.join(f'actions {{ id: {identity} seconds: {seconds} kind: KIND_PULSE value: 1 }}'
+                       for identity, seconds in enumerate((0.75, 2.75, 6.75, 10.75, 14.75), 1))
+    graph.nodes[-1] = graph.nodes[-1][:-1] + f'    properties {{ key: "actions" value {{ event_track {{ last_id: 5 {actions} }} }} }}\n}}'
+    merged = node("event.merge", 6100, 750, dict(a=beat, b=manual))
+    low = node("event.audio_onset", 5750, 2800, threshold=0.015, band_first=0, band_last=20)
+    burst_gate = node("event.envelope", 6100, 2800, dict(events=low),
+                      attack=0, decay=0, sustain=1, duration=0.03, release=0)
+    burst_size = node("scalar.expression", 6430, 2800, dict(a=burst_gate), expression="min(a * 50000, 3072)")
+    particles = node("gpu.particles", 6760, 2800, dict(burst=burst_size),
+                     particle_capacity=8192, seed=17, initial_fill=0, emission_rate=0,
+                     lifetime=1.2, emitter_radius=0.18, particle_speed=0.55,
+                     flow_strength=0.2, point_size=0.0013,
+                     color_a=(0.3, 0.9, 1, 0.5), color_b=(1, 0.3, 0.5, 0.35))
+    sparks = node("gpu.render", 7100, 2800, dict(points=particles))
+    composed = node("texture.composite", 7440, 500, dict(a=display, b=sparks), composite_mode=1, amount=0.7)
+    mid = node("event.audio_onset", 5750, 2050, threshold=0.008, band_first=21, band_last=41)
+    sections = node("event.merge", 6100, 2350, dict(a=cue, b=mid))
+    graph.records[beat_envelope - 1]['inputs']['events'] = merged
+    graph.records[section - 1]['inputs']['events'] = sections
+    graph.records[final - 1]['inputs']['source'] = composed
+    graph.positions[final - 1].update(x=7800, y=0)
+    graph.edges = []
+    for record in graph.records:
+        for port, source in record['inputs'].items():
+            graph.edges.append(f'edges {{ id: {len(graph.edges) + 1} from: {source} to: {record["id"]} input: "{port}" }}')
     controls = ['controls {']
     for identity, title in [(response, 'Music response'), (motion, 'Orbit speed'), (glow, 'Bloom')]:
         controls.append(f' titles {{ key: {identity} value: "{title}" }}')
@@ -171,8 +199,8 @@ def main():
     manifest.update(manifest_version=3, content_id='official.templates.luminous_concerto', project_id='official-luminous-concerto',
                     title='光幕协奏 / Luminous Concerto', titles={'zh-CN': '光幕协奏', 'en-US': 'Luminous Concerto'},
                     assets=records, tier='example', soundtrack=dict(sha256=records[0]['sha256'], title='Luminous Concerto', gain=0.75, loop=True, clips=clips),
-                    descriptions={'zh-CN': '两段原创流光视频、四条音频片段与三段 Cue 组成 16 秒音画演出。低中高频驱动八组立体光环，视频在中段交叠，节拍与音频瞬态通过独立 ADSR 驱动曝光，Cue 事件步进切换饱和度；配乐可逐片段编辑。',
-                                  'en-US': 'A 16-second performance with two original ribbon videos, four audio clips and three cues. Eight 3D rings respond to bass, mids and treble while the video layers overlap. Beat and detected audio onset events drive separate ADSR exposure pulses; Cue events step the saturation. Edit each music clip in the timeline.'})
+                    descriptions={'zh-CN': '两段原创流光视频、四条音频片段与三段 Cue 组成 16 秒音画演出。八组立体光环响应音乐，低频触发粒子爆发，中频与 Cue 推进饱和度步进，高频和节拍驱动短包络曝光。动作输入内置五个切分脉冲，可编辑并继续现场录制；配乐可逐片段编辑。',
+                                  'en-US': 'A 16-second performance with two original ribbon videos, four audio clips and three cues. Eight 3D rings respond to music: bass triggers particle bursts, mids and Cues step saturation, treble and beats pulse exposure. Edit or record into the local action input with five syncopated pulses. Every music clip remains editable.'})
     (destination / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=4) + '\n', encoding='utf-8')
     print(f'Luminous Concerto: {len(graph.nodes)} nodes, {len(graph.edges)} edges; {sum(record["bytes"] for record in records)} asset bytes')
 

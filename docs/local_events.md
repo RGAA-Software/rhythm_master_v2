@@ -254,3 +254,31 @@ Studio 属性区提供现场脉冲、gate-on/off、reset、开始/结束/取消�
 第一次 MSVC 构建拦截了轨绘图线宽的 int→float 警告，改为 float 后编译通过；
 失败日志 `out/p2-event-authoring-windows-build.log` 保留。
 当前仍需新动作轨示例、两端 GPU 和完整部署，不能用该原生 UI 检查代替安装版交付。
+
+### P2.4 最终交付
+
+上述后续项已完成。中英文轨编辑补充检查涵盖：输入时间不立即提交、显式应用、删除、
+新建不复用旧 ID、4096 项列表裁剪，见 `out/p2-action-watermark-ui-windows-tests.log`。
+真实 GPU 中现场脉冲录制后重放，0/.49/.5/.9 秒四帧与现场图像逐字节一致；同时
+保留定向重置专项，日志 `out/p2-recording-gpu-windows-tests.log`、
+`out/p2-recording-gpu-android-tests.log`。
+
+光幕协奏最终 104 节点、128 连接，加入五个切分动作、低频粒子 burst、中频步进与
+高频短包络。用法见 [示例](luminous_concerto_performance.md)。Windows 真实音乐、
+静音和频段对照以及 Player 启动通过 `out/p2-action-work-music-windows-tests.log`。
+最终 Studio/Player 已部署全部 20 DLL 和资源，强制模板应用四项通过
+`out/p2-final-action-work-windows-delivery.log`，包括实际 UI 选模板后的当前输出。
+
+Android 最终 APK 中取出的 104 节点包完成 16 秒音乐与静音对照，低/中/高频事件
+51/50/49 次，静音全 0；2/6/10/14 秒平均 RGB 差为 0.37331/1.08814/1.78259/1.98655。
+音乐组离线 GPU 探针 p50 12.40 ms、p95 16.59 ms、峰值纹理 16768516 字节；这不等于
+UI 帧率或长稳。日志 `out/p2-current-apk-music-android-tests.log`，图像/包身份位于
+`out/android-music/5976d6b23b8a44158b131533c1d69b18`。已查看实际 10 秒画面。
+打包时发现并修复旧内容漏洞，失败路径与永久检查见
+[记录](validation/android_stale_content_2026-09-09.md)。
+
+APK 已 install -r；通过内置目录选择当前版本，应用保存包与 APK/宿主包哈希相同。
+Android 实际节拍控件、快照状态与暂停操作回归通过
+`out/p2-action-work-android-ui-tests.log`，界面证据目录
+`out/android-beat-ui/cdd4c2bfbc5546808247396490fbb752`。本示例仍是功能交付、品质待审，
+不计入 P7 的正式高级品质验收数。通信未恢复，现场动作也不自动录制音频或宏输入。

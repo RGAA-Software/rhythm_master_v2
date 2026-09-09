@@ -351,9 +351,9 @@ nodes { id: 86 type_key: "event.envelope" schema_version: 1
     properties { key: "release" value { scalar: 0.28 } }
 }
 nodes { id: 87 type_key: "event.audio_onset" schema_version: 1
-    properties { key: "threshold" value { scalar: 0.015 } }
-    properties { key: "band_first" value { scalar: 0 } }
-    properties { key: "band_last" value { scalar: 28 } }
+    properties { key: "threshold" value { scalar: 0.0001 } }
+    properties { key: "band_first" value { scalar: 42 } }
+    properties { key: "band_last" value { scalar: 62 } }
 }
 nodes { id: 88 type_key: "event.envelope" schema_version: 1
     properties { key: "attack" value { scalar: 0.005 } }
@@ -378,6 +378,52 @@ nodes { id: 92 type_key: "scalar.expression" schema_version: 1
 nodes { id: 93 type_key: "texture.color_adjust" schema_version: 1
 }
 nodes { id: 94 type_key: "output.texture" schema_version: 1
+}
+nodes { id: 95 type_key: "event.input" schema_version: 1
+    properties { key: "actions" value { event_track { last_id: 5 actions { id: 1 seconds: 0.75 kind: KIND_PULSE value: 1 } actions { id: 2 seconds: 2.75 kind: KIND_PULSE value: 1 } actions { id: 3 seconds: 6.75 kind: KIND_PULSE value: 1 } actions { id: 4 seconds: 10.75 kind: KIND_PULSE value: 1 } actions { id: 5 seconds: 14.75 kind: KIND_PULSE value: 1 } } } }
+}
+nodes { id: 96 type_key: "event.merge" schema_version: 1
+}
+nodes { id: 97 type_key: "event.audio_onset" schema_version: 1
+    properties { key: "threshold" value { scalar: 0.015 } }
+    properties { key: "band_first" value { scalar: 0 } }
+    properties { key: "band_last" value { scalar: 20 } }
+}
+nodes { id: 98 type_key: "event.envelope" schema_version: 1
+    properties { key: "attack" value { scalar: 0 } }
+    properties { key: "decay" value { scalar: 0 } }
+    properties { key: "sustain" value { scalar: 1 } }
+    properties { key: "duration" value { scalar: 0.03 } }
+    properties { key: "release" value { scalar: 0 } }
+}
+nodes { id: 99 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "min(a * 50000, 3072)" } }
+}
+nodes { id: 100 type_key: "gpu.particles" schema_version: 1
+    properties { key: "particle_capacity" value { scalar: 8192 } }
+    properties { key: "seed" value { scalar: 17 } }
+    properties { key: "initial_fill" value { scalar: 0 } }
+    properties { key: "emission_rate" value { scalar: 0 } }
+    properties { key: "lifetime" value { scalar: 1.2 } }
+    properties { key: "emitter_radius" value { scalar: 0.18 } }
+    properties { key: "particle_speed" value { scalar: 0.55 } }
+    properties { key: "flow_strength" value { scalar: 0.2 } }
+    properties { key: "point_size" value { scalar: 0.0013 } }
+    properties { key: "color_a" value { color { r: 0.3 g: 0.9 b: 1 a: 0.5 } } }
+    properties { key: "color_b" value { color { r: 1 g: 0.3 b: 0.5 a: 0.35 } } }
+}
+nodes { id: 101 type_key: "gpu.render" schema_version: 1
+}
+nodes { id: 102 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 0.7 } }
+}
+nodes { id: 103 type_key: "event.audio_onset" schema_version: 1
+    properties { key: "threshold" value { scalar: 0.008 } }
+    properties { key: "band_first" value { scalar: 21 } }
+    properties { key: "band_last" value { scalar: 41 } }
+}
+nodes { id: 104 type_key: "event.merge" schema_version: 1
 }
 edges { id: 1 from: 4 to: 5 input: "time" }
 edges { id: 2 from: 2 to: 5 input: "a" }
@@ -487,16 +533,26 @@ edges { id: 105 from: 12 to: 82 input: "a" }
 edges { id: 106 from: 81 to: 82 input: "b" }
 edges { id: 107 from: 82 to: 84 input: "a" }
 edges { id: 108 from: 83 to: 84 input: "b" }
-edges { id: 109 from: 85 to: 86 input: "events" }
+edges { id: 109 from: 96 to: 86 input: "events" }
 edges { id: 110 from: 87 to: 88 input: "events" }
-edges { id: 111 from: 89 to: 90 input: "events" }
+edges { id: 111 from: 104 to: 90 input: "events" }
 edges { id: 112 from: 86 to: 91 input: "a" }
 edges { id: 113 from: 88 to: 91 input: "b" }
 edges { id: 114 from: 90 to: 92 input: "a" }
 edges { id: 115 from: 84 to: 93 input: "source" }
 edges { id: 116 from: 91 to: 93 input: "exposure" }
 edges { id: 117 from: 92 to: 93 input: "saturation" }
-edges { id: 118 from: 93 to: 94 input: "source" }
+edges { id: 118 from: 102 to: 94 input: "source" }
+edges { id: 119 from: 85 to: 96 input: "a" }
+edges { id: 120 from: 95 to: 96 input: "b" }
+edges { id: 121 from: 97 to: 98 input: "events" }
+edges { id: 122 from: 98 to: 99 input: "a" }
+edges { id: 123 from: 99 to: 100 input: "burst" }
+edges { id: 124 from: 100 to: 101 input: "points" }
+edges { id: 125 from: 93 to: 102 input: "a" }
+edges { id: 126 from: 101 to: 102 input: "b" }
+edges { id: 127 from: 89 to: 104 input: "a" }
+edges { id: 128 from: 103 to: 104 input: "b" }
 controls {
  titles { key: 1 value: "Music response" }
  titles { key: 2 value: "Orbit speed" }

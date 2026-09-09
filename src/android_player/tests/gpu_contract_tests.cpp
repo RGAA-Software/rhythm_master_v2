@@ -5,6 +5,7 @@
 #include <array>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 #include "bgfx_backend.h"
 #include "gpu_execution_probe.h"
@@ -22,7 +23,7 @@ void VerifyTextureReusePixels(render::Renderer& renderer);
 void VerifyReadbackPixels(render::Renderer& renderer);
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
 void VerifyMusicPackage(render::Renderer& renderer, const std::filesystem::path& path,
-                        bool arrangement);
+                        bool arrangement, std::size_t expected_nodes);
 #endif
 void MeasureTemplate(render::Renderer& renderer, const std::filesystem::path& path,
                      player::RenderQuality quality);
@@ -409,11 +410,12 @@ int main(int argc, char* argv[]) {
             return 0;
         }
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
-        if (argc == 3 && (std::string_view(argv[2]) == "--music" ||
-                          std::string_view(argv[2]) == "--arrangement")) {
+        if ((argc == 3 || argc == 4) && (std::string_view(argv[2]) == "--music" ||
+                                         std::string_view(argv[2]) == "--arrangement")) {
             auto renderer = platform::Host::CreateRenderer();
             validation::VerifyMusicPackage(renderer, argv[1],
-                                           std::string_view(argv[2]) == "--arrangement");
+                                           std::string_view(argv[2]) == "--arrangement",
+                                           argc == 4 ? std::stoull(argv[3]) : 0);
             return 0;
         }
 #endif
