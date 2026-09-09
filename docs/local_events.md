@@ -151,3 +151,18 @@ Windows/Android `signal_previews/event_runtime` 通过，含预览间单次/多�
 `out/p2-event-observation-android-tests.log`。真实 ImGui 输入的事件预览拖动、既有千节点
 画布回归、组件路由及 Event 类型帮助通过：`out/p2-event-ui-tests.log`。
 这里仍不是 Studio 安装包/GPU 完整作品交付证据；随版本与作品增量一起执行交付回归。
+
+### 保存、组件与发布版本
+
+含 event.* 根节点或组件定义的工程使用 schema 7；节拍网格在 schema 7 可选，
+schema 6 仍要求存在。包含事件指令的发布程序及 manifest 使用 ABI 5；无事件的
+既有工程/包沿用原版本。事件冒充较低版本在读取时明确拒绝。未连接的状态 reset
+端口不写入旧算子的尾部，保持普通作品原有 wire shape；读取补齐可选端口。
+
+`event_io_tests` 实际执行：封装事件包络/图像为带事件输入的组件、模板应用分配新 ID、
+单事务撤销重做、工程 Save/Load、展开组件、EncodePackage/DecodePackage，再由真实
+Runtime 在 .5 秒触发并在 .505 秒验证包络值 .5。另检查未使用的事件组件仍要求
+schema 7、无网格可读、普通图版本不变、最低版本拒绝。Windows 与 USB Android
+通过，连同旧程序与宏/Cue/网格合同回归，日志 `out/p2-event-io-windows-tests.log`、
+`out/p2-event-io-android-tests.log`。这是原生存储/执行路径；完整 Studio 模板 UI/GPU
+及事件作品仍随本轮交付验收，不用该测试替代。

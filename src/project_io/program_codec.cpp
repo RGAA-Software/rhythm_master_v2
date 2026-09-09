@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "control_codec.h"
+#include "feature_versions.h"
 #include "graph.pb.h"
 #include "property_codec.h"
 #include "rhythm/graph/controls.h"
@@ -69,7 +70,7 @@ void ValidatePlan(const graph::ExecutionPlan& plan) {
 std::string EncodeProgram(const graph::ExecutionPlan& plan) {
     ValidatePlan(plan);
     schema::CompiledProgram message;
-    message.set_abi_version(plan.beat_grid_ ? 4 : plan.control_sequence_ ? 3 : 2);
+    message.set_abi_version(detail::ProgramAbi(plan));
     if (plan.beat_grid_) detail::EncodeBeatGrid(*plan.beat_grid_, *message.mutable_beat_grid());
     message.mutable_canvas()->set_width(plan.canvas_.width_);
     message.mutable_canvas()->set_height(plan.canvas_.height_);
@@ -91,7 +92,13 @@ std::string EncodeProgram(const graph::ExecutionPlan& plan) {
         auto& encoded = *message.add_instructions();
         encoded.set_operator_type(instruction.node_.type_);
         encoded.set_source_node(instruction.node_.id_);
-        for (const auto slot : instruction.inputs_) encoded.add_input_slots(slot ? *slot + 1 : 0);
+        auto input_count = instruction.inputs_.size();
+        // Preserve the old wire shape when the new reset input is unused.
+        if (graph::HasEventReset(instruction.operation_) && input_count &&
+            !instruction.inputs_.back())
+            --input_count;
+        for (const auto slot : std::span(instruction.inputs_).first(input_count))
+            encoded.add_input_slots(slot ? *slot + 1 : 0);
         auto& node = *encoded.mutable_configuration();
         node.set_id(instruction.node_.id_);
         node.set_type_key(instruction.node_.type_);
@@ -122,13 +129,13 @@ graph::ExecutionPlan DecodeProgram(std::string_view bytes, std::uint32_t require
     input.SetRecursionLimit(32);
     input.SetTotalBytesLimit(static_cast<int>(kMaximumProgramBytes));
     if (!message.ParseFromCodedStream(&input) || !input.ConsumedEntireMessage() ||
-        (message.abi_version() < 1 || message.abi_version() > 4) ||
+        (message.abi_version() < 1 || message.abi_version() > 5) ||
         (required_abi != 0 && message.abi_version() != required_abi))
         throw std::invalid_argument("package.abi");
     if ((message.abi_version() >= 2) != message.has_canvas())
         throw std::invalid_argument("package.canvas_abi");
     graph::ExecutionPlan plan;
-    if ((message.abi_version() == 4) != message.has_beat_grid())
+    if (message.abi_version() < 5 && ((message.abi_version() == 4) != message.has_beat_grid()))
         throw std::invalid_argument("package.beat_abi");
     if (message.has_beat_grid()) plan.beat_grid_ = detail::DecodeBeatGrid(message.beat_grid());
     plan.document_id_ = message.document_id();
@@ -171,6 +178,8 @@ graph::ExecutionPlan DecodeProgram(std::string_view bytes, std::uint32_t require
         plan.instructions_.push_back(std::move(instruction));
     }
     graph::Document metadata;
+    if (message.abi_version() < 5 && detail::ProgramAbi(plan) == 5)
+        throw std::invalid_argument("package.event_abi");
     detail::DecodeControls(message.controls(), metadata);
     for (const auto& instruction : plan.instructions_) metadata.nodes_.push_back(instruction.node_);
     plan.controls_ = graph::DescribeControls(metadata);

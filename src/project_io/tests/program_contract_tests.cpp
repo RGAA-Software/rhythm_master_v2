@@ -110,8 +110,9 @@ int main() {
             const auto plan = std::get<graph::ExecutionPlan>(graph::Compile(particles, registry));
             schema::CompiledProgram legacy;
             Check(legacy.ParseFromString(project::EncodeProgram(plan)), "Particle program");
-            legacy.mutable_instructions(0)->mutable_input_slots()->RemoveLast();
-            legacy.mutable_instructions(0)->mutable_input_slots()->RemoveLast();
+            auto& slots = *legacy.mutable_instructions(0)->mutable_input_slots();
+            Check(slots.size() == 3, "Unused reset must preserve the previous emitter wire shape");
+            while (slots.size() > 2) slots.RemoveLast();
             const auto restored = project::DecodeProgram(legacy.SerializeAsString());
             Check(restored.instructions_[0].inputs_.size() == 4 &&
                           !restored.instructions_[0].inputs_[2] &&

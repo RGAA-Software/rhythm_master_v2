@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "control_codec.h"
+#include "feature_versions.h"
 #include "graph.pb.h"
 #include "graph_records.h"
 #include "graph_validation.h"
@@ -24,7 +25,7 @@ graph::Document DecodeGraph(std::string_view bytes) {
     input.SetRecursionLimit(32);
     input.SetTotalBytesLimit(static_cast<int>(kMaximumGraphBytes));
     if (!message.ParseFromCodedStream(&input) || !input.ConsumedEntireMessage() ||
-        (message.schema_version() < 1 || message.schema_version() > 6))
+        (message.schema_version() < 1 || message.schema_version() > 7))
         throw std::invalid_argument("project.graph_schema");
     if ((message.schema_version() >= 2) != message.has_canvas())
         throw std::invalid_argument("project.canvas_schema");
@@ -33,7 +34,8 @@ graph::Document DecodeGraph(std::string_view bytes) {
     if (message.schema_version() < 4 && !message.components().empty())
         throw std::invalid_argument("project.component_schema");
     graph::Document document;
-    if ((message.schema_version() == 6) != message.has_beat_grid())
+    if (message.schema_version() < 7 &&
+        ((message.schema_version() == 6) != message.has_beat_grid()))
         throw std::invalid_argument("project.beat_schema");
     if (message.has_beat_grid()) document.beat_grid_ = detail::DecodeBeatGrid(message.beat_grid());
     document.id_ = message.id();
@@ -56,6 +58,8 @@ graph::Document DecodeGraph(std::string_view bytes) {
                 {record.node(), record.input(), record.signal(), record.SerializeAsString()});
     for (const auto& record : message.components())
         document.components_.push_back(detail::DecodeComponent(record));
+    if (message.schema_version() < 7 && detail::HasEvents(document))
+        throw std::invalid_argument("project.event_schema");
     message.clear_components();
     // Each nested record retains its own unknown extensions.
     message.clear_signals();
@@ -71,7 +75,8 @@ std::string EncodeGraph(const graph::Document& document) {
     schema::GraphProject message;
     if (!document.extensions_.empty() && !message.ParseFromString(document.extensions_))
         throw std::invalid_argument("project.extensions");
-    message.set_schema_version(document.beat_grid_                                       ? 6
+    message.set_schema_version(detail::HasEvents(document)                               ? 7
+                               : document.beat_grid_                                     ? 6
                                : !document.control_cues_.empty()                         ? 5
                                : !document.components_.empty()                           ? 4
                                : document.signals_.empty() && document.bindings_.empty() ? 2
