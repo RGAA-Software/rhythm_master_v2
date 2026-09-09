@@ -5,6 +5,11 @@
 
 ## 1. 状态与决策规则
 
+P6.2 GPU 点映射复用本地 TiXL MIT 独立输出算法与既有 bgfx compute 后端，
+保持四 vec4 布局；D3D11／GLES 3.1 原生探针与正式 Renderer 像素对照已通过。
+不新增通用计算语言或任意缓冲布局。图／Runtime、Windows Studio 作品／导出和 USB Android 内置音乐播放已验证；
+详见 [GPU 属性评估](gpu_attribute_evaluation.md)。
+
 P4.2 ImGuizmo 验证更新：vcpkg 仅新增 `imguizmo:x64-windows@1.10`，未升级其他
 包。安装二进制所用 ImGui 1.91.9 non-docking 与项目 1.91.9b docking ABI 不同：
 `sizeof(ImGuiIO)` 为 3032/3088，`ImGuiContext` 为 10576/11160，HoveredWindow

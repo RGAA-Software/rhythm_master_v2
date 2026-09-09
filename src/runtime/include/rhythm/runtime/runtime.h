@@ -70,6 +70,7 @@ struct NodeOutput {
     std::optional<scene::Camera> camera_{};
     // Borrowed value handle; Runtime owns the mutable GPU state.
     render::GpuPointHandle gpu_points_{};
+    std::uint32_t gpu_point_capacity_ = 0;
     // Lazy GPU attribute view. Runtime retains the sampled texture; neither
     // consumers nor previews mutate the source point buffer.
     std::optional<render::GpuPointSampling> gpu_sampling_{};

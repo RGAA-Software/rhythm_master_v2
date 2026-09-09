@@ -5,6 +5,7 @@
 #include "blur_pass.h"
 #include "event_ops.h"
 #include "gpu_particle_pass.h"
+#include "gpu_point_map_pass.h"
 #include "image_pass.h"
 #include "point_ops.h"
 #include "point_physics.h"
@@ -79,6 +80,7 @@ class Runtime::Impl final {
         bool target_retired_ = false;
         std::unique_ptr<detail::PointState> points_{};
         std::unique_ptr<detail::GpuParticlePass> gpu_particles_{};
+        std::unique_ptr<detail::GpuPointMapPass> gpu_mapping_{};
         std::unique_ptr<detail::PointPhysics> physics_{};
         std::unique_ptr<detail::SceneColor> scene_color_{};
         std::unique_ptr<detail::SceneCapture> capture_{};

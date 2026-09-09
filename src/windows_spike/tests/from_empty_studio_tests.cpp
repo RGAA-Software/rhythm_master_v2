@@ -427,6 +427,19 @@ int main(int argc, char** argv) {
                           step.at("shader_source").get<std::string>(),
                   "reopened project must restore saved shader source");
         }
+        for (const auto index : recipe.value("inspect_nodes", std::vector<std::size_t>{})) {
+            Check(index > 0 && index <= authored.size(), "inspection node out of range");
+            const auto& step = recipe.at("nodes").at(index - 1);
+            ui.FindNode(authored.at(index - 1), step.at("type").get<std::string>());
+            ui.Settle(30);
+            Check(studio.Workflow().selected_author_node_ == authored.at(index - 1) &&
+                          studio.HasValidPlan(),
+                  "reopened inspection did not select its node");
+            bgfx::requestScreenShot(
+                    BGFX_INVALID_HANDLE,
+                    (output / ("inspected-" + std::to_string(index))).string().c_str());
+            ui.Settle(6);
+        }
         bgfx::requestScreenShot(BGFX_INVALID_HANDLE, (output / "authored").string().c_str());
         ui.Settle(6);
         std::cout

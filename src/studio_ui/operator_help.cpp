@@ -6,6 +6,7 @@
 
 namespace rhythm::studio {
 std::string OperatorFieldKey(const std::string& type, const std::string& key) {
+    if (type == "gpu.map" && key == "color_a") return "gpu.map.tint";
     if (type == "texture.text" && key == "asset") return "text.font";
     if (type == "texture.shader" || type == "material.shader") {
         if (key == "asset") return "shader.asset";

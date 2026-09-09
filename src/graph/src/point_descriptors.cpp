@@ -3,6 +3,23 @@
 namespace rhythm::graph {
 void AppendPointDescriptors(std::vector<OperatorDescriptor>& operators) {
     using Type = ValueType;
+    operators.push_back({"gpu.map",
+                         Operation::kGpuPointMap,
+                         Type::kGpuPoints,
+                         {{"points", Type::kGpuPoints},
+                          {"scale", Type::kScalar, false},
+                          {"rotation", Type::kScalar, false},
+                          {"translate_x", Type::kScalar, false},
+                          {"translate_y", Type::kScalar, false},
+                          {"point_size_scale", Type::kScalar, false},
+                          {"opacity", Type::kScalar, false}},
+                         {{"scale", 1.0, 0, 8},
+                          {"rotation", 0.0, -36000, 36000},
+                          {"translate_x", 0.0, -4, 4},
+                          {"translate_y", 0.0, -4, 4},
+                          {"point_size_scale", 1.0, 0, 16},
+                          {"opacity", 1.0, 0, 1},
+                          {"color_a", Color{1, 1, 1, 1}}}});
     operators.push_back({"gpu.texture_sample",
                          Operation::kGpuTextureSample,
                          Type::kGpuPoints,

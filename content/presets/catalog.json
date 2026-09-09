@@ -2072,6 +2072,17 @@
             },
             "reset": true,
             "properties": {}
+        },
+        {
+            "id": "official.gpu.map.default",
+            "version": "1.0.0",
+            "operator": "gpu.map",
+            "titles": {
+                "zh-CN": "恢复默认",
+                "en-US": "Restore defaults"
+            },
+            "reset": true,
+            "properties": {}
         }
     ]
 }

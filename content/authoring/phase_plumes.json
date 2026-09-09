@@ -1,0 +1,272 @@
+{
+    "id": "p6-phase-plumes",
+    "title": "相位羽流 / Phase Plumes",
+    "scope": "P6 bounded GPU attribute mapping authoring and music validation; visual quality review pending",
+    "descriptions": {
+        "zh-CN": "同一 GPU 粒子流形成青蓝、紫红与金色三支羽流。低频推动空间缩放与流场，高频驱动点尺寸；二级属性映射与独立分支可逐节点检查，外环显示完整频谱。",
+        "en-US": "One GPU particle source feeds cyan, magenta and gold plumes. Bass changes spatial scale and flow while treble drives point size. Inspect the two-stage mapping and independent branch inline, with a full-spectrum outer ring."
+    },
+    "view_node": 26,
+    "component_title": "Plume Composition",
+    "final_view": {
+        "translate_x": 0,
+        "rotation": 0,
+        "scale_x": 1,
+        "scale_y": 1,
+        "scale": 1
+    },
+    "nodes": [
+        {
+            "type": "core.time"
+        },
+        {
+            "type": "audio.band",
+            "properties": {
+                "audio_band": 12
+            }
+        },
+        {
+            "type": "scalar.map",
+            "properties": {
+                "input_max": 0.15,
+                "output_min": 0.65,
+                "output_max": 1.3
+            },
+            "inputs": {
+                "value": 2
+            }
+        },
+        {
+            "type": "audio.band",
+            "properties": {
+                "audio_band": 48
+            }
+        },
+        {
+            "type": "scalar.map",
+            "properties": {
+                "input_max": 0.1,
+                "output_min": 1.05,
+                "output_max": 1.7
+            },
+            "inputs": {
+                "value": 4
+            }
+        },
+        {
+            "type": "scalar.math",
+            "properties": {
+                "math_mode": 2,
+                "b": 18
+            },
+            "inputs": {
+                "a": 1
+            }
+        },
+        {
+            "type": "scalar.map",
+            "properties": {
+                "input_max": 0.15,
+                "output_min": 0.02,
+                "output_max": 0.09
+            },
+            "inputs": {
+                "value": 2
+            }
+        },
+        {
+            "type": "gpu.particles",
+            "properties": {
+                "particle_capacity": 32768,
+                "seed": 21,
+                "emission_rate": 10000,
+                "lifetime": 3,
+                "center_x": 0.5,
+                "center_y": 0.64,
+                "emitter_radius": 0.085,
+                "particle_speed": 0.08,
+                "point_size": 0.003,
+                "gravity_y": -0.02,
+                "flow_frequency": 12,
+                "flow_evolution": 0.35,
+                "color_a": "FFFFFF70",
+                "color_b": "FFFFFF48"
+            },
+            "inputs": {
+                "flow_strength": 7
+            }
+        },
+        {
+            "type": "gpu.map",
+            "properties": {
+                "color_a": "BFE6FFFF"
+            },
+            "inputs": {
+                "points": 8,
+                "scale": 3,
+                "rotation": 6,
+                "point_size_scale": 5
+            }
+        },
+        {
+            "type": "gpu.map",
+            "properties": {
+                "rotation": 120,
+                "scale": 0.82,
+                "color_a": "FF68DBFF",
+                "point_size_scale": 0.8,
+                "translate_y": 0.05
+            },
+            "inputs": {
+                "points": 9
+            }
+        },
+        {
+            "type": "gpu.map",
+            "properties": {
+                "rotation": 240,
+                "scale": 1.2,
+                "color_a": "FFD67FFF"
+            },
+            "inputs": {
+                "points": 8,
+                "point_size_scale": 5
+            }
+        },
+        {
+            "type": "gpu.render",
+            "properties": {
+                "opacity": 0.85
+            },
+            "inputs": {
+                "points": 9
+            }
+        },
+        {
+            "type": "gpu.render",
+            "properties": {
+                "opacity": 0.85
+            },
+            "inputs": {
+                "points": 10
+            }
+        },
+        {
+            "type": "gpu.render",
+            "properties": {
+                "opacity": 0.85
+            },
+            "inputs": {
+                "points": 11
+            }
+        },
+        {
+            "type": "texture.composite",
+            "inputs": {
+                "a": 12,
+                "b": 13
+            }
+        },
+        {
+            "type": "texture.composite",
+            "inputs": {
+                "a": 15,
+                "b": 14
+            }
+        },
+        {
+            "type": "texture.blur",
+            "properties": {
+                "blur_radius": 8
+            },
+            "inputs": {
+                "source": 16
+            }
+        },
+        {
+            "type": "texture.composite",
+            "inputs": {
+                "a": 17,
+                "b": 16
+            }
+        },
+        {
+            "type": "texture.noise",
+            "properties": {
+                "noise_scale": 3,
+                "color_a": "03050EFF",
+                "color_b": "0C1425FF"
+            },
+            "inputs": {
+                "phase": 1
+            }
+        },
+        {
+            "type": "texture.composite",
+            "inputs": {
+                "a": 19,
+                "b": 18
+            }
+        },
+        {
+            "type": "point.spectrum",
+            "properties": {
+                "point_count": 128,
+                "spectrum_radius": 0.32,
+                "spectrum_height": 0.06,
+                "spectrum_gain": 1.5
+            }
+        },
+        {
+            "type": "path.from_points",
+            "properties": {
+                "path_closed": 1
+            },
+            "inputs": {
+                "points": 21
+            }
+        },
+        {
+            "type": "texture.path_stroke",
+            "properties": {
+                "vector_width": 1.2,
+                "color_a": "5AAFCB60"
+            },
+            "inputs": {
+                "path": 22
+            }
+        },
+        {
+            "type": "texture.composite",
+            "inputs": {
+                "a": 20,
+                "b": 23
+            }
+        },
+        {
+            "type": "texture.fxaa",
+            "inputs": {
+                "source": 24
+            }
+        },
+        {
+            "type": "texture.affine",
+            "properties": {
+                "scale": 0.88
+            },
+            "inputs": {
+                "source": 25
+            }
+        },
+        {
+            "type": "output.texture",
+            "inputs": {
+                "source": 26
+            }
+        }
+    ],
+    "inspect_nodes": [
+        9,
+        10
+    ]
+}

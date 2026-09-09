@@ -1,0 +1,42 @@
+{
+    "assets": [
+        {
+            "bytes": 3072044,
+            "media_type": "audio/x-rhythm-media",
+            "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec"
+        }
+    ],
+    "format": "rhythm.project",
+    "graph_revision": 146,
+    "manifest_version": 2,
+    "project_id": "p6-phase-plumes",
+    "soundtrack": {
+        "gain": 1.0,
+        "loop": true,
+        "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec",
+        "title": "resonance_demo.wav"
+    },
+    "title": "相位羽流 / Phase Plumes",
+    "kind": "template",
+    "content_id": "official.templates.phase_plumes",
+    "content_version": "0.1.0",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "相位羽流",
+        "en-US": "Phase Plumes"
+    },
+    "category": "audio",
+    "tier": "example",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party Studio-authored graph and original demo music; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "descriptions": {
+        "zh-CN": "同一 GPU 粒子流形成青蓝、紫红与金色三支羽流。低频推动空间缩放与流场，高频驱动点尺寸；二级属性映射与独立分支可逐节点检查，外环显示完整频谱。",
+        "en-US": "One GPU particle source feeds cyan, magenta and gold plumes. Bass changes spatial scale and flow while treble drives point size. Inspect the two-stage mapping and independent branch inline, with a full-spectrum outer ring."
+    }
+}

@@ -6,26 +6,38 @@ namespace rhythm::graph {
 std::optional<Diagnostic> ValidatePointBudget(const ExecutionPlan& plan) {
     if (plan.instructions_.size() > 10000) return Diagnostic{"graph.limit"};
     std::vector<std::uint32_t> counts(plan.instructions_.size());
+    std::vector<std::uint32_t> gpu_counts(plan.instructions_.size());
     std::uint64_t total = 0;
     std::uint64_t physics_total = 0;
     std::uint64_t gpu_total = 0;
     std::uint32_t gpu_buffers = 0;
     for (std::size_t index = 0; index < plan.instructions_.size(); ++index) {
         const auto& instruction = plan.instructions_[index];
-        if (instruction.operation_ == Operation::kGpuTextureSample) {
+        if (instruction.operation_ == Operation::kGpuTextureSample ||
+            instruction.operation_ == Operation::kGpuPointMap) {
             if (instruction.inputs_.empty() || !instruction.inputs_[0] ||
                 *instruction.inputs_[0] >= index)
                 return Diagnostic{"graph.gpu_points_budget", instruction.node_.id_};
             if (plan.instructions_[*instruction.inputs_[0]].operation_ ==
                 Operation::kGpuTextureSample)
-                return Diagnostic{"graph.gpu_sample_chain", instruction.node_.id_};
+                return Diagnostic{instruction.operation_ == Operation::kGpuPointMap
+                                          ? "graph.gpu_map_sample"
+                                          : "graph.gpu_sample_chain",
+                                  instruction.node_.id_};
+            gpu_counts[index] = gpu_counts[*instruction.inputs_[0]];
+            if (!gpu_counts[index])
+                return Diagnostic{"graph.gpu_points_budget", instruction.node_.id_};
         }
         if (instruction.operation_ == Operation::kGpuParticleEmitter) {
             const auto capacity = Scalar(instruction.node_, "particle_capacity", 65536);
             if (!std::isfinite(capacity) || capacity < 1 || capacity > 262144 ||
                 std::floor(capacity) != capacity)
                 return Diagnostic{"graph.gpu_points_budget", instruction.node_.id_};
-            gpu_total += static_cast<std::uint64_t>(capacity);
+            gpu_counts[index] = static_cast<std::uint32_t>(capacity);
+        }
+        if (instruction.operation_ == Operation::kGpuParticleEmitter ||
+            instruction.operation_ == Operation::kGpuPointMap) {
+            gpu_total += gpu_counts[index];
             if (gpu_total > 1048576 || ++gpu_buffers > 16)
                 return Diagnostic{"graph.gpu_points_budget", instruction.node_.id_};
         }

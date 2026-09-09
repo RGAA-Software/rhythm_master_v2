@@ -401,6 +401,15 @@ FrameResult Runtime::Impl::EvaluateRange(
                             state.gpu_particles_ = std::make_unique<detail::GpuParticlePass>();
                         state.output_.gpu_points_ = state.gpu_particles_->Evaluate(
                                 instruction, result.outputs_, frame, renderer);
+                        state.output_.gpu_point_capacity_ = static_cast<std::uint32_t>(
+                                graph::Scalar(node, "particle_capacity", 65536));
+                        break;
+                    case graph::Operation::kGpuPointMap:
+                        if (!state.gpu_mapping_)
+                            state.gpu_mapping_ = std::make_unique<detail::GpuPointMapPass>();
+                        state.output_.gpu_points_ = state.gpu_mapping_->Evaluate(
+                                instruction, result.outputs_, renderer);
+                        state.output_.gpu_point_capacity_ = input(0).gpu_point_capacity_;
                         break;
                     case graph::Operation::kGpuTextureSample: {
                         if (input(0).gpu_sampling_)
@@ -414,6 +423,7 @@ FrameResult Runtime::Impl::EvaluateRange(
                                     std::isfinite(value) ? std::clamp(value, 0.0, 1.0) : fallback);
                         };
                         state.output_.gpu_points_ = input(0).gpu_points_;
+                        state.output_.gpu_point_capacity_ = input(0).gpu_point_capacity_;
                         state.output_.gpu_sampling_ = render::GpuPointSampling{
                                 input(1).texture_, amount(2, "sample_color", 1),
                                 amount(3, "sample_size", 0)};

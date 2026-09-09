@@ -31,6 +31,10 @@ scene lighting, with dual-target compilation and the music-driven Spectral Glaze
 [Authoring evidence](docs/validation/surface_authoring_2026-09-10.md) covers failed hot updates,
 source restoration, template application, MP4 export and Android playback; full material
 languages and general compute remain separate capability decisions.
+[GPU point mapping](docs/gpu_attribute_evaluation.md) adds independent, bounded position/color/size
+outputs with music-driven controls and inline previews. The editable Phase Plumes example
+passes Studio application, MP4 export and Windows/Android playback; its source budget was
+reduced after device measurements. [Evidence](docs/validation/gpu_point_mapping_2026-09-10.md).
 [Model animation](docs/model_animation.md) now includes GLB node tracks, unified time and
 music-driven clip mixing with shared uploads. 48-bone GPU skinning passes Windows/Android
 checks. Four-target GPU morph, weight animation/music controls and the editable

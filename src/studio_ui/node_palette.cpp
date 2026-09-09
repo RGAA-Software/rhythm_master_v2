@@ -78,6 +78,7 @@ std::string_view Category(graph::Operation operation) {
         case kGpuParticleEmitter:
         case kGpuPointRender:
         case kGpuTextureSample:
+        case kGpuPointMap:
         case kPointTransform:
         case kPointRender:
             return "palette.particles";

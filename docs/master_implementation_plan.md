@@ -74,6 +74,12 @@ P6.1 限制采用 RGB 表面染色，完成双目标编译、D3D11／GLES 六种
 资产判定恢复成功。P6.1 的受限工作包收口，P6.2、P6.3 剩余透明比较、P6.4 及
 P7–P9 继续；功能示例不计为已满足 P7 品质数量。
 
+P6.2 已完成 D3D11／GLES 3.1 点属性复制映射探针与正式 Renderer 两级像素验证，
+并接入有界 `gpu.map` 图节点及 Runtime 所有权／缓存／分步准备合同。
+现已完成 27 节点相位羽流的 Studio 创建／重开／模板应用、MP4、Windows Player
+及 Android 包内音乐与实际 UI 验证，受限 P6.2 收口；保留通用 compute 未采用边界。
+见 [GPU 属性评估](gpu_attribute_evaluation.md)。
+
 ## 1. 产品目标、阶段终点与优先级
 
 产品是以音乐可视化为核心的实时节点创作软件，对标 TiXL / TouchDesigner 的

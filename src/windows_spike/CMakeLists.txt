@@ -16,6 +16,12 @@ if(BUILD_TESTING)
         target_link_libraries(from_empty_studio_tests PRIVATE studio_ui project_io runtime_package surface_shader spike_imgui spike_bgfx nlohmann_json::nlohmann_json)
         rhythm_project_target(from_empty_studio_tests)
         add_dependencies(from_empty_studio_tests studio_resources music_gpu_tests)
+        add_test(NAME from_empty_studio_gpu_mapping COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-from-empty-studio.py"
+            --executable "$<TARGET_FILE:from_empty_studio_tests>" --resources "${CMAKE_CURRENT_BINARY_DIR}"
+            --recipe "${PROJECT_SOURCE_DIR}/content/authoring/phase_plumes.json" --output "${PROJECT_BINARY_DIR}/from-empty-studio-gpu-map"
+            --music-executable "$<TARGET_FILE:music_gpu_tests>" --fixtures "${PROJECT_BINARY_DIR}/music-fixtures")
+        set_tests_properties(from_empty_studio_gpu_mapping PROPERTIES TIMEOUT 280 RUN_SERIAL TRUE FIXTURES_REQUIRED music_pcm
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
         add_test(NAME from_empty_studio_surface COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-from-empty-studio.py"
             --executable "$<TARGET_FILE:from_empty_studio_tests>" --resources "${CMAKE_CURRENT_BINARY_DIR}"
             --recipe "${PROJECT_SOURCE_DIR}/content/authoring/spectral_glaze.json" --output "${PROJECT_BINARY_DIR}/from-empty-studio-surface"

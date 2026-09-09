@@ -1296,5 +1296,10 @@
     "shader.parameter.a": "a",
     "shader.parameter.b": "b",
     "shader.parameter.c": "c",
-    "shader.parameter.d": "d"
+    "shader.parameter.d": "d",
+    "gpu.map": "GPU point mapping",
+    "point_size_scale": "Point size multiplier",
+    "gpu.map.tint": "Color multiplier",
+    "help.gpu.map": "Copy points into an independent GPU buffer. Rotate and scale positions around the canvas center; control translation, size and opacity with scalar or audio inputs. Connect multiple mappings, then optionally texture-sample the result and render. Each mapping uses the source capacity in the shared GPU budget.",
+    "graph.gpu_map_sample": "Map GPU points before texture sampling. The texture-sampled view is evaluated during rendering and cannot be used as an independent mapped buffer."
 }

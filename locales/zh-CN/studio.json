@@ -1296,5 +1296,10 @@
     "shader.parameter.a": "a",
     "shader.parameter.b": "b",
     "shader.parameter.c": "c",
-    "shader.parameter.d": "d"
+    "shader.parameter.d": "d",
+    "gpu.map": "GPU 点属性映射",
+    "point_size_scale": "点尺寸倍数",
+    "gpu.map.tint": "颜色乘数",
+    "help.gpu.map": "复制点到独立 GPU 缓冲。位置以画布中心旋转、缩放；平移、点尺寸与透明度可由标量或音频驱动。可以串接多级映射，再按需连接纹理采样和绘制。每一级按源点容量计入共享 GPU 预算。",
+    "graph.gpu_map_sample": "请先映射 GPU 点，再进行纹理采样。纹理采样视图在绘制时求值，不能作为独立映射缓冲的输入。"
 }
