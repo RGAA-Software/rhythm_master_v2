@@ -59,3 +59,17 @@ P2.2 接节拍、Cue 越界和音频瞬态，加入包络、计数/步进、门�
 组件实例化、复制/拆分的 ID 重映射以及 schema/ABI。P2.4 才接现场录制和可编辑动作轨；
 记录后的媒体时间和事件身份用于离线重放，未录制输入不承诺可复现。
 当前队列文件不是 P2.2–P2.4 已完成的证明。
+
+### 首批包络计算
+
+`EventEnvelope` 已适配 TiXL 的线性 ADSR 与 gate/pulse 释放行为，出处及文件哈希见
+`provenance/event_envelope.json`。不同于上游帧差累加及 60 Hz 回退，使用精确事件
+时间计算阶段；零时长阶段直接越过，脉冲总时长可在 attack 中途释放，gate-off
+保留当时幅值，重复 gate-off 不延长 release，reset 清零。求值为只读，不随预览
+次数推进时间。脉冲载荷作为输出幅度；错误代次/时间/载荷在修改状态前拒绝。
+
+Windows 与 USB Android `event_envelope_tests` 通过，覆盖完整阶段、持续 gate、
+中途释放、重置、零时长、幅度、非法输入和 30/60/144 Hz 采样一致性。日志
+`out/p2-envelope-windows-tests.log`、`out/p2-envelope-android-tests.log`。
+首次 MSVC 测试文件缺直接 `<string>` 包含已修复（Clang 的传递包含未暴露问题），
+失败日志 `out/p2-envelope-windows-build.log` 保留。这仍是计算合同，节点端口接入继续。

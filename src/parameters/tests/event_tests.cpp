@@ -4,6 +4,7 @@
 #include <limits>
 #include <source_location>
 #include <stdexcept>
+#include <string>
 
 #include "rhythm/parameters/events.h"
 
