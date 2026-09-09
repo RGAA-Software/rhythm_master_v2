@@ -147,3 +147,11 @@ Windows `out/p3-scene-audio-deck-windows-tests.log` 五项、Android
 证明资源准入合同、实际 Session 当前作品/时间和交接状态，不证明 D3D/GLES 像素。
 原有本地时钟溶解、队列、暂停、seek 和资源释放回归同时通过。两端 Player 入口、
 实际 GPU/音频和当前 deploy/APK 尚待连接与交付，P3.3/P3.5 不据此标为完成。
+
+宿主协调增量：新增外层 player_audio 模块，把同一帧 PlaybackSnapshot 映射为
+SceneAudioSample；以独立的音频/场景 ID 绑定请求，GPU 输出准备前不启动音频，
+准备期间只提交一次，取消期间等待恢复，过期音频身份不能提交场景。
+Windows `out/p3-scene-audio-bridge-windows-tests.log` 三项通过；Android
+`out/p3-scene-audio-bridge-android-tests.log` 原生检查通过。检查使用真实含配乐
+运行包、Null renderer 和音频命令替身，覆盖准备、双时钟、明确提交、早期/排队取消、
+命令拒绝与过期身份，不是 Player 界面/硬件音画验收。
