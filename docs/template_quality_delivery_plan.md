@@ -24,6 +24,11 @@ valid for the behavior they cover; they do not establish visual acceptance.
 
 ## What to do next
 
+2026-09-09: follow [the overall implementation plan, P7](master_implementation_plan.md)
+for the current production batches, 10 content families and separate authored,
+functional, visual-review and device evidence. Its next implementation queue
+replaces the historical sequence below; the 40 / 120 / 50+50 goals remain unchanged.
+
 2026-09-08 execution update: the original starting sequence below is historical;
 blur, spatial noise, displacement, reference scenes and media integration already
 have working implementations. Follow the [current rendering/authoring roadmap](rendering_capability_roadmap.md)
@@ -123,6 +128,7 @@ target-device validated separately. Every accepted template needs:
 Exact performance budgets follow the existing platform profiles and measured
 reference batch; do not invent frame-rate guarantees ahead of measurement.
 
-The pending Windows FFmpeg application-license choice and Android USB installation
-prerequisites remain tracked separately. Neither justifies resuming communication
-or counting unfinished media/device work as complete.
+Artifact licensing and redistribution materials remain separately tracked; this
+plan does not select the project's outbound license. Android USB overlay installation
+now works; broader device and lifecycle evidence remains separately tracked.
+Neither justifies resuming communication or counting unfinished work as complete.

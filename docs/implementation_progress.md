@@ -1,5 +1,16 @@
 # Continuous implementation through Android Player
 
+## Current planning baseline, 2026-09-09
+
+[The overall implementation plan](master_implementation_plan.md) is now the
+execution entry, based on `69d1423`. Template application ID remapping and
+mandatory Studio switching checks are delivered (`8be50ac`); per-clip source
+waveforms are delivered (`69d1423`). Remaining authoring/performance work,
+Windows/Android acceptance and the 40 components / 120 distinct presets /
+50 Basic + 50 Advanced quality goals are explicitly tracked there.
+This update defines work packages; it does not implement P1–P9. Older “next”
+statements below describe their own increments and are not the current queue.
+
 ## R3 functional closure, 2026-09-08
 
 Embedded GLB PNG/JPEG materials now follow cgltf/FFmpeg preparation, immutable

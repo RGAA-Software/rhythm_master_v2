@@ -1,5 +1,10 @@
 # 创作功能差距与功能优先顺序
 
+> 历史基线说明（2026-09-09）：本文描述 `ee0a904` 时的差距，表中的 GPU 粒子、
+> 材质、曲线、Cue、多轨等多项已有后续交付，不能照表重复开发。
+> 当前能力、剩余项与实施路径统一见 [整体实施计划](master_implementation_plan.md)，
+> 逐批结果见 [R0–R6 记录](rendering_capability_roadmap.md)。
+
 2026-09-08。本项目基线 `ee0a904`，TiXL 本地参考基线
 `C:/source/rh_reference/tixl`，提交 `fbc994d923e8a0142d2ff1b772e4d12248c5b0ba`。
 本清单根据本地实现和实际验证记录区分已做与未做，不把规划文档当成实现证明。

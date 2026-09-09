@@ -1,7 +1,10 @@
 # Rhythm Master Next
 
-Current development plan: [rendering capabilities and next deliveries](docs/rendering_capability_roadmap.md)
-and [authoring feature gaps](docs/feature_gap_review_2026-09-08.md). Features and
+Current execution plan: [overall implementation path and acceptance gates](docs/master_implementation_plan.md)
+(2026-09-09, baseline `69d1423`). It defines remaining work packages, dependencies,
+Windows/Android delivery, content targets and the next eight implementation increments.
+[R0–R6 deliveries](docs/rendering_capability_roadmap.md) retain the historical roadmap;
+[authoring feature gaps](docs/feature_gap_review_2026-09-08.md) retain the earlier baseline. Features and
 editable music-driven works come first; long-duration tests are deferred to final
 integrated acceptance. Android follows each supported shared-feature increment.
 

@@ -27,7 +27,9 @@ GLES 3.0 编译档位只有实例路径。详见 [GPU 验证](validation/gpu_exe
 这确认了现有 bgfx 内的实现路径，不代表所有 Android 设备支持，也未更换后端。
 
 
-2026-09-08 功能规划更新见 [渲染能力路线](rendering_capability_roadmap.md)。
+2026-09-09 当前执行路径见 [整体实施计划](master_implementation_plan.md)，
+已交付功能证据保留于 [渲染能力路线](rendering_capability_roadmap.md)。
+新规划没有冻结 ImGuizmo、文字排版/矢量依赖或通用材质/compute 扩展，仍按下表状态验证。
 GPU 计算/批量实例、可采样深度及新材质格式在各目标后端先做短时验证，
 没有因写入规划就冻结新的依赖、渲染后端或 Android 能力声明。现有 bgfx 与 vcpkg
 优先规则保持；长时间测试后置不取消待定能力的必要验证。

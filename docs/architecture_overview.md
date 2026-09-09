@@ -6,11 +6,12 @@
 >
 > Date: 2026-09-06
 
-Current functional implementation order (2026-09-08) is recorded in the
-[rendering capability roadmap](rendering_capability_roadmap.md), with code evidence,
-GPU/platform probes, graph/runtime/render contracts and per-increment deliveries.
-It preserves the architecture boundaries below; long-duration soak testing moves
-to final integrated acceptance while focused functional checks remain incremental.
+Current functional implementation order (2026-09-09) is defined by the
+[overall implementation plan](master_implementation_plan.md), based on `69d1423`.
+The [R0–R6 roadmap](rendering_capability_roadmap.md) retains implementation evidence.
+The opening Phase A status and migration analysis below are historical architecture
+context, not a current backlog. The new plan preserves these module boundaries;
+long-duration testing remains at final acceptance and focused checks remain incremental.
 
 R4 image expressions and compiled bundles stay in `image_shader`; `shader_authoring`
 owns the bounded host compiler worker. Prepared immutable assets flow through the same
