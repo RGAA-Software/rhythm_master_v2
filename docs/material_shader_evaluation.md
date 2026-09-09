@@ -170,4 +170,16 @@ Android 当前原生对应合同为 `out/p6-surface-android-scene_graph_tests.lo
 命名空间及常量节点类型后构建／测试通过。首次 Runtime 测试使用了超出既有上限
 的 1000 ms 准备预算，`out/p6-surface-runtime-tests.log` 正确拒绝；改为合法的
 100 ms／单节点测试预算后通过，没有放宽实际 Runtime 上限。
-仍待资产加载／发布消费者、Studio 编译／热更和实际音乐作品交付。
+仍待发布消费者、Studio 编译／热更和实际音乐作品交付。
+
+## 资产准备接入
+
+Prepared Assets 现在独立加载表面程序，覆盖检查包含材质 Shader 的资产引用。
+图像与表面程序复用相同的有界加载流程，但分别执行各自的 MIME、解码及预算检查。
+缓存命中仍验证内容哈希和 MIME；取消或失败不会替换上一次成功准备的资源。
+
+`out/p6-surface-preparation-tests.log` 与
+`out/p6-surface-preparation-android-tests.log` 通过冷／热加载、损坏内容、错误 MIME、
+缺失资产、取消恢复和异步加载检查。Windows 既有视频、混合缓存、文本与源码边界
+回归见 `out/p6-surface-preparation-regression.log`。这些是资产加载验证，尚不是
+Studio 编辑、发布与手机实际作品的完整验收。

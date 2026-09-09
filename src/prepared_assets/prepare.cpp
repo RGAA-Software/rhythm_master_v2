@@ -16,11 +16,15 @@
 
 namespace rhythm::prepared_assets {
 bool Covers(const graph::ExecutionPlan& plan, const Resources& resources) {
-    if (!resources.models_ || !resources.images_ || !resources.shaders_ ||
+    if (!resources.models_ || !resources.images_ || !resources.shaders_ || !resources.surfaces_ ||
         !model_assets::Covers(plan, *resources.models_))
         return false;
     std::size_t video_instances = 0;
     for (const auto& instruction : plan.instructions_) {
+        if (instruction.operation_ == graph::Operation::kMaterialShader) {
+            const auto& id = std::get<assets::AssetId>(instruction.node_.properties_.at("asset"));
+            if (!resources.surfaces_->programs_.contains(id.sha256_)) return false;
+        }
         if (instruction.operation_ == graph::Operation::kTextureShader) {
             const auto& id = std::get<assets::AssetId>(instruction.node_.properties_.at("asset"));
             if (!resources.shaders_->programs_.contains(id.sha256_)) return false;
@@ -118,6 +122,7 @@ std::shared_ptr<const Resources> detail::PreparationCache::Prepare(
     result->images_ = std::move(images);
     result->videos_ = detail::PrepareVideos(plan, assets, stop, previous_->videos_);
     result->shaders_ = detail::PrepareShaders(plan, assets, stop, *previous_->shaders_);
+    result->surfaces_ = detail::PrepareSurfaces(plan, assets, stop, *previous_->surfaces_);
     if (stop.stop_requested()) throw std::runtime_error("asset.cancelled");
     previous_ = result;
     return result;

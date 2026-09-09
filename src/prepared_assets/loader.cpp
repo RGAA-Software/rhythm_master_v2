@@ -21,6 +21,7 @@ LoadResult Load(LoadRequest request, detail::PreparationCache& cache, std::stop_
                  instruction.operation_ == graph::Operation::kTextureImage ||
                  instruction.operation_ == graph::Operation::kTextureText ||
                  instruction.operation_ == graph::Operation::kTextureShader ||
+                 instruction.operation_ == graph::Operation::kMaterialShader ||
                  instruction.operation_ == graph::Operation::kTextureVideo))
                 required.insert(std::get<assets::AssetId>(instruction.node_.properties_.at("asset"))
                                         .sha256_);
