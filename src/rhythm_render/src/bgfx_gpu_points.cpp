@@ -31,10 +31,10 @@ BgfxGpuPoints::BgfxGpuPoints(std::uint64_t device) : store_(device) {
     view_ = GpuHandle(bgfx::createUniform("u_gpu_view", bgfx::UniformType::Vec4));
     sampling_ = GpuHandle(bgfx::createUniform("u_gpu_sample", bgfx::UniformType::Vec4));
     sampler_ = GpuHandle(bgfx::createUniform("s_gpu_sample", bgfx::UniformType::Sampler));
-    constexpr std::array<std::uint8_t, 4> white{255, 255, 255, 255};
+    constexpr std::array<std::uint8_t, 4> kWhite{255, 255, 255, 255};
     white_ = GpuHandle(bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::RGBA8,
                                              BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP,
-                                             bgfx::copy(white.data(), sizeof(white))));
+                                             bgfx::copy(kWhite.data(), sizeof(kWhite))));
 }
 GpuPointHandle BgfxGpuPoints::Create(std::uint32_t capacity) {
     auto handle = store_.Allocate(capacity);

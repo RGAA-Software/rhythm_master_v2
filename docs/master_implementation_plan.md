@@ -54,7 +54,12 @@ Windows 实际 Studio 创作／PCM 图像，见 [数据域桥接](data_domain_br
 纹理采样也已通过两端实际 GPU 像素及运行时合同。“频域花冠”和“字潮”已完成
 Windows 实际创作、MP4、完整部署和 Android 当前 APK／PCM/GLES／应用内选择、
 暂停恢复截图核对，见 [桥接作品交付](validation/data_bridges_authoring_2026-09-10.md)。
-P5 其他资产局部缓存与系统输入法专项，以及 P6–P9 未完成。
+P5 局部资产准备复用通过 Windows/Android 混合资产原生检查，系统拼音候选／
+草稿隔离／确认提交／保存发布重开通过真实 OS 按键与人工看图；当前两端交付已
+复测，见 [局部缓存及交付](validation/preparation_reuse_2026-09-10.md) 和
+[系统输入法](validation/system_ime_2026-09-10.md)。P5 最小文字／矢量／桥接作品
+路径收口，动态文字信号、复杂塑形、任意 SVG 和 GPU→CPU 回读不在已交付范围。
+继续 P6 分项验证；P6–P9 和内容品质数量目标尚未完成。
 
 ## 1. 产品目标、阶段终点与优先级
 

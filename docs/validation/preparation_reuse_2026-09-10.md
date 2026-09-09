@@ -43,4 +43,18 @@
 `out/p5-preparation-cache-android-build.log` 和
 `out/p5-preparation-cache-android-tests.log` 记录当前 NDK 构建的模型、文字和混合
 测试在 USB Android 上通过。这里是 CPU 原生合同，不是 Android 应用画面验收。
-最终 Windows/Android 应用交付回归随系统输入法专项继续。
+最终 `out/p5-cache-ime-windows-delivery.log` 完成 Studio/Player 的 exe、20 DLL
+及资源完整 deploy，五项强制回归全部通过（30.66 秒）。
+`out/p5-cache-ime-authoring-tests.log` 通过实际文字作品空图创作／保存发布重开和
+真实 PCM/GPU 对照，运行目录
+`out/windows-release/from-empty-studio-text/898d60c2f128480b87d63960f0f8d38d/`；
+人工查看输出，“棱镜星莲 / RHYTHM / 2026”和频谱正常。
+
+`out/p5-cache-ime-android-delivery.log` 当前 APK SHA256 为
+`0d7efdff9971669321ba2a6571beb0c568e1190c0480a8eabc22c79e397314e1`，
+`out/p5-cache-ime-android-install.log` 覆盖安装成功。应用内复测
+`out/p5-cache-ime-android-ui.log`，目录
+`out/android-authored-works/a7ca0d293bad47ab830b2d394b7e0e83/`，安装包哈希一致，
+用户保存工程字节未变。人工检查标题片和字潮的暂停／恢复截图：完整中文、频谱、
+粒子字均正常；标题片时间 0.53→1.49 秒、字潮 1.31→2.22 秒，恢复后 RMS 非零。
+脚本的人工呈现待审标记由本段看图记录补充，不把它更改成用户审美验收。

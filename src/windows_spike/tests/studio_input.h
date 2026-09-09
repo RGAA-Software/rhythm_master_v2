@@ -46,6 +46,12 @@ class StudioInput final {
         const auto id = Activate(window, label, {}, true);
         EnterText(id, value);
     }
+    void Focus(const std::string& window, const std::string& label) const {
+        const auto id = Activate(window, label, {}, true);
+        Settle();
+        if (ImGui::GetCurrentContext()->ActiveId != id)
+            throw std::runtime_error("authoring input focus failed");
+    }
     void Color(const std::string& property, const std::string& hex) const {
         Button("###inspector", "##ColorButton", property);
         const auto name = Popup();

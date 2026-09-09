@@ -1210,6 +1210,7 @@
     "text.right": "右对齐",
     "text.edit_help": "Enter 应用文字，Ctrl+Enter 换行。字体随工程发布；位置与颜色可接后续变换和合成节点。",
     "text.apply": "应用文字",
+    "text.font": "字体资源",
     "text.cancel": "还原输入",
     "text.invalid_content": "文字包含无效编码、控制字符或超过 4096 个字符。",
     "help.texture.text": "将工程内 OTF/TTF 字体渲染为透明文字图像。支持横排中英文、对齐和换行；不支持复杂语言塑形。",

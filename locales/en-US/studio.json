@@ -1210,6 +1210,7 @@
     "text.right": "Right",
     "text.edit_help": "Enter applies text; Ctrl+Enter inserts a line. Package the font with the work; use downstream transforms and composition for position and color.",
     "text.apply": "Apply text",
+    "text.font": "Font asset",
     "text.cancel": "Revert input",
     "text.invalid_content": "Text contains invalid encoding, control characters or more than 4096 codepoints.",
     "help.texture.text": "Render a packaged OTF/TTF font to a transparent text image. Supports horizontal CJK/Latin, alignment and wrapping; complex-script shaping is not supported.",

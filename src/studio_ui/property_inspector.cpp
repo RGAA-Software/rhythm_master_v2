@@ -156,8 +156,11 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
         bool changed = false;
         bool committed = false;
         const bool discrete = !property.choices_.empty();
-        const auto label = Text(text, property.key_) + "###property." + std::to_string(selected) +
-                           "." + property.key_;
+        const auto label_key = node.type_ == "texture.text" && property.key_ == "asset"
+                                       ? std::string("text.font")
+                                       : property.key_;
+        const auto label = Text(text, label_key) + "###property." + std::to_string(selected) + "." +
+                           property.key_;
         const bool connected =
                 std::any_of(snapshot.document_.edges_.begin(), snapshot.document_.edges_.end(),
                             [&](const auto& edge) {
