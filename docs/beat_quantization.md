@@ -89,3 +89,19 @@ Windows `control_interactions` 通过。Player `scene_queue_ui` 在 GPU 上验�
 过程中发现并修复空队列延迟激活崩溃，见
 [回归记录](validation/quantized_scene_ui_2026-09-09.md)。Studio 和 Android UI 尚未完成，
 不将本增量算作整个 P1 验收。
+
+### Studio 网格编辑和现场召回
+
+`BeatPerformance` 独立管理 Studio 节拍 UI 与请求；TimelinePanel 继续拥有播放时钟。
+启用/修改网格进入原有历史事务、保存和发布流程。网格开启后，召回采用当前量化模式，
+在本帧渲染前写入现场覆盖；不为实时演出重编译整张图。旧作品未启用网格时保留原有
+立即召回编辑默认值的流程。现场覆盖不自动改写保存默认值，可捕获为快照后编排 Cue；
+P2 的现场动作录制仍未实现。
+
+`control_inspector` 检查实际 ImGui 量化下拉菜单与召回按钮，确认 0.49 秒保留旧值、
+0.5 秒应用快照，随后绘制不丢失覆盖且工程默认值未变。新增断言最初误把撤销后的
+基线与撤销前值比较，修正为保存操作前的实际基线；失败日志保留。
+Windows Studio 完整部署完成，四项强制模板回归通过（13.26 秒），日志
+`out/p1-studio-beat-delivery.log`；交互日志
+`out/p1-studio-beat-interaction-fixed-tests.log`。量化快照的 Studio GPU 专项检查随
+P1.5 可编辑演出示例一起补齐，不能用此处的组件交互检查替代。

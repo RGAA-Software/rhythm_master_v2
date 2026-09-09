@@ -7,22 +7,30 @@
 #include "rhythm/graph/controls.h"
 
 namespace rhythm::studio {
+void PropertyInspector::PerformControls(parameters::ControlValues values) {
+    performance_controls_ = std::move(values);
+    live_controls_.clear();
+}
 parameters::ControlValues PropertyInspector::LiveControls(
         const parameters::ControlBank& bank) const {
     parameters::ControlValues result;
     for (const auto& control : bank.Definitions())
+        if (const auto found = performance_controls_.find(control.id_);
+            found != performance_controls_.end() && found->second >= control.minimum_ &&
+            found->second <= control.maximum_)
+            result.emplace(*found);
+    for (const auto& control : bank.Definitions())
         if (const auto found = live_controls_.find(control.id_);
             found != live_controls_.end() && found->second >= control.minimum_ &&
             found->second <= control.maximum_)
-            result.emplace(*found);
+            result[found->first] = found->second;
     return result;
 }
 bool PropertyInspector::DrawControls(const editor::Snapshot& snapshot,
                                      const std::map<std::string, std::string>& text,
-                                     InspectorResult& result, double seconds) {
+                                     InspectorResult& result, double seconds, bool defer_recall) {
     try {
         const auto bank = graph::DescribeControls(snapshot.document_);
-        live_controls_ = LiveControls(bank);
         std::erase_if(live_controls_, [&](const auto& item) {
             return std::none_of(
                     bank.Definitions().begin(), bank.Definitions().end(), [&](const auto& control) {
@@ -39,17 +47,25 @@ bool PropertyInspector::DrawControls(const editor::Snapshot& snapshot,
         }
         const auto current =
                 parameters::EvaluateControls(bank, control_sequence_, seconds, LiveControls(bank));
-        auto edit = controls_.Draw(bank, current, text, true);
+        auto edit = controls_.Draw(bank, current, text, true, defer_recall);
+        if (defer_recall) result.recall_ = edit.recall_;
         if (control_sequence_) {
             const auto found = text.find("cue.follow");
             const auto title =
                     (found == text.end() ? "cue.follow" : found->second) + "###cue.follow";
-            if (ImGui::Button(title.c_str())) live_controls_.clear();
+            if (ImGui::Button(title.c_str())) {
+                result.follow_cues_ = true;
+                live_controls_.clear();
+                performance_controls_.clear();
+            }
         }
         if (edit.values_ || !edit.capture_.empty() || edit.remove_) {
             auto next = snapshot;
             if (edit.values_)
-                for (const auto& [id, value] : *edit.values_) live_controls_[id] = value;
+                for (const auto& [id, value] : *edit.values_) {
+                    performance_controls_.erase(id);
+                    live_controls_[id] = value;
+                }
             if (edit.values_)
                 for (auto& node : next.document_.nodes_)
                     if (node.type_ == "control.scalar" && edit.values_->contains(node.id_))

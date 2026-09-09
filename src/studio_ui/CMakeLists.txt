@@ -4,7 +4,7 @@ target_include_directories(studio_ui PUBLIC include)
 target_sources(studio_ui PRIVATE shader_panel.cpp template_browser.cpp catalog_preview.cpp performance_panel.cpp component_library_panel.cpp preview_routing.cpp)
 target_link_libraries(studio_ui PUBLIC platform_sdl PRIVATE graph_runtime editor_application project_io
     cyber_ui shader_authoring asset_store prepared_assets content_catalog semantic_catalog audio_ui control_ui player_core spike_imgui spike_node_editor nlohmann_json::nlohmann_json)
-target_sources(studio_ui PRIVATE control_inspector.cpp operator_help.cpp)
+target_sources(studio_ui PRIVATE control_inspector.cpp operator_help.cpp beat_performance.cpp)
 rhythm_project_target(studio_ui)
 if(RHYTHM_BUILD_MEDIA)
     target_sources(studio_ui PRIVATE export_panel.cpp soundtrack_panel.cpp waveform_panel.cpp)

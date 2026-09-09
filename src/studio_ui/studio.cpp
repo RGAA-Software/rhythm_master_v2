@@ -11,6 +11,7 @@
 #include <optional>
 
 #include "asset_panel.h"
+#include "beat_performance.h"
 #include "canvas_settings.h"
 #include "component_library_panel.h"
 #include "component_panel.h"
@@ -106,6 +107,7 @@ class Studio::Impl final {
             QueueCompile();
     }
     void SyncTitle() {
+        beat_performance_.Reset();
         title_.fill(0);
         const auto& title = history_->Current().title_;
         std::memcpy(title_.data(), title.data(), std::min(title.size(), title_.size() - 1));
@@ -113,6 +115,7 @@ class Studio::Impl final {
         timeline_.ResetEdit();
     }
     void QueueCompile() {
+        beat_performance_.Cancel();
         asset_loader_.Cancel();
         const auto& document = component_workbench_.PreviewDocument()
                                        ? *component_workbench_.PreviewDocument()
@@ -298,6 +301,16 @@ class Studio::Impl final {
         }
     }
     void Inspector() {
+        ImGui::BeginDisabled(inspector_.Preview().has_value());
+        const auto beat_edit = beat_performance_.Draw(
+                history_->Current(), evaluated_seconds_.value_or(0), catalogs_.at(locale_));
+        ImGui::EndDisabled();
+        if (beat_edit) {
+            CommitEdits();
+            auto next = history_->Current();
+            next.document_.beat_grid_ = beat_edit->document_.beat_grid_;
+            Apply(std::move(next));
+        }
         if (const auto request = component_library_.Draw(
                     history_->Current().document_, canvas_.Selections(), catalogs_.at(locale_))) {
             CommitEdits();
@@ -328,7 +341,15 @@ class Studio::Impl final {
                            catalogs_.at(locale_));
         auto result = inspector_.Draw(history_->Current(), canvas_.Selection(), registry_, presets_,
                                       catalogs_.at(locale_), locale_, *prepared_resources_->models_,
-                                      evaluated_seconds_.value_or(0));
+                                      evaluated_seconds_.value_or(0),
+                                      history_->Current().document_.beat_grid_.has_value());
+        if (result.follow_cues_) beat_performance_.Cancel(player::PerformanceActionReason::kUser);
+        if (result.recall_) {
+            if (plan_ && plan_generation_ == generation_ && diagnostics_.empty())
+                beat_performance_.RequestSnapshot(*result.recall_);
+            else
+                status_ = Text("beat.wait_plan");
+        }
         if (result.diagnostic_) status_ = Text(result.diagnostic_->code_);
         if (result.committed_)
             Apply(std::move(*result.committed_));
@@ -494,6 +515,12 @@ class Studio::Impl final {
             timeline_generation_ = timeline_.Generation();
             ++reset_;
         }
+        const parameters::ControlBank empty_bank;
+        if (auto controls = beat_performance_.Advance(
+                    {playback_seconds, timeline_.Generation(), timeline_.Paused()}, generation_,
+                    history_->Current().document_.beat_grid_, plan_ ? plan_->controls_ : empty_bank,
+                    plan_ && plan_generation_ == generation_ && diagnostics_.empty()))
+            inspector_.PerformControls(std::move(*controls));
         // Evaluate/capture before building UI draw lists. Preview owners remain
         // alive through submission, even when this frame changes viewer demand.
         if (preview_routing_.TakeInvalidation()) {
@@ -717,6 +744,7 @@ class Studio::Impl final {
     std::string status_{};
     std::array<char, 4097> title_{};
     PropertyInspector inspector_{};
+    BeatPerformance beat_performance_{};
     ComponentPanel component_panel_{};
     ComponentLibraryPanel component_library_{};
     ComponentWorkbench component_workbench_{};

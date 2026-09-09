@@ -1010,5 +1010,6 @@
     "graph.beat_settings": "Invalid beat settings.",
     "project.beat_settings": "Invalid saved beat settings.",
     "project.beat_schema": "Beat metadata does not match the project version.",
-    "package.beat_abi": "Beat metadata does not match the package version."
+    "package.beat_abi": "Beat metadata does not match the package version.",
+    "beat.wait_plan": "Wait for the current graph to compile before recalling."
 }

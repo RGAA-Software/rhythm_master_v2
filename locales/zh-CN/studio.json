@@ -1010,5 +1010,6 @@
     "graph.beat_settings": "节拍设置无效。",
     "project.beat_settings": "保存的节拍设置无效。",
     "project.beat_schema": "节拍数据与工程版本不匹配。",
-    "package.beat_abi": "节拍数据与运行包版本不匹配。"
+    "package.beat_abi": "节拍数据与运行包版本不匹配。",
+    "beat.wait_plan": "请等待当前图编译完成后再召回快照。"
 }

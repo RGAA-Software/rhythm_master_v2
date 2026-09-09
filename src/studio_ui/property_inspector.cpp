@@ -55,7 +55,7 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
                                         std::span<const content::Preset> presets,
                                         const std::map<std::string, std::string>& text,
                                         const std::string& locale, const scene::Resources& models,
-                                        double seconds) {
+                                        double seconds, bool defer_recall) {
     InspectorResult result;
 
     if (draft_ && (draft_->document_.revision_ != base.document_.revision_ ||
@@ -64,7 +64,7 @@ InspectorResult PropertyInspector::Draw(const editor::Snapshot& base, graph::Nod
         result.preview_changed_ = true;
     }
     const auto& snapshot = draft_ ? *draft_ : base;
-    if (DrawControls(snapshot, text, result, seconds)) return result;
+    if (DrawControls(snapshot, text, result, seconds, defer_recall)) return result;
     const auto found =
             std::find_if(snapshot.document_.nodes_.begin(), snapshot.document_.nodes_.end(),
                          [&](const auto& node) { return node.id_ == selected; });
