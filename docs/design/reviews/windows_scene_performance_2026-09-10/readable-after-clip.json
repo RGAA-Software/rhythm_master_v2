@@ -1,0 +1,96 @@
+{
+    "source_sha256": "3704f1271c609fe1ce07a6fdc4b5bb174d157d849eb9bff4b1ba44b31181e43f",
+    "host_extent": [
+        1280,
+        720
+    ],
+    "probe_sha256": "18543e3333f4f660519ebeeac5d3cfe0ae3ba61f094da24c6c9f2e8c48c9b467",
+    "warmup_frames": 120,
+    "detail_warmup_frames": 240,
+    "measured_frames": 480,
+    "timing_note": "Host stages include synchronization; bgfx GPU interval may include pacing and is not isolated GPU workload.",
+    "modes": {
+        "studio-detail": {
+            "work_ms": {
+                "p50": 10.26775,
+                "p95": 13.8608,
+                "max": 16.8824
+            },
+            "present_ms": {
+                "p50": 6.3075,
+                "p95": 7.3714,
+                "max": 53.866
+            },
+            "total_ms": {
+                "p50": 16.62995,
+                "p95": 16.8477,
+                "max": 69.2726
+            },
+            "draws": {
+                "p50": 109.0,
+                "p95": 110.0,
+                "max": 110.0
+            },
+            "passes": {
+                "p50": 13.0,
+                "p95": 14.0,
+                "max": 14.0
+            },
+            "texture_bytes": {
+                "p50": 121665732.0,
+                "p95": 121665732.0,
+                "max": 121665732.0
+            },
+            "inline_previews": {
+                "p50": 1.0,
+                "p95": 1.0,
+                "max": 1.0
+            },
+            "audio_rms": {
+                "p50": 0.06341245,
+                "p95": 0.170178,
+                "max": 0.189648
+            },
+            "gpu_ms": {
+                "p50": 16.641,
+                "p95": 17.1602,
+                "max": 19.03
+            },
+            "render_cpu_ms": {
+                "p50": 0.32255,
+                "p95": 0.4339,
+                "max": 0.7625
+            },
+            "wait_submit_ms": {
+                "p50": 0.0,
+                "p95": 0.0,
+                "max": 0.0
+            },
+            "application_ms": {
+                "p50": 9.694199999999999,
+                "p95": 12.7696,
+                "max": 16.0071
+            },
+            "ui_translate_ms": {
+                "p50": 0.31785,
+                "p95": 0.5595,
+                "max": 1.0894
+            },
+            "ui_submit_ms": {
+                "p50": 0.26835,
+                "p95": 0.4007,
+                "max": 0.6851
+            },
+            "ui_vertices": {
+                "p50": 45026.0,
+                "p95": 45026.0,
+                "max": 45026.0
+            },
+            "ui_indices": {
+                "p50": 177612.0,
+                "p95": 177612.0,
+                "max": 177612.0
+            }
+        }
+    }
+}

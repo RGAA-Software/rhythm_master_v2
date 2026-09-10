@@ -13,6 +13,11 @@ render::DrawList TranslateUi(const std::map<std::uint64_t, render::TextureHandle
     const auto scale = data->FramebufferScale;
     list.width_ = data->DisplaySize.x * scale.x;
     list.height_ = data->DisplaySize.y * scale.y;
+    list.vertices_.reserve(static_cast<std::size_t>(data->TotalVtxCount));
+    list.indices_.reserve(static_cast<std::size_t>(data->TotalIdxCount));
+    std::size_t command_count = 0;
+    for (const auto* source : data->CmdLists) command_count += source->CmdBuffer.size();
+    list.commands_.reserve(command_count);
     for (const auto* source : data->CmdLists) {
         const auto base_vertex = static_cast<std::uint32_t>(list.vertices_.size());
         const auto base_index = static_cast<std::uint32_t>(list.indices_.size());

@@ -42,7 +42,7 @@ ImColor TypeColor(graph::ValueType type) {
     return {170, 180, 195};
 }
 
-void DrawPort(const PortVisual& port, ed::PinKind kind) {
+void DrawPort(const PortVisual& port, ed::PinKind kind, bool details) {
     ed::BeginPin(ed::PinId(port.id_), kind);
     ed::PinPivotAlignment({0.5f, 0.5f});
     // Only the visible socket starts a connection; adjacent text remains a
@@ -53,7 +53,10 @@ void DrawPort(const PortVisual& port, ed::PinKind kind) {
     ed::PinRect(origin, {origin.x + 18, origin.y + height});
     const ImVec2 center{origin.x + 9, origin.y + height * 0.5f};
     const auto color = TypeColor(port.type_);
-    if (port.bound_ || ed::PinHadAnyLinks(ed::PinId(port.id_)))
+    if (!details) {
+        // Preserve pin bounds and link/drag interaction at overview scale.
+        // Subpixel socket circles would only create invisible triangles.
+    } else if (port.bound_ || ed::PinHadAnyLinks(ed::PinId(port.id_)))
         ImGui::GetWindowDrawList()->AddCircleFilled(center, 5, color, 16);
     else
         ImGui::GetWindowDrawList()->AddCircle(center, 5, color, 16, 2);
@@ -62,6 +65,11 @@ void DrawPort(const PortVisual& port, ed::PinKind kind) {
 }  // namespace
 
 PreviewBounds DrawNode(const NodeVisual& node) {
+    // This upstream API returns the canvas inverse scale (GetView().InvScale).
+    const bool readable = ImGui::GetFontSize() / ed::GetCurrentZoom() >= 6.0f;
+    // Capture the canvas clip before BeginNode replaces it with the node clip.
+    const auto clip_min = ImGui::GetWindowDrawList()->GetClipRectMin();
+    const auto clip_max = ImGui::GetWindowDrawList()->GetClipRectMax();
     float input_width = 0;
     for (const auto& port : node.inputs_)
         input_width = std::max(input_width, ImGui::CalcTextSize(port.label_.c_str()).x);
@@ -73,25 +81,37 @@ PreviewBounds DrawNode(const NodeVisual& node) {
     const auto rows = std::max(std::size_t{1}, node.inputs_.size());
     ed::BeginNode(ed::NodeId(node.id_));
     const auto origin = ImGui::GetCursorScreenPos();
+    const auto height = header_height + float(rows) * row_height +
+                        (node.preview_enabled_ ? width * 0.5625f : 0.0f) + 16;
+    const bool details = readable && origin.x + width + 16 >= clip_min.x &&
+                         origin.y + height >= clip_min.y && origin.x - 16 <= clip_max.x &&
+                         origin.y - 16 <= clip_max.y;
+    const auto draw_label = [details](const std::string& text) {
+        if (details)
+            ImGui::TextUnformatted(text.c_str());
+        else
+            ImGui::Dummy(ImGui::CalcTextSize(text.c_str()));
+    };
     ImGui::Dummy({width, header_height});
-    ImGui::GetWindowDrawList()->AddText({origin.x + 4, origin.y + 4}, IM_COL32(240, 244, 250, 255),
-                                        node.title_.c_str());
+    if (details)
+        ImGui::GetWindowDrawList()->AddText({origin.x + 4, origin.y + 4},
+                                            IM_COL32(240, 244, 250, 255), node.title_.c_str());
     const auto body_y = ImGui::GetCursorScreenPos().y;
     for (std::size_t row = 0; row < rows; ++row) {
         const auto y = body_y + float(row) * row_height;
         if (row < node.inputs_.size()) {
             const auto& port = node.inputs_[row];
             ImGui::SetCursorScreenPos({origin.x, y});
-            DrawPort(port, ed::PinKind::Input);
+            DrawPort(port, ed::PinKind::Input, details);
             ImGui::SameLine();
-            ImGui::TextUnformatted(port.label_.c_str());
+            draw_label(port.label_);
         }
         if (row == 0) {
             ImGui::SetCursorScreenPos(
                     {origin.x + width - output_width - 18 - ImGui::GetStyle().ItemSpacing.x, y});
-            ImGui::TextUnformatted(node.output_.label_.c_str());
+            draw_label(node.output_.label_);
             ImGui::SameLine();
-            DrawPort(node.output_, ed::PinKind::Output);
+            DrawPort(node.output_, ed::PinKind::Output, details);
         }
     }
     ImGui::SetCursorScreenPos({origin.x, body_y + float(rows) * row_height});
@@ -142,9 +162,10 @@ PreviewBounds DrawNode(const NodeVisual& node) {
             ImGui::GetWindowDrawList()->AddRectFilled(
                     position, {position.x + preview.width_, position.y + preview.height_},
                     IM_COL32(16, 22, 31, 255), 4);
-            ImGui::GetWindowDrawList()->AddText({position.x + 8, position.y + 8},
-                                                IM_COL32(143, 159, 179, 255),
-                                                node.preview_waiting_.c_str());
+            if (details)
+                ImGui::GetWindowDrawList()->AddText({position.x + 8, position.y + 8},
+                                                    IM_COL32(143, 159, 179, 255),
+                                                    node.preview_waiting_.c_str());
         }
     }
     ImGui::Dummy({width, 2});
