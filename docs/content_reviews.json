@@ -3,86 +3,6 @@
     "scope": "Independent content review history; source changes invalidate acceptance until reviewed again",
     "reviews": [
         {
-            "id": "official.templates.porcelain_pendulum",
-            "source_sha256": "fff0c61478ac3d685205d17cfa101f455f8309ce0c1ab96947e32f4796f66261",
-            "reviewer": "Codex engineering review (not user acceptance)",
-            "date": "2026-09-10",
-            "functional": {
-                "status": "pending"
-            },
-            "music": {
-                "status": "failed",
-                "evidence": [
-                    "docs/validation/porcelain_opening_response_2026-09-10.md"
-                ],
-                "notes": "Windows external PCM passes, but actual packaged arrangement at Android 2s falls below the existing response threshold."
-            },
-            "visual": {
-                "status": "failed",
-                "evidence": [
-                    "docs/validation/porcelain_opening_response_2026-09-10.md"
-                ],
-                "notes": "Light ceramic subject and backdrop have weak value separation; improve lighting and opening response before acceptance."
-            },
-            "device": {
-                "status": "failed",
-                "evidence": [
-                    "docs/validation/porcelain_opening_response_2026-09-10.md"
-                ],
-                "notes": "Native GLES package music comparison failed; successful decoding and rendering do not bypass this gate."
-            }
-        },
-        {
-            "id": "official.templates.porcelain_pendulum",
-            "source_sha256": "6ce6205001ea20cad1536449897d57d8cdd42c5c0c1a9d468c9758dd2324bc9f",
-            "reviewer": "Codex engineering review (not user acceptance)",
-            "date": "2026-09-10",
-            "functional": {
-                "status": "pending",
-                "notes": "Template application/export and short playback passed; exposed-control extremes and resource replacement workflow remain pending."
-            },
-            "music": {
-                "status": "passed",
-                "evidence": [
-                    "docs/validation/porcelain_frequency_coverage_2026-09-10.md"
-                ],
-                "notes": "Seven decoded PCM inputs and ten D3D image comparisons at 4s; packaged arrangement versus silence at four GLES checkpoints. Source-bound functional music response, not acoustic or arbitrary-song certification."
-            },
-            "visual": {
-                "status": "pending",
-                "notes": "Actual stills and eight-time motion contact sheets reviewed; final visual quality and parameter-extreme review remain pending."
-            },
-            "device": {
-                "status": "pending",
-                "notes": "Current APK identity, 640x360 native PCM and installed UI passed; final declared-profile and complete workflow acceptance remain pending."
-            }
-        },
-        {
-            "id": "official.templates.ink_tide",
-            "source_sha256": "8977673eb614a7db3636565f1e25a618a779e1a2f61c07d7b7379cb6fe860f12",
-            "reviewer": "Codex engineering review (not user acceptance)",
-            "date": "2026-09-10",
-            "functional": {
-                "status": "pending",
-                "notes": "Template application/export and short playback passed; exposed-control extremes and resource replacement workflow remain pending."
-            },
-            "music": {
-                "status": "passed",
-                "evidence": [
-                    "docs/validation/calibration_band_coverage_2026-09-10.md"
-                ],
-                "notes": "Seven decoded PCM inputs and ten D3D image comparisons at 4s; packaged arrangement versus silence at four GLES checkpoints. Source-bound functional music response, not acoustic or arbitrary-song certification."
-            },
-            "visual": {
-                "status": "pending",
-                "notes": "Actual stills and eight-time motion contact sheets reviewed; final visual quality and parameter-extreme review remain pending."
-            },
-            "device": {
-                "status": "pending",
-                "notes": "Current APK identity, 640x360 native PCM and installed UI passed; final declared-profile and complete workflow acceptance remain pending."
-            }
-        },
-        {
             "id": "official.templates.chromatic_loom",
             "source_sha256": "32da24da5ba9013dac94c1b192c17f8d2f3017052bf8fb49399205f730440d38",
             "reviewer": "Codex engineering review (not user acceptance)",
@@ -133,34 +53,6 @@
             }
         },
         {
-            "id": "official.templates.ink_tide",
-            "source_sha256": "8977673eb614a7db3636565f1e25a618a779e1a2f61c07d7b7379cb6fe860f12",
-            "reviewer": "Codex engineering review (not user acceptance)",
-            "date": "2026-09-10",
-            "functional": {
-                "status": "passed",
-                "evidence": [
-                    "docs/validation/calibration_control_delivery_2026-09-10.md"
-                ],
-                "notes": "Source-bound template application and 24 total real Studio slider extremes across this four-work batch: current generation, saved/reopened/published defaults; per-control fixed-PCM image response; whole-soundtrack replacement with exact content identity. Not every asset type or partial-clip replacement."
-            },
-            "music": {
-                "status": "passed",
-                "evidence": [
-                    "docs/validation/calibration_band_coverage_2026-09-10.md"
-                ],
-                "notes": "Seven decoded PCM inputs and ten D3D image comparisons at 4s; packaged arrangement versus silence at four GLES checkpoints. Source-bound functional music response, not acoustic or arbitrary-song certification."
-            },
-            "visual": {
-                "status": "pending",
-                "notes": "Motion contacts and all public-control extreme images reviewed for recognizable composition; final visual quality remains pending."
-            },
-            "device": {
-                "status": "pending",
-                "notes": "Current APK identity, 640x360 native PCM and installed UI passed; final declared-profile and complete workflow acceptance remain pending."
-            }
-        },
-        {
             "id": "official.templates.chromatic_loom",
             "source_sha256": "32da24da5ba9013dac94c1b192c17f8d2f3017052bf8fb49399205f730440d38",
             "reviewer": "Codex engineering review (not user acceptance)",
@@ -176,34 +68,6 @@
                 "status": "passed",
                 "evidence": [
                     "docs/validation/calibration_band_coverage_2026-09-10.md"
-                ],
-                "notes": "Seven decoded PCM inputs and ten D3D image comparisons at 4s; packaged arrangement versus silence at four GLES checkpoints. Source-bound functional music response, not acoustic or arbitrary-song certification."
-            },
-            "visual": {
-                "status": "pending",
-                "notes": "Motion contacts and all public-control extreme images reviewed for recognizable composition; final visual quality remains pending."
-            },
-            "device": {
-                "status": "pending",
-                "notes": "Current APK identity, 640x360 native PCM and installed UI passed; final declared-profile and complete workflow acceptance remain pending."
-            }
-        },
-        {
-            "id": "official.templates.porcelain_pendulum",
-            "source_sha256": "6ce6205001ea20cad1536449897d57d8cdd42c5c0c1a9d468c9758dd2324bc9f",
-            "reviewer": "Codex engineering review (not user acceptance)",
-            "date": "2026-09-10",
-            "functional": {
-                "status": "passed",
-                "evidence": [
-                    "docs/validation/calibration_control_delivery_2026-09-10.md"
-                ],
-                "notes": "Source-bound template application and 24 total real Studio slider extremes across this four-work batch: current generation, saved/reopened/published defaults; per-control fixed-PCM image response; whole-soundtrack replacement with exact content identity. Not every asset type or partial-clip replacement."
-            },
-            "music": {
-                "status": "passed",
-                "evidence": [
-                    "docs/validation/porcelain_frequency_coverage_2026-09-10.md"
                 ],
                 "notes": "Seven decoded PCM inputs and ten D3D image comparisons at 4s; packaged arrangement versus silence at four GLES checkpoints. Source-bound functional music response, not acoustic or arbitrary-song certification."
             },
@@ -1021,40 +885,124 @@
             "source_sha256": "5b1699de09fd5b673970103607bd4a28513bd7ae9a10564913353109e1a5f119",
             "reviewer": "Codex engineering review (not user acceptance)",
             "date": "2026-09-10",
-            "functional": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Revision 0.4: source-bound Windows delivery, actual Studio 480-frame H.264 export, and replacement-music save/publish/reopen passed."},
-            "music": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Current-source 32-second music and silence phase checks, plus replacement music restoration, passed. Continuous motion remains active in silence."},
-            "visual": {"status": "pending", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Engineering contact-sheet review passed; user aesthetic acceptance remains pending."},
-            "device": {"status": "pending", "notes": "Windows-only increment; Android and endurance acceptance remain deferred."}
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/motion_phase_2026-09-10.md"
+                ],
+                "notes": "Revision 0.4: source-bound Windows delivery, actual Studio 480-frame H.264 export, and replacement-music save/publish/reopen passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/motion_phase_2026-09-10.md"
+                ],
+                "notes": "Current-source 32-second music and silence phase checks, plus replacement music restoration, passed. Continuous motion remains active in silence."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/motion_phase_2026-09-10.md"
+                ],
+                "notes": "Engineering contact-sheet review passed; user aesthetic acceptance remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Windows-only increment; Android and endurance acceptance remain deferred."
+            }
         },
         {
             "id": "official.templates.porcelain_bloom",
             "source_sha256": "b99a1d306f1d14882e012dd2681ee10856aa72c4cbbd239fccb09ed89a6045f3",
             "reviewer": "Codex engineering review (not user acceptance)",
             "date": "2026-09-10",
-            "functional": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Revision 0.4: source-bound Windows delivery, actual Studio 480-frame H.264 export, and replacement-music save/publish/reopen passed."},
-            "music": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Current-source 32-second music and silence phase checks, plus replacement music restoration, passed. Continuous motion remains active in silence."},
-            "visual": {"status": "pending", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Engineering contact-sheet review passed; user aesthetic acceptance remains pending."},
-            "device": {"status": "pending", "notes": "Windows-only increment; Android and endurance acceptance remain deferred."}
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/motion_phase_2026-09-10.md"
+                ],
+                "notes": "Revision 0.4: source-bound Windows delivery, actual Studio 480-frame H.264 export, and replacement-music save/publish/reopen passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/motion_phase_2026-09-10.md"
+                ],
+                "notes": "Current-source 32-second music and silence phase checks, plus replacement music restoration, passed. Continuous motion remains active in silence."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/motion_phase_2026-09-10.md"
+                ],
+                "notes": "Engineering contact-sheet review passed; user aesthetic acceptance remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Windows-only increment; Android and endurance acceptance remain deferred."
+            }
         },
         {
             "id": "official.templates.stratified_ink",
             "source_sha256": "da581a69011ecc2cdacce2f8061423eede29a7147415725e07dcf2696072e8ce",
             "reviewer": "Codex engineering review (not user acceptance)",
             "date": "2026-09-10",
-            "functional": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Revision 0.4: source-bound Windows delivery, actual Studio 480-frame H.264 export, and replacement-music save/publish/reopen passed."},
-            "music": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Current-source 32-second music and silence phase checks, plus replacement music restoration, passed. Continuous motion remains active in silence."},
-            "visual": {"status": "pending", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Engineering contact-sheet review passed; user aesthetic acceptance remains pending."},
-            "device": {"status": "pending", "notes": "Windows-only increment; Android and endurance acceptance remain deferred."}
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/motion_phase_2026-09-10.md"
+                ],
+                "notes": "Revision 0.4: source-bound Windows delivery, actual Studio 480-frame H.264 export, and replacement-music save/publish/reopen passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/motion_phase_2026-09-10.md"
+                ],
+                "notes": "Current-source 32-second music and silence phase checks, plus replacement music restoration, passed. Continuous motion remains active in silence."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/motion_phase_2026-09-10.md"
+                ],
+                "notes": "Engineering contact-sheet review passed; user aesthetic acceptance remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Windows-only increment; Android and endurance acceptance remain deferred."
+            }
         },
         {
             "id": "official.templates.lumen_corridor",
             "source_sha256": "14a16628fb6578f40c94dfc83fcf24c9dac23a5b02d6f1c4fe4c4b59c9f343cd",
             "reviewer": "Codex engineering review (not user acceptance)",
             "date": "2026-09-10",
-            "functional": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Revision 0.4: source-bound Windows delivery, actual Studio 480-frame H.264 export, and replacement-music save/publish/reopen passed."},
-            "music": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Current-source 32-second music and silence phase checks, plus replacement music restoration, passed. Continuous motion remains active in silence."},
-            "visual": {"status": "pending", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Engineering contact-sheet review passed; user aesthetic acceptance remains pending."},
-            "device": {"status": "pending", "notes": "Windows-only increment; Android and endurance acceptance remain deferred."}
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/motion_phase_2026-09-10.md"
+                ],
+                "notes": "Revision 0.4: source-bound Windows delivery, actual Studio 480-frame H.264 export, and replacement-music save/publish/reopen passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/motion_phase_2026-09-10.md"
+                ],
+                "notes": "Current-source 32-second music and silence phase checks, plus replacement music restoration, passed. Continuous motion remains active in silence."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/motion_phase_2026-09-10.md"
+                ],
+                "notes": "Engineering contact-sheet review passed; user aesthetic acceptance remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Windows-only increment; Android and endurance acceptance remain deferred."
+            }
         }
     ]
 }

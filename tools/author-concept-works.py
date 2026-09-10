@@ -4,10 +4,11 @@ import argparse
 
 from concept_ink_work import ink
 from concept_corridor_work import corridor
-from concept_spatial_works import vortex, porcelain
+from concept_spatial_works import dunhuang_ribbons, vortex, porcelain
 
 RECIPES = {'aureate_vortex': vortex, 'porcelain_bloom': porcelain,
-           'stratified_ink': ink, 'lumen_corridor': corridor}
+           'stratified_ink': ink, 'lumen_corridor': corridor,
+           'dunhuang_ribbons': dunhuang_ribbons}
 
 
 def main():

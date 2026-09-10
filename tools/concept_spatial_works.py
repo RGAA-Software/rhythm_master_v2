@@ -172,3 +172,50 @@ def porcelain():
             ('瓷质壳面围绕黄铜核心以不同速度持续分层旋转和舒展，相机连续绕行；断金弧和游离珠点组成非对称空间，静音仍保持主运动。低频舒展、中频暖光、高频釉光；新曲面网格、细釉纹、HDR 棚灯环境、宏与音乐均可编辑。',
              'Ceramic shells rotate continuously at independent speeds, unfurl and reveal changing parallax through an orbiting camera, even in silence. Bass unfurls, mids warm the shells and highs lift glaze. Editable curved meshes, subtle veins and HDR studio lighting.'),
             graph, output, controls, assets)
+
+
+def dunhuang_ribbons():
+    """First-party flying-ribbon scene inspired by Dunhuang mural movement."""
+    name = 'dunhuang_ribbons'
+    graph, clock, bands, controls = start()
+    node = graph.node
+    assets = []
+    parts = []
+    for index, tint in enumerate(((.95, .38, .08, 1), (.98, .72, .22, 1), (.18, .62, .56, 1))):
+        phase = node('scalar.expression', 900, index * 420, dict(time=clock),
+                     expression=f'time * {18 + index * 7} + {index * 120}')
+        path = node('path.helix', 1250, index * 420, dict(path_phase=phase), path_radius=2.2 + index * .42,
+                    path_height=3.5 + index * .5, path_turns=1.15 + index * .23, path_samples=192)
+        tube = node('geometry.tube', 1600, index * 420, dict(path=path), tube_radius=.045 + index * .012,
+                    tube_sides=12)
+        glow = node('scalar.expression', 1950, index * 420, dict(a=bands[index]),
+                    expression='0.9 + a * 22.0')
+        material = node('material.pbr', 2300, index * 420, dict(emission=glow), color_a=tint,
+                        color_b=(1, .78, .35, 1), metallic=.55, roughness=.24)
+        ribbon = node('scene.instance', 2650, index * 420, dict(geometry=tube, material=material))
+        parts.append(node('scene.transform', 3000, index * 420, dict(scene=ribbon), rotation_x=70,
+                          rotation_z=index * 37 - 30))
+    spark_emission = node('scalar.expression', 620, 1700, dict(a=bands[2], b=bands[0]),
+                          expression='0.35 + a * 8.0 + b * 3.0')
+    sparks = node('gpu.particles', 900, 1700, dict(emission=spark_emission), particle_capacity=16384,
+                  seed=1064, initial_fill=1, emission_rate=2600, lifetime=6, emitter_radius=2.8,
+                  particle_speed=.045, drag=.16, flow_strength=.05, flow_frequency=5, flow_evolution=.18,
+                  point_size=.006, color_a=(1, .4, .05, .75), color_b=(1, .9, .45, 1))
+    sparks = node('gpu.render', 1250, 1700, dict(points=sparks), point_blend=1, texture_precision=2)
+    stage = merge(graph, parts)
+    light = node('scene.point_light', 6000, 0, translate_x=-2.5, translate_y=3.2, translate_z=5,
+                 light_energy=38, light_range=14, color_a=(1, .46, .12, 1))
+    stage = node('scene.merge', 6350, 0, dict(a=stage, b=light))
+    stage = studio_environment(graph, name, stage, assets, .32)
+    eye_x = node('scalar.expression', 7200, 0, dict(time=clock), expression='4.8 * sin(time * .3926990817)')
+    eye_y = node('scalar.expression', 7200, 320, dict(time=clock), expression='1.8 + .7 * cos(time * .3926990817)')
+    camera = node('scene.camera', 7600, 0, dict(eye_x=eye_x, eye_y=eye_y), eye_z=10.5,
+                  target_y=.5, target_z=.2, field_of_view=43, near_plane=.1, far_plane=30)
+    image = render(graph, stage, camera, 10)
+    image = node('texture.composite', 10400, 0, dict(a=image, b=sparks), composite_mode=1,
+                 amount=1, texture_precision=0)
+    output = finish(graph, image, controls[2], .2)
+    publish(name, ('敦煌飞天', 'Dunhuang Flying Ribbons'),
+            ('三层飘带沿独立螺旋路径持续飞行，洞窟暖光与金色粒子形成深度；镜头持续环绕，低中高频分别增强三层飘带和星尘。',
+             'Three independently moving flying ribbons, warm grotto lighting, gold particles and a continuously orbiting camera. Music modulates ribbon layers and spark energy while motion continues in silence.'),
+            graph, output, controls, assets, compute=True)

@@ -1,0 +1,50 @@
+{
+    "ownership": "first-party",
+    "baseline": "03d59cf",
+    "concept": "docs/design/concepts/music_visual_directions_v1.png",
+    "concept_role": "AI-generated design reference only; not used as runtime texture",
+    "reused_sources": [
+        "tools/author-resonance-gate.py",
+        "tools/author-ink-tide.py",
+        "tools/author-crystal-choir.py",
+        "tools/author_petal_model.py",
+        "tools/author-resonant-arcade.py",
+        "tools/audio_band_groups.py",
+        "tools/music_work.py"
+    ],
+    "authoring_sources": {
+        "tools/concept_work_common.py": "cd593fbe4782030e0a4779e48c225a22464d89ada586416f4769a1722076d1bd",
+        "tools/concept_mesh_assets.py": "9dfa5e3e4e75bcbccb000eb7d104ab175620cdba5cb7a831678681d5347eca69",
+        "tools/concept_spatial_works.py": "576d5186339b214f83ec96d5781f92f423cf2132c54ebc0fad036464636f9e1a",
+        "tools/concept_ink_work.py": "565ad01bad8c3037312bdf312871f35ccd87f7e41e5c9867e97994e6e698c981",
+        "tools/concept_corridor_work.py": "6e0b90da6f9d4f1fbc16ce3a1b4feaa035755ec04c8ab4b25c3ed262ca422b93",
+        "tools/author-concept-works.py": "7827fcceb8752e4f3d714f3942b4c542b8b14f3f99f2cc1494543588ba6be493",
+        "tools/music_work.py": "de2b448452e55a6982d99952f0e2e34c3a6dadb208e6d1ccc23687989e28ae5b"
+    },
+    "imported_third_party_files": [],
+    "renderer_provenance": [
+        "provenance/tixl_effects.json",
+        "provenance/tixl_particles.json",
+        "provenance/depth_pipeline.json",
+        "provenance/environment_lighting.json",
+        "provenance/godot_shadows.json"
+    ],
+    "assets": [
+        {
+            "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+            "bytes": 240627,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+            "bytes": 160293,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "57732728558106e321bfce5423c33836152bcc7a828ae696cf24689271e7d2ac",
+            "bytes": 4652,
+            "media_type": "application/x-rhythm-image-shader"
+        }
+    ],
+    "target": "content/templates/dunhuang_ribbons"
+}

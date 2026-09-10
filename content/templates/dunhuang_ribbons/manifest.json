@@ -1,0 +1,118 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 3,
+    "kind": "template",
+    "content_id": "official.templates.dunhuang_ribbons",
+    "content_version": "0.4.0",
+    "project_id": "official-dunhuang-ribbons",
+    "graph_revision": 0,
+    "title": "敦煌飞天 / Dunhuang Flying Ribbons",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "敦煌飞天",
+        "en-US": "Dunhuang Flying Ribbons"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android-gles31-compute"
+    ],
+    "external_assets": [],
+    "assets": [
+        {
+            "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+            "bytes": 240627,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+            "bytes": 160293,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "57732728558106e321bfce5423c33836152bcc7a828ae696cf24689271e7d2ac",
+            "bytes": 4652,
+            "media_type": "application/x-rhythm-image-shader"
+        }
+    ],
+    "soundtrack": {
+        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+        "title": "Luminous Concerto",
+        "gain": 0.75,
+        "loop": true,
+        "clips": [
+            {
+                "id": 1,
+                "title": "Pulse foundation",
+                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                "start": 0,
+                "duration": 16,
+                "source_in": 0,
+                "source_out": 8,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.85,
+                "pan": 0,
+                "muted": false
+            },
+            {
+                "id": 2,
+                "title": "Chimes entrance",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 4,
+                "duration": 8,
+                "source_in": 0,
+                "source_out": 8,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.75,
+                "pan": -0.25,
+                "muted": false
+            },
+            {
+                "id": 3,
+                "title": "Chimes release",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 12,
+                "duration": 4,
+                "source_in": 0,
+                "source_out": 4,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.6,
+                "pan": 0.25,
+                "muted": false
+            },
+            {
+                "id": 4,
+                "title": "Answering chimes",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 8,
+                "duration": 8,
+                "source_in": 2,
+                "source_out": 6,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.35,
+                "pan": 0.6,
+                "muted": false
+            }
+        ]
+    },
+    "descriptions": {
+        "zh-CN": "三层飘带沿独立螺旋路径持续飞行，洞窟暖光与金色粒子形成深度；镜头持续环绕，低中高频分别增强三层飘带和星尘。",
+        "en-US": "Three independently moving flying ribbons, warm grotto lighting, gold particles and a continuously orbiting camera. Music modulates ribbon layers and spark energy while motion continues in silence."
+    }
+}

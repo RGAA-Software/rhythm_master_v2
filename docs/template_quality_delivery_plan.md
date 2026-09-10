@@ -12,7 +12,13 @@ blocks may support a composition, but do not independently establish a complete
 music visualization template. Actual music playback acceptance is distinct from
 synthetic feature tests and silent screenshots.
 
-Latest user instruction: at least **50 Basic templates and 50 Advanced templates**.
+2026-09-10 content direction supersedes the older Basic-template target below:
+the catalog keeps only high-end, editable Advanced works. Removed simple examples
+and their obsolete review records do not count toward any target. The active
+content target is **50 distinct accepted Advanced templates**, backed by reusable
+components and presets; historical Basic/Advanced wording records earlier plans.
+
+Earlier user instruction: at least **50 Basic templates and 50 Advanced templates**.
 This replaces the earlier 24-template minimum. The independent requirements of
 40 semantic nodes and 120 visually distinct presets remain. Counts measure
 distinct accepted compositions, not recolors, aspect ratios or device variants.

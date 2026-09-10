@@ -122,9 +122,12 @@ if(BUILD_TESTING)
     rhythm_project_target(template_switch_gpu_tests)
     add_dependencies(template_switch_gpu_tests studio_resources)
     foreach(locale en-US zh-CN)
-        add_test(NAME template_switch_gpu_${locale} COMMAND template_switch_gpu_tests
-            "${CMAKE_CURRENT_BINARY_DIR}" "${locale}" "${PROJECT_BINARY_DIR}/template-switch-gpu")
-        set_tests_properties(template_switch_gpu_${locale} PROPERTIES TIMEOUT 90 RUN_SERIAL TRUE
+        add_test(NAME template_switch_gpu_${locale} COMMAND "${Python3_EXECUTABLE}"
+            "${PROJECT_SOURCE_DIR}/tools/test-template-switch-gpu.py"
+            --executable "$<TARGET_FILE:template_switch_gpu_tests>"
+            --resources "${CMAKE_CURRENT_BINARY_DIR}" --locale "${locale}"
+            --output "${PROJECT_BINARY_DIR}/template-switch-gpu")
+        set_tests_properties(template_switch_gpu_${locale} PROPERTIES TIMEOUT 210 RUN_SERIAL TRUE
             ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     endforeach()
     add_test(NAME calibration_controls_gpu COMMAND template_switch_gpu_tests

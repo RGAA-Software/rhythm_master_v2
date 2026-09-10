@@ -48,9 +48,11 @@ void PopupAction(const std::string& item, const std::string& child = {}, int ind
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        Check(argc == 4 || (argc == 5 && std::string_view(argv[4]) == "--controls"),
-              "template_switch resources locale output [--controls]");
+        Check(argc == 4 || (argc == 5 && std::string_view(argv[4]) == "--controls") ||
+                      (argc == 6 && std::string_view(argv[4]) == "--template"),
+              "template_switch resources locale output [--controls|--template name]");
         const bool controls = argc == 5;
+        const std::string selected_template = argc == 6 ? argv[5] : "";
         const std::filesystem::path resources(argv[1]);
         const std::string locale(argv[2]);
         const auto root =
@@ -92,16 +94,28 @@ int main(int argc, char* argv[]) {
             finish();
         }
         Check(studio.HasValidPlan(), "default Studio output not ready");
-        bool timeline_open = false;
+        // Template application must verify the final output, save/reopen and
+        // publication path. Dedicated preview tests cover live thumbnails; turn
+        // them off here so a viewport-demand change cannot repeatedly supersede
+        // the pending template compilation.
+        tick();
+        Activate("###graph", "###viewers");
+        finish();
+        bool selected_found = selected_template.empty();
         for (const std::string name :
              {"chromatic_loom", "crystal_choir", "harmonic_city", "phase_loom", "resonance_gate",
               "resonance_live", "resonant_arcade", "sonic_enamel", "spectral_foundry",
-              "aureate_vortex", "porcelain_bloom", "stratified_ink", "lumen_corridor"}) {
-            if (controls && name != "chromatic_loom" && name != "resonance_gate" &&
-                name != "resonant_arcade" &&
-                name != "aureate_vortex" && name != "porcelain_bloom" && name != "stratified_ink" &&
-                name != "lumen_corridor")
+              "aureate_vortex", "porcelain_bloom", "stratified_ink", "lumen_corridor",
+              "dunhuang_ribbons", "aurora_braid", "orbital_reliquary", "prismatic_lotus",
+              "spectral_nebula", "stellar_currents", "torque_garden"}) {
+            if (name == selected_template) selected_found = true;
+            // The calibration run verifies the editor's public-control workflow
+            // against a work that declares controls.  The regular delivery run
+            // above still applies every advanced template, including works that
+            // deliberately expose no author controls.
+            if (controls && name != "chromatic_loom")
                 continue;
+            if (!selected_template.empty() && name != selected_template) continue;
             action = "select:" + name;
             const auto entry = std::find_if(entries.begin(), entries.end(), [&](const auto& value) {
                 return value.id_ == "official.templates." + name;
@@ -132,34 +146,37 @@ int main(int argc, char* argv[]) {
                     action = "apply:" + name;
                     PopupAction(text.at("catalog.use"), "catalog.detail");
                 }
-                if (step == 24 && !timeline_open) {
-                    Activate("###graph", "###timeline");
-                    timeline_open = true;
-                }
-                if (step == 26)
-                    if (auto* window = ImGui::FindWindowByName("###timeline")) {
-                        ImGui::SetWindowPos(window, {20, 480}, ImGuiCond_Always);
-                        ImGui::SetWindowSize(window, {1060, 510}, ImGuiCond_Always);
-                    }
                 if (step > 25 && step % 20 == 10 && studio.HasValidPlan())
                     Activate("###graph", "###save");
                 if (step > 45 && step % 20 == 0 && studio.HasValidPlan())
                     Activate("###graph", "###publish");
                 finish();
-                if (step < 50 || !studio.HasValidPlan() ||
-                    studio.Status().authored_nodes_ != expected.document_.nodes_.size() ||
-                    studio.Status().clip_waveform_sources_ != audio_sources.size() ||
-                    !std::filesystem::exists(package_path) ||
-                    !std::filesystem::exists(project_path / "CURRENT"))
+                const bool plan_ready = studio.HasValidPlan();
+                const bool node_count_matches =
+                        studio.Status().authored_nodes_ == expected.document_.nodes_.size();
+                const bool saved_file_exists = std::filesystem::exists(project_path / "CURRENT");
+                const bool package_exists = std::filesystem::exists(package_path);
+                if (step == 499 &&
+                    (!plan_ready || !node_count_matches || !package_exists || !saved_file_exists))
+                    std::cerr << name << ": plan=" << plan_ready << " nodes=" << node_count_matches
+                              << " package=" << package_exists << " saved=" << saved_file_exists
+                              << '\n';
+                if (step < 50 || !plan_ready || !node_count_matches || !package_exists ||
+                    !saved_file_exists)
                     continue;
                 const auto saved = project::Load(project_path).snapshot_;
                 const auto published = project::LoadPackage(package_path);
-                if (saved.title_ != expected.title_ || published.title_ != expected.title_)
+                const bool titles_match =
+                        saved.title_ == expected.title_ && published.title_ == expected.title_;
+                if (!titles_match) {
+                    if (step == 499)
+                        std::cerr << name << ": title mismatch, saved=" << saved.title_
+                                  << " published=" << published.title_ << '\n';
                     continue;
+                }
                 Check(saved.document_.output_ != expected.document_.output_,
                       "UI application must remap template identities");
-                Check(published.program_.instructions_.size() ==
-                                      expected_plan.instructions_.size() &&
+                Check(published.program_.instructions_.size() == expected_plan.instructions_.size() &&
                               published.program_.controls_.Definitions().size() ==
                                       expected_plan.controls_.Definitions().size() &&
                               saved.document_.control_cues_ == expected.document_.control_cues_ &&
@@ -187,6 +204,7 @@ int main(int argc, char* argv[]) {
                 });
             }
         }
+        Check(selected_found, "selected template switch fixture missing");
         std::cout << "captures: " << root.string() << '\n';
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

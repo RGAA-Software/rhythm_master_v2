@@ -126,8 +126,8 @@ def report(root, ledger):
             duplicates[entry["exact_setting_group"]].append(entry["id"])
     return {"schema_version": 1,
             "scope": "Source inventory and hash-bound review bookkeeping; no automatic visual or user acceptance",
-            "targets": {"template:basic": 50, "template:advanced": 50,
-                        "component:component": 40, "preset:preset": 120},
+            "targets": {"template:advanced": 50, "component:component": 40,
+                        "preset:preset": 120},
             "counts": dict(sorted(counts.items())),
             "default_presets_excluded": sum(entry["is_default"] for entry in entries),
             "identical_preset_settings": [ids for ids in duplicates.values() if len(ids) > 1],

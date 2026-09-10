@@ -2,7 +2,6 @@
     "schema_version": 1,
     "scope": "Source inventory and hash-bound review bookkeeping; no automatic visual or user acceptance",
     "targets": {
-        "template:basic": 50,
         "template:advanced": 50,
         "component:component": 40,
         "preset:preset": 120
@@ -10,7 +9,7 @@
     "counts": {
         "authored:component": 30,
         "authored:preset": 209,
-        "authored:template": 57,
+        "authored:template": 20,
         "component:component": 0,
         "preset:preset": 0,
         "template:advanced": 0,
@@ -2848,7 +2847,7 @@
             "id": "official.semantic.audio_iris",
             "kind": "component",
             "source": "content/semantic/audio_iris",
-            "source_sha256": "cdeb4a7f82ef85eed3d0d97b2c775861297ae883ffa72f442616d0394f93f95f",
+            "source_sha256": "f0ef419dc4aa33a9a88a06a539bce037870c3100544b746db57ffa009066c01c",
             "version": "0.2.0",
             "titles": {
                 "en-US": "Audio iris",
@@ -2864,12 +2863,12 @@
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 1,
-            "stale_review_count": 0,
+            "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -2878,7 +2877,7 @@
             "id": "official.semantic.audio_iris.default",
             "kind": "preset",
             "source": "content/semantic/audio_iris/presets.json",
-            "source_sha256": "33d74969ba9a5c7d8995959f2ef81d22a6968335048601887716aac9a7f60244",
+            "source_sha256": "987d3903c03133408c23f599ce483040ba7dbfc8fc6d67aca7d33042fd99494f",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -2903,7 +2902,7 @@
             "id": "official.semantic.audio_iris.variant",
             "kind": "preset",
             "source": "content/semantic/audio_iris/presets.json",
-            "source_sha256": "5998a07b7a7dd745940e36446cf68a5472052e3c007774452af005c473b8ddf0",
+            "source_sha256": "38e6c8a5e67c1e99f295ad1479d1f6d5fbcb0e7dfe9989bbbaf895a523ac38fe",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Triangular cutout",
@@ -3008,7 +3007,7 @@
             "id": "official.semantic.beat_shutters",
             "kind": "component",
             "source": "content/semantic/beat_shutters",
-            "source_sha256": "690ea119ef3740d5e5068171d1546615a36607e25ab1632cf5252e48d5af4d2e",
+            "source_sha256": "c5e2310689f93edbed76328557f3db8e4125e42bb0eb342c2b0693b829f13ade",
             "version": "0.2.0",
             "titles": {
                 "en-US": "Beat shutters",
@@ -3024,12 +3023,12 @@
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 1,
-            "stale_review_count": 0,
+            "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -3038,7 +3037,7 @@
             "id": "official.semantic.beat_shutters.default",
             "kind": "preset",
             "source": "content/semantic/beat_shutters/presets.json",
-            "source_sha256": "18729fa87776ed521c146891a24f7a368ca28efbbb2577d04a3444aaf66b8594",
+            "source_sha256": "af634dca85907a26e02c757ec116de3e8129a8773dd52941236ce214c3d77a2e",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3063,7 +3062,7 @@
             "id": "official.semantic.beat_shutters.variant",
             "kind": "preset",
             "source": "content/semantic/beat_shutters/presets.json",
-            "source_sha256": "d802a0d50fbea020ab4fd2978db65d7ef71560043f3c1ffda47940c22c2f3eda",
+            "source_sha256": "170467ccf266d19a91c0f621d2d3ec9948ad6bcf3bf8bee4bedd7081a0e0aa2e",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Vertical gates",
@@ -3088,7 +3087,7 @@
             "id": "official.semantic.contour_engraving",
             "kind": "component",
             "source": "content/semantic/contour_engraving",
-            "source_sha256": "ac94abfef47833a7991e38d3de98195ee3d5f24eed1f4cd1067afc8fbf45a249",
+            "source_sha256": "d44f868e0450ff2ffabf64bd5f3104365db8bdb83b1d535e011693360b3eaeb2",
             "version": "0.2.0",
             "titles": {
                 "en-US": "Contour engraving",
@@ -3104,12 +3103,12 @@
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 1,
-            "stale_review_count": 0,
+            "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -3118,7 +3117,7 @@
             "id": "official.semantic.contour_engraving.default",
             "kind": "preset",
             "source": "content/semantic/contour_engraving/presets.json",
-            "source_sha256": "486e75b0977d2e87ba45b8f37e6a6723b30a9b3baaad0c391feb23ce76a27b16",
+            "source_sha256": "426c24b6bafdceda9b73552fe27be500e633ad9002b39e084168b02196989754",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3143,7 +3142,7 @@
             "id": "official.semantic.contour_engraving.variant",
             "kind": "preset",
             "source": "content/semantic/contour_engraving/presets.json",
-            "source_sha256": "07bc7916196d48ef5661b7d1c2be22eea3c687d13aa8488eacd33981c28833cc",
+            "source_sha256": "7f86235aaeda2470e6e68c019458f680d266cf481af03f5584833b65d136a231",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Broad cuts",
@@ -3407,7 +3406,7 @@
             "id": "official.semantic.flow_glass",
             "kind": "component",
             "source": "content/semantic/flow_glass",
-            "source_sha256": "4050001884a0a253d4639619e56df8c02dda874c72aafeb6fbe8b3039ecbb026",
+            "source_sha256": "6bbabc146afe48b831568e0ea6b2e099dbd73e7bb76546255f4533243033d599",
             "version": "0.2.0",
             "titles": {
                 "en-US": "Flow glass",
@@ -3423,12 +3422,12 @@
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 1,
-            "stale_review_count": 0,
+            "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -3437,7 +3436,7 @@
             "id": "official.semantic.flow_glass.default",
             "kind": "preset",
             "source": "content/semantic/flow_glass/presets.json",
-            "source_sha256": "a53a3c3fae4d61f505e33f360247a5266ec892bf30b6c98cbbf3cdccdc00df3d",
+            "source_sha256": "5d7bab7951ffb2b3b443591466bce75cf158b288920569bcc8a3aa6ef7b2ea3a",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3462,7 +3461,7 @@
             "id": "official.semantic.flow_glass.variant",
             "kind": "preset",
             "source": "content/semantic/flow_glass/presets.json",
-            "source_sha256": "e7f4ec5fe4ed32b3a4c8df08814bbba0b3ace87776b811e0f7cf58af779bc664",
+            "source_sha256": "f7c782d58f01ecdaf249f03bd750a47ce21df3bc6a68ea687126f40ea0ed45dd",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Broad ripples",
@@ -3727,7 +3726,7 @@
             "id": "official.semantic.luma_windows",
             "kind": "component",
             "source": "content/semantic/luma_windows",
-            "source_sha256": "e7c2ffc361a20b02e7e0d452020f1c2627209688b94a3e5713f8116ed537d92a",
+            "source_sha256": "6b148c1f35a08aef069163232359a36d9c141e4a47a120a3e937b7540f162b33",
             "version": "0.2.0",
             "titles": {
                 "en-US": "Luma windows",
@@ -3743,12 +3742,12 @@
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 1,
-            "stale_review_count": 0,
+            "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -3757,7 +3756,7 @@
             "id": "official.semantic.luma_windows.default",
             "kind": "preset",
             "source": "content/semantic/luma_windows/presets.json",
-            "source_sha256": "9dadbfff8d52b3424a4331a4e79a5a63d3c93d8250c25a9ac6e73f85174a21b2",
+            "source_sha256": "ea80497bfa65dcddab8e995c730d8052d399b8c69228cd637e2724c0d382525d",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3782,7 +3781,7 @@
             "id": "official.semantic.luma_windows.variant",
             "kind": "preset",
             "source": "content/semantic/luma_windows/presets.json",
-            "source_sha256": "5fda5dd5b7c64787229d7e677ca4016a7569c3c0759d15a85b73d1173445f04e",
+            "source_sha256": "ab3c1459ed8a0cb9caac21c321c9c0b2db38881522e75c2afce6ef7f64a783aa",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Broad openings",
@@ -3807,7 +3806,7 @@
             "id": "official.semantic.mirrored_duet",
             "kind": "component",
             "source": "content/semantic/mirrored_duet",
-            "source_sha256": "f71ec7b23294a8f5f8734f0a882dcd115ad52084e98e358eba6a38ce25b7e992",
+            "source_sha256": "021a2581467461c92c8015dc9b248257b58de1829d47ff241eef44b505b2d3ff",
             "version": "0.2.0",
             "titles": {
                 "en-US": "Mirrored duet",
@@ -3823,12 +3822,12 @@
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 1,
-            "stale_review_count": 0,
+            "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -3837,7 +3836,7 @@
             "id": "official.semantic.mirrored_duet.default",
             "kind": "preset",
             "source": "content/semantic/mirrored_duet/presets.json",
-            "source_sha256": "ed1834ddbd1549663d5061de92c1b7bbb5ad8ccb6d0723cdb8987734a7ce4695",
+            "source_sha256": "da4fa1e019fc81cea22c360da2f68721a39bf35a2d83371105c520fffbbc265d",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3862,7 +3861,7 @@
             "id": "official.semantic.mirrored_duet.variant",
             "kind": "preset",
             "source": "content/semantic/mirrored_duet/presets.json",
-            "source_sha256": "7826c550315a6ee666ee47e4d53104b860da609ebed2bd97b03f9bd3091e9d49",
+            "source_sha256": "ada8a9b1491696ce52415a72f2fef7378f04ef4ce037f6089d7a79a00bda4887",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Interlocked fans",
@@ -3887,7 +3886,7 @@
             "id": "official.semantic.motion_echo",
             "kind": "component",
             "source": "content/semantic/motion_echo",
-            "source_sha256": "7c5242968248e9aa6dfde954fdd038bb721649de7a45da4a64dd9363c72851b0",
+            "source_sha256": "4d842b05809e25b3e0fe6fc9b3beda7667e6b83fce9052d10fa1ac0fb0697e29",
             "version": "0.2.0",
             "titles": {
                 "en-US": "Motion echo",
@@ -3903,12 +3902,12 @@
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 1,
-            "stale_review_count": 0,
+            "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -3917,7 +3916,7 @@
             "id": "official.semantic.motion_echo.default",
             "kind": "preset",
             "source": "content/semantic/motion_echo/presets.json",
-            "source_sha256": "8b09231b72eb18612823e306247cb475f256bf5d32f547c731597553677ef88c",
+            "source_sha256": "f04171492396dd0789ca22356853241ebecbb8a02d12a53be210b59edd44c5ba",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3942,7 +3941,7 @@
             "id": "official.semantic.motion_echo.variant",
             "kind": "preset",
             "source": "content/semantic/motion_echo/presets.json",
-            "source_sha256": "6c50ba016cdbd550be0fbaff6134c5f19f49cc744134040112d0ff10dd106fe9",
+            "source_sha256": "d0633f00f4e5fe1b58c220148523eafa7b0736942400fb8cb31d2444cf310d69",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Tight spiral",
@@ -4366,7 +4365,7 @@
             "id": "official.semantic.polar_vortex",
             "kind": "component",
             "source": "content/semantic/polar_vortex",
-            "source_sha256": "84ab90a51a14002f75bf1c2c810ee863277bcf6867c1c071f70b845e0ee4a388",
+            "source_sha256": "a0f16e88992b127fa06e044efa56fcf25298c753521c9e910f67e151bbe2db9f",
             "version": "0.2.0",
             "titles": {
                 "en-US": "Polar vortex",
@@ -4382,12 +4381,12 @@
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 1,
-            "stale_review_count": 0,
+            "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -4396,7 +4395,7 @@
             "id": "official.semantic.polar_vortex.default",
             "kind": "preset",
             "source": "content/semantic/polar_vortex/presets.json",
-            "source_sha256": "9f7f793653094db9d1c1bf2eb22a784827f0f3dcf6ba67346af5978926430b5b",
+            "source_sha256": "993ec66b0410edead79a4e5d28782eef1fa6c8790c6f42660901039add9e7c0c",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -4421,7 +4420,7 @@
             "id": "official.semantic.polar_vortex.variant",
             "kind": "preset",
             "source": "content/semantic/polar_vortex/presets.json",
-            "source_sha256": "0d27c4f9ff24895846efda3ae0856bed9c6219851404547419e4c11cf71280d4",
+            "source_sha256": "99c24d99472260458af001b1bf62bab161c0754047f50f74400a9750bf55b385",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Open spiral",
@@ -4446,7 +4445,7 @@
             "id": "official.semantic.prism_fold",
             "kind": "component",
             "source": "content/semantic/prism_fold",
-            "source_sha256": "4da49d3f0eb17b4141f69b8adcf8caf84f1c5ee6ef6ec0329bd8b00384613a76",
+            "source_sha256": "3f536e417cc97e7315829d1aeb1c90e84edef478121d0d6e713c0d23e53a561b",
             "version": "0.2.0",
             "titles": {
                 "en-US": "Prism fold",
@@ -4462,12 +4461,12 @@
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 1,
-            "stale_review_count": 0,
+            "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -4476,7 +4475,7 @@
             "id": "official.semantic.prism_fold.default",
             "kind": "preset",
             "source": "content/semantic/prism_fold/presets.json",
-            "source_sha256": "508211ce73db0b49667b386093762983437dc8783562f507f6ea8c85182959d3",
+            "source_sha256": "a5f556246bf3dff86ae4bf1abc52097b330dd477c2eec0642529e41732c4a82c",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -4501,7 +4500,7 @@
             "id": "official.semantic.prism_fold.variant",
             "kind": "preset",
             "source": "content/semantic/prism_fold/presets.json",
-            "source_sha256": "8eed00e5196d03ab8ebce238d0bb6f3559448caec45772035f8394b678860ebc",
+            "source_sha256": "305558f0fb7a46a6ef943c6e67a80ca6a55091b6e74a205cb04e7afa58e7937c",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Triangular sweep",
@@ -4686,7 +4685,7 @@
             "id": "official.semantic.self_relief",
             "kind": "component",
             "source": "content/semantic/self_relief",
-            "source_sha256": "c77343f560d5be06a36ed3673dae0bfa9a611d320460dbdbc20955fea5660e28",
+            "source_sha256": "e3fe33cb0dcf9fde3c9bdffa2c6ed4dbc3c00840940da90a4719bcea663245a9",
             "version": "0.2.0",
             "titles": {
                 "en-US": "Self relief",
@@ -4702,12 +4701,12 @@
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 1,
-            "stale_review_count": 0,
+            "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -4716,7 +4715,7 @@
             "id": "official.semantic.self_relief.default",
             "kind": "preset",
             "source": "content/semantic/self_relief/presets.json",
-            "source_sha256": "b527b2caeadf895683951976f49a849e75ebcdb1ecf50f43e26912eda190d162",
+            "source_sha256": "e7a9b713ad17cf77a1b049c44c2f1e6178c9717b7319144ed6081d34c95bedb7",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -4741,7 +4740,7 @@
             "id": "official.semantic.self_relief.variant",
             "kind": "preset",
             "source": "content/semantic/self_relief/presets.json",
-            "source_sha256": "e8f722dd4d14c6356b7ca3e88359b2c802a33c97e32888b99aa27c49884399f5",
+            "source_sha256": "b8098044d43e82d2e108bca7bef909a670637ba01f05f491327170bfd778a1f2",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Fine emboss",
@@ -5467,93 +5466,6 @@
             }
         },
         {
-            "id": "official.templates.audio_gradient",
-            "kind": "template",
-            "source": "content/templates/audio_gradient",
-            "source_sha256": "7b5e545f7d5651c70d4b26113a5d5bcef3dfa805c8290ac0a5925885064d22c3",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "音乐渐变",
-                "en-US": "Music gradient"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.audio_pulse_card",
-            "kind": "template",
-            "source": "content/templates/audio_pulse_card",
-            "source_sha256": "4a34ff6b13d3a1d9719c25e6bdf22c5261a63a9c0e106de8672bf00a461d86af",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "音乐脉冲卡片",
-                "en-US": "Music pulse card"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.audio_spectrum",
-            "kind": "template",
-            "source": "content/templates/audio_spectrum",
-            "source_sha256": "a9ff5f5bfb8c4a38cd18238c26c9302df947b3c3c5dd6a985f05d611455d9dd0",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "霓虹频谱环",
-                "en-US": "Neon spectrum ring"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
             "id": "official.templates.aureate_vortex",
             "kind": "template",
             "source": "content/templates/aureate_vortex",
@@ -5685,65 +5597,6 @@
             }
         },
         {
-            "id": "official.templates.aurora_clouds",
-            "kind": "template",
-            "source": "content/templates/aurora_clouds",
-            "source_sha256": "24c7eeff7fbf9288280ab3c68c89e4d587297c6e06cbaf7d84e1e4dfd41af489",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "流光云海",
-                "en-US": "Aurora clouds"
-            },
-            "tier": "basic",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "first-party graph; TiXL-derived renderer shaders under MIT; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.breathing_light",
-            "kind": "template",
-            "source": "content/templates/breathing_light",
-            "source_sha256": "49b454f72d6c89444cb13fbd50da71186b5f50cc9e9cf21a134897aa71114641",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "呼吸光卡",
-                "en-US": "Breathing light"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
             "id": "official.templates.chromatic_loom",
             "kind": "template",
             "source": "content/templates/chromatic_loom",
@@ -5845,40 +5698,6 @@
             }
         },
         {
-            "id": "official.templates.contour_pulse",
-            "kind": "template",
-            "source": "content/templates/contour_pulse",
-            "source_sha256": "9f7cd49f5ce94ce85a6b557140313160ca196a611ab0c368a047af9b4b70666c",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "脉动等高线",
-                "en-US": "Contour Pulse"
-            },
-            "tier": "example",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "First-party Studio-authored graph and original demo music; existing attributed renderer adapters; outbound license pending",
-            "soundtrack": {
-                "gain": 1.0,
-                "loop": true,
-                "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec",
-                "title": "resonance_demo.wav"
-            },
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
             "id": "official.templates.crystal_choir",
             "kind": "template",
             "source": "content/templates/crystal_choir",
@@ -5909,20 +5728,20 @@
             }
         },
         {
-            "id": "official.templates.daylight_mobile",
+            "id": "official.templates.dunhuang_ribbons",
             "kind": "template",
-            "source": "content/templates/daylight_mobile",
-            "source_sha256": "63bce5b559908abdd3c4436ddcebcbb0b8fbc271845d0eb8e1481bdf3422ac75",
-            "version": "0.1.0",
+            "source": "content/templates/dunhuang_ribbons",
+            "source_sha256": "6639911f59d2570f1b98ec578c113596a3ea77c2e16383623fa128d7810e7748",
+            "version": "0.4.0",
             "titles": {
-                "zh-CN": "晴空悬音",
-                "en-US": "Daylight Mobile"
+                "zh-CN": "敦煌飞天",
+                "en-US": "Dunhuang Flying Ribbons"
             },
-            "tier": "basic",
+            "tier": "advanced",
             "declared_maturity": "visual-review-pending",
             "declared_players": [
                 "windows",
-                "android"
+                "android-gles31-compute"
             ],
             "source_license_note": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
             "soundtrack": {
@@ -5997,159 +5816,6 @@
                     }
                 ]
             },
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.ellipsoid_duet",
-            "kind": "template",
-            "source": "content/templates/ellipsoid_duet",
-            "source_sha256": "f05d453dff9dbf8a21837c9a74b273feac66e78506a3fb8133e4deec1cf0a2fc",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "椭球双舞",
-                "en-US": "Ellipsoid duet"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party graph; Godot/GLM notices supplied with runtime; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.expression_orbit",
-            "kind": "template",
-            "source": "content/templates/expression_orbit",
-            "source_sha256": "65d85af4e80f88d3028ff448c854ebe14675a87cb4afcc74fd12daa42a37be7d",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "摆动卡片",
-                "en-US": "Swaying card"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.firefly_garden",
-            "kind": "template",
-            "source": "content/templates/firefly_garden",
-            "source_sha256": "6d870407ad8013eca2e00ab3dd931495d87c11290db7706ad1b2022fc0f72481",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "浮光萤尘",
-                "en-US": "Firefly garden"
-            },
-            "tier": "basic",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "First-party graph; MIT TiXL/GLM/Godot renderer and particle dependencies; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.glyph_current",
-            "kind": "template",
-            "source": "content/templates/glyph_current",
-            "source_sha256": "b2f7e7daf2ea90fb173695443c7c98b21a4a0c053ef0572c9ef2c1f2a9397085",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "字潮",
-                "en-US": "Glyph Current"
-            },
-            "tier": "example",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "First-party Studio-authored graph and original demo music; existing attributed renderer adapters; outbound license pending; unmodified Noto Sans CJK SC under SIL OFL 1.1, font and notice embedded",
-            "soundtrack": {
-                "gain": 1.0,
-                "loop": true,
-                "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec",
-                "title": "resonance_demo.wav"
-            },
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.gradient_medallion",
-            "kind": "template",
-            "source": "content/templates/gradient_medallion",
-            "source_sha256": "e642a833bd6f1395150ad961737fa297ba28880da7cd55b8745ba256d0ca0f32",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "渐变圆环",
-                "en-US": "Gradient medallion"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
             "is_default": false,
             "review_history_count": 0,
             "stale_review_count": 0,
@@ -6178,196 +5844,6 @@
                 "windows"
             ],
             "source_license_note": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.hexagon_overlay",
-            "kind": "template",
-            "source": "content/templates/hexagon_overlay",
-            "source_sha256": "7142e8ebfd92bc53664a42044e62eea55f7df7ebc9183365cd8c8482215af770",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "旋转六边形",
-                "en-US": "Rotating hexagon"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.ink_tide",
-            "kind": "template",
-            "source": "content/templates/ink_tide",
-            "source_sha256": "8977673eb614a7db3636565f1e25a618a779e1a2f61c07d7b7379cb6fe860f12",
-            "version": "0.2.0",
-            "titles": {
-                "zh-CN": "墨潮",
-                "en-US": "Ink Tide"
-            },
-            "tier": "basic",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
-            "soundtrack": {
-                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
-                "title": "Luminous Concerto",
-                "gain": 0.75,
-                "loop": true,
-                "clips": [
-                    {
-                        "id": 1,
-                        "title": "Pulse foundation",
-                        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
-                        "start": 0,
-                        "duration": 16,
-                        "source_in": 0,
-                        "source_out": 8,
-                        "loop": true,
-                        "fade_in": 0.5,
-                        "fade_out": 1,
-                        "smooth": true,
-                        "gain": 0.85,
-                        "pan": 0,
-                        "muted": false
-                    },
-                    {
-                        "id": 2,
-                        "title": "Chimes entrance",
-                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
-                        "start": 4,
-                        "duration": 8,
-                        "source_in": 0,
-                        "source_out": 8,
-                        "loop": true,
-                        "fade_in": 0.5,
-                        "fade_out": 1,
-                        "smooth": true,
-                        "gain": 0.75,
-                        "pan": -0.25,
-                        "muted": false
-                    },
-                    {
-                        "id": 3,
-                        "title": "Chimes release",
-                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
-                        "start": 12,
-                        "duration": 4,
-                        "source_in": 0,
-                        "source_out": 4,
-                        "loop": true,
-                        "fade_in": 0.5,
-                        "fade_out": 1,
-                        "smooth": true,
-                        "gain": 0.6,
-                        "pan": 0.25,
-                        "muted": false
-                    },
-                    {
-                        "id": 4,
-                        "title": "Answering chimes",
-                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
-                        "start": 8,
-                        "duration": 8,
-                        "source_in": 2,
-                        "source_out": 6,
-                        "loop": true,
-                        "fade_in": 0.5,
-                        "fade_out": 1,
-                        "smooth": true,
-                        "gain": 0.35,
-                        "pan": 0.6,
-                        "muted": false
-                    }
-                ]
-            },
-            "is_default": false,
-            "review_history_count": 2,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "passed",
-                "music": "passed",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.layered_neon",
-            "kind": "template",
-            "source": "content/templates/layered_neon",
-            "source_sha256": "fc848978ea4a6711d5ae7d44b19706e5a3890fd1cdd303f7cddbb4aab47f3550",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "分层霓虹 · 音频轨道",
-                "en-US": "Layered neon audio orbit"
-            },
-            "tier": "basic",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "first-party graph; TiXL-derived renderer shaders under MIT; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.lit_ellipsoid_duet",
-            "kind": "template",
-            "source": "content/templates/lit_ellipsoid_duet",
-            "source_sha256": "f2c0f793b948fe94bc6aae91056a20f54dec3a9ca24c995b48064bc46c47f64d",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "双色光雕",
-                "en-US": "Two-light sculpture"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party graph; Godot/GLM notices supplied with runtime; outbound license pending",
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 0,
@@ -6483,167 +5959,6 @@
             }
         },
         {
-            "id": "official.templates.luminous_concerto",
-            "kind": "template",
-            "source": "content/templates/luminous_concerto",
-            "source_sha256": "61ff0c6f5983f9c2536d6b1384824706b6b5f231b7c726532c083a131eaf90a7",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "光幕协奏",
-                "en-US": "Luminous Concerto"
-            },
-            "tier": "example",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
-            "soundtrack": {
-                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
-                "title": "Luminous Concerto",
-                "gain": 0.75,
-                "loop": true,
-                "clips": [
-                    {
-                        "id": 1,
-                        "title": "Pulse foundation",
-                        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
-                        "start": 0,
-                        "duration": 16,
-                        "source_in": 0,
-                        "source_out": 8,
-                        "loop": true,
-                        "fade_in": 0.5,
-                        "fade_out": 1,
-                        "smooth": true,
-                        "gain": 0.85,
-                        "pan": 0,
-                        "muted": false
-                    },
-                    {
-                        "id": 2,
-                        "title": "Chimes entrance",
-                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
-                        "start": 4,
-                        "duration": 8,
-                        "source_in": 0,
-                        "source_out": 8,
-                        "loop": true,
-                        "fade_in": 0.5,
-                        "fade_out": 1,
-                        "smooth": true,
-                        "gain": 0.75,
-                        "pan": -0.25,
-                        "muted": false
-                    },
-                    {
-                        "id": 3,
-                        "title": "Chimes release",
-                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
-                        "start": 12,
-                        "duration": 4,
-                        "source_in": 0,
-                        "source_out": 4,
-                        "loop": true,
-                        "fade_in": 0.5,
-                        "fade_out": 1,
-                        "smooth": true,
-                        "gain": 0.6,
-                        "pan": 0.25,
-                        "muted": false
-                    },
-                    {
-                        "id": 4,
-                        "title": "Answering chimes",
-                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
-                        "start": 8,
-                        "duration": 8,
-                        "source_in": 2,
-                        "source_out": 6,
-                        "loop": true,
-                        "fade_in": 0.5,
-                        "fade_out": 1,
-                        "smooth": true,
-                        "gain": 0.35,
-                        "pan": 0.6,
-                        "muted": false
-                    }
-                ]
-            },
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.music_sculpture",
-            "kind": "template",
-            "source": "content/templates/music_sculpture",
-            "source_sha256": "56224d3126e9c7c5085f95492834cc629d2c02eae34a4c080e7661829719ddc5",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "音乐光雕",
-                "en-US": "Music sculpture"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party graph; Godot/GLM notices supplied with runtime; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.noise_portrait",
-            "kind": "template",
-            "source": "content/templates/noise_portrait",
-            "source_sha256": "0d242079962d4178323a834f11c17b55f4da1e782ff2538cac487c8f78f669e3",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "暮色流光",
-                "en-US": "Twilight flow"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
             "id": "official.templates.orbital_reliquary",
             "kind": "template",
             "source": "content/templates/orbital_reliquary",
@@ -6659,63 +5974,6 @@
                 "windows"
             ],
             "source_license_note": "First-party graph; MIT TiXL/GLM/Godot renderer and particle dependencies; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.particle_fountain",
-            "kind": "template",
-            "source": "content/templates/particle_fountain",
-            "source_sha256": "3391137b46ea23de83702f0bac0f98fc1841e88f1cf6119f1307e38bf0b47cb4",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "粒子喷泉",
-                "en-US": "Particle fountain"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.phase_a.signal_texture",
-            "kind": "template",
-            "source": "content/templates/signal_texture",
-            "source_sha256": "22aeb78cd8d743b17f36dab97e51772c0028394625a35bd6f0a7d7b327d80f0e",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "流动渐变",
-                "en-US": "Flowing gradient"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [],
-            "source_license_note": "first-party; outbound license pending",
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 0,
@@ -6746,131 +6004,6 @@
                 "android"
             ],
             "source_license_note": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.phase_plumes",
-            "kind": "template",
-            "source": "content/templates/phase_plumes",
-            "source_sha256": "f6e4c3ac154b814bac90963647615fbf5ed2b3016b62d8c57e14fa762fd99a88",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "相位羽流",
-                "en-US": "Phase Plumes"
-            },
-            "tier": "example",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "First-party Studio-authored graph and original demo music; existing attributed renderer adapters; outbound license pending",
-            "soundtrack": {
-                "gain": 1.0,
-                "loop": true,
-                "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec",
-                "title": "resonance_demo.wav"
-            },
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.physics_pile",
-            "kind": "template",
-            "source": "content/templates/physics_pile",
-            "source_sha256": "11d089b69074263f6eb7e9e3ca75453cb5c29304dff8a98c4c43d19dc39443dd",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "方块堆积",
-                "en-US": "Falling block pile"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.physics_rain",
-            "kind": "template",
-            "source": "content/templates/physics_rain",
-            "source_sha256": "650064f885e7e1d565b116ff35297c186d8a88cc3457c9da97d8c5665d2e25dd",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "弹跳光粒",
-                "en-US": "Bouncing light rain"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.point_lattice",
-            "kind": "template",
-            "source": "content/templates/point_lattice",
-            "source_sha256": "f41ce47d867a936c60212665fb27f2c03f9858da30c086fc83fa43e9be299a4e",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "旋转光点阵",
-                "en-US": "Rotating light lattice"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 0,
@@ -6986,107 +6119,6 @@
             }
         },
         {
-            "id": "official.templates.porcelain_pendulum",
-            "kind": "template",
-            "source": "content/templates/porcelain_pendulum",
-            "source_sha256": "6ce6205001ea20cad1536449897d57d8cdd42c5c0c1a9d468c9758dd2324bc9f",
-            "version": "0.3.0",
-            "titles": {
-                "zh-CN": "瓷光钟摆",
-                "en-US": "Porcelain Pendulum"
-            },
-            "tier": "basic",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
-            "soundtrack": {
-                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
-                "title": "Luminous Concerto",
-                "gain": 0.75,
-                "loop": true,
-                "clips": [
-                    {
-                        "id": 1,
-                        "title": "Pulse foundation",
-                        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
-                        "start": 0,
-                        "duration": 16,
-                        "source_in": 0,
-                        "source_out": 8,
-                        "loop": true,
-                        "fade_in": 0.5,
-                        "fade_out": 1,
-                        "smooth": true,
-                        "gain": 0.85,
-                        "pan": 0,
-                        "muted": false
-                    },
-                    {
-                        "id": 2,
-                        "title": "Chimes entrance",
-                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
-                        "start": 4,
-                        "duration": 8,
-                        "source_in": 0,
-                        "source_out": 8,
-                        "loop": true,
-                        "fade_in": 0.5,
-                        "fade_out": 1,
-                        "smooth": true,
-                        "gain": 0.75,
-                        "pan": -0.25,
-                        "muted": false
-                    },
-                    {
-                        "id": 3,
-                        "title": "Chimes release",
-                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
-                        "start": 12,
-                        "duration": 4,
-                        "source_in": 0,
-                        "source_out": 4,
-                        "loop": true,
-                        "fade_in": 0.5,
-                        "fade_out": 1,
-                        "smooth": true,
-                        "gain": 0.6,
-                        "pan": 0.25,
-                        "muted": false
-                    },
-                    {
-                        "id": 4,
-                        "title": "Answering chimes",
-                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
-                        "start": 8,
-                        "duration": 8,
-                        "source_in": 2,
-                        "source_out": 6,
-                        "loop": true,
-                        "fade_in": 0.5,
-                        "fade_out": 1,
-                        "smooth": true,
-                        "gain": 0.35,
-                        "pan": 0.6,
-                        "muted": false
-                    }
-                ]
-            },
-            "is_default": false,
-            "review_history_count": 3,
-            "stale_review_count": 1,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "passed",
-                "music": "passed",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
             "id": "official.templates.prismatic_lotus",
             "kind": "template",
             "source": "content/templates/prismatic_lotus",
@@ -7102,129 +6134,6 @@
                 "windows"
             ],
             "source_license_note": "First-party graph; MIT TiXL / Material Maker shader adaptations; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.prismatic_title",
-            "kind": "template",
-            "source": "content/templates/prismatic_title",
-            "source_sha256": "a73485cb638342d08c22509535c2cb478145ed20fa4d8c57db3f334b537ed989",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "棱镜星莲",
-                "en-US": "Prismatic Title"
-            },
-            "tier": "example",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "First-party Studio-authored graph and original demo music; existing attributed renderer adapters; outbound license pending; unmodified Noto Sans CJK SC under SIL OFL 1.1, font and notice embedded",
-            "soundtrack": {
-                "gain": 1.0,
-                "loop": true,
-                "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec",
-                "title": "resonance_demo.wav"
-            },
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.pulse_component",
-            "kind": "template",
-            "source": "content/templates/pulse_component",
-            "source_sha256": "ddece3e6154655beecf78de31b34b0103150df0f78f0648678a05d7487b42673",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "呼吸卡片组件",
-                "en-US": "Pulse card component"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.pulse_square",
-            "kind": "template",
-            "source": "content/templates/pulse_square",
-            "source_sha256": "5d028bebadbcd40a3671a4928f1facfacccb8f905febf458ce3b51e83e22e15b",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "方形脉冲",
-                "en-US": "Square pulse"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.resonance_arrangement",
-            "kind": "template",
-            "source": "content/templates/resonance_arrangement",
-            "source_sha256": "d797badfbe34536f21420dc28806611c3fcc7cfe7157a46f7885f8b3c6e84de5",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "星门编排",
-                "en-US": "Resonance Arrangement"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "First-party arrangement of Resonance Live components; existing attributed effects; outbound license pending",
             "soundtrack": null,
             "is_default": false,
             "review_history_count": 0,
@@ -7398,160 +6307,6 @@
             }
         },
         {
-            "id": "official.templates.resonant_armillary",
-            "kind": "template",
-            "source": "content/templates/resonant_armillary",
-            "source_sha256": "02f62d723cbf926f2e7e7110cad1dc2d61d47c8d2bcc20c07286ab0dbceded9b",
-            "version": "0.2.0",
-            "titles": {
-                "zh-CN": "共振星仪",
-                "en-US": "Resonant Armillary"
-            },
-            "tier": "example",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "First-party Studio-authored graph and original demo music; existing attributed renderer adapters; outbound license pending",
-            "soundtrack": {
-                "gain": 1.0,
-                "loop": true,
-                "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec",
-                "title": "resonance_demo.wav"
-            },
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.rotating_card",
-            "kind": "template",
-            "source": "content/templates/rotating_card",
-            "source_sha256": "9a496d3b490fe3352432a4eaf8f36361950d80666dccd5e7803b6c2441b3a6db",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "旋转渐变卡片",
-                "en-US": "Rotating gradient card"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.rotating_cube",
-            "kind": "template",
-            "source": "content/templates/rotating_cube",
-            "source_sha256": "38b455aa4dc9cc35ac3e474d673ad44199a742c5a45045ac2f4061f5450c5969",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "旋转立方体",
-                "en-US": "Rotating cube"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party graph; Godot/GLM notices supplied with runtime; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.scene_particle_echo",
-            "kind": "template",
-            "source": "content/templates/scene_particle_echo",
-            "source_sha256": "9182cd96eac9612339dc062cc97b5df18cb67ca9e4502c2f6ba16ed29705dc18",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "光雕粒子回响",
-                "en-US": "Sculpture particle echo"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party graph; Godot/GLM notices supplied with runtime; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.shared_pulse",
-            "kind": "template",
-            "source": "content/templates/shared_pulse",
-            "source_sha256": "55edb0ae74adf726c03ea1d8ce168be3ceb8434be48f0764bc4106d17d919c00",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "同步呼吸",
-                "en-US": "Shared pulse"
-            },
-            "tier": "component",
-            "declared_maturity": "experimental",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "first-party; outbound license pending",
-            "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
             "id": "official.templates.sonic_enamel",
             "kind": "template",
             "source": "content/templates/sonic_enamel",
@@ -7582,40 +6337,6 @@
             }
         },
         {
-            "id": "official.templates.spectral_corolla",
-            "kind": "template",
-            "source": "content/templates/spectral_corolla",
-            "source_sha256": "df391871036b954b5ba77383af1bcf42c8926f984914ea24214c8d99d23be1ba",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "频域花冠",
-                "en-US": "Spectral Corolla"
-            },
-            "tier": "example",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "First-party Studio-authored graph and original demo music; existing attributed renderer adapters; outbound license pending; unmodified Noto Sans CJK SC under SIL OFL 1.1, font and notice embedded",
-            "soundtrack": {
-                "gain": 1.0,
-                "loop": true,
-                "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec",
-                "title": "resonance_demo.wav"
-            },
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
             "id": "official.templates.spectral_foundry",
             "kind": "template",
             "source": "content/templates/spectral_foundry",
@@ -7633,41 +6354,6 @@
             ],
             "source_license_note": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
             "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.spectral_glaze",
-            "kind": "template",
-            "source": "content/templates/spectral_glaze",
-            "source_sha256": "5f954c1769362b0e69fd27976db67c7994b64bb9ec05ff341903f39c595d8e5d",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "光谱釉球",
-                "en-US": "Spectral Glaze"
-            },
-            "tier": "example",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows",
-                "android"
-            ],
-            "source_license_note": "First-party Studio-authored graph and original demo music; existing attributed renderer adapters; outbound license pending",
-            "soundtrack": {
-                "gain": 1.0,
-                "loop": true,
-                "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec",
-                "title": "resonance_demo.wav"
-            },
             "is_default": false,
             "review_history_count": 0,
             "stale_review_count": 0,
@@ -7858,40 +6544,6 @@
             ],
             "source_license_note": "First-party composition; existing attributed scene/math/BRDF adapters; outbound license pending",
             "soundtrack": null,
-            "is_default": false,
-            "review_history_count": 0,
-            "stale_review_count": 0,
-            "quality_accepted": false,
-            "user_acceptance": "not_recorded",
-            "review": {
-                "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
-            }
-        },
-        {
-            "id": "official.templates.vector_resonance",
-            "kind": "template",
-            "source": "content/templates/vector_resonance",
-            "source_sha256": "bbed627729ced638a2872f5bf90ad1bc2f9f9d7a472f4d6b2fd0c9b3f09c705c",
-            "version": "0.1.0",
-            "titles": {
-                "zh-CN": "矢量共振",
-                "en-US": "Vector Resonance"
-            },
-            "tier": "example",
-            "declared_maturity": "visual-review-pending",
-            "declared_players": [
-                "windows"
-            ],
-            "source_license_note": "First-party Studio-authored graph and original demo music; existing attributed renderer adapters; outbound license pending",
-            "soundtrack": {
-                "gain": 1.0,
-                "loop": true,
-                "sha256": "f0185471aedfd7561f148cdeb087cc417b5519ed7edd82f0d6c34933c5fd5cec",
-                "title": "resonance_demo.wav"
-            },
             "is_default": false,
             "review_history_count": 0,
             "stale_review_count": 0,
