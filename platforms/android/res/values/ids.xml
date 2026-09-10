@@ -1,0 +1,9 @@
+<resources>
+    <item name="player_choose_effect" type="id" />
+    <item name="player_pause" type="id" />
+    <item name="player_queue" type="id" />
+    <item name="player_program" type="id" />
+    <item name="player_fullscreen" type="id" />
+    <item name="player_music_position" type="id" />
+    <item name="player_music_time" type="id" />
+</resources>

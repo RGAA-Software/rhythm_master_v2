@@ -19,6 +19,8 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 APP = 'org.rhythmmaster.player'
 
+from android_view_bounds import center, read_views
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -104,7 +106,7 @@ def main():
             query = min(words, key=lambda word: (
                 sum(word in item['titles']['en-US'].lower() for item in catalog.values()),
                 -len(word)))
-            tap(width * .675, height * .134)  # Existing landscape Choose effect button.
+            tap(*center(read_views(adb), 'player_choose_effect'))
             picker = hierarchy(name + '-picker')
             field = next((node for node in picker.iter('node')
                           if node.get('resource-id') == 'android:id/search_src_text'), None)
@@ -129,20 +131,20 @@ def main():
             current_width, current_height = shot(name + '-playing')
             if current_width <= current_height or entry['canvas']['width'] <= entry['canvas']['height']:
                 raise RuntimeError('Accepted authored canvas did not select landscape presentation')
-            tap(width * .783, height * .134)  # Pause for a stable title/status observation.
+            tap(*center(read_views(adb), 'player_pause'))  # Pause for a stable title/status observation.
             # Frame statistics keep changing even while paused, so the stock
             # uiautomator dump never reaches idle on this window. Preserve
             # screenshots for explicit review instead of accepting stale XML.
             time.sleep(.7)
             shot(name + '-paused')
-            tap(width * .783, height * .134)  # Resume before the next effect selection.
+            tap(*center(read_views(adb), 'player_pause'))  # Resume before the next effect selection.
             time.sleep(1)
             shot(name + '-resumed')
             record['works'][name] = {'title': title, 'package_sha256': entry['sha256'],
                                      'canvas': entry['canvas'],
                                      'catalog_selection': 'passed', 'presentation_review': 'pending'}
             print('Selected; review title, output, 16-second duration and pause/resume screenshots:', name, flush=True)
-        tap(width * .783, height * .134)
+        tap(*center(read_views(adb), 'player_pause'))
         record['saved_program_unchanged'] = saved() == before
         if not record['saved_program_unchanged']:
             raise RuntimeError('Read-only effect selection changed the saved program')

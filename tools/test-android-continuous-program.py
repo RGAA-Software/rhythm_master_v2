@@ -20,6 +20,8 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 APP = "org.rhythmmaster.player"
 
+from android_view_bounds import center, read_views
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -87,14 +89,8 @@ def main():
         raise RuntimeError("Prepared scene Go unavailable")
 
     def main_action(size, action):
-        width, height = size
-        if width > height:
-            tap(width * (.675 if action == "queue" else .783), height * (.458 if action == "queue" else .134))
-        else:
-            # Measured 440dpi portrait layout: 48dp bottom navigation inset,
-            # 240dp controls; first-row center 24dp and queue-row center 142dp.
-            top = height - 792
-            tap(width / (6 if action == "queue" else 2), top + (390 if action == "queue" else 66))
+        name = "player_queue" if action == "queue" else "player_pause"
+        tap(*center(read_views(adb), name))
 
     original = saved()
     (output / "program-before.json").write_bytes(original)

@@ -151,6 +151,7 @@ public final class PlayerActivity extends SDLActivity {
         music.addView(repeat_, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         controls.addView(music);
         music_position_ = new SeekBar(this);
+        music_position_.setId(R.id.player_music_position);
         music_position_.setMax(10000);
         music_position_.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar bar, int progress, boolean fromUser) {}
@@ -163,6 +164,7 @@ public final class PlayerActivity extends SDLActivity {
         });
         controls.addView(music_position_);
         music_time_ = new TextView(this);
+        music_time_.setId(R.id.player_music_time);
         music_time_.setTextColor(0xffeeeeee);
         controls.addView(music_time_);
         render_quality_ = Math.max(0, Math.min(2, getSharedPreferences("player", MODE_PRIVATE)
@@ -265,6 +267,11 @@ public final class PlayerActivity extends SDLActivity {
     private void AddButton(LinearLayout row, int label, Runnable action) {
         Button button = new Button(this);
         button.setText(label);
+        if (label == R.string.choose_effect) button.setId(R.id.player_choose_effect);
+        else if (label == R.string.pause_resume) button.setId(R.id.player_pause);
+        else if (label == R.string.scene_queue) button.setId(R.id.player_queue);
+        else if (label == R.string.program_title) button.setId(R.id.player_program);
+        else if (label == R.string.fullscreen) button.setId(R.id.player_fullscreen);
         button.setOnClickListener(view -> action.run());
         row.addView(button, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
     }
