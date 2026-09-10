@@ -28,11 +28,11 @@ int main(int argc, char** argv) {
         const std::filesystem::path directory(argv[1]);
         performance::List list("舞台 / Stage");
         const performance::WorkReference work{performance::WorkSource::kBuiltin,
-                                              "official.templates.luminous_concerto",
-                                              "0.1.0",
+                                              "official.templates.aureate_vortex",
+                                              "0.4.0",
                                               {std::string(64, 'a')},
                                               performance::VersionPolicy::kCurrentBuiltin};
-        Check(list.Append({0, work, "光幕协奏", 2, parameters::Quantization::kBar}) == 1 &&
+        Check(list.Append({0, work, "鎏光流涡", 2, parameters::Quantization::kBar}) == 1 &&
                       list.Append({0, work, "Encore", 0, parameters::Quantization::kBeat}) == 2,
               "cannot construct test list");
         Check(list.Move(2, 0), "cannot reorder");

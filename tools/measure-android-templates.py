@@ -10,7 +10,7 @@ import uuid
 from content_identity import verify_package_source
 
 ROOT = Path(__file__).resolve().parents[1]
-NAMES = ("layered_neon", "aurora_clouds", "firefly_garden", "prismatic_lotus", "stellar_currents", "orbital_reliquary", "resonance_gate", "resonance_live")
+NAMES = ("aureate_vortex", "porcelain_bloom", "stratified_ink", "lumen_corridor", "prismatic_lotus", "stellar_currents", "resonance_gate", "resonance_live")
 
 
 def main():

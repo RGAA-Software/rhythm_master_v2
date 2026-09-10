@@ -12,7 +12,7 @@ def write_json(path, value):
 
 
 def original_arrangement(destination):
-    source = ROOT / 'content/templates/luminous_concerto'
+    source = ROOT / 'content/templates/aureate_vortex'
     original = json.loads((source / 'manifest.json').read_text(encoding='utf-8'))
     soundtrack = original['soundtrack']
     used = {clip['sha256'] for clip in soundtrack['clips']}

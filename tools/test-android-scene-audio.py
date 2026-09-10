@@ -92,8 +92,8 @@ def main():
 
     original = saved()
     program = json.loads(original)
-    if not program["entries"] or program["entries"][0]["work"]["content_id"] != "official.templates.luminous_concerto":
-        raise ValueError("Saved program must begin with the existing Concerto acceptance fixture")
+    if not program["entries"] or program["entries"][0]["work"]["content_id"] != "official.templates.aureate_vortex":
+        raise ValueError("Saved program must begin with the current Aureate Vortex acceptance fixture")
     if not args.hard_cut_head and program["entries"][0]["transition_seconds"] != 1:
         raise ValueError("The normal audio fade fixture requires a one-second head transition")
     (output / "program-before.json").write_bytes(original)

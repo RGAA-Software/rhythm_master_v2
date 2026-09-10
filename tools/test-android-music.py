@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True)
-    parser.add_argument('--effect', default='luminous_concerto')
+    parser.add_argument('--effect', default='aureate_vortex')
     parser.add_argument('--expected-nodes', type=int, required=True)
     parser.add_argument('--adb', type=Path, default=Path('D:/android/sdk/platform-tools/adb.exe'))
     parser.add_argument('--build', type=Path, default=ROOT / 'out/android-arm64-release')

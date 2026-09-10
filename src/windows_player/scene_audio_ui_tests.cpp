@@ -210,7 +210,7 @@ void Run(const std::filesystem::path& root, const std::filesystem::path& fixture
 }
 void Program(const std::filesystem::path& root, const std::filesystem::path& fixture) {
     const auto packages = fixture.parent_path() / "content/packages";
-    const std::array names{"luminous_concerto", "scene_particle_echo", "chromatic_loom"};
+    const std::array names{"aureate_vortex", "porcelain_bloom", "chromatic_loom"};
     player::WorkLibrary library(fixture / "mixed-program-works");
     std::vector<player::ResolvedWork> works;
     std::vector<render::Extent> canvases;
@@ -231,7 +231,7 @@ void Program(const std::filesystem::path& root, const std::filesystem::path& fix
     auto renderer = host.CreateRenderer();
     auto font = host.CreateFontTexture(renderer);
     player::SceneDeck deck;
-    deck.Open(packages / "luminous_concerto.rhythmpack");
+    deck.Open(packages / "aureate_vortex.rhythmpack");
     deck.EnableAudioTransitions(true);
     audio_ui::AudioPanel audio;
     audio.SetVolume(0);
@@ -293,8 +293,8 @@ void Program(const std::filesystem::path& root, const std::filesystem::path& fix
                             deck.Current().Canvas() == canvases[accepted] &&
                             queue.Items().size() == works.size() - accepted - 1,
                     "mixed program title, canvas and remaining row identity");
-            Require(frame.audio_synchronized_ == (accepted != 1),
-                    "visual-only work preserves existing music");
+            Require(frame.audio_synchronized_,
+                    "advanced program work did not synchronize its bound music");
             if (const auto track = deck.Current().Soundtrack())
                 audio.AdoptSoundtrack(*track, input.file_.transition_.id_);
             ticket.emplace(renderer.RequestReadback(frame.output_.final_));

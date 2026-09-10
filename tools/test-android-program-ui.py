@@ -140,7 +140,7 @@ def main():
             snapshot = baseline
         else:
             startup()
-            for effect in ("luminous_concerto", "crystal_choir"):
+            for effect in ("aureate_vortex", "crystal_choir"):
                 action("program_add")
                 title = json.loads((ROOT / "content/templates" / effect / "manifest.json").read_text(encoding="utf-8"))["titles"][args.locale]
                 root = hierarchy("effect-picker")
@@ -160,7 +160,7 @@ def main():
             (output / "saved.json").write_text(json.dumps(snapshot, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
             assert len(snapshot["entries"]) == count + 3, "touch additions not persisted"
             first, duplicate, second = snapshot["entries"][-3:]
-            assert first["work"]["content_id"] == "official.templates.luminous_concerto"
+            assert first["work"]["content_id"] == "official.templates.aureate_vortex"
             assert second["work"]["content_id"] == "official.templates.crystal_choir"
             assert duplicate["work"] == second["work"] and len({first["id"], duplicate["id"], second["id"]}) == 3
             assert duplicate["id"] > second["id"], "Move up did not reorder duplicate"
@@ -173,7 +173,7 @@ def main():
             shot("reopened")
         startup()
         assert saved() == snapshot, "restart changed persisted program"
-        mixed = ("luminous_concerto", "scene_particle_echo", "chromatic_loom")
+        mixed = ("aureate_vortex", "porcelain_bloom", "chromatic_loom")
         if args.mixed_draft:
             for _ in snapshot["entries"]:
                 action("program_remove", True)
@@ -182,9 +182,8 @@ def main():
                 root = hierarchy("choose-effect")
                 # Use actual catalog filters; synthesizing keys through the
                 # installed Chinese IME can cancel a composing search string.
-                if effect != "luminous_concerto":
-                    filter_key, value = (("catalog_shape", "portrait_effect") if effect == "scene_particle_echo"
-                                         else ("catalog_tier", "catalog_advanced"))
+                if effect != "aureate_vortex":
+                    filter_key, value = ("catalog_tier", "catalog_advanced")
                     touch(find(root, strings[filter_key]))
                     touch(find(hierarchy("catalog-filter"), strings[value]))
                 title = json.loads((ROOT / "content/templates" / effect / "manifest.json").read_text(encoding="utf-8"))["titles"][args.locale]

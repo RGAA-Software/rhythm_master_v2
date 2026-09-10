@@ -37,7 +37,7 @@ if(BUILD_TESTING)
         set_tests_properties(scene_audio_ui scene_audio_serial_ui scene_audio_serial_gpu_ui PROPERTIES FIXTURES_REQUIRED local_audio_media TIMEOUT 30 RUN_SERIAL TRUE
             ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
         add_test(NAME scene_audio_arrangement COMMAND scene_audio_ui_tests --arrangement
-            "${PROJECT_BINARY_DIR}/content/packages/luminous_concerto.rhythmpack")
+            "${PROJECT_BINARY_DIR}/content/packages/aureate_vortex.rhythmpack")
         set_tests_properties(scene_audio_arrangement PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE
             ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     endif()
@@ -57,7 +57,7 @@ if(BUILD_TESTING)
     add_test(NAME scene_queue_ui COMMAND scene_queue_ui_tests
         "${PROJECT_SOURCE_DIR}"
         "${PROJECT_BINARY_DIR}/content/packages/crystal_choir.rhythmpack"
-        "${PROJECT_BINARY_DIR}/content/packages/luminous_concerto.rhythmpack")
+        "${PROJECT_BINARY_DIR}/content/packages/aureate_vortex.rhythmpack")
     set_tests_properties(scene_queue_ui PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE
         ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     add_test(NAME windows_player_smoke COMMAND "$<TARGET_FILE_DIR:rhythm_player>/deploy/rhythm_player.exe" --smoke)

@@ -92,7 +92,7 @@ def main():
         adb("shell", "am", "force-stop", APP)
         adb("shell", "am", "start", "-n", APP + "/.PlayerActivity")
         time.sleep(4)
-        for index, name in enumerate(("phase_plumes", "scene_particle_echo", "phase_plumes")):
+        for index, name in enumerate(("aureate_vortex", "porcelain_bloom", "aureate_vortex")):
             tag = str(index) + "-" + name
             entry = catalog[name]
             click("player_choose_effect")

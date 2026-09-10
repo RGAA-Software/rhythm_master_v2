@@ -251,8 +251,8 @@ if(BUILD_TESTING)
     set_tests_properties(scene_replacement_gpu PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE ENVIRONMENT_MODIFICATION
         "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     add_test(NAME scene_creation_gpu COMMAND scene_compositor_gpu_tests
-        "${PROJECT_BINARY_DIR}/content/packages/luminous_concerto.rhythmpack"
-        "${PROJECT_BINARY_DIR}/content/packages/ink_tide.rhythmpack")
+        "${PROJECT_BINARY_DIR}/content/packages/aureate_vortex.rhythmpack"
+        "${PROJECT_BINARY_DIR}/content/packages/porcelain_bloom.rhythmpack")
     set_tests_properties(scene_creation_gpu PROPERTIES TIMEOUT 60 RUN_SERIAL TRUE ENVIRONMENT_MODIFICATION
         "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     set_tests_properties(scene_compositor_gpu PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE ENVIRONMENT_MODIFICATION
@@ -314,7 +314,7 @@ if(BUILD_TESTING)
             "${PROJECT_BINARY_DIR}/large-music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/time-section-studio" --sections)
         set_tests_properties(time_section_studio_gpu PROPERTIES FIXTURES_REQUIRED large_music_pcm TIMEOUT 60 RUN_SERIAL TRUE)
         add_test(NAME arrangement_studio_gpu COMMAND soundtrack_studio_gpu_tests
-            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/resonance_arrangement"
+            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/resonance_live"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/arrangement-studio")
         set_tests_properties(arrangement_studio_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 60 RUN_SERIAL TRUE)
         add_test(NAME harmonic_city_studio_gpu COMMAND soundtrack_studio_gpu_tests
@@ -325,7 +325,7 @@ if(BUILD_TESTING)
             "${PROJECT_SOURCE_DIR}/tools/create-music-fixture.py"
             --output "${PROJECT_BINARY_DIR}/calibration-music-fixtures" --tones --quality)
         set_tests_properties(calibration_music_fixture PROPERTIES FIXTURES_SETUP calibration_music_pcm TIMEOUT 60)
-        foreach(work ink_tide chromatic_loom porcelain_pendulum resonant_arcade)
+        foreach(work aureate_vortex chromatic_loom porcelain_bloom resonant_arcade)
             add_test(NAME calibration_${work}_replacement_gpu COMMAND soundtrack_studio_gpu_tests
                 "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/${work}"
                 "${PROJECT_BINARY_DIR}/calibration-music-fixtures/quiet.wav"
@@ -341,19 +341,19 @@ if(BUILD_TESTING)
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/export-ui")
         set_tests_properties(export_ui_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME arrangement_export_ui_gpu COMMAND export_ui_gpu_tests
-            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/resonance_arrangement"
+            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/resonance_live"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/arrangement-export")
         set_tests_properties(arrangement_export_ui_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME harmonic_city_export_ui_gpu COMMAND export_ui_gpu_tests
             "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/harmonic_city"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/harmonic-city-export")
         set_tests_properties(harmonic_city_export_ui_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
-        add_test(NAME ink_tide_export_ui_gpu COMMAND export_ui_gpu_tests
-            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/ink_tide"
-            --arranged "${PROJECT_BINARY_DIR}/ink-tide-export-ui")
-        set_tests_properties(ink_tide_export_ui_gpu PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE)
+        add_test(NAME aureate_vortex_export_ui_gpu COMMAND export_ui_gpu_tests
+            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/aureate_vortex"
+            --arranged "${PROJECT_BINARY_DIR}/aureate-vortex-export-ui")
+        set_tests_properties(aureate_vortex_export_ui_gpu PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME export_failure_ui_gpu COMMAND export_ui_gpu_tests
-            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/ink_tide"
+            "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/aureate_vortex"
             --arranged "${PROJECT_BINARY_DIR}/export-failure-ui" --existing-output)
         set_tests_properties(export_failure_ui_gpu PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE)
         add_executable(export_gpu_tests tests/export_gpu_tests.cpp)
@@ -406,7 +406,7 @@ if(BUILD_TESTING)
             "${PROJECT_BINARY_DIR}/export-gpu")
         set_tests_properties(export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME arrangement_export_gpu COMMAND export_gpu_tests
-            "${PROJECT_BINARY_DIR}/content/packages/resonance_arrangement.rhythmpack"
+            "${PROJECT_BINARY_DIR}/content/packages/resonance_live.rhythmpack"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav"
             "${PROJECT_BINARY_DIR}/arrangement-export-core" 480)
         set_tests_properties(arrangement_export_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
@@ -442,8 +442,8 @@ if(BUILD_TESTING)
             --fixtures "${PROJECT_BINARY_DIR}/music-fixtures" --output "${PROJECT_BINARY_DIR}/music-gpu-captures")
         set_tests_properties(music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME luminous_event_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
-            --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/luminous_concerto.rhythmpack"
-            --expected-nodes 104 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/aureate_vortex.rhythmpack"
+            --expected-nodes 161 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/luminous-event-music-captures")
         set_tests_properties(luminous_event_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME resonance_live_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"

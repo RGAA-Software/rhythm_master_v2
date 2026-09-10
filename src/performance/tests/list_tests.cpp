@@ -23,11 +23,11 @@ int main() {
     using namespace rhythm::performance;
     try {
         WorkReference work{WorkSource::kBuiltin,
-                           "official.templates.luminous_concerto",
-                           "0.1.0",
+                           "official.templates.aureate_vortex",
+                           "0.4.0",
                            {std::string(64, 'a')},
                            VersionPolicy::kCurrentBuiltin};
-        ListEntry entry{0, work, "光幕协奏", 1.5, rhythm::parameters::Quantization::kBar};
+        ListEntry entry{0, work, "鎏光流涡", 1.5, rhythm::parameters::Quantization::kBar};
         List list("演出");
         Check(list.Append(entry) == 1 && list.Append(entry) == 2 && list.Append(entry) == 3,
               "repeated works must have distinct entry identities");

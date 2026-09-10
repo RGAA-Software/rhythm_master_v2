@@ -12,8 +12,11 @@ import content_identity
 
 
 ROOT = Path(__file__).resolve().parents[1]
-FEATURED = ("aureate_vortex", "porcelain_bloom", "stratified_ink", "lumen_corridor", "luminous_concerto", "crystal_choir", "phase_loom", "torque_garden", "aurora_braid", "sonic_enamel", "spectral_nebula", "spectral_foundry", "resonance_gate", "harmonic_city", "resonance_live", "resonance_arrangement",
-            "prismatic_lotus", "stellar_currents", "music_sculpture", "scene_particle_echo")
+FEATURED = ("aureate_vortex", "aurora_braid", "chromatic_loom", "crystal_choir", "harmonic_city",
+            "lumen_corridor", "orbital_reliquary", "phase_loom", "porcelain_bloom",
+            "prismatic_lotus", "resonance_gate", "resonance_live", "resonant_arcade",
+            "sonic_enamel", "spectral_foundry", "spectral_nebula", "stellar_currents",
+            "stratified_ink", "torque_garden")
 
 
 def sources(package_directory):

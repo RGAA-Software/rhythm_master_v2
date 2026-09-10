@@ -94,11 +94,11 @@ int main(int argc, char* argv[]) {
         Check(studio.HasValidPlan(), "default Studio output not ready");
         bool timeline_open = false;
         for (const std::string name :
-             {"ink_tide", "chromatic_loom", "crystal_choir", "luminous_concerto", "spectral_glaze",
-              "phase_plumes", "porcelain_pendulum", "resonant_arcade", "aureate_vortex",
-              "porcelain_bloom", "stratified_ink", "lumen_corridor"}) {
-            if (controls && name != "ink_tide" && name != "chromatic_loom" &&
-                name != "porcelain_pendulum" && name != "resonant_arcade" &&
+             {"chromatic_loom", "crystal_choir", "harmonic_city", "phase_loom", "resonance_gate",
+              "resonance_live", "resonant_arcade", "sonic_enamel", "spectral_foundry",
+              "aureate_vortex", "porcelain_bloom", "stratified_ink", "lumen_corridor"}) {
+            if (controls && name != "chromatic_loom" && name != "resonance_gate" &&
+                name != "resonant_arcade" &&
                 name != "aureate_vortex" && name != "porcelain_bloom" && name != "stratified_ink" &&
                 name != "lumen_corridor")
                 continue;
