@@ -98,8 +98,47 @@ def corridor():
     camera = node('scene.camera', 8700, 800,
                   dict(eye_x=eye_x, eye_y=eye_y, eye_z=eye_z, target_z=target_z),
                   target_x=-4.5, target_y=1.5, field_of_view=62, near_plane=.1, far_plane=70)
-    output = finish(graph, render(graph, stage, camera), controls[2], .13)
+    image = render(graph, stage, camera)
+    # Camera travel is continuous and owns the scene. Passing particulate light
+    # layers make the long corridor legible at every energy level.
+    low_onset = node('event.audio_onset', 8850, 1700, threshold=.013, band_first=0, band_last=20)
+    low_envelope = node('event.envelope', 9200, 1700, dict(events=low_onset), attack=.004,
+                        decay=.055, sustain=.2, duration=.06, release=.18)
+    mid_onset = node('event.audio_onset', 8850, 2000, threshold=.010, band_first=21, band_last=41)
+    mid_envelope = node('event.envelope', 9200, 2000, dict(events=mid_onset), attack=.004,
+                        decay=.045, sustain=.18, duration=.05, release=.14)
+    high_onset = node('event.audio_onset', 8850, 2300, threshold=.009, band_first=42, band_last=62)
+    high_envelope = node('event.envelope', 9200, 2300, dict(events=high_onset), attack=.002,
+                         decay=.025, sustain=.15, duration=.035, release=.1)
+    low_rate = node('scalar.expression', 9550, 1700, dict(a=bands[0], b=low_envelope),
+                    expression='.20 + a * .24 + b * .5')
+    mid_rate = node('scalar.expression', 9550, 1860, dict(a=bands[1], b=mid_envelope),
+                    expression='.24 + a * .34 + b * .55')
+    high_rate = node('scalar.expression', 9550, 2020, dict(a=bands[2], b=high_envelope),
+                     expression='.18 + a * .24 + b * .85')
+    spark_emission = node('scalar.expression', 9900, 1700, dict(a=low_rate, b=mid_rate, c=high_rate),
+                          expression='a + b + c')
+    forward_flow = node('scalar.expression', 9550, 2000, dict(a=bands[1], b=mid_envelope),
+                        expression='.024 + a * .09 + b * .18')
+    drift = node('scalar.expression', 9900, 1700, dict(time=clock, a=bands[0]),
+                 expression='time * -34.0 - a * 8.0')
+    for index, (capacity, size) in enumerate(((16384, .0028), (4096, .009))):
+        row = 2750 + index * 700
+        particles = node('gpu.particles', 10250, row,
+                         dict(emission=spark_emission, flow_strength=forward_flow),
+                         particle_capacity=capacity, seed=606 + index * 77, initial_fill=0,
+                         emission_rate=600 if index == 0 else 170, lifetime=6 if index == 0 else 2.8,
+                         emitter_radius=1.4, particle_speed=.075 if index == 0 else .18, drag=.13,
+                         gravity_y=.04 if index == 0 else -.03, flow_frequency=8 if index == 0 else 18,
+                         flow_evolution=.18 if index == 0 else .4, point_size=size,
+                         color_a=(.42, .68, 1, .3) if index == 0 else (1, .08, .34, .8),
+                         color_b=(1, .08, .3, .7) if index == 0 else (.72, .86, 1, 1))
+        particles = node('gpu.map', 10600, row, dict(points=particles, rotation=drift))
+        rendered = node('gpu.render', 10950, row, dict(points=particles), point_blend=1, texture_precision=2)
+        image = node('texture.composite', 11300, row, dict(a=image, b=rendered), composite_mode=1,
+                     amount=1, texture_precision=0)
+    output = finish(graph, image, controls[2], .18)
     publish(name, ('光门空间', 'Lumen Corridor'),
-            ('低机位持续向前穿行玫红与冷白光廊并缓慢横移，门段在镜头后方回收，形成无尽前进感；地面石台与倒影提供视差，静音仍前进。低频展开门翼、中频抬升横梁、高频增强灯带；倒影采用本场景镜像几何，不是通用屏幕空间反射。',
-             'A continuously advancing low camera travels through recycled magenta/white architecture with lateral parallax; movement continues in silence. A mirrored authored scene produces planar floor reflections. Bass widens gates, mids raise beams, highs light strips; not generic SSR.'),
-            graph, output, controls, assets)
+            ('低机位持续向前穿行玫红与冷白光廊并缓慢横移，门段在镜头后方回收，形成无尽前进感；双层光尘从空场按每秒速率穿过镜头前景。低频增加空间能量，中频引导前进流向，高频 onset 提高闪点生成速率；静音仍前进，不加入不合场景的刚体碎片。',
+             'A low camera continuously advances through recycled magenta/white architecture with lateral parallax. Dual light dust starts empty and passes through the foreground at sustained per-second rates. Bass raises spatial energy, mids steer forward flow and treble onsets raise spark rate; silence retains travel, without unsuitable rigid debris.'),
+            graph, output, controls, assets, compute=True, schema_version=7)

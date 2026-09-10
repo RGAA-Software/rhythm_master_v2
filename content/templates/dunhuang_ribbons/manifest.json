@@ -112,7 +112,7 @@
         ]
     },
     "descriptions": {
-        "zh-CN": "三层飘带沿独立螺旋路径持续飞行，洞窟暖光、49152 粒子星尘、16384 前景流光和会碰撞翻滚的金箔碎片形成纵深；镜头持续环绕。低中高频分别增强飘带、流场、闪点与碎片释放，静音仍持续流动。",
-        "en-US": "Three independently moving flying ribbons, warm grotto lighting, a 49,152-particle dust current, 16,384 foreground sparks and colliding tumbling gold leaves create depth under a continuously orbiting camera. Music modulates ribbons, flow, spark energy and fragment release while motion continues in silence."
+        "zh-CN": "三层飘带沿独立螺旋路径持续飞行并随频段呼吸缩放；星尘、流光和金箔都从空场按每秒速率持续生成。低频提高少量金箔刚体的重力，中频改变流向，高频 onset 短促提高生成速率；静音仍持续流动，不使用整团 burst。",
+        "en-US": "Three independently moving flying ribbons continuously breathe with music bands. Dust, sparks and gold leaves start empty and spawn continuously at per-second rates. Bass weights the limited colliding gold leaves, mids redirect flow and treble onsets briefly raise rate; there are no whole-population bursts."
     }
 }

@@ -1,6 +1,6 @@
-schema_version: 5
+schema_version: 7
 id: "official-porcelain-bloom"
-output: 205
+output: 226
 canvas { width: 1280 height: 720 }
 nodes { id: 1 type_key: "control.scalar" schema_version: 1
     properties { key: "value" value { scalar: 1 } }
@@ -698,20 +698,129 @@ nodes { id: 199 type_key: "texture.linearize" schema_version: 1
 nodes { id: 200 type_key: "texture.composite" schema_version: 1
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 201 type_key: "texture.blur" schema_version: 1
+nodes { id: 201 type_key: "event.audio_onset" schema_version: 1
+    properties { key: "threshold" value { scalar: 0.013 } }
+    properties { key: "band_first" value { scalar: 0 } }
+    properties { key: "band_last" value { scalar: 20 } }
+}
+nodes { id: 202 type_key: "event.envelope" schema_version: 1
+    properties { key: "attack" value { scalar: 0.004 } }
+    properties { key: "decay" value { scalar: 0.06 } }
+    properties { key: "sustain" value { scalar: 0.2 } }
+    properties { key: "duration" value { scalar: 0.06 } }
+    properties { key: "release" value { scalar: 0.2 } }
+}
+nodes { id: 203 type_key: "event.audio_onset" schema_version: 1
+    properties { key: "threshold" value { scalar: 0.01 } }
+    properties { key: "band_first" value { scalar: 21 } }
+    properties { key: "band_last" value { scalar: 41 } }
+}
+nodes { id: 204 type_key: "event.envelope" schema_version: 1
+    properties { key: "attack" value { scalar: 0.004 } }
+    properties { key: "decay" value { scalar: 0.045 } }
+    properties { key: "sustain" value { scalar: 0.2 } }
+    properties { key: "duration" value { scalar: 0.05 } }
+    properties { key: "release" value { scalar: 0.15 } }
+}
+nodes { id: 205 type_key: "event.audio_onset" schema_version: 1
+    properties { key: "threshold" value { scalar: 0.009 } }
+    properties { key: "band_first" value { scalar: 42 } }
+    properties { key: "band_last" value { scalar: 62 } }
+}
+nodes { id: 206 type_key: "event.envelope" schema_version: 1
+    properties { key: "attack" value { scalar: 0.002 } }
+    properties { key: "decay" value { scalar: 0.025 } }
+    properties { key: "sustain" value { scalar: 0.15 } }
+    properties { key: "duration" value { scalar: 0.035 } }
+    properties { key: "release" value { scalar: 0.11 } }
+}
+nodes { id: 207 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: ".22 + a * .25 + b * .7" } }
+}
+nodes { id: 208 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: ".25 + a * .35 + b * .6" } }
+}
+nodes { id: 209 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: ".18 + a * .24 + b * .9" } }
+}
+nodes { id: 210 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a + b + c" } }
+}
+nodes { id: 211 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: ".018 + a * .075 + b * .15" } }
+}
+nodes { id: 212 type_key: "gpu.particles" schema_version: 1
+    properties { key: "particle_capacity" value { scalar: 16384 } }
+    properties { key: "seed" value { scalar: 1042 } }
+    properties { key: "initial_fill" value { scalar: 0 } }
+    properties { key: "emission_rate" value { scalar: 620 } }
+    properties { key: "lifetime" value { scalar: 7 } }
+    properties { key: "emitter_radius" value { scalar: 0.56 } }
+    properties { key: "particle_speed" value { scalar: 0.024 } }
+    properties { key: "drag" value { scalar: 0.18 } }
+    properties { key: "flow_frequency" value { scalar: 7 } }
+    properties { key: "flow_evolution" value { scalar: 0.15 } }
+    properties { key: "point_size" value { scalar: 0.0034 } }
+    properties { key: "color_a" value { color { r: 0.95 g: 0.78 b: 0.4 a: 0.32 } } }
+    properties { key: "color_b" value { color { r: 0.48 g: 0.72 b: 0.8 a: 0.62 } } }
+}
+nodes { id: 213 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "time * 18 + a * 12" } }
+}
+nodes { id: 214 type_key: "gpu.map" schema_version: 1
+}
+nodes { id: 215 type_key: "gpu.render" schema_version: 1
+    properties { key: "point_blend" value { scalar: 1 } }
+    properties { key: "texture_precision" value { scalar: 2 } }
+}
+nodes { id: 216 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 1 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 217 type_key: "gpu.particles" schema_version: 1
+    properties { key: "particle_capacity" value { scalar: 4096 } }
+    properties { key: "seed" value { scalar: 1115 } }
+    properties { key: "initial_fill" value { scalar: 0 } }
+    properties { key: "emission_rate" value { scalar: 190 } }
+    properties { key: "lifetime" value { scalar: 3.6 } }
+    properties { key: "emitter_radius" value { scalar: 0.56 } }
+    properties { key: "particle_speed" value { scalar: 0.095 } }
+    properties { key: "drag" value { scalar: 0.18 } }
+    properties { key: "flow_frequency" value { scalar: 15 } }
+    properties { key: "flow_evolution" value { scalar: 0.32 } }
+    properties { key: "point_size" value { scalar: 0.01 } }
+    properties { key: "color_a" value { color { r: 1 g: 0.84 b: 0.5 a: 0.8 } } }
+    properties { key: "color_b" value { color { r: 1 g: 0.96 b: 0.78 a: 1 } } }
+}
+nodes { id: 218 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "time * -36 + a * 12" } }
+}
+nodes { id: 219 type_key: "gpu.map" schema_version: 1
+}
+nodes { id: 220 type_key: "gpu.render" schema_version: 1
+    properties { key: "point_blend" value { scalar: 1 } }
+    properties { key: "texture_precision" value { scalar: 2 } }
+}
+nodes { id: 221 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 1 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 222 type_key: "texture.blur" schema_version: 1
     properties { key: "blur_radius" value { scalar: 8 } }
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 202 type_key: "texture.composite" schema_version: 1
+nodes { id: 223 type_key: "texture.composite" schema_version: 1
     properties { key: "composite_mode" value { scalar: 1 } }
-    properties { key: "amount" value { scalar: 0.08 } }
+    properties { key: "amount" value { scalar: 0.12 } }
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 203 type_key: "texture.display" schema_version: 1
+nodes { id: 224 type_key: "texture.display" schema_version: 1
 }
-nodes { id: 204 type_key: "texture.fxaa" schema_version: 1
+nodes { id: 225 type_key: "texture.fxaa" schema_version: 1
 }
-nodes { id: 205 type_key: "output.texture" schema_version: 1
+nodes { id: 226 type_key: "output.texture" schema_version: 1
 }
 edges { id: 1 from: 2 to: 4 input: "speed" }
 edges { id: 2 from: 5 to: 29 input: "a" }
@@ -945,13 +1054,45 @@ edges { id: 229 from: 196 to: 197 input: "camera" }
 edges { id: 230 from: 198 to: 199 input: "source" }
 edges { id: 231 from: 199 to: 200 input: "a" }
 edges { id: 232 from: 197 to: 200 input: "b" }
-edges { id: 233 from: 200 to: 201 input: "source" }
-edges { id: 234 from: 200 to: 202 input: "a" }
-edges { id: 235 from: 201 to: 202 input: "b" }
-edges { id: 236 from: 202 to: 203 input: "source" }
-edges { id: 237 from: 3 to: 203 input: "exposure" }
-edges { id: 238 from: 203 to: 204 input: "source" }
-edges { id: 239 from: 204 to: 205 input: "source" }
+edges { id: 233 from: 201 to: 202 input: "events" }
+edges { id: 234 from: 203 to: 204 input: "events" }
+edges { id: 235 from: 205 to: 206 input: "events" }
+edges { id: 236 from: 99 to: 207 input: "a" }
+edges { id: 237 from: 202 to: 207 input: "b" }
+edges { id: 238 from: 100 to: 208 input: "a" }
+edges { id: 239 from: 204 to: 208 input: "b" }
+edges { id: 240 from: 101 to: 209 input: "a" }
+edges { id: 241 from: 206 to: 209 input: "b" }
+edges { id: 242 from: 207 to: 210 input: "a" }
+edges { id: 243 from: 208 to: 210 input: "b" }
+edges { id: 244 from: 209 to: 210 input: "c" }
+edges { id: 245 from: 100 to: 211 input: "a" }
+edges { id: 246 from: 204 to: 211 input: "b" }
+edges { id: 247 from: 210 to: 212 input: "emission" }
+edges { id: 248 from: 211 to: 212 input: "flow_strength" }
+edges { id: 249 from: 4 to: 213 input: "time" }
+edges { id: 250 from: 100 to: 213 input: "a" }
+edges { id: 251 from: 212 to: 214 input: "points" }
+edges { id: 252 from: 213 to: 214 input: "rotation" }
+edges { id: 253 from: 214 to: 215 input: "points" }
+edges { id: 254 from: 200 to: 216 input: "a" }
+edges { id: 255 from: 215 to: 216 input: "b" }
+edges { id: 256 from: 210 to: 217 input: "emission" }
+edges { id: 257 from: 211 to: 217 input: "flow_strength" }
+edges { id: 258 from: 4 to: 218 input: "time" }
+edges { id: 259 from: 100 to: 218 input: "a" }
+edges { id: 260 from: 217 to: 219 input: "points" }
+edges { id: 261 from: 218 to: 219 input: "rotation" }
+edges { id: 262 from: 219 to: 220 input: "points" }
+edges { id: 263 from: 216 to: 221 input: "a" }
+edges { id: 264 from: 220 to: 221 input: "b" }
+edges { id: 265 from: 221 to: 222 input: "source" }
+edges { id: 266 from: 221 to: 223 input: "a" }
+edges { id: 267 from: 222 to: 223 input: "b" }
+edges { id: 268 from: 223 to: 224 input: "source" }
+edges { id: 269 from: 3 to: 224 input: "exposure" }
+edges { id: 270 from: 224 to: 225 input: "source" }
+edges { id: 271 from: 225 to: 226 input: "source" }
 controls {
     titles { key: 1 value: "Music response / 音乐响应" }
     titles { key: 2 value: "Motion pace / 运动速度" }

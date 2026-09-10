@@ -183,6 +183,10 @@ PreviewBounds DrawNode(const NodeVisual& node) {
     return preview;
 }
 void DrawLink(std::uint64_t id, std::uint64_t from, std::uint64_t to, graph::ValueType type) {
-    ed::Link(ed::LinkId(id), ed::PinId(from), ed::PinId(to), TypeColor(type), 2.0f);
+    // Node-editor scales link width with the canvas. Large authored graphs can
+    // fit below 10% zoom, where a fixed two-unit line becomes invisible while
+    // the nodes remain discernible. Keep a readable screen-space minimum.
+    const auto zoom = std::max(ed::GetCurrentZoom(), 0.08f);
+    ed::Link(ed::LinkId(id), ed::PinId(from), ed::PinId(to), TypeColor(type), 2.0f / zoom);
 }
 }  // namespace rhythm::studio

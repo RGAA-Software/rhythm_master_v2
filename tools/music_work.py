@@ -32,7 +32,8 @@ def original_arrangement(destination):
 
 
 def write(name, graph, output, controls, snapshots, cues, titles, descriptions,
-          tier='basic', platforms=('windows',), extra_assets=(), components=(), version='0.1.0'):
+          tier='basic', platforms=('windows',), extra_assets=(), components=(), version='0.1.0',
+          schema_version=5):
     destination = ROOT / 'content/templates' / name
     destination.mkdir(parents=True, exist_ok=True)
     metadata = ['controls {']
@@ -53,7 +54,7 @@ def write(name, graph, output, controls, snapshots, cues, titles, descriptions,
     identity = 'official-' + name.replace('_', '-')
     definitions = [line for text, _ in components for line in text]
     (destination / 'graph.textproto').write_text(
-        f'schema_version: 5\nid: "{identity}"\noutput: {output}\ncanvas {{ width: 1280 height: 720 }}\n' +
+        f'schema_version: {schema_version}\nid: "{identity}"\noutput: {output}\ncanvas {{ width: 1280 height: 720 }}\n' +
         '\n'.join(graph.nodes + graph.edges + definitions + metadata) + '\n', encoding='utf-8')
     editor = dict(version=2, positions=graph.positions)
     if components:

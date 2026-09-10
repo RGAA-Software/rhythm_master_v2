@@ -19,7 +19,7 @@
     "license_status": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
     "compatible_players": [
         "windows",
-        "android"
+        "android-gles31-compute"
     ],
     "external_assets": [],
     "assets": [
@@ -112,7 +112,7 @@
         ]
     },
     "descriptions": {
-        "zh-CN": "低机位持续向前穿行玫红与冷白光廊并缓慢横移，门段在镜头后方回收，形成无尽前进感；地面石台与倒影提供视差，静音仍前进。低频展开门翼、中频抬升横梁、高频增强灯带；倒影采用本场景镜像几何，不是通用屏幕空间反射。",
-        "en-US": "A continuously advancing low camera travels through recycled magenta/white architecture with lateral parallax; movement continues in silence. A mirrored authored scene produces planar floor reflections. Bass widens gates, mids raise beams, highs light strips; not generic SSR."
+        "zh-CN": "低机位持续向前穿行玫红与冷白光廊并缓慢横移，门段在镜头后方回收，形成无尽前进感；双层光尘从空场按每秒速率穿过镜头前景。低频增加空间能量，中频引导前进流向，高频 onset 提高闪点生成速率；静音仍前进，不加入不合场景的刚体碎片。",
+        "en-US": "A low camera continuously advances through recycled magenta/white architecture with lateral parallax. Dual light dust starts empty and passes through the foreground at sustained per-second rates. Bass raises spatial energy, mids steer forward flow and treble onsets raise spark rate; silence retains travel, without unsuitable rigid debris."
     }
 }

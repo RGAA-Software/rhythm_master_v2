@@ -1,7 +1,7 @@
 {
-    "template": "stratified_ink",
-    "package_sha256": "86e506271b18249b35b1187fae6a94b45cc7e041dfe3477c789df1cacfd2d0d3",
-    "thumbnail_sha256": "53879ea333e3eb36f96da82ea2ff30963ee88f488cb5b284edfba6d1a8c9be0c",
+    "template": "dunhuang_ribbons",
+    "package_sha256": "6ec30d2d2560bed9756e659c7621e9aca4e70e50039d7ce9612a4521f8110699",
+    "thumbnail_sha256": "88e731a0c58ef8516bcfb551fd42fe4a4730b7c3edf726f70e4691307d569e99",
     "extent": [
         256,
         144

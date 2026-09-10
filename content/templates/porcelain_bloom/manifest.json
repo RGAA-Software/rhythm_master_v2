@@ -19,7 +19,7 @@
     "license_status": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
     "compatible_players": [
         "windows",
-        "android"
+        "android-gles31-compute"
     ],
     "external_assets": [],
     "assets": [
@@ -127,7 +127,7 @@
         ]
     },
     "descriptions": {
-        "zh-CN": "瓷质壳面围绕黄铜核心以不同速度持续分层旋转和舒展，相机连续绕行；断金弧和游离珠点组成非对称空间，静音仍保持主运动。低频舒展、中频暖光、高频釉光；新曲面网格、细釉纹、HDR 棚灯环境、宏与音乐均可编辑。",
-        "en-US": "Ceramic shells rotate continuously at independent speeds, unfurl and reveal changing parallax through an orbiting camera, even in silence. Bass unfurls, mids warm the shells and highs lift glaze. Editable curved meshes, subtle veins and HDR studio lighting."
+        "zh-CN": "瓷质壳面围绕黄铜核心以不同速度持续分层旋转和舒展，相机连续绕行；釉光粒子从空场按每秒速率逐步补充。低、中、高频分别提高生长速度、流向和闪光密度，避免节拍时整团喷发；静音仍保持雕塑主运动。",
+        "en-US": "Ceramic shells rotate and unfurl continuously around brass while the camera orbits. Glaze particles start empty and replenish at a per-second rate. Bass, mids and treble separately raise growth rate, flow and sparkle density without batch bursts."
     }
 }

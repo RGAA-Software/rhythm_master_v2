@@ -41,8 +41,46 @@ def ink():
     color = compile_expression(name, 'mineral_pigment', pigment)
     image = asset_node(graph, 'texture.shader', 2500, 0, color['sha256'],
                        dict(source=field, a=bands[0], c=bands[2]), texture_precision=0)
-    output = finish(graph, image, controls[2], 0)
+    # The procedural river is the autonomous current. These pigment layers are
+    # independent, gradually populated material accents with explicit band roles.
+    low_onset = node('event.audio_onset', 2850, 500, threshold=.013, band_first=0, band_last=20)
+    low_envelope = node('event.envelope', 3200, 500, dict(events=low_onset), attack=.004,
+                        decay=.055, sustain=.2, duration=.06, release=.18)
+    mid_onset = node('event.audio_onset', 2850, 800, threshold=.010, band_first=21, band_last=41)
+    mid_envelope = node('event.envelope', 3200, 800, dict(events=mid_onset), attack=.004,
+                        decay=.045, sustain=.18, duration=.05, release=.15)
+    high_onset = node('event.audio_onset', 2850, 1100, threshold=.009, band_first=42, band_last=62)
+    high_envelope = node('event.envelope', 3200, 1100, dict(events=high_onset), attack=.002,
+                         decay=.025, sustain=.14, duration=.035, release=.1)
+    low_rate = node('scalar.expression', 3550, 500, dict(a=bands[0], b=low_envelope),
+                    expression='.20 + a * .22 + b * .55')
+    mid_rate = node('scalar.expression', 3550, 670, dict(a=bands[1], b=mid_envelope),
+                    expression='.24 + a * .32 + b * .55')
+    high_rate = node('scalar.expression', 3550, 840, dict(a=bands[2], b=high_envelope),
+                     expression='.18 + a * .22 + b * .85')
+    pigment_emission = node('scalar.expression', 3900, 500, dict(a=low_rate, b=mid_rate, c=high_rate),
+                            expression='a + b + c')
+    pigment_flow = node('scalar.expression', 3550, 800, dict(a=bands[1], b=mid_envelope),
+                        expression='.02 + a * .09 + b * .17')
+    turn = node('scalar.expression', 3900, 500, dict(time=clock, a=bands[0]),
+                expression='time * -18.0 + a * 10.0')
+    for index, (capacity, tint, size) in enumerate((
+            (18432, ((.06, .14, .22, .34), (.7, .06, .025, .72)), .0031),
+            (4096, ((.9, .42, .08, .78), (1, .78, .28, 1)), .009))):
+        row = 1450 + index * 650
+        particles = node('gpu.particles', 4250, row,
+                         dict(emission=pigment_emission, flow_strength=pigment_flow),
+                         particle_capacity=capacity, seed=427 + index * 89, initial_fill=0,
+                         emission_rate=560 if index == 0 else 160, lifetime=7 if index == 0 else 3.2,
+                         emitter_radius=1.0, particle_speed=.02 if index == 0 else .085, drag=.16,
+                         flow_frequency=6 if index == 0 else 15, flow_evolution=.14 if index == 0 else .36,
+                         point_size=size, color_a=tint[0], color_b=tint[1])
+        mapped = node('gpu.map', 4600, row, dict(points=particles, rotation=turn))
+        rendered = node('gpu.render', 4950, row, dict(points=mapped), point_blend=1, texture_precision=2)
+        image = node('texture.composite', 5300, row, dict(a=image, b=rendered), composite_mode=1,
+                     amount=.82 if index == 0 else 1, texture_precision=0)
+    output = finish(graph, image, controls[2], .1)
     publish(name, ('层叠墨流', 'Stratified Ink'),
-            ('连续迁移的多尺度噪声空间带动靛蓝与朱红矿物河谷，静音仍流动；颜料颗粒与不规则金边构成细节。低频推动主带，中频改变侵蚀幅度，高频增强金边；高度场、颜料 Shader、宏与配乐可编辑，非物理流体模拟。',
-             'Continuous multiscale lattice advection carries indigo/vermilion strata through a looping spatial path, even in silence, with pigment grain and gilded edges. Bass shifts strata, mids erode contours and highs light gold. Editable procedural fields, not physical fluid simulation.'),
-            graph, output, controls, [first, height, color])
+            ('连续迁移的多尺度噪声空间带动靛蓝与朱红矿物河谷，静音仍流动；颜料尘和金色闪点从空场按每秒速率连续补充。低频加强河谷能量，中频改变颜料流，高频 onset 提高金色粒子的生成速率，不使用刚体碰撞或整团爆发。',
+             'Continuous multiscale lattice advection carries indigo/vermilion strata in silence. Pigment dust and gold sparks begin empty and replenish at sustained per-second rates. Bass energizes valleys, mids steer pigment and treble onsets raise gold-particle rate without rigid bodies or batch bursts.'),
+            graph, output, controls, [first, height, color], compute=True, schema_version=7)

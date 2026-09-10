@@ -1,3 +1,7 @@
+> 已替代：本文记录的是较早的高容量/触发 burst 版本。当前连续速率版本、用户报告的
+> 根因和永久检查见 docs/validation/advanced_particle_rate_authoring_2026-09-10.md。
+> 本文中的历史性能与指令数量不能作为当前版本的验收证据。
+>
 # 敦煌飞天粒子与物理充实验证
 
 范围：`dunhuang_ribbons` 的 Windows 优先内容修订。此增量只复用既有

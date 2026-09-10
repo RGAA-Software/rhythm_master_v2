@@ -80,7 +80,44 @@ def capture(graph, scene, camera, environment=0.8):
     return node('texture.composite', 10360, 0, dict(a=back, b=color), texture_precision=0)
 
 
-def publish(name, title, description, graph, output, controls, assets=(), compute=False):
+def require_reachable(graph, output):
+    """Reject disconnected authoring nodes before packaging can silently prune them."""
+    inputs = {record['id']: record['inputs'].values() for record in graph.records}
+    reachable = set()
+    pending = [output]
+    while pending:
+        identity = pending.pop()
+        if identity in reachable:
+            continue
+        reachable.add(identity)
+        pending.extend(inputs.get(identity, ()))
+    disconnected = sorted(set(inputs) - reachable)
+    if disconnected:
+        raise ValueError('concept_graph.unreachable_nodes:' + ','.join(map(str, disconnected)))
+
+
+def require_particle_policy(graph, physics_allowed=False):
+    """Keep advanced works continuously emitted and reserve 2D physics for intent."""
+    for record in graph.records:
+        kind = record['kind']
+        inputs = record['inputs']
+        properties = record['properties']
+        if kind == 'gpu.particles':
+            if properties.get('initial_fill') != 0:
+                raise ValueError('concept_graph.gpu_particle_initial_fill')
+            if properties.get('emission_rate', 0) <= 0 or 'emission' not in inputs:
+                raise ValueError('concept_graph.gpu_particle_continuous_rate')
+            if 'burst' in inputs:
+                raise ValueError('concept_graph.gpu_particle_burst')
+        if kind == 'point.emitter' and 'burst' in inputs:
+            raise ValueError('concept_graph.point_particle_burst')
+        if kind == 'point.physics2d' and not physics_allowed:
+            raise ValueError('concept_graph.unapproved_physics')
+
+
+def publish(name, title, description, graph, output, controls, assets=(), compute=False, schema_version=5):
+    require_reachable(graph, output)
+    require_particle_policy(graph, physics_allowed=name == 'dunhuang_ribbons')
     manifest = music_work.write(name, graph, output,
         list(zip(controls, ('Music response / 音乐响应', 'Motion pace / 运动速度', 'Exposure / 曝光'))),
         [(1, 'Gather', (0.6, None, 0.25)), (2, 'Develop', (1, None, 0.3)),
@@ -88,7 +125,7 @@ def publish(name, title, description, graph, output, controls, assets=(), comput
         [('Gather', 0, 1, 0), ('Develop', 3, 2, 2), ('Crest', 8, 3, 2), ('Resolve', 12, 1, 3)],
         {'zh-CN': title[0], 'en-US': title[1]}, {'zh-CN': description[0], 'en-US': description[1]},
         tier='advanced', platforms=('windows', 'android-gles31-compute' if compute else 'android'),
-        extra_assets=list(assets), version='0.4.0')
+        extra_assets=list(assets), version='0.4.0', schema_version=schema_version)
     music_work.write_json(ROOT / 'provenance' / (name + '.json'), dict(
         ownership='first-party', baseline='03d59cf', concept='docs/design/concepts/music_visual_directions_v1.png',
         concept_role='AI-generated design reference only; not used as runtime texture',

@@ -5469,7 +5469,7 @@
             "id": "official.templates.aureate_vortex",
             "kind": "template",
             "source": "content/templates/aureate_vortex",
-            "source_sha256": "5b1699de09fd5b673970103607bd4a28513bd7ae9a10564913353109e1a5f119",
+            "source_sha256": "c42afdc846324fe82adef05574cbf464c0afcd32921aa340edc9c6309f495191",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "鎏光流涡",
@@ -5556,12 +5556,12 @@
             },
             "is_default": false,
             "review_history_count": 4,
-            "stale_review_count": 3,
+            "stale_review_count": 4,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -5731,7 +5731,7 @@
             "id": "official.templates.dunhuang_ribbons",
             "kind": "template",
             "source": "content/templates/dunhuang_ribbons",
-            "source_sha256": "2350d8cd780e70c56f864dc94a7ae6b54ed71582bc749219c66d92d4b0c531b0",
+            "source_sha256": "211124bc9f2264ec3bfec997b0393aa95bada38f08ed502c1ad07bcb2b32b5c5",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "敦煌飞天",
@@ -5861,7 +5861,7 @@
             "id": "official.templates.lumen_corridor",
             "kind": "template",
             "source": "content/templates/lumen_corridor",
-            "source_sha256": "14a16628fb6578f40c94dfc83fcf24c9dac23a5b02d6f1c4fe4c4b59c9f343cd",
+            "source_sha256": "09ede3e7792d42738fd854213fdab45703db920564053aa50b10cf1bc880b2a4",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "光门空间",
@@ -5871,7 +5871,7 @@
             "declared_maturity": "visual-review-pending",
             "declared_players": [
                 "windows",
-                "android"
+                "android-gles31-compute"
             ],
             "source_license_note": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
             "soundtrack": {
@@ -5948,12 +5948,12 @@
             },
             "is_default": false,
             "review_history_count": 4,
-            "stale_review_count": 3,
+            "stale_review_count": 4,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -6021,7 +6021,7 @@
             "id": "official.templates.porcelain_bloom",
             "kind": "template",
             "source": "content/templates/porcelain_bloom",
-            "source_sha256": "b99a1d306f1d14882e012dd2681ee10856aa72c4cbbd239fccb09ed89a6045f3",
+            "source_sha256": "4e46c8668c750662f2a63386932a30a2c6fc7415855b50e6f35f2c73ab0cfbc3",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "瓷金绽放",
@@ -6031,7 +6031,7 @@
             "declared_maturity": "visual-review-pending",
             "declared_players": [
                 "windows",
-                "android"
+                "android-gles31-compute"
             ],
             "source_license_note": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
             "soundtrack": {
@@ -6108,12 +6108,12 @@
             },
             "is_default": false,
             "review_history_count": 4,
-            "stale_review_count": 3,
+            "stale_review_count": 4,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -6429,7 +6429,7 @@
             "id": "official.templates.stratified_ink",
             "kind": "template",
             "source": "content/templates/stratified_ink",
-            "source_sha256": "da581a69011ecc2cdacce2f8061423eede29a7147415725e07dcf2696072e8ce",
+            "source_sha256": "ce8ca8ebaa781da21c2ee97d3f8f21ab20409487583ac6fb39d8d8cd1dcdff89",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "层叠墨流",
@@ -6439,7 +6439,7 @@
             "declared_maturity": "visual-review-pending",
             "declared_players": [
                 "windows",
-                "android"
+                "android-gles31-compute"
             ],
             "source_license_note": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
             "soundtrack": {
@@ -6516,12 +6516,12 @@
             },
             "is_default": false,
             "review_history_count": 4,
-            "stale_review_count": 3,
+            "stale_review_count": 4,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "passed",
-                "music": "passed",
+                "functional": "pending",
+                "music": "pending",
                 "visual": "pending",
                 "device": "pending"
             }

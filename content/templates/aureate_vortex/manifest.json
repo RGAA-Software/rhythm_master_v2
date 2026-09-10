@@ -127,7 +127,7 @@
         ]
     },
     "descriptions": {
-        "zh-CN": "三臂青金流涡持续旋转，相机沿空间轨迹绕行；几何光点与 34816 容量双层 GPU 粒子保持流动，静音也持续运动。低频增强光丝与粒子发射，中频控制细线与流动，高频控制闪点和发射。几何层使用场景景深，GPU 粒子层使用屏幕空间颜色取样与生命周期，叠加前景柔光；需要 GLES 3.1 compute。",
-        "en-US": "Continuously rotating cyan/gold arms, an orbiting camera and two flowing GPU particle fields (34816 capacity) move autonomously even in silence. Bass energizes filaments and particle emission, mids drive strands/flow and highs drive spark emission. The GPU particle overlay uses screen-space color sampling and lifetimes; requires GLES 3.1 compute."
+        "zh-CN": "三臂青金流涡持续旋转，相机沿空间轨迹绕行；双层 GPU 粒子从空场按每秒速率持续生成。低、中、高频只提高生成速率和流向能量，不使用大批次 burst；几何层使用景深，粒子层从屏幕颜色取样；需要 GLES 3.1 compute。",
+        "en-US": "Continuously rotating cyan/gold arms and an orbiting camera remain autonomous. Two GPU particle layers start empty and spawn at a sustained per-second rate. Bass, mids and treble raise rate and flow energy without large burst batches; requires GLES 3.1 compute."
     }
 }

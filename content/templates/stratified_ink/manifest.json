@@ -19,7 +19,7 @@
     "license_status": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
     "compatible_players": [
         "windows",
-        "android"
+        "android-gles31-compute"
     ],
     "external_assets": [],
     "assets": [
@@ -122,7 +122,7 @@
         ]
     },
     "descriptions": {
-        "zh-CN": "连续迁移的多尺度噪声空间带动靛蓝与朱红矿物河谷，静音仍流动；颜料颗粒与不规则金边构成细节。低频推动主带，中频改变侵蚀幅度，高频增强金边；高度场、颜料 Shader、宏与配乐可编辑，非物理流体模拟。",
-        "en-US": "Continuous multiscale lattice advection carries indigo/vermilion strata through a looping spatial path, even in silence, with pigment grain and gilded edges. Bass shifts strata, mids erode contours and highs light gold. Editable procedural fields, not physical fluid simulation."
+        "zh-CN": "连续迁移的多尺度噪声空间带动靛蓝与朱红矿物河谷，静音仍流动；颜料尘和金色闪点从空场按每秒速率连续补充。低频加强河谷能量，中频改变颜料流，高频 onset 提高金色粒子的生成速率，不使用刚体碰撞或整团爆发。",
+        "en-US": "Continuous multiscale lattice advection carries indigo/vermilion strata in silence. Pigment dust and gold sparks begin empty and replenish at sustained per-second rates. Bass energizes valleys, mids steer pigment and treble onsets raise gold-particle rate without rigid bodies or batch bursts."
     }
 }
