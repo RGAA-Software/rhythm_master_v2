@@ -28,3 +28,10 @@ out/windows-release/studio-delivery-tests.log.runs/1789059016510080800.log 运�
 通过，其中 template_switch_gpu_en-US 和 template_switch_gpu_zh-CN 实际加载界面和全部
 Advanced 模板。当前可执行程序为
 out/windows-release/src/windows_spike/deploy/rhythm_master.exe。
+
+## 分频公开控制验证
+
+高级概念作品公开六项控制：总音乐响应、运动速度、曝光、低频主体、中频流场和高频细节。
+Dunhuang Flying Ribbons 的当前运行包用真实解码 PCM 执行全部控制的最小/最大值检查：
+out/dunhuang-band-controls。低频主体、中频流场和高频细节的平均像素差分别为
+13.64、11.35、8.86，证明三个旋钮实际影响运行图，而不是仅保存界面元数据。

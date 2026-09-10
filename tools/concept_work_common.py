@@ -21,14 +21,21 @@ def start():
     response = node('control.scalar', -1000, 0, value=1, control_minimum=0, control_maximum=2)
     pace = node('control.scalar', -1000, 300, value=1, control_minimum=0.2, control_maximum=2)
     exposure = node('control.scalar', -1000, 600, value=0.3, control_minimum=-1, control_maximum=1)
+    low_response = node('control.scalar', -1000, 900, value=1, control_minimum=0, control_maximum=3)
+    mid_response = node('control.scalar', -1000, 1200, value=1, control_minimum=0, control_maximum=3)
+    high_response = node('control.scalar', -1000, 1500, value=1, control_minimum=0, control_maximum=3)
     # Bounded 16-second motion cycle. Every authored trajectory closes spatially;
     # corridor camera/geometry rebase together, so no visible world-space jump.
     # The runtime integrates observed pace changes without remapping the past.
     # Cue pacing remains constant; music phrases modulate energy and shape.
     clock = node('time.phase', 340, 0, dict(speed=pace), duration=16)
-    bands = [node('scalar.expression', 340, 400 + i * 300, dict(a=band, b=response),
-                  expression='a * b') for i, band in enumerate(audio_band_groups.build_groups(node))]
-    return graph, clock, bands, (response, pace, exposure)
+    group_controls = (low_response, mid_response, high_response)
+    bands = [
+        node('scalar.expression', 340, 400 + i * 300,
+             dict(a=band, b=response, c=group_controls[i]), expression='a * b * c')
+        for i, band in enumerate(audio_band_groups.build_groups(node))
+    ]
+    return graph, clock, bands, (response, pace, exposure, low_response, mid_response, high_response)
 
 
 def asset_node(graph, kind, x, y, digest, inputs=None, **properties):
@@ -125,10 +132,14 @@ def require_particle_policy(graph, physics_allowed=False):
 def publish(name, title, description, graph, output, controls, assets=(), compute=False, schema_version=5):
     require_reachable(graph, output)
     require_particle_policy(graph, physics_allowed=name == 'dunhuang_ribbons')
-    manifest = music_work.write(name, graph, output,
-        list(zip(controls, ('Music response / 音乐响应', 'Motion pace / 运动速度', 'Exposure / 曝光'))),
-        [(1, 'Gather', (0.6, None, 0.25)), (2, 'Develop', (1, None, 0.3)),
-         (3, 'Crest', (1.6, None, 0.45))],
+    manifest = music_work.write(
+        name, graph, output,
+        list(zip(controls, ('Music response / 音乐响应', 'Motion pace / 运动速度', 'Exposure / 曝光',
+                            'Bass body / 低频主体', 'Mid flow / 中频流场',
+                            'Treble detail / 高频细节'))),
+        [(1, 'Gather', (0.6, None, 0.25, 0.75, 0.75, 0.75)),
+         (2, 'Develop', (1, None, 0.3, 1, 1, 1)),
+         (3, 'Crest', (1.6, None, 0.45, 1.45, 1.25, 1.5))],
         [('Gather', 0, 1, 0), ('Develop', 3, 2, 2), ('Crest', 8, 3, 2), ('Resolve', 12, 1, 3)],
         {'zh-CN': title[0], 'en-US': title[1]}, {'zh-CN': description[0], 'en-US': description[1]},
         tier='advanced', platforms=('windows', 'android-gles31-compute' if compute else 'android'),

@@ -13,7 +13,7 @@
         "tools/music_work.py"
     ],
     "authoring_sources": {
-        "tools/concept_work_common.py": "931623fbe724a4bdccc076562a9b8381a3a4e68c5a0133ecfaed5f8cbf3b48c4",
+        "tools/concept_work_common.py": "779a9e7b023e2b4c59ad8348a413915eb884aa7797316b0b9a64b978ba9810de",
         "tools/concept_mesh_assets.py": "9dfa5e3e4e75bcbccb000eb7d104ab175620cdba5cb7a831678681d5347eca69",
         "tools/concept_spatial_works.py": "ca7aeddd92ed1a260e13bad6e5cadfbdaef23118211f99095b1a112b1d5abc9d",
         "tools/concept_ink_work.py": "75d08970e66ad18bc896a83844f6f0de175135b288f5a206f63553e7247cd656",
