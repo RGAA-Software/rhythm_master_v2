@@ -13,11 +13,17 @@ def main():
     parser.add_argument('--tones', action='store_true')
     parser.add_argument('--quality', action='store_true',
                         help='Add mid-band and quiet/loud PCM variants for content review')
+    parser.add_argument('--low-hz', type=float, default=80,
+                        help='Low-tone fixture frequency (20..16000 Hz)')
+    parser.add_argument('--high-hz', type=float, default=3500,
+                        help='High-tone fixture frequency (20..16000 Hz)')
     parser.add_argument('--repeat', type=int, choices=range(1, 17), default=1,
                         help='Repeat the generated PCM in bounded chunks for large-song tests')
     args = parser.parse_args()
     if args.quality and not args.tones:
         parser.error('--quality requires --tones')
+    if not all(math.isfinite(value) and 20 <= value <= 16000 for value in (args.low_hz, args.high_hz)):
+        parser.error('Tone frequencies must be finite and within 20..16000 Hz')
     args.output.mkdir(parents=True, exist_ok=True)
     rate = 48000
     variants = ('resonance_demo', 'low', 'high', 'silence') if args.tones else ('resonance_demo',)
@@ -41,7 +47,7 @@ def main():
                 value = kick + bass + arp + hat
                 value *= 0.25 if name == 'quiet' else 1.25 if name == 'loud' else 1
             else:
-                frequency = {'low': 80, 'mid': 700, 'high': 3500}.get(name, 0)
+                frequency = {'low': args.low_hz, 'mid': 700, 'high': args.high_hz}.get(name, 0)
                 value = 0.4 * math.sin(math.tau * frequency * t)
             fade = min(1, t * 100, duration * 100 - t * 100)
             sample = round(max(-1, min(1, value * fade)) * 32767)

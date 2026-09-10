@@ -1,7 +1,7 @@
 {
     "template": "audio_iris",
-    "package_sha256": "130397dcd6f8bedfbd6cee67927a0abe259cec77c52c7533fc33bb114cd0ab8c",
-    "thumbnail_sha256": "8ea39a7530961a302add5d0c9f9a6f9a6da9679c0eddff682c35b656ebe3f22c",
+    "package_sha256": "962b9be8ec695dd70a05d9424512b66599a18de5fc4b6b200da0c3ec3fe357c3",
+    "thumbnail_sha256": "3747a247050c274685392f3c395f4ba12a00099fe412a359914309b570210e66",
     "extent": [
         256,
         144

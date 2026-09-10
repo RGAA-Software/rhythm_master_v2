@@ -19,50 +19,306 @@ nodes { id: 4 type_key: "output.texture" schema_version: 1
 edges { id: 1 from: 1 to: 2 input: "source" }
 edges { id: 2 from: 2 to: 3 input: "source" }
 edges { id: 3 from: 3 to: 4 input: "source" }
-components { type_key: "component.official.soft_glow" schema_version: 1 title: "Soft glow" output: 9
+components { type_key: "component.official.soft_glow" schema_version: 1 title: "Soft glow" output: 73
 nodes { id: 1 type_key: "audio.band" schema_version: 1
-    properties { key: "audio_band" value { scalar: 12 } }
+    properties { key: "audio_band" value { scalar: 0 } }
 }
 nodes { id: 2 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 1 } }
+}
+nodes { id: 3 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 2 } }
+}
+nodes { id: 4 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 3 } }
+}
+nodes { id: 5 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 4 } }
+}
+nodes { id: 6 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 5 } }
+}
+nodes { id: 7 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 6 } }
+}
+nodes { id: 8 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 7 } }
+}
+nodes { id: 9 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 8 } }
+}
+nodes { id: 10 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 9 } }
+}
+nodes { id: 11 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 10 } }
+}
+nodes { id: 12 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 11 } }
+}
+nodes { id: 13 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 12 } }
+}
+nodes { id: 14 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 13 } }
+}
+nodes { id: 15 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 14 } }
+}
+nodes { id: 16 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 15 } }
+}
+nodes { id: 17 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 16 } }
+}
+nodes { id: 18 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 17 } }
+}
+nodes { id: 19 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 18 } }
+}
+nodes { id: 20 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 19 } }
+}
+nodes { id: 21 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 20 } }
+}
+nodes { id: 22 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 21 } }
+}
+nodes { id: 23 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 22 } }
+}
+nodes { id: 24 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 23 } }
+}
+nodes { id: 25 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 26 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 27 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 28 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 29 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 30 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 31 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 32 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 33 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 34 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 35 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(a, b)" } }
+}
+nodes { id: 36 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 37 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 43 } }
+}
+nodes { id: 38 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 44 } }
+}
+nodes { id: 39 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 45 } }
+}
+nodes { id: 40 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 46 } }
+}
+nodes { id: 41 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 47 } }
+}
+nodes { id: 42 type_key: "audio.band" schema_version: 1
     properties { key: "audio_band" value { scalar: 48 } }
 }
-nodes { id: 3 type_key: "scalar.constant" schema_version: 1
+nodes { id: 43 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 49 } }
+}
+nodes { id: 44 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 50 } }
+}
+nodes { id: 45 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 51 } }
+}
+nodes { id: 46 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 52 } }
+}
+nodes { id: 47 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 53 } }
+}
+nodes { id: 48 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 54 } }
+}
+nodes { id: 49 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 55 } }
+}
+nodes { id: 50 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 56 } }
+}
+nodes { id: 51 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 57 } }
+}
+nodes { id: 52 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 58 } }
+}
+nodes { id: 53 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 59 } }
+}
+nodes { id: 54 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 60 } }
+}
+nodes { id: 55 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 61 } }
+}
+nodes { id: 56 type_key: "audio.band" schema_version: 1
+    properties { key: "audio_band" value { scalar: 62 } }
+}
+nodes { id: 57 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 58 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 59 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 60 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 61 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 62 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 63 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(a, b)" } }
+}
+nodes { id: 64 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 65 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 66 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "max(max(a, b), c)" } }
+}
+nodes { id: 67 type_key: "scalar.constant" schema_version: 1
     properties { key: "value" value { scalar: 1 } }
 }
-nodes { id: 4 type_key: "scalar.expression" schema_version: 1
+nodes { id: 68 type_key: "scalar.expression" schema_version: 1
     properties { key: "expression" value { expression: "(0.12 + a * 1.2 + b * 0.65) * c" } }
 }
-nodes { id: 5 type_key: "texture.color_adjust" schema_version: 1
+nodes { id: 69 type_key: "texture.color_adjust" schema_version: 1
     properties { key: "exposure" value { scalar: -0.25 } }
 }
-nodes { id: 6 type_key: "texture.blur" schema_version: 1
+nodes { id: 70 type_key: "texture.blur" schema_version: 1
     properties { key: "blur_radius" value { scalar: 3 } }
 }
-nodes { id: 7 type_key: "texture.blur" schema_version: 1
+nodes { id: 71 type_key: "texture.blur" schema_version: 1
     properties { key: "blur_radius" value { scalar: 18 } }
 }
-nodes { id: 8 type_key: "texture.composite" schema_version: 1
+nodes { id: 72 type_key: "texture.composite" schema_version: 1
     properties { key: "composite_mode" value { scalar: 1 } }
     properties { key: "amount" value { scalar: 0.45 } }
 }
-nodes { id: 9 type_key: "texture.composite" schema_version: 1
+nodes { id: 73 type_key: "texture.composite" schema_version: 1
     properties { key: "composite_mode" value { scalar: 1 } }
 }
-edges { id: 1 from: 1 to: 4 input: "a" }
-edges { id: 2 from: 2 to: 4 input: "b" }
-edges { id: 3 from: 3 to: 4 input: "c" }
-edges { id: 4 from: 5 to: 6 input: "source" }
-edges { id: 5 from: 5 to: 7 input: "source" }
-edges { id: 6 from: 6 to: 8 input: "a" }
-edges { id: 7 from: 7 to: 8 input: "b" }
-edges { id: 8 from: 5 to: 9 input: "a" }
-edges { id: 9 from: 8 to: 9 input: "b" }
-edges { id: 10 from: 4 to: 9 input: "amount" }
-inputs { key: "source" node: 5 input: "source" }
-parameters { key: "response" node: 3 property: "value" group: "component.pattern" minimum: 0 maximum: 2 }
-parameters { key: "exposure" node: 5 property: "exposure" group: "component.pattern" }
-parameters { key: "near_radius" node: 6 property: "blur_radius" group: "component.pattern" }
-parameters { key: "wide_radius" node: 7 property: "blur_radius" group: "component.pattern" }
-parameters { key: "spread_mix" node: 8 property: "amount" group: "component.pattern" }
-parameters { key: "saturation" node: 5 property: "saturation" group: "component.pattern" }
+edges { id: 1 from: 1 to: 25 input: "a" }
+edges { id: 2 from: 2 to: 25 input: "b" }
+edges { id: 3 from: 3 to: 25 input: "c" }
+edges { id: 4 from: 4 to: 26 input: "a" }
+edges { id: 5 from: 5 to: 26 input: "b" }
+edges { id: 6 from: 6 to: 26 input: "c" }
+edges { id: 7 from: 7 to: 27 input: "a" }
+edges { id: 8 from: 8 to: 27 input: "b" }
+edges { id: 9 from: 9 to: 27 input: "c" }
+edges { id: 10 from: 10 to: 28 input: "a" }
+edges { id: 11 from: 11 to: 28 input: "b" }
+edges { id: 12 from: 12 to: 28 input: "c" }
+edges { id: 13 from: 13 to: 29 input: "a" }
+edges { id: 14 from: 14 to: 29 input: "b" }
+edges { id: 15 from: 15 to: 29 input: "c" }
+edges { id: 16 from: 16 to: 30 input: "a" }
+edges { id: 17 from: 17 to: 30 input: "b" }
+edges { id: 18 from: 18 to: 30 input: "c" }
+edges { id: 19 from: 19 to: 31 input: "a" }
+edges { id: 20 from: 20 to: 31 input: "b" }
+edges { id: 21 from: 21 to: 31 input: "c" }
+edges { id: 22 from: 22 to: 32 input: "a" }
+edges { id: 23 from: 23 to: 32 input: "b" }
+edges { id: 24 from: 24 to: 32 input: "c" }
+edges { id: 25 from: 25 to: 33 input: "a" }
+edges { id: 26 from: 26 to: 33 input: "b" }
+edges { id: 27 from: 27 to: 33 input: "c" }
+edges { id: 28 from: 28 to: 34 input: "a" }
+edges { id: 29 from: 29 to: 34 input: "b" }
+edges { id: 30 from: 30 to: 34 input: "c" }
+edges { id: 31 from: 31 to: 35 input: "a" }
+edges { id: 32 from: 32 to: 35 input: "b" }
+edges { id: 33 from: 33 to: 36 input: "a" }
+edges { id: 34 from: 34 to: 36 input: "b" }
+edges { id: 35 from: 35 to: 36 input: "c" }
+edges { id: 36 from: 37 to: 57 input: "a" }
+edges { id: 37 from: 38 to: 57 input: "b" }
+edges { id: 38 from: 39 to: 57 input: "c" }
+edges { id: 39 from: 40 to: 58 input: "a" }
+edges { id: 40 from: 41 to: 58 input: "b" }
+edges { id: 41 from: 42 to: 58 input: "c" }
+edges { id: 42 from: 43 to: 59 input: "a" }
+edges { id: 43 from: 44 to: 59 input: "b" }
+edges { id: 44 from: 45 to: 59 input: "c" }
+edges { id: 45 from: 46 to: 60 input: "a" }
+edges { id: 46 from: 47 to: 60 input: "b" }
+edges { id: 47 from: 48 to: 60 input: "c" }
+edges { id: 48 from: 49 to: 61 input: "a" }
+edges { id: 49 from: 50 to: 61 input: "b" }
+edges { id: 50 from: 51 to: 61 input: "c" }
+edges { id: 51 from: 52 to: 62 input: "a" }
+edges { id: 52 from: 53 to: 62 input: "b" }
+edges { id: 53 from: 54 to: 62 input: "c" }
+edges { id: 54 from: 55 to: 63 input: "a" }
+edges { id: 55 from: 56 to: 63 input: "b" }
+edges { id: 56 from: 57 to: 64 input: "a" }
+edges { id: 57 from: 58 to: 64 input: "b" }
+edges { id: 58 from: 59 to: 64 input: "c" }
+edges { id: 59 from: 60 to: 65 input: "a" }
+edges { id: 60 from: 61 to: 65 input: "b" }
+edges { id: 61 from: 62 to: 65 input: "c" }
+edges { id: 62 from: 64 to: 66 input: "a" }
+edges { id: 63 from: 65 to: 66 input: "b" }
+edges { id: 64 from: 63 to: 66 input: "c" }
+edges { id: 65 from: 36 to: 68 input: "a" }
+edges { id: 66 from: 66 to: 68 input: "b" }
+edges { id: 67 from: 67 to: 68 input: "c" }
+edges { id: 68 from: 69 to: 70 input: "source" }
+edges { id: 69 from: 69 to: 71 input: "source" }
+edges { id: 70 from: 70 to: 72 input: "a" }
+edges { id: 71 from: 71 to: 72 input: "b" }
+edges { id: 72 from: 69 to: 73 input: "a" }
+edges { id: 73 from: 72 to: 73 input: "b" }
+edges { id: 74 from: 68 to: 73 input: "amount" }
+inputs { key: "source" node: 69 input: "source" }
+parameters { key: "response" node: 67 property: "value" group: "component.pattern" minimum: 0 maximum: 2 }
+parameters { key: "exposure" node: 69 property: "exposure" group: "component.pattern" }
+parameters { key: "near_radius" node: 70 property: "blur_radius" group: "component.pattern" }
+parameters { key: "wide_radius" node: 71 property: "blur_radius" group: "component.pattern" }
+parameters { key: "spread_mix" node: 72 property: "amount" group: "component.pattern" }
+parameters { key: "saturation" node: 69 property: "saturation" group: "component.pattern" }
 }

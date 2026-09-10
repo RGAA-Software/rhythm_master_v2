@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import input_component_recipes
+from audio_band_groups import build_low_high
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('graph_writer', ROOT / 'tools/author-resonance-gate.py')
@@ -23,8 +24,7 @@ def flow_glass():
     time = node('core.time', 0, 0)
     pace = node('scalar.constant', 0, 300, value=0.12)
     phase = node('scalar.expression', 340, 0, dict(time=time, a=pace), expression='time * a')
-    bass = node('audio.band', 0, 600, audio_band=12)
-    high = node('audio.band', 0, 900, audio_band=48)
+    bass, high = build_low_high(node)
     response = node('scalar.constant', 0, 1200, value=1)
     strength = node('scalar.expression', 340, 650, dict(a=bass, b=high, c=response),
                     expression='(0.045 + a * 0.24 + b * 0.12) * c')
@@ -90,7 +90,7 @@ def write_component(recipe):
     write_json(destination / 'editor.json', dict(version=2, positions=harness.positions,
                                                 components=[layout]))
     write_json(destination / 'manifest.json', dict(format='rhythm.project', manifest_version=1,
-               kind='template', content_id='official.semantic.'+name, content_version='0.1.1',
+               kind='template', content_id='official.semantic.'+name, content_version='0.2.0',
                project_id='semantic-'+name, graph_revision=0, title=' / '.join(reversed(recipe['titles'])),
                default_locale='zh-CN', titles=dict(zip(('en-US', 'zh-CN'), recipe['titles'])),
                category='compositing', maturity='visual-review-pending', author='Rhythm Master',
@@ -121,6 +121,9 @@ def main():
                authoring_tool_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                recipes='tools/input_component_recipes.py',
                recipes_sha256=hashlib.sha256(Path(input_component_recipes.__file__).read_bytes()).hexdigest(),
+               reused_audio_groups='tools/audio_band_groups.py',
+               audio_groups_sha256=hashlib.sha256((ROOT / 'tools/audio_band_groups.py').read_bytes()).hexdigest(),
+               audio_group_policy='FFT peaks: bass 0..23, treble 43..62; middle range intentionally omitted',
                reused_graph_writer='tools/author-resonance-gate.py',
                existing_adapters='provenance/tixl_effects.json', imported_third_party_files=[],
                components=entries))

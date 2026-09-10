@@ -3,7 +3,7 @@
     "manifest_version": 1,
     "kind": "template",
     "content_id": "official.semantic.mirrored_duet",
-    "content_version": "0.1.1",
+    "content_version": "0.2.0",
     "project_id": "semantic-mirrored_duet",
     "graph_revision": 0,
     "title": "镜像对舞 / Mirrored duet",

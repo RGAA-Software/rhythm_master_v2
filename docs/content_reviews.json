@@ -243,6 +243,314 @@
                 "status": "pending",
                 "notes": "Current APK identity, 640x360 native PCM and installed UI passed; final declared-profile and complete workflow acceptance remain pending."
             }
+        },
+        {
+            "id": "official.semantic.flow_glass",
+            "source_sha256": "4050001884a0a253d4639619e56df8c02dda874c72aafeb6fbe8b3039ecbb026",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Actual library selection/GPU preview/insertion/undo/close and current full semantic parameter/preset/save/publication contracts passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Four decoded PCM inputs at identical scene history, including 200 Hz and 8 kHz, produced four distinct composed-image comparisons above the unchanged threshold. Deliberate bass/treble roles exclude middle bands."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Recognizable filter output and current thumbnails reviewed; final quality across varied source images remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current source-bound 640x360 native GLES short check passed; complete installed-work application acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.semantic.self_relief",
+            "source_sha256": "c77343f560d5be06a36ed3673dae0bfa9a611d320460dbdbc20955fea5660e28",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Actual library selection/GPU preview/insertion/undo/close and current full semantic parameter/preset/save/publication contracts passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Four decoded PCM inputs at identical scene history, including 200 Hz and 8 kHz, produced four distinct composed-image comparisons above the unchanged threshold. Deliberate bass/treble roles exclude middle bands."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Recognizable filter output and current thumbnails reviewed; final quality across varied source images remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current source-bound 640x360 native GLES short check passed; complete installed-work application acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.semantic.beat_shutters",
+            "source_sha256": "690ea119ef3740d5e5068171d1546615a36607e25ab1632cf5252e48d5af4d2e",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Actual library selection/GPU preview/insertion/undo/close and current full semantic parameter/preset/save/publication contracts passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Four decoded PCM inputs at identical scene history, including 200 Hz and 8 kHz, produced four distinct composed-image comparisons above the unchanged threshold. Deliberate bass/treble roles exclude middle bands."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Recognizable filter output and current thumbnails reviewed; final quality across varied source images remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current source-bound 640x360 native GLES short check passed; complete installed-work application acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.semantic.mirrored_duet",
+            "source_sha256": "f71ec7b23294a8f5f8734f0a882dcd115ad52084e98e358eba6a38ce25b7e992",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Actual library selection/GPU preview/insertion/undo/close and current full semantic parameter/preset/save/publication contracts passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Four decoded PCM inputs at identical scene history, including 200 Hz and 8 kHz, produced four distinct composed-image comparisons above the unchanged threshold. Deliberate bass/treble roles exclude middle bands."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Recognizable filter output and current thumbnails reviewed; final quality across varied source images remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current source-bound 640x360 native GLES short check passed; complete installed-work application acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.semantic.prism_fold",
+            "source_sha256": "4da49d3f0eb17b4141f69b8adcf8caf84f1c5ee6ef6ec0329bd8b00384613a76",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Actual library selection/GPU preview/insertion/undo/close and current full semantic parameter/preset/save/publication contracts passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Four decoded PCM inputs at identical scene history, including 200 Hz and 8 kHz, produced four distinct composed-image comparisons above the unchanged threshold. Deliberate bass/treble roles exclude middle bands."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Recognizable filter output and current thumbnails reviewed; final quality across varied source images remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current source-bound 640x360 native GLES short check passed; complete installed-work application acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.semantic.contour_engraving",
+            "source_sha256": "ac94abfef47833a7991e38d3de98195ee3d5f24eed1f4cd1067afc8fbf45a249",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Actual library selection/GPU preview/insertion/undo/close and current full semantic parameter/preset/save/publication contracts passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Four decoded PCM inputs at identical scene history, including 200 Hz and 8 kHz, produced four distinct composed-image comparisons above the unchanged threshold. Deliberate bass/treble roles exclude middle bands."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Recognizable filter output and current thumbnails reviewed; final quality across varied source images remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current source-bound 640x360 native GLES short check passed; complete installed-work application acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.semantic.motion_echo",
+            "source_sha256": "7c5242968248e9aa6dfde954fdd038bb721649de7a45da4a64dd9363c72851b0",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Actual library selection/GPU preview/insertion/undo/close and current full semantic parameter/preset/save/publication contracts passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Four decoded PCM inputs at identical scene history, including 200 Hz and 8 kHz, produced four distinct composed-image comparisons above the unchanged threshold. Deliberate bass/treble roles exclude middle bands."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Recognizable filter output and current thumbnails reviewed; final quality across varied source images remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current source-bound 640x360 native GLES short check passed; complete installed-work application acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.semantic.soft_glow",
+            "source_sha256": "811dc9b69322602753e76a1266456054f668043dbce98a530da3b43cc14439aa",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Actual library selection/GPU preview/insertion/undo/close and current full semantic parameter/preset/save/publication contracts passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Four decoded PCM inputs at identical scene history, including 200 Hz and 8 kHz, produced four distinct composed-image comparisons above the unchanged threshold. Deliberate bass/treble roles exclude middle bands."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Recognizable filter output and current thumbnails reviewed; final quality across varied source images remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current source-bound 640x360 native GLES short check passed; complete installed-work application acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.semantic.polar_vortex",
+            "source_sha256": "84ab90a51a14002f75bf1c2c810ee863277bcf6867c1c071f70b845e0ee4a388",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Actual library selection/GPU preview/insertion/undo/close and current full semantic parameter/preset/save/publication contracts passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Four decoded PCM inputs at identical scene history, including 200 Hz and 8 kHz, produced four distinct composed-image comparisons above the unchanged threshold. Deliberate bass/treble roles exclude middle bands."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Recognizable filter output and current thumbnails reviewed; final quality across varied source images remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current source-bound 640x360 native GLES short check passed; complete installed-work application acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.semantic.audio_iris",
+            "source_sha256": "cdeb4a7f82ef85eed3d0d97b2c775861297ae883ffa72f442616d0394f93f95f",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Actual library selection/GPU preview/insertion/undo/close and current full semantic parameter/preset/save/publication contracts passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Four decoded PCM inputs at identical scene history, including 200 Hz and 8 kHz, produced four distinct composed-image comparisons above the unchanged threshold. Deliberate bass/treble roles exclude middle bands."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Recognizable filter output and current thumbnails reviewed; final quality across varied source images remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current source-bound 640x360 native GLES short check passed; complete installed-work application acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.semantic.luma_windows",
+            "source_sha256": "e7c2ffc361a20b02e7e0d452020f1c2627209688b94a3e5713f8116ed537d92a",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Actual library selection/GPU preview/insertion/undo/close and current full semantic parameter/preset/save/publication contracts passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/input_component_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Four decoded PCM inputs at identical scene history, including 200 Hz and 8 kHz, produced four distinct composed-image comparisons above the unchanged threshold. Deliberate bass/treble roles exclude middle bands."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Recognizable filter output and current thumbnails reviewed; final quality across varied source images remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current source-bound 640x360 native GLES short check passed; complete installed-work application acceptance remains pending."
+            }
         }
     ]
 }

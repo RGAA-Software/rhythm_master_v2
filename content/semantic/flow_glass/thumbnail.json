@@ -1,7 +1,7 @@
 {
     "template": "flow_glass",
-    "package_sha256": "7be467df8b5be0e690565d4ad1058f31eb28213a7160895f7ae4cc7ca973e30a",
-    "thumbnail_sha256": "197c93d11aba54ab3c4f5f9cebb3f25f5c4a12e4ffed75a26d194e2d932f38ca",
+    "package_sha256": "193cd2401143d94c23f0d4bc971195488b4dbf11ff7efe65fcc64d6f144f410a",
+    "thumbnail_sha256": "96117df6261871ff112abeb8f578b7eb5e61ae686eea0024b8deb3e56ea7422e",
     "extent": [
         256,
         144

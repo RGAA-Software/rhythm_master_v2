@@ -20,14 +20,19 @@ def main():
     parser.add_argument("--compact", action="store_true")
     parser.add_argument("--balanced", action="store_true")
     parser.add_argument("--build", type=Path, default=ROOT / "out/android-arm64-release")
-    parser.add_argument("--packages", type=Path, default=ROOT / "out/windows-release/content/packages")
+    parser.add_argument("--packages", type=Path)
+    parser.add_argument("--kind", choices=("templates", "semantic"), default="templates")
     parser.add_argument("--name", action="append", help="Existing bundled template directory name")
     args = parser.parse_args()
     if args.compact and args.balanced:
         parser.error("Choose either compact or balanced")
+    if args.kind == "semantic" and not args.name:
+        parser.error("Select explicit semantic component names")
+    source_root = ROOT / "content" / args.kind
+    packages = args.packages or ROOT / "out/windows-release/content" / ("semantic_packages" if args.kind == "semantic" else "packages")
     for name in args.name or NAMES:
-        if not name.replace("_", "").isalnum() or not (ROOT / "content/templates" / name / "manifest.json").is_file():
-            parser.error("Expected an existing bundled template name")
+        if not name.replace("_", "").isalnum() or not (source_root / name / "manifest.json").is_file():
+            parser.error("Expected an existing catalog entry name")
     run_id = uuid.uuid4().hex
     output = ROOT / "out/android-template-measurements" / run_id
     output.mkdir(parents=True)
@@ -46,12 +51,12 @@ def main():
     executable = args.build / "src/android_player/android_gpu_contract_tests"
     adb("push", executable, remote + "/measure")
     adb("shell", "chmod", "700", remote + "/measure")
-    results = {"serial": args.serial, "compact": args.compact, "balanced": args.balanced, "remote": remote,
+    results = {"serial": args.serial, "kind": args.kind, "compact": args.compact, "balanced": args.balanced, "remote": remote,
                "build": str(args.build), "binary_sha256": hashlib.sha256(executable.read_bytes()).hexdigest(),
                "templates": {}}
     for name in args.name or NAMES:
-        package = args.packages / (name + ".rhythmpack")
-        source_sha = verify_package_source(ROOT / "content/templates" / name, package)
+        package = packages / (name + ".rhythmpack")
+        source_sha = verify_package_source(source_root / name, package)
         adb("push", package, remote + "/" + name)
         print("Measuring", name, flush=True)
         log = adb("shell", "LD_LIBRARY_PATH=/data/local/tmp", remote + "/measure", remote + "/" + name,

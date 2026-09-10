@@ -1,7 +1,7 @@
 {
     "template": "mirrored_duet",
-    "package_sha256": "3184e5e91c673fd9cef212723728dd2f655a1235cb42a2b5c7fb3b18f58e4dc4",
-    "thumbnail_sha256": "1ed63a39faf98e34aaaf44c9e97607113a6645004a71e64d78dae8875e541715",
+    "package_sha256": "7d5511dc1492e6e85a4e790037deefc6f78f178fbd4e4721361bddd76ac0e1ac",
+    "thumbnail_sha256": "3e86ae09638369875e689f486f949cfaaca068f4c57320bd71ddd58d56a6f667",
     "extent": [
         256,
         144

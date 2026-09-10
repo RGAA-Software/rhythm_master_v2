@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <optional>
 #include <stdexcept>
 
 #include "rhythm/assets/store.h"
@@ -61,12 +62,15 @@ int main(int argc, char* argv[]) {
         studio::Studio studio(argv[1], project_path);
         const auto start = std::chrono::steady_clock::now();
         int published = -1;
+        int reopened = -1;
+        int captured = -1;
+        std::optional<std::uint64_t> reopen_generation;
         bool saved = false, observed_clear = false, restored = false;
         int frames = 0;
         std::size_t waveform_bins = 0;
-        for (; frames < 1200; ++frames) {
+        for (;; ++frames) {
             if (!host.Poll() || std::chrono::steady_clock::now() - start > std::chrono::seconds(40))
-                throw std::runtime_error("soundtrack Studio workflow timeout");
+                break;
             host.BeginUi();
             renderer.BeginFrame();
             if (frames == 10) {
@@ -91,9 +95,14 @@ int main(int argc, char* argv[]) {
             if (saved && published < 0 && frames % 30 == 20) Activate("###graph", "###publish");
             if (published >= 0 && frames == published + 5)
                 Activate("###inspector", "###music.clear");
-            if (published >= 0 && frames == published + 20) Activate("###graph", "###reopen");
-            if (published >= 0 && frames == published + 30) Activate("###graph", "###timeline");
-            if (published >= 0 && frames == published + 33)
+            if (published >= 0 && frames >= published + 20 && observed_clear &&
+                !reopen_generation && studio.HasValidPlan())
+                reopen_generation = studio.Workflow().requested_generation_;
+            if (reopen_generation && reopened < 0 && frames % 10 == 0 &&
+                studio.Workflow().requested_generation_ == *reopen_generation)
+                Activate("###graph", "###reopen");
+            if (reopened >= 0 && frames == reopened + 1) Activate("###graph", "###timeline");
+            if (reopened >= 0 && frames == reopened + 4)
                 if (auto* window = ImGui::FindWindowByName("###timeline")) {
                     ImGui::SetWindowPos(window, {20, 800}, ImGuiCond_Always);
                     ImGui::SetWindowSize(window, {620, 570}, ImGuiCond_Always);
@@ -102,9 +111,10 @@ int main(int argc, char* argv[]) {
                          std::chrono::duration<double>(std::chrono::steady_clock::now() - start)
                                  .count());
             renderer.Submit({}, host.EndUi(), 0x111822ff);
-            if (published >= 0 && frames == published + 210) {
+            if (reopened >= 0 && restored && waveform_bins && captured < 0) {
                 const auto path = (root / "soundtrack-studio").string();
                 bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
+                captured = frames;
             }
             renderer.EndFrame();
             if (studio.Status().budget_limited_)
@@ -126,18 +136,31 @@ int main(int argc, char* argv[]) {
             }
             if (published >= 0 && frames == published + 15)
                 observed_clear = studio.Status().audio_rms_ == 0;
-            if (published >= 0 && frames > published + 25 && studio.Status().audio_rms_ > 0)
-                restored = true;
-            if (published >= 0 && frames > published + 220) break;
+            // Asset hashing/loading is asynchronous. Require a newly installed
+            // generation instead of accepting the retained pre-reopen plan.
+            if (reopen_generation && reopened < 0 && studio.HasValidPlan() &&
+                studio.Workflow().requested_generation_ > *reopen_generation)
+                reopened = frames;
+            if (reopened >= 0 && studio.Status().audio_rms_ > 0) restored = true;
+            if (captured >= 0 && frames > captured + 5) break;
         }
         if (!saved || published < 0 || !observed_clear || !restored || !studio.HasValidPlan() ||
             studio.Status().authored_nodes_ != expected_nodes || !waveform_bins ||
             waveform_bins > 4096)
-            throw std::runtime_error("Studio bind/save/publish/clear/reopen did not complete");
+            throw std::runtime_error(
+                    "Studio bind/save/publish/clear/reopen did not complete: saved=" +
+                    std::to_string(saved) + " published_frame=" + std::to_string(published) +
+                    " cleared=" + std::to_string(observed_clear) +
+                    " restored=" + std::to_string(restored) +
+                    " valid_plan=" + std::to_string(studio.HasValidPlan()) +
+                    " authored_nodes=" + std::to_string(studio.Status().authored_nodes_) +
+                    " expected_nodes=" + std::to_string(expected_nodes) + " waveform_bins=" +
+                    std::to_string(waveform_bins) + " reopened_frame=" + std::to_string(reopened) +
+                    " frames=" + std::to_string(frames));
         const auto path = package_path.u8string();
         std::cout << "Studio bind/save/publish/clear/reopen: music restored, "
                   << published_instructions << " instructions, frames=" << frames
-                  << " waveform_bins=" << waveform_bins
+                  << " reopened_frame=" << reopened << " waveform_bins=" << waveform_bins
                   << " music_sha256=" << requested_music.id_.sha256_
                   << " package=" << std::string(path.begin(), path.end()) << '\n';
     } catch (const std::exception& error) {

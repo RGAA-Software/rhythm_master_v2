@@ -1,7 +1,7 @@
 {
     "template": "contour_engraving",
-    "package_sha256": "37217b628e6a31bbca498d5148d01009a81505650415b152bd0228957b06e002",
-    "thumbnail_sha256": "ea6f76440b45b257954f498735f3bee55ae2417e2e35319677b7d0f7b98b56a0",
+    "package_sha256": "811f84945d316e20a72e745b8f6f10b6bb137da2f25ea6188d36112603355bfe",
+    "thumbnail_sha256": "b37d5356cc536fee7478daf8930dca0bea8e6d0069978a3607b3e6a610ac4547",
     "extent": [
         256,
         144

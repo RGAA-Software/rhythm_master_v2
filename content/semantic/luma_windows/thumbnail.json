@@ -1,7 +1,7 @@
 {
     "template": "luma_windows",
-    "package_sha256": "52e989159ab895432f8fe7a994957ea6e96c0089fe7e1d63ae63e08be88a2744",
-    "thumbnail_sha256": "8af6e7b769daa844c29d161251f25cab7f4c683f788dc67faf424493b10bce97",
+    "package_sha256": "646c891c7bbbb9b934063dfa648f6b8cd5d40fb3645b1b31d778ed0d2a01afcb",
+    "thumbnail_sha256": "8215e61097b49b07a7bc8167569f15e270e798dbed647913f15f682d7bb130f1",
     "extent": [
         256,
         144

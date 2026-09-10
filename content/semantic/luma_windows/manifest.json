@@ -3,7 +3,7 @@
     "manifest_version": 1,
     "kind": "template",
     "content_id": "official.semantic.luma_windows",
-    "content_version": "0.1.1",
+    "content_version": "0.2.0",
     "project_id": "semantic-luma_windows",
     "graph_revision": 0,
     "title": "亮度开窗 / Luma windows",

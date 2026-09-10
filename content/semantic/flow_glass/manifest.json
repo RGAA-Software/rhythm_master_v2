@@ -3,7 +3,7 @@
     "manifest_version": 1,
     "kind": "template",
     "content_id": "official.semantic.flow_glass",
-    "content_version": "0.1.1",
+    "content_version": "0.2.0",
     "project_id": "semantic-flow_glass",
     "graph_revision": 0,
     "title": "流纹玻璃 / Flow glass",

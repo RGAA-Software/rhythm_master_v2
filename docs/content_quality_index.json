@@ -2823,8 +2823,8 @@
             "id": "official.semantic.audio_iris",
             "kind": "component",
             "source": "content/semantic/audio_iris",
-            "source_sha256": "cf10e57f019f41fb1b81d56f0dcf3a81474da233c73a26c9cfd93c3996588135",
-            "version": "0.1.1",
+            "source_sha256": "cdeb4a7f82ef85eed3d0d97b2c775861297ae883ffa72f442616d0394f93f95f",
+            "version": "0.2.0",
             "titles": {
                 "en-US": "Audio iris",
                 "zh-CN": "音乐光阑"
@@ -2838,13 +2838,13 @@
             "source_license_note": "First-party composition using existing attributed operators; outbound license pending",
             "soundtrack": null,
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
-                "music": "pending",
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -2853,7 +2853,7 @@
             "id": "official.semantic.audio_iris.default",
             "kind": "preset",
             "source": "content/semantic/audio_iris/presets.json",
-            "source_sha256": "359a05f37efb3576b420a45ff8ca482214836c3f7aee2e9d1ebe64080f0f506d",
+            "source_sha256": "33d74969ba9a5c7d8995959f2ef81d22a6968335048601887716aac9a7f60244",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -2878,7 +2878,7 @@
             "id": "official.semantic.audio_iris.variant",
             "kind": "preset",
             "source": "content/semantic/audio_iris/presets.json",
-            "source_sha256": "73ede353dfb5c73ce99dcb523febba38185fb68bea3264d1605022c1384ee4c7",
+            "source_sha256": "5998a07b7a7dd745940e36446cf68a5472052e3c007774452af005c473b8ddf0",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Triangular cutout",
@@ -2983,8 +2983,8 @@
             "id": "official.semantic.beat_shutters",
             "kind": "component",
             "source": "content/semantic/beat_shutters",
-            "source_sha256": "503251fa12af023b6cc1f7b5834985fe774a986a8001d1568039f06783860661",
-            "version": "0.1.1",
+            "source_sha256": "690ea119ef3740d5e5068171d1546615a36607e25ab1632cf5252e48d5af4d2e",
+            "version": "0.2.0",
             "titles": {
                 "en-US": "Beat shutters",
                 "zh-CN": "节拍百叶"
@@ -2998,13 +2998,13 @@
             "source_license_note": "First-party composition using existing attributed operators; outbound license pending",
             "soundtrack": null,
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
-                "music": "pending",
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -3013,7 +3013,7 @@
             "id": "official.semantic.beat_shutters.default",
             "kind": "preset",
             "source": "content/semantic/beat_shutters/presets.json",
-            "source_sha256": "4cf81479e1abd14c46e9e631d4dcdc1cb5f0d0994df0665b9098d1f2934a94d9",
+            "source_sha256": "18729fa87776ed521c146891a24f7a368ca28efbbb2577d04a3444aaf66b8594",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3038,7 +3038,7 @@
             "id": "official.semantic.beat_shutters.variant",
             "kind": "preset",
             "source": "content/semantic/beat_shutters/presets.json",
-            "source_sha256": "9b9060c4f3f8478f7dff21acb9aa81bf8a2d327a6ccc6948313a5996816b4c08",
+            "source_sha256": "d802a0d50fbea020ab4fd2978db65d7ef71560043f3c1ffda47940c22c2f3eda",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Vertical gates",
@@ -3063,8 +3063,8 @@
             "id": "official.semantic.contour_engraving",
             "kind": "component",
             "source": "content/semantic/contour_engraving",
-            "source_sha256": "11432abfd9d82de7a5d8ff1ac8ce20511064a1a32fe2a7b86c439a993fe02968",
-            "version": "0.1.1",
+            "source_sha256": "ac94abfef47833a7991e38d3de98195ee3d5f24eed1f4cd1067afc8fbf45a249",
+            "version": "0.2.0",
             "titles": {
                 "en-US": "Contour engraving",
                 "zh-CN": "轮廓刻线"
@@ -3078,13 +3078,13 @@
             "source_license_note": "First-party composition using existing attributed operators; outbound license pending",
             "soundtrack": null,
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
-                "music": "pending",
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -3093,7 +3093,7 @@
             "id": "official.semantic.contour_engraving.default",
             "kind": "preset",
             "source": "content/semantic/contour_engraving/presets.json",
-            "source_sha256": "1235cef269ab1e890e6078d5746880814c6536de26b7099eaba949ab816050ef",
+            "source_sha256": "486e75b0977d2e87ba45b8f37e6a6723b30a9b3baaad0c391feb23ce76a27b16",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3118,7 +3118,7 @@
             "id": "official.semantic.contour_engraving.variant",
             "kind": "preset",
             "source": "content/semantic/contour_engraving/presets.json",
-            "source_sha256": "29abdb9d14bf902e6556aa9874cec1430ddf27b8466f31051746ab135cfa75ef",
+            "source_sha256": "07bc7916196d48ef5661b7d1c2be22eea3c687d13aa8488eacd33981c28833cc",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Broad cuts",
@@ -3382,8 +3382,8 @@
             "id": "official.semantic.flow_glass",
             "kind": "component",
             "source": "content/semantic/flow_glass",
-            "source_sha256": "021a261ae4a8a7604a39518471a4a6a21fc7b6933292903cd69094d093111ba4",
-            "version": "0.1.1",
+            "source_sha256": "4050001884a0a253d4639619e56df8c02dda874c72aafeb6fbe8b3039ecbb026",
+            "version": "0.2.0",
             "titles": {
                 "en-US": "Flow glass",
                 "zh-CN": "流纹玻璃"
@@ -3397,13 +3397,13 @@
             "source_license_note": "First-party composition using existing attributed operators; outbound license pending",
             "soundtrack": null,
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
-                "music": "pending",
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -3412,7 +3412,7 @@
             "id": "official.semantic.flow_glass.default",
             "kind": "preset",
             "source": "content/semantic/flow_glass/presets.json",
-            "source_sha256": "6b12ee142f3c0de6be421790592c6560c0771483769590e29b05b4ed59fc806e",
+            "source_sha256": "a53a3c3fae4d61f505e33f360247a5266ec892bf30b6c98cbbf3cdccdc00df3d",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3437,7 +3437,7 @@
             "id": "official.semantic.flow_glass.variant",
             "kind": "preset",
             "source": "content/semantic/flow_glass/presets.json",
-            "source_sha256": "609badc3814ee860b6e8ab331dcce11ad774a95ef20a9f78945cc41dcc3fad4d",
+            "source_sha256": "e7f4ec5fe4ed32b3a4c8df08814bbba0b3ace87776b811e0f7cf58af779bc664",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Broad ripples",
@@ -3702,8 +3702,8 @@
             "id": "official.semantic.luma_windows",
             "kind": "component",
             "source": "content/semantic/luma_windows",
-            "source_sha256": "e9369ad2bb13383253f37ca87ef6b4d215a1edf3bb54d83964223fb7d606c46f",
-            "version": "0.1.1",
+            "source_sha256": "e7c2ffc361a20b02e7e0d452020f1c2627209688b94a3e5713f8116ed537d92a",
+            "version": "0.2.0",
             "titles": {
                 "en-US": "Luma windows",
                 "zh-CN": "亮度开窗"
@@ -3717,13 +3717,13 @@
             "source_license_note": "First-party composition using existing attributed operators; outbound license pending",
             "soundtrack": null,
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
-                "music": "pending",
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -3732,7 +3732,7 @@
             "id": "official.semantic.luma_windows.default",
             "kind": "preset",
             "source": "content/semantic/luma_windows/presets.json",
-            "source_sha256": "f45df60aba68e3dca5a98f425158a49d5f70b70ac7ce6befaa5f7052742a4650",
+            "source_sha256": "9dadbfff8d52b3424a4331a4e79a5a63d3c93d8250c25a9ac6e73f85174a21b2",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3757,7 +3757,7 @@
             "id": "official.semantic.luma_windows.variant",
             "kind": "preset",
             "source": "content/semantic/luma_windows/presets.json",
-            "source_sha256": "6b5d1b5b5b6c420b97faf565d39cf4ada4974065e7baef15dcf5c88f51f024b8",
+            "source_sha256": "5fda5dd5b7c64787229d7e677ca4016a7569c3c0759d15a85b73d1173445f04e",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Broad openings",
@@ -3782,8 +3782,8 @@
             "id": "official.semantic.mirrored_duet",
             "kind": "component",
             "source": "content/semantic/mirrored_duet",
-            "source_sha256": "50380c07d7c8514c301dd6f4e04a65a5dfbdf9b08b29a4b3496096a9c70cd751",
-            "version": "0.1.1",
+            "source_sha256": "f71ec7b23294a8f5f8734f0a882dcd115ad52084e98e358eba6a38ce25b7e992",
+            "version": "0.2.0",
             "titles": {
                 "en-US": "Mirrored duet",
                 "zh-CN": "镜像对舞"
@@ -3797,13 +3797,13 @@
             "source_license_note": "First-party composition using existing attributed operators; outbound license pending",
             "soundtrack": null,
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
-                "music": "pending",
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -3812,7 +3812,7 @@
             "id": "official.semantic.mirrored_duet.default",
             "kind": "preset",
             "source": "content/semantic/mirrored_duet/presets.json",
-            "source_sha256": "d0ee5e7da63ad1f9795099ddcbb253a029aa9dea02824bee932a5ac4f0ec9fd4",
+            "source_sha256": "ed1834ddbd1549663d5061de92c1b7bbb5ad8ccb6d0723cdb8987734a7ce4695",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3837,7 +3837,7 @@
             "id": "official.semantic.mirrored_duet.variant",
             "kind": "preset",
             "source": "content/semantic/mirrored_duet/presets.json",
-            "source_sha256": "187031592f747f7a0b44f3a50e2b90f9fb3af48180009b6c17042435300c9b64",
+            "source_sha256": "7826c550315a6ee666ee47e4d53104b860da609ebed2bd97b03f9bd3091e9d49",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Interlocked fans",
@@ -3862,8 +3862,8 @@
             "id": "official.semantic.motion_echo",
             "kind": "component",
             "source": "content/semantic/motion_echo",
-            "source_sha256": "ec6b4e1c0212bcd4e4696c8218415d5d533cbaa9c65923a0769c0ed0036bd79e",
-            "version": "0.1.1",
+            "source_sha256": "7c5242968248e9aa6dfde954fdd038bb721649de7a45da4a64dd9363c72851b0",
+            "version": "0.2.0",
             "titles": {
                 "en-US": "Motion echo",
                 "zh-CN": "运动回声"
@@ -3877,13 +3877,13 @@
             "source_license_note": "First-party composition using existing attributed operators; outbound license pending",
             "soundtrack": null,
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
-                "music": "pending",
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -3892,7 +3892,7 @@
             "id": "official.semantic.motion_echo.default",
             "kind": "preset",
             "source": "content/semantic/motion_echo/presets.json",
-            "source_sha256": "5d6c85da4435c5076dc531fb7b6840c8620ab3bc3c1201ccb63f832952274964",
+            "source_sha256": "8b09231b72eb18612823e306247cb475f256bf5d32f547c731597553677ef88c",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3917,7 +3917,7 @@
             "id": "official.semantic.motion_echo.variant",
             "kind": "preset",
             "source": "content/semantic/motion_echo/presets.json",
-            "source_sha256": "be2d895a0c3529f6e526858965fd1f3e5d93f7fa5775936980e7105c693f8166",
+            "source_sha256": "6c50ba016cdbd550be0fbaff6134c5f19f49cc744134040112d0ff10dd106fe9",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Tight spiral",
@@ -4341,8 +4341,8 @@
             "id": "official.semantic.polar_vortex",
             "kind": "component",
             "source": "content/semantic/polar_vortex",
-            "source_sha256": "d287e647b80c6dedd2449ee087a635ffa0d2077c4f7a7d73ddfcfe4464936afe",
-            "version": "0.1.1",
+            "source_sha256": "84ab90a51a14002f75bf1c2c810ee863277bcf6867c1c071f70b845e0ee4a388",
+            "version": "0.2.0",
             "titles": {
                 "en-US": "Polar vortex",
                 "zh-CN": "极坐标旋涡"
@@ -4356,13 +4356,13 @@
             "source_license_note": "First-party composition using existing attributed operators; outbound license pending",
             "soundtrack": null,
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
-                "music": "pending",
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -4371,7 +4371,7 @@
             "id": "official.semantic.polar_vortex.default",
             "kind": "preset",
             "source": "content/semantic/polar_vortex/presets.json",
-            "source_sha256": "79f49da2d1ab2c2be9c167fd44c794f4fcc032489d059370b4219ddef4be1374",
+            "source_sha256": "9f7f793653094db9d1c1bf2eb22a784827f0f3dcf6ba67346af5978926430b5b",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -4396,7 +4396,7 @@
             "id": "official.semantic.polar_vortex.variant",
             "kind": "preset",
             "source": "content/semantic/polar_vortex/presets.json",
-            "source_sha256": "7d9ef149e8d8418e2cc7f0e16793a4d8c919200cb8246bb43bea78194fe7c86e",
+            "source_sha256": "0d27c4f9ff24895846efda3ae0856bed9c6219851404547419e4c11cf71280d4",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Open spiral",
@@ -4421,8 +4421,8 @@
             "id": "official.semantic.prism_fold",
             "kind": "component",
             "source": "content/semantic/prism_fold",
-            "source_sha256": "886ad295f399ef9f9e36c8fed3686f772affacacde55b6def898f1bfe6bc4f4c",
-            "version": "0.1.1",
+            "source_sha256": "4da49d3f0eb17b4141f69b8adcf8caf84f1c5ee6ef6ec0329bd8b00384613a76",
+            "version": "0.2.0",
             "titles": {
                 "en-US": "Prism fold",
                 "zh-CN": "棱镜折叠"
@@ -4436,13 +4436,13 @@
             "source_license_note": "First-party composition using existing attributed operators; outbound license pending",
             "soundtrack": null,
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
-                "music": "pending",
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -4451,7 +4451,7 @@
             "id": "official.semantic.prism_fold.default",
             "kind": "preset",
             "source": "content/semantic/prism_fold/presets.json",
-            "source_sha256": "6e67bc0e73d3c7c25fe43bb3283875f79de8e54986689a624711cd3e9fdd33ef",
+            "source_sha256": "508211ce73db0b49667b386093762983437dc8783562f507f6ea8c85182959d3",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -4476,7 +4476,7 @@
             "id": "official.semantic.prism_fold.variant",
             "kind": "preset",
             "source": "content/semantic/prism_fold/presets.json",
-            "source_sha256": "070b9ecbf4c7d5bac33d882c99c9cdc624897b44f3e40c054690515ed224bebe",
+            "source_sha256": "8eed00e5196d03ab8ebce238d0bb6f3559448caec45772035f8394b678860ebc",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Triangular sweep",
@@ -4661,8 +4661,8 @@
             "id": "official.semantic.self_relief",
             "kind": "component",
             "source": "content/semantic/self_relief",
-            "source_sha256": "a2e459042cf64e5d4ea5f77f0191bc9ecc9f70a2f79e7de3d177910e056f351a",
-            "version": "0.1.1",
+            "source_sha256": "c77343f560d5be06a36ed3673dae0bfa9a611d320460dbdbc20955fea5660e28",
+            "version": "0.2.0",
             "titles": {
                 "en-US": "Self relief",
                 "zh-CN": "自形浮雕"
@@ -4676,13 +4676,13 @@
             "source_license_note": "First-party composition using existing attributed operators; outbound license pending",
             "soundtrack": null,
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
-                "music": "pending",
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -4691,7 +4691,7 @@
             "id": "official.semantic.self_relief.default",
             "kind": "preset",
             "source": "content/semantic/self_relief/presets.json",
-            "source_sha256": "b4a7421879162cdee338405ba5a884433c2b232f4f25c19cb8d9bde0cfcaf8ee",
+            "source_sha256": "b527b2caeadf895683951976f49a849e75ebcdb1ecf50f43e26912eda190d162",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -4716,7 +4716,7 @@
             "id": "official.semantic.self_relief.variant",
             "kind": "preset",
             "source": "content/semantic/self_relief/presets.json",
-            "source_sha256": "258d6a73f52f34f6af7d682a36de4ccd6c478b004fb474457459292f92bed995",
+            "source_sha256": "e8f722dd4d14c6356b7ca3e88359b2c802a33c97e32888b99aa27c49884399f5",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Fine emboss",
@@ -4741,8 +4741,8 @@
             "id": "official.semantic.soft_glow",
             "kind": "component",
             "source": "content/semantic/soft_glow",
-            "source_sha256": "4d4c52afccac56c6b4c673dac3f5eab8e02e3bf6d30c695103a8082ec5fb9f64",
-            "version": "0.1.1",
+            "source_sha256": "811dc9b69322602753e76a1266456054f668043dbce98a530da3b43cc14439aa",
+            "version": "0.2.0",
             "titles": {
                 "en-US": "Soft glow",
                 "zh-CN": "柔光合成"
@@ -4756,13 +4756,13 @@
             "source_license_note": "First-party composition using existing attributed operators; outbound license pending",
             "soundtrack": null,
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
-                "music": "pending",
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -4771,7 +4771,7 @@
             "id": "official.semantic.soft_glow.default",
             "kind": "preset",
             "source": "content/semantic/soft_glow/presets.json",
-            "source_sha256": "49b17a35b9b69854c063babb87333aae139f524a0f310dae9f61a1ea3ba3b33f",
+            "source_sha256": "4464fed6c98b316e394c5cb9d30d77d1dce1aae3feb5c43d43991a1075e21a0e",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -4796,7 +4796,7 @@
             "id": "official.semantic.soft_glow.variant",
             "kind": "preset",
             "source": "content/semantic/soft_glow/presets.json",
-            "source_sha256": "6fced26955ba7a35e78a3f7a89fc0c4c9ea0ff2d37f40802303b7ee162e35f94",
+            "source_sha256": "5d1c7bc7106edce531a3a78b75cb161a6b7f4beed422d8d2f057cf9483644f82",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Wide halo",

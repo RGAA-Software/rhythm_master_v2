@@ -3,7 +3,7 @@
     "manifest_version": 1,
     "kind": "template",
     "content_id": "official.semantic.audio_iris",
-    "content_version": "0.1.1",
+    "content_version": "0.2.0",
     "project_id": "semantic-audio_iris",
     "graph_revision": 0,
     "title": "音乐光阑 / Audio iris",

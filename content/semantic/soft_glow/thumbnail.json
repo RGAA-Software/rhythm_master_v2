@@ -1,7 +1,7 @@
 {
     "template": "soft_glow",
-    "package_sha256": "6c4e470ee783b1806e8ceb7a1b36f87f7e64dd80913f4b3ebb01ee5f114f3dcf",
-    "thumbnail_sha256": "0ffabbcf22e6b59f53529503f190ea3c28855765af4744c258f378e50e749969",
+    "package_sha256": "46e10d5c10f2b8ef11c82c5482ad95c8e1dae4d2de2bc54d569aff5819ee4ef3",
+    "thumbnail_sha256": "bd1c6ee7b77c44adb8fc389873fc522f5313b206692b66ed9508e411a0bf2baa",
     "extent": [
         256,
         144

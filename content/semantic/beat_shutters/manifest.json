@@ -3,7 +3,7 @@
     "manifest_version": 1,
     "kind": "template",
     "content_id": "official.semantic.beat_shutters",
-    "content_version": "0.1.1",
+    "content_version": "0.2.0",
     "project_id": "semantic-beat_shutters",
     "graph_revision": 0,
     "title": "节拍百叶 / Beat shutters",

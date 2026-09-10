@@ -1,7 +1,7 @@
 {
     "template": "self_relief",
-    "package_sha256": "8d5621ed5982d8df00f3c2bdab65f61cd0decd8348efeb1f550eebdf860a13ab",
-    "thumbnail_sha256": "01bd3484d787a3da77ad395f8962a9123a564f07e369307af5ddf935fdb10966",
+    "package_sha256": "218b75bf8776b65e48918a6671f8ecf19ed2050e8a99c8b9f62e7a33b976c77c",
+    "thumbnail_sha256": "ac139bc2066204c0531bc7e82dc71514887c7db3b0807289f1d75ff66b6d8a4e",
     "extent": [
         256,
         144

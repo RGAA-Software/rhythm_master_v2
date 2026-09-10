@@ -1,13 +1,13 @@
 """Editable image-processing graphs composed from existing renderer operators."""
 
+from audio_band_groups import build_low_high
 
 def controls(graph, pace=0.1):
     node = graph.node
     clock = node('core.time', 0, 0)
     speed = node('scalar.constant', 0, 300, value=pace)
     phase = node('scalar.expression', 340, 0, dict(time=clock, a=speed), expression='time * a')
-    bass = node('audio.band', 0, 600, audio_band=12)
-    high = node('audio.band', 0, 900, audio_band=48)
+    bass, high = build_low_high(node)
     response = node('scalar.constant', 0, 1200, value=1)
     return phase, bass, high, speed, response
 
@@ -60,8 +60,7 @@ def soft_glow(graph):
     node = graph.node
     # This filter has no independent animation clock: it preserves source motion
     # and uses the two audio bands only for the added glow envelope.
-    bass = node('audio.band', 0, 0, audio_band=12)
-    high = node('audio.band', 0, 300, audio_band=48)
+    bass, high = build_low_high(node)
     response = node('scalar.constant', 0, 600, value=1)
     energy = node('scalar.expression', 340, 0, dict(a=bass, b=high, c=response),
                   expression='(0.12 + a * 1.2 + b * 0.65) * c')

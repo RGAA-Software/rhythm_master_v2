@@ -3,7 +3,7 @@
     "manifest_version": 1,
     "kind": "template",
     "content_id": "official.semantic.polar_vortex",
-    "content_version": "0.1.1",
+    "content_version": "0.2.0",
     "project_id": "semantic-polar_vortex",
     "graph_revision": 0,
     "title": "极坐标旋涡 / Polar vortex",

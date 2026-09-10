@@ -136,6 +136,14 @@ Windows 大音乐实际 Studio、两端原生完整 PCM／归档合同已通过�
 四件当前作品的 Balanced 原生短测与 Original 应用画面分别记录在
 [手机档位短测](validation/calibration_mobile_profiles_2026-09-10.md)，不混用档位或把短测当长稳。
 
+11 个输入图像组件已由两个孤立频点改为低／高频段聚合，升级到 0.2.0。
+实际 200 Hz／8 kHz 输入、44 项图像差值、中文组件库操作、29 组件合同和
+Android 原生 GLES 短测通过；详见
+[输入组件频段覆盖](validation/input_component_band_coverage_2026-09-10.md)。
+已有工程内组件快照不自动替换，品质数量不因内部节点增加而变化。
+交付期间同时补齐[音乐重开就绪检查](validation/soundtrack_reopen_readiness_2026-09-10.md)，
+不再用固定帧数或重开前的有效计划代替异步操作完成证据。
+
 ## 1. 产品目标、阶段终点与优先级
 
 产品是以音乐可视化为核心的实时节点创作软件，对标 TiXL / TouchDesigner 的

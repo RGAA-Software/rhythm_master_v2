@@ -1,7 +1,7 @@
 {
     "template": "polar_vortex",
-    "package_sha256": "fc035cd8b35c44afc0f254330dbdbe5719e446ddd66ca1ad631a6f571dd04628",
-    "thumbnail_sha256": "8bdf966c205d35737566d871c27e9c90f427eab001b23c19195529888a8e5ff9",
+    "package_sha256": "6d7415ee9a09a588507f8175120acb6f57206bfd4d4d34ff7bb1d34cbfafb055",
+    "thumbnail_sha256": "6ee535be64049a7c48d5e48227e4d4245c01077d5e6074aa231321a3a7240342",
     "extent": [
         256,
         144

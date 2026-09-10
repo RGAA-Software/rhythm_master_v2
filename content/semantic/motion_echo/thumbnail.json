@@ -1,7 +1,7 @@
 {
     "template": "motion_echo",
-    "package_sha256": "54d5b7c83c7862a51d6a3301eaa2fcc2c4986d512a648e345266ff5946e404ea",
-    "thumbnail_sha256": "0efbe4d2fdf4fa5fc3e34e89785bc8c96ca461edda25cf31b439f0202692f5fa",
+    "package_sha256": "99a78672d929a95a314185a2db0397c0ec965208fafecc43e655fbf6adc0107a",
+    "thumbnail_sha256": "cd764cb23f5c4c262beba4c88917fba5caf19fe083ee9bea5213faacc4752724",
     "extent": [
         256,
         144

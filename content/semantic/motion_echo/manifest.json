@@ -3,7 +3,7 @@
     "manifest_version": 1,
     "kind": "template",
     "content_id": "official.semantic.motion_echo",
-    "content_version": "0.1.1",
+    "content_version": "0.2.0",
     "project_id": "semantic-motion_echo",
     "graph_revision": 0,
     "title": "运动回声 / Motion echo",
