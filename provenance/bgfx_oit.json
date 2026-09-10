@@ -1,0 +1,34 @@
+{
+    "source_url": "https://github.com/bkaradzic/bgfx.cmake/releases/download/v1.129.8940-496/bgfx.cmake.v1.129.8940-496.tar.gz",
+    "revision": "bgfx.cmake v1.129.8940-496",
+    "source_archive_sha512": "520c542b65e76e92eae818e32eeb62bb2347ac89a1e10fc07cd5059a3b8a9a543cadca87d451a3bc157c415f6183b1f0e5031248e38fae704b8efd54679d482b",
+    "license": "BSD-2-Clause",
+    "license_file": "third_party/notices/bgfx-oit/LICENSE",
+    "files": [
+        {
+            "upstream_file": "examples/19-oit/fs_oit_wb.sc",
+            "imported_file": "third_party/sources/bgfx-oit/fs_oit_wb.sc",
+            "sha256": "444f5479fb32ac5bb2f5c92dc6ed978ab89b205e91332c77466991ef667dd2cf"
+        },
+        {
+            "upstream_file": "examples/19-oit/fs_oit_wb_blit.sc",
+            "imported_file": "third_party/sources/bgfx-oit/fs_oit_wb_blit.sc",
+            "sha256": "5a408b397bd4e0b67987f66a7d51131513b6ecaac6612624348d570379723b50"
+        },
+        {
+            "upstream_file": "examples/19-oit/oit.cpp",
+            "imported_file": "third_party/sources/bgfx-oit/oit.cpp",
+            "sha256": "32acc51c06a372596a9b8d5c2232e61d7467eaa537c28859342e444143c4e287"
+        }
+    ],
+    "target": [
+        "src/rhythm_render/tests/transparency_profile.cpp",
+        "src/rhythm_render/shaders/transparency_probe_resolve.sc"
+    ],
+    "modifications": [
+        "Evaluate accumulation/revealage with unit weight, using two geometry passes instead of MRT-specific blending.",
+        "Retain normalized accumulated premultiplied RGB, protect division by near zero, and composite using one minus multiplicative revealage.",
+        "Existing material fragment output could be reused with unit weights; no new material or Runtime capability is adopted by this probe.",
+        "Compare order sensitivity, error against analytically sorted intersecting planes, opaque depth rejection, and bounded 1080p cost on D3D11 and GLES."
+    ]
+}

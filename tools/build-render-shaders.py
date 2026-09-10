@@ -29,7 +29,10 @@ def main():
                     ("probe_color.sc", "fragment", "probe_varying.def.sc", "kProbeFragmentShader"),
                     ("probe_update.sc", "compute", None, "kProbeComputeShader"),
                     ("attribute_probe_vertex.sc", "vertex", "attribute_probe_varying.def.sc", "kAttributeProbeVertexShader"),
-                    ("gpu_point_map.sc", "compute", None, "kAttributeProbeComputeShader")]
+                    ("gpu_point_map.sc", "compute", None, "kAttributeProbeComputeShader"),
+                    ("transparency_probe_vertex.sc", "vertex", "transparency_probe_varying.def.sc", "kTransparencyProbeVertexShader"),
+                    ("transparency_probe_color.sc", "fragment", "transparency_probe_varying.def.sc", "kTransparencyProbeColorShader"),
+                    ("transparency_probe_resolve.sc", "fragment", "transparency_probe_varying.def.sc", "kTransparencyProbeResolveShader")]
     elif args.group == "gpu_points":
         programs = [("gpu_point_vertex.sc", "vertex", "gpu_point_varying.def.sc", "kGpuPointVertexShader"),
                     ("gpu_point_fragment.sc", "fragment", "gpu_point_varying.def.sc", "kGpuPointFragmentShader"),

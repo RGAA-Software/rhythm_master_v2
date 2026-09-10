@@ -38,6 +38,7 @@ RENDER_ADAPTERS.add("src/rhythm_render/tests/gpu_execution_probe.cpp")
 # its public contract contains only a bounded host byte span and a path.
 RENDER_ADAPTERS.add("src/rhythm_render/tests/material_profile_gpu.cpp")
 RENDER_ADAPTERS.add("src/rhythm_render/tests/gpu_attribute_profile.cpp")
+RENDER_ADAPTERS.add("src/rhythm_render/tests/transparency_profile.cpp")
 
 
 CPP_NON_CODE = re.compile(

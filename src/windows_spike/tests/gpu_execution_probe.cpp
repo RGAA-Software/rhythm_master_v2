@@ -9,6 +9,10 @@ int main(int argc, char* argv[]) {
         std::array<std::uint8_t, 32 * 16 * 4> pixels{};
         rhythm::platform::Host host(true);
         auto renderer = host.CreateRenderer();
+        if (argc == 3 && std::string_view(argv[1]) == "--transparency-profile") {
+            rhythm::validation::VerifyTransparencyProfile(pixels, argv[2]);
+            return 0;
+        }
         if (argc == 2 && std::string_view(argv[1]) == "--gpu-attributes") {
             rhythm::validation::VerifyGpuAttributeProfile(pixels);
             return 0;
