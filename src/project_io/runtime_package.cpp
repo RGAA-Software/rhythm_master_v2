@@ -74,7 +74,7 @@ bool RequiresStreamedAudio(std::span<const assets::AssetRecord> records,
             ordinary += record.bytes_;
         }
     }
-    return music > kMaximumPackageAssetBytes - ordinary;
+    return music > kMaximumEmbeddedMusicAssetBytes || music > kMaximumPackageAssetBytes - ordinary;
 }
 
 std::string EncodePackage(const graph::Document& document, std::string_view title,

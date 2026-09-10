@@ -130,6 +130,12 @@ P7 扩展到七组真实 PCM／十项图像对照后发现三个窄带不能代�
 其他资源类型及逐片段换源仍按对应工作流验收。P7 数量目标、P8 全部工作流、
 P9 长稳尚未完成。
 
+上述完整回归额外发现并修复 P8 单首 16–32 MiB 音乐的发布预算冲突，
+Windows 大音乐实际 Studio、两端原生完整 PCM／归档合同已通过，
+详见 [音乐分流回归](validation/music_inline_budget_regression_2026-09-10.md)。
+四件当前作品的 Balanced 原生短测与 Original 应用画面分别记录在
+[手机档位短测](validation/calibration_mobile_profiles_2026-09-10.md)，不混用档位或把短测当长稳。
+
 ## 1. 产品目标、阶段终点与优先级
 
 产品是以音乐可视化为核心的实时节点创作软件，对标 TiXL / TouchDesigner 的

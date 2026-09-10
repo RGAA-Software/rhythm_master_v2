@@ -18,6 +18,11 @@
 [大音乐运行包记录](validation/large_music_packages_2026-09-08.md)。沿用同一 FFmpeg
 解码器和 miniz，音频工作线程持有文件范围；不把整首音乐读入内存。
 
+2026-09-10：单首音乐的内嵌上限独立保持 16 MiB；超过它即走 v2 文件范围，
+不再随普通素材 32 MiB 总预算一起上调。修复字体预算扩大后 16–32 MiB 音乐
+可绑定保存但发布失败的回归，见
+[音乐分流与实测](validation/music_inline_budget_regression_2026-09-10.md)。
+
 ## 1. 决策和范围
 
 媒体能力服务于[音乐可视化产品主线](product_scope.md)：音乐文件/实时输入、

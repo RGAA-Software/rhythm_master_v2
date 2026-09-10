@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
         project::Save(root / "work.rhythmproj", snapshot);
         const auto restored = project::Load(root / "work.rhythmproj").snapshot_;
         project::PublishSnapshot(root / "show.rhythmpack", restored, asset_path);
-        const bool streamed = record.bytes_ > project::kMaximumPackageAssetBytes;
+        const bool streamed = record.bytes_ > project::kMaximumEmbeddedMusicAssetBytes;
         const auto package = project::LoadPackage(root / "show.rhythmpack");
         Check(package.streamed_audio_.has_value() == streamed, "music profile selection");
         if (streamed) Check(package.assets_.empty(), "large music stays outside in-memory assets");

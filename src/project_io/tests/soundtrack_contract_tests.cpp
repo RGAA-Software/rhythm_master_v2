@@ -53,6 +53,15 @@ int main(int argc, char* argv[]) {
         snapshot.document_ = project::DecodeGraph(project::EncodeGraph(snapshot.document_));
         snapshot.assets_ = {record};
         snapshot.soundtrack_ = media::Soundtrack{record.id_, "作品音乐 / Music", 0.35F, true};
+        // The ordinary-assets limit was raised to 32 MiB for fonts; that must
+        // not route 16..32 MiB songs into the decoder's 16 MiB byte-vector path.
+        auto music_boundary = record;
+        music_boundary.bytes_ = 16 * 1024 * 1024;
+        Check(!project::RequiresStreamedAudio(std::span(&music_boundary, 1), snapshot.soundtrack_));
+        ++music_boundary.bytes_;
+        Check(project::RequiresStreamedAudio(std::span(&music_boundary, 1), snapshot.soundtrack_));
+        music_boundary.bytes_ = 32 * 1024 * 1024;
+        Check(project::RequiresStreamedAudio(std::span(&music_boundary, 1), snapshot.soundtrack_));
         project::Save(project_path, snapshot);
         Check(project::Load(project_path).snapshot_ == snapshot);
         auto changed = snapshot;

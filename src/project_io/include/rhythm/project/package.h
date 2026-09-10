@@ -16,6 +16,9 @@ inline constexpr std::size_t kMaximumPackageBytes = 48 * 1024 * 1024;
 inline constexpr std::size_t kMaximumPackageAssets = 64;
 // Includes complete redistributable CJK fonts; shared by all ordinary assets.
 inline constexpr std::size_t kMaximumPackageAssetBytes = 32 * 1024 * 1024;
+// A single in-memory audio source must fit the FFmpeg adapter's existing
+// 16 MiB embedded-input limit, independently of the aggregate asset budget.
+inline constexpr std::uint64_t kMaximumEmbeddedMusicAssetBytes = 16 * 1024 * 1024;
 inline constexpr std::uint64_t kMaximumMusicAssetBytes = 256 * 1024 * 1024;
 inline constexpr std::uint64_t kMaximumFilePackageBytes = 304 * 1024 * 1024;
 enum class PackageProfile {

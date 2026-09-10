@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
         assets::Store identity_store(root / "input-identity");
         const auto requested_music = identity_store.Import(argv[3], "audio/wav");
         const auto expected_profile =
-                std::filesystem::file_size(argv[3]) > project::kMaximumPackageAssetBytes
+                std::filesystem::file_size(argv[3]) > project::kMaximumEmbeddedMusicAssetBytes
                         ? project::PackageProfile::kMusicPerformanceV2
                         : project::PackageProfile::kMusicPerformanceV1;
         auto initial = project::PrepareTemplate(argv[2], project_path / "assets").snapshot_;
