@@ -10,7 +10,7 @@
     "counts": {
         "authored:component": 30,
         "authored:preset": 208,
-        "authored:template": 53,
+        "authored:template": 57,
         "component:component": 0,
         "preset:preset": 0,
         "template:advanced": 0,
@@ -5529,6 +5529,107 @@
             }
         },
         {
+            "id": "official.templates.aureate_vortex",
+            "kind": "template",
+            "source": "content/templates/aureate_vortex",
+            "source_sha256": "08bd5be3ba32e02eea0b627b34534c91b223de62e13a180115d0541885b1cd50",
+            "version": "0.1.0",
+            "titles": {
+                "zh-CN": "鎏光流涡",
+                "en-US": "Aureate Vortex"
+            },
+            "tier": "advanced",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": {
+                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                "title": "Luminous Concerto",
+                "gain": 0.75,
+                "loop": true,
+                "clips": [
+                    {
+                        "id": 1,
+                        "title": "Pulse foundation",
+                        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                        "start": 0,
+                        "duration": 16,
+                        "source_in": 0,
+                        "source_out": 8,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.85,
+                        "pan": 0,
+                        "muted": false
+                    },
+                    {
+                        "id": 2,
+                        "title": "Chimes entrance",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 4,
+                        "duration": 8,
+                        "source_in": 0,
+                        "source_out": 8,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.75,
+                        "pan": -0.25,
+                        "muted": false
+                    },
+                    {
+                        "id": 3,
+                        "title": "Chimes release",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 12,
+                        "duration": 4,
+                        "source_in": 0,
+                        "source_out": 4,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.6,
+                        "pan": 0.25,
+                        "muted": false
+                    },
+                    {
+                        "id": 4,
+                        "title": "Answering chimes",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 8,
+                        "duration": 8,
+                        "source_in": 2,
+                        "source_out": 6,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.35,
+                        "pan": 0.6,
+                        "muted": false
+                    }
+                ]
+            },
+            "is_default": false,
+            "review_history_count": 1,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "passed",
+                "music": "passed",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
             "id": "official.templates.aurora_braid",
             "kind": "template",
             "source": "content/templates/aurora_braid",
@@ -6256,6 +6357,107 @@
             }
         },
         {
+            "id": "official.templates.lumen_corridor",
+            "kind": "template",
+            "source": "content/templates/lumen_corridor",
+            "source_sha256": "c519cdc917f4b44e9e5b396dca3018f461cca8a22272f80ea852b27e366c490f",
+            "version": "0.1.0",
+            "titles": {
+                "zh-CN": "光门空间",
+                "en-US": "Lumen Corridor"
+            },
+            "tier": "advanced",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": {
+                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                "title": "Luminous Concerto",
+                "gain": 0.75,
+                "loop": true,
+                "clips": [
+                    {
+                        "id": 1,
+                        "title": "Pulse foundation",
+                        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                        "start": 0,
+                        "duration": 16,
+                        "source_in": 0,
+                        "source_out": 8,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.85,
+                        "pan": 0,
+                        "muted": false
+                    },
+                    {
+                        "id": 2,
+                        "title": "Chimes entrance",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 4,
+                        "duration": 8,
+                        "source_in": 0,
+                        "source_out": 8,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.75,
+                        "pan": -0.25,
+                        "muted": false
+                    },
+                    {
+                        "id": 3,
+                        "title": "Chimes release",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 12,
+                        "duration": 4,
+                        "source_in": 0,
+                        "source_out": 4,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.6,
+                        "pan": 0.25,
+                        "muted": false
+                    },
+                    {
+                        "id": 4,
+                        "title": "Answering chimes",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 8,
+                        "duration": 8,
+                        "source_in": 2,
+                        "source_out": 6,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.35,
+                        "pan": 0.6,
+                        "muted": false
+                    }
+                ]
+            },
+            "is_default": false,
+            "review_history_count": 1,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "passed",
+                "music": "passed",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
             "id": "official.templates.luminous_concerto",
             "kind": "template",
             "source": "content/templates/luminous_concerto",
@@ -6653,6 +6855,107 @@
             "review": {
                 "functional": "pending",
                 "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.templates.porcelain_bloom",
+            "kind": "template",
+            "source": "content/templates/porcelain_bloom",
+            "source_sha256": "b660515d2e01073f4d3c1f550d51efc8cd8819b7eacde8361f427cb0dd643e32",
+            "version": "0.1.0",
+            "titles": {
+                "zh-CN": "瓷金绽放",
+                "en-US": "Porcelain Bloom"
+            },
+            "tier": "advanced",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": {
+                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                "title": "Luminous Concerto",
+                "gain": 0.75,
+                "loop": true,
+                "clips": [
+                    {
+                        "id": 1,
+                        "title": "Pulse foundation",
+                        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                        "start": 0,
+                        "duration": 16,
+                        "source_in": 0,
+                        "source_out": 8,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.85,
+                        "pan": 0,
+                        "muted": false
+                    },
+                    {
+                        "id": 2,
+                        "title": "Chimes entrance",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 4,
+                        "duration": 8,
+                        "source_in": 0,
+                        "source_out": 8,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.75,
+                        "pan": -0.25,
+                        "muted": false
+                    },
+                    {
+                        "id": 3,
+                        "title": "Chimes release",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 12,
+                        "duration": 4,
+                        "source_in": 0,
+                        "source_out": 4,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.6,
+                        "pan": 0.25,
+                        "muted": false
+                    },
+                    {
+                        "id": 4,
+                        "title": "Answering chimes",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 8,
+                        "duration": 8,
+                        "source_in": 2,
+                        "source_out": 6,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.35,
+                        "pan": 0.6,
+                        "muted": false
+                    }
+                ]
+            },
+            "is_default": false,
+            "review_history_count": 1,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -7407,6 +7710,107 @@
             "review": {
                 "functional": "pending",
                 "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.templates.stratified_ink",
+            "kind": "template",
+            "source": "content/templates/stratified_ink",
+            "source_sha256": "8722ef6fdafe814f21adf4ce6480019679e7402097dd63d5bf8bf81f174e2f23",
+            "version": "0.1.0",
+            "titles": {
+                "zh-CN": "层叠墨流",
+                "en-US": "Stratified Ink"
+            },
+            "tier": "advanced",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": {
+                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                "title": "Luminous Concerto",
+                "gain": 0.75,
+                "loop": true,
+                "clips": [
+                    {
+                        "id": 1,
+                        "title": "Pulse foundation",
+                        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                        "start": 0,
+                        "duration": 16,
+                        "source_in": 0,
+                        "source_out": 8,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.85,
+                        "pan": 0,
+                        "muted": false
+                    },
+                    {
+                        "id": 2,
+                        "title": "Chimes entrance",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 4,
+                        "duration": 8,
+                        "source_in": 0,
+                        "source_out": 8,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.75,
+                        "pan": -0.25,
+                        "muted": false
+                    },
+                    {
+                        "id": 3,
+                        "title": "Chimes release",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 12,
+                        "duration": 4,
+                        "source_in": 0,
+                        "source_out": 4,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.6,
+                        "pan": 0.25,
+                        "muted": false
+                    },
+                    {
+                        "id": 4,
+                        "title": "Answering chimes",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 8,
+                        "duration": 8,
+                        "source_in": 2,
+                        "source_out": 6,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.35,
+                        "pan": 0.6,
+                        "muted": false
+                    }
+                ]
+            },
+            "is_default": false,
+            "review_history_count": 1,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }

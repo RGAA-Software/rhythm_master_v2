@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -81,7 +82,11 @@ def run_logged(command, log, environment=None):
         with archive.open("xb") as output:
             result = subprocess.run(command, env=environment, stdout=output, stderr=subprocess.STDOUT)
         evidence["returncode"] = result.returncode
-        print(archive.read_text(encoding="utf-8", errors="replace"), end="")
+        # Native tools can emit locale bytes. Preserve the original archive;
+        # console transcoding must not replace a completed command's exit status.
+        transcript = archive.read_text(encoding="utf-8", errors="replace")
+        encoding = sys.stdout.encoding or "utf-8"
+        print(transcript.encode(encoding, errors="backslashreplace").decode(encoding), end="")
         result.check_returncode()
     finally:
         evidence["elapsed_seconds"] = time.monotonic() - started

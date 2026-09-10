@@ -1,0 +1,14 @@
+{
+    "template": "aureate_vortex",
+    "package_sha256": "adeee982a059cd09bee0fd88c7a96a6ec3fa5ae9a0e1c03d8fae3ce41330dc85",
+    "thumbnail_sha256": "7886fd3089535a31d46529fc1bc625d780246cbc9f863af4c111ee9c7773d0a2",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

@@ -1,0 +1,14 @@
+{
+    "template": "lumen_corridor",
+    "package_sha256": "823fa010b590c5a72c075b744de233e064f7bee3e2b7df586ec65e2b1a6f5e5d",
+    "thumbnail_sha256": "0956f24195a029bddd0b507e78cd3b7e3e51e656a29068149d0856b338d4ef4f",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

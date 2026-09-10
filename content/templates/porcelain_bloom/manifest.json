@@ -1,0 +1,118 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 3,
+    "kind": "template",
+    "content_id": "official.templates.porcelain_bloom",
+    "content_version": "0.1.0",
+    "project_id": "official-porcelain-bloom",
+    "graph_revision": 0,
+    "title": "瓷金绽放 / Porcelain Bloom",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "瓷金绽放",
+        "en-US": "Porcelain Bloom"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "assets": [
+        {
+            "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+            "bytes": 240627,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+            "bytes": 160293,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "39e5e388f5834063acee9cba0e5c688f01f23b2b07d03b292981c69dddec0fc1",
+            "bytes": 109712,
+            "media_type": "model/gltf-binary"
+        }
+    ],
+    "soundtrack": {
+        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+        "title": "Luminous Concerto",
+        "gain": 0.75,
+        "loop": true,
+        "clips": [
+            {
+                "id": 1,
+                "title": "Pulse foundation",
+                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                "start": 0,
+                "duration": 16,
+                "source_in": 0,
+                "source_out": 8,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.85,
+                "pan": 0,
+                "muted": false
+            },
+            {
+                "id": 2,
+                "title": "Chimes entrance",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 4,
+                "duration": 8,
+                "source_in": 0,
+                "source_out": 8,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.75,
+                "pan": -0.25,
+                "muted": false
+            },
+            {
+                "id": 3,
+                "title": "Chimes release",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 12,
+                "duration": 4,
+                "source_in": 0,
+                "source_out": 4,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.6,
+                "pan": 0.25,
+                "muted": false
+            },
+            {
+                "id": 4,
+                "title": "Answering chimes",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 8,
+                "duration": 8,
+                "source_in": 2,
+                "source_out": 6,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.35,
+                "pan": 0.6,
+                "muted": false
+            }
+        ]
+    },
+    "descriptions": {
+        "zh-CN": "双层瓷瓣围绕黄铜核心反向旋转，三道断开的金弧构成外部空间。低频弯折瓷瓣，中频推动层间旋转，高频点亮环绕珠点；共享花瓣模型、形变、材质、光影、三宏与四段音乐均可编辑。",
+        "en-US": "Two ceramic petal layers counter-rotate around a brass core, framed by three broken gold arcs. Bass folds petals, mids rotate layers and highs grow orbiting beads. Shared morph geometry, PBR lighting, three macros and four music cues are editable."
+    }
+}

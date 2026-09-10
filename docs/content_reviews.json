@@ -607,6 +607,142 @@
                 "status": "pending",
                 "notes": "Source-bound native GLES synthetic-feature short test passed; integrated installed-work acceptance remains pending."
             }
+        },
+        {
+            "id": "official.templates.aureate_vortex",
+            "source_sha256": "08bd5be3ba32e02eea0b627b34534c91b223de62e13a180115d0541885b1cd50",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Current bilingual Studio template application, mouse controls, save/reopen/publication, soundtrack replacement and 480-frame H264/AAC export passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Seven decoded PCM inputs, three control extrema and current APK packaged PCM/GLES at four arrangement times passed unchanged thresholds."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Four concept/output stills and sequential exported frames self-reviewed; explicit material/structure/simulation gaps recorded. Final user aesthetic and continuous motion/listening acceptance pending."
+            },
+            "device": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Current APK identity and native 640x360 packaged PCM/GLES short checks passed. Final declared-profile performance and integrated acceptance pending."
+            }
+        },
+        {
+            "id": "official.templates.porcelain_bloom",
+            "source_sha256": "b660515d2e01073f4d3c1f550d51efc8cd8819b7eacde8361f427cb0dd643e32",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Current bilingual Studio template application, mouse controls, save/reopen/publication, soundtrack replacement and 480-frame H264/AAC export passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Seven decoded PCM inputs, three control extrema and current APK packaged PCM/GLES at four arrangement times passed unchanged thresholds."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Four concept/output stills and sequential exported frames self-reviewed; explicit material/structure/simulation gaps recorded. Final user aesthetic and continuous motion/listening acceptance pending."
+            },
+            "device": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Current APK identity and native 640x360 packaged PCM/GLES short checks passed. Final declared-profile performance and integrated acceptance pending."
+            }
+        },
+        {
+            "id": "official.templates.stratified_ink",
+            "source_sha256": "8722ef6fdafe814f21adf4ce6480019679e7402097dd63d5bf8bf81f174e2f23",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Current bilingual Studio template application, mouse controls, save/reopen/publication, soundtrack replacement and 480-frame H264/AAC export passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Seven decoded PCM inputs, three control extrema and current APK packaged PCM/GLES at four arrangement times passed unchanged thresholds."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Four concept/output stills and sequential exported frames self-reviewed; explicit material/structure/simulation gaps recorded. Final user aesthetic and continuous motion/listening acceptance pending."
+            },
+            "device": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Current APK identity and native 640x360 packaged PCM/GLES short checks passed. Final declared-profile performance and integrated acceptance pending."
+            }
+        },
+        {
+            "id": "official.templates.lumen_corridor",
+            "source_sha256": "c519cdc917f4b44e9e5b396dca3018f461cca8a22272f80ea852b27e366c490f",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Current bilingual Studio template application, mouse controls, save/reopen/publication, soundtrack replacement and 480-frame H264/AAC export passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Seven decoded PCM inputs, three control extrema and current APK packaged PCM/GLES at four arrangement times passed unchanged thresholds."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Four concept/output stills and sequential exported frames self-reviewed; explicit material/structure/simulation gaps recorded. Final user aesthetic and continuous motion/listening acceptance pending."
+            },
+            "device": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_works_delivery_2026-09-10.md"
+                ],
+                "notes": "Current APK identity and native 640x360 packaged PCM/GLES short checks passed. Final declared-profile performance and integrated acceptance pending."
+            }
         }
     ]
 }

@@ -1,0 +1,123 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 3,
+    "kind": "template",
+    "content_id": "official.templates.stratified_ink",
+    "content_version": "0.1.0",
+    "project_id": "official-stratified-ink",
+    "graph_revision": 0,
+    "title": "层叠墨流 / Stratified Ink",
+    "default_locale": "zh-CN",
+    "titles": {
+        "zh-CN": "层叠墨流",
+        "en-US": "Stratified Ink"
+    },
+    "category": "audio",
+    "tier": "advanced",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "assets": [
+        {
+            "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+            "bytes": 240627,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+            "bytes": 160293,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "2ff40fbc0abdfb21d26f191989c2937dcaf9a8130c943fd11c5cde38b2cbbc79",
+            "bytes": 3836,
+            "media_type": "application/x-rhythm-image-shader"
+        },
+        {
+            "sha256": "771f5d991e9629b6d05c032cb68cc7099f1d3ef32f1b5cf1b129ae656f94835c",
+            "bytes": 6571,
+            "media_type": "application/x-rhythm-image-shader"
+        }
+    ],
+    "soundtrack": {
+        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+        "title": "Luminous Concerto",
+        "gain": 0.75,
+        "loop": true,
+        "clips": [
+            {
+                "id": 1,
+                "title": "Pulse foundation",
+                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                "start": 0,
+                "duration": 16,
+                "source_in": 0,
+                "source_out": 8,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.85,
+                "pan": 0,
+                "muted": false
+            },
+            {
+                "id": 2,
+                "title": "Chimes entrance",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 4,
+                "duration": 8,
+                "source_in": 0,
+                "source_out": 8,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.75,
+                "pan": -0.25,
+                "muted": false
+            },
+            {
+                "id": 3,
+                "title": "Chimes release",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 12,
+                "duration": 4,
+                "source_in": 0,
+                "source_out": 4,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.6,
+                "pan": 0.25,
+                "muted": false
+            },
+            {
+                "id": 4,
+                "title": "Answering chimes",
+                "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                "start": 8,
+                "duration": 8,
+                "source_in": 2,
+                "source_out": 6,
+                "loop": true,
+                "fade_in": 0.5,
+                "fade_out": 1,
+                "smooth": true,
+                "gain": 0.35,
+                "pan": 0.6,
+                "muted": false
+            }
+        ]
+    },
+    "descriptions": {
+        "zh-CN": "靛蓝与朱红层带沿斜向河谷展开，细金线勾勒褶皱。低频推动主带，中频改变流形，高频增强金边；保留暗部留白、可编辑高度场与颜料 Shader、三宏和四段配乐。",
+        "en-US": "Indigo and vermilion strata sweep across a diagonal valley with delicate gold edges. Bass drives the main band, mids reshape flow and highs light the edges. Editable height/pigment shaders, three macros and four music cues."
+    }
+}

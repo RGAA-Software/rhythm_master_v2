@@ -1,0 +1,48 @@
+{
+    "ownership": "first-party",
+    "baseline": "2dac943",
+    "concept": "docs/design/concepts/music_visual_directions_v1.png",
+    "concept_role": "AI-generated design reference only; not used as runtime texture",
+    "reused_sources": [
+        "tools/author-resonance-gate.py",
+        "tools/author-ink-tide.py",
+        "tools/author-crystal-choir.py",
+        "tools/author_petal_model.py",
+        "tools/author-resonant-arcade.py",
+        "tools/audio_band_groups.py",
+        "tools/music_work.py"
+    ],
+    "authoring_sources": {
+        "tools/concept_work_common.py": "231b7647714eddd3fada3d0e8ca5c16f01224333019c8c9ea7f5917ce9b8ecc3",
+        "tools/concept_organic_works.py": "186685327b784ff8d8fd7784e72e9bcf8197354d993d46ba93be0754535b22b8",
+        "tools/concept_stage_works.py": "4914d2c17cc95845e3d921b55a80cc4d1961381c625fd0ad247420d312422896",
+        "tools/author-concept-works.py": "62c5ca39fc2f894e4d6578ddad00bee7a30c8fc17f54b6d574076e5d574677cc"
+    },
+    "imported_third_party_files": [],
+    "renderer_provenance": [
+        "provenance/tixl_effects.json"
+    ],
+    "assets": [
+        {
+            "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+            "bytes": 240627,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+            "bytes": 160293,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "2ff40fbc0abdfb21d26f191989c2937dcaf9a8130c943fd11c5cde38b2cbbc79",
+            "bytes": 3836,
+            "media_type": "application/x-rhythm-image-shader"
+        },
+        {
+            "sha256": "771f5d991e9629b6d05c032cb68cc7099f1d3ef32f1b5cf1b129ae656f94835c",
+            "bytes": 6571,
+            "media_type": "application/x-rhythm-image-shader"
+        }
+    ],
+    "target": "content/templates/stratified_ink"
+}

@@ -1,0 +1,14 @@
+{
+    "template": "porcelain_bloom",
+    "package_sha256": "264c19f98d62100f30b7202c43e0dd8f74002c598f720e014c00d9576149948a",
+    "thumbnail_sha256": "33e4543aea0360584ac39e6d2739c2af69ebdd14c9c3972d870e03d6b3cd8abf",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

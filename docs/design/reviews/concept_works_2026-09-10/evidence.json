@@ -1,0 +1,34 @@
+[
+    {
+        "name": "aureate_vortex",
+        "title": "鎏光流涡",
+        "screenshot": "out/concept-review/a9470708f4f2406aab5f377c53c1cd42/aureate_vortex/resonance_demo.png",
+        "source_sha256": "08bd5be3ba32e02eea0b627b34534c91b223de62e13a180115d0541885b1cd50",
+        "self_review": "青金流线、亮点与暗部分区已经成立。当前为解析式图像粒子外观，尚无体积粒子和真实景深。",
+        "user_acceptance": "pending"
+    },
+    {
+        "name": "porcelain_bloom",
+        "title": "瓷金绽放",
+        "screenshot": "out/concept-review/791d8a2ee51e45a587e5597d6dcd9ce5/porcelain_bloom/resonance_demo.png",
+        "source_sha256": "b660515d2e01073f4d3c1f550d51efc8cd8819b7eacde8361f427cb0dd643e32",
+        "self_review": "双层瓷瓣、细釉纹与断金环可辨。局部自阴影仍较硬，离概念的柔和摄影质感还有距离。",
+        "user_acceptance": "pending"
+    },
+    {
+        "name": "stratified_ink",
+        "title": "层叠墨流",
+        "screenshot": "out/concept-review/b9feea1060cf44ed8c61437dd0b48ed6/stratified_ink/resonance_demo.png",
+        "source_sha256": "8722ef6fdafe814f21adf4ce6480019679e7402097dd63d5bf8bf81f174e2f23",
+        "self_review": "靛蓝朱红层带和金边构成斜向流动。目前更接近等高线，尚缺自然流体的细碎支流。",
+        "user_acceptance": "pending"
+    },
+    {
+        "name": "lumen_corridor",
+        "title": "光门空间",
+        "screenshot": "out/concept-review/b9feea1060cf44ed8c61437dd0b48ed6/lumen_corridor/resonance_demo.png",
+        "source_sha256": "c519cdc917f4b44e9e5b396dca3018f461cca8a22272f80ea852b27e366c490f",
+        "self_review": "双色光门具有清晰纵深。门框仍较规整，地面未实现概念中的清晰镜面反射。",
+        "user_acceptance": "pending"
+    }
+]

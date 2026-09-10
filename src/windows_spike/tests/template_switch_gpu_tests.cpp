@@ -95,9 +95,12 @@ int main(int argc, char* argv[]) {
         bool timeline_open = false;
         for (const std::string name :
              {"ink_tide", "chromatic_loom", "crystal_choir", "luminous_concerto", "spectral_glaze",
-              "phase_plumes", "porcelain_pendulum", "resonant_arcade"}) {
+              "phase_plumes", "porcelain_pendulum", "resonant_arcade", "aureate_vortex",
+              "porcelain_bloom", "stratified_ink", "lumen_corridor"}) {
             if (controls && name != "ink_tide" && name != "chromatic_loom" &&
-                name != "porcelain_pendulum" && name != "resonant_arcade")
+                name != "porcelain_pendulum" && name != "resonant_arcade" &&
+                name != "aureate_vortex" && name != "porcelain_bloom" && name != "stratified_ink" &&
+                name != "lumen_corridor")
                 continue;
             action = "select:" + name;
             const auto entry = std::find_if(entries.begin(), entries.end(), [&](const auto& value) {
