@@ -3,7 +3,7 @@
     "manifest_version": 3,
     "kind": "template",
     "content_id": "official.templates.lumen_corridor",
-    "content_version": "0.1.0",
+    "content_version": "0.2.0",
     "project_id": "official-lumen-corridor",
     "graph_revision": 0,
     "title": "光门空间 / Lumen Corridor",
@@ -32,6 +32,11 @@
             "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
             "bytes": 160293,
             "media_type": "audio/flac"
+        },
+        {
+            "sha256": "57732728558106e321bfce5423c33836152bcc7a828ae696cf24689271e7d2ac",
+            "bytes": 4652,
+            "media_type": "application/x-rhythm-image-shader"
         }
     ],
     "soundtrack": {
@@ -107,7 +112,7 @@
         ]
     },
     "descriptions": {
-        "zh-CN": "错落的玫红与冷白光门沿纵深传播，暗色肋架形成遮挡与节奏。低频展开两翼，中频抬升门楣并移动构图，高频增强灯带。可编辑实例、灯光、三宏与四段配乐；地面采用实时材质，不宣称镜面反射。",
-        "en-US": "Magenta and cool-white portals recede through dark structural ribs. Bass opens the sides, mids lift lintels and shift framing, highs brighten light strips. Editable instances, lighting, three macros and four music cues; material floor without planar mirror claims."
+        "zh-CN": "低机位进入错落的玫红与冷白光廊，悬挑梁、地面石台与镜像场景形成建筑纵深和地面倒影。低频展开门翼、中频抬升横梁、高频增强灯带；倒影采用本场景镜像几何，不是通用屏幕空间反射。",
+        "en-US": "A low camera enters staggered magenta/white architecture, projecting beams and floor blocks. A mirrored authored scene produces planar floor reflections. Bass widens gates, mids raise beams, highs light strips; not generic SSR."
     }
 }

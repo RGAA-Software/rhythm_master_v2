@@ -1,6 +1,6 @@
 schema_version: 5
 id: "official-stratified-ink"
-output: 109
+output: 114
 canvas { width: 1280 height: 720 }
 nodes { id: 1 type_key: "control.scalar" schema_version: 1
     properties { key: "value" value { scalar: 1 } }
@@ -313,29 +313,54 @@ nodes { id: 101 type_key: "scalar.expression" schema_version: 1
 nodes { id: 102 type_key: "scalar.expression" schema_version: 1
     properties { key: "expression" value { expression: "a * b" } }
 }
-nodes { id: 103 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "time * 0.035 + a * 0.08" } }
-}
-nodes { id: 104 type_key: "texture.noise" schema_version: 1
-    properties { key: "noise_scale" value { scalar: 3.4 } }
-    properties { key: "contrast" value { scalar: 1.8 } }
+nodes { id: 103 type_key: "texture.noise" schema_version: 1
+    properties { key: "noise_scale" value { scalar: 2.1 } }
+    properties { key: "contrast" value { scalar: 1.7 } }
     properties { key: "seed" value { scalar: 287 } }
     properties { key: "color_a" value { color { r: 0 g: 0 b: 0 a: 1 } } }
     properties { key: "color_b" value { color { r: 1 g: 1 b: 1 a: 1 } } }
 }
-nodes { id: 105 type_key: "texture.shader" schema_version: 1
+nodes { id: 104 type_key: "texture.noise" schema_version: 1
+    properties { key: "noise_scale" value { scalar: 8 } }
+    properties { key: "contrast" value { scalar: 1.8 } }
+    properties { key: "seed" value { scalar: 711 } }
+    properties { key: "color_a" value { color { r: 0 g: 0 b: 0 a: 1 } } }
+    properties { key: "color_b" value { color { r: 1 g: 1 b: 1 a: 1 } } }
+}
+nodes { id: 105 type_key: "texture.noise" schema_version: 1
+    properties { key: "noise_scale" value { scalar: 28 } }
+    properties { key: "contrast" value { scalar: 2 } }
+    properties { key: "seed" value { scalar: 121 } }
+    properties { key: "color_a" value { color { r: 0 g: 0 b: 0 a: 1 } } }
+    properties { key: "color_b" value { color { r: 1 g: 1 b: 1 a: 1 } } }
+}
+nodes { id: 106 type_key: "texture.composite" schema_version: 1
+    properties { key: "amount" value { scalar: 0.3 } }
+}
+nodes { id: 107 type_key: "texture.composite" schema_version: 1
+    properties { key: "amount" value { scalar: 0.1 } }
+}
+nodes { id: 108 type_key: "texture.shader" schema_version: 1
     properties { key: "texture_precision" value { scalar: 2 } }
-    properties { key: "asset" value { asset_sha256: "2ff40fbc0abdfb21d26f191989c2937dcaf9a8130c943fd11c5cde38b2cbbc79" } }
+    properties { key: "asset" value { asset_sha256: "f6ce5c1ac2c6305052a147dc75ea8d60ea626efd9f46eb07bc971fa17d72905a" } }
 }
-nodes { id: 106 type_key: "texture.shader" schema_version: 1
+nodes { id: 109 type_key: "texture.displace" schema_version: 1
+    properties { key: "displace_strength" value { scalar: 0.035 } }
     properties { key: "texture_precision" value { scalar: 0 } }
-    properties { key: "asset" value { asset_sha256: "771f5d991e9629b6d05c032cb68cc7099f1d3ef32f1b5cf1b129ae656f94835c" } }
 }
-nodes { id: 107 type_key: "texture.display" schema_version: 1
+nodes { id: 110 type_key: "texture.shader" schema_version: 1
+    properties { key: "texture_precision" value { scalar: 2 } }
+    properties { key: "asset" value { asset_sha256: "98bdcd106cde0733cf8841ba6b84fd11e1e5ec280fbb132a171995874a9e3a4f" } }
 }
-nodes { id: 108 type_key: "texture.fxaa" schema_version: 1
+nodes { id: 111 type_key: "texture.shader" schema_version: 1
+    properties { key: "texture_precision" value { scalar: 0 } }
+    properties { key: "asset" value { asset_sha256: "4e17251fb1236d821d6c409e4ff72c5871e52f6a977c13537c3c1bb6f4f69f84" } }
 }
-nodes { id: 109 type_key: "output.texture" schema_version: 1
+nodes { id: 112 type_key: "texture.display" schema_version: 1
+}
+nodes { id: 113 type_key: "texture.fxaa" schema_version: 1
+}
+nodes { id: 114 type_key: "output.texture" schema_version: 1
 }
 edges { id: 1 from: 4 to: 5 input: "time" }
 edges { id: 2 from: 2 to: 5 input: "a" }
@@ -436,20 +461,24 @@ edges { id: 96 from: 69 to: 101 input: "a" }
 edges { id: 97 from: 1 to: 101 input: "b" }
 edges { id: 98 from: 99 to: 102 input: "a" }
 edges { id: 99 from: 1 to: 102 input: "b" }
-edges { id: 100 from: 5 to: 103 input: "time" }
-edges { id: 101 from: 101 to: 103 input: "a" }
-edges { id: 102 from: 103 to: 104 input: "phase" }
-edges { id: 103 from: 104 to: 105 input: "source" }
-edges { id: 104 from: 5 to: 105 input: "time" }
-edges { id: 105 from: 100 to: 105 input: "a" }
-edges { id: 106 from: 101 to: 105 input: "b" }
-edges { id: 107 from: 105 to: 106 input: "source" }
-edges { id: 108 from: 100 to: 106 input: "a" }
-edges { id: 109 from: 102 to: 106 input: "c" }
-edges { id: 110 from: 106 to: 107 input: "source" }
-edges { id: 111 from: 3 to: 107 input: "exposure" }
-edges { id: 112 from: 107 to: 108 input: "source" }
-edges { id: 113 from: 108 to: 109 input: "source" }
+edges { id: 100 from: 103 to: 106 input: "a" }
+edges { id: 101 from: 104 to: 106 input: "b" }
+edges { id: 102 from: 106 to: 107 input: "a" }
+edges { id: 103 from: 105 to: 107 input: "b" }
+edges { id: 104 from: 107 to: 108 input: "source" }
+edges { id: 105 from: 108 to: 109 input: "source" }
+edges { id: 106 from: 103 to: 109 input: "displace_map" }
+edges { id: 107 from: 109 to: 110 input: "source" }
+edges { id: 108 from: 5 to: 110 input: "time" }
+edges { id: 109 from: 100 to: 110 input: "a" }
+edges { id: 110 from: 101 to: 110 input: "b" }
+edges { id: 111 from: 110 to: 111 input: "source" }
+edges { id: 112 from: 100 to: 111 input: "a" }
+edges { id: 113 from: 102 to: 111 input: "c" }
+edges { id: 114 from: 111 to: 112 input: "source" }
+edges { id: 115 from: 3 to: 112 input: "exposure" }
+edges { id: 116 from: 112 to: 113 input: "source" }
+edges { id: 117 from: 113 to: 114 input: "source" }
 controls {
     titles { key: 1 value: "Music response / 音乐响应" }
     titles { key: 2 value: "Motion pace / 运动速度" }

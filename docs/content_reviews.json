@@ -628,11 +628,11 @@
                 "notes": "Seven decoded PCM inputs, three control extrema and current APK packaged PCM/GLES at four arrangement times passed unchanged thresholds."
             },
             "visual": {
-                "status": "pending",
+                "status": "failed",
                 "evidence": [
                     "docs/validation/concept_works_delivery_2026-09-10.md"
                 ],
-                "notes": "Four concept/output stills and sequential exported frames self-reviewed; explicit material/structure/simulation gaps recorded. Final user aesthetic and continuous motion/listening acceptance pending."
+                "notes": "User rejected the first visual realization: too far from the concept board. Functional checks do not establish aesthetic completion. Revision 0.2 is being reworked and independently reviewed."
             },
             "device": {
                 "status": "pending",
@@ -662,11 +662,11 @@
                 "notes": "Seven decoded PCM inputs, three control extrema and current APK packaged PCM/GLES at four arrangement times passed unchanged thresholds."
             },
             "visual": {
-                "status": "pending",
+                "status": "failed",
                 "evidence": [
                     "docs/validation/concept_works_delivery_2026-09-10.md"
                 ],
-                "notes": "Four concept/output stills and sequential exported frames self-reviewed; explicit material/structure/simulation gaps recorded. Final user aesthetic and continuous motion/listening acceptance pending."
+                "notes": "User rejected the first visual realization: too far from the concept board. Functional checks do not establish aesthetic completion. Revision 0.2 is being reworked and independently reviewed."
             },
             "device": {
                 "status": "pending",
@@ -696,11 +696,11 @@
                 "notes": "Seven decoded PCM inputs, three control extrema and current APK packaged PCM/GLES at four arrangement times passed unchanged thresholds."
             },
             "visual": {
-                "status": "pending",
+                "status": "failed",
                 "evidence": [
                     "docs/validation/concept_works_delivery_2026-09-10.md"
                 ],
-                "notes": "Four concept/output stills and sequential exported frames self-reviewed; explicit material/structure/simulation gaps recorded. Final user aesthetic and continuous motion/listening acceptance pending."
+                "notes": "User rejected the first visual realization: too far from the concept board. Functional checks do not establish aesthetic completion. Revision 0.2 is being reworked and independently reviewed."
             },
             "device": {
                 "status": "pending",
@@ -730,11 +730,11 @@
                 "notes": "Seven decoded PCM inputs, three control extrema and current APK packaged PCM/GLES at four arrangement times passed unchanged thresholds."
             },
             "visual": {
-                "status": "pending",
+                "status": "failed",
                 "evidence": [
                     "docs/validation/concept_works_delivery_2026-09-10.md"
                 ],
-                "notes": "Four concept/output stills and sequential exported frames self-reviewed; explicit material/structure/simulation gaps recorded. Final user aesthetic and continuous motion/listening acceptance pending."
+                "notes": "User rejected the first visual realization: too far from the concept board. Functional checks do not establish aesthetic completion. Revision 0.2 is being reworked and independently reviewed."
             },
             "device": {
                 "status": "pending",
@@ -742,6 +742,142 @@
                     "docs/validation/concept_works_delivery_2026-09-10.md"
                 ],
                 "notes": "Current APK identity and native 640x360 packaged PCM/GLES short checks passed. Final declared-profile performance and integrated acceptance pending."
+            }
+        },
+        {
+            "id": "official.templates.aureate_vortex",
+            "source_sha256": "c60bd66305cf989d1dab73a157d0b9364378a9d670ba84aff5f195febea338b4",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Revision 0.2: current bilingual Studio template application, public mouse controls, save/reopen/publication, soundtrack replacement and 480-frame H264/AAC export passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Revision 0.2: seven decoded PCM inputs and all three public control extrema passed unchanged pixel-response thresholds. These checks do not establish listening or aesthetic acceptance."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Revision 0.1 was rejected by the user and remains failed in history. Revision 0.2 actual screenshots and eight-frame export sequences reviewed against the concept; specific remaining gaps recorded. Awaiting user aesthetic acceptance."
+            },
+            "device": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Final declared-profile performance and integrated acceptance remain pending. Short current APK/GLES and UI evidence is recorded separately in the validation report."
+            }
+        },
+        {
+            "id": "official.templates.porcelain_bloom",
+            "source_sha256": "588cf73c038fe789dd3c340e61960d74dad2cea516172d9d1d5a7c34914dea5d",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Revision 0.2: current bilingual Studio template application, public mouse controls, save/reopen/publication, soundtrack replacement and 480-frame H264/AAC export passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Revision 0.2: seven decoded PCM inputs and all three public control extrema passed unchanged pixel-response thresholds. These checks do not establish listening or aesthetic acceptance."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Revision 0.1 was rejected by the user and remains failed in history. Revision 0.2 actual screenshots and eight-frame export sequences reviewed against the concept; specific remaining gaps recorded. Awaiting user aesthetic acceptance."
+            },
+            "device": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Final declared-profile performance and integrated acceptance remain pending. Short current APK/GLES and UI evidence is recorded separately in the validation report."
+            }
+        },
+        {
+            "id": "official.templates.stratified_ink",
+            "source_sha256": "660fef7b60cff713f410e4c3f15d251978b7761b2ab270f0e6c2a9597e87b38a",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Revision 0.2: current bilingual Studio template application, public mouse controls, save/reopen/publication, soundtrack replacement and 480-frame H264/AAC export passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Revision 0.2: seven decoded PCM inputs and all three public control extrema passed unchanged pixel-response thresholds. These checks do not establish listening or aesthetic acceptance."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Revision 0.1 was rejected by the user and remains failed in history. Revision 0.2 actual screenshots and eight-frame export sequences reviewed against the concept; specific remaining gaps recorded. Awaiting user aesthetic acceptance."
+            },
+            "device": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Final declared-profile performance and integrated acceptance remain pending. Short current APK/GLES and UI evidence is recorded separately in the validation report."
+            }
+        },
+        {
+            "id": "official.templates.lumen_corridor",
+            "source_sha256": "dd4137782b79199f32762bcefb05a9cc611c9dd6986eeca74acb194b3fe8ae89",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Revision 0.2: current bilingual Studio template application, public mouse controls, save/reopen/publication, soundtrack replacement and 480-frame H264/AAC export passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Revision 0.2: seven decoded PCM inputs and all three public control extrema passed unchanged pixel-response thresholds. These checks do not establish listening or aesthetic acceptance."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Revision 0.1 was rejected by the user and remains failed in history. Revision 0.2 actual screenshots and eight-frame export sequences reviewed against the concept; specific remaining gaps recorded. Awaiting user aesthetic acceptance."
+            },
+            "device": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_visual_gap_2026-09-10.md"
+                ],
+                "notes": "Final declared-profile performance and integrated acceptance remain pending. Short current APK/GLES and UI evidence is recorded separately in the validation report."
             }
         }
     ]

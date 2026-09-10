@@ -2,8 +2,9 @@
 
 import argparse
 
-from concept_organic_works import vortex, ink
-from concept_stage_works import porcelain, corridor
+from concept_ink_work import ink
+from concept_corridor_work import corridor
+from concept_spatial_works import vortex, porcelain
 
 RECIPES = {'aureate_vortex': vortex, 'porcelain_bloom': porcelain,
            'stratified_ink': ink, 'lumen_corridor': corridor}

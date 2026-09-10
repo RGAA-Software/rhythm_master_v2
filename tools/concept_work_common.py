@@ -77,23 +77,27 @@ def capture(graph, scene, camera, environment=0.8):
     return node('texture.composite', 10360, 0, dict(a=back, b=color), texture_precision=0)
 
 
-def publish(name, title, description, graph, output, controls, assets=()):
+def publish(name, title, description, graph, output, controls, assets=(), compute=False):
     manifest = music_work.write(name, graph, output,
         list(zip(controls, ('Music response / 音乐响应', 'Motion pace / 运动速度', 'Exposure / 曝光'))),
         [(1, 'Gather', (0.6, 0.55, 0.25)), (2, 'Develop', (1, 0.9, 0.3)),
          (3, 'Crest', (1.6, 1.3, 0.45))],
         [('Gather', 0, 1, 0), ('Develop', 3, 2, 2), ('Crest', 8, 3, 2), ('Resolve', 12, 1, 3)],
         {'zh-CN': title[0], 'en-US': title[1]}, {'zh-CN': description[0], 'en-US': description[1]},
-        tier='advanced', platforms=('windows', 'android'), extra_assets=list(assets), version='0.1.0')
+        tier='advanced', platforms=('windows', 'android-gles31-compute' if compute else 'android'),
+        extra_assets=list(assets), version='0.2.0')
     music_work.write_json(ROOT / 'provenance' / (name + '.json'), dict(
-        ownership='first-party', baseline='2dac943', concept='docs/design/concepts/music_visual_directions_v1.png',
+        ownership='first-party', baseline='506f432', concept='docs/design/concepts/music_visual_directions_v1.png',
         concept_role='AI-generated design reference only; not used as runtime texture',
         reused_sources=['tools/author-resonance-gate.py', 'tools/author-ink-tide.py',
                         'tools/author-crystal-choir.py', 'tools/author_petal_model.py',
                         'tools/author-resonant-arcade.py', 'tools/audio_band_groups.py', 'tools/music_work.py'],
         authoring_sources={p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in
-                           ('tools/concept_work_common.py', 'tools/concept_organic_works.py',
-                            'tools/concept_stage_works.py', 'tools/author-concept-works.py')},
-        imported_third_party_files=[], renderer_provenance=['provenance/tixl_effects.json'],
+                           ('tools/concept_work_common.py', 'tools/concept_mesh_assets.py',
+                            'tools/concept_spatial_works.py', 'tools/concept_ink_work.py',
+                            'tools/concept_corridor_work.py', 'tools/author-concept-works.py')},
+        imported_third_party_files=[], renderer_provenance=['provenance/tixl_effects.json',
+            'provenance/tixl_particles.json', 'provenance/depth_pipeline.json',
+            'provenance/environment_lighting.json', 'provenance/godot_shadows.json'],
         assets=manifest['assets'], target='content/templates/' + name))
     print(name, len(graph.nodes), 'nodes', flush=True)

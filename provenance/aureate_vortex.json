@@ -1,6 +1,6 @@
 {
     "ownership": "first-party",
-    "baseline": "2dac943",
+    "baseline": "506f432",
     "concept": "docs/design/concepts/music_visual_directions_v1.png",
     "concept_role": "AI-generated design reference only; not used as runtime texture",
     "reused_sources": [
@@ -13,14 +13,20 @@
         "tools/music_work.py"
     ],
     "authoring_sources": {
-        "tools/concept_work_common.py": "231b7647714eddd3fada3d0e8ca5c16f01224333019c8c9ea7f5917ce9b8ecc3",
-        "tools/concept_organic_works.py": "186685327b784ff8d8fd7784e72e9bcf8197354d993d46ba93be0754535b22b8",
-        "tools/concept_stage_works.py": "4914d2c17cc95845e3d921b55a80cc4d1961381c625fd0ad247420d312422896",
-        "tools/author-concept-works.py": "62c5ca39fc2f894e4d6578ddad00bee7a30c8fc17f54b6d574076e5d574677cc"
+        "tools/concept_work_common.py": "c2b4004a40755690d59c384ac24eb4effcace246acce6ce42d7c6427bb88ddfc",
+        "tools/concept_mesh_assets.py": "9dfa5e3e4e75bcbccb000eb7d104ab175620cdba5cb7a831678681d5347eca69",
+        "tools/concept_spatial_works.py": "4e86f64388e6eb353df011edc37fe589de05902749bcdfd23b1684a7c26499cb",
+        "tools/concept_ink_work.py": "a8044a2f3cb2ac64fcebdac5ed87bcc8c904dac82ec470ca8689f9d4eb36cd3f",
+        "tools/concept_corridor_work.py": "adc39175eeb03ad535cd2c91a8d53946bf81b91225557226d2dce0a5b3c64128",
+        "tools/author-concept-works.py": "a4bf7757c2f2c21fbbfcd42902486093efddfa04af9dcaabf0f862779cae287b"
     },
     "imported_third_party_files": [],
     "renderer_provenance": [
-        "provenance/tixl_effects.json"
+        "provenance/tixl_effects.json",
+        "provenance/tixl_particles.json",
+        "provenance/depth_pipeline.json",
+        "provenance/environment_lighting.json",
+        "provenance/godot_shadows.json"
     ],
     "assets": [
         {
@@ -34,14 +40,24 @@
             "media_type": "audio/flac"
         },
         {
-            "sha256": "6dca080c364c8d0075aedb5237ce2f1ebecedfb9087b925b16b3a5bd3949f1d7",
-            "bytes": 6254,
-            "media_type": "application/x-rhythm-image-shader"
+            "sha256": "75531ab824b6873b37109fcae076090d311923d4d001ca532c6b9c5fc0147f23",
+            "bytes": 994384,
+            "media_type": "model/gltf-binary"
         },
         {
-            "sha256": "2cb816151b40f8970628394d3488a5a6f29a58f18aa563f0b9cfc038155c1c3c",
-            "bytes": 10717,
-            "media_type": "application/x-rhythm-image-shader"
+            "sha256": "6cadd842fbfde1286c01446533b2546d7d166e049662a79c5f0df5791f22254f",
+            "bytes": 1169100,
+            "media_type": "model/gltf-binary"
+        },
+        {
+            "sha256": "44d80575f908b8c59294e4bedb4c62427fec3e15fb3504c294f068589f72dcdd",
+            "bytes": 994384,
+            "media_type": "model/gltf-binary"
+        },
+        {
+            "sha256": "28da49565f74e7f213fe74d79dad84f5eb3fc9f350162468868942a321610ef1",
+            "bytes": 1169104,
+            "media_type": "model/gltf-binary"
         }
     ],
     "target": "content/templates/aureate_vortex"

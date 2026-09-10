@@ -3,7 +3,7 @@
     "manifest_version": 3,
     "kind": "template",
     "content_id": "official.templates.aureate_vortex",
-    "content_version": "0.1.0",
+    "content_version": "0.2.0",
     "project_id": "official-aureate-vortex",
     "graph_revision": 0,
     "title": "鎏光流涡 / Aureate Vortex",
@@ -19,7 +19,7 @@
     "license_status": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
     "compatible_players": [
         "windows",
-        "android"
+        "android-gles31-compute"
     ],
     "external_assets": [],
     "assets": [
@@ -34,14 +34,24 @@
             "media_type": "audio/flac"
         },
         {
-            "sha256": "6dca080c364c8d0075aedb5237ce2f1ebecedfb9087b925b16b3a5bd3949f1d7",
-            "bytes": 6254,
-            "media_type": "application/x-rhythm-image-shader"
+            "sha256": "75531ab824b6873b37109fcae076090d311923d4d001ca532c6b9c5fc0147f23",
+            "bytes": 994384,
+            "media_type": "model/gltf-binary"
         },
         {
-            "sha256": "2cb816151b40f8970628394d3488a5a6f29a58f18aa563f0b9cfc038155c1c3c",
-            "bytes": 10717,
-            "media_type": "application/x-rhythm-image-shader"
+            "sha256": "6cadd842fbfde1286c01446533b2546d7d166e049662a79c5f0df5791f22254f",
+            "bytes": 1169100,
+            "media_type": "model/gltf-binary"
+        },
+        {
+            "sha256": "44d80575f908b8c59294e4bedb4c62427fec3e15fb3504c294f068589f72dcdd",
+            "bytes": 994384,
+            "media_type": "model/gltf-binary"
+        },
+        {
+            "sha256": "28da49565f74e7f213fe74d79dad84f5eb3fc9f350162468868942a321610ef1",
+            "bytes": 1169104,
+            "media_type": "model/gltf-binary"
         }
     ],
     "soundtrack": {
@@ -117,7 +127,7 @@
         ]
     },
     "descriptions": {
-        "zh-CN": "青蓝与琥珀细流围绕偏心涡核交错，细点沿流线闪动。低频扭动涡核，中频改变丝线亮度，高频激活光点。两个可编辑图像 Shader、三宏与四段配乐；为解析式粒子外观，不是物理粒子模拟。",
-        "en-US": "Cyan and amber filaments spiral around an offset core. Bass twists the field, mids brighten strands and highs activate sparks. Two editable image shaders, three macros and four music cues; analytic particle appearance, not physical particle simulation."
+        "zh-CN": "青金三维轨迹、几何光点与 34816 容量的双层 GPU 粒子组合成三臂流涡。低频改变旋臂，中频控制细线与流动，高频控制闪点和发射。几何层使用场景景深，GPU 粒子层使用屏幕空间颜色取样与生命周期，叠加前景柔光；需要 GLES 3.1 compute。",
+        "en-US": "Spatial cyan/gold filaments and depth-focused mesh sparks combine with two GPU particle fields (34816 capacity). Bass turns arms, mids drive strands/flow and highs drive spark emission. The GPU particle overlay uses screen-space color sampling and lifetimes; requires GLES 3.1 compute."
     }
 }

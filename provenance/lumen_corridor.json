@@ -1,6 +1,6 @@
 {
     "ownership": "first-party",
-    "baseline": "2dac943",
+    "baseline": "506f432",
     "concept": "docs/design/concepts/music_visual_directions_v1.png",
     "concept_role": "AI-generated design reference only; not used as runtime texture",
     "reused_sources": [
@@ -13,14 +13,20 @@
         "tools/music_work.py"
     ],
     "authoring_sources": {
-        "tools/concept_work_common.py": "231b7647714eddd3fada3d0e8ca5c16f01224333019c8c9ea7f5917ce9b8ecc3",
-        "tools/concept_organic_works.py": "186685327b784ff8d8fd7784e72e9bcf8197354d993d46ba93be0754535b22b8",
-        "tools/concept_stage_works.py": "4914d2c17cc95845e3d921b55a80cc4d1961381c625fd0ad247420d312422896",
-        "tools/author-concept-works.py": "62c5ca39fc2f894e4d6578ddad00bee7a30c8fc17f54b6d574076e5d574677cc"
+        "tools/concept_work_common.py": "c2b4004a40755690d59c384ac24eb4effcace246acce6ce42d7c6427bb88ddfc",
+        "tools/concept_mesh_assets.py": "9dfa5e3e4e75bcbccb000eb7d104ab175620cdba5cb7a831678681d5347eca69",
+        "tools/concept_spatial_works.py": "4e86f64388e6eb353df011edc37fe589de05902749bcdfd23b1684a7c26499cb",
+        "tools/concept_ink_work.py": "a8044a2f3cb2ac64fcebdac5ed87bcc8c904dac82ec470ca8689f9d4eb36cd3f",
+        "tools/concept_corridor_work.py": "adc39175eeb03ad535cd2c91a8d53946bf81b91225557226d2dce0a5b3c64128",
+        "tools/author-concept-works.py": "a4bf7757c2f2c21fbbfcd42902486093efddfa04af9dcaabf0f862779cae287b"
     },
     "imported_third_party_files": [],
     "renderer_provenance": [
-        "provenance/tixl_effects.json"
+        "provenance/tixl_effects.json",
+        "provenance/tixl_particles.json",
+        "provenance/depth_pipeline.json",
+        "provenance/environment_lighting.json",
+        "provenance/godot_shadows.json"
     ],
     "assets": [
         {
@@ -32,6 +38,11 @@
             "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
             "bytes": 160293,
             "media_type": "audio/flac"
+        },
+        {
+            "sha256": "57732728558106e321bfce5423c33836152bcc7a828ae696cf24689271e7d2ac",
+            "bytes": 4652,
+            "media_type": "application/x-rhythm-image-shader"
         }
     ],
     "target": "content/templates/lumen_corridor"
