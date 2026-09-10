@@ -5,6 +5,7 @@ import importlib.util
 from pathlib import Path
 
 import music_work
+import audio_band_groups
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('writer', ROOT / 'tools/author-resonance-gate.py')
@@ -21,8 +22,7 @@ def build_graph():
     time = node('core.time', 0, 0)
     clock = node('scalar.expression', 340, 0, dict(time=time, a=pace), expression='time * a')
     bands = []
-    for index, band in enumerate((12, 28, 48)):
-        source = node('audio.band', 0, 400 + index * 300, audio_band=band)
+    for index, source in enumerate(audio_band_groups.build_groups(node)):
         bands.append(node('scalar.expression', 340, 400 + index * 300,
                           dict(a=source, b=response), expression='a * b'))
     emission = node('scalar.expression', 700, 0, dict(a=bands[2]), expression='0.04 + a * 0.55')
@@ -143,13 +143,14 @@ def main():
         {'zh-CN': '织光机', 'en-US': 'Chromatic Loom'},
         {'zh-CN': '青蓝经线与金色纬线在立体织面中前后交错，两枚光梭在四十个金属线扣之间游走。低中频拧动经纬、高频点亮织线并改变朝向；路径网格、材质、灯光、三个宏和四段 16 秒音乐编排均可编辑。',
          'en-US': 'Teal warp and golden weft interlace while two luminous shuttles roam inside forty metal clasps. Bass and mids twist the strands; highs brighten the weave and turn its framing. Edit shared path meshes, materials, lighting, three macros and four cues with 16-second music.'},
-        tier='advanced', platforms=('windows', 'android'))
+        tier='advanced', platforms=('windows', 'android'), version='0.2.0')
     music_work.write_json(ROOT / 'provenance/chromatic_loom.json', dict(
         ownership='first-party', baseline='9463f68', imported_third_party_files=[],
         authoring_tool='tools/author-chromatic-loom.py',
         authoring_tool_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         reused_sources=['tools/author-resonance-gate.py', 'tools/music_work.py',
-                        'tools/author-daylight-mobile.py'],
+                        'tools/author-daylight-mobile.py', 'tools/audio_band_groups.py'],
+        revision='P7: replace three isolated bins with complete low/mid/high peak groups.',
         composition='Original alternating-phase warp/weft sculpture with shared static path meshes, GPU twist, metallic clasps and music-driven framing.',
         assets=manifest['assets'], target='content/templates/chromatic_loom'))
     print(f'Chromatic Loom: {len(graph.nodes)} nodes, {len(graph.edges)} edges; 16-second music')

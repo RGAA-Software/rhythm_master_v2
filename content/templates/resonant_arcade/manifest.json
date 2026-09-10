@@ -3,7 +3,7 @@
     "manifest_version": 3,
     "kind": "template",
     "content_id": "official.templates.resonant_arcade",
-    "content_version": "0.1.0",
+    "content_version": "0.2.0",
     "project_id": "official-resonant-arcade",
     "graph_revision": 0,
     "title": "共振拱廊 / Resonant Arcade",

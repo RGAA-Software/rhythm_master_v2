@@ -3,7 +3,7 @@
     "manifest_version": 3,
     "kind": "template",
     "content_id": "official.templates.chromatic_loom",
-    "content_version": "0.1.0",
+    "content_version": "0.2.0",
     "project_id": "official-chromatic-loom",
     "graph_revision": 0,
     "title": "织光机 / Chromatic Loom",

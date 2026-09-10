@@ -164,3 +164,14 @@ organic texture, a light mechanical composition, woven geometry and architectura
 space. Recheck current source/package identities, real PCM contrasts and motion,
 then record shortcomings and revisions before expanding the production batch.
 This selection is a review queue, not a quality acceptance statement.
+
+The first four works now pass the music stage against exact current source hashes:
+seven decoded PCM inputs (including 700 Hz mids and 0.25x/1.25x music levels),
+ten D3D comparisons and four packaged-arrangement GLES checkpoints. The extended
+check found isolated FFT-bin coverage gaps in all four works; each now composes
+contiguous low/mid/high peaks from existing operators. See
+[calibration evidence](validation/calibration_band_coverage_2026-09-10.md) and
+[Porcelain evidence](validation/porcelain_frequency_coverage_2026-09-10.md).
+Public-control extremes, resource replacement, declared-profile acceptance and
+final visual review remain pending; the music-stage pass does not add an accepted
+template or infer user acceptance.

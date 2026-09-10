@@ -32,7 +32,7 @@ def original_arrangement(destination):
 
 
 def write(name, graph, output, controls, snapshots, cues, titles, descriptions,
-          tier='basic', platforms=('windows',), extra_assets=(), components=()):
+          tier='basic', platforms=('windows',), extra_assets=(), components=(), version='0.1.0'):
     destination = ROOT / 'content/templates' / name
     destination.mkdir(parents=True, exist_ok=True)
     metadata = ['controls {']
@@ -59,7 +59,7 @@ def write(name, graph, output, controls, snapshots, cues, titles, descriptions,
     write_json(destination / 'editor.json', editor)
     records, soundtrack = original_arrangement(destination)
     manifest = dict(format='rhythm.project', manifest_version=3, kind='template',
-                    content_id='official.templates.'+name, content_version='0.1.0',
+                    content_id='official.templates.'+name, content_version=version,
                     project_id=identity, graph_revision=0, title=titles['zh-CN']+' / '+titles['en-US'],
                     default_locale='zh-CN', titles=titles, category='audio', tier=tier,
                     maturity='visual-review-pending', author='Rhythm Master',

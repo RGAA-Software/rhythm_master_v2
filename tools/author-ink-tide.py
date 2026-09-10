@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 
 import music_work
+import audio_band_groups
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('gate', ROOT / 'tools/author-resonance-gate.py')
@@ -49,8 +50,7 @@ def build_graph(records):
     time = node('core.time', 0, 840)
     clock = node('scalar.expression', 320, 280, dict(time=time, a=flow), expression='time * a')
     bands = []
-    for index, band in enumerate((12, 28, 48)):
-        source = node('audio.band', 0, 1160 + index * 300, audio_band=band)
+    for index, source in enumerate(audio_band_groups.build_groups(node)):
         bands.append(node('scalar.expression', 320, 1160 + index * 300,
                           dict(a=source, b=response), expression='a * b'))
     phase = node('scalar.expression', 660, 0, dict(time=clock, a=bands[0]), expression='time * 0.075 + a * 0.12')
@@ -103,13 +103,14 @@ def main():
         {'zh-CN': '墨潮', 'en-US': 'Ink Tide'},
         {'zh-CN': '墨绿潮汐在纸色留白中展开，金色岸线与细密等高纹理随音乐流动。低频改变墨量，中频驱动空间扭曲，高频推进金线和谱带。三个公开宏、四段 Cue 和 16 秒配乐均可编辑；两个图像 Shader 可直接修改。',
          'en-US': 'Deep teal tides cross warm paper, traced by fine contour etching and a metallic coastline. Bass changes pigment coverage, mids warp the field, highs advance the gold edge and spectrum. Edit three macros, four cues, 16-second music and both image shaders.'},
-        platforms=('windows', 'android'), extra_assets=records)
+        platforms=('windows', 'android'), extra_assets=records, version='0.2.0')
     music_work.write_json(ROOT / 'provenance/ink_tide.json', dict(ownership='first-party', baseline='b5d36dd',
         source_files=['tools/author-phase-loom.py', 'tools/author-porcelain-pendulum.py',
                       'tools/author-resonance-gate.py', 'tools/author-luminous-concerto.py'],
         imported_third_party_files=[], renderer_provenance=['provenance/tixl_effects.json'],
         modifications=['New editable pigment/coastline expressions and framed contour composition.',
-                       'Reuse original music arrangement, bounded image-shader compiler and native effect operators.'],
+                       'Reuse original music arrangement, bounded image-shader compiler and native effect operators.',
+                       'P7: reuse tools/audio_band_groups.py to cover all 63 FFT bands in three editable peak groups.'],
         assets=manifest['assets'], target='content/templates/ink_tide'))
     print(f'Ink Tide: {len(graph.nodes)} nodes, {len(graph.edges)} edges')
 

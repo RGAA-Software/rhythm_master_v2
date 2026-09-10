@@ -5541,8 +5541,8 @@
             "id": "official.templates.chromatic_loom",
             "kind": "template",
             "source": "content/templates/chromatic_loom",
-            "source_sha256": "e64e014fa62510f030954022c1c662bbf64ac98ed1591bc36db6121d97994109",
-            "version": "0.1.0",
+            "source_sha256": "32da24da5ba9013dac94c1b192c17f8d2f3017052bf8fb49399205f730440d38",
+            "version": "0.2.0",
             "titles": {
                 "zh-CN": "织光机",
                 "en-US": "Chromatic Loom"
@@ -5627,13 +5627,13 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
                 "functional": "pending",
-                "music": "pending",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -6019,8 +6019,8 @@
             "id": "official.templates.ink_tide",
             "kind": "template",
             "source": "content/templates/ink_tide",
-            "source_sha256": "941193819ec6e7e859c31d05df153feab55e63860162d5e3494f6b3238211a99",
-            "version": "0.1.0",
+            "source_sha256": "8977673eb614a7db3636565f1e25a618a779e1a2f61c07d7b7379cb6fe860f12",
+            "version": "0.2.0",
             "titles": {
                 "zh-CN": "墨潮",
                 "en-US": "Ink Tide"
@@ -6105,13 +6105,13 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
                 "functional": "pending",
-                "music": "pending",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -6667,13 +6667,13 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 1,
+            "review_history_count": 2,
             "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
                 "functional": "pending",
-                "music": "pending",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -6892,8 +6892,8 @@
             "id": "official.templates.resonant_arcade",
             "kind": "template",
             "source": "content/templates/resonant_arcade",
-            "source_sha256": "d237c81b06dff5da3331b9854843ef4cf415e3fc9f31892052c4d093f4ee3895",
-            "version": "0.1.0",
+            "source_sha256": "2774b5790df40cd0e456e5d690b0caa467fea4bbc81c74aab436c219a51ca465",
+            "version": "0.2.0",
             "titles": {
                 "zh-CN": "共振拱廊",
                 "en-US": "Resonant Arcade"
@@ -6978,13 +6978,13 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
                 "functional": "pending",
-                "music": "pending",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }

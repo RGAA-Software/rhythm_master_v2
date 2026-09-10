@@ -3,13 +3,15 @@
     "baseline": "cef5e04",
     "imported_third_party_files": [],
     "authoring_tool": "tools/author-resonant-arcade.py",
-    "authoring_tool_sha256": "9a1a6ef03646bd3739beb5a5b08e684aeda4014008c209921b7cf833017329fd",
+    "authoring_tool_sha256": "9395743632957c322a1a8d2b7f801aded3dba0fae34aa361ae4af426311ad6c2",
     "reused_sources": [
         "tools/author-resonance-gate.py",
         "tools/music_work.py",
         "tools/author-input-components.py",
-        "tools/input_component_recipes.py"
+        "tools/input_component_recipes.py",
+        "tools/audio_band_groups.py"
     ],
+    "revision": "P7: replace root isolated bins with complete low/mid/high peak groups; retain the embedded Prism fold definition.",
     "composition": "Original architectural arrangement of shared arch geometry, textured PBR screens, inlaid floor, three lights and music-driven framing.",
     "embedded_component": {
         "type": "component.official.prism_fold",

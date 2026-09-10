@@ -31,6 +31,106 @@
                 ],
                 "notes": "Native GLES package music comparison failed; successful decoding and rendering do not bypass this gate."
             }
+        },
+        {
+            "id": "official.templates.porcelain_pendulum",
+            "source_sha256": "6ce6205001ea20cad1536449897d57d8cdd42c5c0c1a9d468c9758dd2324bc9f",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "pending",
+                "notes": "Template application/export and short playback passed; exposed-control extremes and resource replacement workflow remain pending."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/porcelain_frequency_coverage_2026-09-10.md"
+                ],
+                "notes": "Seven decoded PCM inputs and ten D3D image comparisons at 4s; packaged arrangement versus silence at four GLES checkpoints. Source-bound functional music response, not acoustic or arbitrary-song certification."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Actual stills and eight-time motion contact sheets reviewed; final visual quality and parameter-extreme review remain pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current APK identity, 640x360 native PCM and installed UI passed; final declared-profile and complete workflow acceptance remain pending."
+            }
+        },
+        {
+            "id": "official.templates.ink_tide",
+            "source_sha256": "8977673eb614a7db3636565f1e25a618a779e1a2f61c07d7b7379cb6fe860f12",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "pending",
+                "notes": "Template application/export and short playback passed; exposed-control extremes and resource replacement workflow remain pending."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/calibration_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Seven decoded PCM inputs and ten D3D image comparisons at 4s; packaged arrangement versus silence at four GLES checkpoints. Source-bound functional music response, not acoustic or arbitrary-song certification."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Actual stills and eight-time motion contact sheets reviewed; final visual quality and parameter-extreme review remain pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current APK identity, 640x360 native PCM and installed UI passed; final declared-profile and complete workflow acceptance remain pending."
+            }
+        },
+        {
+            "id": "official.templates.chromatic_loom",
+            "source_sha256": "32da24da5ba9013dac94c1b192c17f8d2f3017052bf8fb49399205f730440d38",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "pending",
+                "notes": "Template application/export and short playback passed; exposed-control extremes and resource replacement workflow remain pending."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/calibration_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Seven decoded PCM inputs and ten D3D image comparisons at 4s; packaged arrangement versus silence at four GLES checkpoints. Source-bound functional music response, not acoustic or arbitrary-song certification."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Actual stills and eight-time motion contact sheets reviewed; final visual quality and parameter-extreme review remain pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current APK identity, 640x360 native PCM and installed UI passed; final declared-profile and complete workflow acceptance remain pending."
+            }
+        },
+        {
+            "id": "official.templates.resonant_arcade",
+            "source_sha256": "2774b5790df40cd0e456e5d690b0caa467fea4bbc81c74aab436c219a51ca465",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "pending",
+                "notes": "Template application/export and short playback passed; exposed-control extremes and resource replacement workflow remain pending."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/calibration_band_coverage_2026-09-10.md"
+                ],
+                "notes": "Seven decoded PCM inputs and ten D3D image comparisons at 4s; packaged arrangement versus silence at four GLES checkpoints. Source-bound functional music response, not acoustic or arbitrary-song certification."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Actual stills and eight-time motion contact sheets reviewed; final visual quality and parameter-extreme review remain pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current APK identity, 640x360 native PCM and installed UI passed; final declared-profile and complete workflow acceptance remain pending."
+            }
         }
     ]
 }

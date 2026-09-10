@@ -13,7 +13,8 @@
     ],
     "modifications": [
         "New editable pigment/coastline expressions and framed contour composition.",
-        "Reuse original music arrangement, bounded image-shader compiler and native effect operators."
+        "Reuse original music arrangement, bounded image-shader compiler and native effect operators.",
+        "P7: reuse tools/audio_band_groups.py to cover all 63 FFT bands in three editable peak groups."
     ],
     "assets": [
         {
@@ -27,12 +28,12 @@
             "media_type": "audio/flac"
         },
         {
-            "sha256": "18c55484fac8fb9bf262a135d655c0a1fefb5e15dac6f5d5442a4f91f2492001",
+            "sha256": "7158f892bd1e05a070382d5f6508d383c0401c28c927f72077f0805da04206ee",
             "bytes": 4282,
             "media_type": "application/x-rhythm-image-shader"
         },
         {
-            "sha256": "1d7409bc2408c2a896574e531e43462db7005670871a31e94a76b155a8e17bfb",
+            "sha256": "0039d551ea861ccf6a3fd34e29933d84e3d1021c276583b39c1f008b3edc13d5",
             "bytes": 3667,
             "media_type": "application/x-rhythm-image-shader"
         }

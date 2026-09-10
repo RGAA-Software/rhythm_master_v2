@@ -3,12 +3,14 @@
     "baseline": "9463f68",
     "imported_third_party_files": [],
     "authoring_tool": "tools/author-chromatic-loom.py",
-    "authoring_tool_sha256": "fa2635280ae0a2d18c46a4602c4c750b12c7775fd3486e4e4b0d637df0508365",
+    "authoring_tool_sha256": "9279e77239f0cf9c37923bcbf870a0f56e4c43c120b5652536bb5dabfe06a233",
     "reused_sources": [
         "tools/author-resonance-gate.py",
         "tools/music_work.py",
-        "tools/author-daylight-mobile.py"
+        "tools/author-daylight-mobile.py",
+        "tools/audio_band_groups.py"
     ],
+    "revision": "P7: replace three isolated bins with complete low/mid/high peak groups.",
     "composition": "Original alternating-phase warp/weft sculpture with shared static path meshes, GPU twist, metallic clasps and music-driven framing.",
     "assets": [
         {
