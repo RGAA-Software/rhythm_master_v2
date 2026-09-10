@@ -1,21 +1,20 @@
 #include "job_files.h"
 
-#include <fstream>
 #include <nlohmann/json.hpp>
+#include <vector>
 
 #include "rhythm/storage/atomic_file.h"
+#include "rhythm/storage/file_bytes.h"
 
 namespace rhythm::exporting::detail {
 namespace {
 nlohmann::json Read(const std::filesystem::path& path) {
-    std::ifstream file(path, std::ios::binary);
-    file.exceptions(std::ios::failbit | std::ios::badbit);
-    file.seekg(0, std::ios::end);
-    const auto size = file.tellg();
-    if (size <= 0 || size > 8192) throw std::runtime_error("export.job_metadata_size");
-    file.seekg(0);
-    std::string text(static_cast<std::size_t>(size), '\0');
-    file.read(text.data(), static_cast<std::streamsize>(size));
+    // The child atomically replaces progress.json. A reader must permit the
+    // publisher's DELETE handle and retain one immutable file revision.
+    const auto file = storage::FileBytes::Open(path, 8192);
+    if (!file.Size()) throw std::runtime_error("export.job_metadata_size");
+    std::vector<std::uint8_t> text(static_cast<std::size_t>(file.Size()));
+    file.Read(0, text);
     return nlohmann::json::parse(text,
                                  [](int depth, nlohmann::json::parse_event_t, nlohmann::json&) {
                                      if (depth > 4)
