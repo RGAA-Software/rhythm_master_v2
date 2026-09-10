@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.spectral_triptych",
+            "reset": true,
+            "id": "official.semantic.spectral_triptych.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.spectral_triptych",
+            "reset": true,
+            "id": "official.semantic.spectral_triptych.variant",
+            "titles": {
+                "en-US": "Close folding stage",
+                "zh-CN": "紧凑折叠舞台"
+            },
+            "properties": {
+                "spacing": 1.7,
+                "flow": 0.25,
+                "response": 1.6,
+                "roughness": 0.55,
+                "exposure": -0.3
+            }
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+{
+    "template": "spectral_triptych",
+    "package_sha256": "d2ae28f8e06957853abb1c55dbab73807f3e4e854e50618aa699d3a005b94ec9",
+    "thumbnail_sha256": "77c43eda7cbc36b60c32925003b9ec783144579ece4798819c092994ffce1151",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

@@ -1,0 +1,18 @@
+{
+    "ownership": "first-party",
+    "authoring_tool": "tools/author-spectral-triptych.py",
+    "authoring_tool_sha256": "93b49e32c3bed84396ef56db5b28fad3d99db63ba7d4d94c05a3e2e11a66f46b",
+    "reused_sources": [
+        "tools/author-input-components.py",
+        "tools/author-resonant-arcade.py",
+        "tools/audio_band_groups.py"
+    ],
+    "imported_third_party_files": [],
+    "existing_adapters": "provenance/tixl_effects.json",
+    "component": {
+        "id": "spectral_triptych",
+        "nodes": 128,
+        "input": "texture",
+        "composition": "Connect an image or text texture. Three shared-mesh screens independently turn and rise with full bass, mid and treble groups. Edit spacing, motion, response and material; the preview stripes are not inserted."
+    }
+}

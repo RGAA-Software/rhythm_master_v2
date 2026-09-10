@@ -55,6 +55,7 @@ def component_definition(recipe):
                   'pace': (-0.25, 0.25) if name in ('contour_engraving', 'polar_vortex', 'luma_windows', 'beat_shutters') else (-45, 45)}
         if name == 'self_relief':
             bounds['depth'] = (0, 1)
+        bounds.update(recipe.get('bounds', {}))
         limits = f' minimum: {bounds[key][0]} maximum: {bounds[key][1]}' if key in bounds else ''
         text.append(f'parameters {{ key: "{key}" node: {identity} property: "{property_name}" group: "component.pattern"{limits} }}')
     return graph, text + ['}'], dict(type=component, positions=graph.positions)

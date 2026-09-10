@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
         Check(argc == 2 || argc == 3, "catalog path and optional variant output directory");
         graph::Registry registry;
         const auto catalog = content::LoadSemantics(argv[1], registry);
-        Check(catalog.size() == 29, "semantic catalog coverage");
+        Check(catalog.size() == 30, "semantic catalog coverage");
         const auto asset_directory =
                 (argc == 3 ? std::filesystem::path(argv[2])
                            : std::filesystem::path(argv[1]).parent_path() / "semantic-tests") /

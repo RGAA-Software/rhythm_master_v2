@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.spectral_triptych",
+    "content_version": "0.2.0",
+    "project_id": "semantic-spectral_triptych",
+    "graph_revision": 0,
+    "title": "三频折屏 / Spectral triptych",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Spectral triptych",
+        "zh-CN": "三频折屏"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party composition using existing attributed operators; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Connect an image or text texture. Three shared-mesh screens independently turn and rise with full bass, mid and treble groups. Edit spacing, motion, response and material; the preview stripes are not inserted.",
+        "zh-CN": "连接图像或文字纹理。三块共享网格的立体屏幕分别随完整低、中、高频段转动和升降。可编辑间距、运动、响应与材质；预览条纹不会插入工程。"
+    }
+}

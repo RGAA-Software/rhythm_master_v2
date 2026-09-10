@@ -579,6 +579,34 @@
                 "status": "pending",
                 "notes": "Current APK identity, packaged PCM/GLES and actual application selection/pause/resume passed. Final declared-profile performance and integrated acceptance pending."
             }
+        },
+        {
+            "id": "official.semantic.spectral_triptych",
+            "source_sha256": "a9276c39907a4a010e115673c844cd4c8bc54e3166b913404e2c9f4169432082",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/spectral_triptych_component_2026-09-10.md"
+                ],
+                "notes": "All 30 catalog parameter/preset/insertion/save/publication contracts and actual Chinese library preview/insertion/undo/close passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/spectral_triptych_component_2026-09-10.md"
+                ],
+                "notes": "Seven decoded PCM inputs, ten distinct final-image comparisons at identical time/history with original thresholds."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Three textured screens reviewed with diagnostic input; varied production sources and final visual quality pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Source-bound native GLES synthetic-feature short test passed; integrated installed-work acceptance remains pending."
+            }
         }
     ]
 }

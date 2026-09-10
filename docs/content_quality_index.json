@@ -8,15 +8,15 @@
         "preset:preset": 120
     },
     "counts": {
-        "authored:component": 29,
-        "authored:preset": 206,
+        "authored:component": 30,
+        "authored:preset": 208,
         "authored:template": 53,
         "component:component": 0,
         "preset:preset": 0,
         "template:advanced": 0,
         "template:basic": 0
     },
-    "default_presets_excluded": 117,
+    "default_presets_excluded": 118,
     "identical_preset_settings": [],
     "entries": [
         {
@@ -4806,6 +4806,86 @@
             "tier": "preset",
             "is_default": false,
             "exact_setting_group": "9b3e9ff92bdf77e1f67ba061559a955cde41cd882b9cc2d9fdd7f8c74669fe7e",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.spectral_triptych",
+            "kind": "component",
+            "source": "content/semantic/spectral_triptych",
+            "source_sha256": "a9276c39907a4a010e115673c844cd4c8bc54e3166b913404e2c9f4169432082",
+            "version": "0.2.0",
+            "titles": {
+                "en-US": "Spectral triptych",
+                "zh-CN": "三频折屏"
+            },
+            "tier": "component",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party composition using existing attributed operators; outbound license pending",
+            "soundtrack": null,
+            "is_default": false,
+            "review_history_count": 1,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "passed",
+                "music": "passed",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.spectral_triptych.default",
+            "kind": "preset",
+            "source": "content/semantic/spectral_triptych/presets.json",
+            "source_sha256": "9d1444d8885571e1dc192e42fe5215cfef6df7366d16459715e4ba73ec1f5c39",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "operator": "component.official.spectral_triptych",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "76864fed75ecbba3d352a0ae57d39f244cc31ac4d9dd53f92f56079bb6c9d799",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.spectral_triptych.variant",
+            "kind": "preset",
+            "source": "content/semantic/spectral_triptych/presets.json",
+            "source_sha256": "a088f3462c40fc12926e3a0a85d30030f72b3129c28dea600184efaffcead292",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Close folding stage",
+                "zh-CN": "紧凑折叠舞台"
+            },
+            "operator": "component.official.spectral_triptych",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "3250efb1672b0b809e07a8a6b4e0b9657227ceeaab297d4cd86b27666e9ccd05",
             "review_history_count": 0,
             "stale_review_count": 0,
             "quality_accepted": false,
