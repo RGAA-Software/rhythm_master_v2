@@ -132,3 +132,35 @@ Artifact licensing and redistribution materials remain separately tracked; this
 plan does not select the project's outbound license. Android USB overlay installation
 now works; broader device and lifecycle evidence remains separately tracked.
 Neither justifies resuming communication or counting unfinished work as complete.
+
+## P7 review ledger (2026-09-10)
+
+`content_quality_index.json` in docs is the generated current inventory;
+`content_reviews.json` is the append-only per-source review history. Run
+`python tools/audit-content-quality.py` to regenerate and add `--check` to detect
+stale inventory. Source changes invalidate the applicable review without erasing
+history. This is independent of runtime manifest format and does not migrate packages.
+
+The current inventory is 53 templates, 29 components and 206 preset records.
+117 presets are default-value records and excluded from the visual preset target;
+the remaining 89 are candidates, not automatically independent accepted presets.
+The initial ledger records zero accepted quality items: earlier functional evidence
+remains valid within its recorded scope, but has not been converted into a completed
+four-stage source-bound quality review. This is not a claim that all existing content
+is bad or that earlier user feedback has been revoked.
+
+Each review includes exact source SHA256, reviewer/date, functional, music, visual
+and device decisions, concrete evidence files and notes, and an independence group.
+All four stages must pass for the quality count; pending/failed/not-applicable stages
+do not silently bypass this gate. Default presets, duplicate independent-work groups,
+identical preset settings and missing evidence cannot inflate accepted totals.
+User acceptance is separate and is never inferred from a tool pass or agent review.
+`tools/test-content-quality.py` checks stale reviews, pending stages, missing evidence,
+default exclusion and duplicate-count rejection.
+
+First 2 Basic + 2 Advanced calibration batch: Ink Tide, Porcelain Pendulum,
+Chromatic Loom and Resonant Arcade. These existing editable music works provide
+organic texture, a light mechanical composition, woven geometry and architectural
+space. Recheck current source/package identities, real PCM contrasts and motion,
+then record shortcomings and revisions before expanding the production batch.
+This selection is a review queue, not a quality acceptance statement.
