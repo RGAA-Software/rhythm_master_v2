@@ -3,12 +3,26 @@
 #include <imgui.h>
 
 #include <algorithm>
+#include <cstddef>
+#include <numeric>
 
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
 #include "rhythm/media/audio_mixer.h"
 #endif
 
 namespace rhythm::audio_ui {
+namespace {
+float BandAverage(const audio::Features& features, std::size_t first, std::size_t last) {
+    const auto begin = features.mono_bands_.begin() + static_cast<std::ptrdiff_t>(first);
+    const auto end = features.mono_bands_.begin() + static_cast<std::ptrdiff_t>(last + 1);
+    return std::accumulate(begin, end, 0.0F) / static_cast<float>(last - first + 1);
+}
+void DrawBandMeter(const std::string& label, float value, const ImVec4& color) {
+    ImGui::TextColored(color, "%s", label.c_str());
+    ImGui::SameLine();
+    ImGui::ProgressBar(std::clamp(value, 0.0F, 1.0F), ImVec2(-1, 0), nullptr);
+}
+}  // namespace
 void AudioPanel::SetSuspended(bool suspended) {
     if (suspended_ == suspended) return;
     suspended_ = suspended;
@@ -114,14 +128,32 @@ void AudioPanel::Draw(const std::map<std::string, std::string>& text) {
                      : snapshot.state_ == audio::CaptureState::kStarting ? "audio.starting"
                      : snapshot.state_ == audio::CaptureState::kFailed   ? "audio.failed"
                                                                          : "audio.idle";
-    ImGui::TextWrapped("%s", text.at(key).c_str());
-    if (snapshot.features_.valid_) {
-        ImGui::ProgressBar(snapshot.features_.loudness_, ImVec2(-1, 0),
-                           text.at("audio.loudness").c_str());
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+    if (media_selected_)
+        ImGui::TextUnformatted(text.at("audio.source_file").c_str());
+    else
+#endif
+        ImGui::TextWrapped("%s", text.at(key).c_str());
+    const auto frame = Frame();
+#ifdef RHYTHM_HAS_LOCAL_MEDIA
+    if (!media_selected_)
+#endif
+        ImGui::TextUnformatted(text.at("audio.source_system").c_str());
+    if (frame.features_) {
+        const auto& features = *frame.features_;
+        ImGui::ProgressBar(features.loudness_, ImVec2(-1, 0), text.at("audio.loudness").c_str());
+        DrawBandMeter(text.at("audio.band_low") + " 0-20", BandAverage(features, 0, 20),
+                      {0.92F, 0.55F, 0.18F, 1});
+        DrawBandMeter(text.at("audio.band_mid") + " 21-41", BandAverage(features, 21, 41),
+                      {0.18F, 0.78F, 0.94F, 1});
+        DrawBandMeter(text.at("audio.band_high") + " 42-62", BandAverage(features, 42, 62),
+                      {0.95F, 0.37F, 0.68F, 1});
+        ImGui::ProgressBar(std::clamp(features.onset_strength_, 0.0F, 1.0F), ImVec2(-1, 0),
+                           text.at("audio.onset_meter").c_str());
         ImGui::PlotHistogram((text.at("audio.spectrum") + "###audio.spectrum").c_str(),
-                             snapshot.features_.mono_bands_.data(),
-                             static_cast<int>(audio::kBandCount), 0, nullptr, 0, 1, ImVec2(0, 64));
-        ImGui::Text("%s: %.1f", text.at("audio.bpm").c_str(), snapshot.features_.bpm_);
+                             features.mono_bands_.data(), static_cast<int>(audio::kBandCount), 0,
+                             nullptr, 0, 1, ImVec2(0, 64));
+        ImGui::Text("%s: %.1f", text.at("audio.bpm").c_str(), features.bpm_);
     } else if (active)
         ImGui::TextUnformatted(text.at("audio.no_signal").c_str());
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
