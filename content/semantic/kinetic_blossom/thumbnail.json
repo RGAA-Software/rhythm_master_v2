@@ -1,0 +1,14 @@
+{
+    "template": "kinetic_blossom",
+    "package_sha256": "22747a52e61a995eb8cbe8127287ba4962cb61d0615c8200df6adb271fc4fa26",
+    "thumbnail_sha256": "702b798673266bec7c588c37afbe45deeaa9344f4dabd9859ebe2abca1fa020b",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

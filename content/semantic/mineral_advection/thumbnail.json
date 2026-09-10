@@ -1,0 +1,14 @@
+{
+    "template": "mineral_advection",
+    "package_sha256": "3ed678578ff1066a0a03be5e6ee167456e25e44c210147ec17ed20bab2757565",
+    "thumbnail_sha256": "65cc547c7c2637dd0c3d292e538e80380b7753939a3b24a1d0718f7765f6f977",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

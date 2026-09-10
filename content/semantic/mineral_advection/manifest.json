@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.mineral_advection",
+    "content_version": "0.1.0",
+    "project_id": "semantic-mineral_advection",
+    "graph_revision": 0,
+    "title": "矿彩流移 / Mineral advection",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Mineral advection",
+        "zh-CN": "矿彩流移"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "A continuous multi-scale pigment current extracted from Stratified Ink.",
+        "zh-CN": "A continuous multi-scale pigment current extracted from Stratified Ink."
+    }
+}

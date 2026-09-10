@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.orbital_aureole",
+    "content_version": "0.1.0",
+    "project_id": "semantic-orbital_aureole",
+    "graph_revision": 0,
+    "title": "环绕光冕 / Orbital aureole",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Orbital aureole",
+        "zh-CN": "环绕光冕"
+    },
+    "category": "scene",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Continuous camera orbit and counter-rotating emissive rings extracted from Aureate Vortex.",
+        "zh-CN": "Continuous camera orbit and counter-rotating emissive rings extracted from Aureate Vortex."
+    }
+}

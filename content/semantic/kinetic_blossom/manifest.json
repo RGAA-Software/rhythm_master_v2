@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.kinetic_blossom",
+    "content_version": "0.1.0",
+    "project_id": "semantic-kinetic_blossom",
+    "graph_revision": 0,
+    "title": "动势花芯 / Kinetic blossom",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Kinetic blossom",
+        "zh-CN": "动势花芯"
+    },
+    "category": "scene",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Layered quiet rotation, camera orbit and separate bass opening from Porcelain Bloom.",
+        "zh-CN": "Layered quiet rotation, camera orbit and separate bass opening from Porcelain Bloom."
+    }
+}

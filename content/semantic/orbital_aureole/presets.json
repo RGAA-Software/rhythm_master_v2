@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.orbital_aureole",
+            "reset": true,
+            "id": "official.semantic.orbital_aureole.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.orbital_aureole",
+            "reset": true,
+            "id": "official.semantic.orbital_aureole.variant",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "properties": {
+                "pace": 0.65,
+                "response": 1.45,
+                "ring_radius": 1.7,
+                "metallic": 0.92,
+                "camera_fov": 38
+            }
+        }
+    ]
+}

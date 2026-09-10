@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.ribbon_constellation",
+            "reset": true,
+            "id": "official.semantic.ribbon_constellation.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.ribbon_constellation",
+            "reset": true,
+            "id": "official.semantic.ribbon_constellation.variant",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "properties": {
+                "pace": 0.8,
+                "response": 1.4,
+                "metallic": 0.82,
+                "roughness": 0.15,
+                "camera_fov": 39
+            }
+        }
+    ]
+}

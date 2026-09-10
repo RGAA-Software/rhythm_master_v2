@@ -1,0 +1,14 @@
+{
+    "template": "endless_passage",
+    "package_sha256": "f17bbf631979b2ff9223592fa9355122af5cec0f2a7bea6598dd8cacfaee8f47",
+    "thumbnail_sha256": "958d4f88f94f76af239657606ab1ded63af11b79206d98c1fea743a4b28031dd",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

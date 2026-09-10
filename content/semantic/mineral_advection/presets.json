@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.mineral_advection",
+            "reset": true,
+            "id": "official.semantic.mineral_advection.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.mineral_advection",
+            "reset": true,
+            "id": "official.semantic.mineral_advection.variant",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "properties": {
+                "pace": 0.7,
+                "response": 1.6,
+                "strata": 32,
+                "grain_scale": 28,
+                "displacement": 16
+            }
+        }
+    ]
+}

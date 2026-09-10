@@ -1,0 +1,14 @@
+{
+    "template": "orbital_aureole",
+    "package_sha256": "e343083ac7d763e979a30f3bae4c1e1ddccd9ee842e4fd0753771896e7f9d4c5",
+    "thumbnail_sha256": "e94026705be0d27afacb1954473408d7ed82c73d6cc538c6cd0a2532add45be0",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

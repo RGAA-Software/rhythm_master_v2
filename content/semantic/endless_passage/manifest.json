@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.endless_passage",
+    "content_version": "0.1.0",
+    "project_id": "semantic-endless_passage",
+    "graph_revision": 0,
+    "title": "无尽光廊 / Endless passage",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Endless passage",
+        "zh-CN": "无尽光廊"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Continuous tunnel travel and separate frequency accents extracted from Lumen Corridor.",
+        "zh-CN": "Continuous tunnel travel and separate frequency accents extracted from Lumen Corridor."
+    }
+}

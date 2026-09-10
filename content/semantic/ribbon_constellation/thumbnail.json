@@ -1,0 +1,14 @@
+{
+    "template": "ribbon_constellation",
+    "package_sha256": "da656dca3b24177e1ce68d22b46222715662546477f85572f5f677ab10a84cd2",
+    "thumbnail_sha256": "610205aefe411d2e5476c988e12c6a39a4dbdd59d3ad193157f9b997940be72e",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

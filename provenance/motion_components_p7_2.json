@@ -1,0 +1,76 @@
+{
+    "ownership": "first-party",
+    "imported_third_party_files": [],
+    "authoring_tool": "tools/author-motion-components.py",
+    "authoring_tool_sha256": "ff5b514f08fbf9b74039f2d0e48c612e6fb98cf4056e28709423cc2cac1cb551",
+    "source_files": [
+        "tools/concept_spatial_works.py",
+        "tools/concept_ink_work.py",
+        "tools/concept_corridor_work.py",
+        "tools/concept_work_common.py"
+    ],
+    "source_sha256": {
+        "tools/concept_spatial_works.py": "ca7aeddd92ed1a260e13bad6e5cadfbdaef23118211f99095b1a112b1d5abc9d",
+        "tools/concept_ink_work.py": "75d08970e66ad18bc896a83844f6f0de175135b288f5a206f63553e7247cd656",
+        "tools/concept_corridor_work.py": "ef9cbb3ac187f8978b17d29b9cc81f3dc9c30681f3c09a563f0a9a2b66cab565",
+        "tools/concept_work_common.py": "779a9e7b023e2b4c59ad8348a413915eb884aa7797316b0b9a64b978ba9810de"
+    },
+    "reuse": "Focused graph extraction from the completed concept-work batch. Existing renderer adapters retain their provenance.",
+    "entries": [
+        {
+            "component": "orbital_aureole",
+            "nodes": 29,
+            "source_components": [
+                "aureate_vortex",
+                "porcelain_bloom",
+                "stratified_ink",
+                "lumen_corridor",
+                "dunhuang_ribbons"
+            ]
+        },
+        {
+            "component": "kinetic_blossom",
+            "nodes": 52,
+            "source_components": [
+                "aureate_vortex",
+                "porcelain_bloom",
+                "stratified_ink",
+                "lumen_corridor",
+                "dunhuang_ribbons"
+            ]
+        },
+        {
+            "component": "mineral_advection",
+            "nodes": 18,
+            "source_components": [
+                "aureate_vortex",
+                "porcelain_bloom",
+                "stratified_ink",
+                "lumen_corridor",
+                "dunhuang_ribbons"
+            ]
+        },
+        {
+            "component": "endless_passage",
+            "nodes": 18,
+            "source_components": [
+                "aureate_vortex",
+                "porcelain_bloom",
+                "stratified_ink",
+                "lumen_corridor",
+                "dunhuang_ribbons"
+            ]
+        },
+        {
+            "component": "ribbon_constellation",
+            "nodes": 29,
+            "source_components": [
+                "aureate_vortex",
+                "porcelain_bloom",
+                "stratified_ink",
+                "lumen_corridor",
+                "dunhuang_ribbons"
+            ]
+        }
+    ]
+}

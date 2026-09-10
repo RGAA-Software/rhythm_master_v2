@@ -1,0 +1,33 @@
+{
+    "schema_version": 1,
+    "presets": [
+        {
+            "version": "1.0.0",
+            "operator": "component.official.kinetic_blossom",
+            "reset": true,
+            "id": "official.semantic.kinetic_blossom.default",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "properties": {}
+        },
+        {
+            "version": "1.0.0",
+            "operator": "component.official.kinetic_blossom",
+            "reset": true,
+            "id": "official.semantic.kinetic_blossom.variant",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "properties": {
+                "pace": 1.25,
+                "response": 1.5,
+                "petal_radius": 0.66,
+                "roughness": 0.11,
+                "camera_fov": 40
+            }
+        }
+    ]
+}

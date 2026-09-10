@@ -7,15 +7,15 @@
         "preset:preset": 120
     },
     "counts": {
-        "authored:component": 30,
-        "authored:preset": 209,
+        "authored:component": 35,
+        "authored:preset": 219,
         "authored:template": 20,
         "component:component": 0,
         "preset:preset": 0,
         "template:advanced": 0,
         "template:basic": 0
     },
-    "default_presets_excluded": 119,
+    "default_presets_excluded": 124,
     "identical_preset_settings": [],
     "entries": [
         {
@@ -3324,6 +3324,86 @@
             }
         },
         {
+            "id": "official.semantic.endless_passage",
+            "kind": "component",
+            "source": "content/semantic/endless_passage",
+            "source_sha256": "9f0c29ff06b0a7f5992b45aafff1b4de32ade4691323c70e4f211b56aa00152e",
+            "version": "0.1.0",
+            "titles": {
+                "en-US": "Endless passage",
+                "zh-CN": "无尽光廊"
+            },
+            "tier": "component",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": null,
+            "is_default": false,
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.endless_passage.default",
+            "kind": "preset",
+            "source": "content/semantic/endless_passage/presets.json",
+            "source_sha256": "7111812acf053b3f1f259a567767be8dca5ab5e8316ea7925ec31702f3b69721",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "operator": "component.official.endless_passage",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "2382069692da141433975fc87be53e74dcdf57a8f38d9a3f04db2d7522f23da1",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.endless_passage.variant",
+            "kind": "preset",
+            "source": "content/semantic/endless_passage/presets.json",
+            "source_sha256": "4bd2cf6bab6febabecc0362528640c83884d13bb5095b52592a069b02bb51744",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "operator": "component.official.endless_passage",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "45657a6dde13fe9faa7ab78285a0e1d46e2310779ba826b69929b5d9002f25a2",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
             "id": "official.semantic.firefly_garden",
             "kind": "component",
             "source": "content/semantic/firefly_garden",
@@ -3643,6 +3723,86 @@
             }
         },
         {
+            "id": "official.semantic.kinetic_blossom",
+            "kind": "component",
+            "source": "content/semantic/kinetic_blossom",
+            "source_sha256": "884420613de9f45397f7c60e92a4fca4493e292c078e1af4c5e01c7157e461cb",
+            "version": "0.1.0",
+            "titles": {
+                "en-US": "Kinetic blossom",
+                "zh-CN": "动势花芯"
+            },
+            "tier": "component",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": null,
+            "is_default": false,
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.kinetic_blossom.default",
+            "kind": "preset",
+            "source": "content/semantic/kinetic_blossom/presets.json",
+            "source_sha256": "b835f7491e381671302a5e70331f8941f3d5e86a95f4b63b158237186b91d1ff",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "operator": "component.official.kinetic_blossom",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "cab6029d388d77488118224362d3f8c29f8b084b653f99619e40b6fd2a7efecb",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.kinetic_blossom.variant",
+            "kind": "preset",
+            "source": "content/semantic/kinetic_blossom/presets.json",
+            "source_sha256": "a201f1b0507eebc4488406c307624149178580e180f603cf3d55e41cdf66100e",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "operator": "component.official.kinetic_blossom",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "7c779ba00f8c43a901554dc6e98280ff996194f42b1ffb131fe2f8ea5c3ff953",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
             "id": "official.semantic.lit_ellipsoid_duet",
             "kind": "component",
             "source": "content/semantic/lit_ellipsoid_duet",
@@ -3803,6 +3963,86 @@
             }
         },
         {
+            "id": "official.semantic.mineral_advection",
+            "kind": "component",
+            "source": "content/semantic/mineral_advection",
+            "source_sha256": "ccde494163010a0b3ff5198f6a68ae9c3c52621b164b626895232f743c5a8241",
+            "version": "0.1.0",
+            "titles": {
+                "en-US": "Mineral advection",
+                "zh-CN": "矿彩流移"
+            },
+            "tier": "component",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": null,
+            "is_default": false,
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.mineral_advection.default",
+            "kind": "preset",
+            "source": "content/semantic/mineral_advection/presets.json",
+            "source_sha256": "45c68889f886f7ed64761db69ae41927ecbcbea06d584ed3c3e0502239160c0f",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "operator": "component.official.mineral_advection",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "83f400d46515ef1f6a138cd5b4e8e6d36241a5c1e1a5c672bb3ce003c782a107",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.mineral_advection.variant",
+            "kind": "preset",
+            "source": "content/semantic/mineral_advection/presets.json",
+            "source_sha256": "1902ef444de1bea3f33047a49b3cf3a5c015a6ebca6623df8aa67893d6cd88b1",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "operator": "component.official.mineral_advection",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "5abe8c2d72b687a6579e44747dfc3fc3a8ebe8f363fc3f27028145a476f6d459",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
             "id": "official.semantic.mirrored_duet",
             "kind": "component",
             "source": "content/semantic/mirrored_duet",
@@ -3951,6 +4191,86 @@
             "tier": "preset",
             "is_default": false,
             "exact_setting_group": "ac30b922cba60eb87417e5e62fff5fc6fab6a6f6c03a35fabc37d9aa2de2fa4c",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.orbital_aureole",
+            "kind": "component",
+            "source": "content/semantic/orbital_aureole",
+            "source_sha256": "f7166bdbe9adb33059ab401ee958991bccc0e19c2701d5c40c994f42dc3b9f73",
+            "version": "0.1.0",
+            "titles": {
+                "en-US": "Orbital aureole",
+                "zh-CN": "环绕光冕"
+            },
+            "tier": "component",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": null,
+            "is_default": false,
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.orbital_aureole.default",
+            "kind": "preset",
+            "source": "content/semantic/orbital_aureole/presets.json",
+            "source_sha256": "897a31cf2c19987b71c0b9934f513e644970b72983012abd3fac9314cba59c9d",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "operator": "component.official.orbital_aureole",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "54295e9d88058d0d36b0762580653abc71e86dd9bc1103f415514bd76f11f3a4",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.orbital_aureole.variant",
+            "kind": "preset",
+            "source": "content/semantic/orbital_aureole/presets.json",
+            "source_sha256": "47e41d69d36d3a2bba75d39d1bcb3e4365edaf1b2c2190db4ab0c137d0a33693",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "operator": "component.official.orbital_aureole",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "980c226909046e926a62a88be0459525cb1767ffcfbbd78846ff75c87c960d6a",
             "review_history_count": 0,
             "stale_review_count": 0,
             "quality_accepted": false,
@@ -4590,6 +4910,86 @@
             "tier": "preset",
             "is_default": false,
             "exact_setting_group": "b13da98ce449245a5b4b9a14d2c19d99bc6362b67adb833b345367511f75aa8c",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.ribbon_constellation",
+            "kind": "component",
+            "source": "content/semantic/ribbon_constellation",
+            "source_sha256": "0b1773aeab08945be0d9cf4249004df7be0e95942f70bddc7ab6b4e0d605e761",
+            "version": "0.1.0",
+            "titles": {
+                "en-US": "Ribbon constellation",
+                "zh-CN": "飞带星图"
+            },
+            "tier": "component",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": null,
+            "is_default": false,
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.ribbon_constellation.default",
+            "kind": "preset",
+            "source": "content/semantic/ribbon_constellation/presets.json",
+            "source_sha256": "74869c95ca1851d7d8074b5775b86feeca21ea23921419e31ab69e56b1539d62",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "operator": "component.official.ribbon_constellation",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "7f726dd0fee5625638f332abc7107f5be833fd4733c6570b43122043d65a0480",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.ribbon_constellation.variant",
+            "kind": "preset",
+            "source": "content/semantic/ribbon_constellation/presets.json",
+            "source_sha256": "67841463b43d2fac1edeac4a335b246e1d83980aa4f7474422f949f3b787e848",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "operator": "component.official.ribbon_constellation",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "d517d235d54ed4820b9cb606c94d4df6ee5f67f741939a7c0968dbb14db496d8",
             "review_history_count": 0,
             "stale_review_count": 0,
             "quality_accepted": false,
