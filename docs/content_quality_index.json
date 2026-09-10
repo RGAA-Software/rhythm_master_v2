@@ -6667,15 +6667,15 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
                 "functional": "pending",
-                "music": "pending",
-                "visual": "pending",
-                "device": "pending"
+                "music": "failed",
+                "visual": "failed",
+                "device": "failed"
             }
         },
         {

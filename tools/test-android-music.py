@@ -60,12 +60,25 @@ def main():
                 adb + ['shell', 'chmod', '700', remote]]
     for command in commands:
         subprocess.run(command, check=True)
-    run_logged(adb + ['shell', 'LD_LIBRARY_PATH=/data/local/tmp', remote, remote + '.rhythmpack',
-                      '--arrangement', str(args.expected_nodes)], evidence / 'device.log')
-    for seconds in (2, 6, 10, 14):
-        for mode in ('music', 'silence'):
-            name = f'{seconds}.{mode}.ppm'
-            subprocess.run(adb + ['pull', remote + '.rhythmpack.' + name, str(evidence / name)], check=True)
+    completed = False
+    try:
+        run_logged(adb + ['shell', 'LD_LIBRARY_PATH=/data/local/tmp', remote, remote + '.rhythmpack',
+                          '--arrangement', str(args.expected_nodes)], evidence / 'device.log')
+        completed = True
+    finally:
+        # Failed pixel comparisons are precisely when the images are needed.
+        # Preserve the original test failure if an earlier failure produced no image.
+        missing = []
+        for seconds in (2, 6, 10, 14):
+            for mode in ('music', 'silence'):
+                name = f'{seconds}.{mode}.ppm'
+                result = subprocess.run(adb + ['pull', remote + '.rhythmpack.' + name,
+                                               str(evidence / name)], capture_output=True)
+                if result.returncode:
+                    missing.append(name)
+                    (evidence / (name + '.pull-error.txt')).write_bytes(result.stdout + result.stderr)
+        if completed and missing:
+            raise RuntimeError('GPU passed but evidence images are missing: ' + repr(missing))
     print('Android APK music evidence:', evidence)
 
 

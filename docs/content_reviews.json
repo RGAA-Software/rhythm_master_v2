@@ -1,5 +1,36 @@
 {
     "schema_version": 1,
     "scope": "Independent content review history; source changes invalidate acceptance until reviewed again",
-    "reviews": []
+    "reviews": [
+        {
+            "id": "official.templates.porcelain_pendulum",
+            "source_sha256": "fff0c61478ac3d685205d17cfa101f455f8309ce0c1ab96947e32f4796f66261",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "pending"
+            },
+            "music": {
+                "status": "failed",
+                "evidence": [
+                    "docs/validation/porcelain_opening_response_2026-09-10.md"
+                ],
+                "notes": "Windows external PCM passes, but actual packaged arrangement at Android 2s falls below the existing response threshold."
+            },
+            "visual": {
+                "status": "failed",
+                "evidence": [
+                    "docs/validation/porcelain_opening_response_2026-09-10.md"
+                ],
+                "notes": "Light ceramic subject and backdrop have weak value separation; improve lighting and opening response before acceptance."
+            },
+            "device": {
+                "status": "failed",
+                "evidence": [
+                    "docs/validation/porcelain_opening_response_2026-09-10.md"
+                ],
+                "notes": "Native GLES package music comparison failed; successful decoding and rendering do not bypass this gate."
+            }
+        }
+    ]
 }
