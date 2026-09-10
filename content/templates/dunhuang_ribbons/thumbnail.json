@@ -1,7 +1,7 @@
 {
     "template": "dunhuang_ribbons",
-    "package_sha256": "6ec30d2d2560bed9756e659c7621e9aca4e70e50039d7ce9612a4521f8110699",
-    "thumbnail_sha256": "88e731a0c58ef8516bcfb551fd42fe4a4730b7c3edf726f70e4691307d569e99",
+    "package_sha256": "c1b5e5a315cfb113ab0c082ddb1db7414ae1590478c42d48174f57056b062d35",
+    "thumbnail_sha256": "1db78cdb1feff49ea66cc46d0d1332f8a5afaf5124794289118097410aeda28e",
     "extent": [
         256,
         144

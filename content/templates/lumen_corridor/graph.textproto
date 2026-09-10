@@ -1,6 +1,6 @@
 schema_version: 7
 id: "official-lumen-corridor"
-output: 722
+output: 725
 canvas { width: 1280 height: 720 }
 nodes { id: 1 type_key: "control.scalar" schema_version: 1
     properties { key: "value" value { scalar: 1 } }
@@ -366,7 +366,7 @@ nodes { id: 115 type_key: "material.pbr" schema_version: 1
 nodes { id: 116 type_key: "scene.instance" schema_version: 1
 }
 nodes { id: 117 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 0.0) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 0.0) * .035" } }
 }
 nodes { id: 118 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.6 } }
@@ -477,7 +477,7 @@ nodes { id: 134 type_key: "scene.transform" schema_version: 1
 nodes { id: 135 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 136 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 0.0) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 0.0) * .11" } }
 }
 nodes { id: 137 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: 0.0 } }
@@ -557,7 +557,7 @@ nodes { id: 156 type_key: "scalar.expression" schema_version: 1
 nodes { id: 157 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 158 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 0.5) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 0.5) * .035" } }
 }
 nodes { id: 159 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.3634249780781467 } }
@@ -668,7 +668,7 @@ nodes { id: 175 type_key: "scene.transform" schema_version: 1
 nodes { id: 176 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 177 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 0.35) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 0.35) * .11" } }
 }
 nodes { id: 178 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: 0.23657502192185362 } }
@@ -728,7 +728,7 @@ nodes { id: 193 type_key: "scalar.expression" schema_version: 1
 nodes { id: 194 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 195 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 1.0) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 1.0) * .035" } }
 }
 nodes { id: 196 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.75296447273568 } }
@@ -839,7 +839,7 @@ nodes { id: 212 type_key: "scene.transform" schema_version: 1
 nodes { id: 213 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 214 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 0.7) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 0.7) * .11" } }
 }
 nodes { id: 215 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -0.15296447273567973 } }
@@ -919,7 +919,7 @@ nodes { id: 234 type_key: "scalar.expression" schema_version: 1
 nodes { id: 235 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 236 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 1.5) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 1.5) * .035" } }
 }
 nodes { id: 237 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.7376713856494095 } }
@@ -1030,7 +1030,7 @@ nodes { id: 253 type_key: "scene.transform" schema_version: 1
 nodes { id: 254 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 255 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 1.0499999999999998) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 1.0499999999999998) * .11" } }
 }
 nodes { id: 256 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -0.1376713856494096 } }
@@ -1090,7 +1090,7 @@ nodes { id: 271 type_key: "scalar.expression" schema_version: 1
 nodes { id: 272 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 273 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 2.0) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 2.0) * .035" } }
 }
 nodes { id: 274 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.3580200819921284 } }
@@ -1201,7 +1201,7 @@ nodes { id: 290 type_key: "scene.transform" schema_version: 1
 nodes { id: 291 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 292 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 1.4) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 1.4) * .11" } }
 }
 nodes { id: 293 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: 0.24197991800787158 } }
@@ -1281,7 +1281,7 @@ nodes { id: 312 type_key: "scalar.expression" schema_version: 1
 nodes { id: 313 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 314 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 2.5) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 2.5) * .035" } }
 }
 nodes { id: 315 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.6187877801154524 } }
@@ -1392,7 +1392,7 @@ nodes { id: 331 type_key: "scene.transform" schema_version: 1
 nodes { id: 332 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 333 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 1.75) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 1.75) * .11" } }
 }
 nodes { id: 334 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -0.018787780115452325 } }
@@ -1452,7 +1452,7 @@ nodes { id: 349 type_key: "scalar.expression" schema_version: 1
 nodes { id: 350 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 351 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 3.0) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 3.0) * .035" } }
 }
 nodes { id: 352 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.829832131416169 } }
@@ -1563,7 +1563,7 @@ nodes { id: 368 type_key: "scene.transform" schema_version: 1
 nodes { id: 369 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 370 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 2.0999999999999996) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 2.0999999999999996) * .11" } }
 }
 nodes { id: 371 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -0.2298321314161691 } }
@@ -1643,7 +1643,7 @@ nodes { id: 390 type_key: "scalar.expression" schema_version: 1
 nodes { id: 391 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 392 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 3.5) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 3.5) * .035" } }
 }
 nodes { id: 393 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.43260755945085 } }
@@ -1754,7 +1754,7 @@ nodes { id: 409 type_key: "scene.transform" schema_version: 1
 nodes { id: 410 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 411 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 2.4499999999999997) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 2.4499999999999997) * .11" } }
 }
 nodes { id: 412 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: 0.16739244054915026 } }
@@ -1814,7 +1814,7 @@ nodes { id: 427 type_key: "scalar.expression" schema_version: 1
 nodes { id: 428 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 429 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 4.0) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 4.0) * .035" } }
 }
 nodes { id: 430 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.47840032778655 } }
@@ -1925,7 +1925,7 @@ nodes { id: 446 type_key: "scene.transform" schema_version: 1
 nodes { id: 447 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 448 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 2.8) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 2.8) * .11" } }
 }
 nodes { id: 449 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: 0.12159967221344992 } }
@@ -2005,7 +2005,7 @@ nodes { id: 468 type_key: "scalar.expression" schema_version: 1
 nodes { id: 469 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 470 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 4.5) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 4.5) * .035" } }
 }
 nodes { id: 471 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.846016251270411 } }
@@ -2116,7 +2116,7 @@ nodes { id: 487 type_key: "scene.transform" schema_version: 1
 nodes { id: 488 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 489 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 3.15) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 3.15) * .11" } }
 }
 nodes { id: 490 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -0.24601625127041069 } }
@@ -2176,7 +2176,7 @@ nodes { id: 505 type_key: "scalar.expression" schema_version: 1
 nodes { id: 506 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 507 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 5.0) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 5.0) * .035" } }
 }
 nodes { id: 508 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.562530697584262 } }
@@ -2287,7 +2287,7 @@ nodes { id: 524 type_key: "scene.transform" schema_version: 1
 nodes { id: 525 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 526 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 3.5) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 3.5) * .11" } }
 }
 nodes { id: 527 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: 0.037469302415738086 } }
@@ -2367,7 +2367,7 @@ nodes { id: 546 type_key: "scalar.expression" schema_version: 1
 nodes { id: 547 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 548 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 5.5) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 5.5) * .035" } }
 }
 nodes { id: 549 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.3782106178269125 } }
@@ -2478,7 +2478,7 @@ nodes { id: 565 type_key: "scene.transform" schema_version: 1
 nodes { id: 566 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 567 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 3.8499999999999996) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 3.8499999999999996) * .11" } }
 }
 nodes { id: 568 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: 0.22178938217308777 } }
@@ -2538,7 +2538,7 @@ nodes { id: 583 type_key: "scalar.expression" schema_version: 1
 nodes { id: 584 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 585 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 6.0) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 6.0) * .035" } }
 }
 nodes { id: 586 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.780873689011061 } }
@@ -2649,7 +2649,7 @@ nodes { id: 602 type_key: "scene.transform" schema_version: 1
 nodes { id: 603 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 604 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 4.199999999999999) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 4.199999999999999) * .11" } }
 }
 nodes { id: 605 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -0.18087368901106063 } }
@@ -2729,7 +2729,7 @@ nodes { id: 624 type_key: "scalar.expression" schema_version: 1
 nodes { id: 625 type_key: "scene.transform" schema_version: 1
 }
 nodes { id: 626 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "1.0 + a * .025 + sin(time * .3926990817 - 6.5) * .025" } }
+    properties { key: "expression" value { expression: "1.0 + a * .09 + sin(time * .3926990817 - 6.5) * .035" } }
 }
 nodes { id: 627 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -2.704840229018308 } }
@@ -2840,7 +2840,7 @@ nodes { id: 643 type_key: "scene.transform" schema_version: 1
 nodes { id: 644 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 645 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "5.15 + a * .12 + sin(time * .3926990817 - 4.55) * .08" } }
+    properties { key: "expression" value { expression: "5.15 + a * .24 + sin(time * .3926990817 - 4.55) * .11" } }
 }
 nodes { id: 646 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_x" value { scalar: -0.10484022901830783 } }
@@ -3054,12 +3054,18 @@ nodes { id: 707 type_key: "scalar.expression" schema_version: 1
     properties { key: "expression" value { expression: "a + b + c" } }
 }
 nodes { id: 708 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: ".024 + a * .09 + b * .18" } }
+    properties { key: "expression" value { expression: ".024 + a * .14 + b * .30" } }
 }
 nodes { id: 709 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "1.0 + a * .16 + b * .15 + c * .72" } }
+}
+nodes { id: 710 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * .10 + b * .11 + c * .28" } }
+}
+nodes { id: 711 type_key: "scalar.expression" schema_version: 1
     properties { key: "expression" value { expression: "time * -34.0 - a * 8.0" } }
 }
-nodes { id: 710 type_key: "gpu.particles" schema_version: 1
+nodes { id: 712 type_key: "gpu.particles" schema_version: 1
     properties { key: "particle_capacity" value { scalar: 16384 } }
     properties { key: "seed" value { scalar: 606 } }
     properties { key: "initial_fill" value { scalar: 0 } }
@@ -3075,18 +3081,18 @@ nodes { id: 710 type_key: "gpu.particles" schema_version: 1
     properties { key: "color_a" value { color { r: 0.42 g: 0.68 b: 1 a: 0.3 } } }
     properties { key: "color_b" value { color { r: 1 g: 0.08 b: 0.3 a: 0.7 } } }
 }
-nodes { id: 711 type_key: "gpu.map" schema_version: 1
+nodes { id: 713 type_key: "gpu.map" schema_version: 1
 }
-nodes { id: 712 type_key: "gpu.render" schema_version: 1
+nodes { id: 714 type_key: "gpu.render" schema_version: 1
     properties { key: "point_blend" value { scalar: 1 } }
     properties { key: "texture_precision" value { scalar: 2 } }
 }
-nodes { id: 713 type_key: "texture.composite" schema_version: 1
+nodes { id: 715 type_key: "texture.composite" schema_version: 1
     properties { key: "composite_mode" value { scalar: 1 } }
     properties { key: "amount" value { scalar: 1 } }
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 714 type_key: "gpu.particles" schema_version: 1
+nodes { id: 716 type_key: "gpu.particles" schema_version: 1
     properties { key: "particle_capacity" value { scalar: 4096 } }
     properties { key: "seed" value { scalar: 683 } }
     properties { key: "initial_fill" value { scalar: 0 } }
@@ -3102,31 +3108,35 @@ nodes { id: 714 type_key: "gpu.particles" schema_version: 1
     properties { key: "color_a" value { color { r: 1 g: 0.08 b: 0.34 a: 0.8 } } }
     properties { key: "color_b" value { color { r: 0.72 g: 0.86 b: 1 a: 1 } } }
 }
-nodes { id: 715 type_key: "gpu.map" schema_version: 1
+nodes { id: 717 type_key: "gpu.map" schema_version: 1
 }
-nodes { id: 716 type_key: "gpu.render" schema_version: 1
+nodes { id: 718 type_key: "gpu.render" schema_version: 1
     properties { key: "point_blend" value { scalar: 1 } }
     properties { key: "texture_precision" value { scalar: 2 } }
 }
-nodes { id: 717 type_key: "texture.composite" schema_version: 1
+nodes { id: 719 type_key: "texture.composite" schema_version: 1
     properties { key: "composite_mode" value { scalar: 1 } }
     properties { key: "amount" value { scalar: 1 } }
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 718 type_key: "texture.blur" schema_version: 1
+nodes { id: 720 type_key: "texture.color_adjust" schema_version: 1
+    properties { key: "saturation" value { scalar: 1.08 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 721 type_key: "texture.blur" schema_version: 1
     properties { key: "blur_radius" value { scalar: 8 } }
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 719 type_key: "texture.composite" schema_version: 1
+nodes { id: 722 type_key: "texture.composite" schema_version: 1
     properties { key: "composite_mode" value { scalar: 1 } }
     properties { key: "amount" value { scalar: 0.18 } }
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 720 type_key: "texture.display" schema_version: 1
+nodes { id: 723 type_key: "texture.display" schema_version: 1
 }
-nodes { id: 721 type_key: "texture.fxaa" schema_version: 1
+nodes { id: 724 type_key: "texture.fxaa" schema_version: 1
 }
-nodes { id: 722 type_key: "output.texture" schema_version: 1
+nodes { id: 725 type_key: "output.texture" schema_version: 1
 }
 edges { id: 1 from: 2 to: 4 input: "speed" }
 edges { id: 2 from: 5 to: 29 input: "a" }
@@ -4195,29 +4205,39 @@ edges { id: 1064 from: 705 to: 707 input: "b" }
 edges { id: 1065 from: 706 to: 707 input: "c" }
 edges { id: 1066 from: 100 to: 708 input: "a" }
 edges { id: 1067 from: 701 to: 708 input: "b" }
-edges { id: 1068 from: 4 to: 709 input: "time" }
-edges { id: 1069 from: 99 to: 709 input: "a" }
-edges { id: 1070 from: 707 to: 710 input: "emission" }
-edges { id: 1071 from: 708 to: 710 input: "flow_strength" }
-edges { id: 1072 from: 710 to: 711 input: "points" }
-edges { id: 1073 from: 709 to: 711 input: "rotation" }
-edges { id: 1074 from: 711 to: 712 input: "points" }
-edges { id: 1075 from: 697 to: 713 input: "a" }
-edges { id: 1076 from: 712 to: 713 input: "b" }
-edges { id: 1077 from: 707 to: 714 input: "emission" }
-edges { id: 1078 from: 708 to: 714 input: "flow_strength" }
-edges { id: 1079 from: 714 to: 715 input: "points" }
-edges { id: 1080 from: 709 to: 715 input: "rotation" }
-edges { id: 1081 from: 715 to: 716 input: "points" }
-edges { id: 1082 from: 713 to: 717 input: "a" }
-edges { id: 1083 from: 716 to: 717 input: "b" }
-edges { id: 1084 from: 717 to: 718 input: "source" }
-edges { id: 1085 from: 717 to: 719 input: "a" }
-edges { id: 1086 from: 718 to: 719 input: "b" }
-edges { id: 1087 from: 719 to: 720 input: "source" }
-edges { id: 1088 from: 3 to: 720 input: "exposure" }
-edges { id: 1089 from: 720 to: 721 input: "source" }
-edges { id: 1090 from: 721 to: 722 input: "source" }
+edges { id: 1068 from: 699 to: 709 input: "a" }
+edges { id: 1069 from: 701 to: 709 input: "b" }
+edges { id: 1070 from: 703 to: 709 input: "c" }
+edges { id: 1071 from: 699 to: 710 input: "a" }
+edges { id: 1072 from: 701 to: 710 input: "b" }
+edges { id: 1073 from: 703 to: 710 input: "c" }
+edges { id: 1074 from: 4 to: 711 input: "time" }
+edges { id: 1075 from: 99 to: 711 input: "a" }
+edges { id: 1076 from: 707 to: 712 input: "emission" }
+edges { id: 1077 from: 708 to: 712 input: "flow_strength" }
+edges { id: 1078 from: 712 to: 713 input: "points" }
+edges { id: 1079 from: 711 to: 713 input: "rotation" }
+edges { id: 1080 from: 709 to: 713 input: "point_size_scale" }
+edges { id: 1081 from: 713 to: 714 input: "points" }
+edges { id: 1082 from: 697 to: 715 input: "a" }
+edges { id: 1083 from: 714 to: 715 input: "b" }
+edges { id: 1084 from: 707 to: 716 input: "emission" }
+edges { id: 1085 from: 708 to: 716 input: "flow_strength" }
+edges { id: 1086 from: 716 to: 717 input: "points" }
+edges { id: 1087 from: 711 to: 717 input: "rotation" }
+edges { id: 1088 from: 709 to: 717 input: "point_size_scale" }
+edges { id: 1089 from: 717 to: 718 input: "points" }
+edges { id: 1090 from: 715 to: 719 input: "a" }
+edges { id: 1091 from: 718 to: 719 input: "b" }
+edges { id: 1092 from: 719 to: 720 input: "source" }
+edges { id: 1093 from: 710 to: 720 input: "exposure" }
+edges { id: 1094 from: 720 to: 721 input: "source" }
+edges { id: 1095 from: 720 to: 722 input: "a" }
+edges { id: 1096 from: 721 to: 722 input: "b" }
+edges { id: 1097 from: 722 to: 723 input: "source" }
+edges { id: 1098 from: 3 to: 723 input: "exposure" }
+edges { id: 1099 from: 723 to: 724 input: "source" }
+edges { id: 1100 from: 724 to: 725 input: "source" }
 controls {
     titles { key: 1 value: "Music response / 音乐响应" }
     titles { key: 2 value: "Motion pace / 运动速度" }

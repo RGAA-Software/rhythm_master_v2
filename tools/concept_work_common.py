@@ -98,6 +98,11 @@ def require_reachable(graph, output):
 
 def require_particle_policy(graph, physics_allowed=False):
     """Keep advanced works continuously emitted and reserve 2D physics for intent."""
+    mapped_particles = {
+        record['inputs'].get('points')
+        for record in graph.records
+        if record['kind'] == 'gpu.map' and 'point_size_scale' in record['inputs']
+    }
     for record in graph.records:
         kind = record['kind']
         inputs = record['inputs']
@@ -109,6 +114,8 @@ def require_particle_policy(graph, physics_allowed=False):
                 raise ValueError('concept_graph.gpu_particle_continuous_rate')
             if 'burst' in inputs:
                 raise ValueError('concept_graph.gpu_particle_burst')
+            if record['id'] not in mapped_particles:
+                raise ValueError('concept_graph.gpu_particle_missing_visible_pulse')
         if kind == 'point.emitter' and 'burst' in inputs:
             raise ValueError('concept_graph.point_particle_burst')
         if kind == 'point.physics2d' and not physics_allowed:

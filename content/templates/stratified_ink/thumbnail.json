@@ -1,7 +1,7 @@
 {
     "template": "stratified_ink",
-    "package_sha256": "86e506271b18249b35b1187fae6a94b45cc7e041dfe3477c789df1cacfd2d0d3",
-    "thumbnail_sha256": "53879ea333e3eb36f96da82ea2ff30963ee88f488cb5b284edfba6d1a8c9be0c",
+    "package_sha256": "376681119d4384a87f7b393279ec7b32d6299885e4ef932a7dc46859ac107fac",
+    "thumbnail_sha256": "6b8c9e9153b53c9bfc02a68698da62f4b04d2ef70a55feaef9d76b2b2bd721da",
     "extent": [
         256,
         144

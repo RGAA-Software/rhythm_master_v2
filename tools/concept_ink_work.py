@@ -61,7 +61,13 @@ def ink():
     pigment_emission = node('scalar.expression', 3900, 500, dict(a=low_rate, b=mid_rate, c=high_rate),
                             expression='a + b + c')
     pigment_flow = node('scalar.expression', 3550, 800, dict(a=bands[1], b=mid_envelope),
-                        expression='.02 + a * .09 + b * .17')
+                        expression='.02 + a * .13 + b * .30')
+    particle_pulse = node('scalar.expression', 3900, 760,
+                          dict(a=low_envelope, b=mid_envelope, c=high_envelope),
+                          expression='1.0 + a * .16 + b * .14 + c * .70')
+    flash = node('scalar.expression', 3900, 950,
+                 dict(a=low_envelope, b=mid_envelope, c=high_envelope),
+                 expression='a * .10 + b * .10 + c * .26')
     turn = node('scalar.expression', 3900, 500, dict(time=clock, a=bands[0]),
                 expression='time * -18.0 + a * 10.0')
     for index, (capacity, tint, size) in enumerate((
@@ -75,10 +81,13 @@ def ink():
                          emitter_radius=1.0, particle_speed=.02 if index == 0 else .085, drag=.16,
                          flow_frequency=6 if index == 0 else 15, flow_evolution=.14 if index == 0 else .36,
                          point_size=size, color_a=tint[0], color_b=tint[1])
-        mapped = node('gpu.map', 4600, row, dict(points=particles, rotation=turn))
+        mapped = node('gpu.map', 4600, row,
+                      dict(points=particles, rotation=turn, point_size_scale=particle_pulse))
         rendered = node('gpu.render', 4950, row, dict(points=mapped), point_blend=1, texture_precision=2)
         image = node('texture.composite', 5300, row, dict(a=image, b=rendered), composite_mode=1,
                      amount=.82 if index == 0 else 1, texture_precision=0)
+    image = node('texture.color_adjust', 5650, 3000, dict(source=image, exposure=flash),
+                 saturation=1.06, texture_precision=0)
     output = finish(graph, image, controls[2], .1)
     publish(name, ('层叠墨流', 'Stratified Ink'),
             ('连续迁移的多尺度噪声空间带动靛蓝与朱红矿物河谷，静音仍流动；颜料尘和金色闪点从空场按每秒速率连续补充。低频加强河谷能量，中频改变颜料流，高频 onset 提高金色粒子的生成速率，不使用刚体碰撞或整团爆发。',

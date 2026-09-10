@@ -5469,7 +5469,7 @@
             "id": "official.templates.aureate_vortex",
             "kind": "template",
             "source": "content/templates/aureate_vortex",
-            "source_sha256": "c42afdc846324fe82adef05574cbf464c0afcd32921aa340edc9c6309f495191",
+            "source_sha256": "057d8f0f795a38b12e3f7640bd46480427e190205a6d5d471ea4acea26f44ac1",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "鎏光流涡",
@@ -5731,7 +5731,7 @@
             "id": "official.templates.dunhuang_ribbons",
             "kind": "template",
             "source": "content/templates/dunhuang_ribbons",
-            "source_sha256": "211124bc9f2264ec3bfec997b0393aa95bada38f08ed502c1ad07bcb2b32b5c5",
+            "source_sha256": "549540c0a3423fb6c9c25dfb6869307af3b2b22fde41599e2a3a17600e4176cc",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "敦煌飞天",
@@ -5861,7 +5861,7 @@
             "id": "official.templates.lumen_corridor",
             "kind": "template",
             "source": "content/templates/lumen_corridor",
-            "source_sha256": "09ede3e7792d42738fd854213fdab45703db920564053aa50b10cf1bc880b2a4",
+            "source_sha256": "4c50ac1663335b8181f29d1668ff835a955a869856059e276692dfca33442143",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "光门空间",
@@ -6021,7 +6021,7 @@
             "id": "official.templates.porcelain_bloom",
             "kind": "template",
             "source": "content/templates/porcelain_bloom",
-            "source_sha256": "4e46c8668c750662f2a63386932a30a2c6fc7415855b50e6f35f2c73ab0cfbc3",
+            "source_sha256": "66f1f8639d7ad59293ac50669f04df7283a815127349867e7bf6d79456cecc46",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "瓷金绽放",
@@ -6429,7 +6429,7 @@
             "id": "official.templates.stratified_ink",
             "kind": "template",
             "source": "content/templates/stratified_ink",
-            "source_sha256": "ce8ca8ebaa781da21c2ee97d3f8f21ab20409487583ac6fb39d8d8cd1dcdff89",
+            "source_sha256": "10246c8ba516ed2c8e9f5d44bb5a9f9af4a7ff60b70375ed1b9910e02197d0e1",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "层叠墨流",

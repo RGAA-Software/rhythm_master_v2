@@ -93,7 +93,13 @@ def vortex():
     emission = node('scalar.expression', 1400, 4400, dict(a=low_rate, b=mid_rate, c=high_rate),
                     expression='a + b + c')
     flow = node('scalar.expression', 1200, 5050, dict(a=bands[1], b=mid_envelope, c=low_envelope),
-                expression='.022 + a * .065 + b * .16 + c * .055')
+                expression='.022 + a * .10 + b * .30 + c * .14')
+    particle_pulse = node('scalar.expression', 1400, 5050,
+                          dict(a=low_envelope, b=mid_envelope, c=high_envelope),
+                          expression='1.0 + a * .24 + b * .18 + c * .72')
+    flash = node('scalar.expression', 1400, 5300,
+                 dict(a=low_envelope, b=mid_envelope, c=high_envelope),
+                 expression='a * .16 + b * .12 + c * .34')
     orbit = node('scalar.expression', 1100, 5700, dict(time=clock, a=bands[1]),
                  expression='time * 45.0 + a * 16.0')
     for index, (capacity, size) in enumerate(((24576, .0035), (6144, .012))):
@@ -106,7 +112,8 @@ def vortex():
                          flow_frequency=10 if index == 0 else 17, flow_evolution=.26 if index == 0 else .42,
                          point_size=size, color_a=(.08, .62, .88, .42) if index == 0 else (1, .42, .06, .85),
                          color_b=(1, .72, .18, .9) if index == 0 else (1, .93, .55, 1))
-        particles = node('gpu.map', 1700, row + 350, dict(points=particles, rotation=orbit))
+        particles = node('gpu.map', 1700, row + 350,
+                         dict(points=particles, rotation=orbit, point_size_scale=particle_pulse))
         sampled = node('gpu.texture_sample', 1850, row, dict(points=particles, source=field),
                        sample_color=1, sample_size=.72 if index == 0 else .3)
         sparks = node('gpu.render', 2200, row, dict(points=sampled), point_blend=1, texture_precision=2)
@@ -114,6 +121,8 @@ def vortex():
                       exposure=2.0 if index == 0 else 3.6, texture_precision=0)
         image = node('texture.composite', 10700, row, dict(a=image, b=sparks),
                      composite_mode=1, amount=1, texture_precision=0)
+    image = node('texture.color_adjust', 11000, 900, dict(source=image, exposure=flash),
+                 contrast=1.04, saturation=1.08, texture_precision=0)
     output = finish(graph, image, controls[2], .3)
     publish(name, ('鎏光流涡', 'Aureate Vortex'),
             ('三臂青金流涡持续旋转，相机沿空间轨迹绕行；双层 GPU 粒子从空场按每秒速率持续生成。低、中、高频只提高生成速率和流向能量，不使用大批次 burst；几何层使用景深，粒子层从屏幕颜色取样；需要 GLES 3.1 compute。',
@@ -150,7 +159,7 @@ def porcelain():
         turn = node('scalar.expression', 2550, 500 + layer * 350, dict(time=clock),
                     expression=f'time * {22.5 if layer == 0 else -45}')
         opening = node('scalar.expression', 2550, 1400 + layer * 350, dict(a=bands[0], time=clock),
-                       expression=f'{1 if layer == 0 else .63} + .06 * sin(time * .7853981634 + {layer}) + a * .08')
+                       expression=f'{1 if layer == 0 else .63} + .075 * sin(time * .7853981634 + {layer}) + a * .18')
         for index in range(count):
             ring.append(node('scene.transform', 3000 + layer * 350, 2200 + index * 300,
                              dict(scene=petal), rotation_z=index * 360 / count + layer * 26,
@@ -211,7 +220,13 @@ def porcelain():
     petal_emission = node('scalar.expression', 7850, 4400, dict(a=low_rate, b=mid_rate, c=high_rate),
                           expression='a + b + c')
     petal_flow = node('scalar.expression', 7500, 4700, dict(a=bands[1], b=mid_envelope),
-                     expression='.018 + a * .075 + b * .15')
+                     expression='.018 + a * .11 + b * .28')
+    particle_pulse = node('scalar.expression', 7850, 4700,
+                          dict(a=low_envelope, b=mid_envelope, c=high_envelope),
+                          expression='1.0 + a * .18 + b * .16 + c * .68')
+    flash = node('scalar.expression', 7850, 4940,
+                 dict(a=low_envelope, b=mid_envelope, c=high_envelope),
+                 expression='a * .12 + b * .11 + c * .30')
     for index, (capacity, size) in enumerate(((16384, .0034), (4096, .010))):
         row = 5400 + index * 700
         particles = node('gpu.particles', 7900, row,
@@ -224,11 +239,14 @@ def porcelain():
                          color_b=(.48, .72, .8, .62) if index == 0 else (1, .96, .78, 1))
         turn = node('scalar.expression', 8250, row + 250, dict(time=clock, a=bands[1]),
                     expression=f'time * {18 if index == 0 else -36} + a * 12')
-        particles = node('gpu.map', 8500, row, dict(points=particles, rotation=turn))
+        particles = node('gpu.map', 8500, row,
+                         dict(points=particles, rotation=turn, point_size_scale=particle_pulse))
         render_particles = node('gpu.render', 8850, row, dict(points=particles), point_blend=1,
                                 texture_precision=2)
         image = node('texture.composite', 10700, row, dict(a=image, b=render_particles),
                      composite_mode=1, amount=1, texture_precision=0)
+    image = node('texture.color_adjust', 11000, 7600, dict(source=image, exposure=flash),
+                 saturation=1.06, texture_precision=0)
     output = finish(graph, image, controls[2], .12)
     publish(name, ('瓷金绽放', 'Porcelain Bloom'),
             ('瓷质壳面围绕黄铜核心以不同速度持续分层旋转和舒展，相机连续绕行；釉光粒子从空场按每秒速率逐步补充。低、中、高频分别提高生长速度、流向和闪光密度，避免节拍时整团喷发；静音仍保持雕塑主运动。',
@@ -257,7 +275,7 @@ def dunhuang_ribbons():
         ribbon = node('scene.instance', 2650, index * 420, dict(geometry=tube, material=material))
         ribbon_scale = node('scalar.expression', 2650, index * 420 + 180,
                             dict(time=clock, a=bands[index]),
-                            expression=f'1.0 + .018 * sin(time * {math.pi / 2:.10f} + {index}) + a * .115')
+                            expression=f'1.0 + .025 * sin(time * {math.pi / 2:.10f} + {index}) + a * .19')
         parts.append(node('scene.transform', 3000, index * 420,
                           dict(scene=ribbon, scale=ribbon_scale), rotation_x=70,
                           rotation_z=index * 37 - 30))
@@ -275,7 +293,11 @@ def dunhuang_ribbons():
     dust_flow = node('scalar.expression', 620, 2340, dict(a=bands[1], b=bands[0], c=spark_envelope),
                      expression='.024 + a * .082 + b * .036 + c * .19')
     dust_turn = node('scalar.expression', 620, 2660, dict(time=clock, a=bands[1]),
-                     expression='time * 22.5 + a * 28.0')
+                     expression='time * 22.5 + a * 42.0')
+    particle_pulse = node('scalar.expression', 900, 2340, dict(a=bands[0], b=bands[1], c=spark_envelope),
+                          expression='1.0 + a * .16 + b * .12 + c * .72')
+    flash = node('scalar.expression', 1180, 2340, dict(a=bands[0], b=bands[1], c=spark_envelope),
+                 expression='a * .10 + b * .08 + c * .28')
     # A broad, slow particle population gives the cave depth a stable current in
     # silence. It is deliberately separate from the brighter foreground sparks:
     # music changes their energy, while time owns the primary movement.
@@ -285,7 +307,8 @@ def dunhuang_ribbons():
                 emitter_radius=3.45, particle_speed=.026, drag=.12, flow_frequency=7.5,
                 flow_evolution=.16, point_size=.0037, color_a=(.95, .24, .025, .3),
                 color_b=(1, .72, .18, .72))
-    dust = node('gpu.map', 1250, 1700, dict(points=dust, rotation=dust_turn))
+    dust = node('gpu.map', 1250, 1700,
+                dict(points=dust, rotation=dust_turn, point_size_scale=particle_pulse))
     dust = node('gpu.render', 1600, 1700, dict(points=dust), point_blend=1, texture_precision=2)
     sparks = node('gpu.particles', 900, 2700,
                   dict(emission=spark_emission, flow_strength=dust_flow),
@@ -293,7 +316,8 @@ def dunhuang_ribbons():
                   emitter_radius=1.15, particle_speed=.11, drag=.1, flow_frequency=14,
                   flow_evolution=.3, point_size=.009, color_a=(1, .46, .08, .85),
                   color_b=(1, .94, .58, 1))
-    sparks = node('gpu.map', 1250, 2700, dict(points=sparks, rotation=dust_turn))
+    sparks = node('gpu.map', 1250, 2700,
+                  dict(points=sparks, rotation=dust_turn, point_size_scale=particle_pulse))
     sparks = node('gpu.render', 1600, 2700, dict(points=sparks), point_blend=1, texture_precision=2)
     # The physical layer is intentionally modest (384 bodies): it remains inside
     # the runtime physics budget while supplying visibly colliding, tumbling gold
@@ -337,6 +361,8 @@ def dunhuang_ribbons():
                  amount=1, texture_precision=0)
     image = node('texture.composite', 11000, 0, dict(a=image, b=shards), composite_mode=1,
                  amount=.86, texture_precision=0)
+    image = node('texture.color_adjust', 11300, 3800, dict(source=image, exposure=flash),
+                 saturation=1.08, texture_precision=0)
     output = finish(graph, image, controls[2], .2)
     publish(name, ('敦煌飞天', 'Dunhuang Flying Ribbons'),
             ('三层飘带沿独立螺旋路径持续飞行并随频段呼吸缩放；星尘、流光和金箔都从空场按每秒速率持续生成。低频提高少量金箔刚体的重力，中频改变流向，高频 onset 短促提高生成速率；静音仍持续流动，不使用整团 burst。',

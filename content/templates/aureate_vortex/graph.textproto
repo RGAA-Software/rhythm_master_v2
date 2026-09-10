@@ -1,6 +1,6 @@
 schema_version: 7
 id: "official-aureate-vortex"
-output: 170
+output: 173
 canvas { width: 1280 height: 720 }
 nodes { id: 1 type_key: "control.scalar" schema_version: 1
     properties { key: "value" value { scalar: 1 } }
@@ -491,12 +491,18 @@ nodes { id: 151 type_key: "scalar.expression" schema_version: 1
     properties { key: "expression" value { expression: "a + b + c" } }
 }
 nodes { id: 152 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: ".022 + a * .065 + b * .16 + c * .055" } }
+    properties { key: "expression" value { expression: ".022 + a * .10 + b * .30 + c * .14" } }
 }
 nodes { id: 153 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "1.0 + a * .24 + b * .18 + c * .72" } }
+}
+nodes { id: 154 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "a * .16 + b * .12 + c * .34" } }
+}
+nodes { id: 155 type_key: "scalar.expression" schema_version: 1
     properties { key: "expression" value { expression: "time * 45.0 + a * 16.0" } }
 }
-nodes { id: 154 type_key: "gpu.particles" schema_version: 1
+nodes { id: 156 type_key: "gpu.particles" schema_version: 1
     properties { key: "particle_capacity" value { scalar: 24576 } }
     properties { key: "seed" value { scalar: 617 } }
     properties { key: "initial_fill" value { scalar: 0 } }
@@ -511,26 +517,26 @@ nodes { id: 154 type_key: "gpu.particles" schema_version: 1
     properties { key: "color_a" value { color { r: 0.08 g: 0.62 b: 0.88 a: 0.42 } } }
     properties { key: "color_b" value { color { r: 1 g: 0.72 b: 0.18 a: 0.9 } } }
 }
-nodes { id: 155 type_key: "gpu.map" schema_version: 1
+nodes { id: 157 type_key: "gpu.map" schema_version: 1
 }
-nodes { id: 156 type_key: "gpu.texture_sample" schema_version: 1
+nodes { id: 158 type_key: "gpu.texture_sample" schema_version: 1
     properties { key: "sample_color" value { scalar: 1 } }
     properties { key: "sample_size" value { scalar: 0.72 } }
 }
-nodes { id: 157 type_key: "gpu.render" schema_version: 1
+nodes { id: 159 type_key: "gpu.render" schema_version: 1
     properties { key: "point_blend" value { scalar: 1 } }
     properties { key: "texture_precision" value { scalar: 2 } }
 }
-nodes { id: 158 type_key: "texture.color_adjust" schema_version: 1
+nodes { id: 160 type_key: "texture.color_adjust" schema_version: 1
     properties { key: "exposure" value { scalar: 2.0 } }
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 159 type_key: "texture.composite" schema_version: 1
+nodes { id: 161 type_key: "texture.composite" schema_version: 1
     properties { key: "composite_mode" value { scalar: 1 } }
     properties { key: "amount" value { scalar: 1 } }
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 160 type_key: "gpu.particles" schema_version: 1
+nodes { id: 162 type_key: "gpu.particles" schema_version: 1
     properties { key: "particle_capacity" value { scalar: 6144 } }
     properties { key: "seed" value { scalar: 660 } }
     properties { key: "initial_fill" value { scalar: 0 } }
@@ -545,39 +551,44 @@ nodes { id: 160 type_key: "gpu.particles" schema_version: 1
     properties { key: "color_a" value { color { r: 1 g: 0.42 b: 0.06 a: 0.85 } } }
     properties { key: "color_b" value { color { r: 1 g: 0.93 b: 0.55 a: 1 } } }
 }
-nodes { id: 161 type_key: "gpu.map" schema_version: 1
+nodes { id: 163 type_key: "gpu.map" schema_version: 1
 }
-nodes { id: 162 type_key: "gpu.texture_sample" schema_version: 1
+nodes { id: 164 type_key: "gpu.texture_sample" schema_version: 1
     properties { key: "sample_color" value { scalar: 1 } }
     properties { key: "sample_size" value { scalar: 0.3 } }
 }
-nodes { id: 163 type_key: "gpu.render" schema_version: 1
+nodes { id: 165 type_key: "gpu.render" schema_version: 1
     properties { key: "point_blend" value { scalar: 1 } }
     properties { key: "texture_precision" value { scalar: 2 } }
 }
-nodes { id: 164 type_key: "texture.color_adjust" schema_version: 1
+nodes { id: 166 type_key: "texture.color_adjust" schema_version: 1
     properties { key: "exposure" value { scalar: 3.6 } }
-    properties { key: "texture_precision" value { scalar: 0 } }
-}
-nodes { id: 165 type_key: "texture.composite" schema_version: 1
-    properties { key: "composite_mode" value { scalar: 1 } }
-    properties { key: "amount" value { scalar: 1 } }
-    properties { key: "texture_precision" value { scalar: 0 } }
-}
-nodes { id: 166 type_key: "texture.blur" schema_version: 1
-    properties { key: "blur_radius" value { scalar: 8 } }
     properties { key: "texture_precision" value { scalar: 0 } }
 }
 nodes { id: 167 type_key: "texture.composite" schema_version: 1
     properties { key: "composite_mode" value { scalar: 1 } }
+    properties { key: "amount" value { scalar: 1 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 168 type_key: "texture.color_adjust" schema_version: 1
+    properties { key: "contrast" value { scalar: 1.04 } }
+    properties { key: "saturation" value { scalar: 1.08 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 169 type_key: "texture.blur" schema_version: 1
+    properties { key: "blur_radius" value { scalar: 8 } }
+    properties { key: "texture_precision" value { scalar: 0 } }
+}
+nodes { id: 170 type_key: "texture.composite" schema_version: 1
+    properties { key: "composite_mode" value { scalar: 1 } }
     properties { key: "amount" value { scalar: 0.3 } }
     properties { key: "texture_precision" value { scalar: 0 } }
 }
-nodes { id: 168 type_key: "texture.display" schema_version: 1
+nodes { id: 171 type_key: "texture.display" schema_version: 1
 }
-nodes { id: 169 type_key: "texture.fxaa" schema_version: 1
+nodes { id: 172 type_key: "texture.fxaa" schema_version: 1
 }
-nodes { id: 170 type_key: "output.texture" schema_version: 1
+nodes { id: 173 type_key: "output.texture" schema_version: 1
 }
 edges { id: 1 from: 2 to: 4 input: "speed" }
 edges { id: 2 from: 5 to: 29 input: "a" }
@@ -752,35 +763,45 @@ edges { id: 170 from: 150 to: 151 input: "c" }
 edges { id: 171 from: 100 to: 152 input: "a" }
 edges { id: 172 from: 145 to: 152 input: "b" }
 edges { id: 173 from: 143 to: 152 input: "c" }
-edges { id: 174 from: 4 to: 153 input: "time" }
-edges { id: 175 from: 100 to: 153 input: "a" }
-edges { id: 176 from: 151 to: 154 input: "emission" }
-edges { id: 177 from: 152 to: 154 input: "flow_strength" }
-edges { id: 178 from: 154 to: 155 input: "points" }
-edges { id: 179 from: 153 to: 155 input: "rotation" }
-edges { id: 180 from: 155 to: 156 input: "points" }
-edges { id: 181 from: 141 to: 156 input: "source" }
-edges { id: 182 from: 156 to: 157 input: "points" }
-edges { id: 183 from: 157 to: 158 input: "source" }
-edges { id: 184 from: 139 to: 159 input: "a" }
-edges { id: 185 from: 158 to: 159 input: "b" }
-edges { id: 186 from: 151 to: 160 input: "emission" }
-edges { id: 187 from: 152 to: 160 input: "flow_strength" }
-edges { id: 188 from: 160 to: 161 input: "points" }
-edges { id: 189 from: 153 to: 161 input: "rotation" }
-edges { id: 190 from: 161 to: 162 input: "points" }
-edges { id: 191 from: 141 to: 162 input: "source" }
-edges { id: 192 from: 162 to: 163 input: "points" }
-edges { id: 193 from: 163 to: 164 input: "source" }
-edges { id: 194 from: 159 to: 165 input: "a" }
-edges { id: 195 from: 164 to: 165 input: "b" }
-edges { id: 196 from: 165 to: 166 input: "source" }
-edges { id: 197 from: 165 to: 167 input: "a" }
-edges { id: 198 from: 166 to: 167 input: "b" }
-edges { id: 199 from: 167 to: 168 input: "source" }
-edges { id: 200 from: 3 to: 168 input: "exposure" }
-edges { id: 201 from: 168 to: 169 input: "source" }
-edges { id: 202 from: 169 to: 170 input: "source" }
+edges { id: 174 from: 143 to: 153 input: "a" }
+edges { id: 175 from: 145 to: 153 input: "b" }
+edges { id: 176 from: 147 to: 153 input: "c" }
+edges { id: 177 from: 143 to: 154 input: "a" }
+edges { id: 178 from: 145 to: 154 input: "b" }
+edges { id: 179 from: 147 to: 154 input: "c" }
+edges { id: 180 from: 4 to: 155 input: "time" }
+edges { id: 181 from: 100 to: 155 input: "a" }
+edges { id: 182 from: 151 to: 156 input: "emission" }
+edges { id: 183 from: 152 to: 156 input: "flow_strength" }
+edges { id: 184 from: 156 to: 157 input: "points" }
+edges { id: 185 from: 155 to: 157 input: "rotation" }
+edges { id: 186 from: 153 to: 157 input: "point_size_scale" }
+edges { id: 187 from: 157 to: 158 input: "points" }
+edges { id: 188 from: 141 to: 158 input: "source" }
+edges { id: 189 from: 158 to: 159 input: "points" }
+edges { id: 190 from: 159 to: 160 input: "source" }
+edges { id: 191 from: 139 to: 161 input: "a" }
+edges { id: 192 from: 160 to: 161 input: "b" }
+edges { id: 193 from: 151 to: 162 input: "emission" }
+edges { id: 194 from: 152 to: 162 input: "flow_strength" }
+edges { id: 195 from: 162 to: 163 input: "points" }
+edges { id: 196 from: 155 to: 163 input: "rotation" }
+edges { id: 197 from: 153 to: 163 input: "point_size_scale" }
+edges { id: 198 from: 163 to: 164 input: "points" }
+edges { id: 199 from: 141 to: 164 input: "source" }
+edges { id: 200 from: 164 to: 165 input: "points" }
+edges { id: 201 from: 165 to: 166 input: "source" }
+edges { id: 202 from: 161 to: 167 input: "a" }
+edges { id: 203 from: 166 to: 167 input: "b" }
+edges { id: 204 from: 167 to: 168 input: "source" }
+edges { id: 205 from: 154 to: 168 input: "exposure" }
+edges { id: 206 from: 168 to: 169 input: "source" }
+edges { id: 207 from: 168 to: 170 input: "a" }
+edges { id: 208 from: 169 to: 170 input: "b" }
+edges { id: 209 from: 170 to: 171 input: "source" }
+edges { id: 210 from: 3 to: 171 input: "exposure" }
+edges { id: 211 from: 171 to: 172 input: "source" }
+edges { id: 212 from: 172 to: 173 input: "source" }
 controls {
     titles { key: 1 value: "Music response / 音乐响应" }
     titles { key: 2 value: "Motion pace / 运动速度" }

@@ -47,7 +47,7 @@ def corridor():
         z = 1 - index * 2.8
         offset = .25 * math.sin(index * 1.9)
         scale = node('scalar.expression', 2600, row, dict(a=bands[0], time=clock),
-                     expression=f'1.0 + a * .025 + sin(time * .3926990817 - {index * .5}) * .025')
+                     expression=f'1.0 + a * .09 + sin(time * .3926990817 - {index * .5}) * .035')
         group = []
         for side in (-1, 1):
             group.append(place('scene.transform', 3000, row + (side + 1) * 150, dict(scene=dark),
@@ -61,7 +61,7 @@ def corridor():
                               translate_x=side * (2.05 + .18 * math.sin(index)), translate_y=.27,
                               translate_z=z + .65, scale_x=1.05, scale_y=.54, scale_z=1.55))
         height = node('scalar.expression', 2600, row + 650, dict(a=bands[1], time=clock),
-                      expression=f'5.15 + a * .12 + sin(time * .3926990817 - {index * .35}) * .08')
+                      expression=f'5.15 + a * .24 + sin(time * .3926990817 - {index * .35}) * .11')
         group.append(place('scene.transform', 3400, row + 650, dict(scene=dark, translate_y=height),
                           translate_x=offset, translate_z=z, scale_x=5.7, scale_y=.48, scale_z=.65))
         group.append(place('scene.transform', 3800, row + 650, dict(scene=lamps[index % 2], translate_y=height),
@@ -119,7 +119,13 @@ def corridor():
     spark_emission = node('scalar.expression', 9900, 1700, dict(a=low_rate, b=mid_rate, c=high_rate),
                           expression='a + b + c')
     forward_flow = node('scalar.expression', 9550, 2000, dict(a=bands[1], b=mid_envelope),
-                        expression='.024 + a * .09 + b * .18')
+                        expression='.024 + a * .14 + b * .30')
+    particle_pulse = node('scalar.expression', 9900, 1900,
+                          dict(a=low_envelope, b=mid_envelope, c=high_envelope),
+                          expression='1.0 + a * .16 + b * .15 + c * .72')
+    flash = node('scalar.expression', 9900, 2100,
+                 dict(a=low_envelope, b=mid_envelope, c=high_envelope),
+                 expression='a * .10 + b * .11 + c * .28')
     drift = node('scalar.expression', 9900, 1700, dict(time=clock, a=bands[0]),
                  expression='time * -34.0 - a * 8.0')
     for index, (capacity, size) in enumerate(((16384, .0028), (4096, .009))):
@@ -133,10 +139,13 @@ def corridor():
                          flow_evolution=.18 if index == 0 else .4, point_size=size,
                          color_a=(.42, .68, 1, .3) if index == 0 else (1, .08, .34, .8),
                          color_b=(1, .08, .3, .7) if index == 0 else (.72, .86, 1, 1))
-        particles = node('gpu.map', 10600, row, dict(points=particles, rotation=drift))
+        particles = node('gpu.map', 10600, row,
+                         dict(points=particles, rotation=drift, point_size_scale=particle_pulse))
         rendered = node('gpu.render', 10950, row, dict(points=particles), point_blend=1, texture_precision=2)
         image = node('texture.composite', 11300, row, dict(a=image, b=rendered), composite_mode=1,
                      amount=1, texture_precision=0)
+    image = node('texture.color_adjust', 11650, 4800, dict(source=image, exposure=flash),
+                 saturation=1.08, texture_precision=0)
     output = finish(graph, image, controls[2], .18)
     publish(name, ('光门空间', 'Lumen Corridor'),
             ('低机位持续向前穿行玫红与冷白光廊并缓慢横移，门段在镜头后方回收，形成无尽前进感；双层光尘从空场按每秒速率穿过镜头前景。低频增加空间能量，中频引导前进流向，高频 onset 提高闪点生成速率；静音仍前进，不加入不合场景的刚体碎片。',

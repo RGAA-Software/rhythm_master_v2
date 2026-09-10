@@ -27,8 +27,18 @@ music.full_graph_not_reachable 拒绝检查。
   1. 全部作者节点可反向到达最终输出；
   2. GPU 粒子从空场连续生成且禁止 burst；
   3. 点粒子禁止 burst；
-  4. 除敦煌外禁止概念作品引入 point.physics2d。
+  4. 除敦煌外禁止概念作品引入 point.physics2d；
+  5. 每个 GPU 粒子层必须经过带 point_size_scale 输入的 gpu.map，使节拍立即作用于
+     已存在的粒子，而非只等待新粒子生成。
   任一违反都会在生成内容前失败。
+
+## 后续节奏感修订
+
+连续发射修复后，真实 PCM 像素差异虽通过，但用户的视觉评审指出节奏感仍弱。根因是
+仅改变发射速率会被粒子寿命平均。当前图在保留连续速率的同时，将低/中/高 onset
+包络接到现存粒子的 point_size_scale、流场和短辉光曝光；瓷金花瓣和光门建筑的
+低频呼吸幅度也同步提高。当前重点检查日志为
+out/aureate-rhythm-pulse-quality 和 out/dunhuang-rhythm-pulse-quality。
 
 ## 当前证据
 
