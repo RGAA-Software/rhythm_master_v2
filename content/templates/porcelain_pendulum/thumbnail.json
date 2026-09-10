@@ -1,7 +1,7 @@
 {
     "template": "porcelain_pendulum",
-    "package_sha256": "ce30662a75694253a267ef730ed563f5938311464d29e9fac56bf873420227c9",
-    "thumbnail_sha256": "35c66942ac4c76c82120440af82e7f371cf85a8914b6bf97f2df1554edc704db",
+    "package_sha256": "971cbc3fe32d57b169dd62f9cccd46eacf4afd562341a4ceae5281dca54180ed",
+    "thumbnail_sha256": "c80bc89d48dd7b3ff4c6a9f2ba1d494b7532cca9e9b0fe89d3b077ac0847f19a",
     "extent": [
         256,
         144

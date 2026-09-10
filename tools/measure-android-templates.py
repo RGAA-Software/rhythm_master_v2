@@ -7,6 +7,8 @@ from pathlib import Path
 import subprocess
 import uuid
 
+from content_identity import verify_package_source
+
 ROOT = Path(__file__).resolve().parents[1]
 NAMES = ("layered_neon", "aurora_clouds", "firefly_garden", "prismatic_lotus", "stellar_currents", "orbital_reliquary", "resonance_gate", "resonance_live")
 
@@ -17,12 +19,15 @@ def main():
     parser.add_argument("--adb", type=Path, default=Path("D:/android/sdk/platform-tools/adb.exe"))
     parser.add_argument("--compact", action="store_true")
     parser.add_argument("--balanced", action="store_true")
-    parser.add_argument("--build", type=Path, default=ROOT / "out/android-arm64")
+    parser.add_argument("--build", type=Path, default=ROOT / "out/android-arm64-release")
     parser.add_argument("--packages", type=Path, default=ROOT / "out/windows-release/content/packages")
-    parser.add_argument("--name", choices=NAMES, action="append")
+    parser.add_argument("--name", action="append", help="Existing bundled template directory name")
     args = parser.parse_args()
     if args.compact and args.balanced:
         parser.error("Choose either compact or balanced")
+    for name in args.name or NAMES:
+        if not name.replace("_", "").isalnum() or not (ROOT / "content/templates" / name / "manifest.json").is_file():
+            parser.error("Expected an existing bundled template name")
     run_id = uuid.uuid4().hex
     output = ROOT / "out/android-template-measurements" / run_id
     output.mkdir(parents=True)
@@ -46,13 +51,15 @@ def main():
                "templates": {}}
     for name in args.name or NAMES:
         package = args.packages / (name + ".rhythmpack")
+        source_sha = verify_package_source(ROOT / "content/templates" / name, package)
         adb("push", package, remote + "/" + name)
         print("Measuring", name, flush=True)
-        log = adb("shell", remote + "/measure", remote + "/" + name,
+        log = adb("shell", "LD_LIBRARY_PATH=/data/local/tmp", remote + "/measure", remote + "/" + name,
                   "--benchmark-compact" if args.compact else "--benchmark-balanced" if args.balanced else "--benchmark")
         (output / (name + ".log")).write_text(log, encoding="utf-8")
         line = next(line for line in log.splitlines() if line.startswith("native_offscreen_frames="))
-        results["templates"][name] = {"sha256": hashlib.sha256(package.read_bytes()).hexdigest(), "measurement": line}
+        results["templates"][name] = {"sha256": hashlib.sha256(package.read_bytes()).hexdigest(),
+                                        "source_sha256": source_sha, "measurement": line}
         (output / "results.json").write_text(json.dumps(results, indent=4) + "\n", encoding="utf-8")
         print(line, flush=True)
     print(output, flush=True)

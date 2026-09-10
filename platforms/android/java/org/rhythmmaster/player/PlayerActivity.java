@@ -265,6 +265,9 @@ public final class PlayerActivity extends SDLActivity {
     }
 
     private void AddButton(LinearLayout row, int label, Runnable action) {
+        // A wrapped translation has a different baseline from single-line
+        // siblings. Baseline alignment can push it outside the measured row.
+        row.setBaselineAligned(false);
         Button button = new Button(this);
         button.setText(label);
         if (label == R.string.choose_effect) button.setId(R.id.player_choose_effect);

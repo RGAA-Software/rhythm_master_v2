@@ -15,7 +15,7 @@ import uuid
 import xml.etree.ElementTree as ET
 import zipfile
 
-from android_view_bounds import APP, center, read_views, require_unclipped
+from android_view_bounds import require_player_focus, reject_call_ui, APP, center, read_views, require_unclipped
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -31,6 +31,8 @@ def main():
     print("Transport layout evidence:", output, flush=True)
 
     def adb(*command):
+        if command[:2] == ("shell", "input"):
+            require_player_focus(adb)
         result = subprocess.run([args.adb, "-s", args.serial, *map(str, command)],
                                 capture_output=True, timeout=40)
         if result.returncode:
@@ -76,6 +78,7 @@ def main():
             raise RuntimeError("Saved program probe failed")
         return adb("exec-out", "run-as", APP, "cat", "files/performance/list.json")
 
+    reject_call_ui(adb)
     before = saved()
     built_hash = hashlib.sha256(args.apk.read_bytes()).hexdigest()
     installed = adb("shell", "pm", "path", APP).decode().strip().removeprefix("package:")
@@ -118,7 +121,7 @@ def main():
             click("player_pause")
             layout = views(tag + "-paused")
             bounds = {key: require_unclipped(layout, key) for key in
-                      ("player_music_time", "player_music_position")}
+                      ("player_music_time", "player_music_position", "player_pause", "player_choose_effect")}
             shot(tag + "-paused")
             x1, y1, x2, y2 = bounds["player_music_position"]
             tap(x1 + (x2 - x1) * .65, (y1 + y2) / 2)

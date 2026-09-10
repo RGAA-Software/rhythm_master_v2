@@ -20,7 +20,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 APP = "org.rhythmmaster.player"
 
-from android_view_bounds import center, read_views
+from android_view_bounds import require_player_focus, reject_call_ui, center, read_views
 
 
 def main():
@@ -37,6 +37,8 @@ def main():
     sequence = 0
 
     def adb(*command, timeout=30):
+        if command[:2] == ("shell", "input"):
+            require_player_focus(adb)
         result = subprocess.run([args.adb, "-s", args.serial, *map(str, command)],
                                 capture_output=True, timeout=timeout)
         if result.returncode:
@@ -92,6 +94,7 @@ def main():
         name = "player_queue" if action == "queue" else "player_pause"
         tap(*center(read_views(adb), name))
 
+    reject_call_ui(adb)
     original = saved()
     (output / "program-before.json").write_bytes(original)
     if not args.prepared:

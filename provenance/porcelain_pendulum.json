@@ -11,7 +11,8 @@
     "modifications": [
         "New ceramic clock composition using existing geometry/deformation/light contracts.",
         "Reuse original pulse/chime bytes and their existing four-clip arrangement.",
-        "Add three exposed macros, three snapshots and four cues."
+        "Add three exposed macros, three snapshots and four cues.",
+        "P7 revision: bounded band gain and opening macro strengthen packaged music response; separate ceramic from backdrop with revised lighting and framing; add FXAA."
     ],
     "music_assets": [
         {

@@ -19,7 +19,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 APP = 'org.rhythmmaster.player'
 
-from android_view_bounds import center, read_views
+from android_view_bounds import require_player_focus, reject_call_ui, center, read_views
 
 
 def main():
@@ -36,6 +36,8 @@ def main():
     sequence = 0
 
     def adb(*command, timeout=30, check=True):
+        if command[:2] == ("shell", "input"):
+            require_player_focus(adb)
         result = subprocess.run([args.adb, '-s', args.serial, *map(str, command)],
                                 capture_output=True, timeout=timeout)
         if check and result.returncode:
@@ -75,6 +77,7 @@ def main():
         exists = adb('shell', 'run-as', APP, 'test', '-f', 'files/performance/list.json', check=False)
         return adb('exec-out', 'run-as', APP, 'cat', 'files/performance/list.json') if exists.returncode == 0 else None
 
+    reject_call_ui(adb)
     before = saved()
     if before is not None:
         (output / 'saved-program-before.json').write_bytes(before)

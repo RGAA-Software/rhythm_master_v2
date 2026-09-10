@@ -6581,8 +6581,8 @@
             "id": "official.templates.porcelain_pendulum",
             "kind": "template",
             "source": "content/templates/porcelain_pendulum",
-            "source_sha256": "fff0c61478ac3d685205d17cfa101f455f8309ce0c1ab96947e32f4796f66261",
-            "version": "0.1.0",
+            "source_sha256": "d191d306771c4b3a6ee13131aabfe22df725e64bb2969c7a5817c060157ac008",
+            "version": "0.2.0",
             "titles": {
                 "zh-CN": "瓷光钟摆",
                 "en-US": "Porcelain Pendulum"
@@ -6668,14 +6668,14 @@
             },
             "is_default": false,
             "review_history_count": 1,
-            "stale_review_count": 0,
+            "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
                 "functional": "pending",
-                "music": "failed",
-                "visual": "failed",
-                "device": "failed"
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
             }
         },
         {

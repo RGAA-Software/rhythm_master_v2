@@ -1,6 +1,6 @@
 schema_version: 5
 id: "official-porcelain-pendulum"
-output: 119
+output: 120
 canvas { width: 1280 height: 720 }
 nodes { id: 1 type_key: "control.scalar" schema_version: 1
     properties { key: "value" value { scalar: 1 } }
@@ -13,7 +13,7 @@ nodes { id: 2 type_key: "control.scalar" schema_version: 1
     properties { key: "control_maximum" value { scalar: 2 } }
 }
 nodes { id: 3 type_key: "control.scalar" schema_version: 1
-    properties { key: "value" value { scalar: 0 } }
+    properties { key: "value" value { scalar: 0.3 } }
     properties { key: "control_minimum" value { scalar: -1 } }
     properties { key: "control_maximum" value { scalar: 1 } }
 }
@@ -26,24 +26,24 @@ nodes { id: 6 type_key: "audio.band" schema_version: 1
     properties { key: "audio_band" value { scalar: 12 } }
 }
 nodes { id: 7 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "a * b" } }
+    properties { key: "expression" value { expression: "clamp(a * b * 3.5, 0, 1)" } }
 }
 nodes { id: 8 type_key: "audio.band" schema_version: 1
     properties { key: "audio_band" value { scalar: 28 } }
 }
 nodes { id: 9 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "a * b" } }
+    properties { key: "expression" value { expression: "clamp(a * b * 3.5, 0, 1)" } }
 }
 nodes { id: 10 type_key: "audio.band" schema_version: 1
     properties { key: "audio_band" value { scalar: 48 } }
 }
 nodes { id: 11 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "a * b" } }
+    properties { key: "expression" value { expression: "clamp(a * b * 3.5, 0, 1)" } }
 }
 nodes { id: 12 type_key: "material.pbr" schema_version: 1
-    properties { key: "color_a" value { color { r: 0.83 g: 0.8 b: 0.73 a: 1 } } }
-    properties { key: "metallic" value { scalar: 0.05 } }
-    properties { key: "roughness" value { scalar: 0.32 } }
+    properties { key: "color_a" value { color { r: 0.93 g: 0.9 b: 0.82 a: 1 } } }
+    properties { key: "metallic" value { scalar: 0.02 } }
+    properties { key: "roughness" value { scalar: 0.24 } }
 }
 nodes { id: 13 type_key: "material.pbr" schema_version: 1
     properties { key: "color_a" value { color { r: 0.63 g: 0.38 b: 0.12 a: 1 } } }
@@ -325,7 +325,7 @@ nodes { id: 64 type_key: "scene.transform" schema_version: 1
 nodes { id: 65 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 66 type_key: "scalar.expression" schema_version: 1
-    properties { key: "expression" value { expression: "sin(time * 2.4) * (18 + a * 65)" } }
+    properties { key: "expression" value { expression: "sin(time * 2.4) * (18 + a * 65) + a * 12" } }
 }
 nodes { id: 67 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_y" value { scalar: 1.35 } }
@@ -344,7 +344,7 @@ nodes { id: 70 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_z" value { scalar: 0.27 } }
 }
 nodes { id: 71 type_key: "material.pbr" schema_version: 1
-    properties { key: "color_a" value { color { r: 0.72 g: 0.69 b: 0.61 a: 1 } } }
+    properties { key: "color_a" value { color { r: 0.34 g: 0.38 b: 0.42 a: 1 } } }
     properties { key: "metallic" value { scalar: 0 } }
     properties { key: "roughness" value { scalar: 0.9 } }
 }
@@ -352,9 +352,9 @@ nodes { id: 72 type_key: "scene.instance" schema_version: 1
 }
 nodes { id: 73 type_key: "scene.transform" schema_version: 1
     properties { key: "translate_y" value { scalar: -1.05 } }
-    properties { key: "scale_x" value { scalar: 14 } }
+    properties { key: "scale_x" value { scalar: 100 } }
     properties { key: "scale_y" value { scalar: 0.08 } }
-    properties { key: "scale_z" value { scalar: 12 } }
+    properties { key: "scale_z" value { scalar: 100 } }
 }
 nodes { id: 74 type_key: "scene.merge" schema_version: 1
 }
@@ -415,13 +415,13 @@ nodes { id: 101 type_key: "scene.merge" schema_version: 1
 nodes { id: 102 type_key: "scene.merge" schema_version: 1
 }
 nodes { id: 103 type_key: "scene.spot_light" schema_version: 1
-    properties { key: "translate_x" value { scalar: -4 } }
-    properties { key: "translate_y" value { scalar: 7 } }
-    properties { key: "translate_z" value { scalar: 5 } }
+    properties { key: "translate_x" value { scalar: -3 } }
+    properties { key: "translate_y" value { scalar: 6 } }
+    properties { key: "translate_z" value { scalar: 4 } }
     properties { key: "light_x" value { scalar: 0.45 } }
     properties { key: "light_y" value { scalar: -0.75 } }
     properties { key: "light_z" value { scalar: -0.5 } }
-    properties { key: "light_energy" value { scalar: 95 } }
+    properties { key: "light_energy" value { scalar: 100 } }
     properties { key: "light_range" value { scalar: 20 } }
     properties { key: "spot_angle" value { scalar: 58 } }
     properties { key: "color_a" value { color { r: 1 g: 0.91 b: 0.78 a: 1 } } }
@@ -432,7 +432,7 @@ nodes { id: 105 type_key: "scene.directional_light" schema_version: 1
     properties { key: "light_x" value { scalar: 0.6 } }
     properties { key: "light_y" value { scalar: 0.5 } }
     properties { key: "light_z" value { scalar: 0.7 } }
-    properties { key: "light_energy" value { scalar: 0.8 } }
+    properties { key: "light_energy" value { scalar: 0.45 } }
     properties { key: "color_a" value { color { r: 0.58 g: 0.72 b: 1 a: 1 } } }
 }
 nodes { id: 106 type_key: "scene.merge" schema_version: 1
@@ -448,16 +448,16 @@ nodes { id: 108 type_key: "texture.gradient" schema_version: 1
     properties { key: "color_b" value { color { r: 0.45 g: 0.37 b: 0.26 a: 1 } } }
 }
 nodes { id: 109 type_key: "scene.environment" schema_version: 1
-    properties { key: "environment_energy" value { scalar: 0.9 } }
+    properties { key: "environment_energy" value { scalar: 0.55 } }
 }
 nodes { id: 110 type_key: "scene.camera" schema_version: 1
-    properties { key: "eye_x" value { scalar: 3.6 } }
-    properties { key: "eye_y" value { scalar: 3.5 } }
-    properties { key: "eye_z" value { scalar: 8.5 } }
-    properties { key: "target_y" value { scalar: 1.0 } }
+    properties { key: "eye_x" value { scalar: 3.0 } }
+    properties { key: "eye_y" value { scalar: 2.9 } }
+    properties { key: "eye_z" value { scalar: 7.6 } }
+    properties { key: "target_y" value { scalar: 1.2 } }
     properties { key: "field_of_view" value { scalar: 41 } }
     properties { key: "near_plane" value { scalar: 0.1 } }
-    properties { key: "far_plane" value { scalar: 35 } }
+    properties { key: "far_plane" value { scalar: 100 } }
 }
 nodes { id: 111 type_key: "scene.capture" schema_version: 1
 }
@@ -473,7 +473,7 @@ nodes { id: 114 type_key: "texture.dof" schema_version: 1
 }
 nodes { id: 115 type_key: "texture.gradient" schema_version: 1
     properties { key: "color_a" value { color { r: 0.9 g: 0.87 b: 0.79 a: 1 } } }
-    properties { key: "color_b" value { color { r: 0.6 g: 0.65 b: 0.72 a: 1 } } }
+    properties { key: "color_b" value { color { r: 0.38 g: 0.46 b: 0.56 a: 1 } } }
 }
 nodes { id: 116 type_key: "texture.linearize" schema_version: 1
 }
@@ -482,7 +482,9 @@ nodes { id: 117 type_key: "texture.composite" schema_version: 1
 }
 nodes { id: 118 type_key: "texture.display" schema_version: 1
 }
-nodes { id: 119 type_key: "output.texture" schema_version: 1
+nodes { id: 119 type_key: "texture.fxaa" schema_version: 1
+}
+nodes { id: 120 type_key: "output.texture" schema_version: 1
 }
 edges { id: 1 from: 4 to: 5 input: "time" }
 edges { id: 2 from: 2 to: 5 input: "a" }
@@ -649,24 +651,25 @@ edges { id: 162 from: 114 to: 117 input: "b" }
 edges { id: 163 from: 117 to: 118 input: "source" }
 edges { id: 164 from: 3 to: 118 input: "exposure" }
 edges { id: 165 from: 118 to: 119 input: "source" }
+edges { id: 166 from: 119 to: 120 input: "source" }
 controls {
     titles { key: 1 value: "Music response / 音乐响应" }
     titles { key: 2 value: "Mechanical pace / 机械节奏" }
     titles { key: 3 value: "Exposure / 曝光" }
     snapshots { id: 1 title: "Rest"
-        values { key: 1 value: 0.6 }
+        values { key: 1 value: 0.8 }
         values { key: 2 value: 0.65 }
-        values { key: 3 value: -0.05 }
+        values { key: 3 value: 0.25 }
     }
     snapshots { id: 2 title: "Drive"
         values { key: 1 value: 1.1 }
         values { key: 2 value: 1 }
-        values { key: 3 value: 0 }
+        values { key: 3 value: 0.3 }
     }
     snapshots { id: 3 title: "Resonate"
         values { key: 1 value: 1.6 }
         values { key: 2 value: 1.35 }
-        values { key: 3 value: 0.08 }
+        values { key: 3 value: 0.4 }
     }
     cues { id: 1 title: "Awaken" seconds: 0 snapshot: 1 fade: 0 smooth: true }
     cues { id: 2 title: "Swing" seconds: 3 snapshot: 2 fade: 2 smooth: true }

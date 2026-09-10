@@ -22,15 +22,15 @@ def build_graph():
     node = graph.node
     response = node('control.scalar', -1000, 0, value=1, control_minimum=0, control_maximum=2)
     pace = node('control.scalar', -1000, 300, value=1, control_minimum=0.2, control_maximum=2)
-    exposure = node('control.scalar', -1000, 600, value=0, control_minimum=-1, control_maximum=1)
+    exposure = node('control.scalar', -1000, 600, value=0.3, control_minimum=-1, control_maximum=1)
     time = node('core.time', 0, 0)
     clock = node('scalar.expression', 320, 0, dict(time=time, a=pace), expression='time * a')
     bands = []
     for index, band in enumerate((12, 28, 48)):
         source = node('audio.band', 0, 350 + index * 300, audio_band=band)
         bands.append(node('scalar.expression', 320, 350 + index * 300,
-                          dict(a=source, b=response), expression='a * b'))
-    ceramic = node('material.pbr', 700, 0, color_a=(0.83, 0.80, 0.73, 1), metallic=0.05, roughness=0.32)
+                          dict(a=source, b=response), expression='clamp(a * b * 3.5, 0, 1)'))
+    ceramic = node('material.pbr', 700, 0, color_a=(0.93, 0.90, 0.82, 1), metallic=0.02, roughness=0.24)
     brass = node('material.pbr', 700, 300, color_a=(0.63, 0.38, 0.12, 1), metallic=0.8, roughness=0.24)
     red = node('material.pbr', 700, 600, color_a=(0.27, 0.015, 0.025, 1), metallic=0.25, roughness=0.3)
     body_mesh = node('geometry.torus', 1000, 0, radius=1.92, tube_ratio=0.075,
@@ -77,7 +77,7 @@ def build_graph():
     bob = node('scene.transform', 3140, 1600, dict(scene=bob), translate_y=-1.55)
     pendulum = node('scene.merge', 3460, 1200, dict(a=rod, b=bob))
     swing = node('scalar.expression', 3140, 2100, dict(time=clock, a=bands[0]),
-                 expression='sin(time * 2.4) * (18 + a * 65)')
+                 expression='sin(time * 2.4) * (18 + a * 65) + a * 12')
     parts.append(node('scene.transform', 3780, 1200, dict(scene=pendulum, rotation_z=swing),
                       translate_y=1.35, translate_z=0.24))
     center_mesh = node('geometry.sphere', 2500, 2600, radius=0.19, height=0.38,
@@ -85,40 +85,41 @@ def build_graph():
     center = node('scene.instance', 2820, 2600, dict(geometry=center_mesh, material=brass))
     parts.append(node('scene.transform', 3140, 2600, dict(scene=center),
                       translate_y=1.35, translate_z=0.27))
-    floor_mat = node('material.pbr', 2500, 3100, color_a=(0.72, 0.69, 0.61, 1),
+    floor_mat = node('material.pbr', 2500, 3100, color_a=(0.34, 0.38, 0.42, 1),
                      metallic=0, roughness=0.9)
     floor = node('scene.instance', 2820, 3100, dict(geometry=cube, material=floor_mat))
     parts.append(node('scene.transform', 3140, 3100, dict(scene=floor),
-                      translate_y=-1.05, scale_x=14, scale_y=0.08, scale_z=12))
+                      translate_y=-1.05, scale_x=100, scale_y=0.08, scale_z=100))
     stage = parts[0]
     for index, part in enumerate(parts[1:]):
         stage = node('scene.merge', 4200 + (index % 6) * 320, (index // 6) * 300, dict(a=stage, b=part))
-    light = node('scene.spot_light', 6200, 1900, translate_x=-4, translate_y=7, translate_z=5,
-                 light_x=0.45, light_y=-0.75, light_z=-0.5, light_energy=95, light_range=20,
+    light = node('scene.spot_light', 6200, 1900, translate_x=-3, translate_y=6, translate_z=4,
+                 light_x=0.45, light_y=-0.75, light_z=-0.5, light_energy=100, light_range=20,
                  spot_angle=58, color_a=(1, 0.91, 0.78, 1))
     stage = node('scene.merge', 6520, 0, dict(a=stage, b=light))
     fill = node('scene.directional_light', 6200, 2300, light_x=0.6, light_y=0.5,
-                light_z=0.7, light_energy=0.8, color_a=(0.58, 0.72, 1, 1))
+                light_z=0.7, light_energy=0.45, color_a=(0.58, 0.72, 1, 1))
     stage = node('scene.merge', 6840, 0, dict(a=stage, b=fill))
     stage = node('scene.shadow', 7160, 0, dict(scene=stage), shadow_light=0,
                  shadow_resolution=1, shadow_bias=0.0008, shadow_normal_bias=0.02)
     environment = node('texture.gradient', 6840, 700, color_a=(0.8, 0.84, 0.9, 1),
                        color_b=(0.45, 0.37, 0.26, 1))
     stage = node('scene.environment', 7480, 0, dict(scene=stage, environment_texture=environment),
-                 environment_energy=0.9)
-    camera = node('scene.camera', 7480, 800, eye_x=3.6, eye_y=3.5, eye_z=8.5, target_y=1.0,
-                  field_of_view=41, near_plane=0.1, far_plane=35)
+                 environment_energy=0.55)
+    camera = node('scene.camera', 7480, 800, eye_x=3.0, eye_y=2.9, eye_z=7.6, target_y=1.2,
+                  field_of_view=41, near_plane=0.1, far_plane=100)
     captured = node('scene.capture', 7800, 0, dict(scene=stage, camera=camera))
     color = node('scene.color', 8120, 0, dict(capture=captured))
     depth = node('scene.depth', 8120, 400, dict(capture=captured))
     focused = node('texture.dof', 8440, 0, dict(source=color, depth=depth),
                    focus_distance=9.4, focus_scale=32, dof_radius=2, dof_samples=12)
     background = node('texture.gradient', 8120, 800, color_a=(0.90, 0.87, 0.79, 1),
-                      color_b=(0.60, 0.65, 0.72, 1))
+                      color_b=(0.38, 0.46, 0.56, 1))
     background = node('texture.linearize', 8440, 800, dict(source=background))
     composed = node('texture.composite', 8760, 0, dict(a=background, b=focused), texture_precision=0)
     display = node('texture.display', 9080, 0, dict(source=composed, exposure=exposure))
-    final = node('output.texture', 9400, 0, dict(source=display))
+    smooth = node('texture.fxaa', 9400, 0, dict(source=display))
+    final = node('output.texture', 9720, 0, dict(source=smooth))
     return graph, final, (response, pace, exposure)
 
 
@@ -130,8 +131,8 @@ def main():
     metadata = ['controls {']
     for identity, title in zip(controls, ('Music response / 音乐响应', 'Mechanical pace / 机械节奏', 'Exposure / 曝光')):
         metadata.append(f'    titles {{ key: {identity} value: "{title}" }}')
-    for identity, title, values in [(1, 'Rest', (0.6, 0.65, -0.05)),
-                                     (2, 'Drive', (1.1, 1, 0)), (3, 'Resonate', (1.6, 1.35, 0.08))]:
+    for identity, title, values in [(1, 'Rest', (0.8, 0.65, 0.25)),
+                                     (2, 'Drive', (1.1, 1, 0.3)), (3, 'Resonate', (1.6, 1.35, 0.4))]:
         metadata.append(f'    snapshots {{ id: {identity} title: "{title}"')
         for key, value in zip(controls, values):
             metadata.append(f'        values {{ key: {key} value: {value} }}')
@@ -146,7 +147,7 @@ def main():
     (destination / 'editor.json').write_text(json.dumps(dict(version=2, positions=graph.positions), indent=4)+'\n', encoding='utf-8')
     records, soundtrack = music_work.original_arrangement(destination)
     manifest = dict(format='rhythm.project', manifest_version=3, kind='template',
-                    content_id='official.templates.porcelain_pendulum', content_version='0.1.0',
+                    content_id='official.templates.porcelain_pendulum', content_version='0.2.0',
                     project_id='official-porcelain-pendulum', graph_revision=0,
                     title='瓷光钟摆 / Porcelain Pendulum', default_locale='zh-CN',
                     titles={'zh-CN':'瓷光钟摆', 'en-US':'Porcelain Pendulum'}, category='audio', tier='basic',
@@ -161,7 +162,8 @@ def main():
                                     'tools/author-sonic-enamel.py', 'tools/author-luminous-concerto.py'],
                       modifications=['New ceramic clock composition using existing geometry/deformation/light contracts.',
                                      'Reuse original pulse/chime bytes and their existing four-clip arrangement.',
-                                     'Add three exposed macros, three snapshots and four cues.'],
+                                     'Add three exposed macros, three snapshots and four cues.',
+                                     'P7 revision: bounded band gain and opening macro strengthen packaged music response; separate ceramic from backdrop with revised lighting and framing; add FXAA.'],
                       music_assets=records, target='content/templates/porcelain_pendulum')
     (ROOT / 'provenance/porcelain_pendulum.json').write_text(json.dumps(provenance, ensure_ascii=False, indent=4)+'\n', encoding='utf-8')
     print(f'Porcelain Pendulum: {len(graph.nodes)} nodes, {len(graph.edges)} edges, 16-second music')

@@ -67,3 +67,31 @@ def require_unclipped(views, name):
     if view["bounds"] != view["visible_bounds"] or view["bounds"][3] <= view["bounds"][1]:
         raise ValueError("Player control is clipped: " + name)
     return view["bounds"]
+
+
+def current_focus(adb):
+    text = adb("shell", "dumpsys", "window").decode("utf-8")
+    top = re.search(r"mTopFocusedDisplayId=(\d+)", text)
+    display = None
+    candidates = []
+    for line in text.splitlines():
+        match = re.search(r"Display: mDisplayId=(\d+)", line)
+        if match:
+            display = match[1]
+        if "mCurrentFocus=" in line:
+            if top and display == top[1]:
+                return line.strip()
+            candidates.append(line.strip())
+    # Older dumps expose one global focus without display metadata. Ambiguous
+    # multi-display dumps must stop input instead of guessing another display.
+    return candidates[0] if not top and len(candidates) == 1 else ""
+
+
+def require_player_focus(adb):
+    if APP + "/" not in current_focus(adb):
+        raise RuntimeError("Player lost foreground ownership; device input stopped")
+
+
+def reject_call_ui(adb):
+    if "incall" in current_focus(adb).lower():
+        raise RuntimeError("Call UI owns the device; leave it untouched")

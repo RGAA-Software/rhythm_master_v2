@@ -18,6 +18,8 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 APP = "org.rhythmmaster.player"
 
+from android_view_bounds import require_player_focus, reject_call_ui
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -36,6 +38,10 @@ def main():
     pid = ""
 
     def adb(*arguments, timeout=20):
+        if arguments[:2] == ("shell", "input"):
+            require_player_focus(adb)
+        if arguments[:3] == ("shell", "am", "start"):
+            reject_call_ui(adb)
         result = subprocess.run([str(args.adb), "-s", args.serial, *map(str, arguments)],
                                 capture_output=True, timeout=timeout)
         if result.returncode:
