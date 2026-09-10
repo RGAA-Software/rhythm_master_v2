@@ -5541,8 +5541,8 @@
             "id": "official.templates.chromatic_loom",
             "kind": "template",
             "source": "content/templates/chromatic_loom",
-            "source_sha256": "32da24da5ba9013dac94c1b192c17f8d2f3017052bf8fb49399205f730440d38",
-            "version": "0.2.0",
+            "source_sha256": "fe60332e2f45b835961de686f02a3419945f715a52a2c09194720abfbc2a9255",
+            "version": "0.3.0",
             "titles": {
                 "zh-CN": "织光机",
                 "en-US": "Chromatic Loom"
@@ -5627,8 +5627,8 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 2,
-            "stale_review_count": 0,
+            "review_history_count": 3,
+            "stale_review_count": 2,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {

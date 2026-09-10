@@ -551,6 +551,34 @@
                 "status": "pending",
                 "notes": "Current source-bound 640x360 native GLES short check passed; complete installed-work application acceptance remains pending."
             }
+        },
+        {
+            "id": "official.templates.chromatic_loom",
+            "source_sha256": "fe60332e2f45b835961de686f02a3419945f715a52a2c09194720abfbc2a9255",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/chromatic_loom_depth_2026-09-10.md"
+                ],
+                "notes": "Current Studio bilingual template application, mouse control edits, save/reopen/publication, soundtrack replacement and 480-frame H264/AAC export passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/chromatic_loom_depth_2026-09-10.md"
+                ],
+                "notes": "Seven decoded PCM inputs and three public control extrema produced distinct final images with unchanged thresholds."
+            },
+            "visual": {
+                "status": "pending",
+                "notes": "Oblique framing, finer crossing strands and two tapered shuttle trains reviewed in stills; final motion and aesthetic acceptance pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Current APK identity, packaged PCM/GLES and actual application selection/pause/resume passed. Final declared-profile performance and integrated acceptance pending."
+            }
         }
     ]
 }

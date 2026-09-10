@@ -41,7 +41,7 @@ def build_graph():
             row = axis * 1700 + parity * 700
             path = node('path.helix', 1450, row, path_height=6, path_radius=0.15,
                         path_turns=5, path_samples=256, path_phase=parity * 180)
-            mesh = node('geometry.tube', 1800, row, dict(path=path), tube_radius=0.09, tube_sides=12)
+            mesh = node('geometry.tube', 1800, row, dict(path=path), tube_radius=0.065, tube_sides=16)
             twist = node('scalar.expression', 1450, row + 300, dict(time=clock, a=bands[axis]),
                          expression=f'sin(time * 0.65 + {axis}) * 2 + a * 9')
             mesh = node('geometry.deform', 2150, row, dict(geometry=mesh, deform_twist=twist))
@@ -95,6 +95,18 @@ def build_graph():
         parts.append(node('scene.transform', 5000, row,
                           dict(scene=shuttle, translate_x=x, translate_y=y, scale=shuttle_scale),
                           translate_z=0.55))
+        # A bounded train samples the same trajectory at earlier times. Shared
+        # geometry avoids CPU mesh regeneration and feedback texture history.
+        for tail in range(1, 7):
+            delay = tail * 0.16
+            tail_row = 17000 + index * 2600 + tail * 350
+            tail_x = node('scalar.expression', 3950, tail_row, dict(time=clock, a=bands[index]),
+                          expression=f'sin((time - {delay}) * 0.8 + {index * 3.14}) * (2.35 + a * 0.4)')
+            tail_y = node('scalar.expression', 4300, tail_row, dict(time=clock),
+                          expression=f'sin((time - {delay}) * 0.27 + {index * 2.2}) * 2.65')
+            parts.append(node('scene.transform', 5000, tail_row,
+                              dict(scene=shuttle, translate_x=tail_x, translate_y=tail_y),
+                              scale=0.72 * (1 - tail / 8), translate_z=0.55))
     scene = parts[0]
     for index, part in enumerate(parts[1:]):
         scene = node('scene.merge', 4900 + index % 8 * 320, index // 8 * 320,
@@ -119,8 +131,8 @@ def build_graph():
                        color_b=(0.045, 0.065, 0.09, 1))
     scene = node('scene.environment', 9350, 0, dict(scene=scene, environment_texture=environment),
                  environment_energy=0.9)
-    camera = node('scene.camera', 9350, 900, eye_x=2, eye_y=1.5, eye_z=13,
-                  field_of_view=38, near_plane=0.1, far_plane=40)
+    camera = node('scene.camera', 9350, 900, eye_x=4.5, eye_y=3, eye_z=12,
+                  field_of_view=40, near_plane=0.1, far_plane=40)
     capture = node('scene.capture', 9700, 0, dict(scene=scene, camera=camera))
     color = node('scene.color', 10050, 0, dict(capture=capture))
     background = node('texture.gradient', 9700, 800, color_a=(0.013, 0.025, 0.045, 1),
@@ -141,16 +153,16 @@ def main():
          (3, 'Shimmer', (1.5, 1.3, 0.5))],
         [('Threading', 0, 1, 0), ('Weaving', 3, 2, 2), ('Shimmer', 8, 3, 2), ('Settle', 12, 1, 3)],
         {'zh-CN': '织光机', 'en-US': 'Chromatic Loom'},
-        {'zh-CN': '青蓝经线与金色纬线在立体织面中前后交错，两枚光梭在四十个金属线扣之间游走。低中频拧动经纬、高频点亮织线并改变朝向；路径网格、材质、灯光、三个宏和四段 16 秒音乐编排均可编辑。',
-         'en-US': 'Teal warp and golden weft interlace while two luminous shuttles roam inside forty metal clasps. Bass and mids twist the strands; highs brighten the weave and turn its framing. Edit shared path meshes, materials, lighting, three macros and four cues with 16-second music.'},
-        tier='advanced', platforms=('windows', 'android'), version='0.2.0')
+        {'zh-CN': '青蓝经线与金色纬线在立体织面中前后交错，斜向镜头展现细线交错深度，两枚光梭带着逐渐收细的短轨迹在四十个金属线扣之间游走。低中频拧动经纬、高频点亮织线并改变朝向；路径网格、材质、灯光、三个宏和四段 16 秒音乐编排均可编辑。',
+         'en-US': 'Teal warp and golden weft interlace while an oblique camera reveals finer crossings and two luminous shuttles carry tapered trains inside forty metal clasps. Bass and mids twist the strands; highs brighten the weave and turn its framing. Edit shared path meshes, materials, lighting, three macros and four cues with 16-second music.'},
+        tier='advanced', platforms=('windows', 'android'), version='0.3.0')
     music_work.write_json(ROOT / 'provenance/chromatic_loom.json', dict(
         ownership='first-party', baseline='9463f68', imported_third_party_files=[],
         authoring_tool='tools/author-chromatic-loom.py',
         authoring_tool_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         reused_sources=['tools/author-resonance-gate.py', 'tools/music_work.py',
                         'tools/author-daylight-mobile.py', 'tools/audio_band_groups.py'],
-        revision='P7: replace three isolated bins with complete low/mid/high peak groups.',
+        revision='P7: oblique framing, finer strands and bounded shared-mesh shuttle trains; complete low/mid/high groups retained.',
         composition='Original alternating-phase warp/weft sculpture with shared static path meshes, GPU twist, metallic clasps and music-driven framing.',
         assets=manifest['assets'], target='content/templates/chromatic_loom'))
     print(f'Chromatic Loom: {len(graph.nodes)} nodes, {len(graph.edges)} edges; 16-second music')

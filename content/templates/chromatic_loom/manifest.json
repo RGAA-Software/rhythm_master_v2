@@ -3,7 +3,7 @@
     "manifest_version": 3,
     "kind": "template",
     "content_id": "official.templates.chromatic_loom",
-    "content_version": "0.2.0",
+    "content_version": "0.3.0",
     "project_id": "official-chromatic-loom",
     "graph_revision": 0,
     "title": "织光机 / Chromatic Loom",
@@ -107,7 +107,7 @@
         ]
     },
     "descriptions": {
-        "zh-CN": "青蓝经线与金色纬线在立体织面中前后交错，两枚光梭在四十个金属线扣之间游走。低中频拧动经纬、高频点亮织线并改变朝向；路径网格、材质、灯光、三个宏和四段 16 秒音乐编排均可编辑。",
-        "en-US": "Teal warp and golden weft interlace while two luminous shuttles roam inside forty metal clasps. Bass and mids twist the strands; highs brighten the weave and turn its framing. Edit shared path meshes, materials, lighting, three macros and four cues with 16-second music."
+        "zh-CN": "青蓝经线与金色纬线在立体织面中前后交错，斜向镜头展现细线交错深度，两枚光梭带着逐渐收细的短轨迹在四十个金属线扣之间游走。低中频拧动经纬、高频点亮织线并改变朝向；路径网格、材质、灯光、三个宏和四段 16 秒音乐编排均可编辑。",
+        "en-US": "Teal warp and golden weft interlace while an oblique camera reveals finer crossings and two luminous shuttles carry tapered trains inside forty metal clasps. Bass and mids twist the strands; highs brighten the weave and turn its framing. Edit shared path meshes, materials, lighting, three macros and four cues with 16-second music."
     }
 }

@@ -1,7 +1,7 @@
 {
     "template": "chromatic_loom",
-    "package_sha256": "90a013c407d32ff20eb595e1b024234334f9cbbd3ab207080e5d1ecc47155fb2",
-    "thumbnail_sha256": "7303222b270780663d9670c1b7cce564a35ef59bb29d1bb3538a7fffd92bfc7d",
+    "package_sha256": "8c12f744c9362e2d36740148ec963783b1b3b9986bc5f3b78fc2fd20a72583c4",
+    "thumbnail_sha256": "ace0d3de27b1c98af84a26b180ff3ea53170f8e9bf075aca633d6dabe6a773bd",
     "extent": [
         256,
         144
