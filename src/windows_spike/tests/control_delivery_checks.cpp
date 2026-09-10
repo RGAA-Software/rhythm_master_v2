@@ -98,6 +98,21 @@ void CheckControlDelivery(studio::Studio& studio, const std::filesystem::path& p
                                      expected) < 0.00001;
             }
             Require(published, "reopened control default did not reach publication");
+            const auto published_work = project::LoadPackage(package);
+            for (const auto& instruction : published_work.program_.instructions_) {
+                if (instruction.operation_ != graph::Operation::kMotionPhase ||
+                    !instruction.inputs_[0] ||
+                    published_work.program_.instructions_[*instruction.inputs_[0]].node_.id_ !=
+                            control.id_)
+                    continue;
+                for (const double seconds : {0.0, 4.0, 10.0, 15.0})
+                    Require(std::abs(parameters::EvaluateControls(
+                                             published_work.program_.controls_,
+                                             published_work.program_.control_sequence_, seconds)
+                                             .at(control.id_) -
+                                     expected) < 0.00001,
+                            "published Cue overrides the saved independent motion pace");
+            }
             std::cout << "control " << control.id_ << " = " << expected
                       << ": mouse/current plan/save/reopen/publish passed" << std::endl;
         }

@@ -9,14 +9,14 @@
     },
     "counts": {
         "authored:component": 30,
-        "authored:preset": 208,
+        "authored:preset": 209,
         "authored:template": 57,
         "component:component": 0,
         "preset:preset": 0,
         "template:advanced": 0,
         "template:basic": 0
     },
-    "default_presets_excluded": 118,
+    "default_presets_excluded": 119,
     "identical_preset_settings": [],
     "entries": [
         {
@@ -1858,6 +1858,31 @@
             "tier": "preset",
             "is_default": true,
             "exact_setting_group": "d28e6baf85d357e8d0801256d3b73eab9b5bfbcbf56737c632fa1e69fa39854e",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.motion_phase.default",
+            "kind": "preset",
+            "source": "content/presets/catalog.json",
+            "source_sha256": "386cc19efea6d010caec87e02fc7e27a500c081e59874508a86927deb80ccff6",
+            "version": "1.0.0",
+            "titles": {
+                "zh-CN": "默认 · 连续运动",
+                "en-US": "Default · Continuous motion"
+            },
+            "operator": "time.phase",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "210037469222e4bb3438c5b1184a554a4ac33cd550e3f6b73e0422ad7a8dcb97",
             "review_history_count": 0,
             "stale_review_count": 0,
             "quality_accepted": false,
@@ -5532,8 +5557,8 @@
             "id": "official.templates.aureate_vortex",
             "kind": "template",
             "source": "content/templates/aureate_vortex",
-            "source_sha256": "5aabc716240c2a682b16ee415f5568dde0cbe4cba557655bf83ea85a91a91d20",
-            "version": "0.3.0",
+            "source_sha256": "5b1699de09fd5b673970103607bd4a28513bd7ae9a10564913353109e1a5f119",
+            "version": "0.4.0",
             "titles": {
                 "zh-CN": "鎏光流涡",
                 "en-US": "Aureate Vortex"
@@ -5618,8 +5643,8 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 3,
-            "stale_review_count": 2,
+            "review_history_count": 4,
+            "stale_review_count": 3,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
@@ -6360,8 +6385,8 @@
             "id": "official.templates.lumen_corridor",
             "kind": "template",
             "source": "content/templates/lumen_corridor",
-            "source_sha256": "3704f1271c609fe1ce07a6fdc4b5bb174d157d849eb9bff4b1ba44b31181e43f",
-            "version": "0.3.0",
+            "source_sha256": "14a16628fb6578f40c94dfc83fcf24c9dac23a5b02d6f1c4fe4c4b59c9f343cd",
+            "version": "0.4.0",
             "titles": {
                 "zh-CN": "光门空间",
                 "en-US": "Lumen Corridor"
@@ -6446,8 +6471,8 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 3,
-            "stale_review_count": 2,
+            "review_history_count": 4,
+            "stale_review_count": 3,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
@@ -6863,8 +6888,8 @@
             "id": "official.templates.porcelain_bloom",
             "kind": "template",
             "source": "content/templates/porcelain_bloom",
-            "source_sha256": "387334f15c0334bfedf4c55e261dcb1bfb161c73faad5d893b1a3f6fd703b3ac",
-            "version": "0.3.0",
+            "source_sha256": "b99a1d306f1d14882e012dd2681ee10856aa72c4cbbd239fccb09ed89a6045f3",
+            "version": "0.4.0",
             "titles": {
                 "zh-CN": "瓷金绽放",
                 "en-US": "Porcelain Bloom"
@@ -6949,8 +6974,8 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 3,
-            "stale_review_count": 2,
+            "review_history_count": 4,
+            "stale_review_count": 3,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
@@ -7718,8 +7743,8 @@
             "id": "official.templates.stratified_ink",
             "kind": "template",
             "source": "content/templates/stratified_ink",
-            "source_sha256": "e321a0054f746e69b60bc5779fd7e1e8c65d0062564ff66fecbdb92f2e901708",
-            "version": "0.3.0",
+            "source_sha256": "da581a69011ecc2cdacce2f8061423eede29a7147415725e07dcf2696072e8ce",
+            "version": "0.4.0",
             "titles": {
                 "zh-CN": "层叠墨流",
                 "en-US": "Stratified Ink"
@@ -7804,8 +7829,8 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 3,
-            "stale_review_count": 2,
+            "review_history_count": 4,
+            "stale_review_count": 3,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {

@@ -13,6 +13,14 @@ The opening Phase A status and migration analysis below are historical architect
 context, not a current backlog. The new plan preserves these module boundaries;
 long-duration testing remains at final acceptance and focused checks remain incremental.
 
+Continuous authored motion now uses a separate value time coordinate in the existing
+playback clock. Consumed audio frames plus the acknowledged load/seek epoch preserve
+motion across natural loops; timeline generation still resets event history. An
+acknowledged continuous boundary preserves simulation and render history, while
+explicit resets retain their existing behavior.
+`time.phase` owns bounded CPU phase independently of render targets. No new audio
+clock, transport, thread or backend is introduced. [Contract and Windows evidence](validation/motion_phase_2026-09-10.md).
+
 R4 image expressions and compiled bundles stay in `image_shader`; `shader_authoring`
 owns the bounded host compiler worker. Prepared immutable assets flow through the same
 Studio/Player/export path, while Runtime alone caches RAII image programs. Native process

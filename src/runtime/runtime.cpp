@@ -45,8 +45,13 @@ FrameResult Runtime::Impl::EvaluateRange(
         throw std::invalid_argument("runtime.frame");
     if (!ValidExternalInputs(frame.external_))
         throw std::invalid_argument("runtime.external_inputs");
+    const auto motion = frame.motion_.value_or(MotionTime{frame.seconds_, frame.reset_generation_});
+    if (!std::isfinite(motion.seconds_) || motion.seconds_ < 0)
+        throw std::invalid_argument("runtime.motion_time");
     frame.external_.controls_ = parameters::EvaluateControls(
             plan.controls_, plan.control_sequence_, frame.seconds_, frame.external_.controls_);
+    auto simulation_frame = frame;
+    simulation_frame.seconds_ = motion.seconds_;
     if (graph::ValidatePointBudget(plan)) throw std::length_error("runtime.points_budget");
     static const scene::Resources kNoResources;
     const auto& resources = frame.resources_ ? *frame.resources_ : kNoResources;
@@ -70,13 +75,20 @@ FrameResult Runtime::Impl::EvaluateRange(
             throw std::invalid_argument("runtime.preparation_device_changed");
         result = std::move(preparation->get().partial_);
     } else {
-        if (document_id_ != plan.document_id_ || reset_generation_ != frame.reset_generation_ ||
+        if (document_id_ != plan.document_id_) phases_.clear();
+        const bool continuous_boundary = frame.preserve_history_ && frame.motion_ &&
+                                         motion_generation_ == motion.generation_ &&
+                                         frame.reset_generation_ == reset_generation_ + 1;
+        if (document_id_ != plan.document_id_ ||
+            (reset_generation_ != frame.reset_generation_ && !continuous_boundary) ||
             extent_ != frame.extent_) {
             ResetResources();
             document_id_ = plan.document_id_;
             reset_generation_ = frame.reset_generation_;
             extent_ = frame.extent_;
         }
+        reset_generation_ = frame.reset_generation_;
+        motion_generation_ = frame.motion_ ? std::optional(motion.generation_) : std::nullopt;
         if (!renderer.IsValid(white_.Handle())) {
             if (white_.Handle() != render::TextureHandle{})
                 throw std::invalid_argument("runtime.device_changed");
@@ -92,8 +104,15 @@ FrameResult Runtime::Impl::EvaluateRange(
         else
             videos_.Prepare(plan, frame.videos_, renderer);
         std::set<graph::NodeId> active;
-        for (const auto& instruction : plan.instructions_) active.insert(instruction.node_.id_);
+        std::set<graph::NodeId> active_phases;
+        for (const auto& instruction : plan.instructions_) {
+            active.insert(instruction.node_.id_);
+            if (instruction.operation_ == graph::Operation::kMotionPhase)
+                active_phases.insert(instruction.node_.id_);
+        }
         std::erase_if(states_, [&](const auto& item) { return !active.contains(item.first); });
+        std::erase_if(phases_,
+                      [&](const auto& item) { return !active_phases.contains(item.first); });
         presentation_generation_ = presentation_generation;
         result.extent_ = frame.extent_;
         result.outputs_.resize(plan.instructions_.size());
@@ -190,6 +209,11 @@ FrameResult Runtime::Impl::EvaluateRange(
             return result.outputs_.at(instruction.inputs_.at(port).value());
         };
         std::vector<std::uint64_t> versions;
+        if (operation == graph::Operation::kMotionPhase) {
+            versions.insert(versions.end(),
+                            {std::bit_cast<std::uint64_t>(motion.seconds_), motion.generation_,
+                             frame.advance_state_ ? 1ull : 0ull});
+        }
         const NodeOutput empty_input;
         for (std::size_t port = 0; port < instruction.inputs_.size(); ++port) {
             if (operation == graph::Operation::kFeedback && port == 0) continue;
@@ -202,20 +226,19 @@ FrameResult Runtime::Impl::EvaluateRange(
             ((operation == graph::Operation::kTextureShader ||
               operation == graph::Operation::kMaterialShader) &&
              !instruction.inputs_[1]) ||
-            (operation == graph::Operation::kGeometryAnimate && !instruction.inputs_[1]) ||
-            operation == graph::Operation::kTextureTrail ||
-            operation == graph::Operation::kParticleEmitter ||
-            operation == graph::Operation::kGpuParticleEmitter ||
-            operation == graph::Operation::kPointPhysics)
+            (operation == graph::Operation::kGeometryAnimate && !instruction.inputs_[1]))
             versions.push_back(std::bit_cast<std::uint64_t>(frame.seconds_));
         if (operation == graph::Operation::kParticleEmitter ||
             operation == graph::Operation::kGpuParticleEmitter ||
             operation == graph::Operation::kTextureTrail ||
-            operation == graph::Operation::kPointPhysics)
+            operation == graph::Operation::kPointPhysics) {
+            versions.push_back(std::bit_cast<std::uint64_t>(motion.seconds_));
             versions.push_back(frame.advance_state_ ? 1 : 0);
+        }
         if (operation == graph::Operation::kTextureVideo)
             versions.push_back(videos_.Revision(node.id_));
         if (detail::IsEventOperation(operation)) {
+            versions.push_back(frame.reset_generation_);
             versions.push_back(std::bit_cast<std::uint64_t>(frame.seconds_));
             versions.push_back(frame.advance_state_ ? 1 : 0);
             if (operation == graph::Operation::kEventInput && frame.external_.events_)
@@ -307,7 +330,7 @@ FrameResult Runtime::Impl::EvaluateRange(
                                 graph::Scalar(node, "trail_zoom_rate", 0),
                                 graph::Scalar(node, "trail_rotation_rate", 0)};
                         state.output_.texture_ =
-                                state.trail_->Draw(input(0).texture_, extent, frame.seconds_,
+                                state.trail_->Draw(input(0).texture_, extent, motion.seconds_,
                                                    frame.advance_state_, settings, renderer);
                         break;
                     }
@@ -400,7 +423,7 @@ FrameResult Runtime::Impl::EvaluateRange(
                         if (!state.gpu_particles_)
                             state.gpu_particles_ = std::make_unique<detail::GpuParticlePass>();
                         state.output_.gpu_points_ = state.gpu_particles_->Evaluate(
-                                instruction, result.outputs_, frame, renderer);
+                                instruction, result.outputs_, simulation_frame, renderer);
                         state.output_.gpu_point_capacity_ = static_cast<std::uint32_t>(
                                 graph::Scalar(node, "particle_capacity", 65536));
                         break;
@@ -494,10 +517,10 @@ FrameResult Runtime::Impl::EvaluateRange(
                             graph::Scalar(*state.node_, "seed", 1) !=
                                     graph::Scalar(node, "seed", 1) ||
                             (state.points_->last_seconds_ &&
-                             frame.seconds_ < *state.points_->last_seconds_))
+                             motion.seconds_ < *state.points_->last_seconds_))
                             state.output_.points_generation_ = next_points_generation_++;
-                        state.output_.points_ = detail::EmitPoints(*state.points_, instruction,
-                                                                   result.outputs_, frame);
+                        state.output_.points_ = detail::EmitPoints(
+                                *state.points_, instruction, result.outputs_, simulation_frame);
                         break;
                     case graph::Operation::kPointTransform:
                         state.output_.points_generation_ = input(0).points_generation_;
@@ -509,8 +532,8 @@ FrameResult Runtime::Impl::EvaluateRange(
                         if (!state.physics_)
                             state.physics_ = std::make_unique<detail::PointPhysics>();
                         const auto generation = state.physics_->Generation();
-                        state.output_.points_ =
-                                state.physics_->Evaluate(instruction, result.outputs_, frame);
+                        state.output_.points_ = state.physics_->Evaluate(
+                                instruction, result.outputs_, simulation_frame);
                         if (generation != state.physics_->Generation())
                             state.output_.points_generation_ = next_points_generation_++;
                         break;
@@ -544,6 +567,19 @@ FrameResult Runtime::Impl::EvaluateRange(
                     case graph::Operation::kAudioBand:
                         state.output_.scalar_ = external_value.value();
                         break;
+                    case graph::Operation::kMotionPhase: {
+                        auto& phase = phases_[node.id_];
+                        if (phase.generation_ != motion.generation_) {
+                            phase.phase_ = {};
+                            phase.generation_ = motion.generation_;
+                        }
+                        const auto speed = instruction.inputs_[0] ? input(0).scalar_
+                                                                  : graph::Scalar(node, "speed", 1);
+                        state.output_.scalar_ = phase.phase_.Advance(
+                                motion.seconds_, std::clamp(speed, -1e6, 1e6),
+                                graph::Scalar(node, "duration", 16), frame.advance_state_);
+                        break;
+                    }
                     case graph::Operation::kTime:
                     case graph::Operation::kOscillator:
                     case graph::Operation::kSample:

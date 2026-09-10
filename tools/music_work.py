@@ -43,7 +43,9 @@ def write(name, graph, output, controls, snapshots, cues, titles, descriptions,
             raise ValueError('Snapshot control count mismatch')
         metadata.append(f'    snapshots {{ id: {identity} title: {json.dumps(title, ensure_ascii=False)}')
         for (key, _), value in zip(controls, values):
-            metadata.append(f'        values {{ key: {key} value: {value} }}')
+            # Omitted snapshot values resolve to the saved control default.
+            if value is not None:
+                metadata.append(f'        values {{ key: {key} value: {value} }}')
         metadata.append('    }')
     for identity, (title, seconds, target, fade) in enumerate(cues, 1):
         metadata.append(f'    cues {{ id: {identity} title: {json.dumps(title, ensure_ascii=False)} seconds: {seconds} snapshot: {target} fade: {fade} smooth: true }}')

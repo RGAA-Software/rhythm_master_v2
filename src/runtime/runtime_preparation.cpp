@@ -7,6 +7,7 @@
 namespace rhythm::runtime {
 void Runtime::Impl::Reset() {
     preparation_.reset();
+    phases_.clear();
     ResetResources();
 }
 FrameResult Runtime::Impl::Evaluate(const graph::ExecutionPlan& plan, FrameContext frame,

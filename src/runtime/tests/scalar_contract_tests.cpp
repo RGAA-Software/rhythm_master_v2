@@ -110,7 +110,48 @@ int main() {
         Check(evaluate(101).outputs_.back().node_ == document.output_);
         // A constant local time keeps its envelope cached as global time advances.
         Check(evaluate(102).evaluated_ <= 1);
-        std::cout << "scalar/time/curve/expression contracts passed\n";
+        document.id_ = "motion.test";
+        document.output_ = 4;
+        document.nodes_ = {
+                registry.MakeNode(1, "scalar.constant"), registry.MakeNode(2, "time.phase"),
+                registry.MakeNode(3, "texture.gradient"), registry.MakeNode(4, "output.texture")};
+        document.edges_ = {{1, 1, 2, "speed"}, {2, 2, 3, "amount"}, {3, 3, 4, "source"}};
+        runtime::FrameContext motion_frame;
+        motion_frame.motion_ = runtime::MotionTime{0, 1};
+        const auto sample_phase = [&] {
+            const auto compiled = graph::Compile(document, registry);
+            Check(std::holds_alternative<graph::ExecutionPlan>(compiled));
+            renderer.BeginFrame();
+            const auto result = runtime.Evaluate(std::get<graph::ExecutionPlan>(compiled),
+                                                 motion_frame, renderer);
+            renderer.EndFrame();
+            return value(result, 2);
+        };
+        Check(sample_phase() == 0);
+        motion_frame.seconds_ = 5;
+        motion_frame.motion_->seconds_ = 5;
+        Check(sample_phase() == 5);
+        document.nodes_[0].properties_["value"] = 2.0;
+        Check(sample_phase() == 5);  // Same-time edit changes only future motion.
+        motion_frame.motion_->seconds_ = 6;
+        motion_frame.seconds_ = 6;
+        Check(sample_phase() == 7);
+        motion_frame.extent_ = {320, 180};
+        ++motion_frame.reset_generation_;  // Graphics/feedback reset, not motion seek.
+        Check(sample_phase() == 7);
+        motion_frame.seconds_ = 0;
+        motion_frame.motion_->seconds_ = 16;
+        ++motion_frame.reset_generation_;  // Natural audio loop.
+        Check(sample_phase() == 11);
+        motion_frame.advance_state_ = false;
+        document.nodes_[0].properties_["value"] = 0.5;
+        Check(sample_phase() == 11);
+        motion_frame.advance_state_ = true;
+        motion_frame.motion_->seconds_ = 18;
+        Check(sample_phase() == 12);
+        motion_frame.motion_ = runtime::MotionTime{8, 2};  // Explicit forward seek.
+        Check(sample_phase() == 4);
+        std::cout << "scalar/time/curve/expression/motion contracts passed\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

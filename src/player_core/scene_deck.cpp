@@ -206,8 +206,11 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
     clock_observed_ = true;
     handoff_generation_.reset();
     if (!current_->Ready()) return {};
-    runtime::PlaybackSample current_time{
-            std::max(0.0, seconds - origin_), scene_generation_, master_.Paused(), {}};
+    runtime::PlaybackSample current_time{std::max(0.0, seconds - origin_),
+                                         scene_generation_,
+                                         master_.Paused(),
+                                         {},
+                                         master_.Motion()};
     if (synchronized && preserve_audio_origin_ && !audio_clock_->PreviousOffset())
         current_time.seconds_ = current_->Seconds();
     auto audio_frame = audio_clock_->Step(current_time, audio);
@@ -264,7 +267,7 @@ SceneDeckFrame SceneDeck::Tick(double monotonic_seconds, bool suspended, RenderQ
     }
     const double incoming_seconds = std::max(0.0, seconds - incoming_origin_);
     runtime::PlaybackSample incoming_time{
-            incoming_seconds, scene_generation_, master_.Paused(), {}};
+            incoming_seconds, scene_generation_, master_.Paused(), {}, master_.Motion()};
     if (synchronized) incoming_time = audio_frame.incoming_;
     try {
         // Both scenes share backend admission. A rejected incoming frame never

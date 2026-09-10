@@ -13,12 +13,13 @@
         "tools/music_work.py"
     ],
     "authoring_sources": {
-        "tools/concept_work_common.py": "6c2dca69d130228bdbe9abfa2479645111d5754bc43bf5118197301c0ea66217",
+        "tools/concept_work_common.py": "cd593fbe4782030e0a4779e48c225a22464d89ada586416f4769a1722076d1bd",
         "tools/concept_mesh_assets.py": "9dfa5e3e4e75bcbccb000eb7d104ab175620cdba5cb7a831678681d5347eca69",
         "tools/concept_spatial_works.py": "da5a43cef5c563db84bd374c5ed286f1314401d3ebeface5916ede1dc4c3be0b",
         "tools/concept_ink_work.py": "565ad01bad8c3037312bdf312871f35ccd87f7e41e5c9867e97994e6e698c981",
         "tools/concept_corridor_work.py": "6e0b90da6f9d4f1fbc16ce3a1b4feaa035755ec04c8ab4b25c3ed262ca422b93",
-        "tools/author-concept-works.py": "a4bf7757c2f2c21fbbfcd42902486093efddfa04af9dcaabf0f862779cae287b"
+        "tools/author-concept-works.py": "a4bf7757c2f2c21fbbfcd42902486093efddfa04af9dcaabf0f862779cae287b",
+        "tools/music_work.py": "77050b6056517758057c3582ebcd4635874c55d08d25222bfc6dacc4c79e50df"
     },
     "imported_third_party_files": [],
     "renderer_provenance": [

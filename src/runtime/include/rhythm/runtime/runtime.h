@@ -10,6 +10,7 @@
 #include "rhythm/render/budget.h"
 #include "rhythm/render/renderer.h"
 #include "rhythm/runtime/inputs.h"
+#include "rhythm/runtime/playback_clock.h"
 #include "rhythm/runtime/video_inputs.h"
 #include "rhythm/scene/camera.h"
 #include "rhythm/scene/path.h"
@@ -36,6 +37,12 @@ struct FrameContext {
     bool profile_nodes_ = false;
     std::shared_ptr<const image_shader::Resources> shaders_{};
     std::shared_ptr<const surface_shader::Resources> surfaces_{};
+    // Continuous motion survives natural timeline loops and graphics resizing.
+    // Omit for sequential offline evaluation: seconds/reset_generation apply.
+    std::optional<MotionTime> motion_{};
+    // One acknowledged continuous timeline boundary. Events still see the new
+    // reset generation; simulation/render history survives if motion epoch agrees.
+    bool preserve_history_ = false;
     bool operator==(const FrameContext&) const = default;
 };
 // Observers of a scene capture, with the exact projection used to write depth.

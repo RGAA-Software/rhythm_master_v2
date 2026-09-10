@@ -53,6 +53,30 @@ int main() {
             rejected = true;
         }
         Check(rejected && clock.Seconds() == 8, "invalid source is atomic");
+        PlaybackClock continuous;
+        PlaybackSample looped{15, 1, false, 16, MotionTime{15, 8}};
+        continuous.Advance(0, false, looped);
+        const auto motion_epoch = continuous.Motion().generation_;
+        looped = {0.25, 2, false, 16, MotionTime{16.25, 8}};
+        continuous.Advance(1.25, false, looped);
+        Check(continuous.Seconds() == 0.25 && continuous.Motion().seconds_ == 16.25 &&
+                      continuous.Motion().generation_ == motion_epoch,
+              "consumed natural loop preserves motion history");
+        looped = {4, 3, true, 16, MotionTime{0, 9}};
+        continuous.Advance(2, false, looped);
+        Check(continuous.Motion().seconds_ == 4 &&
+                      continuous.Motion().generation_ == motion_epoch + 1,
+              "explicit forward seek starts new motion history");
+        looped.continuous_->seconds_ = 10;
+        continuous.Advance(3, false, looped);
+        Check(continuous.Motion().seconds_ == 4, "paused observation does not move motion");
+        PlaybackClock local;
+        local.Advance(0);
+        local.Advance(16.25);
+        local.Loop(0.25);
+        Check(local.Motion().seconds_ == 16.25, "local loop preserves continuous motion");
+        local.Seek(2);
+        Check(local.Motion().seconds_ == 2, "local explicit seek resets motion");
         std::cout
                 << "playback clock: audio master, pause, seek, loop, suspension, fallback passed\n";
     } catch (const std::exception& error) {

@@ -518,21 +518,24 @@ class Studio::Impl final {
         host.ClearViewerTextures();
         const bool seekable =
                 plan_ &&
-                std::none_of(
-                        plan_->instructions_.begin(), plan_->instructions_.end(),
-                        [](const auto& instruction) {
-                            return instruction.operation_ == graph::Operation::kFeedback ||
-                                   instruction.operation_ == graph::Operation::kTextureTrail ||
-                                   instruction.operation_ == graph::Operation::kParticleEmitter ||
-                                   instruction.operation_ == graph::Operation::kPointPhysics ||
-                                   instruction.operation_ == graph::Operation::kGpuParticleEmitter;
-                        });
+                std::none_of(plan_->instructions_.begin(), plan_->instructions_.end(),
+                             [](const auto& instruction) {
+                                 return instruction.operation_ == graph::Operation::kFeedback ||
+                                        instruction.operation_ == graph::Operation::kTextureTrail ||
+                                        instruction.operation_ ==
+                                                graph::Operation::kParticleEmitter ||
+                                        instruction.operation_ == graph::Operation::kPointPhysics ||
+                                        instruction.operation_ ==
+                                                graph::Operation::kGpuParticleEmitter ||
+                                        instruction.operation_ == graph::Operation::kMotionPhase;
+                             });
 #ifdef RHYTHM_HAS_LOCAL_MEDIA
         soundtrack_panel_.Sync(history_->Current(), project_ / "assets", audio_panel_,
                                unavailable_assets_);
 #endif
         audio_panel_.ApplyPlayback(timeline_.TakePlaybackCommand());
         const auto audio_frame = audio_panel_.Frame();
+        const auto previous_motion = timeline_.Motion();
         const auto playback_seconds = timeline_.Advance(seconds, seekable, audio_frame.playback_);
         const bool transport_changed = timeline_generation_ != timeline_.Generation();
         if (transport_changed) {
@@ -558,6 +561,9 @@ class Studio::Impl final {
             const render::Extent extent{static_cast<std::uint16_t>(plan_->canvas_.width_),
                                         static_cast<std::uint16_t>(plan_->canvas_.height_)};
             runtime::FrameContext frame{playback_seconds, reset_, extent, viewer_due};
+            frame.motion_ = timeline_.Motion();
+            frame.preserve_history_ = transport_changed &&
+                                      previous_motion.generation_ == timeline_.Motion().generation_;
             frame.resources_ = prepared_resources_->models_;
             frame.images_ = prepared_resources_->images_;
             frame.shaders_ = prepared_resources_->shaders_;

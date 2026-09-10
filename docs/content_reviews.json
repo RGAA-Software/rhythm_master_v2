@@ -1015,6 +1015,46 @@
                 ],
                 "notes": "Windows deploy complete. Android APK built and installed with -r; device output checks stopped at user request before completion. Full performance/endurance acceptance remains pending."
             }
+        },
+        {
+            "id": "official.templates.aureate_vortex",
+            "source_sha256": "5b1699de09fd5b673970103607bd4a28513bd7ae9a10564913353109e1a5f119",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Revision 0.4: source-bound Windows delivery, actual Studio 480-frame H.264 export, and replacement-music save/publish/reopen passed."},
+            "music": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Current-source 32-second music and silence phase checks, plus replacement music restoration, passed. Continuous motion remains active in silence."},
+            "visual": {"status": "pending", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Engineering contact-sheet review passed; user aesthetic acceptance remains pending."},
+            "device": {"status": "pending", "notes": "Windows-only increment; Android and endurance acceptance remain deferred."}
+        },
+        {
+            "id": "official.templates.porcelain_bloom",
+            "source_sha256": "b99a1d306f1d14882e012dd2681ee10856aa72c4cbbd239fccb09ed89a6045f3",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Revision 0.4: source-bound Windows delivery, actual Studio 480-frame H.264 export, and replacement-music save/publish/reopen passed."},
+            "music": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Current-source 32-second music and silence phase checks, plus replacement music restoration, passed. Continuous motion remains active in silence."},
+            "visual": {"status": "pending", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Engineering contact-sheet review passed; user aesthetic acceptance remains pending."},
+            "device": {"status": "pending", "notes": "Windows-only increment; Android and endurance acceptance remain deferred."}
+        },
+        {
+            "id": "official.templates.stratified_ink",
+            "source_sha256": "da581a69011ecc2cdacce2f8061423eede29a7147415725e07dcf2696072e8ce",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Revision 0.4: source-bound Windows delivery, actual Studio 480-frame H.264 export, and replacement-music save/publish/reopen passed."},
+            "music": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Current-source 32-second music and silence phase checks, plus replacement music restoration, passed. Continuous motion remains active in silence."},
+            "visual": {"status": "pending", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Engineering contact-sheet review passed; user aesthetic acceptance remains pending."},
+            "device": {"status": "pending", "notes": "Windows-only increment; Android and endurance acceptance remain deferred."}
+        },
+        {
+            "id": "official.templates.lumen_corridor",
+            "source_sha256": "14a16628fb6578f40c94dfc83fcf24c9dac23a5b02d6f1c4fe4c4b59c9f343cd",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Revision 0.4: source-bound Windows delivery, actual Studio 480-frame H.264 export, and replacement-music save/publish/reopen passed."},
+            "music": {"status": "passed", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Current-source 32-second music and silence phase checks, plus replacement music restoration, passed. Continuous motion remains active in silence."},
+            "visual": {"status": "pending", "evidence": ["docs/validation/motion_phase_2026-09-10.md"], "notes": "Engineering contact-sheet review passed; user aesthetic acceptance remains pending."},
+            "device": {"status": "pending", "notes": "Windows-only increment; Android and endurance acceptance remain deferred."}
         }
     ]
 }

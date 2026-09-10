@@ -84,6 +84,7 @@ runtime::FrameResult Session::Tick(double monotonic_seconds, bool suspended, ren
         throw std::logic_error("player.preparation_pending");
     preparation_context_.reset();
     const auto previous_seconds = Seconds();
+    const auto previous_motion = clock_.Motion();
     clock_.Advance(monotonic_seconds, suspended, playback);
     const bool media_position_changed = playback && Seconds() != previous_seconds;
     const bool discontinuity = clock_generation_ != clock_.Generation();
@@ -99,6 +100,9 @@ runtime::FrameResult Session::Tick(double monotonic_seconds, bool suspended, ren
     if (!Paused() || controls_changed || media_position_changed || extent != extent_ ||
         !renderer.IsValid(frame_.final_) || !resources_->videos_.empty()) {
         runtime::FrameContext context{Seconds(), generation_, extent, false};
+        context.motion_ = clock_.Motion();
+        context.preserve_history_ =
+                discontinuity && previous_motion.generation_ == clock_.Motion().generation_;
         context.resources_ = resources_->models_;
         context.images_ = resources_->images_;
         context.shaders_ = resources_->shaders_;
@@ -107,7 +111,8 @@ runtime::FrameResult Session::Tick(double monotonic_seconds, bool suspended, ren
         context.external_ =
                 Paused() && !discontinuity && !media_position_changed ? external_ : inputs;
         context.external_.controls_ = controls;
-        context.advance_state_ = !Paused() && (!playback || Seconds() != previous_seconds);
+        context.advance_state_ = !Paused() && (!playback || Seconds() != previous_seconds ||
+                                               clock_.Motion() != previous_motion);
         context.retained_textures_ = std::vector<graph::NodeId>{};
         frame_ = runtime_.EvaluateSafely(package_->program_, context, renderer);
         external_ = context.external_;

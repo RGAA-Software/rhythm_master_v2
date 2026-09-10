@@ -9,6 +9,7 @@
 #include "image_pass.h"
 #include "point_ops.h"
 #include "point_physics.h"
+#include "rhythm/runtime/motion_phase.h"
 #include "scene_capture.h"
 #include "scene_color.h"
 #include "scene_pass.h"
@@ -90,6 +91,12 @@ class Runtime::Impl final {
         std::uint64_t last_reset_sequence_ = 0;
     };
     std::map<graph::NodeId, State> states_{};
+    struct PhaseState {
+        MotionPhase phase_{};
+        std::optional<std::uint64_t> generation_{};
+    };
+    // CPU motion history is independent of render targets and feedback history.
+    std::map<graph::NodeId, PhaseState> phases_{};
     render::Texture white_{};
     render::Texture point_sprite_{};
     detail::ImageUploads images_{};
@@ -101,6 +108,7 @@ class Runtime::Impl final {
     std::uint64_t reset_generation_ = 0;
     render::Extent extent_{};
     std::uint64_t next_points_generation_ = 1;
+    std::optional<std::uint64_t> motion_generation_{};
     std::uint64_t next_output_version_ = 1;
     // Keep monotonic IDs across per-node/resource reconstruction and graph edits.
     std::uint64_t next_event_sequence_ = 1;

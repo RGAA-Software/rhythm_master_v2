@@ -28,8 +28,8 @@ def difference(first, second):
     return sum(abs(a - b) for a, b in zip(first, second)) / len(first)
 
 
-def review(work, name):
-    frames = sorted(set(range(0, 961, 60)) | {479, 481, 959})
+def review(work, name, pace=False):
+    frames = sorted(set(range(0, 961, 60)) | {479, 481, 958, 959})
     metrics = {}
     for scenario in ('resonance_demo', 'silence'):
         images = {}
@@ -44,7 +44,8 @@ def review(work, name):
             assert source.resolve().parent == work.resolve()
             source.unlink()
         travel = [difference(images[a], images[a + 60]) for a in range(0, 960, 60)]
-        boundary = [difference(images[a], images[b]) for a, b in ((479, 480), (480, 481), (959, 960))]
+        boundary = [difference(images[a], images[b]) for a, b in
+                    ((479, 480), (480, 481), (959, 960), (958, 959))]
         metrics[scenario] = dict(two_second_differences=travel, boundary_differences=boundary)
         (work / 'motion-metrics.json').write_text(json.dumps(metrics, indent=4) + '\n', encoding='utf-8')
         if min(travel) < .3:
@@ -53,7 +54,7 @@ def review(work, name):
             raise AssertionError(f'{name}/{scenario}: cycle seam is too large relative to sustained travel')
         # Compare the seam against nearby one-frame travel as well. A large
         # two-second displacement alone could conceal a visible reset.
-        if max(boundary[0], boundary[2]) > max(1.0, boundary[1] * 2):
+        if boundary[0] > max(1.0, boundary[1] * 2) or boundary[2] > max(1.0, boundary[3] * 2):
             raise AssertionError(f'{name}/{scenario}: cycle seam exceeds adjacent-frame travel')
         camera_path = work / f'{scenario}-camera.csv'
         with camera_path.open(encoding='utf-8', newline='') as stream:
@@ -66,7 +67,15 @@ def review(work, name):
                 raise AssertionError('Camera does not establish a spatial trajectory')
             if name == 'lumen_corridor':
                 z = [float(row['eye_z']) for row in camera]
-                if any(z[i] >= z[i - 1] for i in range(1, len(z)) if i % 480):
+                if pace:
+                    with (work / f'{scenario}-phase.csv').open(encoding='utf-8', newline='') as stream:
+                        phases = [float(row['phase']) for row in csv.DictReader(stream)]
+                    if len(phases) != len(z):
+                        raise AssertionError('Missing live phase observations')
+                    moving = [i for i in range(1, len(z)) if phases[i] > phases[i - 1]]
+                else:
+                    moving = [i for i in range(1, len(z)) if i % 480]
+                if any(z[i] >= z[i - 1] for i in moving):
                     raise AssertionError('Forward camera stopped or reversed inside its cycle')
         contact = work / (scenario + '-contact.png')
         selected = [work / f'{scenario}-{frame}.png' for frame in range(0, 961, 120)]
@@ -83,12 +92,15 @@ def review(work, name):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--name', action='append', choices=NAMES)
+    parser.add_argument('--pace', action='store_true', help='Change pace during playback and loop the media clock')
     args = parser.parse_args()
     build = ROOT / 'out/windows-release'
     output = ROOT / 'out/concept-motion' / uuid.uuid4().hex
     output.mkdir(parents=True)
     print('Motion evidence:', output, flush=True)
     records = {}
+    executable = build / 'src/windows_spike/music_gpu_tests.exe'
+    executable_digest = hashlib.sha256(executable.read_bytes()).hexdigest()
     for name in args.name or NAMES:
         source = ROOT / 'content/templates' / name
         package = build / 'content/packages' / (name + '.rhythmpack')
@@ -97,12 +109,14 @@ def main():
         work = output / name
         work.mkdir()
         records[name] = dict(source_sha256=digest, package_sha256=hashlib.sha256(package.read_bytes()).hexdigest(),
-                             expected_nodes=nodes, status='running', visual_acceptance='pending')
+                             expected_nodes=nodes, status='running', visual_acceptance='pending',
+                             changing_pace=args.pace, executable_sha256=executable_digest)
         try:
             run_logged([str(build / 'src/windows_spike/music_gpu_tests.exe'), str(package),
-                        str(ROOT / 'out/p7-quality-fixtures'), str(work), str(nodes), '--motion'],
+                        str(ROOT / 'out/p7-quality-fixtures'), str(work), str(nodes),
+                        '--pace' if args.pace else '--motion'],
                        output / (name + '.log'))
-            records[name]['metrics'] = review(work, name)
+            records[name]['metrics'] = review(work, name, args.pace)
             records[name]['status'] = 'passed'
         except Exception:
             records[name]['status'] = 'failed'

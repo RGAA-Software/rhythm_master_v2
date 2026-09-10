@@ -121,10 +121,14 @@ void Run() {
     auto plan = std::get<graph::ExecutionPlan>(graph::Compile(doc, registry));
     auto renderer = render::Renderer::CreateNull();
     runtime::Runtime runtime;
-    const auto evaluate = [&](double time, bool advance = true, std::uint64_t reset = 0) {
+    const auto evaluate = [&](double time, bool advance = true, std::uint64_t reset = 0,
+                              std::optional<runtime::MotionTime> motion = {},
+                              bool preserve = false) {
         renderer.BeginFrame();
         runtime::FrameContext frame{time, reset, {640, 360}};
         frame.advance_state_ = advance;
+        frame.motion_ = motion;
+        frame.preserve_history_ = preserve;
         auto result = runtime.Evaluate(plan, frame, renderer);
         renderer.EndFrame();
         return result;
@@ -160,6 +164,19 @@ void Run() {
     result = evaluate(60, true, 1);
     Require(!renderer.IsValid(handle) && renderer.IsValid(result.outputs_[0].gpu_points_),
             "reset generation retires old observers");
+    runtime.Reset();
+    result = evaluate(16 - 1.0 / 30, true, 10, runtime::MotionTime{16 - 1.0 / 30, 1});
+    handle = result.outputs_[0].gpu_points_;
+    result = evaluate(0, true, 11, runtime::MotionTime{16, 1}, true);
+    Require(result.outputs_[0].gpu_points_ == handle && renderer.Stats().passes_ == 3,
+            "natural loop keeps GPU buffers and advances two simulation steps");
+    result = evaluate(1.0 / 30, true, 12, runtime::MotionTime{16 + 1.0 / 30, 1});
+    Require(result.outputs_[0].gpu_points_ != handle,
+            "explicit feedback reset still recreates GPU history");
+    handle = result.outputs_[0].gpu_points_;
+    result = evaluate(2, true, 13, runtime::MotionTime{2, 2}, true);
+    Require(result.outputs_[0].gpu_points_ != handle,
+            "new motion epoch cannot preserve old GPU history");
     runtime.Reset();
     Require(renderer.Stats().gpu_point_bytes_ == 0, "GPU state released on runtime reset");
     // CPU point physics rejects GPU ports at graph admission, never implicit readback.

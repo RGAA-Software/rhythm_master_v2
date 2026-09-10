@@ -43,7 +43,8 @@ SceneAudioFrame SceneAudioClock::Step(const runtime::PlaybackSample& fallback,
         frame.previous_ = {std::max(0.0, sample->previous_->seconds_ + *previous_offset_),
                            previous_generation_,
                            sample->paused_,
-                           {}};
+                           {},
+                           fallback.continuous_};
         previous_sample_ = frame.previous_;
     } else if (sample->incoming_ && previous_sample_) {
         // A serial cut can queue new PCM while holding only the old recovery
@@ -63,7 +64,8 @@ SceneAudioFrame SceneAudioClock::Step(const runtime::PlaybackSample& fallback,
         frame.incoming_ = {sample->incoming_->seconds_,
                            incoming_generation_,
                            sample->paused_ || (!frame.running_ && !frame.committed_),
-                           {}};
+                           {},
+                           fallback.continuous_};
     }
     if (frame.committed_)
         frame.progress_ = 1;

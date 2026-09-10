@@ -11,6 +11,7 @@
     "scalar.constant": "常量",
     "scalar.math": "数值运算",
     "time.local": "局部时间",
+    "time.phase": "连续运动相位",
     "value": "数值",
     "math_mode": "运算",
     "time_mode": "时间模式",

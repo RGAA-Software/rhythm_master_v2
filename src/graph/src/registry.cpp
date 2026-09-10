@@ -18,6 +18,12 @@ Registry::Registry() {
     using Type = ValueType;
     operators_ = {
             {"core.time", Operation::kTime, Type::kScalar, {}, {}, true},
+            {"time.phase",
+             Operation::kMotionPhase,
+             Type::kScalar,
+             {{"speed", Type::kScalar, false}},
+             {{"speed", 1.0, -1e6, 1e6}, {"duration", 16.0, 1e-6, 1e6}},
+             true},
             {"control.scalar",
              Operation::kControlScalar,
              Type::kScalar,

@@ -82,6 +82,21 @@ int main(int argc, char** argv) {
             return frame.features_ && frame.playback_->seconds_ > 0.3;
         });
         check(quiet.features_->rms_ > 0.05F && quiet.features_->rms_ < 0.08F);
+        check(quiet.playback_->continuous_.has_value());
+        const auto epoch = quiet.playback_->continuous_->generation_;
+        const auto looped = wait([&](const auto& frame) {
+            return frame.playback_ &&
+                   frame.playback_->generation_ != quiet.playback_->generation_ &&
+                   frame.file_.state_ == audio::PlaybackState::kPlaying;
+        });
+        check(looped.playback_->continuous_->generation_ == epoch &&
+              looped.playback_->continuous_->seconds_ > quiet.playback_->continuous_->seconds_);
+        panel.ApplyPlayback({false, 0.2});
+        const auto seeked = wait([&](const auto& frame) {
+            return frame.playback_ && frame.playback_->continuous_->generation_ != epoch &&
+                   frame.file_.state_ == audio::PlaybackState::kPlaying;
+        });
+        check(seeked.playback_->continuous_->seconds_ < looped.playback_->continuous_->seconds_);
         bool stale_rejected = false;
         try {
             panel.AdoptSoundtrack(packaged, transition);

@@ -43,7 +43,9 @@ AudioInputFrame AudioPanel::Frame() const {
         runtime::PlaybackSample playback{
                 file.position_seconds_, file.generation_,
                 file.paused_ || file.state_ != audio::PlaybackState::kPlaying,
-                file.duration_seconds_};
+                file.duration_seconds_,
+                runtime::MotionTime{double(file.consumed_frames_) / media::kAudioSampleRate,
+                                    file.source_generation_}};
         if (playback.duration_ && *playback.duration_ <= 0) playback.duration_.reset();
         frame.features_ = file.features_;
         frame.playback_ = playback;

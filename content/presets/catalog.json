@@ -170,6 +170,19 @@
             }
         },
         {
+            "id": "official.motion_phase.default",
+            "version": "1.0.0",
+            "operator": "time.phase",
+            "titles": {
+                "zh-CN": "默认 · 连续运动",
+                "en-US": "Default · Continuous motion"
+            },
+            "properties": {
+                "speed": 1,
+                "duration": 16
+            }
+        },
+        {
             "id": "official.time.default",
             "version": "1.0.0",
             "operator": "time.local",

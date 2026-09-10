@@ -11,6 +11,7 @@
     "scalar.constant": "Constant",
     "scalar.math": "Scalar math",
     "time.local": "Local time",
+    "time.phase": "Continuous motion phase",
     "value": "Value",
     "math_mode": "Operation",
     "time_mode": "Time behavior",

@@ -39,16 +39,28 @@ int main(int argc, char* argv[]) {
         if (argc < 4 || argc > 6 ||
             (argc == 6 && std::string_view(argv[5]) != "--quality" &&
              std::string_view(argv[5]) != "--control-extremes" &&
-             std::string_view(argv[5]) != "--motion"))
+             std::string_view(argv[5]) != "--motion" && std::string_view(argv[5]) != "--pace"))
             throw std::invalid_argument(
                     "music_gpu package fixtures output [expected_nodes "
                     "[--quality|--control-extremes|--motion]]");
         const auto expected_nodes = argc >= 5 ? std::stoull(argv[4]) : 164;
         const bool quality = argc == 6 && std::string_view(argv[5]) == "--quality";
         const bool controls = argc == 6 && std::string_view(argv[5]) == "--control-extremes";
-        const bool motion = argc == 6 && std::string_view(argv[5]) == "--motion";
+        const bool pace = argc == 6 && std::string_view(argv[5]) == "--pace";
+        const bool motion = pace || (argc == 6 && std::string_view(argv[5]) == "--motion");
         const auto package = project::LoadPackage(argv[1]);
         const auto& instructions = package.program_.instructions_;
+        graph::NodeId phase_node = 0, pace_control = 0;
+        if (pace) {
+            for (const auto& instruction : instructions) {
+                if (instruction.operation_ != graph::Operation::kMotionPhase) continue;
+                if (phase_node || !instruction.inputs_[0])
+                    throw std::runtime_error("motion.expected_one_controlled_phase");
+                phase_node = instruction.node_.id_;
+                pace_control = instructions[*instruction.inputs_[0]].node_.id_;
+            }
+            if (!phase_node) throw std::runtime_error("motion.phase_missing");
+        }
         std::map<graph::NodeId, std::uint64_t> onset_sources;
         for (const auto& instruction : instructions)
             if (instruction.operation_ == graph::Operation::kEventAudio)
@@ -183,6 +195,13 @@ int main(int argc, char* argv[]) {
             std::size_t cursor = 0;
             std::uint64_t stable_bytes = 0;
             std::ofstream trajectory;
+            std::ofstream phases;
+            if (pace) {
+                phases.open(output / (names[scenario] + "-phase.csv"));
+                phases.exceptions(std::ios::badbit | std::ios::failbit);
+                phases.precision(17);
+                phases << "frame,seconds,rate,phase,expected\n";
+            }
             if (motion) {
                 trajectory.open(output / (names[scenario] + "-camera.csv"));
                 trajectory.exceptions(std::ios::badbit | std::ios::failbit);
@@ -191,6 +210,11 @@ int main(int argc, char* argv[]) {
             for (auto& [id, count] : onset_sources) count = 0;
             for (int frame = 0; frame < (motion ? 964 : 124); ++frame) {
                 const auto seconds = std::min(frame, motion ? 960 : 120) / 30.0;
+                const auto rate = seconds < 6    ? 1.0
+                                  : seconds < 14 ? 2.0
+                                  : seconds < 22 ? 0.5
+                                                 : 1.25;
+                if (pace) inputs.controls_[pace_control] = rate;
                 const auto audio_seconds = motion ? std::fmod(seconds, 4.0) : seconds;
                 if (motion && frame % 120 == 0) cursor = 0;
                 const auto& sequence = features[scenario];
@@ -216,7 +240,30 @@ int main(int argc, char* argv[]) {
                     context.retained_textures_ = std::vector<graph::NodeId>{};
                     image = offline.Evaluate(package.program_, context, renderer);
                 } else {
-                    image = session.Tick(seconds, false, {1280, 720}, renderer, inputs);
+                    std::optional<runtime::PlaybackSample> playback;
+                    if (pace)
+                        playback = runtime::PlaybackSample{
+                                std::fmod(seconds, 16),
+                                static_cast<std::uint64_t>(seconds / 16) + 1, false, 16,
+                                runtime::MotionTime{seconds, 1}};
+                    image = session.Tick(seconds, false, {1280, 720}, renderer, inputs, playback);
+                }
+                if (image.budget_ || !renderer.IsValid(image.final_))
+                    throw std::runtime_error("motion.current_output_invalid");
+                if (pace && frame <= 960) {
+                    const auto expected = std::fmod(
+                            std::min(seconds, 6.0) + std::clamp(seconds - 6, 0.0, 8.0) * 2 +
+                                    std::clamp(seconds - 14, 0.0, 8.0) * 0.5 +
+                                    std::max(0.0, seconds - 22) * 1.25,
+                            16);
+                    const auto found = std::find_if(
+                            image.outputs_.begin(), image.outputs_.end(),
+                            [&](const auto& value) { return value.node_ == phase_node; });
+                    if (found == image.outputs_.end() || !std::isfinite(found->scalar_) ||
+                        std::abs(found->scalar_ - expected) > 1e-8)
+                        throw std::runtime_error("motion.live_phase_discontinuity");
+                    phases << frame << ',' << seconds << ',' << rate << ',' << found->scalar_ << ','
+                           << expected << '\n';
                 }
                 render::DrawList draw;
                 draw.width_ = 1280;
@@ -225,8 +272,9 @@ int main(int argc, char* argv[]) {
                 draw.indices_ = {0, 1, 2, 0, 2, 3};
                 draw.commands_ = {{image.final_, 0, 6, {0, 0, 1280, 720}}};
                 renderer.Submit({}, draw);
-                const bool checkpoint = frame <= 960 && (frame % 60 == 0 || frame == 479 ||
-                                                         frame == 481 || frame == 959);
+                const bool checkpoint =
+                        frame <= 960 && (frame % 60 == 0 || frame == 479 || frame == 481 ||
+                                         frame == 958 || frame == 959);
                 if ((!motion && frame == 120) || (motion && checkpoint)) {
                     const auto path = (output / (names[scenario] +
                                                  (motion ? "-" + std::to_string(frame) : "")))
@@ -250,8 +298,11 @@ int main(int argc, char* argv[]) {
                 if (image.rejected_event_total_) throw std::runtime_error("music.event_rejections");
                 const auto bytes = renderer.Stats().texture_bytes_;
                 if (frame == 30) stable_bytes = bytes;
-                if (frame > 30 && bytes != stable_bytes)
+                if (frame > 30 && bytes != stable_bytes) {
+                    std::cerr << "texture frame=" << frame << " expected=" << stable_bytes
+                              << " observed=" << bytes << '\n';
                     throw std::runtime_error("music.texture_growth");
+                }
             }
             std::uint64_t onset_events = 0;
             for (const auto& [id, count] : onset_sources) {

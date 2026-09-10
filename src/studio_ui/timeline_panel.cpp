@@ -39,7 +39,7 @@ double TimelinePanel::Advance(double host_seconds, bool,
     const auto seconds = clock_.Advance(host_seconds, false, source);
     if (source && source->duration_) duration_ = *source->duration_;
     if (loop_ && !source && seconds >= duration_) {
-        clock_.Seek(std::fmod(seconds, duration_));
+        clock_.Loop(std::fmod(seconds, duration_));
     }
     return clock_.Seconds();
 }

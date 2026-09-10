@@ -3,7 +3,7 @@
     "manifest_version": 3,
     "kind": "template",
     "content_id": "official.templates.aureate_vortex",
-    "content_version": "0.3.0",
+    "content_version": "0.4.0",
     "project_id": "official-aureate-vortex",
     "graph_revision": 0,
     "title": "鎏光流涡 / Aureate Vortex",

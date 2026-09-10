@@ -30,6 +30,7 @@ class TimelinePanel final {
     void ResetEdit() { tracks_.Reset(); }
     [[nodiscard]] bool Paused() const { return clock_.Paused(); }
     [[nodiscard]] std::uint64_t Generation() const { return clock_.Generation(); }
+    [[nodiscard]] runtime::MotionTime Motion() const { return clock_.Motion(); }
     [[nodiscard]] const std::optional<editor::Snapshot>& Preview() const {
         return tracks_.Preview();
     }

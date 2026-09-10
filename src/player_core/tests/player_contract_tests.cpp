@@ -55,6 +55,43 @@ void VerifySurfacePackage(const std::filesystem::path& path) {
     std::cout
             << "Surface Player: package, staged preparation, pause/resume and recreation passed\n";
 }
+void VerifyMotion() {
+    using namespace rhythm;
+    graph::Registry registry;
+    graph::Document document;
+    document.id_ = "player.motion";
+    document.output_ = 4;
+    document.nodes_ = {registry.MakeNode(1, "control.scalar"), registry.MakeNode(2, "time.phase"),
+                       registry.MakeNode(3, "texture.gradient"),
+                       registry.MakeNode(4, "output.texture")};
+    document.nodes_[0].properties_["control_maximum"] = 2.0;
+    document.edges_ = {{1, 1, 2, "speed"}, {2, 2, 3, "amount"}, {3, 3, 4, "source"}};
+    player::Session session;
+    session.Load(project::EncodePackage(document, "Motion"));
+    auto renderer = render::Renderer::CreateNull();
+    double host = 0;
+    const auto sample = [&](double seconds, std::uint64_t loop, double consumed,
+                            std::uint64_t epoch, double rate) {
+        runtime::ExternalInputs inputs;
+        inputs.controls_[1] = rate;
+        renderer.BeginFrame();
+        const auto frame =
+                session.Tick(host++, false, {32, 32}, renderer, inputs,
+                             runtime::PlaybackSample{seconds, loop, false, 16,
+                                                     runtime::MotionTime{consumed, epoch}});
+        renderer.EndFrame();
+        Check(!frame.budget_ && renderer.IsValid(frame.final_), "motion package output");
+        for (const auto& output : frame.outputs_)
+            if (output.node_ == 2) return output.scalar_;
+        throw std::runtime_error("motion phase missing");
+    };
+    Check(sample(0, 1, 0, 1, 1) == 0, "motion starts at zero");
+    Check(sample(5, 1, 5, 1, 2) == 5, "Player speed change preserves phase");
+    Check(sample(8, 1, 8, 1, 2) == 11, "Player integrates new speed");
+    Check(sample(0, 2, 16, 1, 2) == 11, "Player natural loop preserves phase");
+    Check(sample(1, 2, 17, 1, 2) == 13, "Player advances after loop");
+    Check(sample(6, 3, 0, 2, 2) == 12, "Player explicit seek starts new phase history");
+}
 void VerifyPreparation() {
     using namespace rhythm;
     graph::Registry registry;
@@ -107,6 +144,7 @@ void VerifyPreparation() {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
+        VerifyMotion();
         if (argc == 2)
             VerifySurfacePackage(argv[1]);
         else

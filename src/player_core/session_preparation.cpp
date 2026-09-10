@@ -25,6 +25,7 @@ runtime::PreparationProgress Session::PrepareGraphics(double monotonic_seconds,
         clock_generation_ = clock_.Generation();
         extent_ = extent;
         runtime::FrameContext context{Seconds(), generation_, extent, false};
+        context.motion_ = clock_.Motion();
         context.resources_ = resources_->models_;
         context.images_ = resources_->images_;
         context.shaders_ = resources_->shaders_;
