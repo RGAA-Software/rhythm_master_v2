@@ -14,7 +14,8 @@ from content_identity import verify_package_source
 from verify_windows import run_logged
 
 ROOT = Path(__file__).resolve().parents[1]
-NAMES = ('aureate_vortex', 'porcelain_bloom', 'stratified_ink', 'lumen_corridor')
+NAMES = ('aureate_vortex', 'porcelain_bloom', 'stratified_ink', 'lumen_corridor',
+         'dunhuang_ribbons')
 FFMPEG = Path('C:/source/vcpkg/installed/x64-windows-static-release/tools/ffmpeg/ffmpeg.exe')
 
 

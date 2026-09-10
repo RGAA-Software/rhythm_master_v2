@@ -5731,7 +5731,7 @@
             "id": "official.templates.dunhuang_ribbons",
             "kind": "template",
             "source": "content/templates/dunhuang_ribbons",
-            "source_sha256": "6639911f59d2570f1b98ec578c113596a3ea77c2e16383623fa128d7810e7748",
+            "source_sha256": "2350d8cd780e70c56f864dc94a7ae6b54ed71582bc749219c66d92d4b0c531b0",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "敦煌飞天",

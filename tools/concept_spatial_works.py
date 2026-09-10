@@ -183,7 +183,7 @@ def dunhuang_ribbons():
     parts = []
     for index, tint in enumerate(((.95, .38, .08, 1), (.98, .72, .22, 1), (.18, .62, .56, 1))):
         phase = node('scalar.expression', 900, index * 420, dict(time=clock),
-                     expression=f'time * {18 + index * 7} + {index * 120}')
+                     expression=f'time * {22.5 + index * 22.5} + {index * 120}')
         path = node('path.helix', 1250, index * 420, dict(path_phase=phase), path_radius=2.2 + index * .42,
                     path_height=3.5 + index * .5, path_turns=1.15 + index * .23, path_samples=192)
         tube = node('geometry.tube', 1600, index * 420, dict(path=path), tube_radius=.045 + index * .012,
@@ -196,12 +196,47 @@ def dunhuang_ribbons():
         parts.append(node('scene.transform', 3000, index * 420, dict(scene=ribbon), rotation_x=70,
                           rotation_z=index * 37 - 30))
     spark_emission = node('scalar.expression', 620, 1700, dict(a=bands[2], b=bands[0]),
-                          expression='0.35 + a * 8.0 + b * 3.0')
-    sparks = node('gpu.particles', 900, 1700, dict(emission=spark_emission), particle_capacity=16384,
-                  seed=1064, initial_fill=1, emission_rate=2600, lifetime=6, emitter_radius=2.8,
-                  particle_speed=.045, drag=.16, flow_strength=.05, flow_frequency=5, flow_evolution=.18,
-                  point_size=.006, color_a=(1, .4, .05, .75), color_b=(1, .9, .45, 1))
-    sparks = node('gpu.render', 1250, 1700, dict(points=sparks), point_blend=1, texture_precision=2)
+                          expression='0.42 + a * 9.0 + b * 3.5')
+    dust_flow = node('scalar.expression', 620, 2020, dict(a=bands[1], b=bands[0]),
+                     expression='.042 + a * .095 + b * .042')
+    dust_turn = node('scalar.expression', 620, 2340, dict(time=clock, a=bands[1]),
+                     expression='time * 22.5 + a * 28.0')
+    # A broad, slow particle population gives the cave depth a stable current in
+    # silence. It is deliberately separate from the brighter foreground sparks:
+    # music changes their energy, while time owns the primary movement.
+    dust = node('gpu.particles', 900, 1700, dict(emission=spark_emission, flow_strength=dust_flow),
+                particle_capacity=49152, seed=1064, initial_fill=1, emission_rate=8200, lifetime=8,
+                emitter_radius=3.45, particle_speed=.026, drag=.12, flow_frequency=7.5,
+                flow_evolution=.16, point_size=.0037, color_a=(.95, .24, .025, .3),
+                color_b=(1, .72, .18, .72))
+    dust = node('gpu.map', 1250, 1700, dict(points=dust, rotation=dust_turn))
+    dust = node('gpu.render', 1600, 1700, dict(points=dust), point_blend=1, texture_precision=2)
+    sparks = node('gpu.particles', 900, 2700, dict(emission=spark_emission, flow_strength=dust_flow),
+                  particle_capacity=16384, seed=1861, initial_fill=1, emission_rate=3600, lifetime=4.5,
+                  emitter_radius=1.15, particle_speed=.11, drag=.1, flow_frequency=14,
+                  flow_evolution=.3, point_size=.009, color_a=(1, .46, .08, .85),
+                  color_b=(1, .94, .58, 1))
+    sparks = node('gpu.map', 1250, 2700, dict(points=sparks, rotation=dust_turn))
+    sparks = node('gpu.render', 1600, 2700, dict(points=sparks), point_blend=1, texture_precision=2)
+    # The physical layer is intentionally modest (384 bodies): it remains inside
+    # the runtime physics budget while supplying visibly colliding, tumbling gold
+    # leaves. Bass adds downward weight and treble releases more fragments.
+    shard_emission = node('scalar.expression', 620, 3400, dict(a=bands[2], b=bands[0]),
+                          expression='.32 + a * 4.5 + b * 1.5')
+    shard_gravity = node('scalar.expression', 620, 3720, dict(a=bands[0]),
+                         expression='.2 + a * 1.15')
+    shards = node('point.emitter', 900, 3400, dict(emission=shard_emission), particle_capacity=384,
+                  seed=2026, emission_rate=46, lifetime=8, lifetime_variation=.2, emitter_shape=0,
+                  center_x=.5, center_y=.08, emitter_width=.74, emitter_height=.015, direction=90,
+                  spread=32, particle_speed=.19, speed_variation=.52, flow_strength=.018,
+                  flow_frequency=2.6, flow_evolution=.11, point_size=.012, size_variation=.68,
+                  angular_speed=7, fade_in=.02, fade_out=.12, color_a=(1, .6, .12, .95),
+                  color_b=(.24, .72, .55, .12))
+    shards = node('point.physics2d', 1250, 3400, dict(points=shards, gravity_y=shard_gravity),
+                  body_shape=1, physics_bounds=2, restitution=.72, friction=.18, density=.8)
+    shards = node('point.render', 1600, 3400, dict(points=shards), point_style=1, point_blend=1)
+    shards = node('texture.trail', 1950, 3400, dict(source=shards), trail_half_life=.13,
+                  trail_zoom_rate=.006)
     stage = merge(graph, parts)
     light = node('scene.point_light', 6000, 0, translate_x=-2.5, translate_y=3.2, translate_z=5,
                  light_energy=38, light_range=14, color_a=(1, .46, .12, 1))
@@ -212,10 +247,14 @@ def dunhuang_ribbons():
     camera = node('scene.camera', 7600, 0, dict(eye_x=eye_x, eye_y=eye_y), eye_z=10.5,
                   target_y=.5, target_z=.2, field_of_view=43, near_plane=.1, far_plane=30)
     image = render(graph, stage, camera, 10)
-    image = node('texture.composite', 10400, 0, dict(a=image, b=sparks), composite_mode=1,
+    image = node('texture.composite', 10400, 0, dict(a=image, b=dust), composite_mode=1,
                  amount=1, texture_precision=0)
+    image = node('texture.composite', 10700, 0, dict(a=image, b=sparks), composite_mode=1,
+                 amount=1, texture_precision=0)
+    image = node('texture.composite', 11000, 0, dict(a=image, b=shards), composite_mode=1,
+                 amount=.86, texture_precision=0)
     output = finish(graph, image, controls[2], .2)
     publish(name, ('敦煌飞天', 'Dunhuang Flying Ribbons'),
-            ('三层飘带沿独立螺旋路径持续飞行，洞窟暖光与金色粒子形成深度；镜头持续环绕，低中高频分别增强三层飘带和星尘。',
-             'Three independently moving flying ribbons, warm grotto lighting, gold particles and a continuously orbiting camera. Music modulates ribbon layers and spark energy while motion continues in silence.'),
+            ('三层飘带沿独立螺旋路径持续飞行，洞窟暖光、49152 粒子星尘、16384 前景流光和会碰撞翻滚的金箔碎片形成纵深；镜头持续环绕。低中高频分别增强飘带、流场、闪点与碎片释放，静音仍持续流动。',
+             'Three independently moving flying ribbons, warm grotto lighting, a 49,152-particle dust current, 16,384 foreground sparks and colliding tumbling gold leaves create depth under a continuously orbiting camera. Music modulates ribbons, flow, spark energy and fragment release while motion continues in silence.'),
             graph, output, controls, assets, compute=True)
