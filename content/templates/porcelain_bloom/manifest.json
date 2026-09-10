@@ -3,7 +3,7 @@
     "manifest_version": 3,
     "kind": "template",
     "content_id": "official.templates.porcelain_bloom",
-    "content_version": "0.2.0",
+    "content_version": "0.3.0",
     "project_id": "official-porcelain-bloom",
     "graph_revision": 0,
     "title": "瓷金绽放 / Porcelain Bloom",
@@ -127,7 +127,7 @@
         ]
     },
     "descriptions": {
-        "zh-CN": "舒展的旋扫瓷质壳面围绕黄铜核心分层旋转，断金弧和游离珠点组成非对称空间。低频舒展、中频分层旋转、高频釉光；新曲面网格、细釉纹、HDR 棚灯环境、宏与音乐均可编辑。",
-        "en-US": "Swept ceramic shells curl around a brass core with broken arcs and irregular floating beads. Bass unfurls, mids turn layers and highs lift glaze. Editable curved meshes, subtle veins and HDR studio lighting."
+        "zh-CN": "瓷质壳面围绕黄铜核心以不同速度持续分层旋转和舒展，相机连续绕行；断金弧和游离珠点组成非对称空间，静音仍保持主运动。低频舒展、中频暖光、高频釉光；新曲面网格、细釉纹、HDR 棚灯环境、宏与音乐均可编辑。",
+        "en-US": "Ceramic shells rotate continuously at independent speeds, unfurl and reveal changing parallax through an orbiting camera, even in silence. Bass unfurls, mids warm the shells and highs lift glaze. Editable curved meshes, subtle veins and HDR studio lighting."
     }
 }

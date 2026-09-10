@@ -22,7 +22,11 @@ def start():
     pace = node('control.scalar', -1000, 300, value=1, control_minimum=0.2, control_maximum=2)
     exposure = node('control.scalar', -1000, 600, value=0.3, control_minimum=-1, control_maximum=1)
     time = node('core.time', 0, 0)
-    clock = node('scalar.expression', 340, 0, dict(time=time, a=pace), expression='time * a')
+    # Bounded 16-second motion cycle. Every authored trajectory closes spatially;
+    # corridor camera/geometry rebase together, so no visible world-space jump.
+    # Keep pace constant across Cues: time * a changing during a Cue can reverse
+    # the phase. Music phrases modulate energy and shape instead.
+    clock = node('scalar.expression', 340, 0, dict(time=time, a=pace), expression='(time * a) % 16')
     bands = [node('scalar.expression', 340, 400 + i * 300, dict(a=band, b=response),
                   expression='a * b') for i, band in enumerate(audio_band_groups.build_groups(node))]
     return graph, clock, bands, (response, pace, exposure)
@@ -80,14 +84,14 @@ def capture(graph, scene, camera, environment=0.8):
 def publish(name, title, description, graph, output, controls, assets=(), compute=False):
     manifest = music_work.write(name, graph, output,
         list(zip(controls, ('Music response / 音乐响应', 'Motion pace / 运动速度', 'Exposure / 曝光'))),
-        [(1, 'Gather', (0.6, 0.55, 0.25)), (2, 'Develop', (1, 0.9, 0.3)),
-         (3, 'Crest', (1.6, 1.3, 0.45))],
+        [(1, 'Gather', (0.6, 1, 0.25)), (2, 'Develop', (1, 1, 0.3)),
+         (3, 'Crest', (1.6, 1, 0.45))],
         [('Gather', 0, 1, 0), ('Develop', 3, 2, 2), ('Crest', 8, 3, 2), ('Resolve', 12, 1, 3)],
         {'zh-CN': title[0], 'en-US': title[1]}, {'zh-CN': description[0], 'en-US': description[1]},
         tier='advanced', platforms=('windows', 'android-gles31-compute' if compute else 'android'),
-        extra_assets=list(assets), version='0.2.0')
+        extra_assets=list(assets), version='0.3.0')
     music_work.write_json(ROOT / 'provenance' / (name + '.json'), dict(
-        ownership='first-party', baseline='506f432', concept='docs/design/concepts/music_visual_directions_v1.png',
+        ownership='first-party', baseline='03d59cf', concept='docs/design/concepts/music_visual_directions_v1.png',
         concept_role='AI-generated design reference only; not used as runtime texture',
         reused_sources=['tools/author-resonance-gate.py', 'tools/author-ink-tide.py',
                         'tools/author-crystal-choir.py', 'tools/author_petal_model.py',

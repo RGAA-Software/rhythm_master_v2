@@ -71,6 +71,9 @@ struct TextureNoise {
     float phase_ = 0;
     float contrast_ = 1;
     float seed_ = 0;
+    // Translation in the existing periodic noise lattice, before octave scaling.
+    float offset_x_ = 0;
+    float offset_y_ = 0;
     std::array<float, 4> color_a_{0.015f, 0.03f, 0.12f, 1};
     std::array<float, 4> color_b_{0.12f, 0.65f, 0.8f, 1};
 };

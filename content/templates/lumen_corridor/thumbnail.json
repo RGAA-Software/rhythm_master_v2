@@ -1,7 +1,7 @@
 {
     "template": "lumen_corridor",
-    "package_sha256": "96de23b7cbab378d60d23c4e42fc0d35c9bf2fc20a9cc3ba1bed0f67d1c14c52",
-    "thumbnail_sha256": "df801304995640a501221dc6a4e9833e816aa6257075cd538574c007eafc8db5",
+    "package_sha256": "de8edf4d14f85a23cb3480e17880959f33cf3e7fdc461883d7df93d89fc241b8",
+    "thumbnail_sha256": "f2816771fd9682e1ff034fa22f13f13c9d12b8da36718df10892361d25a35926",
     "extent": [
         256,
         144

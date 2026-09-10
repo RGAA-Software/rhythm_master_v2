@@ -521,6 +521,8 @@
     "dust_density": "星尘密度",
     "texture.noise": "分形噪声纹理",
     "noise_scale": "噪声密度",
+    "offset_x": "空间偏移 X",
+    "offset_y": "空间偏移 Y",
     "phase": "演化相位",
     "component.audio": "音频",
     "component.official.aurora_clouds": "流光云海",

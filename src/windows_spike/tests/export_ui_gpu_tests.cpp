@@ -35,7 +35,14 @@ int main(int argc, char* argv[]) {
         const auto project_path =
                 root / "Projects" / std::filesystem::path(u8"音画验收.rhythmproj");
         const auto output_path = root / "Exports" / std::filesystem::path(u8"音画验收.mp4");
-        const auto prepared = project::PrepareTemplate(argv[2], project_path / "assets");
+        const bool silent = std::string_view(argv[3]) == "--silent-arranged";
+        auto prepared = project::PrepareTemplate(argv[2], project_path / "assets");
+        if (silent) {
+            if (!prepared.snapshot_.soundtrack_)
+                throw std::runtime_error("motion.soundtrack_missing");
+            prepared.snapshot_.soundtrack_->gain_ = 0;
+            for (auto& clip : prepared.snapshot_.soundtrack_->clips_) clip.muted_ = true;
+        }
         project::Save(project_path, prepared.snapshot_);
         if (existing_output) {
             std::filesystem::create_directories(output_path.parent_path());
@@ -51,7 +58,7 @@ int main(int argc, char* argv[]) {
         studio::Studio studio(argv[1], project_path);
         testing::WorkflowEvidence evidence(root);
         std::cout << "evidence: " << root.string() << std::endl;
-        const bool arranged = std::string_view(argv[3]) == "--arranged";
+        const bool arranged = silent || std::string_view(argv[3]) == "--arranged";
         if (!arranged) studio.LoadAudioFile(argv[3], 0);
         const auto start = std::chrono::steady_clock::now();
         const auto deadline = start + std::chrono::seconds(80);
@@ -154,8 +161,9 @@ int main(int argc, char* argv[]) {
                 for (const auto sample : block->samples_) energy += sample * sample;
                 samples += block->samples_.size() / 2;
             }
-            if (samples < 16 * 48000 || samples > 16 * 48000 + 2048 || energy < 100)
-                throw std::runtime_error("arranged MP4 audio missing or silent");
+            if (samples < 16 * 48000 || samples > 16 * 48000 + 2048 ||
+                (silent ? energy > 0.000001 : energy < 100))
+                throw std::runtime_error("arranged MP4 audio duration or expected energy mismatch");
         }
         std::sort(frame_ms.begin(), frame_ms.end());
         const auto output_utf8 = output_path.u8string();

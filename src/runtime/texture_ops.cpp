@@ -173,6 +173,13 @@ std::uint32_t DrawTexture(const graph::Instruction& instruction,
                 4096.0));
         noise.contrast_ = static_cast<float>(graph::Scalar(node, "contrast", 1));
         noise.seed_ = static_cast<float>(graph::Scalar(node, "seed", 0));
+        const auto offset = [&](std::size_t port, std::string_view key) {
+            const auto value = instruction.inputs_.at(port) ? input(port).scalar_
+                                                            : graph::Scalar(node, key, 0);
+            return std::isfinite(value) ? float(std::clamp(value, -4096.0, 4096.0)) : 0.0f;
+        };
+        noise.offset_x_ = offset(1, "offset_x");
+        noise.offset_y_ = offset(2, "offset_y");
         noise.color_a_ = color("color_a", {0.015, 0.03, 0.12, 1});
         noise.color_b_ = color("color_b", {0.12, 0.65, 0.8, 1});
         list.commands_.back().texture_noise_ = noise;

@@ -68,7 +68,7 @@ float perlinTileable(vec3 p, vec3 period)
 void main()
 {
     vec2 uv = (v_texcoord0 - 0.5) * vec2(u_noise_domain.x, 1.0);
-    vec3 p = vec3(uv * u_noise_settings.x + u_noise_settings.w,
+    vec3 p = vec3(uv * u_noise_settings.x + u_noise_settings.w + u_noise_domain.yz,
                   mod(u_noise_settings.y, 256.0));
     float sum = 0.0;
     float amplitude = 0.5;

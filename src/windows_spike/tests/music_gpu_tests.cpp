@@ -1,6 +1,7 @@
 #include <bgfx/bgfx.h>
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -37,13 +38,15 @@ int main(int argc, char* argv[]) {
     try {
         if (argc < 4 || argc > 6 ||
             (argc == 6 && std::string_view(argv[5]) != "--quality" &&
-             std::string_view(argv[5]) != "--control-extremes"))
+             std::string_view(argv[5]) != "--control-extremes" &&
+             std::string_view(argv[5]) != "--motion"))
             throw std::invalid_argument(
                     "music_gpu package fixtures output [expected_nodes "
-                    "[--quality|--control-extremes]]");
+                    "[--quality|--control-extremes|--motion]]");
         const auto expected_nodes = argc >= 5 ? std::stoull(argv[4]) : 164;
         const bool quality = argc == 6 && std::string_view(argv[5]) == "--quality";
         const bool controls = argc == 6 && std::string_view(argv[5]) == "--control-extremes";
+        const bool motion = argc == 6 && std::string_view(argv[5]) == "--motion";
         const auto package = project::LoadPackage(argv[1]);
         const auto& instructions = package.program_.instructions_;
         std::map<graph::NodeId, std::uint64_t> onset_sources;
@@ -119,6 +122,7 @@ int main(int argc, char* argv[]) {
                   << '\n';
         const std::filesystem::path fixtures(argv[2]), output(argv[3]);
         std::vector<std::string> names{"resonance_demo", "silence", "low", "high"};
+        if (motion) names.resize(2);
         if (quality) names.insert(names.end(), {"mid", "quiet", "loud"});
         if (controls) {
             if (package.program_.controls_.Definitions().empty())
@@ -141,8 +145,8 @@ int main(int argc, char* argv[]) {
             features[index] =
                     Decode(fixtures /
                            ((controls && index >= 4 ? "resonance_demo" : names[index]) + ".wav"));
-        if (features[1].back().rms_ != 0 || features[2].back().rms_ < 0.1f ||
-            features[3].back().rms_ < 0.1f)
+        if (features[1].back().rms_ != 0 ||
+            (!motion && (features[2].back().rms_ < 0.1f || features[3].back().rms_ < 0.1f)))
             throw std::runtime_error("music.fixture_amplitude");
         if (quality) {
             const auto peak = [](const std::vector<audio::Features>& sequence) {
@@ -178,14 +182,23 @@ int main(int argc, char* argv[]) {
             }
             std::size_t cursor = 0;
             std::uint64_t stable_bytes = 0;
+            std::ofstream trajectory;
+            if (motion) {
+                trajectory.open(output / (names[scenario] + "-camera.csv"));
+                trajectory.exceptions(std::ios::badbit | std::ios::failbit);
+                trajectory << "frame,node,eye_x,eye_y,eye_z,target_x,target_y,target_z\n";
+            }
             for (auto& [id, count] : onset_sources) count = 0;
-            for (int frame = 0; frame < 124; ++frame) {
-                const auto seconds = std::min(frame, 120) / 30.0;
+            for (int frame = 0; frame < (motion ? 964 : 124); ++frame) {
+                const auto seconds = std::min(frame, motion ? 960 : 120) / 30.0;
+                const auto audio_seconds = motion ? std::fmod(seconds, 4.0) : seconds;
+                if (motion && frame % 120 == 0) cursor = 0;
                 const auto& sequence = features[scenario];
                 while (cursor + 1 < sequence.size() &&
-                       sequence[cursor + 1].center_seconds_ <= seconds)
+                       sequence[cursor + 1].center_seconds_ <= audio_seconds)
                     ++cursor;
-                if (sequence[cursor].center_seconds_ <= seconds) inputs.audio_ = sequence[cursor];
+                if (sequence[cursor].center_seconds_ <= audio_seconds)
+                    inputs.audio_ = sequence[cursor];
                 renderer.BeginFrame();
                 runtime::FrameResult image;
                 if (videos) {
@@ -212,9 +225,23 @@ int main(int argc, char* argv[]) {
                 draw.indices_ = {0, 1, 2, 0, 2, 3};
                 draw.commands_ = {{image.final_, 0, 6, {0, 0, 1280, 720}}};
                 renderer.Submit({}, draw);
-                if (frame == 120) {
-                    const auto path = (output / names[scenario]).string();
+                const bool checkpoint = frame <= 960 && (frame % 60 == 0 || frame == 479 ||
+                                                         frame == 481 || frame == 959);
+                if ((!motion && frame == 120) || (motion && checkpoint)) {
+                    const auto path = (output / (names[scenario] +
+                                                 (motion ? "-" + std::to_string(frame) : "")))
+                                              .string();
                     bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
+                }
+                if (motion && frame <= 960) {
+                    for (const auto& value : image.outputs_) {
+                        if (!value.camera_) continue;
+                        const auto& camera = *value.camera_;
+                        trajectory << frame << ',' << value.node_ << ',' << camera.eye_.x_ << ','
+                                   << camera.eye_.y_ << ',' << camera.eye_.z_ << ','
+                                   << camera.target_.x_ << ',' << camera.target_.y_ << ','
+                                   << camera.target_.z_ << '\n';
+                    }
                 }
                 renderer.EndFrame();
                 for (const auto& value : image.outputs_)

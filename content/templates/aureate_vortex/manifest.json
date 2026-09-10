@@ -3,7 +3,7 @@
     "manifest_version": 3,
     "kind": "template",
     "content_id": "official.templates.aureate_vortex",
-    "content_version": "0.2.0",
+    "content_version": "0.3.0",
     "project_id": "official-aureate-vortex",
     "graph_revision": 0,
     "title": "鎏光流涡 / Aureate Vortex",
@@ -127,7 +127,7 @@
         ]
     },
     "descriptions": {
-        "zh-CN": "青金三维轨迹、几何光点与 34816 容量的双层 GPU 粒子组合成三臂流涡。低频改变旋臂，中频控制细线与流动，高频控制闪点和发射。几何层使用场景景深，GPU 粒子层使用屏幕空间颜色取样与生命周期，叠加前景柔光；需要 GLES 3.1 compute。",
-        "en-US": "Spatial cyan/gold filaments and depth-focused mesh sparks combine with two GPU particle fields (34816 capacity). Bass turns arms, mids drive strands/flow and highs drive spark emission. The GPU particle overlay uses screen-space color sampling and lifetimes; requires GLES 3.1 compute."
+        "zh-CN": "三臂青金流涡持续旋转，相机沿空间轨迹绕行；几何光点与 34816 容量双层 GPU 粒子保持流动，静音也持续运动。低频增强光丝与粒子发射，中频控制细线与流动，高频控制闪点和发射。几何层使用场景景深，GPU 粒子层使用屏幕空间颜色取样与生命周期，叠加前景柔光；需要 GLES 3.1 compute。",
+        "en-US": "Continuously rotating cyan/gold arms, an orbiting camera and two flowing GPU particle fields (34816 capacity) move autonomously even in silence. Bass energizes filaments and particle emission, mids drive strands/flow and highs drive spark emission. The GPU particle overlay uses screen-space color sampling and lifetimes; requires GLES 3.1 compute."
     }
 }

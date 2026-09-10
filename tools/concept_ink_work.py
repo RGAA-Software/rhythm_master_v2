@@ -7,10 +7,14 @@ def ink():
     name = 'stratified_ink'
     graph, clock, bands, controls = start()
     node = graph.node
+    travel_x = node('scalar.expression', 750, 900, dict(time=clock), expression='2.4 * sin(time * .3926990817)')
+    travel_y = node('scalar.expression', 750, 1200, dict(time=clock), expression='2.4 * (cos(time * .3926990817) - 1)')
+    # Advect the existing continuous noise lattice, rather than pan a clamped image.
+    travel = dict(offset_x=travel_x, offset_y=travel_y)
     field_expression = ('vec4(Sample(uv).r, fract(sin(dot(uv * vec2(1317.0, 739.0), '
         'vec2(12.9898, 78.233))) * 43758.5453), Sample(uv).r, 1.0)')
     height_expression = ('vec4(uv.y - (uv.x - 0.5) * 0.39 + (Sample(uv).r - 0.5) * (0.78 + b * 0.15) '
-        '+ sin(uv.x * 6.0 + time * 0.075) * (0.075 + a * 0.05), Sample(uv).g, Sample(uv).b, 1.0)')
+        '+ sin(uv.x * 6.0 + time * 0.3926990817) * (0.075 + a * 0.025), Sample(uv).g, Sample(uv).b, 1.0)')
     s = 'Sample(uv)'
     red = f'(smoothstep(0.32, 0.35, {s}.r) * (1.0 - smoothstep(0.57, 0.6, {s}.r)))'
     palette = f'mix(vec3(0.008, 0.026, 0.052), vec3(0.46, 0.032, 0.009), {red})'
@@ -19,11 +23,11 @@ def ink():
     pigment = (f'vec4({palette} * {layers} * (0.45 + {s}.g * 1.4) + '
         f'vec3(0.95, 0.53, 0.14) * {gilding} * (0.65 + c * 2.0) + '
         f'vec3(0.8, 0.16, 0.021) * exp(-abs({s}.r - 0.405) * 55.0) * (0.45 + a), 1.0)')
-    noise = node('texture.noise', 1100, 0, noise_scale=2.1, contrast=1.7, seed=287,
+    noise = node('texture.noise', 1100, 0, travel, noise_scale=2.1, contrast=1.7, seed=287,
                  color_a=(0, 0, 0, 1), color_b=(1, 1, 1, 1))
-    medium = node('texture.noise', 1100, 400, noise_scale=8, contrast=1.8, seed=711,
+    medium = node('texture.noise', 1100, 400, travel, noise_scale=8, contrast=1.8, seed=711,
                   color_a=(0, 0, 0, 1), color_b=(1, 1, 1, 1))
-    fine = node('texture.noise', 1100, 800, noise_scale=28, contrast=2, seed=121,
+    fine = node('texture.noise', 1100, 800, travel, noise_scale=28, contrast=2, seed=121,
                 color_a=(0, 0, 0, 1), color_b=(1, 1, 1, 1))
     combined = node('texture.composite', 1450, 600, dict(a=noise, b=medium), amount=.3)
     combined = node('texture.composite', 1800, 600, dict(a=combined, b=fine), amount=.1)
@@ -39,6 +43,6 @@ def ink():
                        dict(source=field, a=bands[0], c=bands[2]), texture_precision=0)
     output = finish(graph, image, controls[2], 0)
     publish(name, ('层叠墨流', 'Stratified Ink'),
-            ('靛蓝与朱红矿物层带形成错落河谷，多尺度扰动、颜料颗粒与不规则金边构成细节。低频推动主带，中频改变侵蚀幅度，高频增强金边；高度场、颜料 Shader、宏与配乐可编辑，非物理流体模拟。',
-             'Indigo and vermilion mineral strata form an irregular valley with multiscale erosion, pigment grain and gilded edges. Bass shifts strata, mids erode contours and highs light gold. Editable procedural fields, not physical fluid simulation.'),
+            ('连续迁移的多尺度噪声空间带动靛蓝与朱红矿物河谷，静音仍流动；颜料颗粒与不规则金边构成细节。低频推动主带，中频改变侵蚀幅度，高频增强金边；高度场、颜料 Shader、宏与配乐可编辑，非物理流体模拟。',
+             'Continuous multiscale lattice advection carries indigo/vermilion strata through a looping spatial path, even in silence, with pigment grain and gilded edges. Bass shifts strata, mids erode contours and highs light gold. Editable procedural fields, not physical fluid simulation.'),
             graph, output, controls, [first, height, color])

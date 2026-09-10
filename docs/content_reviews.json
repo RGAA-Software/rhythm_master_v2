@@ -764,11 +764,11 @@
                 "notes": "Revision 0.2: seven decoded PCM inputs and all three public control extrema passed unchanged pixel-response thresholds. These checks do not establish listening or aesthetic acceptance."
             },
             "visual": {
-                "status": "pending",
+                "status": "failed",
                 "evidence": [
                     "docs/validation/concept_visual_gap_2026-09-10.md"
                 ],
-                "notes": "Revision 0.1 was rejected by the user and remains failed in history. Revision 0.2 actual screenshots and eight-frame export sequences reviewed against the concept; specific remaining gaps recorded. Awaiting user aesthetic acceptance."
+                "notes": "Revision 0.2 appearance was close enough for the user, but motion was rejected as primarily jitter. Preserved as failed motion acceptance; revision 0.3 addresses autonomous flow and camera travel."
             },
             "device": {
                 "status": "pending",
@@ -798,11 +798,11 @@
                 "notes": "Revision 0.2: seven decoded PCM inputs and all three public control extrema passed unchanged pixel-response thresholds. These checks do not establish listening or aesthetic acceptance."
             },
             "visual": {
-                "status": "pending",
+                "status": "failed",
                 "evidence": [
                     "docs/validation/concept_visual_gap_2026-09-10.md"
                 ],
-                "notes": "Revision 0.1 was rejected by the user and remains failed in history. Revision 0.2 actual screenshots and eight-frame export sequences reviewed against the concept; specific remaining gaps recorded. Awaiting user aesthetic acceptance."
+                "notes": "Revision 0.2 appearance was close enough for the user, but motion was rejected as primarily jitter. Preserved as failed motion acceptance; revision 0.3 addresses autonomous flow and camera travel."
             },
             "device": {
                 "status": "pending",
@@ -832,11 +832,11 @@
                 "notes": "Revision 0.2: seven decoded PCM inputs and all three public control extrema passed unchanged pixel-response thresholds. These checks do not establish listening or aesthetic acceptance."
             },
             "visual": {
-                "status": "pending",
+                "status": "failed",
                 "evidence": [
                     "docs/validation/concept_visual_gap_2026-09-10.md"
                 ],
-                "notes": "Revision 0.1 was rejected by the user and remains failed in history. Revision 0.2 actual screenshots and eight-frame export sequences reviewed against the concept; specific remaining gaps recorded. Awaiting user aesthetic acceptance."
+                "notes": "Revision 0.2 appearance was close enough for the user, but motion was rejected as primarily jitter. Preserved as failed motion acceptance; revision 0.3 addresses autonomous flow and camera travel."
             },
             "device": {
                 "status": "pending",
@@ -866,11 +866,11 @@
                 "notes": "Revision 0.2: seven decoded PCM inputs and all three public control extrema passed unchanged pixel-response thresholds. These checks do not establish listening or aesthetic acceptance."
             },
             "visual": {
-                "status": "pending",
+                "status": "failed",
                 "evidence": [
                     "docs/validation/concept_visual_gap_2026-09-10.md"
                 ],
-                "notes": "Revision 0.1 was rejected by the user and remains failed in history. Revision 0.2 actual screenshots and eight-frame export sequences reviewed against the concept; specific remaining gaps recorded. Awaiting user aesthetic acceptance."
+                "notes": "Revision 0.2 appearance was close enough for the user, but motion was rejected as primarily jitter. Preserved as failed motion acceptance; revision 0.3 addresses autonomous flow and camera travel."
             },
             "device": {
                 "status": "pending",
@@ -878,6 +878,142 @@
                     "docs/validation/concept_visual_gap_2026-09-10.md"
                 ],
                 "notes": "Final declared-profile performance and integrated acceptance remain pending. Short current APK/GLES and UI evidence is recorded separately in the validation report."
+            }
+        },
+        {
+            "id": "official.templates.aureate_vortex",
+            "source_sha256": "5aabc716240c2a682b16ee415f5568dde0cbe4cba557655bf83ea85a91a91d20",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Revision 0.3: final Windows delivery passed all nine checks; current source-bound Studio music replacement, save/reopen/publication, music and true silent 480-frame exports passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Seven PCM response checks and public extrema passed; vortex bass and porcelain mid dependencies repaired after explicit inspection. Independent time-driven motion persists in silence."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Revision 0.3 moving output and cycle boundaries reviewed; user aesthetic acceptance pending. The earlier appearance gaps remain documented."
+            },
+            "device": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Windows deploy complete. Android APK built and installed with -r; device output checks stopped at user request before completion. Full performance/endurance acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.templates.porcelain_bloom",
+            "source_sha256": "387334f15c0334bfedf4c55e261dcb1bfb161c73faad5d893b1a3f6fd703b3ac",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Revision 0.3: final Windows delivery passed all nine checks; current source-bound Studio music replacement, save/reopen/publication, music and true silent 480-frame exports passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Seven PCM response checks and public extrema passed; vortex bass and porcelain mid dependencies repaired after explicit inspection. Independent time-driven motion persists in silence."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Revision 0.3 moving output and cycle boundaries reviewed; user aesthetic acceptance pending. The earlier appearance gaps remain documented."
+            },
+            "device": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Windows deploy complete. Android APK built and installed with -r; device output checks stopped at user request before completion. Full performance/endurance acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.templates.stratified_ink",
+            "source_sha256": "e321a0054f746e69b60bc5779fd7e1e8c65d0062564ff66fecbdb92f2e901708",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Revision 0.3: final Windows delivery passed all nine checks; current source-bound Studio music replacement, save/reopen/publication, music and true silent 480-frame exports passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Seven PCM response checks and public extrema passed; vortex bass and porcelain mid dependencies repaired after explicit inspection. Independent time-driven motion persists in silence."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Revision 0.3 moving output and cycle boundaries reviewed; user aesthetic acceptance pending. The earlier appearance gaps remain documented."
+            },
+            "device": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Windows deploy complete. Android APK built and installed with -r; device output checks stopped at user request before completion. Full performance/endurance acceptance remains pending."
+            }
+        },
+        {
+            "id": "official.templates.lumen_corridor",
+            "source_sha256": "3704f1271c609fe1ce07a6fdc4b5bb174d157d849eb9bff4b1ba44b31181e43f",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-10",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Revision 0.3: final Windows delivery passed all nine checks; current source-bound Studio music replacement, save/reopen/publication, music and true silent 480-frame exports passed."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Seven PCM response checks and public extrema passed; vortex bass and porcelain mid dependencies repaired after explicit inspection. Independent time-driven motion persists in silence."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Revision 0.3 moving output and cycle boundaries reviewed; user aesthetic acceptance pending. The earlier appearance gaps remain documented."
+            },
+            "device": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/concept_motion_2026-09-10.md"
+                ],
+                "notes": "Windows deploy complete. Android APK built and installed with -r; device output checks stopped at user request before completion. Full performance/endurance acceptance remains pending."
             }
         }
     ]

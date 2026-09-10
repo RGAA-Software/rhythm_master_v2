@@ -39,11 +39,21 @@ int main() {
         require(rejected);
         instruction.node_ = registry.MakeNode(1, "texture.noise");
         instruction.operation_ = graph::Operation::kTextureNoise;
-        instruction.inputs_ = {1};
+        instruction.inputs_ = {1, {}, {}};
         outputs[1].scalar_ = 5000;
         require(draw().commands_[0].texture_noise_->phase_ == 4096);
         instruction.inputs_[0].reset();
         require(draw().commands_[0].texture_noise_->phase_ == 0);
+        instruction.inputs_[1] = 1;
+        instruction.inputs_[2] = 0;
+        outputs[1].scalar_ = -2.5;
+        outputs[0].scalar_ = 5000;
+        require(draw().commands_[0].texture_noise_->offset_x_ == -2.5f);
+        require(draw().commands_[0].texture_noise_->offset_y_ == 4096);
+        instruction.inputs_[1].reset();
+        instruction.inputs_[2].reset();
+        require(draw().commands_[0].texture_noise_->offset_x_ == 0 &&
+                draw().commands_[0].texture_noise_->offset_y_ == 0);
         instruction.node_ = registry.MakeNode(1, "texture.mapping");
         instruction.operation_ = graph::Operation::kTextureMapping;
         instruction.inputs_ = {0, {}, {}, {}, 1};

@@ -184,6 +184,15 @@ int main() {
         draw.commands_[0].texture_noise_->scale_ = 0;
         Reject([&] { renderer.Submit({}, draw); });
         draw.commands_[0].texture_noise_->scale_ = 4;
+        draw.commands_[0].texture_noise_->offset_x_ = 4097;
+        Reject([&] { renderer.Submit({}, draw); });
+        draw.commands_[0].texture_noise_->offset_x_ = 0;
+        draw.commands_[0].texture_noise_->offset_y_ = -4097;
+        Reject([&] { renderer.Submit({}, draw); });
+        draw.commands_[0].texture_noise_->offset_y_ = 0;
+        draw.commands_[0].texture_noise_->offset_x_ = std::numeric_limits<float>::quiet_NaN();
+        Reject([&] { renderer.Submit({}, draw); });
+        draw.commands_[0].texture_noise_->offset_x_ = 0;
         draw.commands_[0].texture_noise_->color_a_[0] = -1;
         Reject([&] { renderer.Submit({}, draw); });
         draw.commands_[0].texture_noise_.reset();

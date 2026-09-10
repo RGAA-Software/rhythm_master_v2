@@ -186,7 +186,7 @@ void BgfxTexturePrograms::Submit(std::uint16_t view, const DrawCommand& command,
     } else if (command.texture_noise_) {
         const auto& noise = *command.texture_noise_;
         const std::array settings{noise.scale_, noise.phase_, noise.contrast_, noise.seed_};
-        const std::array domain{aspect, 0.0f, 0.0f, 0.0f};
+        const std::array domain{aspect, noise.offset_x_, noise.offset_y_, 0.0f};
         bgfx::setUniform(noise_settings_.Get(), settings.data());
         bgfx::setUniform(noise_color_a_.Get(), noise.color_a_.data());
         bgfx::setUniform(noise_color_b_.Get(), noise.color_b_.data());

@@ -521,6 +521,8 @@
     "dust_density": "Dust density",
     "texture.noise": "Fractal noise texture",
     "noise_scale": "Noise scale",
+    "offset_x": "Domain offset X",
+    "offset_y": "Domain offset Y",
     "phase": "Evolution phase",
     "component.audio": "Audio",
     "component.official.aurora_clouds": "Aurora clouds",

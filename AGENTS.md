@@ -43,6 +43,22 @@ ownership is explicitly transferred to the project.
 - Permission to maintain an imported fork does not transfer its copyright or
   remove its original license obligations.
 
+## Dynamic visual motion (mandatory)
+
+- Authored dynamic works must have an identifiable, sustained autonomous motion:
+  flow, rotation, travel or spatial camera movement. Silence must not reduce a
+  work to a still image with incidental jitter or blinking.
+- Music modulates an existing motion and its phrasing, energy and detail. Do not
+  substitute instantaneous audio-driven position offsets for the main motion.
+- Spatial works must establish continuous travel or camera motion appropriate to
+  their composition. Preserve the accepted visual identity while adding motion.
+- Review actual moving output, including silence, music, multiple consecutive
+  cycles and recycling boundaries. A single screenshot or nonzero pixel
+  difference does not establish acceptable motion. Avoid visible recycling pops,
+  backward jumps and camera resets during ordinary continuous playback.
+- This rule applies to authored dynamic works, not static utility nodes, paused
+  output or intentional user seeks. Record exceptions as explicit artistic intent.
+
 ## Formatting and naming
 
 - Follow the Google C++ style as modified by this file and `.clang-format`.

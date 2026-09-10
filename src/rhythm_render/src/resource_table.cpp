@@ -296,6 +296,8 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
             if (command.color_adjustment_ || command.texture_filter_ ||
                 !std::isfinite(noise.scale_) || noise.scale_ < 0.25f || noise.scale_ > 32 ||
                 !std::isfinite(noise.phase_) || noise.phase_ < 0 || noise.phase_ > 4096 ||
+                !std::isfinite(noise.offset_x_) || std::abs(noise.offset_x_) > 4096 ||
+                !std::isfinite(noise.offset_y_) || std::abs(noise.offset_y_) > 4096 ||
                 !std::isfinite(noise.contrast_) || noise.contrast_ < 0 || noise.contrast_ > 4 ||
                 !std::isfinite(noise.seed_) || noise.seed_ < 0 || noise.seed_ > 1024)
                 throw std::invalid_argument("render.texture_noise");

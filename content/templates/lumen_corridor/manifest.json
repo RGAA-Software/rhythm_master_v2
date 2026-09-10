@@ -3,7 +3,7 @@
     "manifest_version": 3,
     "kind": "template",
     "content_id": "official.templates.lumen_corridor",
-    "content_version": "0.2.0",
+    "content_version": "0.3.0",
     "project_id": "official-lumen-corridor",
     "graph_revision": 0,
     "title": "光门空间 / Lumen Corridor",
@@ -112,7 +112,7 @@
         ]
     },
     "descriptions": {
-        "zh-CN": "低机位进入错落的玫红与冷白光廊，悬挑梁、地面石台与镜像场景形成建筑纵深和地面倒影。低频展开门翼、中频抬升横梁、高频增强灯带；倒影采用本场景镜像几何，不是通用屏幕空间反射。",
-        "en-US": "A low camera enters staggered magenta/white architecture, projecting beams and floor blocks. A mirrored authored scene produces planar floor reflections. Bass widens gates, mids raise beams, highs light strips; not generic SSR."
+        "zh-CN": "低机位持续向前穿行玫红与冷白光廊并缓慢横移，门段在镜头后方回收，形成无尽前进感；地面石台与倒影提供视差，静音仍前进。低频展开门翼、中频抬升横梁、高频增强灯带；倒影采用本场景镜像几何，不是通用屏幕空间反射。",
+        "en-US": "A continuously advancing low camera travels through recycled magenta/white architecture with lateral parallax; movement continues in silence. A mirrored authored scene produces planar floor reflections. Bass widens gates, mids raise beams, highs light strips; not generic SSR."
     }
 }

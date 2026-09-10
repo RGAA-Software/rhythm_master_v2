@@ -17,7 +17,7 @@ NAMES = ('aureate_vortex', 'porcelain_bloom', 'stratified_ink', 'lumen_corridor'
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--mode', choices=('quality', 'controls', 'export', 'replace'), default='quality')
+    parser.add_argument('--mode', choices=('quality', 'controls', 'export', 'silent-export', 'replace'), default='quality')
     parser.add_argument('--name', action='append', choices=NAMES)
     args = parser.parse_args()
     build = ROOT / 'out/windows-release'
@@ -37,9 +37,10 @@ def main():
                        '--executable', str(resources / 'music_gpu_tests.exe'), '--package', str(package),
                        '--fixtures', str(ROOT / 'out/p7-quality-fixtures'), '--output', str(output / name),
                        '--expected-nodes', str(nodes), '--quality' if args.mode == 'quality' else '--control-extremes']
-        elif args.mode == 'export':
+        elif args.mode in ('export', 'silent-export'):
             command = [str(resources / 'export_ui_gpu_tests.exe'), str(resources),
-                       str(build / 'content/templates' / name), '--arranged', str(output / name)]
+                       str(build / 'content/templates' / name),
+                       '--silent-arranged' if args.mode == 'silent-export' else '--arranged', str(output / name)]
         else:
             command = [str(resources / 'soundtrack_studio_gpu_tests.exe'), str(resources),
                        str(build / 'content/templates' / name), str(ROOT / 'out/p7-quality-fixtures/quiet.wav'),

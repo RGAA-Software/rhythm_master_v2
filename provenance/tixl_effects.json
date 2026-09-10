@@ -39,6 +39,7 @@
     ],
     "noise_target": "src/rhythm_render/shaders/texture_noise.sc",
     "noise_modifications": [
+        "Expose bounded lattice X/Y translation through the existing domain uniform for continuous authored advection; retain the imported noise algorithm and default zero-offset behavior.",
         "Translate gradient-noise functions from HLSL to bgfx shader language.",
         "Use fixed four-octave bounded fractal; omit upstream bias and dynamic iteration controls.",
         "Use aspect-correct coordinates, bounded seed/phase and premultiplied palette interpolation.",

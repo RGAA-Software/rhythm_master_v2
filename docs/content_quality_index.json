@@ -5532,8 +5532,8 @@
             "id": "official.templates.aureate_vortex",
             "kind": "template",
             "source": "content/templates/aureate_vortex",
-            "source_sha256": "c60bd66305cf989d1dab73a157d0b9364378a9d670ba84aff5f195febea338b4",
-            "version": "0.2.0",
+            "source_sha256": "5aabc716240c2a682b16ee415f5568dde0cbe4cba557655bf83ea85a91a91d20",
+            "version": "0.3.0",
             "titles": {
                 "zh-CN": "鎏光流涡",
                 "en-US": "Aureate Vortex"
@@ -5618,8 +5618,8 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 2,
-            "stale_review_count": 1,
+            "review_history_count": 3,
+            "stale_review_count": 2,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
@@ -6360,8 +6360,8 @@
             "id": "official.templates.lumen_corridor",
             "kind": "template",
             "source": "content/templates/lumen_corridor",
-            "source_sha256": "dd4137782b79199f32762bcefb05a9cc611c9dd6986eeca74acb194b3fe8ae89",
-            "version": "0.2.0",
+            "source_sha256": "3704f1271c609fe1ce07a6fdc4b5bb174d157d849eb9bff4b1ba44b31181e43f",
+            "version": "0.3.0",
             "titles": {
                 "zh-CN": "光门空间",
                 "en-US": "Lumen Corridor"
@@ -6446,8 +6446,8 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 2,
-            "stale_review_count": 1,
+            "review_history_count": 3,
+            "stale_review_count": 2,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
@@ -6863,8 +6863,8 @@
             "id": "official.templates.porcelain_bloom",
             "kind": "template",
             "source": "content/templates/porcelain_bloom",
-            "source_sha256": "588cf73c038fe789dd3c340e61960d74dad2cea516172d9d1d5a7c34914dea5d",
-            "version": "0.2.0",
+            "source_sha256": "387334f15c0334bfedf4c55e261dcb1bfb161c73faad5d893b1a3f6fd703b3ac",
+            "version": "0.3.0",
             "titles": {
                 "zh-CN": "瓷金绽放",
                 "en-US": "Porcelain Bloom"
@@ -6949,8 +6949,8 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 2,
-            "stale_review_count": 1,
+            "review_history_count": 3,
+            "stale_review_count": 2,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
@@ -7718,8 +7718,8 @@
             "id": "official.templates.stratified_ink",
             "kind": "template",
             "source": "content/templates/stratified_ink",
-            "source_sha256": "660fef7b60cff713f410e4c3f15d251978b7761b2ab270f0e6c2a9597e87b38a",
-            "version": "0.2.0",
+            "source_sha256": "e321a0054f746e69b60bc5779fd7e1e8c65d0062564ff66fecbdb92f2e901708",
+            "version": "0.3.0",
             "titles": {
                 "zh-CN": "层叠墨流",
                 "en-US": "Stratified Ink"
@@ -7804,8 +7804,8 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 2,
-            "stale_review_count": 1,
+            "review_history_count": 3,
+            "stale_review_count": 2,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {

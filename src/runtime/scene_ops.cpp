@@ -252,8 +252,12 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
         }
         case Operation::kSceneCamera: {
             scene::Camera camera;
-            camera.eye_ = {scalar("eye_x", 0), scalar("eye_y", 0), scalar("eye_z", 3)};
-            camera.target_ = {scalar("target_x", 0), scalar("target_y", 0), scalar("target_z", 0)};
+            camera.eye_ = {control(0, "eye_x", 0, -10000, 10000),
+                           control(1, "eye_y", 0, -10000, 10000),
+                           control(2, "eye_z", 3, -10000, 10000)};
+            camera.target_ = {control(3, "target_x", 0, -10000, 10000),
+                              control(4, "target_y", 0, -10000, 10000),
+                              control(5, "target_z", 0, -10000, 10000)};
             camera.kind_ = scalar("projection", 0) == 0 ? scene::ProjectionKind::kPerspective
                                                         : scene::ProjectionKind::kOrthographic;
             camera.vertical_fov_ = scalar("field_of_view", 60);

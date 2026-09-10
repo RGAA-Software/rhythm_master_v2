@@ -1,7 +1,7 @@
 {
     "template": "porcelain_bloom",
-    "package_sha256": "9f17d719e6ce5ee09ab78fa30fc21af3f7461c0637acadb62c08a3e6c9fe96eb",
-    "thumbnail_sha256": "c4af58d357227cdbd712e62376f678b784f32883079bb71f85778febf993ab27",
+    "package_sha256": "a31ad57a64554b09c405c221134bbe8f2a9c526ced5a04be2def01ca31226285",
+    "thumbnail_sha256": "83fcf244382ba0d036632d7dd1539f86898e19824d064ed4ae6ff6bc05f5edb2",
     "extent": [
         256,
         144

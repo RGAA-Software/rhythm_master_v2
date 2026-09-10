@@ -9,6 +9,57 @@ namespace {
 void Require(bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
 }
+void MovingCamera() {
+    using namespace rhythm;
+    graph::Registry registry;
+    graph::Document document;
+    document.id_ = "scene.camera_motion";
+    document.output_ = 5;
+    document.nodes_ = {registry.MakeNode(1, "core.time"), registry.MakeNode(2, "scene.camera"),
+                       registry.MakeNode(3, "scene.point_light"),
+                       registry.MakeNode(4, "scene.render"),
+                       registry.MakeNode(5, "output.texture")};
+    document.edges_ = {{1, 2, 4, "camera"}, {2, 3, 4, "scene"}, {3, 4, 5, "source"}};
+    const std::array<std::string, 6> ports{"eye_x",    "eye_y",    "eye_z",
+                                           "target_x", "target_y", "target_z"};
+    const std::array<double, 6> offsets{1, 2, 8, 0, 0, 0};
+    for (std::size_t i = 0; i < ports.size(); ++i) {
+        const auto id = graph::NodeId(6 + i);
+        auto node = registry.MakeNode(id, "scalar.expression");
+        node.properties_["expression"] =
+                parameters::Expression("time + " + std::to_string(offsets[i]));
+        document.nodes_.push_back(std::move(node));
+        document.edges_.push_back({std::uint64_t(4 + i * 2), 1, id, "time"});
+        document.edges_.push_back({std::uint64_t(5 + i * 2), id, 2, ports[i]});
+    }
+    auto renderer = render::Renderer::CreateNull();
+    runtime::Runtime runtime;
+    auto plan = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+    const auto evaluate = [&](double seconds) {
+        renderer.BeginFrame();
+        const auto frame = runtime.Evaluate(plan, {seconds, 0, {64, 64}}, renderer);
+        renderer.EndFrame();
+        const auto found = std::find_if(frame.outputs_.begin(), frame.outputs_.end(),
+                                        [](const auto& item) { return item.node_ == 2; });
+        Require(found != frame.outputs_.end() && found->camera_.has_value(),
+                "camera output exists");
+        return *found->camera_;
+    };
+    for (double seconds : {0.0, 2.0, 2.0, 9.0, 0.0}) {
+        const auto camera = evaluate(seconds);
+        Require(camera.eye_.x_ == seconds + 1 && camera.eye_.y_ == seconds + 2 &&
+                        camera.eye_.z_ == seconds + 8 && camera.target_.x_ == seconds &&
+                        camera.target_.y_ == seconds && camera.target_.z_ == seconds,
+                "all camera ports follow transport, repeat evaluation and backward seek");
+    }
+    document.edges_.resize(3);
+    plan = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+    const auto fallback = evaluate(2);
+    Require(fallback.eye_.x_ == 0 && fallback.eye_.y_ == 0 && fallback.eye_.z_ == 3 &&
+                    fallback.target_.x_ == 0 && fallback.target_.y_ == 0 &&
+                    fallback.target_.z_ == 0,
+            "unwired legacy camera retains property defaults");
+}
 void Lights() {
     using namespace rhythm;
     graph::Registry registry;
@@ -255,6 +306,7 @@ int main() {
     try {
         Run();
         Lights();
+        MovingCamera();
         return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

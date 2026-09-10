@@ -54,29 +54,34 @@ def vortex():
             row = (family * 2 + population) * 950
             mesh, asset = mesh_asset(graph, name, vortex_mesh(family, population), 1200, row)
             assets.append(asset)
-            power = node('scalar.expression', 1500, row + 300, dict(a=bands[2] if population else bands[1]),
-                         expression=('12 + a * 40' if population else '.6 + a * 2.8'))
+            power = node('scalar.expression', 1500, row + 300,
+                         dict(a=bands[2] if population else bands[1], b=bands[0]),
+                         expression=('12 + a * 40 + b * 20' if population else '.6 + a * 2.8 + b * 2.5'))
             material = node('material.pbr', 1850, row, dict(emission=power),
                             color_a=(0, 0, 0, 1), color_b=tint, double_sided=1)
             instance = node('scene.instance', 2200, row, dict(geometry=mesh, material=material))
             turn = node('scalar.expression', 2200, row + 350, dict(time=clock, a=bands[0]),
-                        expression=f'time * {2.1 + family * .35} + a * {8 + family * 6}')
+                        expression='-time * 22.5')
             parts.append(node('scene.transform', 2600, row, dict(scene=instance, rotation_z=turn),
                               rotation_x=-8, rotation_y=12))
     stage = merge(graph, parts)
-    camera = node('scene.camera', 8700, 800, eye_z=10, field_of_view=45, near_plane=.1, far_plane=30)
+    eye_x = node('scalar.expression', 8100, 800, dict(time=clock), expression='1.1 * sin(time * .3926990817)')
+    eye_y = node('scalar.expression', 8100, 1100, dict(time=clock), expression='.55 * cos(time * .3926990817)')
+    eye_z = node('scalar.expression', 8100, 1400, dict(time=clock), expression='9.7 + .3 * cos(time * .3926990817)')
+    camera = node('scene.camera', 8700, 800, dict(eye_x=eye_x, eye_y=eye_y, eye_z=eye_z),
+                  field_of_view=45, near_plane=.1, far_plane=30)
     image = render(graph, stage, camera, 9.3)
     field = node('texture.blur', 10400, 800, dict(source=image), blur_radius=6, texture_precision=0)
     field = node('texture.color_adjust', 10700, 800, dict(source=field), contrast=1.04, texture_precision=0)
-    emission = node('scalar.expression', 1100, 4400, dict(a=bands[2]), expression='.7 + a * 5')
-    flow = node('scalar.expression', 1100, 4750, dict(a=bands[1]), expression='.008 + a * .03')
-    orbit = node('scalar.expression', 1100, 5100, dict(time=clock, a=bands[0]), expression='-time * 4 - a * 18')
+    emission = node('scalar.expression', 1100, 4400, dict(a=bands[2], b=bands[0]), expression='.7 + a * 5 + b * 2')
+    flow = node('scalar.expression', 1100, 4750, dict(a=bands[1]), expression='.025 + a * .045')
+    orbit = node('scalar.expression', 1100, 5100, dict(time=clock), expression='time * 45')
     for index, (capacity, size) in enumerate(((32768, .0035), (2048, .016))):
         row = 5100 + index * 900
         particles = node('gpu.particles', 1500, row, dict(emission=emission, flow_strength=flow),
                          particle_capacity=capacity, seed=617 + index * 43, initial_fill=1,
                          emission_rate=capacity / 5, lifetime=5, emitter_radius=.72,
-                         particle_speed=.006, drag=.2, flow_frequency=12, flow_evolution=.13,
+                         particle_speed=.035, drag=.15, flow_frequency=12, flow_evolution=.3,
                          point_size=size, color_a=(1, .52, .08, .8), color_b=(1, .88, .43, 1))
         particles = node('gpu.map', 1700, row + 350, dict(points=particles, rotation=orbit))
         sampled = node('gpu.texture_sample', 1850, row, dict(points=particles, source=field),
@@ -88,8 +93,8 @@ def vortex():
                      composite_mode=1, amount=1, texture_precision=0)
     output = finish(graph, image, controls[2], .3)
     publish(name, ('鎏光流涡', 'Aureate Vortex'),
-            ('青金三维轨迹、几何光点与 34816 容量的双层 GPU 粒子组合成三臂流涡。低频改变旋臂，中频控制细线与流动，高频控制闪点和发射。几何层使用场景景深，GPU 粒子层使用屏幕空间颜色取样与生命周期，叠加前景柔光；需要 GLES 3.1 compute。',
-             'Spatial cyan/gold filaments and depth-focused mesh sparks combine with two GPU particle fields (34816 capacity). Bass turns arms, mids drive strands/flow and highs drive spark emission. The GPU particle overlay uses screen-space color sampling and lifetimes; requires GLES 3.1 compute.'),
+            ('三臂青金流涡持续旋转，相机沿空间轨迹绕行；几何光点与 34816 容量双层 GPU 粒子保持流动，静音也持续运动。低频增强光丝与粒子发射，中频控制细线与流动，高频控制闪点和发射。几何层使用场景景深，GPU 粒子层使用屏幕空间颜色取样与生命周期，叠加前景柔光；需要 GLES 3.1 compute。',
+             'Continuously rotating cyan/gold arms, an orbiting camera and two flowing GPU particle fields (34816 capacity) move autonomously even in silence. Bass energizes filaments and particle emission, mids drive strands/flow and highs drive spark emission. The GPU particle overlay uses screen-space color sampling and lifetimes; requires GLES 3.1 compute.'),
             graph, output, controls, assets, compute=True)
 
 
@@ -99,7 +104,7 @@ def porcelain():
     node = graph.node
     mesh, asset = mesh_asset(graph, name, ceramic_shell(), 1200, 0)
     assets, parts = [asset], []
-    sheen = node('scalar.expression', 1200, 350, dict(a=bands[2]), expression='.025 + a * .32')
+    sheen = node('scalar.expression', 1200, 350, dict(a=bands[2], b=bands[1]), expression='.025 + a * .32 + b * .12')
     cream = node('material.pbr', 1500, 0, dict(emission=sheen), color_a=(1, 1, 1, 1),
                  color_b=(.65, .55, .42, 1), metallic=1, roughness=1, double_sided=1)
     noise = node('texture.noise', 1200, 900, noise_scale=3.8, contrast=1.7, seed=821,
@@ -119,10 +124,10 @@ def porcelain():
     petal = node('scene.instance', 2550, 0, dict(geometry=mesh, material=cream))
     for layer, count in enumerate((7, 4)):
         ring = []
-        turn = node('scalar.expression', 2550, 500 + layer * 350, dict(time=clock, a=bands[1]),
-                    expression=f'time * {2 if layer == 0 else -3} + a * 20')
-        opening = node('scalar.expression', 2550, 1400 + layer * 350, dict(a=bands[0]),
-                       expression=f'{1 if layer == 0 else .63} + a * .16')
+        turn = node('scalar.expression', 2550, 500 + layer * 350, dict(time=clock),
+                    expression=f'time * {22.5 if layer == 0 else -45}')
+        opening = node('scalar.expression', 2550, 1400 + layer * 350, dict(a=bands[0], time=clock),
+                       expression=f'{1 if layer == 0 else .63} + .06 * sin(time * .7853981634 + {layer}) + a * .08')
         for index in range(count):
             ring.append(node('scene.transform', 3000 + layer * 350, 2200 + index * 300,
                              dict(scene=petal), rotation_z=index * 360 / count + layer * 26,
@@ -157,10 +162,13 @@ def porcelain():
     stage = studio_environment(graph, name, stage, assets, .45)
     stage = node('scene.shadow', 9300, 800, dict(scene=stage), shadow_extent=4.1,
                  shadow_distance=12, shadow_resolution=3, shadow_bias=.00035, shadow_normal_bias=.015)
-    camera = node('scene.camera', 8700, 800, eye_x=3.1, eye_y=2.4, eye_z=9.8, target_z=.6,
+    eye_x = node('scalar.expression', 8100, 900, dict(time=clock), expression='3.1 * cos(time * .3926990817)')
+    eye_y = node('scalar.expression', 8100, 1200, dict(time=clock), expression='2.4 + .8 * sin(time * .3926990817)')
+    eye_z = node('scalar.expression', 8100, 1500, dict(time=clock), expression='9.8 + .7 * sin(time * .3926990817)')
+    camera = node('scene.camera', 8700, 800, dict(eye_x=eye_x, eye_y=eye_y, eye_z=eye_z), target_z=.6,
                   field_of_view=43, near_plane=.1, far_plane=30)
     output = finish(graph, render(graph, stage, camera), controls[2], .08)
     publish(name, ('瓷金绽放', 'Porcelain Bloom'),
-            ('舒展的旋扫瓷质壳面围绕黄铜核心分层旋转，断金弧和游离珠点组成非对称空间。低频舒展、中频分层旋转、高频釉光；新曲面网格、细釉纹、HDR 棚灯环境、宏与音乐均可编辑。',
-             'Swept ceramic shells curl around a brass core with broken arcs and irregular floating beads. Bass unfurls, mids turn layers and highs lift glaze. Editable curved meshes, subtle veins and HDR studio lighting.'),
+            ('瓷质壳面围绕黄铜核心以不同速度持续分层旋转和舒展，相机连续绕行；断金弧和游离珠点组成非对称空间，静音仍保持主运动。低频舒展、中频暖光、高频釉光；新曲面网格、细釉纹、HDR 棚灯环境、宏与音乐均可编辑。',
+             'Ceramic shells rotate continuously at independent speeds, unfurl and reveal changing parallax through an orbiting camera, even in silence. Bass unfurls, mids warm the shells and highs lift glaze. Editable curved meshes, subtle veins and HDR studio lighting.'),
             graph, output, controls, assets)
