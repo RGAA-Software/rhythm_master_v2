@@ -21,9 +21,8 @@ def write_json(path, value):
 def flow_glass():
     graph = WRITER.Graph()
     node = graph.node
-    time = node('core.time', 0, 0)
     pace = node('scalar.constant', 0, 300, value=0.12)
-    phase = node('scalar.expression', 340, 0, dict(time=time, a=pace), expression='time * a')
+    phase = node('time.phase', 340, 0, dict(speed=pace), duration=1000000)
     bass, high = build_low_high(node)
     response = node('scalar.constant', 0, 1200, value=1)
     strength = node('scalar.expression', 340, 650, dict(a=bass, b=high, c=response),

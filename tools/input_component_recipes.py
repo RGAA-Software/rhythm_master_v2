@@ -4,9 +4,10 @@ from audio_band_groups import build_low_high
 
 def controls(graph, pace=0.1):
     node = graph.node
-    clock = node('core.time', 0, 0)
     speed = node('scalar.constant', 0, 300, value=pace)
-    phase = node('scalar.expression', 340, 0, dict(time=clock, a=speed), expression='time * a')
+    # Keep authored motion continuous through an acknowledged music loop and
+    # let its pace follow the same saved/replayed contract as the main works.
+    phase = node('time.phase', 340, 0, dict(speed=speed), duration=1000000)
     bass, high = build_low_high(node)
     response = node('scalar.constant', 0, 1200, value=1)
     return phase, bass, high, speed, response

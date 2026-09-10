@@ -1,9 +1,9 @@
 {
     "ownership": "first-party",
     "authoring_tool": "tools/author-input-components.py",
-    "authoring_tool_sha256": "6e64d0cf8138463963acfc2e57985ddf63bf463e3810ed8531e87b2ed531a7e6",
+    "authoring_tool_sha256": "15fbd09de4d5898486f1b92144112c7b3ead3e8dc4eff67e3f62654c992f5c87",
     "recipes": "tools/input_component_recipes.py",
-    "recipes_sha256": "63ad2462cfbea927cce7e482898e96d90ae4f8d539ad363b2c7f0b8054715966",
+    "recipes_sha256": "3fce37962bacb714c6287cc001dc7a58fa51cb85e40f49964e46c4c72dfdfc79",
     "reused_audio_groups": "tools/audio_band_groups.py",
     "audio_groups_sha256": "178bc08a0c0ea8af9b82f67bd69fffe355e640c799e748c00bc02fb4e8366d01",
     "audio_group_policy": "FFT peaks: bass 0..23, treble 43..62; middle range intentionally omitted",
@@ -13,43 +13,43 @@
     "components": [
         {
             "id": "flow_glass",
-            "nodes": 75,
+            "nodes": 74,
             "input": "texture",
             "composition": "Connect your image to source. Animated noise bends it like flowing glass; bass/high bands increase refraction, and a soft glow follows the image. The preview stripes are not inserted."
         },
         {
             "id": "self_relief",
-            "nodes": 76,
+            "nodes": 75,
             "input": "texture",
             "composition": "Bend your image using its own softened brightness gradients. Bass pushes the relief and highs pull it back; edit the depth, sampling radius and edge smoothing."
         },
         {
             "id": "beat_shutters",
-            "nodes": 77,
+            "nodes": 76,
             "input": "texture",
             "composition": "Reveal any input through moving diagonal bands. Bass and highs sweep the shutters in opposite directions; edit stripe count, width, slant and feathering."
         },
         {
             "id": "mirrored_duet",
-            "nodes": 80,
+            "nodes": 79,
             "input": "texture",
             "composition": "Arrange your image as two counter-rotating mirrored panels. Bass opens the spacing and highs draw the panels inward; resize each side and tune their overlap."
         },
         {
             "id": "prism_fold",
-            "nodes": 75,
+            "nodes": 74,
             "input": "texture",
             "composition": "Fold your texture into a rotating prism. Bass and high bands steer opposite turns; the preview stripes are not inserted."
         },
         {
             "id": "contour_engraving",
-            "nodes": 75,
+            "nodes": 74,
             "input": "texture",
             "composition": "Convert source luminance into fine colored contour lines. Music moves the height slices; adjust levels and line width for your image."
         },
         {
             "id": "motion_echo",
-            "nodes": 74,
+            "nodes": 73,
             "input": "texture",
             "composition": "Rotate the source through a fading, expanding image history. Bass/high bands steer motion. Restart after seeking when a deterministic history is required."
         },
@@ -61,19 +61,19 @@
         },
         {
             "id": "polar_vortex",
-            "nodes": 76,
+            "nodes": 75,
             "input": "texture",
             "composition": "Mirror your image before wrapping it into a traveling spiral tunnel, keeping its angular seam continuous. Bass moves the depth and highs countertwist it; depth power and source scale are editable."
         },
         {
             "id": "audio_iris",
-            "nodes": 78,
+            "nodes": 77,
             "input": "texture",
             "composition": "Reveal your source through a rotating polygon aperture. Bass opens it and highs turn it; feather the boundary or invert the mask. The output retains transparency."
         },
         {
             "id": "luma_windows",
-            "nodes": 76,
+            "nodes": 75,
             "input": "texture",
             "composition": "Cut transparent windows along source luminance bands while keeping the original image colors. Bass/high bands sweep the slices; set density, width, feather and inversion."
         }
