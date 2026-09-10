@@ -41,3 +41,7 @@ void VerifySceneInstances(render::Renderer& renderer,
                           std::optional<render::SurfaceProgramInput> surface = {});
 void MeasureQualityBaseline(render::Renderer& renderer, const std::filesystem::path& directory);
 }  // namespace rhythm::validation
+
+namespace rhythm::validation {
+void VerifyNormalView(render::Renderer& renderer, const std::filesystem::path& directory);
+}

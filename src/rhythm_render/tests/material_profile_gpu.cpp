@@ -198,6 +198,59 @@ void VerifyMaterialProfile(std::span<std::uint8_t, 32 * 16 * 4> pixels,
                  "passed; "
                  "deformed geometry, generated shadows and runtime adoption remain separate\n";
 }
+void VerifyNormalView(render::Renderer& renderer, const std::filesystem::path& directory) {
+    using namespace render;
+    const auto original_bytes = renderer.Stats().texture_bytes_;
+    const auto original_programs = renderer.Stats().surface_programs_;
+    {
+        auto program = renderer.CreateSurfaceProgram(ReadArtifact(directory / "normal_view.bin"));
+        std::array<MeshVertex, 4> vertices{
+                {{-.8f, -.8f, 0}, {.8f, -.8f, 0}, {.8f, .8f, 0}, {-.8f, .8f, 0}}};
+        for (auto& vertex : vertices) {
+            vertex.normal_x_ = .6f;
+            vertex.normal_z_ = .8f;
+        }
+        constexpr std::array<std::uint32_t, 6> kIndices{0, 1, 2, 0, 2, 3};
+        auto mesh = renderer.CreateMesh(vertices, kIndices);
+        auto target = renderer.CreateTexture({64, 32});
+        SceneDrawList scene;
+        MeshDraw draw;
+        draw.mesh_ = mesh.Handle();
+        draw.double_sided_ = true;
+        draw.surface_program_ = SurfaceProgramInput{program.Handle()};
+        for (float scale : {1.0f, .5f, 2.0f}) {
+            draw.model_[0] = scale;
+            draw.normal_[0] = 1 / scale;
+            scene.draws_ = {draw};
+            renderer.BeginFrame();
+            renderer.SubmitScene(target.Handle(), scene);
+            if (renderer.Stats().passes_ != 1) throw std::runtime_error("normal_view.extra_pass");
+            auto ticket = renderer.RequestReadback(target.Handle());
+            renderer.EndFrame();
+            std::optional<ReadbackImage> image;
+            for (int wait = 0; wait < 64; ++wait) {
+                image = ticket.Poll();
+                if (image) break;
+                renderer.BeginFrame();
+                renderer.EndFrame();
+            }
+            if (!image) throw std::runtime_error("normal_view.readback");
+            const float x = .6f / scale;
+            const float length = std::sqrt(x * x + .64f);
+            const std::array<float, 4> expected{(x / length * .5f + .5f) * 255, 127.5f,
+                                                (.8f / length * .5f + .5f) * 255, 255};
+            for (int channel = 0; channel < 4; ++channel)
+                if (std::abs(float(image->rgba_[(16 * 64 + 32) * 4 + channel]) -
+                             expected[channel]) > 2)
+                    throw std::runtime_error("normal_view.normal_transform_pixels");
+        }
+        std::cout << "Normal view: inverse-transpose scales 1/0.5/2 passed; one color pass; "
+                  << renderer.Stats().texture_bytes_ - original_bytes << " texture bytes\n";
+    }
+    if (renderer.Stats().texture_bytes_ != original_bytes ||
+        renderer.Stats().surface_programs_ != original_programs)
+        throw std::runtime_error("normal_view.release");
+}
 void VerifySurfacePrograms(render::Renderer& renderer, const std::filesystem::path& directory) {
     using namespace render;
     const auto original_count = renderer.Stats().surface_programs_;

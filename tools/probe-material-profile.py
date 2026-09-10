@@ -58,6 +58,7 @@ def probe(compiler, output, bundle_test=None):
     for include in SHADERS.glob("*.sh"):
         shutil.copyfile(include, output / include.name)
     cases = {
+        "normal_view": "normalize(normal) * 0.5 + vec3(0.5, 0.5, 0.5)",
         "neutral": "vec3(1.0, 1.0, 1.0)",
         "animated_surface": "vec3(uv.x, 0.5 + 0.5 * sin(position.y + time * a), abs(normal.z))",
         "parameter_surface": "clamp(vec3(a, b, c) * d, vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))",
@@ -113,7 +114,7 @@ def probe(compiler, output, bundle_test=None):
                 raise ValueError(f"Invalid material expression accepted: {platform}/{name}")
         records.append({"platform": platform, "baseline": baseline, "vertices": vertices,
                         "materials": results, "rejected": rejected})
-        print(f"{platform}: 6 vertex contracts, 3 repeated fragments, 2 rejected expressions", flush=True)
+        print(f"{platform}: 6 vertex contracts, {len(cases)} repeated fragments, 2 rejected expressions", flush=True)
     if bundle_test:
         subprocess.run([str(bundle_test.resolve()), str(output)], check=True, timeout=30)
         generated = (output / "surface-generated.sc").read_text(encoding="utf-8")
