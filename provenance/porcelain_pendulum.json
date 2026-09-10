@@ -12,7 +12,9 @@
         "New ceramic clock composition using existing geometry/deformation/light contracts.",
         "Reuse original pulse/chime bytes and their existing four-clip arrangement.",
         "Add three exposed macros, three snapshots and four cues.",
-        "P7 revision: bounded band gain and opening macro strengthen packaged music response; separate ceramic from backdrop with revised lighting and framing; add FXAA."
+        "P7 revision: bounded band gain and opening macro strengthen packaged music response; separate ceramic from backdrop with revised lighting and framing; add FXAA.",
+        "P7 framing revision: view the shadowed stage from above so its far edge stays outside the camera frustum.",
+        "Replace three isolated FFT bins with contiguous editable low/mid/high peak groups; preserve the existing analyzer and scalar contracts."
     ],
     "music_assets": [
         {

@@ -10,6 +10,7 @@ import math
 from pathlib import Path
 
 import music_work
+import audio_band_groups
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('gate', ROOT / 'tools/author-resonance-gate.py')
@@ -26,8 +27,7 @@ def build_graph():
     time = node('core.time', 0, 0)
     clock = node('scalar.expression', 320, 0, dict(time=time, a=pace), expression='time * a')
     bands = []
-    for index, band in enumerate((12, 28, 48)):
-        source = node('audio.band', 0, 350 + index * 300, audio_band=band)
+    for index, source in enumerate(audio_band_groups.build_groups(node)):
         bands.append(node('scalar.expression', 320, 350 + index * 300,
                           dict(a=source, b=response), expression='clamp(a * b * 3.5, 0, 1)'))
     ceramic = node('material.pbr', 700, 0, color_a=(0.93, 0.90, 0.82, 1), metallic=0.02, roughness=0.24)
@@ -89,7 +89,7 @@ def build_graph():
                      metallic=0, roughness=0.9)
     floor = node('scene.instance', 2820, 3100, dict(geometry=cube, material=floor_mat))
     parts.append(node('scene.transform', 3140, 3100, dict(scene=floor),
-                      translate_y=-1.05, scale_x=100, scale_y=0.08, scale_z=100))
+                       translate_y=-1.05, scale_x=100, scale_y=0.08, scale_z=100))
     stage = parts[0]
     for index, part in enumerate(parts[1:]):
         stage = node('scene.merge', 4200 + (index % 6) * 320, (index // 6) * 300, dict(a=stage, b=part))
@@ -106,7 +106,9 @@ def build_graph():
                        color_b=(0.45, 0.37, 0.26, 1))
     stage = node('scene.environment', 7480, 0, dict(scene=stage, environment_texture=environment),
                  environment_energy=0.55)
-    camera = node('scene.camera', 7480, 800, eye_x=3.0, eye_y=2.9, eye_z=7.6, target_y=1.2,
+    # Keep the far floor edge outside the vertical frustum instead of hiding it
+    # with an unrelated screen-space sky color. The floor remains shadowed PBR.
+    camera = node('scene.camera', 7480, 800, eye_x=3.0, eye_y=6.1, eye_z=7.6, target_y=1.2,
                   field_of_view=41, near_plane=0.1, far_plane=100)
     captured = node('scene.capture', 7800, 0, dict(scene=stage, camera=camera))
     color = node('scene.color', 8120, 0, dict(capture=captured))
@@ -147,7 +149,7 @@ def main():
     (destination / 'editor.json').write_text(json.dumps(dict(version=2, positions=graph.positions), indent=4)+'\n', encoding='utf-8')
     records, soundtrack = music_work.original_arrangement(destination)
     manifest = dict(format='rhythm.project', manifest_version=3, kind='template',
-                    content_id='official.templates.porcelain_pendulum', content_version='0.2.0',
+                    content_id='official.templates.porcelain_pendulum', content_version='0.3.0',
                     project_id='official-porcelain-pendulum', graph_revision=0,
                     title='瓷光钟摆 / Porcelain Pendulum', default_locale='zh-CN',
                     titles={'zh-CN':'瓷光钟摆', 'en-US':'Porcelain Pendulum'}, category='audio', tier='basic',
@@ -163,7 +165,9 @@ def main():
                       modifications=['New ceramic clock composition using existing geometry/deformation/light contracts.',
                                      'Reuse original pulse/chime bytes and their existing four-clip arrangement.',
                                      'Add three exposed macros, three snapshots and four cues.',
-                                     'P7 revision: bounded band gain and opening macro strengthen packaged music response; separate ceramic from backdrop with revised lighting and framing; add FXAA.'],
+                                     'P7 revision: bounded band gain and opening macro strengthen packaged music response; separate ceramic from backdrop with revised lighting and framing; add FXAA.',
+                                     'P7 framing revision: view the shadowed stage from above so its far edge stays outside the camera frustum.',
+                                     'Replace three isolated FFT bins with contiguous editable low/mid/high peak groups; preserve the existing analyzer and scalar contracts.'],
                       music_assets=records, target='content/templates/porcelain_pendulum')
     (ROOT / 'provenance/porcelain_pendulum.json').write_text(json.dumps(provenance, ensure_ascii=False, indent=4)+'\n', encoding='utf-8')
     print(f'Porcelain Pendulum: {len(graph.nodes)} nodes, {len(graph.edges)} edges, 16-second music')

@@ -3,7 +3,7 @@
     "manifest_version": 3,
     "kind": "template",
     "content_id": "official.templates.porcelain_pendulum",
-    "content_version": "0.2.0",
+    "content_version": "0.3.0",
     "project_id": "official-porcelain-pendulum",
     "graph_revision": 0,
     "title": "瓷光钟摆 / Porcelain Pendulum",

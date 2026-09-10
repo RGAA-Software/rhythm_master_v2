@@ -1,10 +1,10 @@
 #include <bgfx/bgfx.h>
 
 #include <algorithm>
-#include <array>
 #include <iostream>
 #include <map>
 #include <stdexcept>
+#include <string_view>
 #include <vector>
 
 #include "rhythm/audio/analyzer.h"
@@ -34,9 +34,11 @@ std::vector<rhythm::audio::Features> Decode(const std::filesystem::path& path) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        if (argc != 4 && argc != 5)
-            throw std::invalid_argument("music_gpu package fixtures output [expected_nodes]");
-        const auto expected_nodes = argc == 5 ? std::stoull(argv[4]) : 164;
+        if (argc < 4 || argc > 6 || (argc == 6 && std::string_view(argv[5]) != "--quality"))
+            throw std::invalid_argument(
+                    "music_gpu package fixtures output [expected_nodes [--quality]]");
+        const auto expected_nodes = argc >= 5 ? std::stoull(argv[4]) : 164;
+        const bool quality = argc == 6;
         const auto package = project::LoadPackage(argv[1]);
         const auto& instructions = package.program_.instructions_;
         std::map<graph::NodeId, std::uint64_t> onset_sources;
@@ -111,13 +113,24 @@ int main(int argc, char* argv[]) {
                   << " animated_model_nodes=" << animated_models << " synchronous_video=" << videos
                   << '\n';
         const std::filesystem::path fixtures(argv[2]), output(argv[3]);
-        const std::array<std::string, 4> names{"resonance_demo", "silence", "low", "high"};
-        std::array<std::vector<audio::Features>, 4> features;
+        std::vector<std::string> names{"resonance_demo", "silence", "low", "high"};
+        if (quality) names.insert(names.end(), {"mid", "quiet", "loud"});
+        std::vector<std::vector<audio::Features>> features(names.size());
         for (std::size_t index = 0; index < names.size(); ++index)
             features[index] = Decode(fixtures / (names[index] + ".wav"));
         if (features[1].back().rms_ != 0 || features[2].back().rms_ < 0.1f ||
             features[3].back().rms_ < 0.1f)
             throw std::runtime_error("music.fixture_amplitude");
+        if (quality) {
+            const auto peak = [](const std::vector<audio::Features>& sequence) {
+                float maximum = 0;
+                for (const auto& frame : sequence) maximum = std::max(maximum, frame.rms_);
+                return maximum;
+            };
+            if (peak(features[4]) < 0.1f || peak(features[5]) <= 0 ||
+                peak(features[5]) >= peak(features[0]) || peak(features[6]) <= peak(features[0]))
+                throw std::runtime_error("music.quality_fixture_amplitude");
+        }
         platform::Host host(true);
         host.Resize({1280, 720});
         auto renderer = host.CreateRenderer();
