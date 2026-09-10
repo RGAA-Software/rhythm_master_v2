@@ -1,6 +1,7 @@
 #include <bgfx/bgfx.h>
 
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <stdexcept>
@@ -34,11 +35,15 @@ std::vector<rhythm::audio::Features> Decode(const std::filesystem::path& path) {
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        if (argc < 4 || argc > 6 || (argc == 6 && std::string_view(argv[5]) != "--quality"))
+        if (argc < 4 || argc > 6 ||
+            (argc == 6 && std::string_view(argv[5]) != "--quality" &&
+             std::string_view(argv[5]) != "--control-extremes"))
             throw std::invalid_argument(
-                    "music_gpu package fixtures output [expected_nodes [--quality]]");
+                    "music_gpu package fixtures output [expected_nodes "
+                    "[--quality|--control-extremes]]");
         const auto expected_nodes = argc >= 5 ? std::stoull(argv[4]) : 164;
-        const bool quality = argc == 6;
+        const bool quality = argc == 6 && std::string_view(argv[5]) == "--quality";
+        const bool controls = argc == 6 && std::string_view(argv[5]) == "--control-extremes";
         const auto package = project::LoadPackage(argv[1]);
         const auto& instructions = package.program_.instructions_;
         std::map<graph::NodeId, std::uint64_t> onset_sources;
@@ -115,9 +120,27 @@ int main(int argc, char* argv[]) {
         const std::filesystem::path fixtures(argv[2]), output(argv[3]);
         std::vector<std::string> names{"resonance_demo", "silence", "low", "high"};
         if (quality) names.insert(names.end(), {"mid", "quiet", "loud"});
+        if (controls) {
+            if (package.program_.controls_.Definitions().empty())
+                throw std::runtime_error("music.no_public_controls");
+            std::ofstream manifest(output / "control-extremes.json");
+            manifest.exceptions(std::ios::badbit | std::ios::failbit);
+            manifest << "[";
+            for (const auto& control : package.program_.controls_.Definitions()) {
+                if (names.size() > 4) manifest << ",";
+                const auto prefix = "control_" + std::to_string(control.id_);
+                names.push_back(prefix + "_minimum");
+                names.push_back(prefix + "_maximum");
+                manifest << "{\"id\":" << control.id_ << ",\"minimum\":" << control.minimum_
+                         << ",\"maximum\":" << control.maximum_ << "}";
+            }
+            manifest << "]\n";
+        }
         std::vector<std::vector<audio::Features>> features(names.size());
         for (std::size_t index = 0; index < names.size(); ++index)
-            features[index] = Decode(fixtures / (names[index] + ".wav"));
+            features[index] =
+                    Decode(fixtures /
+                           ((controls && index >= 4 ? "resonance_demo" : names[index]) + ".wav"));
         if (features[1].back().rms_ != 0 || features[2].back().rms_ < 0.1f ||
             features[3].back().rms_ < 0.1f)
             throw std::runtime_error("music.fixture_amplitude");
@@ -145,6 +168,14 @@ int main(int argc, char* argv[]) {
             video_sources::Streams video_streams;
             runtime::Runtime offline;
             runtime::ExternalInputs inputs;
+            if (controls && scenario >= 4) {
+                const auto control = package.program_.controls_.Definitions()[(scenario - 4) / 2];
+                // Hold every other public control at its authored default, so
+                // Cue changes cannot masquerade as a response to this slider.
+                inputs.controls_ = package.program_.controls_.Resolve();
+                inputs.controls_[control.id_] =
+                        scenario % 2 == 0 ? control.minimum_ : control.maximum_;
+            }
             std::size_t cursor = 0;
             std::uint64_t stable_bytes = 0;
             for (auto& [id, count] : onset_sources) count = 0;
@@ -167,8 +198,8 @@ int main(int argc, char* argv[]) {
                             video_streams.Resolve(package.program_, *resources, seconds, 1);
                     context.external_ = inputs;
                     context.external_.controls_ = parameters::EvaluateControls(
-                            package.program_.controls_, package.program_.control_sequence_,
-                            seconds);
+                            package.program_.controls_, package.program_.control_sequence_, seconds,
+                            inputs.controls_);
                     context.retained_textures_ = std::vector<graph::NodeId>{};
                     image = offline.Evaluate(package.program_, context, renderer);
                 } else {

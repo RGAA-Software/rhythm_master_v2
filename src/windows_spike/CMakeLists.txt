@@ -117,7 +117,7 @@ if(BUILD_TESTING)
         --output "${PROJECT_BINARY_DIR}/beat-studio-gpu")
     set_tests_properties(beat_studio_gpu PROPERTIES TIMEOUT 90 RUN_SERIAL TRUE
         ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
-    add_executable(template_switch_gpu_tests tests/template_switch_gpu_tests.cpp)
+    add_executable(template_switch_gpu_tests tests/template_switch_gpu_tests.cpp tests/control_delivery_checks.cpp)
     target_link_libraries(template_switch_gpu_tests PRIVATE studio_ui project_io runtime_package spike_imgui spike_bgfx nlohmann_json::nlohmann_json)
     rhythm_project_target(template_switch_gpu_tests)
     add_dependencies(template_switch_gpu_tests studio_resources)
@@ -127,6 +127,10 @@ if(BUILD_TESTING)
         set_tests_properties(template_switch_gpu_${locale} PROPERTIES TIMEOUT 90 RUN_SERIAL TRUE
             ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     endforeach()
+    add_test(NAME calibration_controls_gpu COMMAND template_switch_gpu_tests
+        "${CMAKE_CURRENT_BINARY_DIR}" "en-US" "${PROJECT_BINARY_DIR}/calibration-controls-gpu" --controls)
+    set_tests_properties(calibration_controls_gpu PROPERTIES TIMEOUT 210 RUN_SERIAL TRUE
+        ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     add_executable(preview_groups_gpu_tests tests/preview_groups_gpu_tests.cpp)
     target_include_directories(preview_groups_gpu_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/studio_ui")
     target_link_libraries(preview_groups_gpu_tests PRIVATE studio_ui graph_runtime project_io spike_imgui spike_bgfx)
@@ -314,6 +318,18 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/harmonic_city"
             "${PROJECT_BINARY_DIR}/music-fixtures/resonance_demo.wav" "${PROJECT_BINARY_DIR}/harmonic-city-studio")
         set_tests_properties(harmonic_city_studio_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 60 RUN_SERIAL TRUE)
+        add_test(NAME calibration_music_fixture COMMAND "${Python3_EXECUTABLE}"
+            "${PROJECT_SOURCE_DIR}/tools/create-music-fixture.py"
+            --output "${PROJECT_BINARY_DIR}/calibration-music-fixtures" --tones --quality)
+        set_tests_properties(calibration_music_fixture PROPERTIES FIXTURES_SETUP calibration_music_pcm TIMEOUT 60)
+        foreach(work ink_tide chromatic_loom porcelain_pendulum resonant_arcade)
+            add_test(NAME calibration_${work}_replacement_gpu COMMAND soundtrack_studio_gpu_tests
+                "${CMAKE_CURRENT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/content/templates/${work}"
+                "${PROJECT_BINARY_DIR}/calibration-music-fixtures/quiet.wav"
+                "${PROJECT_BINARY_DIR}/calibration-music-replacement/${work}")
+            set_tests_properties(calibration_${work}_replacement_gpu PROPERTIES
+                FIXTURES_REQUIRED calibration_music_pcm TIMEOUT 60 RUN_SERIAL TRUE)
+        endforeach()
         target_link_libraries(export_ui_gpu_tests PRIVATE studio_ui platform_sdl media_video project_io spike_bgfx spike_imgui)
         rhythm_project_target(export_ui_gpu_tests)
         add_dependencies(export_ui_gpu_tests studio_deploy)

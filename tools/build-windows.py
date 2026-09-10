@@ -98,7 +98,8 @@ def main():
         # Verify the actual authoring transition on every Studio delivery, even
         # after a no-op build. Source-template playback alone misses ID remapping.
         expected_tests = {'editor_contracts', 'template_contracts', 'content_contracts',
-                          'template_switch_gpu_en-US', 'template_switch_gpu_zh-CN'}
+                          'template_switch_gpu_en-US', 'template_switch_gpu_zh-CN',
+                          'calibration_controls_gpu'}
         pattern = '^(' + '|'.join(sorted(expected_tests)) + ')$'
         run_ctest(build, pattern, expected_tests, build / 'studio-delivery-tests.log', environment)
     print(f"Windows {args.configuration} build completed: {build}")

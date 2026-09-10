@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 #include <set>
 
+#include "control_delivery_checks.h"
 #include "rhythm/project/package.h"
 #include "rhythm/project/store.h"
 #include "rhythm/studio/studio.h"
@@ -47,7 +48,9 @@ void PopupAction(const std::string& item, const std::string& child = {}, int ind
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        Check(argc == 4, "template_switch resources locale output");
+        Check(argc == 4 || (argc == 5 && std::string_view(argv[4]) == "--controls"),
+              "template_switch resources locale output [--controls]");
+        const bool controls = argc == 5;
         const std::filesystem::path resources(argv[1]);
         const std::string locale(argv[2]);
         const auto root =
@@ -71,7 +74,8 @@ int main(int argc, char* argv[]) {
         const auto start = std::chrono::steady_clock::now();
         const auto tick = [&] {
             Check(host.Poll(), "template switch host closed");
-            Check(std::chrono::steady_clock::now() - start < std::chrono::seconds(60),
+            Check(std::chrono::steady_clock::now() - start <
+                          std::chrono::seconds(controls ? 180 : 60),
                   "template switch timed out");
             host.BeginUi();
             renderer.BeginFrame();
@@ -92,6 +96,9 @@ int main(int argc, char* argv[]) {
         for (const std::string name :
              {"ink_tide", "chromatic_loom", "crystal_choir", "luminous_concerto", "spectral_glaze",
               "phase_plumes", "porcelain_pendulum", "resonant_arcade"}) {
+            if (controls && name != "ink_tide" && name != "chromatic_loom" &&
+                name != "porcelain_pendulum" && name != "resonant_arcade")
+                continue;
             action = "select:" + name;
             const auto entry = std::find_if(entries.begin(), entries.end(), [&](const auto& value) {
                 return value.id_ == "official.templates." + name;
@@ -169,6 +176,13 @@ int main(int argc, char* argv[]) {
                           << " cached clip waveforms, save and publish passed\n";
             }
             Check(complete, "template application did not replace the current output");
+            if (controls) {
+                action = "controls:" + name;
+                testing::CheckControlDelivery(studio, project_path, package_path, root / name, [&] {
+                    tick();
+                    finish();
+                });
+            }
         }
         std::cout << "captures: " << root.string() << '\n';
     } catch (const std::exception& error) {

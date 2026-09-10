@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "rhythm/assets/store.h"
 #include "rhythm/project/package.h"
 #include "rhythm/project/store.h"
 #include "rhythm/studio/studio.h"
@@ -29,6 +30,10 @@ int main(int argc, char* argv[]) {
                 root / "Projects" / std::filesystem::path(u8"音乐作品.rhythmproj");
         const auto package_path =
                 root / "Published" / std::filesystem::path(u8"音乐作品.rhythmpack");
+        // Hash the requested input independently of the authoring store. A
+        // template's existing soundtrack must never satisfy the bind check.
+        assets::Store identity_store(root / "input-identity");
+        const auto requested_music = identity_store.Import(argv[3], "audio/wav");
         const auto expected_profile =
                 std::filesystem::file_size(argv[3]) > project::kMaximumPackageAssetBytes
                         ? project::PackageProfile::kMusicPerformanceV2
@@ -54,7 +59,6 @@ int main(int argc, char* argv[]) {
         auto renderer = host.CreateRenderer();
         auto font = host.CreateFontTexture(renderer);
         studio::Studio studio(argv[1], project_path);
-        studio.LoadAudioFile(argv[3], 0);
         const auto start = std::chrono::steady_clock::now();
         int published = -1;
         bool saved = false, observed_clear = false, restored = false;
@@ -79,6 +83,9 @@ int main(int argc, char* argv[]) {
                     ImGui::SetWindowSize(window, {620, 360}, ImGuiCond_Always);
                 }
             }
+            // Let the initial project's soundtrack synchronize before choosing
+            // the replacement through the existing host file-load adapter.
+            if (frames == 12) studio.LoadAudioFile(argv[3], 0);
             if (frames == 20) Activate("###inspector", "###music.bind");
             if (!saved && frames >= 45 && frames % 30 == 15) Activate("###graph", "###save");
             if (saved && published < 0 && frames % 30 == 20) Activate("###graph", "###publish");
@@ -103,11 +110,16 @@ int main(int argc, char* argv[]) {
             if (studio.Status().budget_limited_)
                 throw std::runtime_error("soundtrack graph budget");
             waveform_bins = std::max(waveform_bins, studio.Status().waveform_bins_);
-            if (!saved && frames > 45 && frames % 10 == 0)
-                saved = project::Load(project_path).snapshot_.soundtrack_.has_value();
+            if (!saved && frames > 45 && frames % 10 == 0) {
+                const auto binding = project::Load(project_path).snapshot_.soundtrack_;
+                saved = binding && binding->clips_.empty() &&
+                        binding->asset_ == requested_music.id_;
+            }
             if (published < 0 && std::filesystem::is_regular_file(package_path)) {
                 const auto package = project::LoadPackage(package_path);
-                if (!package.soundtrack_ || package.profile_ != expected_profile)
+                if (!package.soundtrack_ || package.profile_ != expected_profile ||
+                    package.soundtrack_->asset_ != requested_music.id_ ||
+                    !package.soundtrack_->clips_.empty())
                     throw std::runtime_error("toolbar publish lost music");
                 published_instructions = package.program_.instructions_.size();
                 published = frames;
@@ -126,6 +138,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Studio bind/save/publish/clear/reopen: music restored, "
                   << published_instructions << " instructions, frames=" << frames
                   << " waveform_bins=" << waveform_bins
+                  << " music_sha256=" << requested_music.id_.sha256_
                   << " package=" << std::string(path.begin(), path.end()) << '\n';
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

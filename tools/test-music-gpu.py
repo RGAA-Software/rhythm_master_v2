@@ -17,7 +17,11 @@ def main():
     parser.add_argument('--reference-output', type=Path)
     parser.add_argument('--quality', action='store_true',
                         help='Also check mid-band and quiet/loud real PCM inputs')
+    parser.add_argument('--control-extremes', action='store_true',
+                        help='Compare every public control at minimum/maximum with identical decoded music')
     args = parser.parse_args()
+    if args.quality and args.control_extremes:
+        parser.error('Choose either quality inputs or control extremes per run')
     args.output.mkdir(parents=True, exist_ok=True)
     names = ('resonance_demo', 'silence', 'low', 'high')
     if args.quality:
@@ -25,6 +29,7 @@ def main():
     identity = {'package_sha256': hashlib.sha256(args.package.read_bytes()).hexdigest(),
                 'executable_sha256': hashlib.sha256(args.executable.read_bytes()).hexdigest(),
                 'expected_nodes': args.expected_nodes, 'quality': args.quality,
+                'control_extremes': args.control_extremes,
                 'extent': [1280, 720], 'seconds': 4,
                 'pcm_sha256': {name: hashlib.sha256((args.fixtures / (name + '.wav')).read_bytes()).hexdigest()
                                for name in names}}
@@ -33,7 +38,16 @@ def main():
                str(args.expected_nodes)]
     if args.quality:
         command.append('--quality')
-    subprocess.run(command, check=True, timeout=150 if args.quality else 90)
+    if args.control_extremes:
+        command.append('--control-extremes')
+    subprocess.run(command, check=True, timeout=180 if args.control_extremes else (150 if args.quality else 90))
+    controls = []
+    if args.control_extremes:
+        controls = json.loads((args.output / 'control-extremes.json').read_text(encoding='utf-8'))
+        if not controls:
+            raise AssertionError('No public controls were exercised')
+        for control in controls:
+            names += (f'control_{control["id"]}_minimum', f'control_{control["id"]}_maximum')
     ffmpeg = 'C:/source/vcpkg/installed/x64-windows-static-release/tools/ffmpeg/ffmpeg.exe'
     images = {}
     for name in names:
@@ -49,6 +63,8 @@ def main():
     if args.quality:
         comparisons += [('mid', 'silence'), ('mid', 'low'), ('mid', 'high'),
                         ('quiet', 'silence'), ('loud', 'silence'), ('quiet', 'loud')]
+    comparisons += [(f'control_{control["id"]}_minimum', f'control_{control["id"]}_maximum')
+                    for control in controls]
     failures = []
     for first, second in comparisons:
         difference = sum(abs(a - b) for a, b in zip(images[first], images[second])) / len(images[first])
@@ -57,7 +73,7 @@ def main():
             failures.append(f'{first} / {second}: {difference}')
     (args.output / 'pixel-differences.json').write_text(json.dumps(differences, indent=4) + '\n', encoding='utf-8')
     if failures:
-        raise AssertionError('Audio response too small: ' + '; '.join(failures))
+        raise AssertionError('GPU response too small: ' + '; '.join(failures))
     if args.reference_output:
         for name, pixels in images.items():
             reference = subprocess.run([ffmpeg, '-v', 'error', '-i', str(args.reference_output / (name + '.png')),

@@ -5627,12 +5627,12 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 1,
+            "review_history_count": 2,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
+                "functional": "passed",
                 "music": "passed",
                 "visual": "pending",
                 "device": "pending"
@@ -6105,12 +6105,12 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 1,
+            "review_history_count": 2,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
+                "functional": "passed",
                 "music": "passed",
                 "visual": "pending",
                 "device": "pending"
@@ -6667,12 +6667,12 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 2,
+            "review_history_count": 3,
             "stale_review_count": 1,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
+                "functional": "passed",
                 "music": "passed",
                 "visual": "pending",
                 "device": "pending"
@@ -6978,12 +6978,12 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 1,
+            "review_history_count": 2,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
+                "functional": "passed",
                 "music": "passed",
                 "visual": "pending",
                 "device": "pending"
