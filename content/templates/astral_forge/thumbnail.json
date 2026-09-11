@@ -1,0 +1,14 @@
+{
+    "template": "astral_forge",
+    "package_sha256": "0e2d4ad70873200f15ab16f1597d38497556de4a24ff05bbfadca59c2f4caa8e",
+    "thumbnail_sha256": "3c7b25f102eb3e551a0e0c0773008d4b51485f6fd32331613861dde6c7531cbd",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

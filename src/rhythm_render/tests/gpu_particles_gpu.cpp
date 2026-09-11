@@ -75,6 +75,26 @@ void Mapping(render::Renderer& renderer) {
     std::cout << "GPU point mapping public API: two-stage pixels, changed parameters, "
                  "unchanged input and independent output lifetime passed\n";
 }
+void SoftParticleFalloff(render::Renderer& renderer) {
+    auto target = renderer.CreateTexture({64, 64});
+    auto points = renderer.CreateGpuPoints(1);
+    render::GpuParticleStep step;
+    step.reset_ = true;
+    step.spawn_count_ = 1;
+    step.center_ = {.5f, .5f, 0};
+    step.radius_ = step.speed_ = step.flow_ = 0;
+    step.size_ = .3f;
+    step.color_a_ = step.color_b_ = {1, 1, 1, 1};
+    Update(renderer, points.Handle(), step);
+    const auto image = Capture(renderer, target.Handle(), points.Handle());
+    const auto red = [&](std::size_t x, std::size_t y) { return image.rgba_[(y * 64 + x) * 4]; };
+    const auto center = red(32, 32);
+    const auto middle = red(40, 32);
+    const auto edge = red(47, 32);
+    std::cout << "gpu_particles soft falloff center=" << int(center) << " middle=" << int(middle)
+              << " edge=" << int(edge) << '\n';
+    if (!(center > middle && middle > edge)) throw std::runtime_error("gpu_particles.soft_falloff");
+}
 void SamplingOrientation(render::Renderer& renderer) {
     const std::array<std::uint8_t, 4> white{255, 255, 255, 255};
     auto source = renderer.CreateTexture({1, 1}, white);
@@ -119,6 +139,7 @@ void VerifyGpuParticles(render::Renderer& renderer) {
         return;
     }
     Mapping(renderer);
+    SoftParticleFalloff(renderer);
     SamplingOrientation(renderer);
     auto target = renderer.CreateTexture({64, 64});
     // Non-workgroup-aligned capacity and wrapping ring exercise bounds guards.

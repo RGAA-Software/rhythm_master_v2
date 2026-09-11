@@ -9,7 +9,7 @@
     "counts": {
         "authored:component": 40,
         "authored:preset": 229,
-        "authored:template": 20,
+        "authored:template": 21,
         "component:component": 0,
         "preset:preset": 0,
         "template:advanced": 0,
@@ -6254,6 +6254,107 @@
             "tier": "preset",
             "is_default": false,
             "exact_setting_group": "689a4f43806762696669dbc2d699f3468cad74d25f4940ce18b6c9ca17b809ce",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.templates.astral_forge",
+            "kind": "template",
+            "source": "content/templates/astral_forge",
+            "source_sha256": "9bfa6f38a394e13c58a86ff78820eef4bf55b3a693c8fc42f6e6ef459b90e143",
+            "version": "0.4.0",
+            "titles": {
+                "zh-CN": "星铸圣坛",
+                "en-US": "Astral Forge"
+            },
+            "tier": "advanced",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android-gles31-compute"
+            ],
+            "source_license_note": "First-party graph and original synthesized music; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": {
+                "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                "title": "Luminous Concerto",
+                "gain": 0.75,
+                "loop": true,
+                "clips": [
+                    {
+                        "id": 1,
+                        "title": "Pulse foundation",
+                        "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+                        "start": 0,
+                        "duration": 16,
+                        "source_in": 0,
+                        "source_out": 8,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.85,
+                        "pan": 0,
+                        "muted": false
+                    },
+                    {
+                        "id": 2,
+                        "title": "Chimes entrance",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 4,
+                        "duration": 8,
+                        "source_in": 0,
+                        "source_out": 8,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.75,
+                        "pan": -0.25,
+                        "muted": false
+                    },
+                    {
+                        "id": 3,
+                        "title": "Chimes release",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 12,
+                        "duration": 4,
+                        "source_in": 0,
+                        "source_out": 4,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.6,
+                        "pan": 0.25,
+                        "muted": false
+                    },
+                    {
+                        "id": 4,
+                        "title": "Answering chimes",
+                        "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+                        "start": 8,
+                        "duration": 8,
+                        "source_in": 2,
+                        "source_out": 6,
+                        "loop": true,
+                        "fade_in": 0.5,
+                        "fade_out": 1,
+                        "smooth": true,
+                        "gain": 0.35,
+                        "pan": 0.6,
+                        "muted": false
+                    }
+                ]
+            },
+            "is_default": false,
             "review_history_count": 0,
             "stale_review_count": 0,
             "quality_accepted": false,

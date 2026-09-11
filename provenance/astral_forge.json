@@ -1,0 +1,45 @@
+{
+    "ownership": "first-party",
+    "baseline": "03d59cf",
+    "concept": "docs/design/concepts/music_visual_directions_v1.png",
+    "concept_role": "AI-generated design reference only; not used as runtime texture",
+    "reused_sources": [
+        "tools/author-resonance-gate.py",
+        "tools/author-ink-tide.py",
+        "tools/author-crystal-choir.py",
+        "tools/author_petal_model.py",
+        "tools/author-resonant-arcade.py",
+        "tools/audio_band_groups.py",
+        "tools/music_work.py"
+    ],
+    "authoring_sources": {
+        "tools/concept_work_common.py": "779a9e7b023e2b4c59ad8348a413915eb884aa7797316b0b9a64b978ba9810de",
+        "tools/concept_mesh_assets.py": "9dfa5e3e4e75bcbccb000eb7d104ab175620cdba5cb7a831678681d5347eca69",
+        "tools/concept_spatial_works.py": "ca7aeddd92ed1a260e13bad6e5cadfbdaef23118211f99095b1a112b1d5abc9d",
+        "tools/concept_ink_work.py": "75d08970e66ad18bc896a83844f6f0de175135b288f5a206f63553e7247cd656",
+        "tools/concept_corridor_work.py": "ef9cbb3ac187f8978b17d29b9cc81f3dc9c30681f3c09a563f0a9a2b66cab565",
+        "tools/author-concept-works.py": "7827fcceb8752e4f3d714f3942b4c542b8b14f3f99f2cc1494543588ba6be493",
+        "tools/music_work.py": "428600ef8e33ad6697b105816434bea2843cafbdc833d2b9b25342edb45b0d65"
+    },
+    "imported_third_party_files": [],
+    "renderer_provenance": [
+        "provenance/tixl_effects.json",
+        "provenance/tixl_particles.json",
+        "provenance/depth_pipeline.json",
+        "provenance/environment_lighting.json",
+        "provenance/godot_shadows.json"
+    ],
+    "assets": [
+        {
+            "sha256": "9219fdf04affacf010a99c2f44c651fdb3473ed73c466a559bb7060b61653c59",
+            "bytes": 240627,
+            "media_type": "audio/flac"
+        },
+        {
+            "sha256": "c185d1dbbe60fc9314cd4a1443f579c96beb401daa3419dc1740ee90ced18651",
+            "bytes": 160293,
+            "media_type": "audio/flac"
+        }
+    ],
+    "target": "content/templates/astral_forge"
+}

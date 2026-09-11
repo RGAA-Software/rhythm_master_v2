@@ -102,33 +102,25 @@ int main(int argc, char* argv[]) {
         Activate("###graph", "###viewers");
         finish();
         bool selected_found = selected_template.empty();
-        for (const std::string name :
-             {"chromatic_loom", "crystal_choir", "harmonic_city", "phase_loom", "resonance_gate",
-              "resonance_live", "resonant_arcade", "sonic_enamel", "spectral_foundry",
-              "aureate_vortex", "porcelain_bloom", "stratified_ink", "lumen_corridor",
-              "dunhuang_ribbons", "aurora_braid", "orbital_reliquary", "prismatic_lotus",
-              "spectral_nebula", "stellar_currents", "torque_garden"}) {
+        for (std::size_t entry_index = 0; entry_index < entries.size(); ++entry_index) {
+            const auto& entry = entries[entry_index];
+            if (entry.tier_ != "advanced") continue;
+            const auto name = entry.directory_.filename().string();
             if (name == selected_template) selected_found = true;
             // The calibration run verifies the editor's public-control workflow
-            // against a work that declares controls.  The regular delivery run
-            // above still applies every advanced template, including works that
-            // deliberately expose no author controls.
-            if (controls && name != "chromatic_loom")
-                continue;
+            // against a work that declares controls. The regular delivery run
+            // applies every Advanced catalog entry, including new works.
+            if (controls && name != "chromatic_loom") continue;
             if (!selected_template.empty() && name != selected_template) continue;
             action = "select:" + name;
-            const auto entry = std::find_if(entries.begin(), entries.end(), [&](const auto& value) {
-                return value.id_ == "official.templates." + name;
-            });
-            Check(entry != entries.end(), "template switch fixture missing");
-            const auto expected = project::LoadRevision(entry->directory_).snapshot_;
+            const auto expected = project::LoadRevision(entry.directory_).snapshot_;
             const auto expected_plan = std::get<graph::ExecutionPlan>(
                     graph::Compile(expected.document_, graph::Registry{}));
             std::set<std::string> audio_sources;
             if (expected.soundtrack_)
                 for (const auto& clip : expected.soundtrack_->clips_)
                     audio_sources.insert(clip.asset_.sha256_);
-            const int selected = static_cast<int>(entry - entries.begin());
+            const int selected = static_cast<int>(entry_index);
             bool complete = false;
             for (int step = 0; step < 500 && !complete; ++step) {
                 tick();
@@ -139,7 +131,7 @@ int main(int argc, char* argv[]) {
                     io.AddKeyEvent(ImGuiMod_Ctrl, step == 5);
                     io.AddKeyEvent(ImGuiKey_A, step == 5);
                 }
-                if (step == 7) io.AddInputCharactersUTF8(entry->titles_.at(locale).c_str());
+                if (step == 7) io.AddInputCharactersUTF8(entry.titles_.at(locale).c_str());
                 if (step == 8 || step == 9) io.AddKeyEvent(ImGuiKey_Enter, step == 8);
                 if (step == 12) PopupAction("###title", "catalog.entries", selected);
                 if (step == 16) {
@@ -176,7 +168,8 @@ int main(int argc, char* argv[]) {
                 }
                 Check(saved.document_.output_ != expected.document_.output_,
                       "UI application must remap template identities");
-                Check(published.program_.instructions_.size() == expected_plan.instructions_.size() &&
+                Check(published.program_.instructions_.size() ==
+                                      expected_plan.instructions_.size() &&
                               published.program_.controls_.Definitions().size() ==
                                       expected_plan.controls_.Definitions().size() &&
                               saved.document_.control_cues_ == expected.document_.control_cues_ &&
