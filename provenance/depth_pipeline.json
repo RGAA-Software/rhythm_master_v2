@@ -15,10 +15,18 @@
             "sha256": "3fe00a3fa84f7ccf488ddbf9df618e8a694878f0a9bf3c16f39bf9b7ccb6579c"
         }
     ],
+    "godot": {
+        "source_url": "https://github.com/godotengine/godot",
+        "revision": "cb41ea115914c61a8329087b4cffbad7477b8427",
+        "license": "MIT",
+        "license_file": "third_party/notices/godot/LICENSE.txt",
+        "source_file": "servers/rendering/renderer_rd/shaders/effects/bokeh_dof_raster.glsl",
+        "sha256": "9a333542197d3dafe2f9d8171789128e22f6b15eade71a3098a8c16d7322ba5a"
+    },
     "modifications": [
         "Adapt perspective window-depth reconstruction to fragment shader; add orthographic and normalized output.",
         "Use canonical project camera and owned sampleable depth attachment, not TiXL host types.",
-        "Adapt TiXL golden-angle DOF gather to a bounded 1..64 sample fragment pass, raw camera depth, positive distances and premultiplied RGBA; preserve alpha instead of forcing opaque."
+        "The original bounded 1..64 golden-angle gather came from TiXL; replace its unsigned depth comparison with Godot circular bokeh's signed near/far CoC and occlusion limit while retaining project depth and premultiplied-alpha contracts."
     ],
     "targets": [
         "src/rhythm_render/shaders/depth_linear.sc",

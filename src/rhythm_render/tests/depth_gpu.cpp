@@ -76,6 +76,70 @@ void VerifySampleableDepth(render::Renderer& renderer) {
                                          ".contrast." + std::to_string(contrast / 1600));
         }
     }
+    {
+        const Extent extent{64, 64};
+        std::vector<std::uint8_t> pixels(64 * 64 * 4, 255);
+        for (int y = 0; y < 64; ++y)
+            for (int x = 0; x < 64; ++x) {
+                const auto offset = (y * 64 + x) * 4;
+                pixels[offset] = x < 32 ? 255 : 0;
+                pixels[offset + 1] = 0;
+                pixels[offset + 2] = x < 32 ? 0 : 255;
+            }
+        const std::array<MeshVertex, 4> left_vertices{
+                {{-1, -1, 0}, {0, -1, 0}, {0, 1, 0}, {-1, 1, 0}}};
+        const std::array<MeshVertex, 4> right_vertices{
+                {{0, -1, 0}, {1, -1, 0}, {1, 1, 0}, {0, 1, 0}}};
+        auto left = renderer.CreateMesh(left_vertices, indices);
+        auto right = renderer.CreateMesh(right_vertices, indices);
+        auto source = renderer.CreateTexture(extent, pixels);
+        auto color = renderer.CreateTexture(extent);
+        auto depth = renderer.CreateDepthTexture(extent);
+        auto output = renderer.CreateTexture(extent);
+        SceneDrawList scene;
+        scene.projection_[10] = -0.2f;
+        scene.projection_[14] = -1.2f;
+        MeshDraw near_plane;
+        near_plane.mesh_ = left.Handle();
+        near_plane.model_[14] = -2;
+        near_plane.double_sided_ = true;
+        MeshDraw far_plane = near_plane;
+        far_plane.mesh_ = right.Handle();
+        far_plane.model_[14] = -8;
+        scene.draws_ = {near_plane, far_plane};
+        DrawList quad;
+        quad.width_ = quad.height_ = 64;
+        quad.vertices_ = {{0, 0, 0, 0}, {64, 0, 1, 0}, {64, 64, 1, 1}, {0, 64, 0, 1}};
+        quad.indices_ = {0, 1, 2, 0, 2, 3};
+        quad.commands_ = {{source.Handle(), 0, 6, {0, 0, 64, 64}}};
+        quad.commands_[0].depth_of_field_ =
+                DepthOfField{depth.Handle(), {1, 11, true}, 4, 8, 12, 64};
+        renderer.BeginFrame();
+        renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), scene);
+        renderer.Submit(output.Handle(), quad);
+        auto ticket = renderer.RequestReadback(output.Handle());
+        renderer.EndFrame();
+        const auto image = Complete(renderer, std::move(ticket));
+        const auto channel = [&](int x, int component) {
+            return int(image.rgba_[(32 * 64 + x) * 4 + component]);
+        };
+        std::cout << "dof_boundary near=" << channel(28, 0) << ',' << channel(28, 2)
+                  << " seam_left=" << channel(31, 0) << ',' << channel(31, 2)
+                  << " seam_right=" << channel(32, 0) << ',' << channel(32, 2)
+                  << " far=" << channel(35, 0) << ',' << channel(35, 2) << '\n';
+        constexpr std::array<std::array<int, 2>, 4> kExpected{
+                {{173, 82}, {135, 119}, {118, 137}, {80, 175}}};
+        constexpr std::array kSampleX{28, 31, 32, 35};
+        for (std::size_t index = 0; index < kExpected.size(); ++index) {
+            const int x = kSampleX[index];
+            if (std::abs(channel(x, 0) - kExpected[index][0]) > 3 ||
+                std::abs(channel(x, 2) - kExpected[index][1]) > 3)
+                throw std::runtime_error("depth.dof_near_far_pixel");
+        }
+        if (channel(28, 0) <= channel(28, 2) || channel(35, 2) <= channel(35, 0) ||
+            channel(31, 0) <= channel(31, 2) || channel(32, 2) <= channel(32, 0))
+            throw std::runtime_error("depth.dof_near_far_boundary");
+    }
     for (const Extent extent : {Extent{64, 32}, Extent{32, 64}}) {
         auto color = renderer.CreateTexture(extent, {}, TexturePrecision::kFloat16);
         auto depth = renderer.CreateDepthTexture(extent);
@@ -133,6 +197,7 @@ void VerifySampleableDepth(render::Renderer& renderer) {
             }
         }
     }
-    std::cout << "Sampleable depth: perspective/orthographic near/far, portrait/landscape passed\n";
+    std::cout << "Sampleable depth: perspective/orthographic near/far, signed CoC boundary, "
+                 "portrait/landscape passed\n";
 }
 }  // namespace rhythm::validation

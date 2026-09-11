@@ -20,7 +20,7 @@
 | P0 | glow/bloom | `texture.glow` 已完成 Godot Dual Filtering；`texture.glow_display` 已联合执行 Add、Screen、Soft Light、Replace、Mix 与显示映射，并以 D3D11 像素锁定 Godot 的前后置顺序 | 继续迁移其余作品并完成大粒子、细亮线、HDR/SDR 与动态输出评审 |
 | P0 | tone mapping/HDR | `texture.display` 已提供 Godot Reinhard、Filmic、ACES、AgX，曝光在映射前、sRGB 转换在映射后；中性与彩色 8× HDR 阶梯已通过实际 D3D11 回读，首批四件作品已接入 AgX | 完成 glow→tone-map 作品动态评审，再决定高级作品的默认映射 |
 | P0 | 透明 3D | 已按 Godot 语义采用不透明优先、稳定后到前排序、材质 priority、实例 sorting offset，并完成可选 alpha depth prepass；接近不透明的贴图覆盖写深度，透明孔洞保留后层 | 普通混合仍是顺序相关 source-over；复杂 OIT 单独验证后决定，不把 depth prepass 当作通用逐像素透明排序 |
-| P1 | 景深 | TiXL golden-angle gather 已可运行，但没有完整近/远 CoC 分离、遮挡权重和背景泄漏控制 | 对照 Godot `bokeh_dof` 的 shape/quality、近远场和合成；用前景细线、远景高光、运动相机验证 |
+| P1 | 景深 | Circular gather 已采用 Godot 有符号近/远 CoC 与遮挡限制；仍是单 pass、全分辨率、固定圆形，缺少独立权重缓冲和最终合成 | 继续实现 Godot Box/Hex 形状、quality/half-size 与权重合成；用前景细线、远景高光、运动相机验证 |
 | P1 | 阴影 | 已采用 Godot PCF5 核，但只有单张阴影图、单选择光源和开关式低档过滤；大投影和运动时可能锯齿/闪烁 | 扩展 Godot filter quality、方向光级联/稳定投影和点光语义；保留当前 PCF5 作为低档 |
 | P1 | 环境预滤波 | 当前 GGX/Hammersley 预滤来自 TiXL，图集和样本预算受限；粗糙材质可能出现噪声或层级跳变 | 对照 Godot reflection/environment filter 的分布、LOD 与能量守恒；固定输入环境做粗糙度阶梯比较 |
 | P1 | 粒子呈现 | 解析圆点的连续柔边已验证，仍缺纹理图集、材质变化、软深度交界和体积感；大量同形粒子容易显得单薄 | 参考 Godot 粒子 quad/material、soft particle 和发光材质路径；保留 GPU simulation 与项目节点契约 |
