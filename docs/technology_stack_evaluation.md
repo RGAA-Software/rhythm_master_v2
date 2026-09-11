@@ -61,7 +61,9 @@ GPU 计算/批量实例、可采样深度及新材质格式在各目标后端先
 Gaussian 核和有界 mip 链。独立 `texture.glow` 已按固定 Godot 提交
 `cb41ea115914c61a8329087b4cffbad7477b8427` 完成 Dual Filtering、HDR 筛选、1–6 级
 downsample/upsample 和 RGBA16F 加法合成。`texture.display` 已接入同一提交的 Reinhard、
-Filmic、ACES、AgX/AllenWP 及 CPU 参数公式；作品迁移与合成模式视觉评审继续推进，
+Filmic、ACES、AgX/AllenWP 及 CPU 参数公式。`Vector Resonance`、`Spectral Corolla`、
+`Glyph Current` 和 `Phase Plumes` 已从 blur 拼装迁移到独立 glow，并在输出前接入 AgX；
+其余作品迁移与合成模式视觉评审继续推进，
 详见 [Godot 参考计划](godot_3d_reference_plan.md) 和
 [核心验证](validation/godot_glow_core_2026-09-11.md)。
 Hazel 提交 `1feb70572fa87fa1c4ba784a2cfeada5b4a500db` 已检查，其公开代码没有 bloom/blur

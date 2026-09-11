@@ -24,13 +24,14 @@
         {"type": "texture.path_stroke", "properties": {"path_plane": 0, "vector_width": 3, "color_a": "F37DB9FF"}, "inputs": {"path": 12}},
         {"type": "texture.composite", "inputs": {"a": 9, "b": 11}},
         {"type": "texture.composite", "inputs": {"a": 14, "b": 13}},
-        {"type": "texture.blur", "properties": {"blur_radius": 16}, "inputs": {"source": 15}},
+        {"type": "texture.glow", "properties": {"glow_strength": 1.1, "hdr_threshold": 0.7, "hdr_scale": 0.8, "bloom_floor": 0.1, "glow_levels": 5}, "inputs": {"source": 15}},
         {"type": "texture.composite", "inputs": {"a": 16, "b": 15}},
         {"type": "texture.noise", "properties": {"noise_scale": 3, "color_a": "030713FF", "color_b": "102A31FF"}, "inputs": {"phase": 1}},
         {"type": "texture.composite", "inputs": {"a": 18, "b": 17}},
         {"type": "texture.fxaa", "inputs": {"source": 19}},
         {"type": "texture.affine", "properties": {"scale": 0.95}, "inputs": {"source": 20}},
         {"type": "texture.affine", "properties": {"scale": 0.85}, "inputs": {"source": 21}},
-        {"type": "output.texture", "inputs": {"source": 22}}
+        {"type": "texture.display", "properties": {"tone_mapping": 4, "tone_white": 32, "agx_contrast": 1.25}, "inputs": {"source": 22}},
+        {"type": "output.texture", "inputs": {"source": 23}}
     ]
 }

@@ -21,7 +21,7 @@
         {"type": "gpu.particles", "properties": {"particle_capacity": 65536, "emission_rate": 16000, "center_x": 0.5, "center_y": 0.5, "emitter_radius": 0.46, "particle_speed": 0.03, "point_size": 0.0055, "gravity_y": 0, "color_a": "0D99FFFF", "color_b": "FF1A66FF"}, "inputs": {"flow_strength": 3}},
         {"type": "gpu.texture_sample", "properties": {"sample_size": 0.2}, "inputs": {"points": 9, "source": 8}},
         {"type": "gpu.render", "inputs": {"points": 10, "opacity": 5}},
-        {"type": "texture.blur", "properties": {"blur_radius": 10}, "inputs": {"source": 11}},
+        {"type": "texture.glow", "properties": {"glow_strength": 0.9, "hdr_threshold": 0.65, "hdr_scale": 0.75, "bloom_floor": 0.08, "glow_levels": 4}, "inputs": {"source": 11}},
         {"type": "texture.composite", "inputs": {"a": 12, "b": 11}},
         {"type": "gpu.render", "properties": {"opacity": 0.03}, "inputs": {"points": 9}},
         {"type": "texture.noise", "properties": {"noise_scale": 3, "color_a": "070815FF", "color_b": "122037FF"}, "inputs": {"phase": 1}},
@@ -32,6 +32,7 @@
         {"type": "texture.composite", "inputs": {"a": 17, "b": 19}},
         {"type": "texture.fxaa", "inputs": {"source": 20}},
         {"type": "texture.affine", "properties": {"scale": 0.85}, "inputs": {"source": 21}},
-        {"type": "output.texture", "inputs": {"source": 22}}
+        {"type": "texture.display", "properties": {"tone_mapping": 4, "tone_white": 32, "agx_contrast": 1.25}, "inputs": {"source": 22}},
+        {"type": "output.texture", "inputs": {"source": 23}}
     ]
 }

@@ -175,9 +175,13 @@
             }
         },
         {
-            "type": "texture.blur",
+            "type": "texture.glow",
             "properties": {
-                "blur_radius": 8
+                "glow_strength": 0.9,
+                "hdr_threshold": 0.7,
+                "hdr_scale": 0.8,
+                "bloom_floor": 0.08,
+                "glow_levels": 4
             },
             "inputs": {
                 "source": 16
@@ -259,9 +263,20 @@
             }
         },
         {
-            "type": "output.texture",
+            "type": "texture.display",
+            "properties": {
+                "tone_mapping": 4,
+                "tone_white": 32,
+                "agx_contrast": 1.25
+            },
             "inputs": {
                 "source": 26
+            }
+        },
+        {
+            "type": "output.texture",
+            "inputs": {
+                "source": 27
             }
         }
     ],

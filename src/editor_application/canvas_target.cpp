@@ -39,6 +39,13 @@ geometry2d::Pose Pose(const graph::Document& document, const graph::Node& node) 
         throw std::invalid_argument("canvas.invalid_property");
     return result;
 }
+bool PreservesCanvasCoordinates(const graph::Node& node, std::string_view input) {
+    if (input != "source") return false;
+    return node.type_ == "texture.blur" || node.type_ == "texture.glow" ||
+           node.type_ == "texture.fxaa" || node.type_ == "texture.linearize" ||
+           node.type_ == "texture.display" || node.type_ == "texture.color_adjust" ||
+           node.type_ == "texture.contours";
+}
 }  // namespace
 CanvasInspection InspectCanvasTarget(const Snapshot& snapshot, graph::NodeId selected) {
     const auto& document = snapshot.document_;
@@ -100,7 +107,8 @@ CanvasInspection InspectCanvasTarget(const Snapshot& snapshot, graph::NodeId sel
                         target.parent_);
             else if (!(parent.type_ == "output.texture" && edge.input_ == "source") &&
                      !(parent.type_ == "texture.composite" &&
-                       (edge.input_ == "a" || edge.input_ == "b")))
+                       (edge.input_ == "a" || edge.input_ == "b")) &&
+                     !PreservesCanvasCoordinates(parent, edge.input_))
                 throw std::invalid_argument("canvas.unsupported_route");
         }
         if (!geometry2d::Inverse(target.parent_))

@@ -25,6 +25,21 @@ editor::Snapshot Base() {
     document.output_ = 4;
     return result;
 }
+editor::Snapshot PostProcessRoute() {
+    graph::Registry registry;
+    editor::Snapshot result;
+    auto& document = result.document_;
+    document.id_ = "canvas-post-process";
+    document.canvas_ = {200, 100};
+    document.nodes_ = {registry.MakeNode(1, "texture.gradient"),
+                       registry.MakeNode(2, "texture.affine"), registry.MakeNode(3, "texture.glow"),
+                       registry.MakeNode(4, "texture.display"),
+                       registry.MakeNode(5, "output.texture")};
+    document.edges_ = {
+            {1, 1, 2, "source"}, {2, 2, 3, "source"}, {3, 3, 4, "source"}, {4, 4, 5, "source"}};
+    document.output_ = 5;
+    return result;
+}
 void Run() {
     const auto base = Base();
     const auto target = std::get<editor::CanvasTarget>(editor::InspectCanvasTarget(base, 2));
@@ -39,6 +54,11 @@ void Run() {
     Require(named_target.parent_.values_ == target.parent_.values_ &&
                     named_target.node_ == target.node_,
             "named image routes must preserve parent coordinates and author identity");
+    const auto post_process = PostProcessRoute();
+    const auto post_process_target = editor::InspectCanvasTarget(post_process, 2);
+    Require(std::holds_alternative<editor::CanvasTarget>(post_process_target) &&
+                    std::get<editor::CanvasTarget>(post_process_target).node_ == 2,
+            "coordinate-preserving glow and display keep the upstream affine editable");
     auto unresolved = named;
     unresolved.document_.signals_.clear();
     Require(std::holds_alternative<graph::Diagnostic>(editor::InspectCanvasTarget(unresolved, 2)),

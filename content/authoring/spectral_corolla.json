@@ -22,7 +22,7 @@
         {"type": "point.spectrum", "properties": {"point_count": 96, "spectrum_gain": 0, "spectrum_radius": 0.15}},
         {"type": "path.from_points", "properties": {"path_closed": 1}, "inputs": {"points": 10}},
         {"type": "texture.path_fill", "properties": {"color_a": "186A9370"}, "inputs": {"path": 8, "hole": 11}},
-        {"type": "texture.blur", "properties": {"blur_radius": 16}, "inputs": {"source": 9}},
+        {"type": "texture.glow", "properties": {"glow_strength": 1.0, "hdr_threshold": 0.75, "hdr_scale": 0.7, "bloom_floor": 0.08, "glow_levels": 5}, "inputs": {"source": 9}},
         {"type": "texture.composite", "inputs": {"a": 13, "b": 9}},
         {"type": "texture.composite", "inputs": {"a": 12, "b": 14}},
         {"type": "texture.noise", "properties": {"noise_scale": 3, "color_a": "070817FF", "color_b": "12263CFF"}, "inputs": {"phase": 1}},
@@ -33,6 +33,7 @@
         {"type": "texture.fxaa", "inputs": {"source": 20}},
         {"type": "texture.affine", "properties": {"scale": 0.95}, "inputs": {"source": 21}},
         {"type": "texture.affine", "properties": {"scale": 0.85}, "inputs": {"source": 22}},
-        {"type": "output.texture", "inputs": {"source": 23}}
+        {"type": "texture.display", "properties": {"tone_mapping": 4, "tone_white": 32, "agx_contrast": 1.25}, "inputs": {"source": 23}},
+        {"type": "output.texture", "inputs": {"source": 24}}
     ]
 }
