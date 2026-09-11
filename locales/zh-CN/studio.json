@@ -360,6 +360,8 @@
     "geometry.sphere": "球体几何",
     "material.unlit": "无光照材质",
     "scene.instance": "场景实例",
+    "render_priority": "透明渲染优先级",
+    "sorting_offset": "透明排序偏移",
     "scene.transform": "三维变换",
     "scene.merge": "合并场景",
     "scene.camera": "三维相机",

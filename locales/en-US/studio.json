@@ -360,6 +360,8 @@
     "geometry.sphere": "Sphere geometry",
     "material.unlit": "Unlit material",
     "scene.instance": "Scene instance",
+    "render_priority": "Transparent render priority",
+    "sorting_offset": "Transparent sorting offset",
     "scene.transform": "3D transform",
     "scene.merge": "Merge scenes",
     "scene.camera": "3D camera",

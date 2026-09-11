@@ -106,7 +106,8 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
     };
     for (const auto& instance : scene.instances_) {
         if (!instance.geometry_ || !instance.geometry_->model_ || !instance.geometry_->id_ ||
-            !scene::ValidAffine(instance.transform_))
+            !scene::ValidAffine(instance.transform_) || !std::isfinite(instance.sorting_offset_) ||
+            std::abs(instance.sorting_offset_) > 10000)
             throw std::invalid_argument("runtime.geometry");
         const auto& geometry = *instance.geometry_;
         if (geometry.pose_ && active_poses.emplace(geometry.id_, geometry.revision_).second) {
@@ -126,6 +127,7 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
     std::uint64_t index_count = 0;
     std::size_t draw_bones = 0;
     std::vector<double> draw_depths;
+    std::vector<std::int32_t> draw_priorities;
     for (const auto& instance : scene.instances_) {
         const auto& geometry = *instance.geometry_;
         const Key key{geometry.upload_id_ ? geometry.upload_id_ : geometry.id_,
@@ -190,12 +192,15 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                 const auto center =
                         scene::TransformPoint(transform, upload.mesh_centers_[mesh_index]);
                 if (camera.kind_ == scene::ProjectionKind::kOrthographic) {
-                    draw_depths.push_back(-scene::TransformPoint(view, center).z_);
+                    draw_depths.push_back(-scene::TransformPoint(view, center).z_ -
+                                          instance.sorting_offset_);
                 } else {
                     draw_depths.push_back(std::hypot(center.x_ - camera.eye_.x_,
                                                      center.y_ - camera.eye_.y_,
-                                                     center.z_ - camera.eye_.z_));
+                                                     center.z_ - camera.eye_.z_) -
+                                          instance.sorting_offset_);
                 }
+                draw_priorities.push_back(material.render_priority_);
                 auto& draw = result.draws_.back();
                 if (!mesh.morphs_.empty()) {
                     const auto& pose = geometry.pose_ ? *geometry.pose_ : upload.model_->rest_pose_;
@@ -265,7 +270,10 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
         const bool opaque_a = result.draws_[a].color_[3] >= 1;
         const bool opaque_b = result.draws_[b].color_[3] >= 1;
         if (opaque_a != opaque_b) return opaque_a;
-        return !opaque_a && draw_depths[a] > draw_depths[b];
+        if (opaque_a) return false;
+        if (draw_priorities[a] != draw_priorities[b])
+            return draw_priorities[a] < draw_priorities[b];
+        return draw_depths[a] > draw_depths[b];
     });
     std::vector<render::MeshDraw> sorted;
     sorted.reserve(result.draws_.size());

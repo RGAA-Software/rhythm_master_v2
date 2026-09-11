@@ -1,7 +1,9 @@
 #include <bgfx/bgfx.h>
 
+#include <array>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 
 #include "rhythm/assets/store.h"
@@ -105,23 +107,30 @@ int main(int argc, char* argv[]) {
         transparent_camera.target_ = {0, 0, 0};
         rhythm::runtime::detail::ScenePass transparent_pass;
         auto transparent_target = renderer.CreateTexture({16, 16});
-        for (int frame = 0; frame < 8; ++frame) {
-            renderer.BeginFrame();
-            const auto draws = transparent_pass.Build(transparent_scene, transparent_camera,
-                                                      {16, 16}, renderer);
-            renderer.SubmitScene(transparent_target.Handle(), draws);
-            rhythm::render::DrawList present;
-            present.width_ = present.height_ = 16;
-            present.vertices_ = {{0, 0, 0, 0}, {16, 0, 1, 0}, {16, 16, 1, 1}, {0, 16, 0, 1}};
-            present.indices_ = {0, 1, 2, 0, 2, 3};
-            present.commands_ = {{transparent_target.Handle(), 0, 6, {0, 0, 16, 16}}};
-            renderer.Submit({}, present);
-            if (frame == 3)
-                bgfx::requestScreenShot(BGFX_INVALID_HANDLE,
-                                        (std::filesystem::path(argv[1]) / "transparent-mesh-center")
-                                                .string()
-                                                .c_str());
-            renderer.EndFrame();
+        const std::array transparent_names{"transparent-mesh-center", "transparent-priority",
+                                           "transparent-offset"};
+        for (int scenario = 0; scenario < 3; ++scenario) {
+            transparent_scene.instances_[0].material_->render_priority_ = scenario == 1 ? -1 : 0;
+            transparent_scene.instances_[1].material_->render_priority_ = scenario == 1 ? 1 : 0;
+            transparent_scene.instances_[0].sorting_offset_ = scenario == 2 ? -3 : 0;
+            for (int frame = 0; frame < 8; ++frame) {
+                renderer.BeginFrame();
+                const auto draws = transparent_pass.Build(transparent_scene, transparent_camera,
+                                                          {16, 16}, renderer);
+                renderer.SubmitScene(transparent_target.Handle(), draws);
+                rhythm::render::DrawList present;
+                present.width_ = present.height_ = 16;
+                present.vertices_ = {{0, 0, 0, 0}, {16, 0, 1, 0}, {16, 16, 1, 1}, {0, 16, 0, 1}};
+                present.indices_ = {0, 1, 2, 0, 2, 3};
+                present.commands_ = {{transparent_target.Handle(), 0, 6, {0, 0, 16, 16}}};
+                renderer.Submit({}, present);
+                if (frame == 3)
+                    bgfx::requestScreenShot(BGFX_INVALID_HANDLE, (std::filesystem::path(argv[1]) /
+                                                                  transparent_names[scenario])
+                                                                         .string()
+                                                                         .c_str());
+                renderer.EndFrame();
+            }
         }
         std::cout << "D3D scene captures: depth order, front/back culling, double side and depth "
                      "clear\n";

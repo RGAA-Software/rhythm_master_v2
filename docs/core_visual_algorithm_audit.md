@@ -19,7 +19,7 @@
 | P0 | 普通 blur | 原 TiXL 五采样横纵核与四 tap 降采样已产生方向性重影风险；2026-09-11 已从运行路径移除 | 固定 `blur_raster.glsl` 的 13-tap 二维 Gaussian 和 mip 链；完成 D3D11 脉冲、透明、径向衰减断言后交付 |
 | P0 | glow/bloom | `texture.glow` 已完成 Godot Dual Filtering 的 HDR 筛选、1–6 级降采样/上采样和 RGBA16F 加法合成；首批四件作品已从 blur 拼装迁移 | 继续迁移其余作品并完成大粒子、细亮线、HDR/SDR 与动态输出评审；以 glow/display 联合执行合同补齐 Godot 合成模式 |
 | P0 | tone mapping/HDR | `texture.display` 已提供 Godot Reinhard、Filmic、ACES、AgX，曝光在映射前、sRGB 转换在映射后；首批四件作品已接入 AgX | 完成彩色 HDR 阶梯和 glow→tone-map 作品动态评审，再决定高级作品的默认映射 |
-| P0 | 透明 3D | 已按 Godot 语义采用不透明优先、透明物体稳定后到前排序，并以变换后的网格包围盒中心替代错误的实例原点；相交透明仍只有顺序相关 source-over | 对照 Godot 的材质 render priority、sorting offset 和 alpha depth prepass 逐项扩展；复杂 OIT 单独验证后决定 |
+| P0 | 透明 3D | 已按 Godot 语义采用不透明优先、透明物体稳定后到前排序，以变换后的网格包围盒中心替代错误的实例原点，并提供材质 render priority 与实例 sorting offset；相交透明仍只有顺序相关 source-over | 下一步验证可选 alpha depth prepass；复杂 OIT 单独验证后决定 |
 | P1 | 景深 | TiXL golden-angle gather 已可运行，但没有完整近/远 CoC 分离、遮挡权重和背景泄漏控制 | 对照 Godot `bokeh_dof` 的 shape/quality、近远场和合成；用前景细线、远景高光、运动相机验证 |
 | P1 | 阴影 | 已采用 Godot PCF5 核，但只有单张阴影图、单选择光源和开关式低档过滤；大投影和运动时可能锯齿/闪烁 | 扩展 Godot filter quality、方向光级联/稳定投影和点光语义；保留当前 PCF5 作为低档 |
 | P1 | 环境预滤波 | 当前 GGX/Hammersley 预滤来自 TiXL，图集和样本预算受限；粗糙材质可能出现噪声或层级跳变 | 对照 Godot reflection/environment filter 的分布、LOD 与能量守恒；固定输入环境做粗糙度阶梯比较 |

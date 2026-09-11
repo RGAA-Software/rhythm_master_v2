@@ -120,6 +120,7 @@ void AppendSceneDescriptors(std::vector<OperatorDescriptor>& operators) {
                           {"roughness", 0.5, 0.05, 1},
                           {"emission", 0.0, 0, 100},
                           {"color_b", Color{1, 1, 1, 1}},
+                          {"render_priority", 0.0, -128, 127, {}, true},
                           {"double_sided", 0.0, 0, 1, {"option.off", "option.on"}}}});
     operators.push_back({"scene.directional_light",
                          Operation::kDirectionalLight,
@@ -152,11 +153,13 @@ void AppendSceneDescriptors(std::vector<OperatorDescriptor>& operators) {
                          Type::kMaterial,
                          {},
                          {{"color_a", Color{0.1, 0.8, 1, 1}},
+                          {"render_priority", 0.0, -128, 127, {}, true},
                           {"double_sided", 0.0, 0, 1, {"option.off", "option.on"}}}});
     operators.push_back({"scene.instance",
                          Operation::kSceneInstance,
                          Type::kScene,
-                         {{"geometry", Type::kGeometry}, {"material", Type::kMaterial, false}}});
+                         {{"geometry", Type::kGeometry}, {"material", Type::kMaterial, false}},
+                         {{"sorting_offset", 0.0, -10000, 10000}}});
     operators.push_back({"scene.transform",
                          Operation::kSceneTransform,
                          Type::kScene,

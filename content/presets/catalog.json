@@ -1023,6 +1023,16 @@
             }
         },
         {
+            "id": "official.scene_instance.default",
+            "version": "1.0.0",
+            "operator": "scene.instance",
+            "titles": {
+                "zh-CN": "默认场景实例",
+                "en-US": "Default scene instance"
+            },
+            "properties": {}
+        },
+        {
             "id": "official.scene_transform.default",
             "version": "1.0.0",
             "operator": "scene.transform",

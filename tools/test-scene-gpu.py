@@ -85,6 +85,13 @@ def main():
         raise RuntimeError(
             f"transparent mesh-center sort: expected {expected}, got {actual}; evidence {output}")
     print("Transparent mesh-center sorting: far blue then near red passed")
+    for name in ("transparent-priority", "transparent-offset"):
+        actual = read_tga(output / f"{name}.tga")
+        expected = (64, 0, 128)
+        if any(abs(a - b) > 3 for a, b in zip(actual, expected)):
+            raise RuntimeError(
+                f"{name}: expected {expected}, got {actual}; evidence {output}")
+    print("Transparent render priority and sorting offset: explicit near-first order passed")
 
 
 if __name__ == "__main__":

@@ -38,6 +38,7 @@ struct Instance {
     Matrix transform_{};
     std::optional<Material> material_{};
     InstanceOrigin origin_{};
+    double sorting_offset_ = 0;
 };
 struct ShadowSettings {
     std::uint32_t light_ = 0;

@@ -107,9 +107,13 @@
             {
                 "file": "servers/rendering/renderer_rd/forward_mobile/render_forward_mobile.h",
                 "sha256": "c144e2ab82e70d7139c04093174cbbeb7f985b0a813dba748c715a623894a69c"
+            },
+            {
+                "file": "scene/resources/material.cpp",
+                "sha256": "391f54b1f1262aea493b67df57583de63d504787b2ae0c6cc5ad93c0b4ee3964"
             }
         ],
         "target": "src/runtime/scene_pass.cpp",
-        "scope": "Adopt opaque-first and stable transparent back-to-front object ordering. Use the transformed mesh bounds center instead of an instance origin; use camera distance for perspective and view depth for orthographic projection. Render priority, sorting offsets, alpha depth prepass and intersecting-geometry transparency remain outside this increment."
+        "scope": "Adopt opaque-first and stable transparent back-to-front object ordering. Use the transformed mesh bounds center instead of an instance origin; use camera distance for perspective and view depth for orthographic projection. Add the Godot -128..127 material render priority and per-instance sorting offset to the project graph/value contracts. Alpha depth prepass and intersecting-geometry transparency remain outside this increment."
     }
 }

@@ -34,6 +34,7 @@ struct Material {
     float roughness_ = 0.5f;
     bool unlit_ = true;
     bool double_sided_ = false;
+    std::int32_t render_priority_ = 0;
     MaterialTextures textures_{};
     // Stable graph producer identity; Runtime resolves its accepted surface program.
     std::uint64_t surface_node_ = 0;

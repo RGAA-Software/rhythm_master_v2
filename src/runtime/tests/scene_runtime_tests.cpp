@@ -91,10 +91,21 @@ void TransparentMeshCenterSort() {
             "perspective transparency sorts offset mesh centers back to front");
     camera.kind_ = scene::ProjectionKind::kOrthographic;
     const auto orthographic = pass.Build(scene, camera, {64, 64}, renderer);
-    renderer.EndFrame();
     Require(orthographic.draws_.size() == 2 && orthographic.draws_[0].color_[2] == 1 &&
                     orthographic.draws_[1].color_[0] == 1,
             "orthographic transparency sorts offset mesh centers back to front");
+    scene.instances_[0].material_->render_priority_ = -1;
+    scene.instances_[1].material_->render_priority_ = 1;
+    const auto priority = pass.Build(scene, camera, {64, 64}, renderer);
+    Require(priority.draws_[0].color_[0] == 1 && priority.draws_[1].color_[2] == 1,
+            "lower transparent material priority draws first before depth ordering");
+    scene.instances_[0].material_->render_priority_ = 0;
+    scene.instances_[1].material_->render_priority_ = 0;
+    scene.instances_[0].sorting_offset_ = -3;
+    const auto offset = pass.Build(scene, camera, {64, 64}, renderer);
+    renderer.EndFrame();
+    Require(offset.draws_[0].color_[0] == 1 && offset.draws_[1].color_[2] == 1,
+            "negative sorting offset moves a transparent instance earlier");
 }
 void Lights() {
     using namespace rhythm;
@@ -186,6 +197,14 @@ void Run() {
                     frame.outputs_[3].scene_->instances_[0].origin_ ==
                             scene::InstanceOrigin{3, 4, 0, 0},
             "producer and nearest author transform identities are independent of geometry");
+    document.nodes_[1].properties_["render_priority"] = -7.0;
+    document.nodes_[2].properties_["sorting_offset"] = 2.5;
+    frame = evaluate();
+    Require(frame.outputs_[1].material_->render_priority_ == -7 &&
+                    frame.outputs_[2].scene_->instances_[0].sorting_offset_ == 2.5,
+            "material priority and instance sorting offset reach the scene snapshot");
+    document.nodes_[1].properties_.erase("render_priority");
+    document.nodes_[2].properties_.erase("sorting_offset");
     document.nodes_.push_back(registry.MakeNode(9, "scene.transform"));
     document.edges_[3].to_ = 9;
     document.edges_.push_back({6, 9, 5, "scene"});
