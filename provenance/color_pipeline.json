@@ -24,15 +24,41 @@
             "license_file": "third_party/notices/tixl-effects/LICENSE.txt",
             "adapted_symbols": [
                 "tonemapReinhard"
+            ],
+            "status": "Historical reference only; runtime tone mapping replaced by pinned Godot implementation on 2026-09-11."
+        },
+        {
+            "source_url": "https://github.com/godotengine/godot",
+            "revision": "cb41ea115914c61a8329087b4cffbad7477b8427",
+            "source_files": [
+                {
+                    "path": "drivers/gles3/shaders/tonemap_inc.glsl",
+                    "sha256": "a0dea1a09f4d89739d5d3447c04929146bbf266e72532b68b7d76705216f69da"
+                },
+                {
+                    "path": "servers/rendering/storage/environment_storage.cpp",
+                    "sha256": "912430003210839ff6510ebe960c40679a1eb6450c687c4046adb698b249df03"
+                }
+            ],
+            "license": "MIT",
+            "license_file": "third_party/notices/godot/LICENSE.txt",
+            "adapted_symbols": [
+                "tonemap_reinhard",
+                "tonemap_filmic",
+                "tonemap_aces",
+                "allenwp_curve",
+                "tonemap_agx",
+                "environment_get_tonemap_parameters"
             ]
         }
     ],
     "target": "src/rhythm_render/shaders/color_pipeline.sc",
     "modifications": [
-        "Translate selected transfer and Reinhard equations to bgfx shader syntax; use exact 1/2.4 exponent.",
-        "Convert unpremultiplied RGB only, preserve coverage, explicitly choose transfer and exposure.",
-        "Do not adapt other TiXL filmic/AgX/ACES routines or GLM lowp approximation.",
-        "Clamp output to finite half range; display transfer clamps SDR."
+        "Retain GLM piecewise sRGB transfer conversion and apply it only to straight RGB; alpha remains linear premultiplied coverage.",
+        "Translate Godot Reinhard, Filmic, ACES and AgX/AllenWP functions to bgfx shader language with the pinned CPU parameter equations.",
+        "Use the bgfx row-vector multiplication form needed to preserve Godot matrix semantics across D3D shader compilation.",
+        "Expose bounded reference white and AgX contrast; apply exposure before tone mapping and sRGB output conversion after it.",
+        "Clamp display output to the finite half range while preserving alpha."
     ],
     "material_extension": {
         "target": "src/rhythm_render/shaders/scene_fragment.sc",

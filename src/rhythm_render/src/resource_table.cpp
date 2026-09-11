@@ -246,7 +246,8 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
         if (command.color_pipeline_) {
             const auto& color = *command.color_pipeline_;
             if (color.input_ > ColorTransfer::kSrgb || color.output_ > ColorTransfer::kSrgb ||
-                color.tone_mapping_ > ToneMapping::kReinhard || !bounded(color.exposure_, -8, 8))
+                color.tone_mapping_ > ToneMapping::kAgx || !bounded(color.exposure_, -8, 8) ||
+                !bounded(color.white_, 0.1f, 32) || !bounded(color.agx_contrast_, 0.5f, 2))
                 throw std::invalid_argument("render.color_pipeline");
         }
         if (command.texture_fxaa_) {

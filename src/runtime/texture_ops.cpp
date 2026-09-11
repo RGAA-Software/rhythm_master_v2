@@ -87,12 +87,13 @@ std::uint32_t DrawTexture(const graph::Instruction& instruction,
             color.input_ = render::ColorTransfer::kSrgb;
         } else {
             color.output_ = render::ColorTransfer::kSrgb;
-            color.tone_mapping_ = graph::Scalar(node, "tone_mapping", 1) == 1
-                                          ? render::ToneMapping::kReinhard
-                                          : render::ToneMapping::kNone;
+            color.tone_mapping_ = static_cast<render::ToneMapping>(
+                    static_cast<std::uint8_t>(graph::Scalar(node, "tone_mapping", 1)));
             const auto exposure =
                     instruction.inputs_[1] ? input(1).scalar_ : graph::Scalar(node, "exposure", 0);
             color.exposure_ = float(std::isfinite(exposure) ? std::clamp(exposure, -8.0, 8.0) : 0);
+            color.white_ = float(graph::Scalar(node, "tone_white", 32));
+            color.agx_contrast_ = float(graph::Scalar(node, "agx_contrast", 1.25));
         }
         list.commands_.back().color_pipeline_ = color;
         return 0;

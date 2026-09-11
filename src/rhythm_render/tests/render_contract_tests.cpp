@@ -188,6 +188,16 @@ int main() {
         Reject([&] { renderer.Submit({}, draw); });
         draw.commands_[0].texture_filter_.reset();
         draw.commands_[0].texture_glow_.reset();
+        draw.commands_[0].color_pipeline_ = ColorPipeline{};
+        draw.commands_[0].color_pipeline_->tone_mapping_ = static_cast<ToneMapping>(255);
+        Reject([&] { renderer.Submit({}, draw); });
+        draw.commands_[0].color_pipeline_->tone_mapping_ = ToneMapping::kAgx;
+        draw.commands_[0].color_pipeline_->white_ = 0;
+        Reject([&] { renderer.Submit({}, draw); });
+        draw.commands_[0].color_pipeline_->white_ = 4;
+        draw.commands_[0].color_pipeline_->agx_contrast_ = 3;
+        Reject([&] { renderer.Submit({}, draw); });
+        draw.commands_[0].color_pipeline_.reset();
         draw.commands_[0].texture_noise_ = TextureNoise{};
         draw.commands_[0].texture_noise_->scale_ = 0;
         Reject([&] { renderer.Submit({}, draw); });

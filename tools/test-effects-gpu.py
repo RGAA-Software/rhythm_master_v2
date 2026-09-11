@@ -70,7 +70,7 @@ def main():
     if images[3][31][31] != (255, 255, 255) or images[3][28][31] != (0, 0, 0):
         raise AssertionError(f"Zero radius changed pixels: {output}")
     glow = read_tga(output / "glow-dual-filter.tga")
-    if (glow[32][32][0] < 250 or glow[32][38][0] <= glow[32][48][0] or
+    if (glow[32][32][0] <= glow[32][38][0] or glow[32][38][0] <= glow[32][48][0] or
             glow[32][48][0] == 0 or glow[0][0][0] != 0):
         raise AssertionError(f"Godot dual-filter glow failed: {output}")
     noise = [read_tga(output / f"noise-{index}.tga") for index in range(5)]

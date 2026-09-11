@@ -25,6 +25,7 @@ class BgfxTexturePrograms final {
     GpuHandle<bgfx::UniformHandle> dof_domain_{};
     GpuHandle<bgfx::ProgramHandle> pipeline_program_{};
     GpuHandle<bgfx::UniformHandle> pipeline_settings_{};
+    GpuHandle<bgfx::UniformHandle> tone_mapping_parameters_{};
     GpuHandle<bgfx::UniformHandle> color_limits_{};
     GpuHandle<bgfx::ProgramHandle> trail_program_{};
     GpuHandle<bgfx::UniformHandle> trail_settings_{};

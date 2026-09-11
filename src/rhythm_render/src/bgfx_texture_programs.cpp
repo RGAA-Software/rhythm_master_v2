@@ -61,6 +61,8 @@ BgfxTexturePrograms::BgfxTexturePrograms() {
             GpuHandle(bgfx::createProgram(vertex.Get(), pipeline_fragment.Get(), false));
     pipeline_settings_ =
             GpuHandle(bgfx::createUniform("u_color_pipeline", bgfx::UniformType::Vec4));
+    tone_mapping_parameters_ =
+            GpuHandle(bgfx::createUniform("u_tonemap_parameters", bgfx::UniformType::Vec4));
     color_limits_ = GpuHandle(bgfx::createUniform("u_color_limits", bgfx::UniformType::Vec4));
     color_uniform_ = GpuHandle(bgfx::createUniform("u_color_adjust", bgfx::UniformType::Vec4));
     GpuHandle filter_fragment(
@@ -160,9 +162,35 @@ void BgfxTexturePrograms::Submit(std::uint16_t view, const DrawCommand& command,
         const auto& c = *command.color_pipeline_;
         const std::array settings{c.input_ == ColorTransfer::kSrgb ? 1.0f : 0.0f,
                                   c.output_ == ColorTransfer::kSrgb ? 1.0f : 0.0f,
-                                  c.tone_mapping_ == ToneMapping::kReinhard ? 1.0f : 0.0f,
-                                  std::exp2(c.exposure_)};
+                                  static_cast<float>(c.tone_mapping_), std::exp2(c.exposure_)};
+        std::array parameters{c.white_ * c.white_, 0.0f, 0.0f, 0.0f};
+        if (c.tone_mapping_ == ToneMapping::kFilmic) {
+            const auto color = c.white_;
+            constexpr float kA = 0.22f * 4.0f;
+            constexpr float kB = 0.30f * 2.0f;
+            constexpr float kC = 0.10f;
+            constexpr float kD = 0.20f;
+            constexpr float kE = 0.01f;
+            constexpr float kF = 0.30f;
+            parameters[0] = ((color * (kA * color + kC * kB) + kD * kE) /
+                             (color * (kA * color + kB) + kD * kF)) -
+                            kE / kF;
+        } else if (c.tone_mapping_ == ToneMapping::kAces) {
+            const auto color = c.white_ * 1.8f;
+            parameters[0] = (color * (color + 0.0245786f) - 0.000090537f) /
+                            (color * (0.983729f * color + 0.432951f) + 0.238081f);
+        } else if (c.tone_mapping_ == ToneMapping::kAgx) {
+            constexpr float kCrossover = 0.18f;
+            const auto powered = std::pow(kCrossover, c.agx_contrast_);
+            const auto toe = (1.0f / kCrossover - 1.0f) * powered;
+            const auto denominator = powered + toe;
+            const auto slope = c.agx_contrast_ * std::pow(kCrossover, c.agx_contrast_ - 1.0f) *
+                               toe / (denominator * denominator);
+            const auto width = c.white_ - kCrossover;
+            parameters = {c.agx_contrast_, toe, slope, width * width / (1.0f - kCrossover) * slope};
+        }
         bgfx::setUniform(pipeline_settings_.Get(), settings.data());
+        bgfx::setUniform(tone_mapping_parameters_.Get(), parameters.data());
         bgfx::submit(view, pipeline_program_.Get());
     } else if (command.texture_trail_) {
         const auto& trail = *command.texture_trail_;

@@ -29,7 +29,13 @@ void AppendColorDescriptors(std::vector<OperatorDescriptor>& operators) {
                          Type::kTexture,
                          {{"source", Type::kTexture}, {"exposure", Type::kScalar, false}},
                          {{"exposure", 0.0, -8, 8},
-                          {"tone_mapping", 1.0, 0, 1, {"tone.clip", "tone.reinhard"}}}});
+                          {"tone_mapping",
+                           1.0,
+                           0,
+                           4,
+                           {"tone.clip", "tone.reinhard", "tone.filmic", "tone.aces", "tone.agx"}},
+                          {"tone_white", 32.0, 0.1, 32},
+                          {"agx_contrast", 1.25, 0.5, 2}}});
     // New nodes may explicitly inherit precision. Legacy nodes without this
     // property retain RGBA8; no hidden change to their existing render path.
     for (auto& descriptor : operators) {

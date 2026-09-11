@@ -224,6 +224,9 @@ int main(int argc, char* argv[]) {
                 render::DrawList copy;
                 copy.width_ = copy.height_ = 64;
                 runtime::detail::AppendTextureQuad(copy, result, 0xffffffff, 0xffffffff);
+                copy.commands_.back().color_pipeline_ = render::ColorPipeline{
+                        render::ColorTransfer::kLinear, render::ColorTransfer::kSrgb,
+                        render::ToneMapping::kAgx};
                 renderer.Submit(inspection.Handle(), copy);
                 if (frame == 3) ticket = renderer.RequestReadback(inspection.Handle());
                 Present(renderer, inspection.Handle(), {64, 64});
@@ -237,7 +240,7 @@ int main(int argc, char* argv[]) {
             const auto center = Pixel(image, 32, 32);
             const auto near = Pixel(image, 38, 32);
             const auto far = Pixel(image, 48, 32);
-            if (center[0] < 250 || center[3] < 250 || near[0] == 0 || far[0] == 0 ||
+            if (center[0] <= near[0] || center[3] < 250 || near[0] == 0 || far[0] == 0 ||
                 near[0] <= far[0] || near[3] != 0 || far[3] != 0 || Pixel(image, 0, 0)[0] != 0)
                 throw std::runtime_error("effects.glow_dual_filter");
         }
