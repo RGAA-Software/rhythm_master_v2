@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 
 import shader_tools
 from verify_windows import run_ctest, verification_lease
@@ -108,7 +109,14 @@ def main():
                           'calibration_controls_gpu', 'soundtrack_contracts',
                           'large_soundtrack_studio_gpu'}
         pattern = '^(' + '|'.join(sorted(expected_tests)) + ')$'
-        run_ctest(build, pattern, expected_tests, build / 'studio-delivery-tests.log', environment)
+        try:
+            run_ctest(build, pattern, expected_tests, build / 'studio-delivery-tests.log', environment)
+        finally:
+            # Delivery checks create large projects and capture sets. Their logs
+            # remain archived, while rebuildable artifacts never enter deploy or
+            # accumulate after either a successful or failed acceptance run.
+            subprocess.run([sys.executable, str(ROOT / "tools/cleanup-generated.py"),
+                            "--delivery", "--apply"], check=True, env=environment)
     print(f"Windows {args.configuration} build completed: {build}")
 
 

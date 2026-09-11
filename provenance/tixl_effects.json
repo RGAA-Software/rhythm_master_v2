@@ -30,13 +30,7 @@
             "sha256": "9a5fedbd2ad440670244482cccc484b03d688ccd127b82987ef7e7706d647d5e"
         }
     ],
-    "target": "src/rhythm_render/shaders/texture_filter.sc",
-    "modifications": [
-        "Adapt HLSL texture and cbuffer bindings to bgfx shader language.",
-        "Combine separable Gaussian and four-tap downsample with explicit mode.",
-        "Filter premultiplied RGBA; apply vertex tint after convolution.",
-        "Retain normalized five-sample weights and offsets."
-    ],
+    "blur_status": "Historical reference only. The TiXL Gaussian/downsample runtime adaptation was replaced by the pinned Godot raster Gaussian implementation on 2026-09-11.",
     "noise_target": "src/rhythm_render/shaders/texture_noise.sc",
     "noise_modifications": [
         "Expose bounded lattice X/Y translation through the existing domain uniform for continuous authored advection; retain the imported noise algorithm and default zero-offset behavior.",

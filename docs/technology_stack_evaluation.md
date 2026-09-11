@@ -56,8 +56,9 @@ GPU 计算/批量实例、可采样深度及新材质格式在各目标后端先
 视觉效果的历史增量从既有 TiXL 源码快照聚焦复用了高斯模糊、降采样和 Perlin 噪声，
 改编为私有 bgfx shader，不引入 TiXL 宿主。逐文件出处、MIT 许可和改动记录在
 `provenance/tixl_effects.json`。2026-09-11 用户明确收紧边界：TiXL 继续用于节点逻辑、
-参数和作品结构参考；核心画面算法采用 Godot 成熟实现。现有 TiXL Gaussian blur 保留
-为普通 `texture.blur`，不能再作为 bloom 核心。Glow/bloom 将按固定 Godot 提交
+参数和作品结构参考；核心画面算法采用 Godot 成熟实现。TiXL Gaussian/downsample
+仅保留为历史参考，运行时 `texture.blur` 改用同一固定 Godot 提交的 13-tap raster
+Gaussian 核和有界 mip 链。Glow/bloom 将按固定 Godot 提交
 `cb41ea115914c61a8329087b4cffbad7477b8427` 的 Dual Filtering、HDR 筛选、多级
 downsample/upsample 和 tone-map 合成适配，详见 [Godot 参考计划](godot_3d_reference_plan.md)。
 Hazel 提交 `1feb70572fa87fa1c4ba784a2cfeada5b4a500db` 已检查，其公开代码没有 bloom/blur
@@ -134,7 +135,7 @@ ImGui 自身不提供完整国际化/无障碍；引入字体不能等同于文�
 | GPU 后端 | bgfx，首选 | 验证多预览/Compute/资源绑定/透明窗口；不在业务层绕过后端 |
 | Shader 工具 | bgfx shaderc，首选 | 编辑器异步编译与缓存；Player 载入目标产物，不携带整套编译工具 |
 | 3D 设计与源码 | Godot，确认 | 参考场景/材质/灯光/glTF/动画，按职责适配，不嵌入全引擎 |
-| 核心画面效果 | Godot，确认 | Glow/bloom、HDR、tone mapping 和主要后处理采用固定源码基线；TiXL 参考图逻辑与普通滤镜，不用简化拼装替代完整效果链 |
+| 核心画面效果 | Godot，确认 | 普通 blur、glow/bloom、HDR、tone mapping 和主要后处理采用固定源码基线；TiXL 参考图逻辑与参数组织，不用简化拼装替代完整效果链 |
 | 数学 | 已有 vcpkg GLM 0.9.9.8#2，已接入私有数学适配层 | Windows 数值回归通过；矩阵、四元数和法线变换直接用 GLM，公共接口保留项目值类型，见 [3D 验证记录](validation/scene_foundations_2026-09-07.md) |
 | 2D 物理 | vcpkg Box2D 3.1.1 + 项目 overlay #1，Windows/Android 初始验证通过 | 修复小距离漏算半径；私有 RAII 包装；不是 3D 物理库，见 [验证记录](validation/physics2d_2026-09-07.md) |
 | glTF 解析 | vcpkg cgltf 1.15，初始静态 GLB 验证通过 | Windows/Android 导入回归通过；仅自包含静态三角形及标量材质，图/应用接入待完成，见 [3D 验证记录](validation/scene_foundations_2026-09-07.md) |

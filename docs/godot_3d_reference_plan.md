@@ -17,7 +17,7 @@ TouchDesigner/TiXL 继续作为视觉编程、创作流程和实时预览参考�
 
 2026-09-11 用户进一步确定：核心画面算法也以 Godot 的成熟实现为首要源码基线。
 TiXL 用于节点逻辑、参数暴露、图组织和作品结构参考，不能用局部 TiXL 滤镜或项目
-自制简化管线代替 Godot 的完整核心效果。该约束首先适用于 glow/bloom、HDR、颜色
+自制简化管线代替 Godot 的完整核心效果。该约束首先适用于普通 blur、glow/bloom、HDR、颜色
 空间、tone mapping 和后续主要后处理，也适用于材质、灯光和 3D 渲染能力。
 
 不把产品改成 Godot 编辑器，也不默认嵌入整个 Godot 引擎。
@@ -97,3 +97,17 @@ blur 后加回原图”。项目适配保留 bgfx、项目纹理句柄、RAII �
 覆盖大号粒子、细亮线、高亮材质、低亮背景、HDR/SDR、不同画布尺寸和连续动态帧，
 并把 Godot 参考输入、参数、输出与项目适配输出并排评审。只检查非零像素差不能证明
 效果达标。
+
+## 7. 普通 Blur 固定基线（2026-09-11）
+
+普通 `texture.blur` 同样固定到 Godot 提交
+`cb41ea115914c61a8329087b4cffbad7477b8427` 的
+`servers/rendering/renderer_rd/shaders/effects/blur_raster.glsl`，采用
+`MODE_GAUSSIAN_BLUR` 的单 pass 13-tap 二维核。Godot 用该 raster fallback 逐级生成
+屏幕纹理、反射和区域光等普通模糊 mip；其目的与 glow 的亮度筛选和回合成不同。
+
+项目适配使用相同采样位置和权重、linear clamp 采样及逐级 mip 模糊。半径映射只决定
+有界 mip 层数和最后一级采样尺度；返回节点画布尺寸时做一次线性上采样。移除原 TiXL
+横纵分离 Gaussian 和四 tap downsample 运行实现，其源码与记录仅作为历史参考保留。
+验收检查常量守恒、透明预乘覆盖、中心脉冲的二维径向衰减、大尺寸柔边图元、边界 clamp、
+多半径资源复用和 D3D11 实际输出。

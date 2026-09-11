@@ -195,8 +195,8 @@ void BgfxTexturePrograms::Submit(std::uint16_t view, const DrawCommand& command,
     } else if (command.texture_filter_) {
         const auto& filter = *command.texture_filter_;
         const std::array values{filter.step_x_ / source_size.width_,
-                                filter.step_y_ / source_size.height_,
-                                filter.kind_ == TextureFilterKind::kDownsample ? 1.0f : 0.0f, 0.0f};
+                                filter.step_y_ / source_size.height_, 0.0f, 0.0f};
+        bgfx::setTexture(0, sampler_.Get(), source, BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
         bgfx::setUniform(filter_uniform_.Get(), values.data());
         bgfx::submit(view, filter_program_.Get());
     } else if (command.color_adjustment_) {

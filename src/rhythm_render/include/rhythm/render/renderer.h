@@ -57,13 +57,13 @@ struct ColorAdjustment {
     float invert_ = 0;
 };
 
-enum class TextureFilterKind : std::uint8_t { kGaussian, kDownsample };
+enum class TextureFilterKind : std::uint8_t { kGodotGaussian };
 // Sampling offsets are in source-image pixels. Filtering operates on internal
 // premultiplied RGBA, preserving transparent coverage through repeated passes.
 struct TextureFilter {
-    TextureFilterKind kind_ = TextureFilterKind::kGaussian;
+    TextureFilterKind kind_ = TextureFilterKind::kGodotGaussian;
     float step_x_ = 1;
-    float step_y_ = 0;
+    float step_y_ = 1;
 };
 
 struct TextureNoise {

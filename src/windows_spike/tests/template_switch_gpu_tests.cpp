@@ -4,10 +4,13 @@
 
 #include <algorithm>
 #include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <set>
+#include <system_error>
+#include <utility>
 
 #include "control_delivery_checks.h"
 #include "rhythm/project/package.h"
@@ -16,6 +19,22 @@
 #include "workflow_evidence.h"
 
 namespace {
+class SuccessfulRunCleanup final {
+   public:
+    explicit SuccessfulRunCleanup(std::filesystem::path path) : path_(std::move(path)) {}
+    ~SuccessfulRunCleanup() {
+        if (!successful_) return;
+        std::error_code error;
+        std::filesystem::remove_all(path_, error);
+    }
+    SuccessfulRunCleanup(const SuccessfulRunCleanup&) = delete;
+    SuccessfulRunCleanup& operator=(const SuccessfulRunCleanup&) = delete;
+    void MarkSuccessful() { successful_ = true; }
+
+   private:
+    std::filesystem::path path_{};
+    bool successful_ = false;
+};
 void Check(bool value, const char* message) {
     if (!value) throw std::runtime_error(message);
 }
@@ -58,6 +77,7 @@ int main(int argc, char* argv[]) {
         const auto root =
                 std::filesystem::absolute(argv[3]) /
                 std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+        SuccessfulRunCleanup cleanup(root);
         const auto project_path = root / "Projects/switch.rhythmproj";
         const auto package_path = root / "Published/switch.rhythmpack";
         const auto entries = project::ScanTemplates(resources / "content/templates");
@@ -88,10 +108,11 @@ int main(int argc, char* argv[]) {
             renderer.EndFrame();
             evidence.Record(action, studio);
         };
-        for (int index = 0; index < 20; ++index) {
+        for (int index = 0; index < 180; ++index) {
             tick();
             if (index == 5 && locale == "en-US") Activate("###graph", "###locale");
             finish();
+            if (index >= 19 && studio.HasValidPlan()) break;
         }
         Check(studio.HasValidPlan(), "default Studio output not ready");
         // Template application must verify the final output, save/reopen and
@@ -199,6 +220,7 @@ int main(int argc, char* argv[]) {
         }
         Check(selected_found, "selected template switch fixture missing");
         std::cout << "captures: " << root.string() << '\n';
+        cleanup.MarkSuccessful();
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

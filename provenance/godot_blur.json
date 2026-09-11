@@ -1,0 +1,20 @@
+{
+    "source_url": "https://github.com/godotengine/godot",
+    "revision": "cb41ea115914c61a8329087b4cffbad7477b8427",
+    "license": "MIT",
+    "notice": "third_party/notices/godot/LICENSE.txt",
+    "source_file": "servers/rendering/renderer_rd/shaders/effects/blur_raster.glsl",
+    "sha256": "4a08d8dbc2e752c574b02e65b28ca84348892170baf47ef9d500cd8a3bb9f22d",
+    "symbol": "MODE_GAUSSIAN_BLUR",
+    "targets": [
+        "src/rhythm_render/shaders/texture_filter.sc",
+        "src/runtime/blur_pass.cpp"
+    ],
+    "modifications": [
+        "Translate the exact 13-tap sample positions and weights to bgfx shader language while retaining premultiplied RGBA and vertex tint.",
+        "Use linear clamp sampling, matching Godot's repeat-disabled linear sampler.",
+        "Map the authored radius to a bounded mip count and final-level sample scale, then linearly return the result to the node canvas extent.",
+        "Keep project texture handles, RAII resources and pass budgets; omit Godot RID, RenderingDevice and framebuffer cache types."
+    ],
+    "outbound_license": "not selected; adapted Godot contribution retains MIT"
+}

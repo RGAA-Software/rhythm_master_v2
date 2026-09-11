@@ -27,7 +27,7 @@ int main() {
             Check(blur.Draw(source.Handle(), {128, 128}, 16, renderer) == result);
             Check(renderer.Stats().live_textures_ == textures);
             blur.Draw(source.Handle(), {128, 128}, 1, renderer);
-            Check(renderer.Stats().live_textures_ == 3);
+            Check(renderer.Stats().live_textures_ == 2);
             Check(!renderer.IsValid(result));
             renderer.EndFrame();
         }

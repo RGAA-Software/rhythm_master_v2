@@ -173,7 +173,7 @@ int main() {
         draw.commands_[0].color_adjustment_ = ColorAdjustment{9};
         Reject([&] { renderer.Submit({}, draw); });
         draw.commands_[0].color_adjustment_.reset();
-        draw.commands_[0].texture_filter_ = TextureFilter{TextureFilterKind::kGaussian, -1, 0};
+        draw.commands_[0].texture_filter_ = TextureFilter{TextureFilterKind::kGodotGaussian, -1, 0};
         Reject([&] { renderer.Submit({}, draw); });
         draw.commands_[0].texture_filter_ = TextureFilter{};
         draw.commands_[0].color_adjustment_ = ColorAdjustment{};

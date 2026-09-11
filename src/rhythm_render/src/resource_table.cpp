@@ -308,7 +308,7 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
         }
         if (command.texture_filter_) {
             const auto& filter = *command.texture_filter_;
-            if (command.color_adjustment_ || filter.kind_ > TextureFilterKind::kDownsample ||
+            if (command.color_adjustment_ || filter.kind_ > TextureFilterKind::kGodotGaussian ||
                 !std::isfinite(filter.step_x_) || !std::isfinite(filter.step_y_) ||
                 filter.step_x_ < 0 || filter.step_x_ > 64 || filter.step_y_ < 0 ||
                 filter.step_y_ > 64)

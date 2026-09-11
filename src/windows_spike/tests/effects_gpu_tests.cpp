@@ -1,10 +1,12 @@
 #include <bgfx/bgfx.h>
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <filesystem>
 #include <iostream>
+#include <stdexcept>
 #include <string_view>
 
 #include "blur_pass.h"
@@ -22,12 +24,55 @@ void Present(rhythm::render::Renderer& renderer, rhythm::render::TextureHandle i
     rhythm::runtime::detail::AppendTextureQuad(draw, image, 0xffffffff, 0xffffffff);
     renderer.Submit({}, draw);
 }
+rhythm::render::ReadbackImage Complete(rhythm::render::Renderer& renderer,
+                                       rhythm::render::Readback ticket) {
+    for (int frame = 0; frame < 32; ++frame) {
+        if (auto result = ticket.Poll()) return std::move(*result);
+        renderer.BeginFrame();
+        renderer.EndFrame();
+    }
+    throw std::runtime_error("effects.blur_readback_timeout");
+}
+std::array<std::uint8_t, 4> Pixel(const rhythm::render::ReadbackImage& image, int x, int y) {
+    const auto offset = static_cast<std::size_t>((y * image.extent_.width_ + x) * 4);
+    return {image.rgba_[offset], image.rgba_[offset + 1], image.rgba_[offset + 2],
+            image.rgba_[offset + 3]};
+}
+void VerifyBlurImage(const rhythm::render::ReadbackImage& image, int scenario) {
+    if (image.extent_ != rhythm::render::Extent{64, 64})
+        throw std::runtime_error("effects.blur_extent");
+    const auto center = Pixel(image, 32, 32);
+    if (scenario == 0) {
+        for (const auto point : {Pixel(image, 0, 0), center, Pixel(image, 63, 63)})
+            if (point != std::array<std::uint8_t, 4>{50, 100, 20, 128})
+                throw std::runtime_error("effects.blur_constant");
+        return;
+    }
+    if (center[0] != center[1] || center[1] != center[2] || center[2] != center[3])
+        throw std::runtime_error("effects.blur_transparent_color_leak");
+    if (scenario == 1) {
+        if (center[3] < 250 || Pixel(image, 33, 32)[3] >= center[3] ||
+            Pixel(image, 34, 32)[3] >= Pixel(image, 33, 32)[3] || Pixel(image, 35, 32)[3] != 0 ||
+            Pixel(image, 32, 33)[3] != Pixel(image, 33, 32)[3])
+            throw std::runtime_error("effects.blur_godot_kernel");
+    } else if (scenario == 2) {
+        const auto near = Pixel(image, 36, 32)[3];
+        const auto middle = Pixel(image, 40, 32)[3];
+        const auto outer = Pixel(image, 48, 32)[3];
+        if (center[3] == 0 || near > center[3] || middle >= near || outer >= middle ||
+            std::abs(int(Pixel(image, 32, 40)[3]) - int(middle)) > 1 || Pixel(image, 0, 0)[3] != 0)
+            throw std::runtime_error("effects.blur_pyramid_falloff");
+    } else if (center[3] < 250 || Pixel(image, 34, 32)[3] != 0) {
+        throw std::runtime_error("effects.blur_bypass");
+    }
+}
 }  // namespace
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
         if (argc < 2 || argc > 4) throw std::invalid_argument("effects.arguments");
         const std::filesystem::path output(argv[1]);
+        std::filesystem::create_directories(output);
         platform::Host host(true);
         auto renderer = host.CreateRenderer();
         if (argc >= 3) {
@@ -139,16 +184,24 @@ int main(int argc, char* argv[]) {
                     }
                 }
             auto source = renderer.CreateTexture({64, 64}, pixels);
+            auto inspection = renderer.CreateTexture({64, 64});
             runtime::detail::BlurPass blur;
             const auto path = (output / ("blur-" + std::to_string(scenario))).string();
+            render::Readback ticket;
             for (int frame = 0; frame < 8; ++frame) {
                 renderer.BeginFrame();
                 const auto radius = scenario == 3 ? 0.0f : scenario == 2 ? 8.0f : 1.0f;
                 const auto blurred = blur.Draw(source.Handle(), {64, 64}, radius, renderer);
-                Present(renderer, blurred, {64, 64});
+                render::DrawList copy;
+                copy.width_ = copy.height_ = 64;
+                runtime::detail::AppendTextureQuad(copy, blurred, 0xffffffff, 0xffffffff);
+                renderer.Submit(inspection.Handle(), copy);
+                if (frame == 3) ticket = renderer.RequestReadback(inspection.Handle());
+                Present(renderer, inspection.Handle(), {64, 64});
                 if (frame == 3) bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
                 renderer.EndFrame();
             }
+            VerifyBlurImage(Complete(renderer, std::move(ticket)), scenario);
         }
         const std::array<std::uint8_t, 4> white_pixel{255, 255, 255, 255};
         auto white = renderer.CreateTexture({1, 1}, white_pixel);

@@ -1,12 +1,34 @@
 #include <chrono>
+#include <filesystem>
 #include <iostream>
 #include <stdexcept>
+#include <system_error>
+#include <utility>
 
 #include "rhythm/assets/store.h"
 #include "rhythm/editor/commands.h"
 #include "rhythm/player/session.h"
 #include "rhythm/project/package.h"
 #include "rhythm/project/store.h"
+
+namespace {
+class TemporaryWorkspace final {
+   public:
+    explicit TemporaryWorkspace(std::filesystem::path path) : path_(std::move(path)) {
+        std::filesystem::create_directories(path_);
+    }
+    ~TemporaryWorkspace() {
+        std::error_code error;
+        std::filesystem::remove_all(path_, error);
+    }
+    TemporaryWorkspace(const TemporaryWorkspace&) = delete;
+    TemporaryWorkspace& operator=(const TemporaryWorkspace&) = delete;
+    const std::filesystem::path& Path() const { return path_; }
+
+   private:
+    std::filesystem::path path_{};
+};
+}  // namespace
 
 int main(int argc, char* argv[]) {
     using namespace rhythm;
@@ -24,9 +46,9 @@ int main(int argc, char* argv[]) {
         current.document_.output_ = 10001;
         current.document_.edges_ = {{1, 10000, 10001, "source"}};
         editor::History history(current);
-        const auto workspace =
-                std::filesystem::path(argv[1]).parent_path() / "template-switch-tests" /
-                std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+        const TemporaryWorkspace workspace(
+                std::filesystem::temp_directory_path() / "rhythm-template-contracts" /
+                std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
         for (const auto& entry : templates) {
             defaults += entry.default_ ? 1 : 0;
             const auto source = project::LoadRevision(entry.directory_);
@@ -65,7 +87,7 @@ int main(int argc, char* argv[]) {
             const auto bytes = project::EncodePackage(document, source.snapshot_.title_, assets,
                                                       source.snapshot_.soundtrack_);
             const auto packaged = project::DecodePackage(bytes);
-            const auto project_path = workspace / entry.directory_.filename();
+            const auto project_path = workspace.Path() / entry.directory_.filename();
             const auto prepared =
                     project::PrepareTemplate(entry.directory_, project_path / "assets");
             if (prepared.snapshot_.assets_ != remapped.assets_)

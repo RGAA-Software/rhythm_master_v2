@@ -128,7 +128,7 @@ ownership is explicitly transferred to the project.
   embedding the whole engine or leaking Godot types into project public APIs.
 - Use TiXL for node logic, parameter exposure, graph organization and authored
   work structure. Use pinned Godot implementations as the primary source for
-  core visual algorithms, including glow/bloom, HDR, tone mapping and major
+  core visual algorithms, including ordinary blur, glow/bloom, HDR, tone mapping and major
   post-processing. Do not replace a complete engine algorithm with a simplified
   project-owned approximation. Record a concrete compatibility gap before
   selecting a different established engine implementation.

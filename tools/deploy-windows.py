@@ -26,12 +26,15 @@ def copy_file(source, destination):
         raise RuntimeError(f"Cannot update {destination}; close the running app.") from error
 
 
-def copy_tree(source, destination):
+def copy_tree(source, destination, excluded_roots=()):
     if not source.is_dir():
         raise RuntimeError(f"Required resource directory is missing: {source}")
     for entry in sorted(source.rglob("*")):
+        relative = entry.relative_to(source)
+        if relative.parts and relative.parts[0] in excluded_roots:
+            continue
         if entry.is_file() and entry.name != ".writer" and not entry.name.endswith(".tmp"):
-            copy_file(entry, destination / entry.relative_to(source))
+            copy_file(entry, destination / relative)
 
 
 def version_key(path):
@@ -140,7 +143,11 @@ def deploy(config):
             copy_file(source_root / "provenance/shaderc_host.json", tool_root / "source-origin.json")
             if tool_profile.name == "shaderc_rebuilt_host.json":
                 copy_file(source_root / "provenance/shaderc_source_build.json", tool_root / "source-build.json")
-    copy_tree(Path(config["build_root"]) / "content", destination / "content")
+    stale_test_content = destination / "content/template-switch-tests"
+    if stale_test_content.exists():
+        shutil.rmtree(stale_test_content)
+    copy_tree(Path(config["build_root"]) / "content", destination / "content",
+              excluded_roots={"template-switch-tests"})
     copy_tree(source_root / "locales", destination / "locales")
     copy_tree(source_root / "third_party/notices", destination / "notices")
     if config.get("media_sdk"):
