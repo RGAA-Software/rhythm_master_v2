@@ -11,7 +11,7 @@ void main()
         sampled = texture2DLod(s_gpu_sample, clamp(i_data0.xy, vec2_splat(0.0), vec2_splat(1.0)), 0.0);
     float luma = clamp(dot(sampled.rgb, vec3(0.2126, 0.7152, 0.0722)), 0.0, 1.0);
     float point_size = i_data3.x * mix(1.0, luma, u_gpu_sample.y);
-    vec2 size = vec2(point_size * u_gpu_view.x, point_size);
+    vec2 size = vec2(point_size * u_gpu_view.x, point_size) * u_gpu_view.w;
     vec2 p = (i_data0.xy + a_position * size) * 2.0 - 1.0;
     p.y = -p.y * u_gpu_view.y;
     gl_Position = vec4(p, 0.0, 1.0);

@@ -67,6 +67,8 @@ struct GpuPointStyle {
     float opacity_ = 1;
     bool additive_ = true;
     std::optional<GpuPointSampling> sampling_{};
+    // Expands the same analytic sprite for a local halo; no fullscreen blur pass.
+    float glow_radius_ = 1;
 };
 // Move-only owner retains the backend through final release, like Texture/Mesh.
 // Handles are generation-checked observers; all destruction is device-thread only.

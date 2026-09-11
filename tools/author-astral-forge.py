@@ -23,11 +23,9 @@ def create_astral_forge():
                 metallic=.82, roughness=.3)
     torus = node("geometry.torus", 1400, 0, radius=1.18, tube_ratio=.055,
                  radial_segments=96, tube_segments=20)
-    sphere = node("geometry.sphere", 1400, 300, radius=.065, radial_segments=32, rings=16)
     cube = node("geometry.cube", 1400, 600)
     gold_ring = node("scene.instance", 1740, 0, dict(geometry=torus, material=gold))
     blue_ring = node("scene.instance", 1740, 240, dict(geometry=torus, material=azure))
-    orbit_body = node("scene.instance", 1740, 480, dict(geometry=sphere, material=azure))
     obelisk = node("scene.instance", 1740, 720, dict(geometry=cube, material=dark))
     pieces = []
     for index, speed in enumerate((18, -29, 43, -57)):
@@ -37,19 +35,6 @@ def create_astral_forge():
                            dict(scene=gold_ring if index % 2 == 0 else blue_ring, rotation_z=turn),
                            rotation_x=62 + index * 17, rotation_y=index * 23,
                            scale=1 - index * .11))
-    for index in range(14):
-        angle = index * math.tau / 14
-        orbit = node("scalar.expression", 2080, 1100 + index * 140, dict(time=clock, a=low),
-                     expression=f"time * {20 + index % 4 * 8} + a * 17 + {angle * 57.2958}")
-        x = node("scalar.expression", 2420, 1100 + index * 140, dict(a=orbit),
-                 expression=f"{2.0 + (index % 3) * .34} * cos(a * .0174532925)")
-        z = node("scalar.expression", 2760, 1100 + index * 140, dict(a=orbit),
-                 expression=f"{2.0 + (index % 3) * .34} * sin(a * .0174532925)")
-        y = node("scalar.expression", 3100, 1100 + index * 140, dict(time=clock, a=high),
-                 expression=f".25 * sin(time * .7853981634 + {index}) + a * .18")
-        pieces.append(node("scene.transform", 3440, 1100 + index * 140,
-                           dict(scene=orbit_body, translate_x=x, translate_y=y, translate_z=z),
-                           scale=.20 + (index % 3) * .03))
     for index in range(12):
         angle = index * math.tau / 12
         swell = node("scalar.expression", 2080, 3400 + index * 150, dict(time=clock, a=low),
@@ -71,11 +56,9 @@ def create_astral_forge():
     camera = node("scene.camera", 8360, 0, dict(eye_x=eye_x, eye_y=eye_y, eye_z=eye_z),
                   target_y=.15, field_of_view=46, near_plane=.1, far_plane=30)
     sculpture = node("scene.render", 8700, 0, dict(scene=stage, camera=camera), scene_antialiasing=1)
-    sculpture_halo = node("texture.blur", 8700, 300, dict(source=sculpture), blur_radius=7.5)
     background = node("texture.gradient", 8700, 600, color_a=(.001, .004, .012, 1),
                       color_b=(.018, .01, .045, 1))
-    image = node("texture.composite", 9040, 0, dict(a=background, b=sculpture_halo), composite_mode=1)
-    image = node("texture.composite", 9040, 300, dict(a=image, b=sculpture), composite_mode=1)
+    image = node("texture.composite", 9040, 0, dict(a=background, b=sculpture), composite_mode=1)
 
     emission = node("scalar.expression", 9040, 700, dict(a=high, b=low),
                     expression=".16 + a * 1.45 + b * .38")
@@ -84,8 +67,11 @@ def create_astral_forge():
                           expression=".62 + a * .18 + b * .24")
     particle_turn = node("scalar.expression", 9040, 1480, dict(time=clock, a=mid),
                          expression="time * -31 + a * 14")
-    for index, (capacity, rate, size, tint) in enumerate(((24576, 720, .0017, (.08, .66, 1, .28)),
-                                                            (4096, 150, .0038, (1, .48, .08, .58)))):
+    # Both layers use the same analytic point sprite: size controls the visible
+    # particle while point_glow_radius expands its smooth local halo.  This
+    # keeps large foreground sparks clean without a whole-scene blur pass.
+    for index, (capacity, rate, size, tint) in enumerate(((24576, 720, .0038, (.08, .66, 1, .28)),
+                                                            (4096, 150, .0100, (1, .48, .08, .58)))):
         particles = node("gpu.particles", 9380, 700 + index * 580,
                          dict(emission=emission, flow_strength=flow), particle_capacity=capacity,
                          seed=3129 + index * 71, initial_fill=0, emission_rate=rate, lifetime=5.8 - index * 2.3,
@@ -94,10 +80,9 @@ def create_astral_forge():
                          color_a=tint, color_b=(1, .83, .28, .94))
         particles = node("gpu.map", 9720, 700 + index * 580,
                          dict(points=particles, rotation=particle_turn, point_size_scale=particle_scale))
-        sparks = node("gpu.render", 10060, 700 + index * 580, dict(points=particles), point_blend=1)
-        halo = node("texture.blur", 10400, 700 + index * 580, dict(source=sparks), blur_radius=1.5 + index * .8)
-        image = node("texture.composite", 10740, 700 + index * 580, dict(a=image, b=halo), composite_mode=1)
-        image = node("texture.composite", 11080, 700 + index * 580, dict(a=image, b=sparks), composite_mode=1)
+        sparks = node("gpu.render", 10060, 700 + index * 580, dict(points=particles),
+                      point_blend=1, point_glow_radius=1.55 + index * .65)
+        image = node("texture.composite", 10400, 700 + index * 580, dict(a=image, b=sparks), composite_mode=1)
     flash = node("scalar.expression", 11420, 2000, dict(a=low, b=high), expression="a * .16 + b * .18")
     image = node("texture.color_adjust", 11760, 0, dict(source=image, exposure=flash), saturation=1.08)
     output = finish(graph, image, controls[2], .18)

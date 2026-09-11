@@ -93,6 +93,11 @@ def main():
     if verify_studio:
         targets.extend(['editor_contract_tests', 'template_contract_tests', 'template_switch_gpu_tests', 'content_contract_tests'])
         targets.extend(['soundtrack_contract_tests', 'soundtrack_studio_gpu_tests'])
+        # Catalog thumbnails and decoded-PCM acceptance load published packages
+        # through these hosts. Keep their runtime package reader in lockstep with
+        # every Studio delivery; an old executable can otherwise reject a newly
+        # published graph before rendering begins.
+        targets.extend(['windows_effects_gpu_tests', 'music_gpu_tests'])
     subprocess.run(["cmake", "--build", str(build), "--parallel", str(args.jobs), "--target", *targets],
                    check=True, env=environment)
     if verify_studio:

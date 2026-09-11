@@ -86,7 +86,8 @@ void GpuPointStore::Updated(GpuPointHandle handle) { slots_.at(handle.slot_).ini
 void GpuPointStore::ValidateDraw(GpuPointHandle handle, const GpuPointStyle& style) const {
     (void)Capacity(handle);
     if (!slots_[handle.slot_].initialized_ || !std::isfinite(style.opacity_) ||
-        style.opacity_ < 0 || style.opacity_ > 1)
+        style.opacity_ < 0 || style.opacity_ > 1 || !std::isfinite(style.glow_radius_) ||
+        style.glow_radius_ < 1 || style.glow_radius_ > 4)
         throw std::invalid_argument("render.gpu_point_draw");
     if (style.sampling_ &&
         (!std::isfinite(style.sampling_->color_amount_) || style.sampling_->color_amount_ < 0 ||

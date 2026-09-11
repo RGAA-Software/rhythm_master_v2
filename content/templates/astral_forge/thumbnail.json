@@ -1,7 +1,7 @@
 {
     "template": "astral_forge",
-    "package_sha256": "0e2d4ad70873200f15ab16f1597d38497556de4a24ff05bbfadca59c2f4caa8e",
-    "thumbnail_sha256": "3c7b25f102eb3e551a0e0c0773008d4b51485f6fd32331613861dde6c7531cbd",
+    "package_sha256": "3cb1df0d56eb280f35b555337506c75ed5a804338b9c57ea3800ba898153ff3d",
+    "thumbnail_sha256": "1da560c99f360027248f3ef339924869ccb9a388efe329a1f244e9015d620424",
     "extent": [
         256,
         144

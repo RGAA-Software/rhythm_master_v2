@@ -460,7 +460,8 @@ FrameResult Runtime::Impl::EvaluateRange(
                                                      : graph::Scalar(node, "opacity", 1);
                         const render::GpuPointStyle style{
                                 float(std::isfinite(opacity) ? std::clamp(opacity, 0.0, 1.0) : 1),
-                                graph::Scalar(node, "point_blend", 1) == 1, input(0).gpu_sampling_};
+                                graph::Scalar(node, "point_blend", 1) == 1, input(0).gpu_sampling_,
+                                float(graph::Scalar(node, "point_glow_radius", 1))};
                         renderer.SubmitGpuPoints(state.target_.Handle(), input(0).gpu_points_,
                                                  style);
                         state.output_.texture_ = state.target_.Handle();

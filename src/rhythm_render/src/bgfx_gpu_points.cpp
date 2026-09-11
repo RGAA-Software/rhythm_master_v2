@@ -123,7 +123,7 @@ void BgfxGpuPoints::Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Exte
     bgfx::setViewClear(view, BGFX_CLEAR_COLOR, 0);
     bgfx::setViewTransform(view, nullptr, nullptr);
     const std::array<float, 4> values{float(extent.height_) / extent.width_, invert ? -1.0f : 1.0f,
-                                      style.opacity_, 0};
+                                      style.opacity_, style.glow_radius_};
     bgfx::setUniform(view_.Get(), values.data());
     const std::array<float, 4> sampling{style.sampling_ ? style.sampling_->color_amount_ : 0,
                                         style.sampling_ ? style.sampling_->size_amount_ : 0, 0, 0};
