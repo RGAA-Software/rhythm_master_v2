@@ -48,6 +48,8 @@ add_custom_command(OUTPUT "${glow_shader_header}"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/texture_glow_downsample.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/texture_glow_upsample.sc"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/texture_glow_composite.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/texture_glow_display.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/godot_tonemap.sh"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/varying.def.sc"
         "${RHYTHM_SHADERC}" ${render_shader_includes}
     VERBATIM)
@@ -213,6 +215,7 @@ add_custom_command(OUTPUT "${color_pipeline_shader_header}"
     DEPENDS "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
         "${PROJECT_SOURCE_DIR}/tools/compile-shader.py"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/color_pipeline.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/godot_tonemap.sh"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/varying.def.sc"
         "${RHYTHM_SHADERC}" ${render_shader_includes}
     VERBATIM)

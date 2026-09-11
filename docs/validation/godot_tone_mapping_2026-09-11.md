@@ -21,9 +21,10 @@ Windows D3D11 GPU probe 把 8x HDR 值依次通过四种映射并读取最终 RG
 保持主色通道顺序，中性段保持三通道一致，避免只测灰阶而漏掉矩阵方向或通道串扰。
 日志：`out/godot-hdr-color-ramp.log.runs/1789117425082933900.log`。
 
-核心曲线、后端矩阵语义与彩色 HDR 阶梯已经验证。glow 后接 display 的完整作品和现有
-高级作品映射选择仍需动态视觉评审；Godot glow 的五种合成模式还需要联合执行合同，
-其中 Soft Light 必须在 tone mapping 后应用。
+核心曲线、后端矩阵语义与彩色 HDR 阶梯已经验证。随后新增的 `texture.glow_display`
+联合执行合同也复用同一份 tone mapping shader 源，五种 Godot glow 合成模式的颜色阶段
+已由实际 D3D11 像素回读锁定；完整记录见 `godot_glow_display_modes_2026-09-11.md`。
+其余高级作品的映射选择仍需动态视觉评审。
 
 完整 Windows delivery 通过 9/9，覆盖实际 Studio 模板应用、ID 重映射、当前输出、保存
 重开、发布、双语 GPU 和大型音乐工程；随后清理生成测试目录。日志：

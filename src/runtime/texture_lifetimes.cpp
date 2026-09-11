@@ -45,6 +45,7 @@ bool OrdinaryTarget(graph::Operation operation) {
         case kGpuPointRender:
         case kTextureLinearize:
         case kTextureDisplay:
+        case kTextureGlowDisplay:
         case kTextureFxaa:
         case kDepthLinearize:
         case kDepthOfField:
@@ -115,6 +116,7 @@ void TextureLifetimes::Prepare(const graph::ExecutionPlan& plan,
             if (instruction.operation_ == graph::Operation::kOutput ||
                 instruction.operation_ == graph::Operation::kGaussianBlur ||
                 instruction.operation_ == graph::Operation::kTextureGlow ||
+                instruction.operation_ == graph::Operation::kTextureGlowDisplay ||
                 instruction.operation_ == graph::Operation::kTextureTrail ||
                 instruction.operation_ == graph::Operation::kMaterialTextures ||
                 instruction.operation_ == graph::Operation::kGpuTextureSample ||

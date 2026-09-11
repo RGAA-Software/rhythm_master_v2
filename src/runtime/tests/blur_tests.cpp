@@ -35,6 +35,20 @@ int main() {
         Check(renderer.Stats().live_textures_ == 1);
         {
             runtime::detail::GlowPass glow;
+            runtime::detail::GlowPass::DisplaySettings display;
+            display.mode_ = render::GlowBlendMode::kSoftLight;
+            display.pipeline_.tone_mapping_ = render::ToneMapping::kAgx;
+            renderer.BeginFrame();
+            const auto result =
+                    glow.DrawDisplay(source.Handle(), {128, 128}, {}, display, renderer);
+            Check(result != source.Handle() && renderer.IsValid(result));
+            Check(renderer.Precision(result) == render::TexturePrecision::kUnorm8);
+            Check(renderer.Stats().passes_ == 8);
+            renderer.EndFrame();
+        }
+        Check(renderer.Stats().live_textures_ == 1);
+        {
+            runtime::detail::GlowPass glow;
             renderer.BeginFrame();
             const auto result = glow.Draw(source.Handle(), {128, 128}, {}, renderer);
             Check(result != source.Handle() && renderer.IsValid(result));
@@ -83,6 +97,25 @@ int main() {
                                                  {.extent_ = {128, 128}}, renderer);
         Check(renderer.IsValid(glow_frame.final_));
         Check(renderer.Precision(glow_frame.final_) == render::TexturePrecision::kFloat16);
+        renderer.EndFrame();
+        runtime.Reset();
+        Check(renderer.Stats().live_textures_ == 1);
+        graph::Document combined_document;
+        combined_document.id_ = "glow.display.runtime";
+        combined_document.nodes_ = {registry.MakeNode(20, "texture.shape"),
+                                    registry.MakeNode(21, "texture.glow_display"),
+                                    registry.MakeNode(22, "output.texture")};
+        combined_document.nodes_[1].properties_["glow_blend"] = 2.0;
+        combined_document.nodes_[1].properties_["tone_mapping"] = 4.0;
+        combined_document.edges_ = {{1, 20, 21, "source"}, {2, 21, 22, "source"}};
+        combined_document.output_ = 22;
+        compiled = graph::Compile(combined_document, registry);
+        Check(std::holds_alternative<graph::ExecutionPlan>(compiled));
+        renderer.BeginFrame();
+        const auto combined_frame = runtime.Evaluate(std::get<graph::ExecutionPlan>(compiled),
+                                                     {.extent_ = {128, 128}}, renderer);
+        Check(renderer.IsValid(combined_frame.final_));
+        Check(renderer.Precision(combined_frame.final_) == render::TexturePrecision::kUnorm8);
         renderer.EndFrame();
         runtime.Reset();
         Check(renderer.Stats().live_textures_ == 1);

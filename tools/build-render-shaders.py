@@ -62,7 +62,8 @@ def main():
         programs = [("texture_glow_filter.sc", "fragment", "varying.def.sc", "kTextureGlowFilterShader"),
                     ("texture_glow_downsample.sc", "fragment", "varying.def.sc", "kTextureGlowDownsampleShader"),
                     ("texture_glow_upsample.sc", "fragment", "varying.def.sc", "kTextureGlowUpsampleShader"),
-                    ("texture_glow_composite.sc", "fragment", "varying.def.sc", "kTextureGlowCompositeShader")]
+                    ("texture_glow_composite.sc", "fragment", "varying.def.sc", "kTextureGlowCompositeShader"),
+                    ("texture_glow_display.sc", "fragment", "varying.def.sc", "kTextureGlowDisplayShader")]
     elif args.group == "noise":
         programs = [("texture_noise.sc", "fragment", "varying.def.sc", "kTextureNoiseShader")]
     elif args.group == "displace":

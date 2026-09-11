@@ -384,7 +384,8 @@ FrameResult Runtime::Impl::EvaluateRange(
                                                                    radius, renderer, precision);
                         break;
                     }
-                    case graph::Operation::kTextureGlow: {
+                    case graph::Operation::kTextureGlow:
+                    case graph::Operation::kTextureGlowDisplay: {
                         if (!state.glow_) state.glow_ = std::make_unique<detail::GlowPass>();
                         detail::GlowPass::Settings glow;
                         const auto bounded = [&](std::size_t port, std::string_view key,
@@ -402,8 +403,25 @@ FrameResult Runtime::Impl::EvaluateRange(
                         glow.luminance_cap_ = float(graph::Scalar(node, "luminance_cap", 16));
                         glow.levels_ =
                                 static_cast<std::size_t>(graph::Scalar(node, "glow_levels", 4));
-                        state.output_.texture_ =
-                                state.glow_->Draw(input(0).texture_, extent, glow, renderer);
+                        if (instruction.operation_ == graph::Operation::kTextureGlowDisplay) {
+                            detail::GlowPass::DisplaySettings display;
+                            display.mode_ =
+                                    static_cast<render::GlowBlendMode>(static_cast<std::uint8_t>(
+                                            graph::Scalar(node, "glow_blend", 0)));
+                            display.pipeline_.output_ = render::ColorTransfer::kSrgb;
+                            display.pipeline_.tone_mapping_ =
+                                    static_cast<render::ToneMapping>(static_cast<std::uint8_t>(
+                                            graph::Scalar(node, "tone_mapping", 1)));
+                            display.pipeline_.exposure_ = bounded(2, "exposure", 0, -8, 8);
+                            display.pipeline_.white_ = float(graph::Scalar(node, "tone_white", 32));
+                            display.pipeline_.agx_contrast_ =
+                                    float(graph::Scalar(node, "agx_contrast", 1.25));
+                            state.output_.texture_ = state.glow_->DrawDisplay(
+                                    input(0).texture_, extent, glow, display, renderer);
+                        } else {
+                            state.output_.texture_ =
+                                    state.glow_->Draw(input(0).texture_, extent, glow, renderer);
+                        }
                         break;
                     }
                     case graph::Operation::kPathHelix:

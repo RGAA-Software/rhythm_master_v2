@@ -107,7 +107,8 @@ enum class Operation : std::uint8_t {
     kMaterialShader,
     kGpuPointMap,
     kMotionPhase,
-    kTextureGlow
+    kTextureGlow,
+    kTextureGlowDisplay
 };
 constexpr bool HasEventReset(Operation operation) {
     return operation == Operation::kFeedback || operation == Operation::kTextureTrail ||

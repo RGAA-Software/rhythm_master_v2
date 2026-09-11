@@ -469,10 +469,11 @@ class BgfxBackend final : public Backend {
                     break;
             }
             bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | blending | BGFX_STATE_MSAA);
-            const auto map = command.depth_of_field_     ? command.depth_of_field_->depth_
-                             : command.texture_trail_    ? command.texture_trail_->history_
-                             : command.texture_displace_ ? command.texture_displace_->map_
-                                                         : command.texture_;
+            const auto map = command.depth_of_field_         ? command.depth_of_field_->depth_
+                             : command.texture_trail_        ? command.texture_trail_->history_
+                             : command.texture_displace_     ? command.texture_displace_->map_
+                             : command.texture_glow_display_ ? command.texture_glow_display_->glow_
+                                                             : command.texture_;
             if (command.image_program_)
                 image_programs_->Submit(view, *command.image_program_,
                                         textures_[command.texture_.slot_].texture_.Get(), extent);

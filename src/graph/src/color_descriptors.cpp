@@ -12,6 +12,32 @@ void AppendColorDescriptors(std::vector<OperatorDescriptor>& operators) {
                           {"bloom_floor", 0.0, 0, 1},
                           {"luminance_cap", 16.0, 0.01, 65504},
                           {"glow_levels", 4.0, 1, 6, {}, true}}});
+    operators.push_back(
+            {"texture.glow_display",
+             Operation::kTextureGlowDisplay,
+             Type::kTexture,
+             {{"source", Type::kTexture},
+              {"glow_strength", Type::kScalar, false},
+              {"exposure", Type::kScalar, false}},
+             {{"glow_strength", 0.8, 0, 4},
+              {"hdr_threshold", 1.0, 0, 16},
+              {"hdr_scale", 1.0, 0.001, 16},
+              {"bloom_floor", 0.0, 0, 1},
+              {"luminance_cap", 16.0, 0.01, 65504},
+              {"glow_levels", 4.0, 1, 6, {}, true},
+              {"glow_blend",
+               0.0,
+               0,
+               4,
+               {"glow.add", "glow.screen", "glow.soft_light", "glow.replace", "glow.mix"}},
+              {"exposure", 0.0, -8, 8},
+              {"tone_mapping",
+               1.0,
+               0,
+               4,
+               {"tone.clip", "tone.reinhard", "tone.filmic", "tone.aces", "tone.agx"}},
+              {"tone_white", 32.0, 0.1, 32},
+              {"agx_contrast", 1.25, 0.5, 2}}});
     operators.push_back({"texture.fxaa",
                          Operation::kTextureFxaa,
                          Type::kTexture,
@@ -50,6 +76,7 @@ void AppendColorDescriptors(std::vector<OperatorDescriptor>& operators) {
                                 descriptor.operation_ == Operation::kSceneCapture
                         ? 2
                 : descriptor.operation_ == Operation::kTextureDisplay ||
+                                descriptor.operation_ == Operation::kTextureGlowDisplay ||
                                 descriptor.operation_ == Operation::kFeedback
                         ? 1
                         : 0;

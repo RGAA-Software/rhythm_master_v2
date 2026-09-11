@@ -188,6 +188,17 @@ int main() {
         Reject([&] { renderer.Submit({}, draw); });
         draw.commands_[0].texture_filter_.reset();
         draw.commands_[0].texture_glow_.reset();
+        draw.commands_[0].texture_glow_display_ = TextureGlowDisplay{replacement.Handle()};
+        draw.commands_[0].texture_glow_display_->mode_ = static_cast<GlowBlendMode>(255);
+        Reject([&] { renderer.Submit({}, draw); });
+        draw.commands_[0].texture_glow_display_->mode_ = GlowBlendMode::kSoftLight;
+        draw.commands_[0].texture_glow_display_->strength_ = 5;
+        Reject([&] { renderer.Submit({}, draw); });
+        draw.commands_[0].texture_glow_display_->strength_ = 1;
+        draw.commands_[0].color_pipeline_ = ColorPipeline{};
+        Reject([&] { renderer.Submit({}, draw); });
+        draw.commands_[0].color_pipeline_.reset();
+        draw.commands_[0].texture_glow_display_.reset();
         draw.commands_[0].color_pipeline_ = ColorPipeline{};
         draw.commands_[0].color_pipeline_->tone_mapping_ = static_cast<ToneMapping>(255);
         Reject([&] { renderer.Submit({}, draw); });

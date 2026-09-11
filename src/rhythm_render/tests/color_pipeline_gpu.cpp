@@ -156,6 +156,39 @@ void VerifyColorPipeline(render::Renderer& renderer) {
               std::abs(int(channel(14, 1)) - int(channel(14, 2))) <= 2))
             throw std::runtime_error("color_pipeline.hdr_chromatic_ramp");
     }
+    const std::array<std::uint8_t, 4> combined_base_pixel{64, 64, 64, 255};
+    const std::array<std::uint8_t, 4> combined_glow_pixel{128, 128, 128, 255};
+    auto combined_base = renderer.CreateTexture({1, 1}, combined_base_pixel);
+    auto combined_glow = renderer.CreateTexture({1, 1}, combined_glow_pixel);
+    std::array<int, 5> combined_values{};
+    // These D3D readbacks lock Godot's display-stage ordering: Add, Screen,
+    // Replace and Mix run before Reinhard, while Soft Light runs after both
+    // the source and glow have been tone mapped.
+    constexpr std::array kExpectedGlowBlend{156, 156, 137, 124, 143};
+    for (std::size_t index = 0; index < combined_values.size(); ++index) {
+        renderer.BeginFrame();
+        quad = Quad(combined_base.Handle());
+        TextureGlowDisplay combined;
+        combined.glow_ = combined_glow.Handle();
+        combined.mode_ = static_cast<GlowBlendMode>(index);
+        combined.strength_ = 0.5f;
+        combined.pipeline_ =
+                ColorPipeline{ColorTransfer::kLinear, ColorTransfer::kSrgb, ToneMapping::kReinhard};
+        quad.commands_[0].texture_glow_display_ = combined;
+        renderer.Submit(output.Handle(), quad);
+        auto ticket = renderer.RequestReadback(output.Handle());
+        renderer.EndFrame();
+        const auto result = Complete(renderer, std::move(ticket));
+        combined_values[index] = result.rgba_[0];
+        std::cout << "glow_blend=" << index << " rgba=" << int(result.rgba_[0]) << ','
+                  << int(result.rgba_[1]) << ',' << int(result.rgba_[2]) << '\n';
+        if (std::abs(int(result.rgba_[0]) - int(result.rgba_[1])) > 2 ||
+            std::abs(int(result.rgba_[1]) - int(result.rgba_[2])) > 2 || result.rgba_[3] < 253)
+            throw std::runtime_error("color_pipeline.glow_blend_neutrality");
+        Near(result.rgba_[0], kExpectedGlowBlend[index]);
+        Near(result.rgba_[1], kExpectedGlowBlend[index]);
+        Near(result.rgba_[2], kExpectedGlowBlend[index]);
+    }
     renderer.BeginFrame();
     quad = Quad(source.Handle());
     quad.commands_[0].blend_ = BlendMode::kAdd;
@@ -169,6 +202,7 @@ void VerifyColorPipeline(render::Renderer& renderer) {
     Near(added.rgba_[0], 128);
     Near(added.rgba_[3], 192);  // HDR addition retains bounded alpha coverage, not 1.004.
     std::cout << "Color pipeline: linear transfer/alpha roundtrip, neutral and chromatic 8x HDR "
-                 "through Godot Reinhard/Filmic/ACES/AgX passed\n";
+                 "through Godot Reinhard/Filmic/ACES/AgX, and five ordered Godot glow blend "
+                 "modes passed\n";
 }
 }  // namespace rhythm::validation

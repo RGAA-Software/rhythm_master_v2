@@ -19,6 +19,44 @@
 #include "vs_ocornut_imgui.bin.h"
 
 namespace rhythm::render::detail {
+namespace {
+std::array<float, 4> ToneParameters(const ColorPipeline& color_pipeline) {
+    std::array parameters{color_pipeline.white_ * color_pipeline.white_, 0.0f, 0.0f, 0.0f};
+    if (color_pipeline.tone_mapping_ == ToneMapping::kFilmic) {
+        const auto color = color_pipeline.white_;
+        constexpr float kA = 0.22f * 4.0f;
+        constexpr float kB = 0.30f * 2.0f;
+        constexpr float kC = 0.10f;
+        constexpr float kD = 0.20f;
+        constexpr float kE = 0.01f;
+        constexpr float kF = 0.30f;
+        parameters[0] = ((color * (kA * color + kC * kB) + kD * kE) /
+                         (color * (kA * color + kB) + kD * kF)) -
+                        kE / kF;
+    } else if (color_pipeline.tone_mapping_ == ToneMapping::kAces) {
+        const auto color = color_pipeline.white_ * 1.8f;
+        parameters[0] = (color * (color + 0.0245786f) - 0.000090537f) /
+                        (color * (0.983729f * color + 0.432951f) + 0.238081f);
+    } else if (color_pipeline.tone_mapping_ == ToneMapping::kAgx) {
+        constexpr float kCrossover = 0.18f;
+        const auto powered = std::pow(kCrossover, color_pipeline.agx_contrast_);
+        const auto toe = (1.0f / kCrossover - 1.0f) * powered;
+        const auto denominator = powered + toe;
+        const auto slope = color_pipeline.agx_contrast_ *
+                           std::pow(kCrossover, color_pipeline.agx_contrast_ - 1.0f) * toe /
+                           (denominator * denominator);
+        const auto width = color_pipeline.white_ - kCrossover;
+        parameters = {color_pipeline.agx_contrast_, toe, slope,
+                      width * width / (1.0f - kCrossover) * slope};
+    }
+    return parameters;
+}
+std::array<float, 4> PipelineSettings(const ColorPipeline& color_pipeline) {
+    return {color_pipeline.input_ == ColorTransfer::kSrgb ? 1.0f : 0.0f,
+            color_pipeline.output_ == ColorTransfer::kSrgb ? 1.0f : 0.0f,
+            static_cast<float>(color_pipeline.tone_mapping_), std::exp2(color_pipeline.exposure_)};
+}
+}  // namespace
 BgfxTexturePrograms::BgfxTexturePrograms() {
 #if BX_PLATFORM_ANDROID
     GpuHandle vertex(
@@ -81,6 +119,13 @@ BgfxTexturePrograms::BgfxTexturePrograms() {
     }
     glow_settings_ = GpuHandle(bgfx::createUniform("u_glow_settings", bgfx::UniformType::Vec4));
     glow_domain_ = GpuHandle(bgfx::createUniform("u_glow_domain", bgfx::UniformType::Vec4));
+    GpuHandle glow_display_fragment(bgfx::createShader(
+            bgfx::copy(kTextureGlowDisplayShader, sizeof(kTextureGlowDisplayShader))));
+    glow_display_program_ =
+            GpuHandle(bgfx::createProgram(vertex.Get(), glow_display_fragment.Get(), false));
+    glow_display_settings_ =
+            GpuHandle(bgfx::createUniform("u_glow_display", bgfx::UniformType::Vec4));
+    glow_sampler_ = GpuHandle(bgfx::createUniform("s_glow", bgfx::UniformType::Sampler));
     GpuHandle noise_fragment(
             bgfx::createShader(bgfx::copy(kTextureNoiseShader, sizeof(kTextureNoiseShader))));
     noise_program_ = GpuHandle(bgfx::createProgram(vertex.Get(), noise_fragment.Get(), false));
@@ -160,38 +205,22 @@ void BgfxTexturePrograms::Submit(std::uint16_t view, const DrawCommand& command,
         bgfx::submit(view, depth_program_.Get());
     } else if (command.color_pipeline_) {
         const auto& c = *command.color_pipeline_;
-        const std::array settings{c.input_ == ColorTransfer::kSrgb ? 1.0f : 0.0f,
-                                  c.output_ == ColorTransfer::kSrgb ? 1.0f : 0.0f,
-                                  static_cast<float>(c.tone_mapping_), std::exp2(c.exposure_)};
-        std::array parameters{c.white_ * c.white_, 0.0f, 0.0f, 0.0f};
-        if (c.tone_mapping_ == ToneMapping::kFilmic) {
-            const auto color = c.white_;
-            constexpr float kA = 0.22f * 4.0f;
-            constexpr float kB = 0.30f * 2.0f;
-            constexpr float kC = 0.10f;
-            constexpr float kD = 0.20f;
-            constexpr float kE = 0.01f;
-            constexpr float kF = 0.30f;
-            parameters[0] = ((color * (kA * color + kC * kB) + kD * kE) /
-                             (color * (kA * color + kB) + kD * kF)) -
-                            kE / kF;
-        } else if (c.tone_mapping_ == ToneMapping::kAces) {
-            const auto color = c.white_ * 1.8f;
-            parameters[0] = (color * (color + 0.0245786f) - 0.000090537f) /
-                            (color * (0.983729f * color + 0.432951f) + 0.238081f);
-        } else if (c.tone_mapping_ == ToneMapping::kAgx) {
-            constexpr float kCrossover = 0.18f;
-            const auto powered = std::pow(kCrossover, c.agx_contrast_);
-            const auto toe = (1.0f / kCrossover - 1.0f) * powered;
-            const auto denominator = powered + toe;
-            const auto slope = c.agx_contrast_ * std::pow(kCrossover, c.agx_contrast_ - 1.0f) *
-                               toe / (denominator * denominator);
-            const auto width = c.white_ - kCrossover;
-            parameters = {c.agx_contrast_, toe, slope, width * width / (1.0f - kCrossover) * slope};
-        }
+        const auto settings = PipelineSettings(c);
+        const auto parameters = ToneParameters(c);
         bgfx::setUniform(pipeline_settings_.Get(), settings.data());
         bgfx::setUniform(tone_mapping_parameters_.Get(), parameters.data());
         bgfx::submit(view, pipeline_program_.Get());
+    } else if (command.texture_glow_display_) {
+        const auto& glow = *command.texture_glow_display_;
+        const auto settings = PipelineSettings(glow.pipeline_);
+        const auto parameters = ToneParameters(glow.pipeline_);
+        const std::array glow_settings{static_cast<float>(glow.mode_), glow.strength_,
+                                       glow.pipeline_.white_, 0.0f};
+        bgfx::setTexture(1, glow_sampler_.Get(), map, BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
+        bgfx::setUniform(pipeline_settings_.Get(), settings.data());
+        bgfx::setUniform(tone_mapping_parameters_.Get(), parameters.data());
+        bgfx::setUniform(glow_display_settings_.Get(), glow_settings.data());
+        bgfx::submit(view, glow_display_program_.Get());
     } else if (command.texture_trail_) {
         const auto& trail = *command.texture_trail_;
         const std::array settings{trail.retention_, trail.scale_, trail.rotation_, aspect};

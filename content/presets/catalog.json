@@ -1398,6 +1398,33 @@
             }
         },
         {
+            "id": "official.glow_display.default",
+            "version": "1.0.0",
+            "operator": "texture.glow_display",
+            "titles": {
+                "zh-CN": "默认 · 联合辉光显示",
+                "en-US": "Default · Combined glow display"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.glow_display.soft_light",
+            "version": "1.0.0",
+            "operator": "texture.glow_display",
+            "titles": {
+                "zh-CN": "柔光 · AgX",
+                "en-US": "Soft Light · AgX"
+            },
+            "properties": {
+                "glow_blend": 2,
+                "tone_mapping": 4,
+                "glow_strength": 0.85,
+                "hdr_threshold": 0.8,
+                "bloom_floor": 0.08,
+                "glow_levels": 5
+            }
+        },
+        {
             "id": "official.texture_noise.default",
             "version": "1.0.0",
             "operator": "texture.noise",

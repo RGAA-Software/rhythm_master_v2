@@ -110,7 +110,8 @@ int main(int argc, char* argv[]) {
                            instruction.operation_ == kTextureContours ||
                            instruction.operation_ == kTextureTrail ||
                            instruction.operation_ == kGaussianBlur ||
-                           instruction.operation_ == kTextureGlow;
+                           instruction.operation_ == kTextureGlow ||
+                           instruction.operation_ == kTextureGlowDisplay;
                 });
         const auto animated_models = std::count_if(
                 instructions.begin(), instructions.end(), [](const auto& instruction) {
@@ -121,12 +122,12 @@ int main(int argc, char* argv[]) {
                 instructions.begin(), instructions.end(), [](const auto& instruction) {
                     return instruction.operation_ == graph::Operation::kTextureText;
                 });
-        std::cout << "reachable_instructions=" << instructions.size() << " expected_nodes="
-                  << expected_nodes << " audio_bands=" << bands
+        std::cout << "reachable_instructions=" << instructions.size()
+                  << " expected_nodes=" << expected_nodes << " audio_bands=" << bands
                   << " gpu_particle_fields=" << gpu_fields
                   << " spectral_instance_fields=" << instance_fields << " tube_meshes=" << paths
-                  << " animated_model_nodes=" << animated_models
-                  << " synchronous_video=" << videos << '\n';
+                  << " animated_model_nodes=" << animated_models << " synchronous_video=" << videos
+                  << '\n';
         if (instructions.size() != expected_nodes ||
             (bands < 24 && instance_fields == 0 &&
              !((videos || gpu_fields > 0 || materials > 0 || scene_instances > 0 || paths > 0 ||

@@ -49,6 +49,9 @@ class BgfxTexturePrograms final {
     std::array<GpuHandle<bgfx::ProgramHandle>, 4> glow_programs_{};
     GpuHandle<bgfx::UniformHandle> glow_settings_{};
     GpuHandle<bgfx::UniformHandle> glow_domain_{};
+    GpuHandle<bgfx::ProgramHandle> glow_display_program_{};
+    GpuHandle<bgfx::UniformHandle> glow_display_settings_{};
+    GpuHandle<bgfx::UniformHandle> glow_sampler_{};
     GpuHandle<bgfx::ProgramHandle> noise_program_{};
     GpuHandle<bgfx::UniformHandle> noise_settings_{};
     GpuHandle<bgfx::UniformHandle> noise_color_a_{};

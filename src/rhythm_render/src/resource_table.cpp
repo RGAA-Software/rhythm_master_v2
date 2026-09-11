@@ -209,6 +209,7 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
         const auto effects =
                 int(command.texture_noise_.has_value()) + int(command.texture_filter_.has_value()) +
                 int(command.texture_glow_.has_value()) +
+                int(command.texture_glow_display_.has_value()) +
                 int(command.color_adjustment_.has_value()) +
                 int(command.texture_mapping_.has_value()) +
                 int(command.texture_contours_.has_value()) +
@@ -322,6 +323,16 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
                 !bounded(glow.threshold_scale_, 0.001f, 16) || !bounded(glow.bloom_floor_, 0, 1) ||
                 !bounded(glow.luminance_cap_, 0.01f, 65504) || !bounded(glow.strength_, 0, 4))
                 throw std::invalid_argument("render.texture_glow");
+        }
+        if (command.texture_glow_display_) {
+            const auto& glow = *command.texture_glow_display_;
+            const auto& color = glow.pipeline_;
+            if (!IsValid(glow.glow_) || IsDepth(glow.glow_) || glow.glow_ == target ||
+                glow.mode_ > GlowBlendMode::kMix || !bounded(glow.strength_, 0, 4) ||
+                color.input_ > ColorTransfer::kSrgb || color.output_ > ColorTransfer::kSrgb ||
+                color.tone_mapping_ > ToneMapping::kAgx || !bounded(color.exposure_, -8, 8) ||
+                !bounded(color.white_, 0.1f, 32) || !bounded(color.agx_contrast_, 0.5f, 2))
+                throw std::invalid_argument("render.texture_glow_display");
         }
         if (command.color_adjustment_) {
             const auto& color = *command.color_adjustment_;

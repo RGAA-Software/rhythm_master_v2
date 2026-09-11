@@ -78,6 +78,16 @@ struct TextureGlow {
     float strength_ = 1;
 };
 
+enum class GlowBlendMode : std::uint8_t { kAdd, kScreen, kSoftLight, kReplace, kMix };
+// Joint Godot glow/tone-map contract. Glow is a filtered linear-HDR texture;
+// Add/Screen/Replace/Mix execute before tone mapping and Soft Light after it.
+struct TextureGlowDisplay {
+    TextureHandle glow_{};
+    GlowBlendMode mode_ = GlowBlendMode::kAdd;
+    float strength_ = 0.8f;
+    ColorPipeline pipeline_{};
+};
+
 struct TextureNoise {
     float scale_ = 4;
     float phase_ = 0;
@@ -165,6 +175,7 @@ struct DrawCommand {
     std::optional<ColorAdjustment> color_adjustment_{};
     std::optional<TextureFilter> texture_filter_{};
     std::optional<TextureGlow> texture_glow_{};
+    std::optional<TextureGlowDisplay> texture_glow_display_{};
     std::optional<TextureNoise> texture_noise_{};
     std::optional<TextureMapping> texture_mapping_{};
     std::optional<TextureContours> texture_contours_{};
