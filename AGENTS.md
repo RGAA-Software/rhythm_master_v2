@@ -126,6 +126,12 @@ ownership is explicitly transferred to the project.
   `docs/godot_3d_reference_plan.md`. Evaluate focused source reuse, retain
   notices, and adapt dependencies to our contracts. This does not authorize
   embedding the whole engine or leaking Godot types into project public APIs.
+- Use TiXL for node logic, parameter exposure, graph organization and authored
+  work structure. Use pinned Godot implementations as the primary source for
+  core visual algorithms, including glow/bloom, HDR, tone mapping and major
+  post-processing. Do not replace a complete engine algorithm with a simplified
+  project-owned approximation. Record a concrete compatibility gap before
+  selecting a different established engine implementation.
 - FFmpeg is the sole media demux/decode/encode/mux backend for the new project.
   Follow `docs/media_pipeline_plan.md`. Do not introduce VLC/libVLC, Qt
   Multimedia or a second high-level player/decoder as a fallback.

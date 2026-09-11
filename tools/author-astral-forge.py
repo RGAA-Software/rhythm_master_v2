@@ -23,11 +23,9 @@ def create_astral_forge():
                 metallic=.82, roughness=.3)
     torus = node("geometry.torus", 1400, 0, radius=1.18, tube_ratio=.055,
                  radial_segments=96, tube_segments=20)
-    sphere = node("geometry.sphere", 1400, 300, radius=.12, radial_segments=32, rings=16)
     cube = node("geometry.cube", 1400, 600)
     gold_ring = node("scene.instance", 1740, 0, dict(geometry=torus, material=gold))
     blue_ring = node("scene.instance", 1740, 240, dict(geometry=torus, material=azure))
-    orbit_body = node("scene.instance", 1740, 480, dict(geometry=sphere, material=azure))
     obelisk = node("scene.instance", 1740, 720, dict(geometry=cube, material=dark))
     pieces = []
     for index, speed in enumerate((18, -29, 43, -57)):
@@ -37,25 +35,6 @@ def create_astral_forge():
                            dict(scene=gold_ring if index % 2 == 0 else blue_ring, rotation_z=turn),
                            rotation_x=62 + index * 17, rotation_y=index * 23,
                            scale=1 - index * .11))
-    # These blue orbiting bodies are distinct 3D geometry. They deliberately
-    # remain outside texture.blur so their sustained orbit is legible without
-    # turning into duplicated cyan ghosts at large sizes.
-    for index in range(14):
-        angle = index * math.tau / 14
-        orbit = node("scalar.expression", 2080, 1100 + index * 140, dict(time=clock, a=low),
-                     expression=f"time * {20 + index % 4 * 8} + a * 17 + {angle * 57.2958}")
-        x = node("scalar.expression", 2420, 1100 + index * 140, dict(a=orbit),
-                 expression=f"{2.0 + (index % 3) * .34} * cos(a * .0174532925)")
-        z = node("scalar.expression", 2760, 1100 + index * 140, dict(a=orbit),
-                 expression=f"{2.0 + (index % 3) * .34} * sin(a * .0174532925)")
-        y = node("scalar.expression", 3100, 1100 + index * 140, dict(time=clock, a=high),
-                 expression=f".25 * sin(time * .7853981634 + {index}) + a * .18")
-        scale = node("scalar.expression", 3360, 1100 + index * 140, dict(time=clock, a=high),
-                     expression=f".56 + .07 * sin(time * .7853981634 + {index}) + a * .24")
-        pieces.append(node("scene.transform", 3700, 1100 + index * 140,
-                           dict(scene=orbit_body, translate_x=x, translate_y=y, translate_z=z,
-                                scale=scale),
-                           scale_y=2.1))
     for index in range(12):
         angle = index * math.tau / 12
         swell = node("scalar.expression", 2080, 3400 + index * 150, dict(time=clock, a=low),
@@ -80,6 +59,27 @@ def create_astral_forge():
     background = node("texture.gradient", 8700, 600, color_a=(.001, .004, .012, 1),
                       color_b=(.018, .01, .045, 1))
     image = node("texture.composite", 9040, 0, dict(a=background, b=sculpture), composite_mode=1)
+
+    beacon_emission = node("scalar.expression", 9040, 330, dict(a=high, b=mid),
+                           expression=".72 + a * 1.6 + b * .55")
+    beacon_scale = node("scalar.expression", 9380, 330, dict(a=low, b=high),
+                        expression=".88 + a * .22 + b * .34")
+    beacon_turn = node("scalar.expression", 9720, 330, dict(time=clock, a=mid),
+                       expression="time * 19 + a * 21")
+    # The fourteen large cyan beacons use the same analytic soft-particle path
+    # as the sparks. Rotating the bounded cloud preserves their continuous
+    # orbit while bass and treble breathe their size without opaque silhouettes.
+    beacons = node("gpu.particles", 10060, 330, dict(emission=beacon_emission),
+                   particle_capacity=14, seed=8177, initial_fill=0, emission_rate=2.8,
+                   lifetime=6.5, emitter_radius=.32, particle_speed=.006, drag=.22,
+                   flow_strength=.018, flow_frequency=3.2, flow_evolution=.12,
+                   point_size=.046, color_a=(.025, .38, .52, .34),
+                   color_b=(.34, .9, .94, .78))
+    beacons = node("gpu.map", 10400, 330,
+                   dict(points=beacons, rotation=beacon_turn, point_size_scale=beacon_scale))
+    beacons = node("gpu.render", 10740, 330, dict(points=beacons),
+                   point_blend=1, point_glow_radius=1.7)
+    image = node("texture.composite", 11080, 330, dict(a=image, b=beacons), composite_mode=1)
 
     emission = node("scalar.expression", 9040, 700, dict(a=high, b=low),
                     expression=".16 + a * 1.45 + b * .38")
@@ -106,10 +106,10 @@ def create_astral_forge():
         image = node("texture.composite", 10400, 700 + index * 580, dict(a=image, b=sparks), composite_mode=1)
     flash = node("scalar.expression", 11420, 2000, dict(a=low, b=high), expression="a * .16 + b * .18")
     image = node("texture.color_adjust", 11760, 0, dict(source=image, exposure=flash), saturation=1.08)
-    output = finish(graph, image, controls[2], .18)
+    output = finish(graph, image, controls[2], 0)
     publish(name, ("星铸圣坛", "Astral Forge"),
-            ("鎏金环体、十四枚蓝色悬浮航标与十二座黑曜石柱组成持续转动的材质舞台；相机环绕，双层 GPU 粒子从空场以每秒速率生成。低频驱动主体与柱体呼吸，中频控制轨道和流场，高频强化航标、火花与光照。",
-             "Gold rings, fourteen blue floating beacons and twelve obsidian pillars form a continuously rotating material stage. An orbiting camera and two sustained-rate GPU particle layers remain active in silence; bass shapes the body, mids steer orbit/flow and treble sharpens beacons, sparks and light."),
+            ("鎏金环体、十四枚蓝色柔光航标与十二座黑曜石柱组成持续转动的材质舞台；相机环绕，三层 GPU 粒子从空场以每秒速率生成。低频驱动主体与航标呼吸，中频控制轨道和流场，高频加快航标与火花生成并强化光照。",
+             "Gold rings, fourteen soft cyan beacons and twelve obsidian pillars form a continuously rotating material stage. An orbiting camera and three sustained-rate GPU particle layers build from an empty field; bass shapes the body and beacons, mids steer orbit and flow, and treble accelerates beacon and spark emission while strengthening the light."),
             graph, output, controls, compute=True, schema_version=7)
 
 

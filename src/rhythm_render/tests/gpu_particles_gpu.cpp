@@ -97,8 +97,14 @@ void SoftParticleFalloff(render::Renderer& renderer) {
     render::GpuPointStyle local_glow;
     local_glow.glow_radius_ = 2.0f;
     const auto expanded = Capture(renderer, target.Handle(), points.Handle(), local_glow);
+    const auto expanded_inner = expanded.rgba_[(32 * 64 + 36) * 4];
+    const auto expanded_middle = expanded.rgba_[(32 * 64 + 40) * 4];
+    const auto expanded_outer = expanded.rgba_[(32 * 64 + 44) * 4];
     const auto expanded_edge = expanded.rgba_[(32 * 64 + 47) * 4];
     if (expanded_edge <= edge) throw std::runtime_error("gpu_particles.local_glow_extent");
+    if (!(expanded_inner > expanded_middle && expanded_middle > expanded_outer &&
+          expanded_outer > expanded_edge))
+        throw std::runtime_error("gpu_particles.local_glow_smooth_falloff");
 }
 void SamplingOrientation(render::Renderer& renderer) {
     const std::array<std::uint8_t, 4> white{255, 255, 255, 255};

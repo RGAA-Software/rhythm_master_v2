@@ -1,4 +1,4 @@
-# 3D：以 Godot 为主要设计与源码参考
+# 核心渲染效果与 3D：以 Godot 为主要设计与源码参考
 
 > 2026-09-06：用户确认的参考方向。2026-09-07 已固定 4.5.1-stable 提交并适配
 > 投影和球体网格源码；基础数值与 Windows 场景 GPU 验证通过，图和应用接入待完成。
@@ -15,6 +15,11 @@ Godot 是 3D 能力的首要设计与代码参考，不仅观察功能，还要�
 TouchDesigner/TiXL 继续作为视觉编程、创作流程和实时预览参考；Axmol 保留已有
 2D/设计分辨率经验，但不是本次 3D 的主要参考。
 
+2026-09-11 用户进一步确定：核心画面算法也以 Godot 的成熟实现为首要源码基线。
+TiXL 用于节点逻辑、参数暴露、图组织和作品结构参考，不能用局部 TiXL 滤镜或项目
+自制简化管线代替 Godot 的完整核心效果。该约束首先适用于 glow/bloom、HDR、颜色
+空间、tone mapping 和后续主要后处理，也适用于材质、灯光和 3D 渲染能力。
+
 不把产品改成 Godot 编辑器，也不默认嵌入整个 Godot 引擎。
 继续保留独立 RhythmRender/bgfx、类型化节点图与四平台 Player 的架构边界。
 参考引擎的选择不等于承诺完整复制其所有 3D 特性。
@@ -30,6 +35,7 @@ TouchDesigner/TiXL 继续作为视觉编程、创作流程和实时预览参考�
 | 灯光 | 方向/点/聚光灯、环境光、阴影与质量分级 | 独立 lighting/pass 模块 |
 | 动画 | 动画资源、混合、骨架与 morph 的责任分离 | 可由时间/信号驱动的动画运行模块 |
 | 效率 | 实例化、裁剪、资源缓存与不同设备档位 | 受能力约束的执行/渲染计划 |
+| 后处理 | HDR 亮度筛选、多级 glow、上采样合成、blend 与 tone mapping | RhythmRender 私有 Godot 算法适配；普通 blur 与 bloom 分离 |
 
 这张表是研究任务，不是已经逐项完成源码审查的结论。正式复用前固定 Godot
 稳定版本和具体 commit，再为每个领域记录文件、依赖、许可、可迁移部分和测试。
@@ -72,3 +78,22 @@ Godot 可作为对照之一，但不要求不同 renderer 像素完全一致；�
 - [Godot 许可与第三方说明](https://docs.godotengine.org/en/stable/about/complying_with_licenses.html)
 
 以上 master 链接仅为发现入口，不能代替正式导入时的固定提交与文件清单。
+
+## 6. Glow/Bloom 固定基线（2026-09-11）
+
+本地审查固定 Godot 提交 `cb41ea115914c61a8329087b4cffbad7477b8427`。首批适配
+范围来自 `drivers/gles3/effects/glow.cpp`、`glow.h`、
+`drivers/gles3/shaders/effects/glow.glsl` 以及 tone-map 阶段的 glow 合成；上游为
+MIT/Expat 许可，文件头和项目 `LICENSE.txt` 均要求保留版权与许可声明。
+
+采用的是 Godot 标注的 Dual Filtering glow：首次半分辨率筛选对 HDR 最大通道执行
+`smoothstep(threshold, threshold + scale)`，受 bloom 下限和 luminance cap 约束；随后
+继续建立四级降采样，再以八 tap、归一化权重逐级上采样；最后在 tone mapping 的正确
+阶段按 Add、Screen、Soft Light、Replace 或 Mix 语义合成。不能退化成“全图 Gaussian
+blur 后加回原图”。项目适配保留 bgfx、项目纹理句柄、RAII 和有界 pass/resource
+预算，不引入 Godot Object、RID、OpenGL 类型或整套引擎。
+
+迁移时新增独立 glow/bloom 契约；现有 `texture.blur` 仅表示普通空间模糊。验收必须
+覆盖大号粒子、细亮线、高亮材质、低亮背景、HDR/SDR、不同画布尺寸和连续动态帧，
+并把 Godot 参考输入、参数、输出与项目适配输出并排评审。只检查非零像素差不能证明
+效果达标。
