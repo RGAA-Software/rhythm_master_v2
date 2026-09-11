@@ -121,6 +121,41 @@ void VerifyColorPipeline(render::Renderer& renderer) {
     if (!(chroma_result.rgba_[0] > chroma_result.rgba_[1] &&
           chroma_result.rgba_[1] > chroma_result.rgba_[2]))
         throw std::runtime_error("color_pipeline.agx_chroma");
+    const std::array<std::uint8_t, 16> ramp_pixels{255, 64, 16,  255, 32,  255, 64,  255,
+                                                   16,  64, 255, 255, 255, 255, 255, 255};
+    auto ramp = renderer.CreateTexture({4, 1}, ramp_pixels);
+    renderer.BeginFrame();
+    quad = Quad(ramp.Handle());
+    quad.commands_[0].color_pipeline_ =
+            ColorPipeline{ColorTransfer::kLinear, ColorTransfer::kLinear, ToneMapping::kNone, 3};
+    renderer.Submit(middle.Handle(), quad);
+    renderer.EndFrame();
+    const std::array all_tone_modes{ToneMapping::kReinhard, ToneMapping::kFilmic,
+                                    ToneMapping::kAces, ToneMapping::kAgx};
+    for (const auto mode : all_tone_modes) {
+        renderer.BeginFrame();
+        quad = Quad(middle.Handle());
+        quad.commands_[0].color_pipeline_ =
+                ColorPipeline{ColorTransfer::kLinear, ColorTransfer::kSrgb, mode};
+        renderer.Submit(output.Handle(), quad);
+        auto ticket = renderer.RequestReadback(output.Handle());
+        renderer.EndFrame();
+        const auto result = Complete(renderer, std::move(ticket));
+        const auto channel = [&](int x, int component) {
+            return result.rgba_[(8 * 16 + x) * 4 + component];
+        };
+        std::cout << "hdr_ramp mode=" << static_cast<int>(mode);
+        for (const int x : {2, 6, 10, 14})
+            std::cout << " [" << int(channel(x, 0)) << ',' << int(channel(x, 1)) << ','
+                      << int(channel(x, 2)) << ']';
+        std::cout << '\n';
+        if (!(channel(2, 0) > channel(2, 1) && channel(2, 1) > channel(2, 2) &&
+              channel(6, 1) > channel(6, 2) && channel(6, 2) > channel(6, 0) &&
+              channel(10, 2) > channel(10, 1) && channel(10, 1) > channel(10, 0) &&
+              std::abs(int(channel(14, 0)) - int(channel(14, 1))) <= 2 &&
+              std::abs(int(channel(14, 1)) - int(channel(14, 2))) <= 2))
+            throw std::runtime_error("color_pipeline.hdr_chromatic_ramp");
+    }
     renderer.BeginFrame();
     quad = Quad(source.Handle());
     quad.commands_[0].blend_ = BlendMode::kAdd;
@@ -133,7 +168,7 @@ void VerifyColorPipeline(render::Renderer& renderer) {
     auto added = Complete(renderer, std::move(added_read));
     Near(added.rgba_[0], 128);
     Near(added.rgba_[3], 192);  // HDR addition retains bounded alpha coverage, not 1.004.
-    std::cout << "Color pipeline: linear transfer/alpha roundtrip, 8x HDR through "
-                 "Godot Reinhard/Filmic/ACES/AgX passed\n";
+    std::cout << "Color pipeline: linear transfer/alpha roundtrip, neutral and chromatic 8x HDR "
+                 "through Godot Reinhard/Filmic/ACES/AgX passed\n";
 }
 }  // namespace rhythm::validation
