@@ -107,7 +107,7 @@
         ]
     },
     "descriptions": {
-        "zh-CN": "鎏金环体、蓝色轨道与十二座黑曜石柱组成持续转动的材质舞台；相机环绕，双层 GPU 粒子从空场以每秒速率生成。低频驱动主体与柱体呼吸，中频控制轨道和流场，高频强化火花与光照。",
-        "en-US": "Gold rings, blue orbitals and twelve obsidian pillars form a continuously rotating material stage. An orbiting camera and two sustained-rate GPU particle layers remain active in silence; bass shapes the body, mids steer orbit/flow and treble sharpens sparks and light."
+        "zh-CN": "鎏金环体、十四枚蓝色悬浮航标与十二座黑曜石柱组成持续转动的材质舞台；相机环绕，双层 GPU 粒子从空场以每秒速率生成。低频驱动主体与柱体呼吸，中频控制轨道和流场，高频强化航标、火花与光照。",
+        "en-US": "Gold rings, fourteen blue floating beacons and twelve obsidian pillars form a continuously rotating material stage. An orbiting camera and two sustained-rate GPU particle layers remain active in silence; bass shapes the body, mids steer orbit/flow and treble sharpens beacons, sparks and light."
     }
 }

@@ -6269,7 +6269,7 @@
             "id": "official.templates.astral_forge",
             "kind": "template",
             "source": "content/templates/astral_forge",
-            "source_sha256": "4ef1eb16001ac874c1a6f7ee1579693f96c394f52d37568a33fa0f1c1dbcbc88",
+            "source_sha256": "4e99d2a76313d951b38d198b490003854342896eb036c114a6e806861d5fc722",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "星铸圣坛",
