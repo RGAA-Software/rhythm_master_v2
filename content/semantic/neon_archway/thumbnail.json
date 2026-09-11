@@ -1,0 +1,14 @@
+{
+    "template": "neon_archway",
+    "package_sha256": "be73ebdd63a08e243c8ff17396980db5e82998de6b3bf912ff16638c5ee3365f",
+    "thumbnail_sha256": "e9cddf66bab7400930b64600e7c3686344fa4532617d5a6d9b05e8a0313e23f5",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

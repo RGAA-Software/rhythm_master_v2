@@ -1,0 +1,14 @@
+{
+    "template": "spectral_plinth",
+    "package_sha256": "666f94a1ff68f9413a81aa1919f07a19fc4b11e914d4d3b72b64b5a27e982670",
+    "thumbnail_sha256": "7b43ecd534d4a44460cf310e7cb2221e85401a8748a1d31906481ba9e1542150",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

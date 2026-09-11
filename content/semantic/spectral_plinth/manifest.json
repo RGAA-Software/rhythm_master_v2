@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.spectral_plinth",
+    "content_version": "0.1.0",
+    "project_id": "semantic-spectral_plinth",
+    "graph_revision": 0,
+    "title": "频谱台阵 / Spectral plinth",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Spectral plinth",
+        "zh-CN": "频谱台阵"
+    },
+    "category": "audio",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "A batched three-dimensional plinth that turns a spectrum into a slowly rotating stage.",
+        "zh-CN": "A batched three-dimensional plinth that turns a spectrum into a slowly rotating stage."
+    }
+}

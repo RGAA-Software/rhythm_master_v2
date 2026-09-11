@@ -1,0 +1,14 @@
+{
+    "template": "helix_beacons",
+    "package_sha256": "dd3d8997b9db6ee9efb10ab134bd28786411e84d90f899365662c8fd192bde69",
+    "thumbnail_sha256": "c938dc503be4de5a2117856f4849a64f71578a6378a23a3a757763264325d697",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

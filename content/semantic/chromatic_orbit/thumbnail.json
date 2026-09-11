@@ -1,0 +1,14 @@
+{
+    "template": "chromatic_orbit",
+    "package_sha256": "88965a26a099c28eddcb5ce74290d87b66330b1056d9c6f92b73a3a46929b407",
+    "thumbnail_sha256": "d5919dbf72fc8f15f344f36f4b3bcd15b76d636f42bd4e8af59ddca5d9170e2e",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

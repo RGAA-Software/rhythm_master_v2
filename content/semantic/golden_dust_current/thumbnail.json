@@ -1,0 +1,14 @@
+{
+    "template": "golden_dust_current",
+    "package_sha256": "68c9c9af105967e725e3c7b9b0383e6520426d09dd1fe6cd4f5247c6eaa60ac5",
+    "thumbnail_sha256": "4f0c70dad4cabd5691adb129e8b894df31cf2ebfdac010b75ed169e805b7d645",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

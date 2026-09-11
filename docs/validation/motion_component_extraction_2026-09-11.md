@@ -1,6 +1,6 @@
 # 概念作品运动组件提取
 
-2026-09-11。P7.2 的第二个增量从已完成的四件高级作品及敦煌飞带中提取五个
+2026-09-11。P7.2 的第二个增量从已完成的四件高级作品及敦煌飞带中提取十个
 可编辑的第一方语义组件，使后续作品可复用经过实际动态验证的运动结构，而不复制
 整个模板或将声音作为唯一动画来源。
 
@@ -11,6 +11,11 @@
 | 矿彩流移 / Mineral advection | 层叠墨流 | 多尺度噪声连续平流 | 低频亮度、中频位移、高频纹理能量 | 速度、响应、层数、颗粒尺度、采样范围 |
 | 无尽光廊 / Endless passage | 光门空间 | 径向隧道持续前进 | 低频频谱主体、中频扭转、高频强调 | 速度、响应、纵深、门数、频谱透明度 |
 | 飞带星图 / Ribbon constellation | 敦煌飞带 | 三条螺旋飞带与相机绕行 | 低频发光、中频路径相位、高频细节 | 速度、响应、金属度、粗糙度、视场 |
+| 鎏金尘流 / Golden dust current | 概念作品粒子层 | 连续发射的 GPU 尘流 | 低频尺寸、中频流场、高频发射 | 速度、响应、每秒速率、流频率、柔光 |
+| 频谱台阵 / Spectral plinth | 高级三维舞台结构 | 点阵舞台持续旋转 | 低频高度、中频材质、高频细节 | 速度、响应、行列数、金属度 |
+| 霓虹门架 / Neon archway | 光门空间 | 深度门架与相机视差 | 低频发光、中频摆动、高频能量 | 速度、响应、金属度、粗糙度、视场 |
+| 彩光轨道 / Chromatic orbit | 鎏光流涡 | 折叠色场和环轨持续旋转 | 低频尺度、中频旋转、高频细节 | 速度、响应、噪声尺度、折数、环混合 |
+| 螺旋灯标 / Helix beacons | 敦煌飞带 | 多支螺旋灯带持续转动 | 低频发光、中频相位、高频细节 | 速度、响应、金属度、粗糙度、视场 |
 
 实现由 [author-motion-components.py](../../tools/author-motion-components.py) 生成。它只复用
 本仓库四件概念作品的节点结构；没有导入第三方源码或资产。精确来源文件、哈希、
@@ -31,7 +36,7 @@
 
 ## 本轮实际验证
 
-- `python tools/audit-content-quality.py`：作者组件数从 30 增至 35；审美审核数仍为 0，
+- `python tools/audit-content-quality.py`：作者组件数从 30 增至 40；审美审核数仍为 0，
   没有把运行通过误计为品质验收。
 - `python tools/build-windows.py --target semantic_tests`：五个 `.rhythmpack` 由当前源编译；
   `semantic_tests.exe` 重新链接。
@@ -43,6 +48,11 @@
   tools/render-catalog-thumbnails.py --kind semantic ...`：五个新组件均以 Windows D3D11
   Player 的第 4 秒合成音频实际渲染缩略图，并写入源内容目录；日志为
   `out/motion-components-thumbnails.log.runs/1789060633393753700.log`。
+- 第二批的同一路径记录为
+  `out/motion-components-second-semantic-tests.log.runs/1789086891694012300.log` 和
+  `out/motion-components-second-thumbnails.log.runs/1789086905763678600.log`。首次执行暴露
+  `spectral_plinth` 的 36×20 点阵越过运行时实例容量；该组件现固定 1024 实例档，公开
+  行列控制均限制为 32，默认和演出预设都在该档内。
 
 此项只建立可编辑组件候选和功能证据。它没有增加高级作品数量、没有声称用户审美
 验收、没有执行 Android 或长稳验收。

@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.neon_archway",
+    "content_version": "0.1.0",
+    "project_id": "semantic-neon_archway",
+    "graph_revision": 0,
+    "title": "霓虹门架 / Neon archway",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Neon archway",
+        "zh-CN": "霓虹门架"
+    },
+    "category": "scene",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "A deep sequence of emissive architectural gates with continuous parallax and separate band energy.",
+        "zh-CN": "A deep sequence of emissive architectural gates with continuous parallax and separate band energy."
+    }
+}

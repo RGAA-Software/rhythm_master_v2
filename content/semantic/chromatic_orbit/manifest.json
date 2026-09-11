@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.chromatic_orbit",
+    "content_version": "0.1.0",
+    "project_id": "semantic-chromatic_orbit",
+    "graph_revision": 0,
+    "title": "彩光轨道 / Chromatic orbit",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Chromatic orbit",
+        "zh-CN": "彩光轨道"
+    },
+    "category": "compositing",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "A continuously folding chromatic field with a music-modulated orbital frame.",
+        "zh-CN": "A continuously folding chromatic field with a music-modulated orbital frame."
+    }
+}

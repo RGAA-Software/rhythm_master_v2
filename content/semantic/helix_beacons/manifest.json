@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.helix_beacons",
+    "content_version": "0.1.0",
+    "project_id": "semantic-helix_beacons",
+    "graph_revision": 0,
+    "title": "螺旋灯标 / Helix beacons",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Helix beacons",
+        "zh-CN": "螺旋灯标"
+    },
+    "category": "scene",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Five independent luminous helix beacons with separate bass, mid and treble response.",
+        "zh-CN": "Five independent luminous helix beacons with separate bass, mid and treble response."
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "format": "rhythm.project",
+    "manifest_version": 1,
+    "kind": "template",
+    "content_id": "official.semantic.golden_dust_current",
+    "content_version": "0.1.0",
+    "project_id": "semantic-golden_dust_current",
+    "graph_revision": 0,
+    "title": "鎏金尘流 / Golden dust current",
+    "default_locale": "zh-CN",
+    "titles": {
+        "en-US": "Golden dust current",
+        "zh-CN": "鎏金尘流"
+    },
+    "category": "particles",
+    "maturity": "visual-review-pending",
+    "author": "Rhythm Master",
+    "license_status": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+    "compatible_players": [
+        "windows",
+        "android"
+    ],
+    "external_assets": [],
+    "semantic": true,
+    "default": false,
+    "descriptions": {
+        "en-US": "Continuously emitted gold dust with visible per-band energy modulation, extracted from the concept particle layers.",
+        "zh-CN": "Continuously emitted gold dust with visible per-band energy modulation, extracted from the concept particle layers."
+    }
+}

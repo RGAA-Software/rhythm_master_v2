@@ -2,7 +2,7 @@
     "ownership": "first-party",
     "imported_third_party_files": [],
     "authoring_tool": "tools/author-motion-components.py",
-    "authoring_tool_sha256": "ff5b514f08fbf9b74039f2d0e48c612e6fb98cf4056e28709423cc2cac1cb551",
+    "authoring_tool_sha256": "badae5db630ca8cf43289f4b0b34cfa2854bfb62f20bc4a31abf7ddd349fffe0",
     "source_files": [
         "tools/concept_spatial_works.py",
         "tools/concept_ink_work.py",
@@ -64,6 +64,61 @@
         {
             "component": "ribbon_constellation",
             "nodes": 29,
+            "source_components": [
+                "aureate_vortex",
+                "porcelain_bloom",
+                "stratified_ink",
+                "lumen_corridor",
+                "dunhuang_ribbons"
+            ]
+        },
+        {
+            "component": "golden_dust_current",
+            "nodes": 20,
+            "source_components": [
+                "aureate_vortex",
+                "porcelain_bloom",
+                "stratified_ink",
+                "lumen_corridor",
+                "dunhuang_ribbons"
+            ]
+        },
+        {
+            "component": "spectral_plinth",
+            "nodes": 19,
+            "source_components": [
+                "aureate_vortex",
+                "porcelain_bloom",
+                "stratified_ink",
+                "lumen_corridor",
+                "dunhuang_ribbons"
+            ]
+        },
+        {
+            "component": "neon_archway",
+            "nodes": 39,
+            "source_components": [
+                "aureate_vortex",
+                "porcelain_bloom",
+                "stratified_ink",
+                "lumen_corridor",
+                "dunhuang_ribbons"
+            ]
+        },
+        {
+            "component": "chromatic_orbit",
+            "nodes": 16,
+            "source_components": [
+                "aureate_vortex",
+                "porcelain_bloom",
+                "stratified_ink",
+                "lumen_corridor",
+                "dunhuang_ribbons"
+            ]
+        },
+        {
+            "component": "helix_beacons",
+            "nodes": 37,
             "source_components": [
                 "aureate_vortex",
                 "porcelain_bloom",

@@ -179,6 +179,125 @@ def ribbon_constellation(graph):
     return image, public_controls
 
 
+def golden_dust_current(graph):
+    node = graph.node
+    phase, low, mid, high, public_controls = controls(graph)
+    emission = node("scalar.expression", 680, 0, dict(a=high, b=low),
+                    expression=".18 + a * 1.7 + b * .45")
+    flow = node("scalar.expression", 680, 260, dict(a=mid), expression=".04 + a * .32")
+    pulse = node("scalar.expression", 680, 520, dict(a=low, b=high), expression=".8 + a * .7 + b * .9")
+    turn = node("scalar.expression", 680, 780, dict(time=phase, a=mid), expression="time * 34 + a * 12")
+    emitter = node("gpu.particles", 1020, 0, dict(emission=emission, flow_strength=flow),
+                     particle_capacity=24576, seed=2309, initial_fill=0, emission_rate=460,
+                     lifetime=5.2, emitter_radius=.72, particle_speed=.035, drag=.12,
+                     flow_frequency=9, flow_evolution=.22, point_size=.0036,
+                     color_a=(.98, .42, .05, .18), color_b=(1, .86, .36, .92))
+    particles = node("gpu.map", 1360, 0, dict(points=emitter, rotation=turn, point_size_scale=pulse))
+    dust = node("gpu.render", 1700, 0, dict(points=particles), point_blend=1)
+    near = node("texture.blur", 2040, 0, dict(source=dust), blur_radius=2.4)
+    wide = node("texture.blur", 2040, 300, dict(source=dust), blur_radius=13)
+    glow = node("texture.composite", 2380, 0, dict(a=near, b=wide), composite_mode=1, amount=.34)
+    image = node("texture.composite", 2720, 0, dict(a=dust, b=glow), composite_mode=1)
+    public_controls += [("emission_rate", emitter, "emission_rate", 10.0, 4000.0),
+                        ("flow_frequency", emitter, "flow_frequency", 0.0, 40.0),
+                        ("glow", glow, "amount", 0.0, 1.0)]
+    return image, public_controls
+
+
+def spectral_plinth(graph):
+    node = graph.node
+    phase, low, mid, high, public_controls = controls(graph)
+    points = node("point.grid", 680, 0, columns=30, rows=20, grid_width=4, grid_height=3,
+                  point_size=.012)
+    geometry = node("geometry.cube", 680, 300)
+    energy = node("scalar.expression", 1020, 0, dict(a=low, b=mid), expression=".45 + a * 2.4 + b * 1.5")
+    material = node("material.pbr", 1020, 300, dict(emission=energy), color_a=(.02, .22, .52, 1),
+                    color_b=(.2, .92, 1, 1), metallic=.72, roughness=.22)
+    height = node("scalar.expression", 1360, 0, dict(a=low, b=mid, c=high),
+                  expression=".35 + a * 2.2 + b * 1.1 + c * .45")
+    scene = node("scene.point_instances", 1700, 0, dict(geometry=geometry, points=points,
+                                                           material=material, height=height),
+                 instance_limit=1024, instance_span=8, scale=.22, audio_gain=10)
+    turn = node("scalar.expression", 1700, 300, dict(time=phase), expression="time * 9")
+    scene = node("scene.transform", 2040, 0, dict(scene=scene, rotation_z=turn), rotation_x=62)
+    camera = node("scene.camera", 2380, 0, eye_y=5.8, eye_z=8.8, target_y=.2,
+                  field_of_view=48, near_plane=.1, far_plane=30)
+    image = node("scene.render", 2720, 0, dict(scene=scene, camera=camera), scene_antialiasing=1)
+    public_controls += [("columns", points, "columns", 4.0, 32.0),
+                        ("rows", points, "rows", 4.0, 32.0),
+                        ("metallic", material, "metallic", 0.0, 1.0)]
+    return image, public_controls
+
+
+def neon_archway(graph):
+    node = graph.node
+    phase, low, mid, high, public_controls = controls(graph)
+    geometry = node("geometry.cube", 680, 0)
+    power = node("scalar.expression", 680, 260, dict(a=low, b=high), expression=".55 + a * 2.2 + b * 3.5")
+    material = node("material.pbr", 1020, 0, dict(emission=power), color_a=(.9, .025, .3, 1),
+                    color_b=(.2, .75, 1, 1), metallic=.6, roughness=.18)
+    block = node("scene.instance", 1360, 0, dict(geometry=geometry, material=material))
+    scene = None
+    for index in range(8):
+        sway = node("scalar.expression", 1360, 280 + index * 180, dict(time=phase, a=mid),
+                    expression=f"sin(time * .7 + {index}) * (.08 + a * .12)")
+        item = node("scene.transform", 1700, index * 180, dict(scene=block, translate_y=sway),
+                    translate_x=(-1 if index % 2 else 1) * (1.5 + (index // 2) * .46),
+                    translate_z=-index * 1.25, scale_x=.12, scale_y=2.5, scale_z=.11)
+        scene = item if scene is None else node("scene.merge", 2040, index * 180, dict(a=scene, b=item))
+    eye_x = node("scalar.expression", 2380, 0, dict(time=phase), expression=".45 * sin(time * .28)")
+    camera = node("scene.camera", 2720, 0, dict(eye_x=eye_x), eye_y=.7, eye_z=6.8,
+                  target_z=-4.4, field_of_view=58, near_plane=.1, far_plane=30)
+    image = node("scene.render", 3060, 0, dict(scene=scene, camera=camera), scene_antialiasing=1)
+    public_controls += [("metallic", material, "metallic", 0.0, 1.0),
+                        ("roughness", material, "roughness", .05, 1.0),
+                        ("camera_fov", camera, "field_of_view", 25.0, 75.0)]
+    return image, public_controls
+
+
+def chromatic_orbit(graph):
+    node = graph.node
+    phase, low, mid, high, public_controls = controls(graph)
+    field = node("texture.noise", 680, 0, dict(phase=phase), noise_scale=5.5, contrast=1.9, seed=817,
+                 color_a=(.004, .008, .03, 1), color_b=(.3, .03, .42, 1))
+    spin = node("scalar.expression", 680, 300, dict(time=phase, a=mid), expression="time * 32 + a * 28")
+    scale = node("scalar.expression", 1020, 300, dict(a=low, b=high), expression="1.05 + a * .22 + b * .16")
+    folded = node("texture.mapping", 1020, 0, dict(source=field, rotation=spin, scale=scale), sectors=7)
+    ring = node("texture.shape", 1360, 300, shape_type=2, shape_width=.74, shape_height=.74,
+                inner_ratio=.972, color_a=(.1, .8, 1, .82))
+    ring = node("texture.affine", 1700, 300, dict(source=ring, rotation=spin, scale=scale))
+    image = node("texture.composite", 2040, 0, dict(a=folded, b=ring), composite_mode=1, amount=.7)
+    public_controls += [("noise_scale", field, "noise_scale", .25, 32.0),
+                        ("sectors", folded, "sectors", 1.0, 32.0),
+                        ("ring_mix", image, "amount", 0.0, 1.0)]
+    return image, public_controls
+
+
+def helix_beacons(graph):
+    node = graph.node
+    phase, low, mid, high, public_controls = controls(graph)
+    power = node("scalar.expression", 680, 260, dict(a=low, b=high), expression=".7 + a * 2.8 + b * 2.2")
+    material = node("material.pbr", 1020, 0, dict(emission=power), color_a=(.1, .62, .94, 1),
+                    color_b=(1, .46, .08, 1), metallic=.77, roughness=.24)
+    scene = None
+    for index in range(5):
+        local = node("scalar.expression", 1020, 300 + index * 230, dict(time=phase, a=mid),
+                     expression=f"time * {18 + index * 6} + {index * 72} + a * 10")
+        path = node("path.helix", 1360, index * 230, dict(path_phase=local), path_radius=.7 + index * .27,
+                    path_height=2.2 + index * .22, path_turns=.55 + index * .12, path_samples=128)
+        tube = node("geometry.tube", 1700, index * 230, dict(path=path), tube_radius=.018 + index * .009,
+                    tube_sides=10)
+        item = node("scene.instance", 2040, index * 230, dict(geometry=tube, material=material))
+        scene = item if scene is None else node("scene.merge", 2380, index * 230, dict(a=scene, b=item))
+    camera = node("scene.camera", 2720, 0, eye_y=.6, eye_z=7.2, field_of_view=44,
+                  near_plane=.1, far_plane=30)
+    image = node("scene.render", 3060, 0, dict(scene=scene, camera=camera), scene_antialiasing=1)
+    public_controls += [("metallic", material, "metallic", 0.0, 1.0),
+                        ("roughness", material, "roughness", .05, 1.0),
+                        ("camera_fov", camera, "field_of_view", 25.0, 75.0)]
+    return image, public_controls
+
+
 RECIPES = [
     ("orbital_aureole", ("Orbital aureole", "环绕光冕"), "scene",
      "Continuous camera orbit and counter-rotating emissive rings extracted from Aureate Vortex.", orbital_aureole,
@@ -195,6 +314,21 @@ RECIPES = [
     ("ribbon_constellation", ("Ribbon constellation", "飞带星图"), "scene",
      "Three continuous helix ribbons and a slow orbiting camera extracted from Dunhuang Ribbons.", ribbon_constellation,
      {"pace": .8, "response": 1.4, "metallic": .82, "roughness": .15, "camera_fov": 39}),
+    ("golden_dust_current", ("Golden dust current", "鎏金尘流"), "particles",
+     "Continuously emitted gold dust with visible per-band energy modulation, extracted from the concept particle layers.", golden_dust_current,
+     {"pace": .8, "response": 1.55, "emission_rate": 880, "flow_frequency": 16, "glow": .55}),
+    ("spectral_plinth", ("Spectral plinth", "频谱台阵"), "audio",
+     "A batched three-dimensional plinth that turns a spectrum into a slowly rotating stage.", spectral_plinth,
+     {"pace": .75, "response": 1.4, "columns": 30, "rows": 24, "metallic": .9}),
+    ("neon_archway", ("Neon archway", "霓虹门架"), "scene",
+     "A deep sequence of emissive architectural gates with continuous parallax and separate band energy.", neon_archway,
+     {"pace": 1.2, "response": 1.5, "metallic": .86, "roughness": .11, "camera_fov": 50}),
+    ("chromatic_orbit", ("Chromatic orbit", "彩光轨道"), "compositing",
+     "A continuously folding chromatic field with a music-modulated orbital frame.", chromatic_orbit,
+     {"pace": .9, "response": 1.4, "noise_scale": 8, "sectors": 11, "ring_mix": .9}),
+    ("helix_beacons", ("Helix beacons", "螺旋灯标"), "scene",
+     "Five independent luminous helix beacons with separate bass, mid and treble response.", helix_beacons,
+     {"pace": 1.15, "response": 1.45, "metallic": .9, "roughness": .12, "camera_fov": 39}),
 ]
 
 

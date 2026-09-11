@@ -7,15 +7,15 @@
         "preset:preset": 120
     },
     "counts": {
-        "authored:component": 35,
-        "authored:preset": 219,
+        "authored:component": 40,
+        "authored:preset": 229,
         "authored:template": 20,
         "component:component": 0,
         "preset:preset": 0,
         "template:advanced": 0,
         "template:basic": 0
     },
-    "default_presets_excluded": 124,
+    "default_presets_excluded": 129,
     "identical_preset_settings": [],
     "entries": [
         {
@@ -3084,6 +3084,86 @@
             }
         },
         {
+            "id": "official.semantic.chromatic_orbit",
+            "kind": "component",
+            "source": "content/semantic/chromatic_orbit",
+            "source_sha256": "f9c417d4adca8280bb4ad1df3a6715ebcad753054a5d2b7a71560210b07d725e",
+            "version": "0.1.0",
+            "titles": {
+                "en-US": "Chromatic orbit",
+                "zh-CN": "彩光轨道"
+            },
+            "tier": "component",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": null,
+            "is_default": false,
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.chromatic_orbit.default",
+            "kind": "preset",
+            "source": "content/semantic/chromatic_orbit/presets.json",
+            "source_sha256": "63e7f00fb190dd01a5600c6d03b95ab560e7be5410cf888e61d96570afbbf7e3",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "operator": "component.official.chromatic_orbit",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "373851683e5568b3cdecc76561cfa876dc69a0ce31411bc56a11841e3c5d57e7",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.chromatic_orbit.variant",
+            "kind": "preset",
+            "source": "content/semantic/chromatic_orbit/presets.json",
+            "source_sha256": "012580f2178457a7ad0b272b4f74a34778a981ae10ac0d679da9a31eed4b09c9",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "operator": "component.official.chromatic_orbit",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "0b988de6ca58b8041c9ffa851c27ad126e34183be940b0749acfaa5aba647866",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
             "id": "official.semantic.contour_engraving",
             "kind": "component",
             "source": "content/semantic/contour_engraving",
@@ -3563,6 +3643,86 @@
             }
         },
         {
+            "id": "official.semantic.golden_dust_current",
+            "kind": "component",
+            "source": "content/semantic/golden_dust_current",
+            "source_sha256": "bc880d779472a26c27abab1151c0c07f2bc2e897d3284deef802471f24b37c42",
+            "version": "0.1.0",
+            "titles": {
+                "en-US": "Golden dust current",
+                "zh-CN": "鎏金尘流"
+            },
+            "tier": "component",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": null,
+            "is_default": false,
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.golden_dust_current.default",
+            "kind": "preset",
+            "source": "content/semantic/golden_dust_current/presets.json",
+            "source_sha256": "99edddb1145d012b864ea6d937f341218a2f5a77b2d7a11d6d7a7c4d7c464865",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "operator": "component.official.golden_dust_current",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "e55c0182af00e0a86505eb235c0845a596d30396f94a2e6d54e67c0e200ceff6",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.golden_dust_current.variant",
+            "kind": "preset",
+            "source": "content/semantic/golden_dust_current/presets.json",
+            "source_sha256": "07249a6adfd7141bd270317f5cb38ef62a0682ca04c59d79b2b5d2506de75fdf",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "operator": "component.official.golden_dust_current",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "35143c8cc45e12625d33b949194b8a4103acba4cd23c161e90a5911bfd131372",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
             "id": "official.semantic.gradient_medallion",
             "kind": "component",
             "source": "content/semantic/gradient_medallion",
@@ -3631,6 +3791,86 @@
             "tier": "preset",
             "is_default": false,
             "exact_setting_group": "c486810da38b5a6c213c9053c49d2118f6d3d5fe77be2fe1977ed745e42f569d",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.helix_beacons",
+            "kind": "component",
+            "source": "content/semantic/helix_beacons",
+            "source_sha256": "54e8c22a4a412a673795cfd648fb9307d685ed4ac5420c7e6ae5bbd3be091be4",
+            "version": "0.1.0",
+            "titles": {
+                "en-US": "Helix beacons",
+                "zh-CN": "螺旋灯标"
+            },
+            "tier": "component",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": null,
+            "is_default": false,
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.helix_beacons.default",
+            "kind": "preset",
+            "source": "content/semantic/helix_beacons/presets.json",
+            "source_sha256": "e8a4a2cc5d6b2601ef4ee9f5c5dadc0ef99dc60b9fcba4748a043023566c9c8c",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "operator": "component.official.helix_beacons",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "1cb9dc8d5b59a1862171d7539b86c092620624acb89dac9a24e2290ffc526ad2",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.helix_beacons.variant",
+            "kind": "preset",
+            "source": "content/semantic/helix_beacons/presets.json",
+            "source_sha256": "73a45f13352b8d2cd93d918df50a046600c9272e264ef5f33cd43c6cd5a3973f",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "operator": "component.official.helix_beacons",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "aa14faf3d27bb991d0721f956d3de41a77219b5a02e07ecddb7f51ebf3a1564e",
             "review_history_count": 0,
             "stale_review_count": 0,
             "quality_accepted": false,
@@ -4191,6 +4431,86 @@
             "tier": "preset",
             "is_default": false,
             "exact_setting_group": "ac30b922cba60eb87417e5e62fff5fc6fab6a6f6c03a35fabc37d9aa2de2fa4c",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.neon_archway",
+            "kind": "component",
+            "source": "content/semantic/neon_archway",
+            "source_sha256": "65524e69b374dab8d8ac535f7ff0599689f171d5d60dd1c248de6b691f9c8d35",
+            "version": "0.1.0",
+            "titles": {
+                "en-US": "Neon archway",
+                "zh-CN": "霓虹门架"
+            },
+            "tier": "component",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": null,
+            "is_default": false,
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.neon_archway.default",
+            "kind": "preset",
+            "source": "content/semantic/neon_archway/presets.json",
+            "source_sha256": "03211fd5ccd5476651abae323b1d36afa66512714fd1e2112b99ea5bbd64608e",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "operator": "component.official.neon_archway",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "9357d027a563b303ed2cfcbdb984a10bbed13f49c4a68b0710534a4c760655eb",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.neon_archway.variant",
+            "kind": "preset",
+            "source": "content/semantic/neon_archway/presets.json",
+            "source_sha256": "8f7fdcf3f65ebd0a740114fb101e5271708961d7a1c0d7942da47f846511d407",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "operator": "component.official.neon_archway",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "10a1d13111c897b4ebd353a78724092ef8fef80a49083ce35dc45e59b07e8755",
             "review_history_count": 0,
             "stale_review_count": 0,
             "quality_accepted": false,
@@ -5230,6 +5550,86 @@
             "tier": "preset",
             "is_default": false,
             "exact_setting_group": "9b3e9ff92bdf77e1f67ba061559a955cde41cd882b9cc2d9fdd7f8c74669fe7e",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.spectral_plinth",
+            "kind": "component",
+            "source": "content/semantic/spectral_plinth",
+            "source_sha256": "c5a5e0ec062d7ed22ef3530b785a6d2ace150c9162deb1101177bbf504e63622",
+            "version": "0.1.0",
+            "titles": {
+                "en-US": "Spectral plinth",
+                "zh-CN": "频谱台阵"
+            },
+            "tier": "component",
+            "declared_maturity": "visual-review-pending",
+            "declared_players": [
+                "windows",
+                "android"
+            ],
+            "source_license_note": "First-party extracted graph; existing attributed renderer adapters; outbound license pending",
+            "soundtrack": null,
+            "is_default": false,
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.spectral_plinth.default",
+            "kind": "preset",
+            "source": "content/semantic/spectral_plinth/presets.json",
+            "source_sha256": "d81d5bdbe76d0b9aaff38152b789b922e16fb5b229254ad10465d0cc39b9c13b",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Default",
+                "zh-CN": "默认参数"
+            },
+            "operator": "component.official.spectral_plinth",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "c2ae95d0a5497becae3b514184644ad30a5f3f6b35b8324a7af4b6a8d6356222",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.semantic.spectral_plinth.variant",
+            "kind": "preset",
+            "source": "content/semantic/spectral_plinth/presets.json",
+            "source_sha256": "7bad7362b1352a232510d2744b725ab2cb0dfff4c8035391be11161048986410",
+            "version": "1.0.0",
+            "titles": {
+                "en-US": "Performance",
+                "zh-CN": "演出参数"
+            },
+            "operator": "component.official.spectral_plinth",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "ac03abc779333a1bdece65596737cab6b15ac2b7d642e2f2ee82510315822094",
             "review_history_count": 0,
             "stale_review_count": 0,
             "quality_accepted": false,
