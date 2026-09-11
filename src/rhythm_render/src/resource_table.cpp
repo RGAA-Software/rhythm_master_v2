@@ -208,6 +208,7 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
     for (const auto& command : list.commands_) {
         const auto effects =
                 int(command.texture_noise_.has_value()) + int(command.texture_filter_.has_value()) +
+                int(command.texture_glow_.has_value()) +
                 int(command.color_adjustment_.has_value()) +
                 int(command.texture_mapping_.has_value()) +
                 int(command.texture_contours_.has_value()) +
@@ -313,6 +314,13 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
                 filter.step_x_ < 0 || filter.step_x_ > 64 || filter.step_y_ < 0 ||
                 filter.step_y_ > 64)
                 throw std::invalid_argument("render.texture_filter");
+        }
+        if (command.texture_glow_) {
+            const auto& glow = *command.texture_glow_;
+            if (glow.kind_ > TextureGlowKind::kComposite || !bounded(glow.threshold_, 0, 16) ||
+                !bounded(glow.threshold_scale_, 0.001f, 16) || !bounded(glow.bloom_floor_, 0, 1) ||
+                !bounded(glow.luminance_cap_, 0.01f, 65504) || !bounded(glow.strength_, 0, 4))
+                throw std::invalid_argument("render.texture_glow");
         }
         if (command.color_adjustment_) {
             const auto& color = *command.color_adjustment_;

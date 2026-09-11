@@ -2,6 +2,16 @@
 namespace rhythm::graph {
 void AppendColorDescriptors(std::vector<OperatorDescriptor>& operators) {
     using Type = ValueType;
+    operators.push_back({"texture.glow",
+                         Operation::kTextureGlow,
+                         Type::kTexture,
+                         {{"source", Type::kTexture}, {"glow_strength", Type::kScalar, false}},
+                         {{"glow_strength", 0.8, 0, 4},
+                          {"hdr_threshold", 1.0, 0, 16},
+                          {"hdr_scale", 1.0, 0.001, 16},
+                          {"bloom_floor", 0.0, 0, 1},
+                          {"luminance_cap", 16.0, 0.01, 65504},
+                          {"glow_levels", 4.0, 1, 6, {}, true}}});
     operators.push_back({"texture.fxaa",
                          Operation::kTextureFxaa,
                          Type::kTexture,

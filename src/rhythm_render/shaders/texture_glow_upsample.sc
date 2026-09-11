@@ -1,0 +1,22 @@
+$input v_color0, v_texcoord0
+
+#include <bgfx_shader.sh>
+
+// Adapted from Godot glow.glsl MODE_UPSAMPLE (MIT).
+// Copyright (c) 2014-present Godot Engine contributors.
+SAMPLER2D(s_tex, 0);
+uniform vec4 u_glow_domain;
+
+void main()
+{
+    vec2 half_pixel = u_glow_domain.xy * 0.5;
+    vec3 color = texture2D(s_tex, v_texcoord0 + vec2(-half_pixel.x * 2.0, 0.0)).rgb;
+    color += texture2D(s_tex, v_texcoord0 + vec2(-half_pixel.x, half_pixel.y)).rgb * 2.0;
+    color += texture2D(s_tex, v_texcoord0 + vec2(0.0, half_pixel.y * 2.0)).rgb;
+    color += texture2D(s_tex, v_texcoord0 + vec2(half_pixel.x, half_pixel.y)).rgb * 2.0;
+    color += texture2D(s_tex, v_texcoord0 + vec2(half_pixel.x * 2.0, 0.0)).rgb;
+    color += texture2D(s_tex, v_texcoord0 + vec2(half_pixel.x, -half_pixel.y)).rgb * 2.0;
+    color += texture2D(s_tex, v_texcoord0 + vec2(0.0, -half_pixel.y * 2.0)).rgb;
+    color += texture2D(s_tex, v_texcoord0 + vec2(-half_pixel.x, -half_pixel.y)).rgb * 2.0;
+    gl_FragColor = vec4(color / 12.0, 0.0);
+}

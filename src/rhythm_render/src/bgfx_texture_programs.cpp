@@ -13,6 +13,7 @@
 #include "texture_displace_shader.h"
 #include "texture_filter_shader.h"
 #include "texture_fxaa_shader.h"
+#include "texture_glow_shader.h"
 #include "texture_mapping_shader.h"
 #include "texture_noise_shader.h"
 #include "vs_ocornut_imgui.bin.h"
@@ -66,6 +67,18 @@ BgfxTexturePrograms::BgfxTexturePrograms() {
             bgfx::createShader(bgfx::copy(kTextureFilterShader, sizeof(kTextureFilterShader))));
     filter_program_ = GpuHandle(bgfx::createProgram(vertex.Get(), filter_fragment.Get(), false));
     filter_uniform_ = GpuHandle(bgfx::createUniform("u_texture_filter", bgfx::UniformType::Vec4));
+    const std::array<std::span<const std::uint8_t>, 4> glow_fragments{
+            kTextureGlowFilterShader, kTextureGlowDownsampleShader, kTextureGlowUpsampleShader,
+            kTextureGlowCompositeShader};
+    for (std::size_t index = 0; index < glow_fragments.size(); ++index) {
+        GpuHandle fragment_shader(bgfx::createShader(
+                bgfx::copy(glow_fragments[index].data(),
+                           static_cast<std::uint32_t>(glow_fragments[index].size_bytes()))));
+        glow_programs_[index] =
+                GpuHandle(bgfx::createProgram(vertex.Get(), fragment_shader.Get(), false));
+    }
+    glow_settings_ = GpuHandle(bgfx::createUniform("u_glow_settings", bgfx::UniformType::Vec4));
+    glow_domain_ = GpuHandle(bgfx::createUniform("u_glow_domain", bgfx::UniformType::Vec4));
     GpuHandle noise_fragment(
             bgfx::createShader(bgfx::copy(kTextureNoiseShader, sizeof(kTextureNoiseShader))));
     noise_program_ = GpuHandle(bgfx::createProgram(vertex.Get(), noise_fragment.Get(), false));
@@ -104,8 +117,9 @@ BgfxTexturePrograms::BgfxTexturePrograms() {
     sampler_ = GpuHandle(bgfx::createUniform("s_tex", bgfx::UniformType::Sampler));
 }
 void BgfxTexturePrograms::Submit(std::uint16_t view, const DrawCommand& command, Extent source_size,
-                                 float aspect, bgfx::TextureHandle source, Extent map_size,
-                                 bgfx::TextureHandle map, bool float_target) const {
+                                 Extent target_size, float aspect, bgfx::TextureHandle source,
+                                 Extent map_size, bgfx::TextureHandle map,
+                                 bool float_target) const {
     bgfx::setTexture(0, sampler_.Get(), source);
     if (command.texture_fxaa_) {
         const auto& fxaa = *command.texture_fxaa_;
@@ -192,6 +206,16 @@ void BgfxTexturePrograms::Submit(std::uint16_t view, const DrawCommand& command,
         bgfx::setUniform(noise_color_b_.Get(), noise.color_b_.data());
         bgfx::setUniform(noise_domain_.Get(), domain.data());
         bgfx::submit(view, noise_program_.Get());
+    } else if (command.texture_glow_) {
+        const auto& glow = *command.texture_glow_;
+        const std::array settings{
+                glow.kind_ == TextureGlowKind::kComposite ? glow.strength_ : glow.threshold_,
+                glow.threshold_scale_, glow.bloom_floor_, glow.luminance_cap_};
+        const std::array domain{1.0f / target_size.width_, 1.0f / target_size.height_, 0.0f, 0.0f};
+        bgfx::setTexture(0, sampler_.Get(), source, BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
+        bgfx::setUniform(glow_settings_.Get(), settings.data());
+        bgfx::setUniform(glow_domain_.Get(), domain.data());
+        bgfx::submit(view, glow_programs_[static_cast<std::size_t>(glow.kind_)].Get());
     } else if (command.texture_filter_) {
         const auto& filter = *command.texture_filter_;
         const std::array values{filter.step_x_ / source_size.width_,

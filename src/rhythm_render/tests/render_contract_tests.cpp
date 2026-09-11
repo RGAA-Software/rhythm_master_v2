@@ -180,6 +180,14 @@ int main() {
         Reject([&] { renderer.Submit({}, draw); });
         draw.commands_[0].color_adjustment_.reset();
         draw.commands_[0].texture_filter_.reset();
+        draw.commands_[0].texture_glow_ = TextureGlow{};
+        draw.commands_[0].texture_glow_->threshold_scale_ = 0;
+        Reject([&] { renderer.Submit({}, draw); });
+        draw.commands_[0].texture_glow_->threshold_scale_ = 1;
+        draw.commands_[0].texture_filter_ = TextureFilter{};
+        Reject([&] { renderer.Submit({}, draw); });
+        draw.commands_[0].texture_filter_.reset();
+        draw.commands_[0].texture_glow_.reset();
         draw.commands_[0].texture_noise_ = TextureNoise{};
         draw.commands_[0].texture_noise_->scale_ = 0;
         Reject([&] { renderer.Submit({}, draw); });

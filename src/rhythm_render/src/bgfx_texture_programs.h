@@ -8,9 +8,9 @@ namespace rhythm::render::detail {
 class BgfxTexturePrograms final {
    public:
     BgfxTexturePrograms();
-    void Submit(std::uint16_t view, const DrawCommand& command, Extent source_size, float aspect,
-                bgfx::TextureHandle source, Extent map_size, bgfx::TextureHandle map,
-                bool float_target) const;
+    void Submit(std::uint16_t view, const DrawCommand& command, Extent source_size,
+                Extent target_size, float aspect, bgfx::TextureHandle source, Extent map_size,
+                bgfx::TextureHandle map, bool float_target) const;
 
    private:
     GpuHandle<bgfx::ProgramHandle> fxaa_program_{};
@@ -45,6 +45,9 @@ class BgfxTexturePrograms final {
     GpuHandle<bgfx::UniformHandle> sampler_{};
     GpuHandle<bgfx::ProgramHandle> filter_program_{};
     GpuHandle<bgfx::UniformHandle> filter_uniform_{};
+    std::array<GpuHandle<bgfx::ProgramHandle>, 4> glow_programs_{};
+    GpuHandle<bgfx::UniformHandle> glow_settings_{};
+    GpuHandle<bgfx::UniformHandle> glow_domain_{};
     GpuHandle<bgfx::ProgramHandle> noise_program_{};
     GpuHandle<bgfx::UniformHandle> noise_settings_{};
     GpuHandle<bgfx::UniformHandle> noise_color_a_{};

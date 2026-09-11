@@ -10,6 +10,7 @@
 #include <string_view>
 
 #include "blur_pass.h"
+#include "glow_pass.h"
 #include "rhythm/platform/host.h"
 #include "rhythm/player/session.h"
 #include "rhythm/render/layout.h"
@@ -202,6 +203,43 @@ int main(int argc, char* argv[]) {
                 renderer.EndFrame();
             }
             VerifyBlurImage(Complete(renderer, std::move(ticket)), scenario);
+        }
+        {
+            std::vector<std::uint8_t> pixels(64 * 64 * 4, 0);
+            for (int y = 30; y < 34; ++y)
+                for (int x = 30; x < 34; ++x) {
+                    const auto offset = static_cast<std::size_t>((y * 64 + x) * 4);
+                    pixels[offset] = pixels[offset + 1] = pixels[offset + 2] = 255;
+                    pixels[offset + 3] = 255;
+                }
+            auto source = renderer.CreateTexture({64, 64}, pixels);
+            auto inspection = renderer.CreateTexture({64, 64});
+            runtime::detail::GlowPass glow;
+            runtime::detail::GlowPass::Settings settings;
+            settings.bloom_floor_ = 1;
+            render::Readback ticket;
+            for (int frame = 0; frame < 8; ++frame) {
+                renderer.BeginFrame();
+                const auto result = glow.Draw(source.Handle(), {64, 64}, settings, renderer);
+                render::DrawList copy;
+                copy.width_ = copy.height_ = 64;
+                runtime::detail::AppendTextureQuad(copy, result, 0xffffffff, 0xffffffff);
+                renderer.Submit(inspection.Handle(), copy);
+                if (frame == 3) ticket = renderer.RequestReadback(inspection.Handle());
+                Present(renderer, inspection.Handle(), {64, 64});
+                if (frame == 3) {
+                    const auto path = (output / "glow-dual-filter").string();
+                    bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
+                }
+                renderer.EndFrame();
+            }
+            const auto image = Complete(renderer, std::move(ticket));
+            const auto center = Pixel(image, 32, 32);
+            const auto near = Pixel(image, 38, 32);
+            const auto far = Pixel(image, 48, 32);
+            if (center[0] < 250 || center[3] < 250 || near[0] == 0 || far[0] == 0 ||
+                near[0] <= far[0] || near[3] != 0 || far[3] != 0 || Pixel(image, 0, 0)[0] != 0)
+                throw std::runtime_error("effects.glow_dual_filter");
         }
         const std::array<std::uint8_t, 4> white_pixel{255, 255, 255, 255};
         auto white = renderer.CreateTexture({1, 1}, white_pixel);

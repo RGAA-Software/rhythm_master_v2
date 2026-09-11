@@ -1,0 +1,28 @@
+{
+    "source_url": "https://github.com/godotengine/godot",
+    "revision": "cb41ea115914c61a8329087b4cffbad7477b8427",
+    "license": "MIT",
+    "notice": "third_party/notices/godot/LICENSE.txt",
+    "source_files": [
+        "drivers/gles3/shaders/effects/glow.glsl",
+        "drivers/gles3/effects/glow.cpp"
+    ],
+    "sha256": {
+        "drivers/gles3/shaders/effects/glow.glsl": "76068d32f5955465652e5898a8864593b9ae385d4bf362275604b63e749bd2e7",
+        "drivers/gles3/effects/glow.cpp": "a3382b883981cc8e6d4fef7fcf1d9e7bc4201f4eb8dbd7569fa09321f34eabc6"
+    },
+    "targets": [
+        "src/rhythm_render/shaders/texture_glow_filter.sc",
+        "src/rhythm_render/shaders/texture_glow_downsample.sc",
+        "src/rhythm_render/shaders/texture_glow_upsample.sc",
+        "src/rhythm_render/shaders/texture_glow_composite.sc",
+        "src/runtime/glow_pass.cpp"
+    ],
+    "modifications": [
+        "Translate Godot's filter, downsample and eight-tap upsample stages to bgfx shader language.",
+        "Preserve the HDR max-channel threshold, smooth transition, bloom floor and luminance cap controls.",
+        "Use a bounded one-to-six-level RGBA16F pyramid owned by a project RAII runtime pass.",
+        "Composite additive glow RGB while retaining the source alpha contract; omit Godot engine, RID and OpenGL types."
+    ],
+    "outbound_license": "not selected; adapted Godot contribution retains MIT"
+}

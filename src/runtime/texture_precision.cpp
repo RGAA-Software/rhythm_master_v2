@@ -7,7 +7,8 @@ render::TexturePrecision OutputPrecision(const graph::Instruction& instruction,
     const auto fallback =
             instruction.operation_ == graph::Operation::kTextureLinearize ||
                             instruction.operation_ == graph::Operation::kDepthLinearize ||
-                            instruction.operation_ == graph::Operation::kSceneCapture
+                            instruction.operation_ == graph::Operation::kSceneCapture ||
+                            instruction.operation_ == graph::Operation::kTextureGlow
                     ? 2
                     : 1;
     const auto mode = graph::Scalar(instruction.node_, "texture_precision", fallback);

@@ -2,6 +2,7 @@
 #include <stdexcept>
 
 #include "blur_pass.h"
+#include "glow_pass.h"
 #include "rhythm/graph/compiler.h"
 #include "rhythm/runtime/runtime.h"
 
@@ -32,6 +33,19 @@ int main() {
             renderer.EndFrame();
         }
         Check(renderer.Stats().live_textures_ == 1);
+        {
+            runtime::detail::GlowPass glow;
+            renderer.BeginFrame();
+            const auto result = glow.Draw(source.Handle(), {128, 128}, {}, renderer);
+            Check(result != source.Handle() && renderer.IsValid(result));
+            Check(renderer.Precision(result) == render::TexturePrecision::kFloat16);
+            Check(renderer.Stats().passes_ == 8);
+            const auto textures = renderer.Stats().live_textures_;
+            Check(glow.Draw(source.Handle(), {128, 128}, {}, renderer) == result);
+            Check(renderer.Stats().live_textures_ == textures);
+            renderer.EndFrame();
+        }
+        Check(renderer.Stats().live_textures_ == 1);
         graph::Registry registry;
         graph::Document document;
         document.id_ = "blur.runtime";
@@ -52,6 +66,23 @@ int main() {
         const auto cached = runtime.Evaluate(std::get<graph::ExecutionPlan>(compiled),
                                              {.extent_ = {128, 128}}, renderer);
         Check(cached.evaluated_ == 0 && cached.final_ == frame.final_);
+        renderer.EndFrame();
+        runtime.Reset();
+        Check(renderer.Stats().live_textures_ == 1);
+        graph::Document glow_document;
+        glow_document.id_ = "glow.runtime";
+        glow_document.nodes_ = {registry.MakeNode(10, "texture.shape"),
+                                registry.MakeNode(11, "texture.glow"),
+                                registry.MakeNode(12, "output.texture")};
+        glow_document.edges_ = {{1, 10, 11, "source"}, {2, 11, 12, "source"}};
+        glow_document.output_ = 12;
+        compiled = graph::Compile(glow_document, registry);
+        Check(std::holds_alternative<graph::ExecutionPlan>(compiled));
+        renderer.BeginFrame();
+        const auto glow_frame = runtime.Evaluate(std::get<graph::ExecutionPlan>(compiled),
+                                                 {.extent_ = {128, 128}}, renderer);
+        Check(renderer.IsValid(glow_frame.final_));
+        Check(renderer.Precision(glow_frame.final_) == render::TexturePrecision::kFloat16);
         renderer.EndFrame();
         runtime.Reset();
         Check(renderer.Stats().live_textures_ == 1);

@@ -66,6 +66,18 @@ struct TextureFilter {
     float step_y_ = 1;
 };
 
+enum class TextureGlowKind : std::uint8_t { kFilter, kDownsample, kUpsample, kComposite };
+// Godot dual-filtering glow stages. Pixel steps are derived from the destination
+// extent by the backend; RGB is HDR-linear and alpha remains transparent.
+struct TextureGlow {
+    TextureGlowKind kind_ = TextureGlowKind::kFilter;
+    float threshold_ = 1;
+    float threshold_scale_ = 1;
+    float bloom_floor_ = 0;
+    float luminance_cap_ = 16;
+    float strength_ = 1;
+};
+
 struct TextureNoise {
     float scale_ = 4;
     float phase_ = 0;
@@ -152,6 +164,7 @@ struct DrawCommand {
     BlendMode blend_ = BlendMode::kSourceOver;
     std::optional<ColorAdjustment> color_adjustment_{};
     std::optional<TextureFilter> texture_filter_{};
+    std::optional<TextureGlow> texture_glow_{};
     std::optional<TextureNoise> texture_noise_{};
     std::optional<TextureMapping> texture_mapping_{};
     std::optional<TextureContours> texture_contours_{};

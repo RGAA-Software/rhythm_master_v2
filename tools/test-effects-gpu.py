@@ -59,12 +59,20 @@ def main():
                     raise AssertionError(f"Transparent color bleed: {output}")
                 if abs(pixel[0] - image[y][63-x][0]) > 3 or abs(pixel[0] - image[63-y][x][0]) > 3:
                     raise AssertionError(f"Asymmetric blur: {output}")
-        if not 0 < image[31][31][0] < 255 or image[28][31][0] == 0:
-            raise AssertionError(f"Missing center/halo: {output}")
+        if index == 1 and (image[32][32][0] < 250 or image[32][34][0] == 0 or
+                           image[32][35][0] != 0):
+            raise AssertionError(f"Godot kernel footprint failed: {output}")
+        if index == 2 and not (image[32][32][0] > image[32][40][0] >
+                               image[32][48][0] > image[32][0][0]):
+            raise AssertionError(f"Godot pyramid falloff failed: {output}")
     if images[2][31][31][0] >= images[1][31][31][0]:
         raise AssertionError(f"Wide blur did not spread energy: {output}")
     if images[3][31][31] != (255, 255, 255) or images[3][28][31] != (0, 0, 0):
         raise AssertionError(f"Zero radius changed pixels: {output}")
+    glow = read_tga(output / "glow-dual-filter.tga")
+    if (glow[32][32][0] < 250 or glow[32][38][0] <= glow[32][48][0] or
+            glow[32][48][0] == 0 or glow[0][0][0] != 0):
+        raise AssertionError(f"Godot dual-filter glow failed: {output}")
     noise = [read_tga(output / f"noise-{index}.tga") for index in range(5)]
     values = [pixel[0] for row in noise[0] for pixel in row]
     if max(values) - min(values) < 50:
@@ -107,7 +115,7 @@ def main():
     if any(abs(a-b) > 2 for row in resized for pixel in row
            for a,b in zip(pixel, (0,255,0))):
         raise AssertionError(f"Static graph disappeared after resize: {output}")
-    print(f"Blur, noise, mapping/contour, seven displacement GPU cases and cached resize passed; evidence: {output}")
+    print(f"Godot blur/glow, noise, mapping/contour, seven displacement GPU cases and cached resize passed; evidence: {output}")
 
 
 if __name__ == "__main__":

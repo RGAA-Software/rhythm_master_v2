@@ -1314,8 +1314,8 @@
             "version": "1.0.0",
             "operator": "texture.blur",
             "titles": {
-                "zh-CN": "默认 · 柔光",
-                "en-US": "Default · Soft glow"
+                "zh-CN": "默认 · 柔化",
+                "en-US": "Default · Soft blur"
             },
             "properties": {
                 "blur_radius": 6
@@ -1338,11 +1338,53 @@
             "version": "1.0.0",
             "operator": "texture.blur",
             "titles": {
-                "zh-CN": "宽光晕",
-                "en-US": "Wide halo"
+                "zh-CN": "宽幅模糊",
+                "en-US": "Wide blur"
             },
             "properties": {
                 "blur_radius": 24
+            }
+        },
+        {
+            "id": "official.glow.default",
+            "version": "1.0.0",
+            "operator": "texture.glow",
+            "titles": {
+                "zh-CN": "默认 · HDR 辉光",
+                "en-US": "Default · HDR glow"
+            },
+            "properties": {}
+        },
+        {
+            "id": "official.glow.neon",
+            "version": "1.0.0",
+            "operator": "texture.glow",
+            "titles": {
+                "zh-CN": "霓虹远辉",
+                "en-US": "Neon reach"
+            },
+            "properties": {
+                "glow_strength": 1.2,
+                "hdr_threshold": 0.7,
+                "hdr_scale": 0.8,
+                "bloom_floor": 0.12,
+                "glow_levels": 5
+            }
+        },
+        {
+            "id": "official.glow.highlights",
+            "version": "1.0.0",
+            "operator": "texture.glow",
+            "titles": {
+                "zh-CN": "纯高光辉光",
+                "en-US": "Highlights only"
+            },
+            "properties": {
+                "glow_strength": 0.9,
+                "hdr_threshold": 1.2,
+                "hdr_scale": 0.5,
+                "bloom_floor": 0,
+                "glow_levels": 4
             }
         },
         {

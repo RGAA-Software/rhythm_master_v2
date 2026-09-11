@@ -17,7 +17,7 @@
 | 优先级 | 能力 | 当前实现与已知风险 | Godot 基线与行动 |
 | --- | --- | --- | --- |
 | P0 | 普通 blur | 原 TiXL 五采样横纵核与四 tap 降采样已产生方向性重影风险；2026-09-11 已从运行路径移除 | 固定 `blur_raster.glsl` 的 13-tap 二维 Gaussian 和 mip 链；完成 D3D11 脉冲、透明、径向衰减断言后交付 |
-| P0 | glow/bloom | 作品曾用普通 blur 加法拼装，缺少亮度筛选、层级回采和正确 tone-map 顺序，容易形成大块光斑 | 适配 Godot Dual Filtering glow、HDR threshold/cap、多级上采样与合成模式；新增独立节点，禁止继续把 blur 当 bloom |
+| P0 | glow/bloom | `texture.glow` 已完成 Godot Dual Filtering 的 HDR 筛选、1–6 级降采样/上采样和 RGBA16F 加法合成；历史作品仍有普通 blur 拼装待迁移 | 迁移作品并完成大粒子、细亮线、HDR/SDR 与动态输出评审；与 tone-map 阶段一并补齐 Godot 合成模式 |
 | P0 | tone mapping/HDR | 当前仅有 TiXL Reinhard；强高光会整体压平，无法表达 Godot 的曝光、白点和现代映射选择 | 对照 Godot tone-map 阶段，优先实现 AgX/Filmic 与 glow 合成顺序；用 HDR 阶梯、彩色高光和 SDR 输出验证 |
 | P0 | 透明 3D | 普通 source-over 依赖提交顺序；已验证的有限加权 OIT 对相交物体前后颜色仍错误 | 对照 Godot 透明排序、深度 prepass 和材质模式，先修正确性与稳定排序；复杂 OIT 单独验证后决定 |
 | P1 | 景深 | TiXL golden-angle gather 已可运行，但没有完整近/远 CoC 分离、遮挡权重和背景泄漏控制 | 对照 Godot `bokeh_dof` 的 shape/quality、近远场和合成；用前景细线、远景高光、运动相机验证 |
@@ -38,5 +38,7 @@
 普通 blur 的最终交付证据、曾经漏掉截图的原因和永久检查见
 [验证记录](validation/godot_blur_and_generated_cleanup_2026-09-11.md)。
 
-Glow、tone mapping、透明、景深等条目尚未因列入本文而视为完成。每项关闭时补充固定
+Glow 核心节点已通过 D3D11 中心高光、连续远近衰减、边界和透明 alpha 回读；固定来源见
+`provenance/godot_glow.json`。作品迁移和 tone-map 顺序尚未完成，因此该 P0 条目保持进行中。
+Tone mapping、透明、景深等条目尚未因列入本文而视为完成。每项关闭时补充固定
 上游 revision、文件哈希、许可、适配差异、GPU 图像与动态作品证据。

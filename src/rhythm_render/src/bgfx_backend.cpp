@@ -477,7 +477,7 @@ class BgfxBackend final : public Backend {
                 image_programs_->Submit(view, *command.image_program_,
                                         textures_[command.texture_.slot_].texture_.Get(), extent);
             else
-                texture_programs_->Submit(view, command, resources_.Size(command.texture_),
+                texture_programs_->Submit(view, command, resources_.Size(command.texture_), extent,
                                           list.width_ / list.height_,
                                           textures_[command.texture_.slot_].texture_.Get(),
                                           resources_.Size(map), textures_[map.slot_].texture_.Get(),

@@ -384,6 +384,28 @@ FrameResult Runtime::Impl::EvaluateRange(
                                                                    radius, renderer, precision);
                         break;
                     }
+                    case graph::Operation::kTextureGlow: {
+                        if (!state.glow_) state.glow_ = std::make_unique<detail::GlowPass>();
+                        detail::GlowPass::Settings glow;
+                        const auto bounded = [&](std::size_t port, std::string_view key,
+                                                 double fallback, double minimum, double maximum) {
+                            const auto value = instruction.inputs_[port]
+                                                       ? input(port).scalar_
+                                                       : graph::Scalar(node, key, fallback);
+                            return float(std::isfinite(value) ? std::clamp(value, minimum, maximum)
+                                                              : fallback);
+                        };
+                        glow.strength_ = bounded(1, "glow_strength", 0.8, 0, 4);
+                        glow.threshold_ = float(graph::Scalar(node, "hdr_threshold", 1));
+                        glow.threshold_scale_ = float(graph::Scalar(node, "hdr_scale", 1));
+                        glow.bloom_floor_ = float(graph::Scalar(node, "bloom_floor", 0));
+                        glow.luminance_cap_ = float(graph::Scalar(node, "luminance_cap", 16));
+                        glow.levels_ =
+                                static_cast<std::size_t>(graph::Scalar(node, "glow_levels", 4));
+                        state.output_.texture_ =
+                                state.glow_->Draw(input(0).texture_, extent, glow, renderer);
+                        break;
+                    }
                     case graph::Operation::kPathHelix:
                     case graph::Operation::kPathFromPoints:
                     case graph::Operation::kPathResample:

@@ -8,14 +8,14 @@
     },
     "counts": {
         "authored:component": 40,
-        "authored:preset": 229,
+        "authored:preset": 232,
         "authored:template": 22,
         "component:component": 0,
         "preset:preset": 0,
         "template:advanced": 0,
         "template:basic": 0
     },
-    "default_presets_excluded": 129,
+    "default_presets_excluded": 130,
     "identical_preset_settings": [],
     "entries": [
         {
@@ -172,11 +172,11 @@
             "id": "official.blur.default",
             "kind": "preset",
             "source": "content/presets/catalog.json",
-            "source_sha256": "05918263963ab1906bb5d0bec5feac93a54c6a639b73722a6039445a38e2ec35",
+            "source_sha256": "95be110970a0d5e3532f2ec8b9349dc38d1d0ce137fe0d6f23e608ba1d4b8931",
             "version": "1.0.0",
             "titles": {
-                "zh-CN": "默认 · 柔光",
-                "en-US": "Default · Soft glow"
+                "zh-CN": "默认 · 柔化",
+                "en-US": "Default · Soft blur"
             },
             "operator": "texture.blur",
             "tier": "preset",
@@ -222,11 +222,11 @@
             "id": "official.blur.wide",
             "kind": "preset",
             "source": "content/presets/catalog.json",
-            "source_sha256": "f4added8fbeaf5f85d9d944e77a605bb54d5e64b90d1e0b7885c1c9b0657a518",
+            "source_sha256": "04f8291be512cdf52294aadbb000aff056d28ee02058540fe980f3636b60d27e",
             "version": "1.0.0",
             "titles": {
-                "zh-CN": "宽光晕",
-                "en-US": "Wide halo"
+                "zh-CN": "宽幅模糊",
+                "en-US": "Wide blur"
             },
             "operator": "texture.blur",
             "tier": "preset",
@@ -1332,6 +1332,81 @@
             "tier": "preset",
             "is_default": true,
             "exact_setting_group": "1fc909e622635f9256b4a10b8973f40e3a3bb837dc20dbe1a7faeec35e8a08e7",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.glow.default",
+            "kind": "preset",
+            "source": "content/presets/catalog.json",
+            "source_sha256": "a0a31dc9d25b5bbaed7f118e0457ea928a6480234cc01bb3339af2f512d1af84",
+            "version": "1.0.0",
+            "titles": {
+                "zh-CN": "默认 · HDR 辉光",
+                "en-US": "Default · HDR glow"
+            },
+            "operator": "texture.glow",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "4084857ee2fb5b4e4146dda4879c3b676b2e0366c5b4be3fd23d485b05f2a6e6",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.glow.highlights",
+            "kind": "preset",
+            "source": "content/presets/catalog.json",
+            "source_sha256": "0f06a8ea0d2aeb7dac8b7b7026b07da8fec2450b2e571ee663d14009a5b1c9f0",
+            "version": "1.0.0",
+            "titles": {
+                "zh-CN": "纯高光辉光",
+                "en-US": "Highlights only"
+            },
+            "operator": "texture.glow",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "2224d4cf410ecc1e07508dd653e3c010e37e98b724da1ffb17c996e5c22e9c3e",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.glow.neon",
+            "kind": "preset",
+            "source": "content/presets/catalog.json",
+            "source_sha256": "2a3770e9c85d0ccc2dc5ae529952766dd0b179e730dc35d2497803bb507e248e",
+            "version": "1.0.0",
+            "titles": {
+                "zh-CN": "霓虹远辉",
+                "en-US": "Neon reach"
+            },
+            "operator": "texture.glow",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "01a288b53fbf2be71b9937493564028d17a70dd62b0c3e00312f7912d6bfb687",
             "review_history_count": 0,
             "stale_review_count": 0,
             "quality_accepted": false,

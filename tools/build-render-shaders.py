@@ -17,7 +17,7 @@ def main():
     parser.add_argument("--compiler", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--platform", choices=("windows", "android"), required=True)
-    parser.add_argument("--group", choices=("color", "scene", "filter", "noise", "mapping", "displace", "execution_probe", "gpu_points", "color_pipeline", "depth", "environment", "antialias"), default="color")
+    parser.add_argument("--group", choices=("color", "scene", "filter", "glow", "noise", "mapping", "displace", "execution_probe", "gpu_points", "color_pipeline", "depth", "environment", "antialias"), default="color")
     args = parser.parse_args()
     output = args.output.resolve()
     if not output.is_relative_to(ROOT / "out"):
@@ -57,6 +57,11 @@ def main():
                     ("scene_fragment.sc", "fragment", "scene_varying.def.sc", "kSceneFragmentShader")]
     elif args.group == "filter":
         programs = [("texture_filter.sc", "fragment", "varying.def.sc", "kTextureFilterShader")]
+    elif args.group == "glow":
+        programs = [("texture_glow_filter.sc", "fragment", "varying.def.sc", "kTextureGlowFilterShader"),
+                    ("texture_glow_downsample.sc", "fragment", "varying.def.sc", "kTextureGlowDownsampleShader"),
+                    ("texture_glow_upsample.sc", "fragment", "varying.def.sc", "kTextureGlowUpsampleShader"),
+                    ("texture_glow_composite.sc", "fragment", "varying.def.sc", "kTextureGlowCompositeShader")]
     elif args.group == "noise":
         programs = [("texture_noise.sc", "fragment", "varying.def.sc", "kTextureNoiseShader")]
     elif args.group == "displace":

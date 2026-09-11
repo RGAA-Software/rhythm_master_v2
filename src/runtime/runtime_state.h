@@ -4,6 +4,7 @@
 
 #include "blur_pass.h"
 #include "event_ops.h"
+#include "glow_pass.h"
 #include "gpu_particle_pass.h"
 #include "gpu_point_map_pass.h"
 #include "image_pass.h"
@@ -86,6 +87,7 @@ class Runtime::Impl final {
         std::unique_ptr<detail::SceneColor> scene_color_{};
         std::unique_ptr<detail::SceneCapture> capture_{};
         std::unique_ptr<detail::BlurPass> blur_{};
+        std::unique_ptr<detail::GlowPass> glow_{};
         std::unique_ptr<detail::TrailPass> trail_{};
         std::unique_ptr<detail::EventNode> events_{};
         std::uint64_t last_reset_sequence_ = 0;

@@ -37,6 +37,22 @@ add_custom_command(OUTPUT "${filter_shader_header}"
     VERBATIM)
 target_sources(render_bgfx PRIVATE "${filter_shader_header}")
 
+set(glow_shader_header "${PROJECT_BINARY_DIR}/generated/render/texture_glow_shader.h")
+add_custom_command(OUTPUT "${glow_shader_header}"
+    COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        --compiler "${RHYTHM_SHADERC}" --output "${glow_shader_header}"
+        --platform "${render_shader_platform}" --group glow
+    DEPENDS "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
+        "${PROJECT_SOURCE_DIR}/tools/compile-shader.py"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/texture_glow_filter.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/texture_glow_downsample.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/texture_glow_upsample.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/texture_glow_composite.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/varying.def.sc"
+        "${RHYTHM_SHADERC}" ${render_shader_includes}
+    VERBATIM)
+target_sources(render_bgfx PRIVATE "${glow_shader_header}")
+
 set(noise_shader_header "${PROJECT_BINARY_DIR}/generated/render/texture_noise_shader.h")
 add_custom_command(OUTPUT "${noise_shader_header}"
     COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
