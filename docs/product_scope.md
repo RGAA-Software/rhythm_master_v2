@@ -9,6 +9,8 @@
 重复长时间测试。已取得的长稳证据保留，不重跑；已知卡顿、崩溃和资源错误仍及时修复。
 当前执行入口为 [整体实施计划](master_implementation_plan.md)：基于 `69d1423` 区分
 已交付能力与剩余工作包，明确音乐演出、自由创作、内容制作、Android 和最终验收的依赖。
+[当前完成度与后续实施路径](current_completion_and_execution_plan.md)记录最新完成度区间、
+Windows 当前队列、50 个 Advanced 内容路径和后置平台顺序。
 [渲染能力路线](rendering_capability_roadmap.md) 保留 R0–R6 交付证据，
 [本地代码对标清单](feature_gap_review_2026-09-08.md) 保留早期差距基线；
 旧表中的待办不覆盖后续完成记录。排除对硬件接入能力的全面照搬。

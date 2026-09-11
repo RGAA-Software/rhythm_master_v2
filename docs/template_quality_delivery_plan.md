@@ -18,10 +18,11 @@ and their obsolete review records do not count toward any target. The active
 content target is **50 distinct accepted Advanced templates**, backed by reusable
 components and presets; historical Basic/Advanced wording records earlier plans.
 
-Earlier user instruction: at least **50 Basic templates and 50 Advanced templates**.
-This replaces the earlier 24-template minimum. The independent requirements of
-40 semantic nodes and 120 visually distinct presets remain. Counts measure
-distinct accepted compositions, not recolors, aspect ratios or device variants.
+Historical user instruction required **50 Basic templates and 50 Advanced templates**
+and had replaced the earlier 24-template minimum. It is retained here as history;
+the 2026-09-10 Advanced-only target above now governs execution. The independent
+requirements of 40 semantic nodes and 120 visually distinct presets remain. Counts
+measure distinct accepted compositions, not recolors, aspect ratios or device variants.
 
 The 2026-09-09 inventory contains 45 runnable examples,
 29 semantic components and 191 preset records (133 native plus 58 semantic). The user rejected the earlier examples' visual quality. No accepted
@@ -33,13 +34,14 @@ valid for the behavior they cover; they do not establish visual acceptance.
 2026-09-09: follow [the overall implementation plan, P7](master_implementation_plan.md)
 for the current production batches, 10 content families and separate authored,
 functional, visual-review and device evidence. Its next implementation queue
-replaces the historical sequence below; the 40 / 120 / 50+50 goals remain unchanged.
+replaces the historical sequence below; the active goals are 40 reusable components,
+120 visually independent presets and 50 accepted Advanced templates.
 
 2026-09-08 execution update: the original starting sequence below is historical;
 blur, spatial noise, displacement, reference scenes and media integration already
 have working implementations. Follow the [current rendering/authoring roadmap](rendering_capability_roadmap.md)
 for the next work. Produce editable music-driven content with each feature batch,
-retain the 50 Basic + 50 Advanced quality target, and defer long-duration testing
+retain the 50 accepted Advanced quality target, and defer long-duration testing
 to final integrated acceptance. Android overlay installation is now successful.
 
 1. Build the reusable effects needed for richer compositions. Start with bounded
@@ -62,7 +64,7 @@ to final integrated acceptance. Android overlay installation is now successful.
    review separately from automated tests; do not claim user acceptance until it
    is actually given. Continue independent work without asking for permission at
    each implementation step.
-5. Produce reviewed batches toward 50 Basic and 50 Advanced. Expand the reusable
+5. Produce reviewed batches toward 50 accepted Advanced templates. Expand the reusable
    semantic library and presets from useful effects rather than cloned examples.
    Image/video, full timeline, particle fields and richer 3D capabilities feed
    the relevant batches as their shared runtime modules become ready.
