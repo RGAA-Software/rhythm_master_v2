@@ -540,6 +540,7 @@ if(BUILD_TESTING)
     add_executable(windows_scene_gpu_tests tests/scene_gpu_tests.cpp)
     target_include_directories(windows_scene_gpu_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests")
     target_include_directories(windows_scene_gpu_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/runtime/tests")
+    target_include_directories(windows_scene_gpu_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/runtime")
     target_link_libraries(windows_scene_gpu_tests PRIVATE platform_sdl spike_bgfx graph_runtime runtime_package player_core asset_store)
     rhythm_project_target(windows_scene_gpu_tests)
     add_test(NAME windows_scene_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-scene-gpu.py"

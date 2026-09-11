@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 #include <set>
 #include <stdexcept>
 
@@ -12,6 +13,21 @@ render::Matrix4 Matrix(const scene::Matrix& source) {
     std::transform(source.values_.begin(), source.values_.end(), result.begin(),
                    [](double value) { return static_cast<float>(value); });
     return result;
+}
+scene::Vector3 MeshCenter(const scene::Mesh& mesh) {
+    if (mesh.vertices_.empty()) throw std::invalid_argument("runtime.empty_mesh");
+    scene::Vector3 minimum{mesh.vertices_[0].x_, mesh.vertices_[0].y_, mesh.vertices_[0].z_};
+    auto maximum = minimum;
+    for (const auto& vertex : mesh.vertices_) {
+        minimum.x_ = std::min(minimum.x_, double(vertex.x_));
+        minimum.y_ = std::min(minimum.y_, double(vertex.y_));
+        minimum.z_ = std::min(minimum.z_, double(vertex.z_));
+        maximum.x_ = std::max(maximum.x_, double(vertex.x_));
+        maximum.y_ = std::max(maximum.y_, double(vertex.y_));
+        maximum.z_ = std::max(maximum.z_, double(vertex.z_));
+    }
+    return {(minimum.x_ + maximum.x_) * 0.5, (minimum.y_ + maximum.y_) * 0.5,
+            (minimum.z_ + maximum.z_) * 0.5};
 }
 }  // namespace
 ScenePass::PoseMatrices ScenePass::PreparePose(const scene::Model& model,
@@ -109,6 +125,7 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
     std::erase_if(poses_, [&](const auto& item) { return !active_poses.contains(item.first); });
     std::uint64_t index_count = 0;
     std::size_t draw_bones = 0;
+    std::vector<double> draw_depths;
     for (const auto& instance : scene.instances_) {
         const auto& geometry = *instance.geometry_;
         const Key key{geometry.upload_id_ ? geometry.upload_id_ : geometry.id_,
@@ -122,6 +139,7 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
             upload.rest_ = PreparePose(*geometry.model_);
             std::size_t tangent_vertices = 0;
             for (auto mesh : geometry.model_->meshes_) {
+                upload.mesh_centers_.push_back(MeshCenter(mesh));
                 if (std::get<2>(key) && !mesh.has_tangents_) scene::GenerateTangents(mesh);
                 tangent_vertices += mesh.vertices_.size();
                 if (tangent_vertices > 250000) throw std::length_error("runtime.tangent_budget");
@@ -169,6 +187,15 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                                          Matrix(transform),
                                          {color.red_, color.green_, color.blue_, color.alpha_},
                                          material.double_sided_});
+                const auto center =
+                        scene::TransformPoint(transform, upload.mesh_centers_[mesh_index]);
+                if (camera.kind_ == scene::ProjectionKind::kOrthographic) {
+                    draw_depths.push_back(-scene::TransformPoint(view, center).z_);
+                } else {
+                    draw_depths.push_back(std::hypot(center.x_ - camera.eye_.x_,
+                                                     center.y_ - camera.eye_.y_,
+                                                     center.z_ - camera.eye_.z_));
+                }
                 auto& draw = result.draws_.back();
                 if (!mesh.morphs_.empty()) {
                     const auto& pose = geometry.pose_ ? *geometry.pose_ : upload.model_->rest_pose_;
@@ -228,16 +255,22 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
             }
         }
     }
-    // Opaque objects write depth first. Translucent object origins sort back to
-    // front; intersecting transparent meshes require a later transparency pass.
-    const auto depth = [&](const render::MeshDraw& draw) {
-        return scene::TransformPoint(view, {draw.model_[12], draw.model_[13], draw.model_[14]}).z_;
-    };
-    std::stable_sort(result.draws_.begin(), result.draws_.end(), [&](const auto& a, const auto& b) {
-        const bool opaque_a = a.color_[3] >= 1, opaque_b = b.color_[3] >= 1;
+    // Match Godot's opaque-first and transparent back-to-front object ordering.
+    // A mesh AABB center remains meaningful when its local geometry is offset
+    // from the instance origin. Intersecting geometry still needs a material
+    // depth mode or a separately validated transparency technique.
+    std::vector<std::size_t> order(result.draws_.size());
+    std::iota(order.begin(), order.end(), 0);
+    std::stable_sort(order.begin(), order.end(), [&](std::size_t a, std::size_t b) {
+        const bool opaque_a = result.draws_[a].color_[3] >= 1;
+        const bool opaque_b = result.draws_[b].color_[3] >= 1;
         if (opaque_a != opaque_b) return opaque_a;
-        return !opaque_a && depth(a) < depth(b);
+        return !opaque_a && draw_depths[a] > draw_depths[b];
     });
+    std::vector<render::MeshDraw> sorted;
+    sorted.reserve(result.draws_.size());
+    for (const auto index : order) sorted.push_back(std::move(result.draws_[index]));
+    result.draws_ = std::move(sorted);
     environment_.Apply(scene.environment_, outputs, result, renderer);
     shadow_.Apply(scene, result, renderer);
     return result;

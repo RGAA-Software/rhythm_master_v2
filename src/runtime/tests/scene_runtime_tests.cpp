@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "rhythm/runtime/viewers.h"
+#include "scene_pass.h"
 
 namespace {
 void Require(bool condition, const char* message) {
@@ -59,6 +60,41 @@ void MovingCamera() {
                     fallback.target_.x_ == 0 && fallback.target_.y_ == 0 &&
                     fallback.target_.z_ == 0,
             "unwired legacy camera retains property defaults");
+}
+void TransparentMeshCenterSort() {
+    using namespace rhythm;
+    const auto geometry = [](std::uint64_t id, float local_z) {
+        auto model = scene::Cube();
+        for (auto& vertex : model.meshes_[0].vertices_) vertex.z_ += local_z;
+        auto result = std::make_shared<scene::Geometry>();
+        result->id_ = id;
+        result->revision_ = 1;
+        result->model_ = std::make_shared<const scene::Model>(std::move(model));
+        return result;
+    };
+    scene::Material near_material;
+    near_material.base_color_ = {1, 0, 0, 0.5f};
+    scene::Material far_material;
+    far_material.base_color_ = {0, 0, 1, 0.5f};
+    scene::Scene scene;
+    scene.instances_ = {{geometry(1, 1), scene::Matrix{}, near_material},
+                        {geometry(2, -1), scene::Matrix{}, far_material}};
+    scene::Camera camera;
+    camera.eye_ = {0, 0, 3};
+    camera.target_ = {0, 0, 0};
+    auto renderer = render::Renderer::CreateNull();
+    runtime::detail::ScenePass pass;
+    renderer.BeginFrame();
+    const auto perspective = pass.Build(scene, camera, {64, 64}, renderer);
+    Require(perspective.draws_.size() == 2 && perspective.draws_[0].color_[2] == 1 &&
+                    perspective.draws_[1].color_[0] == 1,
+            "perspective transparency sorts offset mesh centers back to front");
+    camera.kind_ = scene::ProjectionKind::kOrthographic;
+    const auto orthographic = pass.Build(scene, camera, {64, 64}, renderer);
+    renderer.EndFrame();
+    Require(orthographic.draws_.size() == 2 && orthographic.draws_[0].color_[2] == 1 &&
+                    orthographic.draws_[1].color_[0] == 1,
+            "orthographic transparency sorts offset mesh centers back to front");
 }
 void Lights() {
     using namespace rhythm;
@@ -307,6 +343,7 @@ int main() {
         Run();
         Lights();
         MovingCamera();
+        TransparentMeshCenterSort();
         return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

@@ -17,9 +17,9 @@
 | 优先级 | 能力 | 当前实现与已知风险 | Godot 基线与行动 |
 | --- | --- | --- | --- |
 | P0 | 普通 blur | 原 TiXL 五采样横纵核与四 tap 降采样已产生方向性重影风险；2026-09-11 已从运行路径移除 | 固定 `blur_raster.glsl` 的 13-tap 二维 Gaussian 和 mip 链；完成 D3D11 脉冲、透明、径向衰减断言后交付 |
-| P0 | glow/bloom | `texture.glow` 已完成 Godot Dual Filtering 的 HDR 筛选、1–6 级降采样/上采样和 RGBA16F 加法合成；历史作品仍有普通 blur 拼装待迁移 | 迁移作品并完成大粒子、细亮线、HDR/SDR 与动态输出评审；与 tone-map 阶段一并补齐 Godot 合成模式 |
-| P0 | tone mapping/HDR | `texture.display` 已提供 Godot Reinhard、Filmic、ACES、AgX，曝光在映射前、sRGB 转换在映射后；作品仍需从旧默认 Reinhard 按视觉意图迁移 | 完成彩色 HDR 阶梯和 glow→tone-map 作品动态评审，再决定高级作品的默认映射 |
-| P0 | 透明 3D | 普通 source-over 依赖提交顺序；已验证的有限加权 OIT 对相交物体前后颜色仍错误 | 对照 Godot 透明排序、深度 prepass 和材质模式，先修正确性与稳定排序；复杂 OIT 单独验证后决定 |
+| P0 | glow/bloom | `texture.glow` 已完成 Godot Dual Filtering 的 HDR 筛选、1–6 级降采样/上采样和 RGBA16F 加法合成；首批四件作品已从 blur 拼装迁移 | 继续迁移其余作品并完成大粒子、细亮线、HDR/SDR 与动态输出评审；以 glow/display 联合执行合同补齐 Godot 合成模式 |
+| P0 | tone mapping/HDR | `texture.display` 已提供 Godot Reinhard、Filmic、ACES、AgX，曝光在映射前、sRGB 转换在映射后；首批四件作品已接入 AgX | 完成彩色 HDR 阶梯和 glow→tone-map 作品动态评审，再决定高级作品的默认映射 |
+| P0 | 透明 3D | 已按 Godot 语义采用不透明优先、透明物体稳定后到前排序，并以变换后的网格包围盒中心替代错误的实例原点；相交透明仍只有顺序相关 source-over | 对照 Godot 的材质 render priority、sorting offset 和 alpha depth prepass 逐项扩展；复杂 OIT 单独验证后决定 |
 | P1 | 景深 | TiXL golden-angle gather 已可运行，但没有完整近/远 CoC 分离、遮挡权重和背景泄漏控制 | 对照 Godot `bokeh_dof` 的 shape/quality、近远场和合成；用前景细线、远景高光、运动相机验证 |
 | P1 | 阴影 | 已采用 Godot PCF5 核，但只有单张阴影图、单选择光源和开关式低档过滤；大投影和运动时可能锯齿/闪烁 | 扩展 Godot filter quality、方向光级联/稳定投影和点光语义；保留当前 PCF5 作为低档 |
 | P1 | 环境预滤波 | 当前 GGX/Hammersley 预滤来自 TiXL，图集和样本预算受限；粗糙材质可能出现噪声或层级跳变 | 对照 Godot reflection/environment filter 的分布、LOD 与能量守恒；固定输入环境做粗糙度阶梯比较 |
@@ -39,9 +39,13 @@
 [验证记录](validation/godot_blur_and_generated_cleanup_2026-09-11.md)。
 
 Glow 核心节点已通过 D3D11 中心高光、连续远近衰减、边界和透明 alpha 回读；固定来源见
-`provenance/godot_glow.json`。核心 glow→AgX 顺序已通过组合回读；作品迁移和动态视觉评审
-尚未完成，因此该 P0 条目保持进行中。
+`provenance/godot_glow.json`。核心 glow→AgX 顺序已通过组合回读，首批四件作品通过真实
+Studio 重建、保存发布与音乐运行；其余作品迁移和动态视觉评审尚未完成，因此该 P0 条目
+保持进行中。Godot 的 Soft Light 明确在 tone mapping 后执行，不能在独立 glow shader
+里伪装补齐；五种模式需由 glow/display 联合执行合同保证正确颜色阶段。
 Tone mapping 核心已通过 8x HDR 的四种映射实际 D3D 回读，来源与适配记录见
-`provenance/color_pipeline.json`；彩色阶梯和作品迁移仍待完成。透明、景深等条目尚未
+`provenance/color_pipeline.json`；彩色阶梯和其余作品迁移仍待完成。透明排序的第一步
+已通过 Null 合同和实际 D3D 像素验证，但相交几何、材质优先级和 depth prepass 尚未完成。
+景深等条目尚未
 因列入本文而视为完成。每项关闭时补充固定
 上游 revision、文件哈希、许可、适配差异、GPU 图像与动态作品证据。

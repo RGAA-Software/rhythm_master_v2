@@ -79,6 +79,12 @@ def main():
         if any(abs(a - b) > 2 for a, b in zip(actual, value)):
             raise RuntimeError(f"model {scenario}: expected {value}, got {actual}; evidence {output}")
     print("Embedded GLB Player pixels: material override, GPU resource recreation and transform passed")
+    actual = read_tga(output / "transparent-mesh-center.tga")
+    expected = (128, 0, 64)
+    if any(abs(a - b) > 3 for a, b in zip(actual, expected)):
+        raise RuntimeError(
+            f"transparent mesh-center sort: expected {expected}, got {actual}; evidence {output}")
+    print("Transparent mesh-center sorting: far blue then near red passed")
 
 
 if __name__ == "__main__":

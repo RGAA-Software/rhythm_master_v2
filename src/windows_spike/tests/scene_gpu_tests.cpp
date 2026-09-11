@@ -9,6 +9,19 @@
 #include "rhythm/player/session.h"
 #include "scene_fixture.h"
 #include "scene_graph_fixture.h"
+#include "scene_pass.h"
+
+namespace {
+std::shared_ptr<rhythm::scene::Geometry> OffsetCube(std::uint64_t id, float local_z) {
+    auto model = rhythm::scene::Cube();
+    for (auto& vertex : model.meshes_[0].vertices_) vertex.z_ += local_z;
+    auto geometry = std::make_shared<rhythm::scene::Geometry>();
+    geometry->id_ = id;
+    geometry->revision_ = 1;
+    geometry->model_ = std::make_shared<const rhythm::scene::Model>(std::move(model));
+    return geometry;
+}
+}  // namespace
 
 int main(int argc, char* argv[]) {
     try {
@@ -78,6 +91,37 @@ int main(int argc, char* argv[]) {
                 if (frame == 3) bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
                 renderer.EndFrame();
             }
+        }
+        rhythm::scene::Material near_material;
+        near_material.base_color_ = {1, 0, 0, 0.5f};
+        rhythm::scene::Material far_material;
+        far_material.base_color_ = {0, 0, 1, 0.5f};
+        rhythm::scene::Scene transparent_scene;
+        transparent_scene.instances_ = {
+                {OffsetCube(100, 1), rhythm::scene::Matrix{}, near_material},
+                {OffsetCube(101, -1), rhythm::scene::Matrix{}, far_material}};
+        rhythm::scene::Camera transparent_camera;
+        transparent_camera.eye_ = {0, 0, 3};
+        transparent_camera.target_ = {0, 0, 0};
+        rhythm::runtime::detail::ScenePass transparent_pass;
+        auto transparent_target = renderer.CreateTexture({16, 16});
+        for (int frame = 0; frame < 8; ++frame) {
+            renderer.BeginFrame();
+            const auto draws = transparent_pass.Build(transparent_scene, transparent_camera,
+                                                      {16, 16}, renderer);
+            renderer.SubmitScene(transparent_target.Handle(), draws);
+            rhythm::render::DrawList present;
+            present.width_ = present.height_ = 16;
+            present.vertices_ = {{0, 0, 0, 0}, {16, 0, 1, 0}, {16, 16, 1, 1}, {0, 16, 0, 1}};
+            present.indices_ = {0, 1, 2, 0, 2, 3};
+            present.commands_ = {{transparent_target.Handle(), 0, 6, {0, 0, 16, 16}}};
+            renderer.Submit({}, present);
+            if (frame == 3)
+                bgfx::requestScreenShot(BGFX_INVALID_HANDLE,
+                                        (std::filesystem::path(argv[1]) / "transparent-mesh-center")
+                                                .string()
+                                                .c_str());
+            renderer.EndFrame();
         }
         std::cout << "D3D scene captures: depth order, front/back culling, double side and depth "
                      "clear\n";

@@ -26,6 +26,7 @@ class ScenePass final {
         std::shared_ptr<const scene::Model> model_{};
         PoseMatrices rest_{};
         std::vector<render::Mesh> meshes_{};
+        std::vector<scene::Vector3> mesh_centers_{};
         std::vector<render::Texture> images_{};
     };
     using Key = std::tuple<std::uint64_t, std::uint64_t, bool>;

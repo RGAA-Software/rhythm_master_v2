@@ -96,5 +96,20 @@
         "symbol": "TorusMesh::_create_mesh_array",
         "target": "src/scene3d/torus.cpp",
         "scope": "Retain torus position/normal/UV and exact seam construction; reverse winding to CCW. Use bounded major radius and tube ratio; omit tangents and UV2 outside project vertex contract."
+    },
+    "transparency_sorting_reference": {
+        "revision": "cb41ea115914c61a8329087b4cffbad7477b8427",
+        "files": [
+            {
+                "file": "servers/rendering/renderer_rd/forward_mobile/render_forward_mobile.cpp",
+                "sha256": "10826c00320b66b8ee2b83c573b50515eb4d98f8fa4cb369ecb08a894d800021"
+            },
+            {
+                "file": "servers/rendering/renderer_rd/forward_mobile/render_forward_mobile.h",
+                "sha256": "c144e2ab82e70d7139c04093174cbbeb7f985b0a813dba748c715a623894a69c"
+            }
+        ],
+        "target": "src/runtime/scene_pass.cpp",
+        "scope": "Adopt opaque-first and stable transparent back-to-front object ordering. Use the transformed mesh bounds center instead of an instance origin; use camera distance for perspective and view depth for orthographic projection. Render priority, sorting offsets, alpha depth prepass and intersecting-geometry transparency remain outside this increment."
     }
 }
