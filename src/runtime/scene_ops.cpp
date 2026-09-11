@@ -79,6 +79,7 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
             material.base_color_ = {static_cast<float>(color.r_), static_cast<float>(color.g_),
                                     static_cast<float>(color.b_), static_cast<float>(color.a_)};
             material.double_sided_ = scalar("double_sided", 0) != 0;
+            material.alpha_depth_prepass_ = scalar("alpha_depth_prepass", 0) != 0;
             material.render_priority_ = static_cast<std::int32_t>(scalar("render_priority", 0));
             if (instruction.operation_ == Operation::kMaterialPbr) {
                 material.unlit_ = false;

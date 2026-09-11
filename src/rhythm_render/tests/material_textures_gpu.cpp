@@ -117,7 +117,33 @@ void VerifyMaterialTextures(render::Renderer& renderer) {
     const auto batched = capture();
     if (submissions != 1 || batched[(16 * 32 + 8) * 4] < 250 || batched[(16 * 32 + 24) * 4] < 250)
         throw std::runtime_error("material.compatible_textures_batch");
+    std::array<std::uint8_t, 8 * 4> coverage{};
+    for (int x = 0; x < 8; ++x) {
+        coverage[x * 4] = 255;
+        coverage[x * 4 + 3] = x < 4 ? 255 : 0;
+    }
+    auto coverage_texture = renderer.CreateTexture({8, 1}, coverage);
+    draw = {};
+    draw.mesh_ = mesh.Handle();
+    draw.double_sided_ = true;
+    draw.color_ = {0, 0, 1, 1};
+    draw.model_[14] = 0.5f;
+    auto foreground = draw;
+    foreground.color_ = {1, 0, 0, 1};
+    foreground.model_[14] = -0.5f;
+    foreground.alpha_depth_prepass_ = true;
+    foreground.textures_.slots_[0] = coverage_texture.Handle();
+    auto middle = draw;
+    middle.color_ = {0, 1, 0, 0.5f};
+    middle.model_[14] = 0;
+    scene.draws_ = {draw, foreground, middle};
+    const auto prepass = capture();
+    const auto left = (16 * 32 + 4) * 4;
+    const auto right = (16 * 32 + 27) * 4;
+    if (submissions != 4 || prepass[left] < 250 || prepass[left + 1] > 3 || prepass[left + 2] > 3 ||
+        prepass[right] > 3 || prepass[right + 1] < 125 || prepass[right + 2] < 125)
+        throw std::runtime_error("material.alpha_depth_prepass_coverage");
     std::cout << "Material textures: color transfer, UV, normal, mirrored scale, ORM and emission "
-                 "passed\n";
+                 "and alpha depth prepass passed\n";
 }
 }  // namespace rhythm::validation

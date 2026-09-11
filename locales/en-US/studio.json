@@ -361,6 +361,7 @@
     "material.unlit": "Unlit material",
     "scene.instance": "Scene instance",
     "render_priority": "Transparent render priority",
+    "alpha_depth_prepass": "Alpha depth prepass",
     "sorting_offset": "Transparent sorting offset",
     "scene.transform": "3D transform",
     "scene.merge": "Merge scenes",

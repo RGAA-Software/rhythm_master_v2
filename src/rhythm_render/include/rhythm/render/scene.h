@@ -67,6 +67,9 @@ struct MeshDraw {
     Matrix4 model_ = kIdentityMatrix;
     std::array<float, 4> color_{1, 1, 1, 1};
     bool double_sided_ = false;
+    // Godot depth_prepass_alpha: nearly opaque coverage writes depth before
+    // the sorted transparent color pass. Base-texture alpha is coverage.
+    bool alpha_depth_prepass_ = false;
     Matrix4 normal_ = kIdentityMatrix;
     float metallic_ = 0;
     float roughness_ = 0.5f;

@@ -19,7 +19,7 @@
 | P0 | 普通 blur | 原 TiXL 五采样横纵核与四 tap 降采样已产生方向性重影风险；2026-09-11 已从运行路径移除 | 固定 `blur_raster.glsl` 的 13-tap 二维 Gaussian 和 mip 链；完成 D3D11 脉冲、透明、径向衰减断言后交付 |
 | P0 | glow/bloom | `texture.glow` 已完成 Godot Dual Filtering 的 HDR 筛选、1–6 级降采样/上采样和 RGBA16F 加法合成；首批四件作品已从 blur 拼装迁移 | 继续迁移其余作品并完成大粒子、细亮线、HDR/SDR 与动态输出评审；以 glow/display 联合执行合同补齐 Godot 合成模式 |
 | P0 | tone mapping/HDR | `texture.display` 已提供 Godot Reinhard、Filmic、ACES、AgX，曝光在映射前、sRGB 转换在映射后；首批四件作品已接入 AgX | 完成彩色 HDR 阶梯和 glow→tone-map 作品动态评审，再决定高级作品的默认映射 |
-| P0 | 透明 3D | 已按 Godot 语义采用不透明优先、透明物体稳定后到前排序，以变换后的网格包围盒中心替代错误的实例原点，并提供材质 render priority 与实例 sorting offset；相交透明仍只有顺序相关 source-over | 下一步验证可选 alpha depth prepass；复杂 OIT 单独验证后决定 |
+| P0 | 透明 3D | 已按 Godot 语义采用不透明优先、稳定后到前排序、材质 priority、实例 sorting offset，并完成可选 alpha depth prepass；接近不透明的贴图覆盖写深度，透明孔洞保留后层 | 普通混合仍是顺序相关 source-over；复杂 OIT 单独验证后决定，不把 depth prepass 当作通用逐像素透明排序 |
 | P1 | 景深 | TiXL golden-angle gather 已可运行，但没有完整近/远 CoC 分离、遮挡权重和背景泄漏控制 | 对照 Godot `bokeh_dof` 的 shape/quality、近远场和合成；用前景细线、远景高光、运动相机验证 |
 | P1 | 阴影 | 已采用 Godot PCF5 核，但只有单张阴影图、单选择光源和开关式低档过滤；大投影和运动时可能锯齿/闪烁 | 扩展 Godot filter quality、方向光级联/稳定投影和点光语义；保留当前 PCF5 作为低档 |
 | P1 | 环境预滤波 | 当前 GGX/Hammersley 预滤来自 TiXL，图集和样本预算受限；粗糙材质可能出现噪声或层级跳变 | 对照 Godot reflection/environment filter 的分布、LOD 与能量守恒；固定输入环境做粗糙度阶梯比较 |
@@ -44,8 +44,9 @@ Studio 重建、保存发布与音乐运行；其余作品迁移和动态视觉�
 保持进行中。Godot 的 Soft Light 明确在 tone mapping 后执行，不能在独立 glow shader
 里伪装补齐；五种模式需由 glow/display 联合执行合同保证正确颜色阶段。
 Tone mapping 核心已通过 8x HDR 的四种映射实际 D3D 回读，来源与适配记录见
-`provenance/color_pipeline.json`；彩色阶梯和其余作品迁移仍待完成。透明排序的第一步
-已通过 Null 合同和实际 D3D 像素验证，但相交几何、材质优先级和 depth prepass 尚未完成。
+`provenance/color_pipeline.json`；彩色阶梯和其余作品迁移仍待完成。透明材质的物体排序、
+显式排序控制和 alpha depth prepass 已通过 Null 合同与实际 D3D 像素验证；任意半透明
+相交面的逐像素排序仍未完成。
 景深等条目尚未
 因列入本文而视为完成。每项关闭时补充固定
 上游 revision、文件哈希、许可、适配差异、GPU 图像与动态作品证据。

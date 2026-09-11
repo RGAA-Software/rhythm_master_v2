@@ -54,7 +54,8 @@ def main():
                     ("scene_skin_instance.sc", "vertex", "scene_varying.def.sc", "kSceneSkinInstanceShader"),
                     ("scene_morph_vertex.sc", "vertex", "scene_varying.def.sc", "kSceneMorphVertexShader"),
                     ("scene_morph_instance.sc", "vertex", "scene_varying.def.sc", "kSceneMorphInstanceShader"),
-                    ("scene_fragment.sc", "fragment", "scene_varying.def.sc", "kSceneFragmentShader")]
+                    ("scene_fragment.sc", "fragment", "scene_varying.def.sc", "kSceneFragmentShader"),
+                    ("scene_depth_prepass.sc", "fragment", "scene_varying.def.sc", "kSceneDepthPrepassShader")]
     elif args.group == "filter":
         programs = [("texture_filter.sc", "fragment", "varying.def.sc", "kTextureFilterShader")]
     elif args.group == "glow":

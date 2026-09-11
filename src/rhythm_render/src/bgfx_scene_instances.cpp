@@ -7,12 +7,12 @@
 namespace rhythm::render::detail {
 namespace {
 bool Compatible(const MeshDraw& a, const MeshDraw& b) {
-    return a.mesh_ == b.mesh_ && b.color_[3] >= 1 && a.unlit_ == b.unlit_ &&
-           a.double_sided_ == b.double_sided_ && a.metallic_ == b.metallic_ &&
-           a.roughness_ == b.roughness_ && a.emissive_ == b.emissive_ &&
-           a.textures_ == b.textures_ && a.surface_program_ == b.surface_program_ &&
-           a.deformations_ == b.deformations_ && a.bones_ == b.bones_ &&
-           a.morph_weights_ == b.morph_weights_ &&
+    return a.mesh_ == b.mesh_ && b.color_[3] >= 1 && !b.alpha_depth_prepass_ &&
+           a.unlit_ == b.unlit_ && a.double_sided_ == b.double_sided_ &&
+           a.metallic_ == b.metallic_ && a.roughness_ == b.roughness_ &&
+           a.emissive_ == b.emissive_ && a.textures_ == b.textures_ &&
+           a.surface_program_ == b.surface_program_ && a.deformations_ == b.deformations_ &&
+           a.bones_ == b.bones_ && a.morph_weights_ == b.morph_weights_ &&
            (a.double_sided_ || Mirrored(a.model_) == Mirrored(b.model_));
 }
 }  // namespace
@@ -31,7 +31,9 @@ BgfxSceneInstances::BgfxSceneInstances() {
     program_ = GpuHandle(bgfx::createProgram(vertex.Get(), fragment.Get(), false));
 }
 std::uint32_t BgfxSceneInstances::Bind(std::span<const MeshDraw> draws) const {
-    if (!bgfx::isValid(program_.Get()) || draws.size() < 2 || draws.front().color_[3] < 1) return 1;
+    if (!bgfx::isValid(program_.Get()) || draws.size() < 2 || draws.front().color_[3] < 1 ||
+        draws.front().alpha_depth_prepass_)
+        return 1;
     constexpr std::uint16_t kStride = 2 * sizeof(Matrix4) + 4 * sizeof(float);
     const auto available =
             bgfx::getAvailInstanceDataBuffer(static_cast<std::uint32_t>(draws.size()), kStride);

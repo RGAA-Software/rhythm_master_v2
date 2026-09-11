@@ -103,9 +103,16 @@ void TransparentMeshCenterSort() {
     scene.instances_[1].material_->render_priority_ = 0;
     scene.instances_[0].sorting_offset_ = -3;
     const auto offset = pass.Build(scene, camera, {64, 64}, renderer);
+    scene.instances_[0].material_->base_color_.alpha_ = 1;
+    scene.instances_[1].material_->base_color_.alpha_ = 1;
+    scene.instances_[0].material_->alpha_depth_prepass_ = true;
+    const auto prepass = pass.Build(scene, camera, {64, 64}, renderer);
     renderer.EndFrame();
     Require(offset.draws_[0].color_[0] == 1 && offset.draws_[1].color_[2] == 1,
             "negative sorting offset moves a transparent instance earlier");
+    Require(prepass.draws_[0].color_[2] == 1 && !prepass.draws_[0].alpha_depth_prepass_ &&
+                    prepass.draws_[1].alpha_depth_prepass_,
+            "alpha depth prepass material remains in the transparent queue");
 }
 void Lights() {
     using namespace rhythm;
@@ -198,12 +205,15 @@ void Run() {
                             scene::InstanceOrigin{3, 4, 0, 0},
             "producer and nearest author transform identities are independent of geometry");
     document.nodes_[1].properties_["render_priority"] = -7.0;
+    document.nodes_[1].properties_["alpha_depth_prepass"] = 1.0;
     document.nodes_[2].properties_["sorting_offset"] = 2.5;
     frame = evaluate();
     Require(frame.outputs_[1].material_->render_priority_ == -7 &&
+                    frame.outputs_[1].material_->alpha_depth_prepass_ &&
                     frame.outputs_[2].scene_->instances_[0].sorting_offset_ == 2.5,
-            "material priority and instance sorting offset reach the scene snapshot");
+            "material transparency controls and instance sorting offset reach the scene snapshot");
     document.nodes_[1].properties_.erase("render_priority");
+    document.nodes_[1].properties_.erase("alpha_depth_prepass");
     document.nodes_[2].properties_.erase("sorting_offset");
     document.nodes_.push_back(registry.MakeNode(9, "scene.transform"));
     document.edges_[3].to_ = 9;

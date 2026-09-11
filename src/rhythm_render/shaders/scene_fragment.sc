@@ -20,6 +20,7 @@ SAMPLER2D(s_scene_emission, 3);
 uniform vec4 u_scene_textures;
 uniform vec4 u_scene_texture_options;
 uniform vec4 u_scene_uv;
+uniform vec4 u_scene_alpha;
 // GLM MIT color transfer, shared semantics with color_pipeline.sc.
 float MaterialLinear(float c) {
     c = clamp(c, 0.0, 1.0);
@@ -35,7 +36,12 @@ void main()
 {
     vec2 uv = v_scene_uv * u_scene_uv.xy + u_scene_uv.zw;
     vec3 base = v_scene_color.rgb;
-    if (u_scene_textures.x > 0.5) base *= MaterialColor(texture2D(s_scene_base, uv));
+    float coverage = v_scene_color.a;
+    if (u_scene_textures.x > 0.5) {
+        vec4 base_pixel = texture2D(s_scene_base, uv);
+        base *= MaterialColor(base_pixel);
+        if (u_scene_alpha.x > 0.5) coverage *= base_pixel.a;
+    }
     vec3 color = base;
     if (u_scene_material.z < 0.5)
     {
@@ -89,5 +95,5 @@ void main()
             }
         }
     }
-    gl_FragColor = vec4(min(color, vec3(65504.0, 65504.0, 65504.0)) * v_scene_color.a, v_scene_color.a);
+    gl_FragColor = vec4(min(color, vec3(65504.0, 65504.0, 65504.0)) * coverage, coverage);
 }

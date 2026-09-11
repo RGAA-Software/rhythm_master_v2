@@ -188,7 +188,8 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
                 result.draws_.push_back({upload.meshes_.at(mesh_index).Handle(),
                                          Matrix(transform),
                                          {color.red_, color.green_, color.blue_, color.alpha_},
-                                         material.double_sided_});
+                                         material.double_sided_,
+                                         material.alpha_depth_prepass_});
                 const auto center =
                         scene::TransformPoint(transform, upload.mesh_centers_[mesh_index]);
                 if (camera.kind_ == scene::ProjectionKind::kOrthographic) {
@@ -267,8 +268,10 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
     std::vector<std::size_t> order(result.draws_.size());
     std::iota(order.begin(), order.end(), 0);
     std::stable_sort(order.begin(), order.end(), [&](std::size_t a, std::size_t b) {
-        const bool opaque_a = result.draws_[a].color_[3] >= 1;
-        const bool opaque_b = result.draws_[b].color_[3] >= 1;
+        const bool opaque_a =
+                result.draws_[a].color_[3] >= 1 && !result.draws_[a].alpha_depth_prepass_;
+        const bool opaque_b =
+                result.draws_[b].color_[3] >= 1 && !result.draws_[b].alpha_depth_prepass_;
         if (opaque_a != opaque_b) return opaque_a;
         if (opaque_a) return false;
         if (draw_priorities[a] != draw_priorities[b])

@@ -361,6 +361,7 @@
     "material.unlit": "无光照材质",
     "scene.instance": "场景实例",
     "render_priority": "透明渲染优先级",
+    "alpha_depth_prepass": "透明深度预通道",
     "sorting_offset": "透明排序偏移",
     "scene.transform": "三维变换",
     "scene.merge": "合并场景",

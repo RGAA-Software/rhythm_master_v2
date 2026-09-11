@@ -111,9 +111,21 @@
             {
                 "file": "scene/resources/material.cpp",
                 "sha256": "391f54b1f1262aea493b67df57583de63d504787b2ae0c6cc5ad93c0b4ee3964"
+            },
+            {
+                "file": "servers/rendering/renderer_rd/shaders/forward_clustered/scene_forward_clustered.glsl",
+                "sha256": "43dd573f83a2d16bc4c5c44fa1d4fcbf8e4a6365032d211642718087f7b089f1"
+            },
+            {
+                "file": "servers/rendering/renderer_rd/forward_clustered/scene_shader_forward_clustered.cpp",
+                "sha256": "b918e695fa52df0272044542649d72b0d21a8fdf3b00ebd0c4a7620197372ff5"
+            },
+            {
+                "file": "servers/rendering/renderer_rd/forward_clustered/render_forward_clustered.cpp",
+                "sha256": "353145a8a0f611dfecc77427ab16818e28348c987fc5e3eca46dc2e18cc87b20"
             }
         ],
-        "target": "src/runtime/scene_pass.cpp",
-        "scope": "Adopt opaque-first and stable transparent back-to-front object ordering. Use the transformed mesh bounds center instead of an instance origin; use camera distance for perspective and view depth for orthographic projection. Add the Godot -128..127 material render priority and per-instance sorting offset to the project graph/value contracts. Alpha depth prepass and intersecting-geometry transparency remain outside this increment."
+        "target": "src/runtime/scene_pass.cpp; src/rhythm_render/src/bgfx_scene.cpp; src/rhythm_render/shaders/scene_depth_prepass.sc; src/rhythm_render/shaders/scene_fragment.sc",
+        "scope": "Adopt opaque-first and stable transparent back-to-front object ordering using transformed mesh bounds centers, perspective camera distance or orthographic view depth; expose Godot render priority and sorting offset. Adapt depth_prepass_alpha as an optional material mode: a separate depth-only pass discards coverage below Godot's 0.99 opaque-prepass threshold, then the premultiplied color pass uses less-equal depth. Base-texture alpha participates only in this explicit mode. Preserve project value contracts and bgfx-private programs; exclude general OIT."
     }
 }

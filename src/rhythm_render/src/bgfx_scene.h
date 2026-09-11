@@ -70,6 +70,7 @@ class BgfxScene final {
     std::map<std::uint32_t, DepthTarget> targets_{};
     bgfx::VertexLayout layout_{};
     GpuHandle<bgfx::ProgramHandle> program_{};
+    std::array<GpuHandle<bgfx::ProgramHandle>, 3> depth_prepass_programs_{};
     BgfxSceneInstances instances_{};
     std::unique_ptr<BgfxSceneSkin> skin_{};
     std::unique_ptr<BgfxSceneMorph> morph_{};
@@ -79,6 +80,7 @@ class BgfxScene final {
     GpuHandle<bgfx::UniformHandle> emissive_{};
     GpuHandle<bgfx::UniformHandle> camera_{};
     GpuHandle<bgfx::UniformHandle> camera_view_{};
+    GpuHandle<bgfx::UniformHandle> alpha_{};
     GpuHandle<bgfx::UniformHandle> deformations_{};
     GpuHandle<bgfx::UniformHandle> deformation_pivots_{};
     BgfxSceneLights lights_{};

@@ -18,12 +18,24 @@ BgfxScene::BgfxScene(std::uint64_t device) : meshes_(device), device_(device) {
     GpuHandle fragment(
             bgfx::createShader(bgfx::copy(kSceneFragmentShader, sizeof(kSceneFragmentShader))));
     program_ = GpuHandle(bgfx::createProgram(vertex.Get(), fragment.Get(), false));
+    const std::array<std::span<const std::uint8_t>, 3> prepass_vertices{
+            kSceneVertexShader, kSceneSkinVertexShader, kSceneMorphVertexShader};
+    GpuHandle prepass_fragment(bgfx::createShader(
+            bgfx::copy(kSceneDepthPrepassShader, sizeof(kSceneDepthPrepassShader))));
+    for (std::size_t index = 0; index < prepass_vertices.size(); ++index) {
+        const auto bytes = prepass_vertices[index];
+        GpuHandle prepass_vertex(bgfx::createShader(
+                bgfx::copy(bytes.data(), static_cast<std::uint32_t>(bytes.size()))));
+        depth_prepass_programs_[index] =
+                GpuHandle(bgfx::createProgram(prepass_vertex.Get(), prepass_fragment.Get(), false));
+    }
     color_ = GpuHandle(bgfx::createUniform("u_scene_color", bgfx::UniformType::Vec4));
     normal_ = GpuHandle(bgfx::createUniform("u_scene_normal", bgfx::UniformType::Mat4));
     material_ = GpuHandle(bgfx::createUniform("u_scene_material", bgfx::UniformType::Vec4));
     emissive_ = GpuHandle(bgfx::createUniform("u_scene_emissive", bgfx::UniformType::Vec4));
     camera_ = GpuHandle(bgfx::createUniform("u_scene_camera", bgfx::UniformType::Vec4));
     camera_view_ = GpuHandle(bgfx::createUniform("u_scene_view", bgfx::UniformType::Vec4));
+    alpha_ = GpuHandle(bgfx::createUniform("u_scene_alpha", bgfx::UniformType::Vec4));
     deformations_ = GpuHandle(bgfx::createUniform("u_scene_deform", bgfx::UniformType::Vec4, 4));
     deformation_pivots_ =
             GpuHandle(bgfx::createUniform("u_scene_deform_pivot", bgfx::UniformType::Vec4, 4));
@@ -119,10 +131,11 @@ std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std:
             list.camera_position_[0], list.camera_position_[1], list.camera_position_[2],
             static_cast<float>(list.lights_.size() + list.positional_lights_.size())};
     lights_.Set(list);
-    std::uint32_t submissions = 0;
-    for (std::size_t index = 0; index < list.draws_.size();) {
+    const auto submit_draw = [&](std::size_t index, bool depth_prepass,
+                                 bool allow_instances) -> std::uint32_t {
         const auto& draw = list.draws_[index];
-        const auto count = instances_.Bind(std::span(list.draws_).subspan(index));
+        const auto count =
+                allow_instances ? instances_.Bind(std::span(list.draws_).subspan(index)) : 1;
         const auto& mesh = geometry_.at(draw.mesh_.slot_);
         bgfx::setTransform(draw.model_.data());
         bgfx::setVertexBuffer(0, mesh.vertices_.Get());
@@ -153,26 +166,56 @@ std::uint32_t BgfxScene::Draw(SceneView context, const SceneDrawList& list, std:
         const std::array camera_view{list.camera_backward_[0], list.camera_backward_[1],
                                      list.camera_backward_[2], list.orthographic_ ? 1.0f : 0.0f};
         bgfx::setUniform(camera_view_.Get(), camera_view.data());
+        const std::array alpha_settings{draw.alpha_depth_prepass_ ? 1.0f : 0.0f, 0.99f, 0.0f, 0.0f};
+        bgfx::setUniform(alpha_.Get(), alpha_settings.data());
         lights_.Bind();
         textures_.Bind(draw.textures_, resolve);
         shadow_.Bind(list.shadow_, resolve);
         environment_.Bind(list.environment_, resolve);
-        std::uint64_t state =
-                BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_LESS |
-                BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_INV_SRC_ALPHA);
-        if (draw.color_[3] >= 1) state |= BGFX_STATE_WRITE_Z;
+        std::uint64_t state = BGFX_STATE_DEPTH_TEST_LESS;
+        if (depth_prepass) {
+            state |= BGFX_STATE_WRITE_Z;
+        } else {
+            state |= BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A |
+                     BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_INV_SRC_ALPHA);
+            if (draw.color_[3] >= 1 && !draw.alpha_depth_prepass_) state |= BGFX_STATE_WRITE_Z;
+            if (draw.alpha_depth_prepass_)
+                state = (state & ~BGFX_STATE_DEPTH_TEST_MASK) | BGFX_STATE_DEPTH_TEST_LEQUAL;
+        }
         if (!draw.double_sided_)
             state |= context.invert_ != Mirrored(draw.model_) ? BGFX_STATE_CULL_CCW
                                                               : BGFX_STATE_CULL_CW;
         bgfx::setState(state);
-        bgfx::submit(view, draw.surface_program_
-                                   ? surfaces_->Bind(*draw.surface_program_, !draw.bones_.empty(),
-                                                     mesh.morph_.targets_ != 0, count > 1)
-                           : mesh.morph_.targets_ ? morph_->Program(count > 1)
-                           : !draw.bones_.empty()
-                                   ? skin_->Program(count > 1)
-                                   : (count > 1 ? instances_.Program() : program_.Get()));
-        index += count;
+        if (depth_prepass) {
+            const auto program_index = mesh.morph_.targets_ ? 2 : !draw.bones_.empty() ? 1 : 0;
+            bgfx::submit(view, depth_prepass_programs_[program_index].Get());
+        } else {
+            bgfx::submit(view,
+                         draw.surface_program_
+                                 ? surfaces_->Bind(*draw.surface_program_, !draw.bones_.empty(),
+                                                   mesh.morph_.targets_ != 0, count > 1)
+                         : mesh.morph_.targets_ ? morph_->Program(count > 1)
+                         : !draw.bones_.empty()
+                                 ? skin_->Program(count > 1)
+                                 : (count > 1 ? instances_.Program() : program_.Get()));
+        }
+        return count;
+    };
+    std::uint32_t submissions = 0;
+    std::size_t transparent_begin = 0;
+    while (transparent_begin < list.draws_.size() &&
+           list.draws_[transparent_begin].color_[3] >= 1 &&
+           !list.draws_[transparent_begin].alpha_depth_prepass_) {
+        transparent_begin += submit_draw(transparent_begin, false, true);
+        ++submissions;
+    }
+    for (std::size_t index = transparent_begin; index < list.draws_.size(); ++index) {
+        if (!list.draws_[index].alpha_depth_prepass_) continue;
+        submit_draw(index, true, false);
+        ++submissions;
+    }
+    for (std::size_t index = transparent_begin; index < list.draws_.size(); ++index) {
+        submit_draw(index, false, false);
         ++submissions;
     }
     return submissions;
