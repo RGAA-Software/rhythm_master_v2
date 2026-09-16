@@ -185,11 +185,11 @@ class BgfxBackend final : public Backend {
                 scene_->Target(color, textures_[color.slot_].texture_.Get(), extent, depth,
                                textures_[depth.slot_].texture_.Get());
         resources_.DropDepth(color);
-        draws_ += scene_->Draw({static_cast<bgfx::ViewId>(passes_++), framebuffer, extent,
-                                invert_targets_, homogeneous_depth_},
-                               list, clear, [this](TextureHandle handle) {
-                                   return textures_.at(handle.slot_).texture_.Get();
-                               });
+        const auto view = static_cast<bgfx::ViewId>(passes_++);
+        bgfx::setViewName(view, "Scene depth");
+        draws_ += scene_->Draw(
+                {view, framebuffer, extent, invert_targets_, homogeneous_depth_}, list, clear,
+                [this](TextureHandle handle) { return textures_.at(handle.slot_).texture_.Get(); });
     }
     void Release(TextureHandle handle) noexcept override {
         if (!resources_.Release(handle)) return;
@@ -215,9 +215,10 @@ class BgfxBackend final : public Backend {
         if (!resources_.IsRenderTarget(handle))
             throw std::invalid_argument("render.readback_target");
         if (passes_ >= kMaximumOffscreenPasses) throw BudgetExceeded(Budget::kPasses);
+        const auto view = static_cast<bgfx::ViewId>(passes_);
+        bgfx::setViewName(view, "Readback");
         const auto ticket = readbacks_.Request(textures_.at(handle.slot_).texture_.Get(),
-                                               resources_.Size(handle),
-                                               static_cast<bgfx::ViewId>(passes_), resources_);
+                                               resources_.Size(handle), view, resources_);
         ++passes_;
         return ticket;
     }
@@ -355,6 +356,7 @@ class BgfxBackend final : public Backend {
             throw;
         }
         const auto view = static_cast<bgfx::ViewId>(passes_++);
+        bgfx::setViewName(view, "Scene color");
         draws_ += scene_->Draw(
                 {view, framebuffer, extent, invert_targets_, homogeneous_depth_}, list, clear,
                 [this](TextureHandle handle) { return textures_.at(handle.slot_).texture_.Get(); });
@@ -380,6 +382,7 @@ class BgfxBackend final : public Backend {
         if (passes_ >= (target == TextureHandle{} ? 256U : kMaximumOffscreenPasses))
             throw BudgetExceeded(Budget::kPasses);
         const auto view = static_cast<bgfx::ViewId>(passes_++);
+        bgfx::setViewName(view, target == TextureHandle{} ? "Presentation" : "Texture pass");
         auto extent = size_;
         bgfx::FrameBufferHandle framebuffer = BGFX_INVALID_HANDLE;
         if (target != TextureHandle{}) {

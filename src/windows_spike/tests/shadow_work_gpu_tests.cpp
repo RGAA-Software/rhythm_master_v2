@@ -1,3 +1,5 @@
+#include <bgfx/bgfx.h>
+
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -177,6 +179,11 @@ double MaximumCheckpointDifference(const MotionResult& first, const MotionResult
 struct TimingResult {
     double p50_ = 0;
     double p95_ = 0;
+    double gpu_p50_ = 0;
+    double gpu_p95_ = 0;
+    double depth_gpu_p50_ = 0;
+    double depth_gpu_p95_ = 0;
+    std::size_t depth_views_ = 0;
 };
 
 TimingResult Measure(const rhythm::graph::ExecutionPlan& plan,
@@ -184,6 +191,9 @@ TimingResult Measure(const rhythm::graph::ExecutionPlan& plan,
                      rhythm::render::Renderer& renderer) {
     rhythm::runtime::Runtime runtime;
     std::vector<double> timings;
+    std::vector<double> gpu_timings;
+    std::vector<double> depth_gpu_timings;
+    std::optional<std::size_t> depth_views;
     for (int frame = 0; frame < 150; ++frame) {
         const auto begin = Clock::now();
         renderer.BeginFrame();
@@ -191,12 +201,42 @@ TimingResult Measure(const rhythm::graph::ExecutionPlan& plan,
         Require(!result.budget_ && renderer.IsValid(result.final_),
                 "shadow_work.performance_output_invalid");
         renderer.EndFrame();
-        if (frame >= 30)
+        if (frame >= 30) {
             timings.push_back(
                     std::chrono::duration<double, std::milli>(Clock::now() - begin).count());
+            // Borrowed backend timestamps remain inside this Windows diagnostic boundary.
+            const auto* stats = bgfx::getStats();
+            Require(stats && stats->gpuTimerFreq > 0, "shadow_work.gpu_timestamps_unavailable");
+            const auto milliseconds = [stats](std::int64_t begin_ticks, std::int64_t end_ticks) {
+                return 1000.0 * double(end_ticks - begin_ticks) / double(stats->gpuTimerFreq);
+            };
+            gpu_timings.push_back(milliseconds(stats->gpuTimeBegin, stats->gpuTimeEnd));
+            double depth_gpu = 0;
+            std::size_t current_depth_views = 0;
+            for (std::size_t view_index = 0; view_index < stats->numViews; ++view_index) {
+                const auto& view = stats->viewStats[view_index];
+                if (std::string_view(view.name) != "Scene depth") continue;
+                Require(view.gpuTimeEnd >= view.gpuTimeBegin,
+                        "shadow_work.depth_gpu_timestamp_order");
+                depth_gpu += milliseconds(view.gpuTimeBegin, view.gpuTimeEnd);
+                ++current_depth_views;
+            }
+            if (!depth_views)
+                depth_views = current_depth_views;
+            else
+                Require(*depth_views == current_depth_views,
+                        "shadow_work.depth_gpu_view_count_changed");
+            depth_gpu_timings.push_back(depth_gpu);
+        }
     }
-    std::sort(timings.begin(), timings.end());
-    return {timings[timings.size() / 2], timings[timings.size() * 95 / 100]};
+    const auto percentiles = [](std::vector<double>& values) {
+        std::sort(values.begin(), values.end());
+        return std::array{values[values.size() / 2], values[values.size() * 95 / 100]};
+    };
+    const auto host = percentiles(timings);
+    const auto gpu = percentiles(gpu_timings);
+    const auto depth_gpu = percentiles(depth_gpu_timings);
+    return {host[0], host[1], gpu[0], gpu[1], depth_gpu[0], depth_gpu[1], depth_views.value_or(0)};
 }
 
 double CameraDistance(const rhythm::scene::Camera& first, const rhythm::scene::Camera& second) {
@@ -415,8 +455,26 @@ int main(int argc, char* argv[]) {
         std::filesystem::create_directories(point_output);
         WritePpm(point_output / "point-pcf13-frame120.ppm", Checkpoint(point, 120));
         WritePpm(point_output / "no-shadow-frame120.ppm", Checkpoint(point_disabled, 120));
+        bgfx::setDebug(BGFX_DEBUG_PROFILER);
         const auto point_timing = Measure(point_plan, *point_resources, renderer);
         const auto point_disabled_timing = Measure(point_disabled_plan, *point_resources, renderer);
+        bgfx::setDebug(BGFX_DEBUG_NONE);
+        std::cout << "Point GPU timing diagnostic: depth_views=" << point_timing.depth_views_ << '/'
+                  << point_disabled_timing.depth_views_
+                  << " depth_ms=" << point_timing.depth_gpu_p50_ << '/'
+                  << point_timing.depth_gpu_p95_ << '/' << point_disabled_timing.depth_gpu_p50_
+                  << '/' << point_disabled_timing.depth_gpu_p95_
+                  << " frame_ms=" << point_timing.gpu_p50_ << '/' << point_timing.gpu_p95_ << '/'
+                  << point_disabled_timing.gpu_p50_ << '/' << point_disabled_timing.gpu_p95_
+                  << '\n';
+        Require(point_timing.depth_views_ == point_disabled_timing.depth_views_ + 6 &&
+                        point_timing.depth_gpu_p50_ > point_disabled_timing.depth_gpu_p50_ &&
+                        point_timing.depth_gpu_p95_ > point_disabled_timing.depth_gpu_p95_,
+                "shadow_work.point_gpu_depth_isolation");
+        const auto depth_gpu_p50 =
+                point_timing.depth_gpu_p50_ - point_disabled_timing.depth_gpu_p50_;
+        const auto depth_gpu_p95 =
+                point_timing.depth_gpu_p95_ - point_disabled_timing.depth_gpu_p95_;
         std::ofstream point_evidence(point_output / "results.json");
         point_evidence.exceptions(std::ios::badbit | std::ios::failbit);
         point_evidence << "{\n"
@@ -427,17 +485,39 @@ int main(int argc, char* argv[]) {
                        << point_shadow_difference << ",\n"
                        << "    \"point_pcf13_frame_p50_ms\": " << point_timing.p50_ << ",\n"
                        << "    \"point_pcf13_frame_p95_ms\": " << point_timing.p95_ << ",\n"
+                       << "    \"point_gpu_frame_p50_ms\": " << point_timing.gpu_p50_ << ",\n"
+                       << "    \"point_gpu_frame_p95_ms\": " << point_timing.gpu_p95_ << ",\n"
+                       << "    \"point_scene_depth_gpu_p50_ms\": " << point_timing.depth_gpu_p50_
+                       << ",\n"
+                       << "    \"point_scene_depth_gpu_p95_ms\": " << point_timing.depth_gpu_p95_
+                       << ",\n"
+                       << "    \"point_shadow_depth_gpu_p50_delta_ms\": " << depth_gpu_p50 << ",\n"
+                       << "    \"point_shadow_depth_gpu_p95_delta_ms\": " << depth_gpu_p95 << ",\n"
+                       << "    \"point_shadow_depth_views\": "
+                       << point_timing.depth_views_ - point_disabled_timing.depth_views_ << ",\n"
                        << "    \"no_shadow_frame_p50_ms\": " << point_disabled_timing.p50_ << ",\n"
                        << "    \"no_shadow_frame_p95_ms\": " << point_disabled_timing.p95_ << ",\n"
+                       << "    \"no_shadow_gpu_frame_p50_ms\": " << point_disabled_timing.gpu_p50_
+                       << ",\n"
+                       << "    \"no_shadow_gpu_frame_p95_ms\": " << point_disabled_timing.gpu_p95_
+                       << ",\n"
+                       << "    \"no_shadow_scene_depth_gpu_p50_ms\": "
+                       << point_disabled_timing.depth_gpu_p50_ << ",\n"
+                       << "    \"no_shadow_scene_depth_gpu_p95_ms\": "
+                       << point_disabled_timing.depth_gpu_p95_ << ",\n"
                        << "    \"point_stable_texture_bytes\": " << point.texture_bytes_ << ",\n"
                        << "    \"no_shadow_stable_texture_bytes\": "
                        << point_disabled.texture_bytes_ << "\n"
                        << "}\n";
         std::cout << "Point shadow work: difference=" << point_shadow_difference
                   << " point_ms=" << point_timing.p50_ << '/' << point_timing.p95_
+                  << " point_gpu_ms=" << point_timing.gpu_p50_ << '/' << point_timing.gpu_p95_
+                  << " depth_gpu_delta_ms=" << depth_gpu_p50 << '/' << depth_gpu_p95
                   << " no_shadow_ms=" << point_disabled_timing.p50_ << '/'
-                  << point_disabled_timing.p95_ << " texture_bytes=" << point.texture_bytes_ << '/'
-                  << point_disabled.texture_bytes_ << "\n";
+                  << point_disabled_timing.p95_
+                  << " no_shadow_gpu_ms=" << point_disabled_timing.gpu_p50_ << '/'
+                  << point_disabled_timing.gpu_p95_ << " texture_bytes=" << point.texture_bytes_
+                  << '/' << point_disabled.texture_bytes_ << "\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

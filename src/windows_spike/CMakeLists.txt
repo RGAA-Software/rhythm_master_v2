@@ -178,7 +178,7 @@ if(BUILD_TESTING)
     set_tests_properties(windows_gpu_execution_probe PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE)
     add_executable(shadow_work_gpu_tests tests/shadow_work_gpu_tests.cpp)
     target_link_libraries(shadow_work_gpu_tests PRIVATE platform_sdl project_io prepared_assets
-        graph_runtime)
+        graph_runtime spike_bgfx)
     rhythm_project_target(shadow_work_gpu_tests)
     add_dependencies(shadow_work_gpu_tests phase_a_content)
     add_test(NAME shadow_work_gpu COMMAND shadow_work_gpu_tests
