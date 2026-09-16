@@ -1,5 +1,5 @@
 {
-    "compiler": "out/shader-tool/build/shaderc.exe",
+    "compiler": "tools/shaderc.exe",
     "compiler_version": "1.19.157",
     "compiler_sha256": "6f3d514d12edbde2e0055321a417e86091bc6ed0886f745abb4745ffcf08fa9a",
     "compiler_bytes": 9918976,
@@ -50,5 +50,5 @@
         "Tint decompose_access.cc:986 C4715 MakeVectorLoadF16"
     ],
     "reproducibility_limit": "Source-built in this project and identical generated shader bytes established; host executable bit identity across machines/toolchains/checkout paths is not claimed.",
-    "distribution": "Separate host tool for Studio only. Existing component copyright, exact licenses and exceptions retained; no outbound project license selected."
+    "distribution": "Tracked Windows host tool for reproducible developer and Studio builds. Existing component copyright, exact licenses and exceptions are retained under third_party/notices/shaderc; no outbound project license is selected."
 }

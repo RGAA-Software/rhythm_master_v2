@@ -22,7 +22,7 @@ def rebuilt_compiler(source_root):
     record = json.loads(profile.read_text(encoding="utf-8"))
     compiler = source_root / record["compiler"]
     if not compiler.is_file():
-        raise RuntimeError("Build the recorded host compiler first: python tools/build-shader-tool.py")
+        raise RuntimeError("Restore the tracked host compiler: tools/shaderc.exe")
     if profile_for(source_root, compiler) != profile:
         raise RuntimeError("Rebuilt compiler does not match its validated profile")
     return compiler

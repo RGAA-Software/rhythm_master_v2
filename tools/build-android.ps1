@@ -6,6 +6,9 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $project_root = Split-Path $PSScriptRoot -Parent
+if (-not $ShaderCompiler) {
+    $ShaderCompiler = Join-Path $project_root 'tools/shaderc.exe'
+}
 Push-Location $project_root
 try {
     $extra_options = @()

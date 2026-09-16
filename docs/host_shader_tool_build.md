@@ -48,7 +48,11 @@ workers. Subsequent builds preserve source timestamps and incremental objects.
 Only build configuration is generated as CMake; all preparation/validation stays
 in Python. No access to the original checkout is needed for this build command.
 
-The result is `out/shader-tool/build/shaderc.exe`. The build uses the upstream
+The source-build result is `out/shader-tool/build/shaderc.exe`. The validated
+9,918,976-byte binary is also tracked as `tools/shaderc.exe`, and normal Windows
+and Android builds select that repository path after verifying SHA-256 against
+`provenance/shaderc_rebuilt_host.json`. This avoids a hidden dependency on the
+ignored source archive or an earlier developer checkout. The build uses the upstream
 Release x64 contract (static CRT, C++20, AVX, no RTTI/exceptions) and records its
 binary SHA. Compiler/linker deterministic flags do not by themselves establish
 bit-identical builds across toolchains, machines or checkout paths.
@@ -64,6 +68,11 @@ The original compiler passes that complete baseline. Adoption of the source-buil
 tool additionally requires bounded image-profile/native authoring tests, actual
 D3D11/GLES pixels, and deployment from the new tool path. Source-build and final
 adoption evidence are recorded in the corresponding validation report.
+
+The tracked executable is a separate build-time/Studio host tool and is not linked
+into the application or Android Player. Binary redistribution retains the component
+notices under `third_party/notices/shaderc`; exact source inventory and build settings
+remain in `provenance/shaderc_host.json` and `provenance/shaderc_source_build.json`.
 
 Licenses and copyright notices remain those recorded in
 `provenance/shaderc_host.json`, including the actual glslang parser exception.

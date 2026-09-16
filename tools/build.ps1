@@ -6,6 +6,9 @@ param(
 $ErrorActionPreference = 'Stop'
 $env:VSLANG = '1033'
 $project_root = Split-Path $PSScriptRoot -Parent
+if (-not $ShaderCompiler -and $Preset -eq 'windows') {
+    $ShaderCompiler = Join-Path $project_root 'tools/shaderc.exe'
+}
 $cmake_command = (Get-Command cmake).Source
 $ctest_command = (Get-Command ctest).Source
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'

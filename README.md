@@ -224,19 +224,21 @@ read-only SDK):
 ./tools/prepare-dependencies.ps1
 ./tools/build.ps1 -Preset core
 ./tools/build.ps1 -Preset render-standalone
-./tools/build.ps1 -Preset windows -ShaderCompiler 'C:/source/shark_dynamics_wallpaper/cmake-build-qt6/generated/bgfx_tools/bin/shaderc.exe'
+./tools/build.ps1 -Preset windows
 python tools/build-windows.py
 ./tools/run-studio.ps1
 ```
 
 The graphics build now compiles owned color-filter shaders for D3D11/GLES using
-the validated host `shaderc` candidate. Set `RHYTHM_SHADERC` to your host compiler;
-the example path is read-only and specific to this development machine. Android
-accepts the same `-ShaderCompiler` argument on `tools/build-android.ps1`. Subsequent
-builds preserve the configured path. Shader compilation/embedding is implemented
-in Python; compiler/source/include hashes are retained beside generated artifacts.
-Reproducible release distribution of the compiler remains a pending dependency
-task; its executable is not bundled with Player.
+the validated Windows host compiler at `tools/shaderc.exe`. Windows development
+machines use this tracked executable by default; its SHA-256, exact source
+revision, build recipe, component licenses and notices are recorded under
+`provenance/` and `third_party/notices/shaderc/`. Set `RHYTHM_SHADERC` only when
+validating another compatible compiler. Android accepts the same
+`-ShaderCompiler` argument on `tools/build-android.ps1`. Shader
+compilation/embedding is implemented in Python; compiler/source/include hashes
+are retained beside generated artifacts. Studio deployment includes the compiler
+for shader authoring, while Player does not bundle this development tool.
 
 For daily acceptance, `python tools/build-windows.py` builds **Release** with
 20 workers and the validated local SDKs, and deploys both Studio and Player.
