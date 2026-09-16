@@ -25,7 +25,7 @@ R3 已验证 vcpkg `mikktspace 2020-10-06#3`（Zlib，静态链接），仅新�
 USB 手机通过基本几何、镜像 UV 接缝和异常输入检查，采用其切线生成；C 类型仅留在
 Scene3D 私有同步适配器。版本、许可和安装 ABI 见 `provenance/mikktspace.json`。
 点光/聚光、四槽材质、方向/聚光阴影以及 IBL 已通过两端像素检查；Godot cube 模式点光
-全向阴影已通过 Windows D3D11 六面像素和实际作品，Android 仍待实机。IBL 复用 Godot
+全向阴影已通过 Windows D3D11 六面、跨面 PCF 像素和实际作品，Android 仍待实机。IBL 复用 Godot
 MIT 环境 BRDF、TiXL MIT GGX 预过滤和既有 GLM MIT 颜色转换，没有新增库；见
 [环境光照](environment_lighting.md)。[GLB 内嵌 PNG/JPEG 材质](glb_material_images.md)已通过
 cgltf → 既有 FFmpeg → 发布包 → 两端 GPU 检查，未新增解码器。

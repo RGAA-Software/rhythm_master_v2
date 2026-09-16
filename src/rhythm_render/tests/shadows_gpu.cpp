@@ -8,6 +8,49 @@
 #include "rhythm/render/renderer.h"
 
 namespace rhythm::validation {
+namespace {
+render::Matrix4 Multiply(const render::Matrix4& first, const render::Matrix4& second) {
+    render::Matrix4 result{};
+    for (std::size_t column = 0; column < 4; ++column)
+        for (std::size_t row = 0; row < 4; ++row)
+            for (std::size_t inner = 0; inner < 4; ++inner)
+                result[column * 4 + row] += first[inner * 4 + row] * second[column * 4 + inner];
+    return result;
+}
+render::Matrix4 PointShadowMatrix(std::size_t face) {
+    constexpr std::array<std::array<float, 3>, 6> kForward{
+            {{{1, 0, 0}}, {{-1, 0, 0}}, {{0, -1, 0}}, {{0, 1, 0}}, {{0, 0, 1}}, {{0, 0, -1}}}};
+    constexpr std::array<std::array<float, 3>, 6> kRight{
+            {{{0, 0, -1}}, {{0, 0, 1}}, {{1, 0, 0}}, {{1, 0, 0}}, {{1, 0, 0}}, {{-1, 0, 0}}}};
+    constexpr std::array<std::array<float, 3>, 6> kUp{
+            {{{0, -1, 0}}, {{0, -1, 0}}, {{0, 0, -1}}, {{0, 0, 1}}, {{0, -1, 0}}, {{0, -1, 0}}}};
+    const auto& forward = kForward[face];
+    const auto& right = kRight[face];
+    const auto& up = kUp[face];
+    const render::Matrix4 view{right[0], up[0], -forward[0], 0, right[1], up[1], -forward[1], 0,
+                               right[2], up[2], -forward[2], 0, 0,        0,     0,           1};
+    constexpr float kNear = 0.1f;
+    constexpr float kFar = 10.0f;
+    constexpr float kDepth = kFar - kNear;
+    const render::Matrix4 projection{1,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     1,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     -(kFar + kNear) / kDepth,
+                                     -1,
+                                     0,
+                                     0,
+                                     -2 * kNear * kFar / kDepth,
+                                     0};
+    return Multiply(projection, view);
+}
+}  // namespace
 void VerifySceneShadows(render::Renderer& renderer) {
     using namespace render;
     const std::array<MeshVertex, 4> vertices{
@@ -210,14 +253,43 @@ void VerifySceneShadows(render::Renderer& renderer) {
                 throw std::runtime_error("shadow.point_cube_face_selection");
         }
     }
+    for (std::size_t face = 0; face < point_depths.size(); ++face)
+        receivers.shadow_->point_world_to_clip_[face] = PointShadowMatrix(face);
+    receivers.positional_lights_[0].radiance_ = {1, 0, 0};
+    auto seam_receiver = receiver;
+    seam_receiver.model_[0] = 0.12f;
+    seam_receiver.model_[5] = 0.12f;
+    seam_receiver.model_[12] = 0.7f;
+    seam_receiver.model_[14] = 0.708f;
+    seam_receiver.double_sided_ = false;
+    seam_receiver.normal_[8] = -0.7f;
+    seam_receiver.normal_[10] = -0.708f;
+    receivers.draws_ = {seam_receiver};
+    constexpr auto kPointSeam = (64 * 128 + 109) * 4;
+    receivers.shadow_->filter_ = ShadowFilter::kNearest;
+    const auto seam_nearest = capture_point(0)[kPointSeam];
+    receivers.shadow_->filter_ = ShadowFilter::kPcf5;
+    const auto seam_pcf5 = capture_point(0)[kPointSeam];
+    receivers.shadow_->filter_ = ShadowFilter::kPcf13;
+    const auto seam_pcf13 = capture_point(0)[kPointSeam];
+    const auto seam_open = capture_point(1)[kPointSeam];
+    std::cout << "Point shadow seam: nearest=" << unsigned(seam_nearest)
+              << " pcf5=" << unsigned(seam_pcf5) << " pcf13=" << unsigned(seam_pcf13)
+              << " open=" << unsigned(seam_open) << '\n';
+    if (seam_nearest > 5 || seam_pcf5 <= 5 || seam_pcf13 <= 5 || seam_pcf5 >= seam_open - 5 ||
+        seam_pcf13 >= seam_open - 5 || seam_open < 50)
+        throw std::runtime_error("shadow.point_cube_cross_face_filter");
     receivers.shadow_.reset();
     receivers.draws_ = {receiver};
     receivers.positional_lights_ = {spot};
     if (capture()[kOccluded] < 60) throw std::runtime_error("shadow.disable_releases_binding");
     std::cout
             << "Shadows: sampled depth occlusion, Y orientation, selected light, bounds, bias and "
-               "Nearest/PCF5/PCF13 edge differences plus six point cube faces passed ("
+               "Nearest/PCF5/PCF13 edge differences plus six point cube faces and cross-face "
+               "filtering passed ("
             << nearest_to_pcf5 << ", " << pcf5_to_pcf13 << "; fractional " << nearest_fractional
-            << ", " << pcf5_fractional << ", " << pcf13_fractional << ")\n";
+            << ", " << pcf5_fractional << ", " << pcf13_fractional << "; seam "
+            << unsigned(seam_nearest) << ", " << unsigned(seam_pcf5) << ", " << unsigned(seam_pcf13)
+            << ", " << unsigned(seam_open) << ")\n";
 }
 }  // namespace rhythm::validation

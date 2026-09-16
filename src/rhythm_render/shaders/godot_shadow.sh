@@ -36,21 +36,49 @@ vec4 PointShadowProjection(float face, vec4 position) {
     if (face < 4.5) return mul(u_scene_shadow_point_matrix_4, position);
     return mul(u_scene_shadow_point_matrix_5, position);
 }
+float PointShadowFace(vec3 relative) {
+    vec3 magnitude = abs(relative);
+    if (magnitude.x >= magnitude.y && magnitude.x >= magnitude.z)
+        return relative.x >= 0.0 ? 0.0 : 1.0;
+    if (magnitude.y >= magnitude.z)
+        return relative.y < 0.0 ? 2.0 : 3.0;
+    return relative.z >= 0.0 ? 4.0 : 5.0;
+}
+vec3 PointShadowRay(float face, vec2 clip) {
+    // Godot cube camera forward/right/up bases in +X, -X, -Y, +Y, +Z, -Z order.
+    if (face < 0.5) return vec3(1.0, -clip.y, -clip.x);
+    if (face < 1.5) return vec3(-1.0, -clip.y, clip.x);
+    if (face < 2.5) return vec3(clip.x, -1.0, -clip.y);
+    if (face < 3.5) return vec3(clip.x, 1.0, clip.y);
+    if (face < 4.5) return vec3(clip.x, -clip.y, 1.0);
+    return vec3(-clip.x, -clip.y, -1.0);
+}
+float ShadowTap(vec2 uv, float depth, float face, vec2 offset, float point_cube,
+                float forward_depth, vec3 light_position) {
+    if (point_cube < 0.5) return ShadowCompare(uv + offset, depth, face);
+    // Preserve the source face's forward depth while reconstructing the tap ray.
+    // An out-of-face tap is then compared in the adjacent face's projected depth space.
+    vec2 tap_uv = uv + offset;
+    vec2 tap_clip = vec2(tap_uv.x * 2.0 - 1.0, 1.0 - tap_uv.y * 2.0);
+    vec3 relative = PointShadowRay(face, tap_clip) * forward_depth;
+    float tap_face = PointShadowFace(relative);
+    vec4 projected = PointShadowProjection(tap_face, vec4(light_position + relative, 1.0));
+    if (projected.w <= 0.0) return 1.0;
+    vec3 clip = projected.xyz / projected.w;
+    if (abs(clip.x) > 1.0001 || abs(clip.y) > 1.0001 || abs(clip.z) > 1.0) return 1.0;
+    vec2 remapped_uv = vec2(clip.x * 0.5 + 0.5, 0.5 - clip.y * 0.5);
+    float remapped_depth = clip.z * 0.5 + 0.5 - u_scene_shadow_settings.y;
+    return ShadowCompare(remapped_uv, remapped_depth, tap_face);
+}
 float GodotShadow(vec3 position, vec3 normal, vec3 toward_light, float view_depth,
                   vec3 light_position) {
     vec3 offset = normal * (1.0 - max(0.0, dot(normal, toward_light))) * u_scene_shadow_settings.z;
     float face = u_scene_shadow_cascade.y > 0.5 && view_depth > u_scene_shadow_cascade.x ? 1.0 : 0.0;
     vec4 world = vec4(position + offset, 1.0);
     vec4 projected;
-    if (u_scene_shadow_cascade.z > 0.5) {
-        vec3 relative = world.xyz - light_position;
-        vec3 magnitude = abs(relative);
-        if (magnitude.x >= magnitude.y && magnitude.x >= magnitude.z)
-            face = relative.x >= 0.0 ? 0.0 : 1.0;
-        else if (magnitude.y >= magnitude.z)
-            face = relative.y < 0.0 ? 2.0 : 3.0;
-        else
-            face = relative.z >= 0.0 ? 4.0 : 5.0;
+    float point_cube = u_scene_shadow_cascade.z;
+    if (point_cube > 0.5) {
+        face = PointShadowFace(world.xyz - light_position);
         projected = PointShadowProjection(face, world);
     } else {
         projected = face > 0.5
@@ -67,26 +95,42 @@ float GodotShadow(vec3 position, vec3 normal, vec3 toward_light, float view_dept
     if (u_scene_shadow_filter.x < 0.5) return result;
     float step = u_scene_shadow_settings.w;
     if (u_scene_shadow_filter.x < 1.5) {
-        result += ShadowCompare(uv + vec2(step, 0.0), depth, face);
-        result += ShadowCompare(uv + vec2(-step, 0.0), depth, face);
-        result += ShadowCompare(uv + vec2(0.0, step), depth, face);
-        result += ShadowCompare(uv + vec2(0.0, -step), depth, face);
+        result += ShadowTap(uv, depth, face, vec2(step, 0.0), point_cube, projected.w,
+                            light_position);
+        result += ShadowTap(uv, depth, face, vec2(-step, 0.0), point_cube, projected.w,
+                            light_position);
+        result += ShadowTap(uv, depth, face, vec2(0.0, step), point_cube, projected.w,
+                            light_position);
+        result += ShadowTap(uv, depth, face, vec2(0.0, -step), point_cube, projected.w,
+                            light_position);
         return result * 0.2;
     }
-    result += ShadowCompare(uv + vec2(step * 2.0, 0.0), depth, face);
-    result += ShadowCompare(uv + vec2(-step * 2.0, 0.0), depth, face);
-    result += ShadowCompare(uv + vec2(0.0, step * 2.0), depth, face);
-    result += ShadowCompare(uv + vec2(0.0, -step * 2.0), depth, face);
+    result += ShadowTap(uv, depth, face, vec2(step * 2.0, 0.0), point_cube, projected.w,
+                        light_position);
+    result += ShadowTap(uv, depth, face, vec2(-step * 2.0, 0.0), point_cube, projected.w,
+                        light_position);
+    result += ShadowTap(uv, depth, face, vec2(0.0, step * 2.0), point_cube, projected.w,
+                        light_position);
+    result += ShadowTap(uv, depth, face, vec2(0.0, -step * 2.0), point_cube, projected.w,
+                        light_position);
     // Godot avoids the remaining eight comparisons when the distant cross is uniform.
     if (result <= 0.000001) return 0.0;
     if (result >= 4.999999) return 1.0;
-    result += ShadowCompare(uv + vec2(step, 0.0), depth, face);
-    result += ShadowCompare(uv + vec2(-step, 0.0), depth, face);
-    result += ShadowCompare(uv + vec2(0.0, step), depth, face);
-    result += ShadowCompare(uv + vec2(0.0, -step), depth, face);
-    result += ShadowCompare(uv + vec2(step, step), depth, face);
-    result += ShadowCompare(uv + vec2(-step, step), depth, face);
-    result += ShadowCompare(uv + vec2(step, -step), depth, face);
-    result += ShadowCompare(uv + vec2(-step, -step), depth, face);
+    result += ShadowTap(uv, depth, face, vec2(step, 0.0), point_cube, projected.w,
+                        light_position);
+    result += ShadowTap(uv, depth, face, vec2(-step, 0.0), point_cube, projected.w,
+                        light_position);
+    result += ShadowTap(uv, depth, face, vec2(0.0, step), point_cube, projected.w,
+                        light_position);
+    result += ShadowTap(uv, depth, face, vec2(0.0, -step), point_cube, projected.w,
+                        light_position);
+    result += ShadowTap(uv, depth, face, vec2(step, step), point_cube, projected.w,
+                        light_position);
+    result += ShadowTap(uv, depth, face, vec2(-step, step), point_cube, projected.w,
+                        light_position);
+    result += ShadowTap(uv, depth, face, vec2(step, -step), point_cube, projected.w,
+                        light_position);
+    result += ShadowTap(uv, depth, face, vec2(-step, -step), point_cube, projected.w,
+                        light_position);
     return result * (1.0 / 13.0);
 }

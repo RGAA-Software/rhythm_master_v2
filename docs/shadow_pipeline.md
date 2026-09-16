@@ -81,7 +81,13 @@ Chromatic Loom 又完成 481 帧细几何检查：PCF5→PCF13 有实际像素�
 颜色/深度对的 48 MiB。点光 p50/p95 短 host-frame 为 9.960/13.874 ms，无阴影为
 5.984/11.349 ms；这里只记录整帧短测，不宣称隔离 GPU pass 成本。
 
-当前六张 2D 图的 PCF tap 在所选面内 clamp，不具备 Godot `samplerCubeShadow` 的跨面
-滤波；cube 边缘 seam、Android 实机像素、更多代表作品、多个完整作品周期和隔离 GPU
-成本仍待后续 W1.1 增量。本次不把聚焦短测等同完整视觉品质验收。长稳保持最后集中执行。
-实现、来源和逐项证据见[点光验证记录](validation/godot_point_shadows_2026-09-16.md)。
+六张 2D 图现已对越界 PCF tap 还原源面射线、按主轴切换相邻面并重投影比较深度，
+不再 clamp 在错误面边缘。D3D11 的 `+X/+Z` 固定边界回读为 Nearest/PCF5/PCF13/
+全亮 `0/17/26/84`，确认软核实际跨面。Sonic Enamel 再次完成 121 帧，阴影差异仍为
+`0.308209`，资源差仍为 48 MiB；点光短 host-frame p50/p95 为 `10.081/14.580 ms`。
+
+项目仍使用显式 Nearest/PCF5/PCF13 和透视深度，不等同 Godot 硬件
+`samplerCubeShadow` 的径向深度比较。Android 实机像素、更多代表作品、多个完整作品周期
+和隔离 GPU 成本仍待后续 W1.1 增量。本次不把聚焦短测等同完整视觉品质验收。长稳保持
+最后集中执行。实现、来源和逐项证据见[点光验证记录](validation/godot_point_shadows_2026-09-16.md)
+及[跨面滤波验证](validation/godot_point_shadow_seams_2026-09-16.md)。
