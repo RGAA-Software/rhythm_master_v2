@@ -31,9 +31,14 @@ def msvc_environment():
     ConvertTo-Json -InputObject $build_environment -Compress
     """
     encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")
+    # Python can inherit both Path and PATH from a mixed shell/tool environment.
+    # Windows treats those names as identical, while newer Enter-VsDevShell
+    # rejects the duplicate keys instead of normalizing them.
+    shell_environment = {name.upper(): value for name, value in os.environ.items()}
     result = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-EncodedCommand", encoded],
-                            capture_output=True, check=True, encoding="utf-8")
-    environment = os.environ.copy()
+                            capture_output=True, check=True, encoding="utf-8",
+                            env=shell_environment)
+    environment = shell_environment.copy()
     environment.update(json.loads(result.stdout.strip()))
     return environment
 
@@ -66,6 +71,10 @@ def main():
         parser.error("Use a separate build directory; changing an existing cache's configuration is refused")
     validated = cache_values(ROOT / "out/windows/CMakeCache.txt")
     validated.update(existing)
+    shared_windows_sdk = "C:/source/vcpkg/installed/x64-windows"
+    for name in ("RHYTHM_SPIKE_SDK", "RHYTHM_IO_SDK"):
+        if not Path(validated.get(name, "")).is_dir():
+            validated[name] = shared_windows_sdk
     rebuilt = shader_tools.rebuilt_compiler(ROOT)
     if rebuilt:
         validated["RHYTHM_SHADERC"] = rebuilt.as_posix()
@@ -78,11 +87,12 @@ def main():
     for name in ("RHYTHM_SHADERC", "RHYTHM_SPIKE_SDK", "RHYTHM_IO_SDK", "RHYTHM_MEDIA_SDK",
                  "RHYTHM_PHYSICS_SDK", "RHYTHM_CGLTF_INCLUDE", "RHYTHM_GLM_INCLUDE",
                  "RHYTHM_PARTICLE_GLM_INCLUDE", "RHYTHM_MSVC_INCLUDE_PREFIX"):
-        if name in validated:
+        if name in validated and not validated[name].endswith("-NOTFOUND"):
             options.append(f"-D{name}={validated[name]}")
     environment = msvc_environment()
     requested = dict(option[2:].split("=", 1) for option in options)
-    if args.configure_only or any(existing.get(name) != value for name, value in requested.items()):
+    if (args.configure_only or not (build / "build.ninja").is_file() or
+            any(existing.get(name) != value for name, value in requested.items())):
         subprocess.run(["cmake", "-S", str(ROOT), "-B", str(build), "-G", "Ninja", *options],
                        check=True, env=environment)
     # Ninja already reruns CMake when owned build configuration changes.
