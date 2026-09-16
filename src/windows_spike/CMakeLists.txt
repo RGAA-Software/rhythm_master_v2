@@ -176,6 +176,17 @@ if(BUILD_TESTING)
         --image-program "${PROJECT_BINARY_DIR}/image-shader-profile/windows.bin")
     set_tests_properties(windows_image_program_gpu PROPERTIES FIXTURES_REQUIRED image_shader_profile TIMEOUT 30 RUN_SERIAL TRUE)
     set_tests_properties(windows_gpu_execution_probe PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE)
+    add_executable(shadow_work_gpu_tests tests/shadow_work_gpu_tests.cpp)
+    target_link_libraries(shadow_work_gpu_tests PRIVATE platform_sdl project_io prepared_assets
+        graph_runtime)
+    rhythm_project_target(shadow_work_gpu_tests)
+    add_dependencies(shadow_work_gpu_tests phase_a_content)
+    add_test(NAME shadow_work_gpu COMMAND shadow_work_gpu_tests
+        "${PROJECT_BINARY_DIR}/content/templates/porcelain_bloom"
+        "${PROJECT_BINARY_DIR}/shadow-work-gpu")
+    set_tests_properties(shadow_work_gpu PROPERTIES TIMEOUT 90 RUN_SERIAL TRUE
+        ENVIRONMENT_MODIFICATION
+            "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_IO_SDK}/debug/bin")
 endif()
 add_library(platform_sdl STATIC host.cpp ui_bridge.cpp)
 target_include_directories(platform_sdl PUBLIC include PRIVATE ../rhythm_render/src)

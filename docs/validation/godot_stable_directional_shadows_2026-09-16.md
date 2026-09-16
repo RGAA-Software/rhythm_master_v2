@@ -1,7 +1,8 @@
 # Godot 稳定方向光投影验证
 
-日期：2026-09-16。范围是 W1.1 的第二批增量：只实现方向光正交投影的 texel
-稳定化，不在本批实现级联、点光全向阴影或完整动态作品验收。
+日期：2026-09-16。范围是 W1.1 的第二批增量：实现方向光正交投影的 texel
+稳定化，并增加一件真实作者图的移动相机短验证；不在本批实现级联、点光全向阴影或
+完整动态作品验收。
 
 ## 固定来源与适配
 
@@ -41,8 +42,38 @@ Windows 专用永久 GPU 回归再让同一斜向遮挡体的方向光投影中�
 再次通过，包装日志为
 `out/windows-pcf13/stable-shadow-gpu-ctest.log.runs/1789545114872961600.log`。
 
+## 真实作品移动短验证
+
+永久 `shadow_work_gpu` 回归使用提交中的 Porcelain Bloom 作者图，经当前 `graph.proto`
+编译后的 `graph.pb` SHA-256 为
+`2d2da3dc82967ce08741ee8ee5b4318519b2b127e65af084c3893a7c20696d98`。实际路径是：
+
+1. 从 `out/windows-pcf13/content/templates/porcelain_bloom` 读取当前编译图；
+2. 用正式 Registry 编译 ExecutionPlan，加载 GLB 和 shader 等非音频资产；
+3. 将唯一 `scene.shadow` 设为 PCF13，同时生成只关闭阴影的对照计划；
+4. 在 Windows D3D11 Runtime 以静音运行 121 帧、640×360、30 fps 作品时间并逐帧回读。
+
+缺少隔离 LGPL FFmpeg SDK 时，带 soundtrack 的 `.rhythmpack` 发布会明确报
+`audio.decoder_unavailable`；因此本检查没有把临时媒体绕行写成 Player/Studio delivery，
+也没有把合成音频冒充真实 PCM。视觉图、非音频资产、图编译和 Runtime/Renderer 均走
+产品路径。
+
+静音四秒内相机移动 `3.27719` 世界单位；连续帧全图平均 RGB 差异的
+p50/p95/max 为 `4.41914/5.95388/6.09989`，永久断言拒绝超过
+`max(10, 1.5 × p95)` 的突发变化。PCF13 与关闭阴影的末帧平均 RGB 差为 `0.46252`，
+实际检查的陶瓷壳片内阴影可辨，永久门槛为 `0.25`。纹理占用在稳定段保持
+`63,111,876` 字节。末帧保存在 `out/windows-pcf13/shadow-work-gpu/pcf13-final.ppm`
+和 `no-shadow-final.ppm`。
+
+短性能段各运行 30 帧预热和 120 帧测量：PCF13 host frame p50/p95 为
+`16.6763/17.5898 ms`，关闭阴影为 `16.6675/17.2374 ms`。两组都受窗口显示节拍和
+同步影响，只说明本次短测没有观察到可分辨的新增 host-frame 成本，不是隔离 GPU 计时或
+稳定 60 fps 声明。机器可读结果位于 `out/windows-pcf13/shadow-work-gpu/results.json`，
+最终 CTest 包装日志为
+`out/windows-pcf13/shadow-work-gpu-ctest.log.runs/1789546702680368200.log`。
+
 ## 未覆盖范围
 
-这里证明运行时矩阵稳定性，并以两帧实际 D3D11 像素证明子网格移动不再产生旧式抖动；
-它仍不等同完整动态作品视觉验收。大投影、真实作品移动相机、细几何的连续多帧回读和
-短性能记录仍是 W1.1 后续退出条件；级联和点光全向阴影也仍未实现。
+这里证明运行时矩阵稳定性、两帧子网格移动像素稳定性，以及一件真实作品四秒移动相机
+输出没有突发跳变；它仍不等同完整动态作品视觉验收。大投影、细几何、多个连续周期、
+隔离 GPU 成本和更多代表作品仍是 W1.1 后续退出条件；级联和点光全向阴影也仍未实现。
