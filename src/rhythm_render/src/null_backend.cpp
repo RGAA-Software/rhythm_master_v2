@@ -159,12 +159,24 @@ class NullBackend final : public Backend {
         resources_.Validate(target, list);
         for (const auto& command : list.commands_)
             if (command.image_program_) image_programs_.Validate(*command.image_program_);
+        std::uint32_t dof_preparation_passes = 0;
+        std::uint32_t dof_commands = 0;
+        for (const auto& command : list.commands_) {
+            if (!command.depth_of_field_) continue;
+            ++dof_commands;
+            const auto& dof = *command.depth_of_field_;
+            const bool half_size = dof.shape_ == DepthOfFieldShape::kCircle ||
+                                   dof.quality_ <= DepthOfFieldQuality::kLow;
+            dof_preparation_passes = half_size && dof.shape_ != DepthOfFieldShape::kCircle ? 3 : 2;
+        }
+        if (dof_commands > 1) throw std::invalid_argument("render.depth_of_field_batch");
         // Reserve the last 16 views for host/UI presentation after graph admission fails.
-        if (passes_ >= (target == TextureHandle{} ? 256U : kMaximumOffscreenPasses))
+        if (passes_ + dof_preparation_passes >=
+            (target == TextureHandle{} ? 256U : kMaximumOffscreenPasses))
             throw BudgetExceeded(Budget::kPasses);
         resources_.RecordSamples(list);
-        ++passes_;
-        draws_ += static_cast<std::uint32_t>(list.commands_.size());
+        passes_ += dof_preparation_passes + 1;
+        draws_ += static_cast<std::uint32_t>(list.commands_.size()) + dof_preparation_passes;
     }
     void EndFrame() override {
         resources_.CheckThread();

@@ -5,6 +5,7 @@
 
 namespace rhythm::render {
 inline constexpr std::uint32_t kMaximumOffscreenPasses = 240;
+inline constexpr std::uint64_t kMaximumTextureBytes = 256ULL * 1024 * 1024;
 // Admission failures are recoverable by reducing content or retrying after
 // releasing resources. Invalid handles and backend faults remain separate errors.
 enum class Budget { kTextureBytes, kTextureSlots, kPasses, kBackendResources };

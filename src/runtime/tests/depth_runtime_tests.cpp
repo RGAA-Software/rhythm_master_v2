@@ -163,6 +163,16 @@ void Run() {
         viewers.Capture(result, nodes, renderer);
         renderer.EndFrame();
     }
+    auto& dof_node = doc.nodes_[6];
+    dof_node.properties_["dof_shape"] = 1.0;
+    dof_node.properties_["dof_samples"] = 12.0;
+    dof_node.properties_.erase("dof_quality");
+    result = evaluate({32, 64}, false);
+    const auto legacy_low_passes = renderer.Stats().passes_;
+    dof_node.properties_["dof_quality"] = 2.0;
+    result = evaluate({32, 64}, false);
+    Require(renderer.Stats().passes_ + 1 == legacy_low_passes,
+            "legacy sample budget maps to half-size quality until an explicit profile exists");
     runtime.Reset();
     Require(renderer.Stats().texture_bytes_ == 0 && renderer.Stats().mesh_bytes_ == 0,
             "capture, extractors and previews release all owners");

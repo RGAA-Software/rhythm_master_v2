@@ -4,7 +4,7 @@
     "imported_third_party_files": [],
     "source_url": null,
     "authoring_tool": "tools/author-semantic-layers.py",
-    "authoring_tool_sha256": "b1d87d86d31d1f67eb06b91138d25c75823a2141c533c29cf0a12a066ca43ff4",
+    "authoring_tool_sha256": "59f29dae3c214501d36d90ca179513856cd7e02938b38800ca113017b2746918",
     "graph_writer": "tools/author-resonance-gate.py",
     "graph_writer_sha256": "69c2d944c804196b4bbe19618de4cc742100c4922cf4d7c1b413fd9f88c1a232",
     "reuse": "Focused extraction of existing project-owned compositions; renderer notices remain in their adapters.",
@@ -208,7 +208,7 @@
         {
             "component": "enamel_orb",
             "source": "tools/author-sonic-enamel.py",
-            "source_sha256": "8947f773c515160da3b8d421f842526fabc4ef35fa78560eb873f3d9c6909675",
+            "source_sha256": "c0da6c0c649989e1f87e83b8e22b8126bc2ba37f5d9d9283181c63ab9d9f7f11",
             "extracted_nodes": [
                 1,
                 2,
@@ -265,7 +265,8 @@
                 53,
                 54,
                 55,
-                56
+                56,
+                64
             ],
             "modifications": [
                 "Extract dependency closure before the final background/post stack.",

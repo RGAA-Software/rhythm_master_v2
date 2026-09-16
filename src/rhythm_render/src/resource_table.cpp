@@ -11,7 +11,6 @@
 namespace rhythm::render::detail {
 namespace {
 std::atomic<std::uint64_t> next_device{1};
-constexpr std::uint64_t kTextureBudget = 256ULL * 1024 * 1024;
 }  // namespace
 ResourceTable::ResourceTable() : device_(next_device.fetch_add(1)) {}
 
@@ -31,7 +30,7 @@ TextureHandle ResourceTable::Allocate(Extent extent, std::span<const std::uint8_
         (!rgba.empty() && rgba.size() != bytes)) {
         throw std::invalid_argument("render.texture_size");
     }
-    if (bytes > kTextureBudget - bytes_) throw BudgetExceeded(Budget::kTextureBytes);
+    if (bytes > kMaximumTextureBytes - bytes_) throw BudgetExceeded(Budget::kTextureBytes);
     auto slot = std::find_if(slots_.begin(), slots_.end(), [](const Slot& item) {
         return !item.live_ && item.generation_ != std::numeric_limits<std::uint32_t>::max();
     });
@@ -199,7 +198,7 @@ bool ResourceTable::ReserveDepth(TextureHandle handle) {
     auto& slot = slots_[handle.slot_];
     if (slot.depth_) return false;
     const auto bytes = std::uint64_t{slot.extent_.width_} * slot.extent_.height_ * 4;
-    if (bytes > kTextureBudget - bytes_) throw BudgetExceeded(Budget::kTextureBytes);
+    if (bytes > kMaximumTextureBytes - bytes_) throw BudgetExceeded(Budget::kTextureBytes);
     bytes_ += bytes;
     slot.depth_ = true;
     return true;
@@ -266,7 +265,9 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
             if (!IsDepth(dof.depth_) || dof.depth_ == target || !IsValid(command.texture_) ||
                 Size(dof.depth_) != Size(command.texture_) ||
                 !bounded(dof.focus_, 0.001f, 100000) || !bounded(dof.focus_scale_, 0, 1000) ||
-                !bounded(dof.radius_, 0, 32) || dof.samples_ < 1 || dof.samples_ > 64)
+                !bounded(dof.radius_, 0, 32) || dof.samples_ < 1 || dof.samples_ > 64 ||
+                dof.shape_ > DepthOfFieldShape::kHexagon ||
+                dof.quality_ > DepthOfFieldQuality::kHigh)
                 throw std::invalid_argument("render.depth_of_field");
         }
         if (command.color_pipeline_) {

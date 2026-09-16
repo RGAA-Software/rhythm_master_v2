@@ -242,11 +242,16 @@ add_custom_command(OUTPUT "${depth_shader_header}"
     DEPENDS "${PROJECT_SOURCE_DIR}/tools/build-render-shaders.py"
         "${PROJECT_SOURCE_DIR}/tools/compile-shader.py"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/depth_linear.sc"
-        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/depth_of_field.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/depth_of_field_weight.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/depth_of_field_filter.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/depth_of_field_filter_final.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/depth_of_field_composite.sc"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/godot_dof_filter.sh"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/shaders/varying.def.sc"
         "${RHYTHM_SHADERC}" ${render_shader_includes}
     VERBATIM)
-target_sources(render_bgfx PRIVATE "${depth_shader_header}")
+target_sources(render_bgfx PRIVATE "${depth_shader_header}"
+    "${PROJECT_SOURCE_DIR}/src/rhythm_render/src/bgfx_depth_of_field.cpp")
 
 set(environment_shader_header "${PROJECT_BINARY_DIR}/generated/render/environment_shader.h")
 add_custom_command(OUTPUT "${environment_shader_header}"

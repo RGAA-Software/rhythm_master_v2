@@ -76,6 +76,14 @@ std::uint32_t DrawTexture(const graph::Instruction& instruction,
         dof.focus_scale_ = control(3, "focus_scale", 4, 0, 1000);
         dof.radius_ = float(graph::Scalar(node, "dof_radius", 12));
         dof.samples_ = static_cast<std::uint32_t>(graph::Scalar(node, "dof_samples", 32));
+        dof.shape_ = static_cast<render::DepthOfFieldShape>(
+                static_cast<std::uint8_t>(graph::Scalar(node, "dof_shape", 0)));
+        const auto legacy_quality = dof.samples_ <= 12   ? 0
+                                    : dof.samples_ <= 24 ? 1
+                                    : dof.samples_ <= 48 ? 2
+                                                         : 3;
+        dof.quality_ = static_cast<render::DepthOfFieldQuality>(
+                static_cast<std::uint8_t>(graph::Scalar(node, "dof_quality", legacy_quality)));
         list.commands_.back().depth_of_field_ = dof;
         return 0;
     }

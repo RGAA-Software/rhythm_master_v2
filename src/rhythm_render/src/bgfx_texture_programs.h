@@ -20,9 +20,6 @@ class BgfxTexturePrograms final {
     GpuHandle<bgfx::UniformHandle> environment_settings_{};
     GpuHandle<bgfx::ProgramHandle> depth_program_{};
     GpuHandle<bgfx::UniformHandle> depth_settings_{};
-    GpuHandle<bgfx::ProgramHandle> dof_program_{};
-    GpuHandle<bgfx::UniformHandle> dof_settings_{};
-    GpuHandle<bgfx::UniformHandle> dof_domain_{};
     GpuHandle<bgfx::ProgramHandle> pipeline_program_{};
     GpuHandle<bgfx::UniformHandle> pipeline_settings_{};
     GpuHandle<bgfx::UniformHandle> tone_mapping_parameters_{};

@@ -145,6 +145,8 @@ struct DepthLinearization {
     bool orthographic_ = false;
     bool normalize_ = false;
 };
+enum class DepthOfFieldShape : std::uint8_t { kCircle, kBox, kHexagon };
+enum class DepthOfFieldQuality : std::uint8_t { kVeryLow, kLow, kMedium, kHigh };
 struct DepthOfField {
     TextureHandle depth_{};
     DepthLinearization projection_{};
@@ -152,6 +154,8 @@ struct DepthOfField {
     float focus_scale_ = 4;
     float radius_ = 12;
     std::uint32_t samples_ = 32;
+    DepthOfFieldShape shape_ = DepthOfFieldShape::kCircle;
+    DepthOfFieldQuality quality_ = DepthOfFieldQuality::kMedium;
 };
 // Equirectangular source, +Y up. Produces the fixed linear RGBA16F IBL atlas.
 struct EnvironmentFilter {

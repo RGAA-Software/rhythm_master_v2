@@ -240,6 +240,8 @@ nodes { id: 56 type_key: "texture.dof" schema_version: 1
     properties { key: "focus_scale" value { scalar: 40 } }
     properties { key: "dof_radius" value { scalar: 5 } }
     properties { key: "dof_samples" value { scalar: 24 } }
+    properties { key: "dof_shape" value { scalar: 2 } }
+    properties { key: "dof_quality" value { scalar: 2 } }
 }
 nodes { id: 57 type_key: "texture.gradient" schema_version: 1
     properties { key: "color_a" value { color { r: 0.008 g: 0.014 b: 0.03 a: 1 } } }
@@ -263,6 +265,9 @@ nodes { id: 62 type_key: "texture.display" schema_version: 1
     properties { key: "exposure" value { scalar: 0.2 } }
 }
 nodes { id: 63 type_key: "output.texture" schema_version: 1
+}
+nodes { id: 64 type_key: "scalar.expression" schema_version: 1
+    properties { key: "expression" value { expression: "0.55 * sin(time * 0.24)" } }
 }
 edges { id: 1 from: 1 to: 5 input: "time" }
 edges { id: 2 from: 1 to: 6 input: "time" }
@@ -346,3 +351,5 @@ edges { id: 79 from: 59 to: 61 input: "a" }
 edges { id: 80 from: 60 to: 61 input: "b" }
 edges { id: 81 from: 61 to: 62 input: "source" }
 edges { id: 82 from: 62 to: 63 input: "source" }
+edges { id: 83 from: 1 to: 64 input: "time" }
+edges { id: 84 from: 64 to: 52 input: "eye_x" }

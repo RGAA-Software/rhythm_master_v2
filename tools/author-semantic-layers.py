@@ -138,9 +138,20 @@ def build_layer(recipe):
         '\n'.join(header + body + edges + ['    ' + value for value in parameters] + ['}'])+'\n', encoding='utf-8')
     # Arrange by dependency depth, retaining original IDs for provenance and editing.
     depths, rows, positions = {}, {}, []
-    for identity in sorted(closure):
-        depth = max((depths[value]+1 for value in records[identity]['inputs'].values()), default=0)
+    def node_depth(identity, visiting=None):
+        if identity in depths:
+            return depths[identity]
+        visiting = set() if visiting is None else visiting
+        if identity in visiting:
+            raise ValueError(f'{name}: component dependency cycle at node {identity}')
+        visiting.add(identity)
+        depth = max((node_depth(value, visiting) + 1
+                     for value in records[identity]['inputs'].values()), default=0)
+        visiting.remove(identity)
         depths[identity] = depth
+        return depth
+    for identity in sorted(closure):
+        depth = node_depth(identity)
         row = rows.get(depth, 0)
         rows[depth] = row + 1
         positions.append(dict(id=identity, x=depth * 320, y=row * 300))

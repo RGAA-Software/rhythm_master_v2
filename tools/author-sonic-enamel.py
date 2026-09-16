@@ -95,7 +95,8 @@ def build_graph():
     color = node("scene.color", 5600, 0, dict(capture=capture))
     depth = node("scene.depth", 5600, 300, dict(capture=capture))
     focused = node("texture.dof", 5940, 0, dict(source=color, depth=depth),
-                   focus_distance=7.4, focus_scale=40, dof_radius=5, dof_samples=24)
+                   focus_distance=7.4, focus_scale=40, dof_radius=5, dof_samples=24,
+                   dof_shape=2, dof_quality=2)
     back = node("texture.gradient", 5600, 800,
                 color_a=(0.008, 0.014, 0.03, 1), color_b=(0.015, 0.045, 0.06, 1))
     back = node("texture.linearize", 5940, 800, dict(source=back))
@@ -105,6 +106,11 @@ def build_graph():
                     composite_mode=1, amount=0.2, texture_precision=0)
     display = node("texture.display", 6960, 0, dict(source=combined), exposure=0.2)
     final = node("output.texture", 7300, 0, dict(source=display))
+    camera_sway = node("scalar.expression", 4560, 500, dict(time=time),
+                       expression="0.55 * sin(time * 0.24)")
+    graph.records[camera - 1]["inputs"]["eye_x"] = camera_sway
+    graph.edges.append(
+        f'edges {{ id: {len(graph.edges) + 1} from: {camera_sway} to: {camera} input: "eye_x" }}')
     return graph, final
 
 

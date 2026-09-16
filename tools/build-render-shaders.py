@@ -46,7 +46,10 @@ def main():
         programs = [("environment_filter.sc", "fragment", "varying.def.sc", "kEnvironmentFilterShader")]
     elif args.group == "depth":
         programs = [("depth_linear.sc", "fragment", "varying.def.sc", "kDepthLinearShader"),
-                    ("depth_of_field.sc", "fragment", "varying.def.sc", "kDepthOfFieldShader")]
+                    ("depth_of_field_weight.sc", "fragment", "varying.def.sc", "kDepthOfFieldWeightShader"),
+                    ("depth_of_field_filter.sc", "fragment", "varying.def.sc", "kDepthOfFieldFilterShader"),
+                    ("depth_of_field_filter_final.sc", "fragment", "varying.def.sc", "kDepthOfFieldFinalFilterShader"),
+                    ("depth_of_field_composite.sc", "fragment", "varying.def.sc", "kDepthOfFieldCompositeShader")]
     elif args.group == "scene":
         programs = [("scene_vertex.sc", "vertex", "scene_varying.def.sc", "kSceneVertexShader"),
                     ("scene_instance.sc", "vertex", "scene_varying.def.sc", "kSceneInstanceShader"),

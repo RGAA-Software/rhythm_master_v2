@@ -85,11 +85,6 @@ BgfxTexturePrograms::BgfxTexturePrograms() {
             bgfx::createShader(bgfx::copy(kDepthLinearShader, sizeof(kDepthLinearShader))));
     depth_program_ = GpuHandle(bgfx::createProgram(vertex.Get(), depth_fragment.Get(), false));
     depth_settings_ = GpuHandle(bgfx::createUniform("u_depth_settings", bgfx::UniformType::Vec4));
-    GpuHandle dof_fragment(
-            bgfx::createShader(bgfx::copy(kDepthOfFieldShader, sizeof(kDepthOfFieldShader))));
-    dof_program_ = GpuHandle(bgfx::createProgram(vertex.Get(), dof_fragment.Get(), false));
-    dof_settings_ = GpuHandle(bgfx::createUniform("u_dof_settings", bgfx::UniformType::Vec4));
-    dof_domain_ = GpuHandle(bgfx::createUniform("u_dof_domain", bgfx::UniformType::Vec4));
     GpuHandle color_fragment(
             bgfx::createShader(bgfx::copy(kColorAdjustShader, sizeof(kColorAdjustShader))));
     color_program_ = GpuHandle(bgfx::createProgram(vertex.Get(), color_fragment.Get(), false));
@@ -183,20 +178,6 @@ void BgfxTexturePrograms::Submit(std::uint16_t view, const DrawCommand& command,
         bgfx::setTexture(0, sampler_.Get(), source, BGFX_SAMPLER_V_CLAMP);
         bgfx::setUniform(environment_settings_.Get(), settings.data());
         bgfx::submit(view, environment_program_.Get());
-    } else if (command.depth_of_field_) {
-        const auto& dof = *command.depth_of_field_;
-        const auto& depth = dof.projection_;
-        const std::array projection{depth.near_, depth.far_, depth.orthographic_ ? 1.0f : 0.0f,
-                                    0.0f};
-        const std::array settings{dof.focus_, dof.focus_scale_, dof.radius_, float(dof.samples_)};
-        const std::array domain{1.0f / source_size.width_, 1.0f / source_size.height_,
-                                std::max(0.5f, dof.radius_ * dof.radius_ / (2 * dof.samples_)),
-                                0.0f};
-        bgfx::setTexture(1, map_sampler_.Get(), map);
-        bgfx::setUniform(depth_settings_.Get(), projection.data());
-        bgfx::setUniform(dof_settings_.Get(), settings.data());
-        bgfx::setUniform(dof_domain_.Get(), domain.data());
-        bgfx::submit(view, dof_program_.Get());
     } else if (command.depth_linearization_) {
         const auto& depth = *command.depth_linearization_;
         const std::array settings{depth.near_, depth.far_, depth.orthographic_ ? 1.0f : 0.0f,

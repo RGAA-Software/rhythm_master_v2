@@ -52,12 +52,22 @@ void VerifySampleableDepth(render::Renderer& renderer) {
         quad.vertices_ = {{0, 0, 0, 0}, {64, 0, 1, 0}, {64, 64, 1, 1}, {0, 64, 0, 1}};
         quad.indices_ = {0, 1, 2, 0, 2, 3};
         quad.commands_ = {{checker.Handle(), 0, 6, {0, 0, 64, 64}}};
+        const auto texture_bytes_without_dof = renderer.Stats().texture_bytes_;
         for (float focus : {2.0f, 8.0f}) {
-            quad.commands_[0].depth_of_field_ =
-                    DepthOfField{depth.Handle(), {1, 11, true}, focus, 8, 12, 64};
+            quad.commands_[0].depth_of_field_ = DepthOfField{depth.Handle(),
+                                                             {1, 11, true},
+                                                             focus,
+                                                             8,
+                                                             12,
+                                                             64,
+                                                             DepthOfFieldShape::kCircle,
+                                                             DepthOfFieldQuality::kMedium};
             renderer.BeginFrame();
             renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), scene);
             renderer.Submit(output.Handle(), quad);
+            if (renderer.Stats().texture_bytes_ !=
+                texture_bytes_without_dof + std::uint64_t{64 * 64 * 17})
+                throw std::runtime_error("depth.dof_scratch_budget");
             auto ticket = renderer.RequestReadback(output.Handle());
             renderer.EndFrame();
             const auto image = Complete(renderer, std::move(ticket));
@@ -75,6 +85,49 @@ void VerifySampleableDepth(render::Renderer& renderer) {
                 throw std::runtime_error("depth.dof_focus." + std::to_string(difference / 1600) +
                                          ".contrast." + std::to_string(contrast / 1600));
         }
+        struct BokehCase {
+            DepthOfFieldShape shape_;
+            DepthOfFieldQuality quality_;
+            std::uint32_t passes_;
+        };
+        constexpr std::array kCases{
+                BokehCase{DepthOfFieldShape::kCircle, DepthOfFieldQuality::kVeryLow, 4},
+                BokehCase{DepthOfFieldShape::kCircle, DepthOfFieldQuality::kHigh, 4},
+                BokehCase{DepthOfFieldShape::kBox, DepthOfFieldQuality::kVeryLow, 5},
+                BokehCase{DepthOfFieldShape::kBox, DepthOfFieldQuality::kMedium, 4},
+                BokehCase{DepthOfFieldShape::kHexagon, DepthOfFieldQuality::kLow, 5},
+                BokehCase{DepthOfFieldShape::kHexagon, DepthOfFieldQuality::kHigh, 4}};
+        std::array<std::uint64_t, kCases.size()> signatures{};
+        for (std::size_t case_index = 0; case_index < kCases.size(); ++case_index) {
+            const auto test = kCases[case_index];
+            quad.commands_[0].depth_of_field_ = DepthOfField{
+                    depth.Handle(), {1, 11, true}, 8, 8, 12, 64, test.shape_, test.quality_};
+            renderer.BeginFrame();
+            renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), scene);
+            renderer.Submit(output.Handle(), quad);
+            if (renderer.Stats().passes_ != test.passes_)
+                throw std::runtime_error("depth.dof_pass_budget");
+            auto ticket = renderer.RequestReadback(output.Handle());
+            renderer.EndFrame();
+            const auto image = Complete(renderer, std::move(ticket));
+            std::uint64_t signature = 1469598103934665603ULL;
+            double contrast = 0;
+            for (int y = 8; y < 56; ++y)
+                for (int x = 8; x < 56; ++x) {
+                    const auto offset = (y * 64 + x) * 4;
+                    contrast += std::abs(int(image.rgba_[offset]) - 64);
+                    signature ^= image.rgba_[offset];
+                    signature *= 1099511628211ULL;
+                    if (std::abs(int(image.rgba_[offset + 3]) - 128) > 2)
+                        throw std::runtime_error("depth.dof_shape_alpha");
+                }
+            if (contrast / (48 * 48) > 52) throw std::runtime_error("depth.dof_shape_blur");
+            signatures[case_index] = signature;
+        }
+        for (std::size_t index = 1; index < signatures.size(); ++index)
+            if (signatures[index] == signatures[index - 1])
+                throw std::runtime_error("depth.dof_quality_signature");
+        std::cout << "dof_shapes circle/box/hex very-low..high pass budgets and alpha passed\n";
     }
     {
         const Extent extent{64, 64};
@@ -112,8 +165,14 @@ void VerifySampleableDepth(render::Renderer& renderer) {
         quad.vertices_ = {{0, 0, 0, 0}, {64, 0, 1, 0}, {64, 64, 1, 1}, {0, 64, 0, 1}};
         quad.indices_ = {0, 1, 2, 0, 2, 3};
         quad.commands_ = {{source.Handle(), 0, 6, {0, 0, 64, 64}}};
-        quad.commands_[0].depth_of_field_ =
-                DepthOfField{depth.Handle(), {1, 11, true}, 4, 8, 12, 64};
+        quad.commands_[0].depth_of_field_ = DepthOfField{depth.Handle(),
+                                                         {1, 11, true},
+                                                         4,
+                                                         8,
+                                                         12,
+                                                         64,
+                                                         DepthOfFieldShape::kCircle,
+                                                         DepthOfFieldQuality::kMedium};
         renderer.BeginFrame();
         renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), scene);
         renderer.Submit(output.Handle(), quad);
@@ -128,7 +187,7 @@ void VerifySampleableDepth(render::Renderer& renderer) {
                   << " seam_right=" << channel(32, 0) << ',' << channel(32, 2)
                   << " far=" << channel(35, 0) << ',' << channel(35, 2) << '\n';
         constexpr std::array<std::array<int, 2>, 4> kExpected{
-                {{173, 82}, {135, 119}, {118, 137}, {80, 175}}};
+                {{178, 77}, {134, 121}, {88, 167}, {77, 178}}};
         constexpr std::array kSampleX{28, 31, 32, 35};
         for (std::size_t index = 0; index < kExpected.size(); ++index) {
             const int x = kSampleX[index];
@@ -196,6 +255,63 @@ void VerifySampleableDepth(render::Renderer& renderer) {
                 renderer.EndFrame();
             }
         }
+        std::vector<std::uint8_t> dof_pixels(extent.width_ * extent.height_ * 4);
+        for (int y = 0; y < extent.height_; ++y)
+            for (int x = 0; x < extent.width_; ++x) {
+                const auto offset = (y * extent.width_ + x) * 4;
+                const auto value = ((x / 2 + y / 2) % 2) ? 255 : 0;
+                dof_pixels[offset] = dof_pixels[offset + 1] = std::uint8_t(value);
+                dof_pixels[offset + 2] = 0;
+                dof_pixels[offset + 3] = 192;
+            }
+        auto dof_source = renderer.CreateTexture(extent, dof_pixels);
+        SceneDrawList dof_scene;
+        dof_scene.projection_[0] = dof_scene.projection_[5] = 0.1f;
+        dof_scene.projection_[10] = -0.2f;
+        dof_scene.projection_[14] = -1.2f;
+        MeshDraw dof_plane;
+        dof_plane.mesh_ = mesh.Handle();
+        dof_plane.model_[14] = -8;
+        dof_plane.double_sided_ = true;
+        dof_scene.draws_ = {dof_plane};
+        DrawList dof_quad;
+        dof_quad.width_ = extent.width_;
+        dof_quad.height_ = extent.height_;
+        dof_quad.vertices_ = {{0, 0, 0, 0},
+                              {dof_quad.width_, 0, 1, 0},
+                              {dof_quad.width_, dof_quad.height_, 1, 1},
+                              {0, dof_quad.height_, 0, 1}};
+        dof_quad.indices_ = {0, 1, 2, 0, 2, 3};
+        dof_quad.commands_ = {
+                {dof_source.Handle(), 0, 6, {0, 0, dof_quad.width_, dof_quad.height_}}};
+        std::array<std::uint64_t, 2> signatures{};
+        struct AspectCase {
+            DepthOfFieldShape shape_;
+            DepthOfFieldQuality quality_;
+        };
+        constexpr std::array kAspectCases{
+                AspectCase{DepthOfFieldShape::kBox, DepthOfFieldQuality::kVeryLow},
+                AspectCase{DepthOfFieldShape::kHexagon, DepthOfFieldQuality::kHigh}};
+        for (std::size_t index = 0; index < kAspectCases.size(); ++index) {
+            const auto test = kAspectCases[index];
+            dof_quad.commands_[0].depth_of_field_ = DepthOfField{
+                    depth.Handle(), {1, 11, true}, 3, 8, 10, 64, test.shape_, test.quality_};
+            renderer.BeginFrame();
+            renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), dof_scene);
+            renderer.Submit(output.Handle(), dof_quad);
+            auto ticket = renderer.RequestReadback(output.Handle());
+            renderer.EndFrame();
+            const auto image = Complete(renderer, std::move(ticket));
+            std::uint64_t signature = 1469598103934665603ULL;
+            for (std::size_t pixel = 0; pixel < image.rgba_.size(); pixel += 4) {
+                signature = (signature ^ image.rgba_[pixel]) * 1099511628211ULL;
+                if (std::abs(int(image.rgba_[pixel + 3]) - 192) > 2)
+                    throw std::runtime_error("depth.dof_aspect_alpha");
+            }
+            signatures[index] = signature;
+        }
+        if (signatures[0] == signatures[1])
+            throw std::runtime_error("depth.dof_aspect_shape_signature");
     }
     std::cout << "Sampleable depth: perspective/orthographic near/far, signed CoC boundary, "
                  "portrait/landscape passed\n";

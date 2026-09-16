@@ -5,7 +5,7 @@ output: 2
 nodes { id: 1 type_key: "component.official.enamel_orb" schema_version: 1 }
 nodes { id: 2 type_key: "output.texture" schema_version: 1 }
 edges { id: 1 from: 1 to: 2 input: "source" }
-components { type_key: "component.official.enamel_orb" schema_version: 1 title: "Enamel light body" output: 64
+components { type_key: "component.official.enamel_orb" schema_version: 1 title: "Enamel light body" output: 65
     nodes { id: 1 type_key: "core.time" schema_version: 1
     }
     nodes { id: 2 type_key: "audio.band" schema_version: 1
@@ -244,8 +244,13 @@ components { type_key: "component.official.enamel_orb" schema_version: 1 title: 
         properties { key: "focus_scale" value { scalar: 40 } }
         properties { key: "dof_radius" value { scalar: 5 } }
         properties { key: "dof_samples" value { scalar: 24 } }
+        properties { key: "dof_shape" value { scalar: 2 } }
+        properties { key: "dof_quality" value { scalar: 2 } }
     }
-    nodes { id: 64 type_key: "texture.display" schema_version: 1
+    nodes { id: 64 type_key: "scalar.expression" schema_version: 1
+        properties { key: "expression" value { expression: "0.55 * sin(time * 0.24)" } }
+    }
+    nodes { id: 65 type_key: "texture.display" schema_version: 1
         properties { key: "tone_mapping" value { scalar: 1 } }
     }
     edges { id: 1 from: 1 to: 5 input: "time" }
@@ -316,13 +321,15 @@ components { type_key: "component.official.enamel_orb" schema_version: 1 title: 
     edges { id: 66 from: 49 to: 51 input: "scene" }
     edges { id: 67 from: 50 to: 51 input: "environment_texture" }
     edges { id: 68 from: 6 to: 51 input: "environment_rotation" }
-    edges { id: 69 from: 51 to: 53 input: "scene" }
-    edges { id: 70 from: 52 to: 53 input: "camera" }
-    edges { id: 71 from: 53 to: 54 input: "capture" }
-    edges { id: 72 from: 53 to: 55 input: "capture" }
-    edges { id: 73 from: 54 to: 56 input: "source" }
-    edges { id: 74 from: 55 to: 56 input: "depth" }
-    edges { id: 75 from: 56 to: 64 input: "source" }
+    edges { id: 69 from: 64 to: 52 input: "eye_x" }
+    edges { id: 70 from: 51 to: 53 input: "scene" }
+    edges { id: 71 from: 52 to: 53 input: "camera" }
+    edges { id: 72 from: 53 to: 54 input: "capture" }
+    edges { id: 73 from: 53 to: 55 input: "capture" }
+    edges { id: 74 from: 54 to: 56 input: "source" }
+    edges { id: 75 from: 55 to: 56 input: "depth" }
+    edges { id: 76 from: 1 to: 64 input: "time" }
+    edges { id: 77 from: 56 to: 65 input: "source" }
     parameters { key: "noise_scale" node: 10 property: "noise_scale" group: "component.pattern" }
     parameters { key: "contour_count" node: 11 property: "contour_count" group: "component.pattern" }
     parameters { key: "uv_scale_x" node: 18 property: "uv_scale_x" group: "component.material" }

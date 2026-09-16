@@ -1,6 +1,6 @@
 # 当前完成度与后续实施路径
 
-更新日期：2026-09-16。本文是 Rhythm Master 当前执行状态的统一入口，具体功能合同仍以
+更新日期：2026-09-17。本文是 Rhythm Master 当前执行状态的统一入口，具体功能合同仍以
 各专项文档为准。历史文档中的 Basic 50 + Advanced 50 已被最新产品决定替代：产品目录
 只保留高端、可编辑的 Advanced 作品，当前目标为 **50 个独立验收的 Advanced 模板**。
 
@@ -30,7 +30,7 @@
 - 普通 blur 已换为 Godot Gaussian；glow 使用 Godot dual filtering；Reinhard、Filmic、
   ACES、AgX 和五种 glow/display 合成顺序已有 D3D11 像素回归；透明排序、显式 priority、
   sorting offset 和 alpha depth prepass 已交付。
-- Circular DOF 已采用 Godot 有符号近远 CoC 与边界遮挡，但完整 bokeh 质量档仍未完成。
+- 完整 DOF 已采用 Godot Circle/Box/Hex、四档质量、半分辨率路径、独立权重和最终合成。
 - 已提交内容库存为 **21 个 Advanced 候选、40 个组件、235 条预设记录**；其中 132 条
   默认值记录，以及重复设置和未审项目不能计入 120 个独立合格预设。
 - 品质账本仍为 **0 个完全闭环模板**。这不否定已通过的功能和音乐证据，只表示尚未同时
@@ -46,7 +46,7 @@
 | 顺序 | 工作 | 实施路径 | 退出条件 |
 | --- | --- | --- | --- |
 | W1.1 | 阴影质量 | 固定 Godot 源码；保留 Nearest/PCF5，增加 PCF13；随后验证方向光稳定投影/级联与点光阴影的实际作品收益和成本 | 大投影、移动相机、细几何的 D3D11 像素与短性能证据；旧作品默认行为兼容 |
-| W1.2 | 完整景深 | 在已交付 circular CoC 上增加 Godot Box/Hex、quality/half-size、独立权重和最终 composite | 近景细线、远景高光、透明边缘、横竖屏和动态相机无明显背景泄漏；资源与 pass 预算明确 |
+| W1.2 | 完整景深（2026-09-17 已交付） | Godot Circle/Box/Hex、quality/half-size、独立权重和最终 composite | D3D11 数值用例与动态相机“音律珐琅”121 帧通过；17 bytes/像素、3–4 pass 预算已记录，Android 实机留最终平台阶段 |
 | W1.3 | 环境与材质 | 对照 Godot reflection/environment filter，改进粗糙度 LOD、采样分布和能量一致性 | 固定 HDR 环境的金属/粗糙度阶梯回读与作品动态对照 |
 | W1.4 | 粒子呈现 | 增加纹理图集、形态/材质变化、软深度交界和分层体积感；保留现有 GPU 模拟合同 | 大小粒子边缘自然、无硬块/重影；低中高频分工和静音自主运动均可观察 |
 | W1.5 | 时域与程序纹理 | 修复 trail/feedback 快速运动及回收边界；增加 domain warp/多频谱噪声；评估移动细线的 TAA/MSAA/FSR 路径 | 连续多周期无跳变；采用项有固定来源、短成本和实际作品收益，未采用项有明确结论 |

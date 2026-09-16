@@ -11,6 +11,7 @@
 #include <optional>
 #include <stdexcept>
 
+#include "bgfx_depth_of_field.h"
 #include "bgfx_gpu_points.h"
 #include "bgfx_handles.h"
 #include "bgfx_image_programs.h"
@@ -91,9 +92,12 @@ class BgfxBackend final : public Backend {
                 .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
                 .end();
         texture_programs_.emplace();
+        depth_of_field_.emplace();
     }
     TextureHandle Create(Extent extent, std::span<const std::uint8_t> rgba,
                          TexturePrecision precision) override {
+        CheckTextureBudget(std::uint64_t{extent.width_} * extent.height_ *
+                           (precision == TexturePrecision::kFloat16 ? 8 : 4));
         const auto format = precision == TexturePrecision::kFloat16 ? bgfx::TextureFormat::RGBA16F
                                                                     : bgfx::TextureFormat::RGBA8;
         if (!bgfx::isTextureValid(0, false, 1, format, rgba.empty() ? BGFX_TEXTURE_RT : 0))
@@ -158,6 +162,7 @@ class BgfxBackend final : public Backend {
     TextureHandle CreateDepth(Extent extent) override {
         if (!SupportsSampleableDepth())
             throw std::logic_error("render.sampleable_depth_unsupported");
+        CheckTextureBudget(std::uint64_t{extent.width_} * extent.height_ * 4);
         const auto handle = resources_.AllocateDepth(extent);
         try {
             if (textures_.size() <= handle.slot_) textures_.resize(handle.slot_ + 1);
@@ -378,11 +383,17 @@ class BgfxBackend final : public Backend {
             image_programs_->Validate(*command.image_program_);
         }
         resources_.RecordSamples(list);
+        std::uint32_t dof_preparation_passes = 0;
+        std::uint32_t dof_commands = 0;
+        for (const auto& command : list.commands_) {
+            if (!command.depth_of_field_) continue;
+            ++dof_commands;
+            dof_preparation_passes = depth_of_field_->PreparationPasses(*command.depth_of_field_);
+        }
+        if (dof_commands > 1) throw std::invalid_argument("render.depth_of_field_batch");
         // Reserve the last 16 views for host/UI presentation after graph admission fails.
-        if (passes_ >= (target == TextureHandle{} ? 256U : kMaximumOffscreenPasses))
-            throw BudgetExceeded(Budget::kPasses);
-        const auto view = static_cast<bgfx::ViewId>(passes_++);
-        bgfx::setViewName(view, target == TextureHandle{} ? "Presentation" : "Texture pass");
+        const auto pass_limit = target == TextureHandle{} ? 256U : kMaximumOffscreenPasses;
+        if (passes_ + dof_preparation_passes >= pass_limit) throw BudgetExceeded(Budget::kPasses);
         auto extent = size_;
         bgfx::FrameBufferHandle framebuffer = BGFX_INVALID_HANDLE;
         if (target != TextureHandle{}) {
@@ -400,6 +411,21 @@ class BgfxBackend final : public Backend {
                 ++presentation_generation_;
             }
         }
+        for (const auto& command : list.commands_)
+            if (command.depth_of_field_ && resources_.Size(command.texture_) != extent)
+                throw std::invalid_argument("render.depth_of_field_target");
+        if (dof_commands) {
+            auto stats = resources_.Stats();
+            depth_of_field_->AddStats(stats);
+            const auto additional = depth_of_field_->AdditionalTextureBytes(extent);
+            if (stats.texture_bytes_ >= kMaximumTextureBytes ||
+                additional > kMaximumTextureBytes - stats.texture_bytes_)
+                throw BudgetExceeded(Budget::kTextureBytes);
+        }
+        const auto first_preparation_view = static_cast<bgfx::ViewId>(passes_);
+        const auto view = static_cast<bgfx::ViewId>(passes_ + dof_preparation_passes);
+        passes_ += dof_preparation_passes + 1;
+        bgfx::setViewName(view, target == TextureHandle{} ? "Presentation" : "Texture pass");
         bgfx::setViewMode(view, bgfx::ViewMode::Sequential);
         bgfx::setViewFrameBuffer(view, framebuffer);
         bgfx::setViewRect(view, 0, 0, extent.width_, extent.height_);
@@ -477,7 +503,24 @@ class BgfxBackend final : public Backend {
                              : command.texture_displace_     ? command.texture_displace_->map_
                              : command.texture_glow_display_ ? command.texture_glow_display_->glow_
                                                              : command.texture_;
-            if (command.image_program_)
+            if (command.depth_of_field_) {
+                depth_of_field_->Prepare(
+                        first_preparation_view, command, extent, list.width_, list.height_, invert,
+                        homogeneous_depth_, vertices, indices,
+                        textures_[command.texture_.slot_].texture_.Get(),
+                        textures_[command.depth_of_field_->depth_.slot_].texture_.Get());
+                bgfx::setScissor(static_cast<std::uint16_t>(left),
+                                 static_cast<std::uint16_t>(invert ? extent.height_ - bottom : top),
+                                 static_cast<std::uint16_t>(right - left),
+                                 static_cast<std::uint16_t>(bottom - top));
+                bgfx::setVertexBuffer(0, &vertices);
+                bgfx::setIndexBuffer(&indices, command.first_index_, command.index_count_);
+                bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | blending |
+                               BGFX_STATE_MSAA);
+                depth_of_field_->SubmitFinal(view, command, extent,
+                                             textures_[command.texture_.slot_].texture_.Get());
+                draws_ += dof_preparation_passes;
+            } else if (command.image_program_)
                 image_programs_->Submit(view, *command.image_program_,
                                         textures_[command.texture_.slot_].texture_.Get(), extent);
             else
@@ -503,6 +546,7 @@ class BgfxBackend final : public Backend {
         if (scene_) scene_->AddStats(stats);
         if (gpu_points_) gpu_points_->AddStats(stats);
         if (image_programs_) image_programs_->AddStats(stats);
+        if (depth_of_field_) depth_of_field_->AddStats(stats);
         stats.frame_ = frame_;
         stats.passes_ = passes_;
         stats.draws_ = draws_;
@@ -519,6 +563,13 @@ class BgfxBackend final : public Backend {
     }
 
    private:
+    void CheckTextureBudget(std::uint64_t additional) const {
+        auto stats = resources_.Stats();
+        if (depth_of_field_) depth_of_field_->AddStats(stats);
+        if (stats.texture_bytes_ >= kMaximumTextureBytes ||
+            additional > kMaximumTextureBytes - stats.texture_bytes_)
+            throw BudgetExceeded(Budget::kTextureBytes);
+    }
     struct Entry {
         GpuHandle<bgfx::TextureHandle> texture_{};
         GpuHandle<bgfx::FrameBufferHandle> framebuffer_{};
@@ -536,6 +587,7 @@ class BgfxBackend final : public Backend {
     std::unique_ptr<BgfxImagePrograms> image_programs_{};
     bgfx::VertexLayout layout_{};
     std::optional<BgfxTexturePrograms> texture_programs_{};
+    std::optional<BgfxDepthOfField> depth_of_field_{};
     bool in_frame_ = false;
     bool invert_targets_ = false;
     bool homogeneous_depth_ = false;

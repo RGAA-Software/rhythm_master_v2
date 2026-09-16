@@ -21,15 +21,32 @@
         "license": "MIT",
         "license_file": "third_party/notices/godot/LICENSE.txt",
         "source_file": "servers/rendering/renderer_rd/shaders/effects/bokeh_dof_raster.glsl",
-        "sha256": "9a333542197d3dafe2f9d8171789128e22f6b15eade71a3098a8c16d7322ba5a"
+        "sha256": "9a333542197d3dafe2f9d8171789128e22f6b15eade71a3098a8c16d7322ba5a",
+        "additional_source_files": [
+            {
+                "source_file": "servers/rendering/renderer_rd/effects/bokeh_dof.cpp",
+                "sha256": "43577cfcebf4bc1ca3ac38f5bab7785508f485c5a7628aea06a0f970e77eccf4"
+            },
+            {
+                "source_file": "servers/rendering/renderer_rd/storage_rd/render_scene_buffers_rd.cpp",
+                "sha256": "efaf14eca2cdc1eec4e0247edd28c91b5b1f687bf3f3a358bb809b2366565280"
+            }
+        ]
     },
     "modifications": [
         "Adapt perspective window-depth reconstruction to fragment shader; add orthographic and normalized output.",
         "Use canonical project camera and owned sampleable depth attachment, not TiXL host types.",
-        "The original bounded 1..64 golden-angle gather came from TiXL; replace its unsigned depth comparison with Godot circular bokeh's signed near/far CoC and occlusion limit while retaining project depth and premultiplied-alpha contracts."
+        "The original bounded 1..64 golden-angle gather came from TiXL; replace its unsigned depth comparison with Godot circular bokeh's signed near/far CoC and occlusion limit while retaining project depth and premultiplied-alpha contracts.",
+        "Port Godot's Circle, Box and Hexagon quality profiles, signed R16F weight buffer, separable shape passes, half-resolution path and final weight composite to bgfx views. The graph writes into a distinct target, so the half-resolution composite explicitly combines original and blurred premultiplied RGB instead of relying on blending over Godot's in-place base buffer.",
+        "Retain dof_samples only as a legacy document compatibility input; explicit dof_quality selects the fixed Godot quality profile."
     ],
     "targets": [
         "src/rhythm_render/shaders/depth_linear.sc",
-        "src/rhythm_render/shaders/depth_of_field.sc"
+        "src/rhythm_render/shaders/depth_of_field_weight.sc",
+        "src/rhythm_render/shaders/depth_of_field_filter.sc",
+        "src/rhythm_render/shaders/depth_of_field_filter_final.sc",
+        "src/rhythm_render/shaders/depth_of_field_composite.sc",
+        "src/rhythm_render/shaders/godot_dof_filter.sh",
+        "src/rhythm_render/src/bgfx_depth_of_field.cpp"
     ]
 }

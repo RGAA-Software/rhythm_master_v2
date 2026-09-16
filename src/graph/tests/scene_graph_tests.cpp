@@ -73,6 +73,18 @@ void Run() {
                                                        {10, 9, 10, "depth"}});
         Require(std::holds_alternative<ExecutionPlan>(Compile(captured, registry)),
                 "explicit capture color/depth feed depth of field");
+        captured.nodes_.back().properties_["dof_shape"] = 2.0;
+        captured.nodes_.back().properties_["dof_quality"] = 3.0;
+        Require(std::holds_alternative<ExecutionPlan>(Compile(captured, registry)),
+                "hexagonal high-quality depth of field compiles");
+        captured.nodes_.back().properties_["dof_shape"] = 3.0;
+        Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(captured, registry)),
+                "unknown depth-of-field shape rejects before rendering");
+        captured.nodes_.back().properties_["dof_shape"] = 2.0;
+        captured.nodes_.back().properties_["dof_quality"] = 1.5;
+        Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(captured, registry)),
+                "fractional depth-of-field quality rejects before rendering");
+        captured.nodes_.back().properties_["dof_quality"] = 3.0;
         captured.edges_.back().from_ = 8;
         Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(captured, registry)),
                 "ordinary color cannot masquerade as depth");

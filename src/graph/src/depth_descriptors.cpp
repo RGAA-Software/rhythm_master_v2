@@ -19,16 +19,23 @@ void AppendDepthDescriptors(std::vector<OperatorDescriptor>& operators) {
                          Type::kTexture,
                          {{"depth", Type::kDepth}},
                          {{"depth_normalize", 1.0, 0, 1, {"depth.distance", "depth.normalized"}}}});
-    operators.push_back({"texture.dof",
-                         Operation::kDepthOfField,
-                         Type::kTexture,
-                         {{"source", Type::kTexture},
-                          {"depth", Type::kDepth},
-                          {"focus_distance", Type::kScalar, false},
-                          {"focus_scale", Type::kScalar, false}},
-                         {{"focus_distance", 3.0, 0.001, 100000},
-                          {"focus_scale", 4.0, 0, 1000},
-                          {"dof_radius", 12.0, 0, 32},
-                          {"dof_samples", 32.0, 1, 64, {}, true}}});
+    operators.push_back(
+            {"texture.dof",
+             Operation::kDepthOfField,
+             Type::kTexture,
+             {{"source", Type::kTexture},
+              {"depth", Type::kDepth},
+              {"focus_distance", Type::kScalar, false},
+              {"focus_scale", Type::kScalar, false}},
+             {{"focus_distance", 3.0, 0.001, 100000},
+              {"focus_scale", 4.0, 0, 1000},
+              {"dof_radius", 12.0, 0, 32},
+              {"dof_samples", 32.0, 1, 64, {}, true},
+              {"dof_shape", 0.0, 0, 2, {"dof.shape.circle", "dof.shape.box", "dof.shape.hexagon"}},
+              {"dof_quality",
+               2.0,
+               0,
+               3,
+               {"quality.very_low", "quality.low", "quality.medium", "quality.high"}}}});
 }
 }  // namespace rhythm::graph
