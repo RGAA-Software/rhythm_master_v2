@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 #include <stdexcept>
 
 namespace rhythm::runtime::detail {
@@ -30,6 +31,68 @@ scene::Vector3 Translate(scene::Vector3 value, scene::Vector3 first_axis, double
             value.z_ + first_axis.z_ * first_distance + second_axis.z_ * second_distance};
 }
 double Snapped(double value, double unit) { return std::floor(value / unit + 0.5) * unit; }
+scene::Vector3 Move(scene::Vector3 value, scene::Vector3 axis, double distance) {
+    return {value.x_ + axis.x_ * distance, value.y_ + axis.y_ * distance,
+            value.z_ + axis.z_ * distance};
+}
+scene::Camera FitCascade(const scene::Scene::DirectionalLight& light,
+                         const scene::ShadowSettings& shadow, const scene::Camera& receiver,
+                         double aspect, double near, double far) {
+    const auto backward = scene::Normalize({receiver.eye_.x_ - receiver.target_.x_,
+                                            receiver.eye_.y_ - receiver.target_.y_,
+                                            receiver.eye_.z_ - receiver.target_.z_});
+    const auto right = scene::Normalize(scene::Cross(receiver.up_, backward));
+    const auto up = scene::Cross(backward, right);
+    const auto half_height = [&](double depth) {
+        if (receiver.kind_ == scene::ProjectionKind::kOrthographic)
+            return receiver.orthographic_height_ * 0.5;
+        return std::tan(receiver.vertical_fov_ * std::numbers::pi / 360) * depth;
+    };
+    std::array<scene::Vector3, 8> endpoints;
+    std::size_t endpoint = 0;
+    for (const auto depth : {near, far}) {
+        const auto center = Move(receiver.eye_, backward, -depth);
+        const auto vertical = half_height(depth);
+        const auto horizontal = vertical * aspect;
+        for (const auto y : {-vertical, vertical})
+            for (const auto x : {-horizontal, horizontal})
+                endpoints[endpoint++] = Translate(center, right, x, up, y);
+    }
+    scene::Vector3 center;
+    for (const auto& point : endpoints) {
+        center.x_ += point.x_ / endpoints.size();
+        center.y_ += point.y_ / endpoints.size();
+        center.z_ += point.z_ / endpoints.size();
+    }
+    double radius = 0;
+    for (const auto& point : endpoints)
+        radius = std::max(radius, std::hypot(point.x_ - center.x_, point.y_ - center.y_,
+                                             point.z_ - center.z_));
+    // Godot expands by one texel on each side before snapping the projection.
+    radius *= double(shadow.resolution_) / (shadow.resolution_ - 2.0);
+    const auto direction = scene::Normalize(light.direction_);
+    const auto camera_up =
+            std::abs(direction.y_) > 0.95 ? scene::Vector3{0, 0, 1} : scene::Vector3{0, 1, 0};
+    const auto light_right = scene::Normalize(scene::Cross(camera_up, direction));
+    const auto light_up = scene::Cross(direction, light_right);
+    const auto unit = radius * 4.0 / shadow.resolution_;
+    if (!std::isfinite(unit) || unit < 1e-12)
+        throw std::invalid_argument("runtime.shadow_cascade_extent");
+    center = Translate(
+            center, light_right,
+            Snapped(scene::Dot(light_right, center), unit) - scene::Dot(light_right, center),
+            light_up, Snapped(scene::Dot(light_up, center), unit) - scene::Dot(light_up, center));
+    const auto depth_distance = radius + shadow.distance_;
+    scene::Camera camera;
+    camera.eye_ = Move(center, direction, depth_distance);
+    camera.target_ = center;
+    camera.up_ = camera_up;
+    camera.kind_ = scene::ProjectionKind::kOrthographic;
+    camera.orthographic_height_ = radius * 2;
+    camera.near_ = 0.001;
+    camera.far_ = depth_distance * 2;
+    return camera;
+}
 }  // namespace
 
 scene::Camera ShadowCamera(const scene::Scene& scene) {
@@ -81,12 +144,35 @@ scene::Camera ShadowCamera(const scene::Scene& scene) {
     }
     return camera;
 }
-void ShadowPass::Apply(const scene::Scene& scene, render::SceneDrawList& receivers,
+DirectionalCascadeCameras CascadeCameras(const scene::Scene& scene,
+                                         const scene::Camera& receiver_camera, double aspect) {
+    const auto& shadow = scene.shadow_.value();
+    if (shadow.light_ >= scene.lights_.size())
+        throw std::invalid_argument("runtime.directional_shadow_cascades");
+    if (!std::isfinite(shadow.cascade_split_) || shadow.cascade_split_ < 0.05 ||
+        shadow.cascade_split_ > 0.95 || !std::isfinite(shadow.max_distance_) ||
+        shadow.max_distance_ <= 0)
+        throw std::invalid_argument("runtime.shadow_cascade_settings");
+    (void)scene::Projection(receiver_camera, aspect);
+    const auto maximum = std::max(std::min(receiver_camera.far_, shadow.max_distance_),
+                                  receiver_camera.near_ + 0.001);
+    DirectionalCascadeCameras result;
+    result.split_depth_ =
+            receiver_camera.near_ + (maximum - receiver_camera.near_) * shadow.cascade_split_;
+    result.cameras_[0] = FitCascade(scene.lights_[shadow.light_], shadow, receiver_camera, aspect,
+                                    receiver_camera.near_, result.split_depth_);
+    result.cameras_[1] = FitCascade(scene.lights_[shadow.light_], shadow, receiver_camera, aspect,
+                                    result.split_depth_, maximum);
+    return result;
+}
+void ShadowPass::Apply(const scene::Scene& scene, const scene::Camera& receiver_camera,
+                       double aspect, render::SceneDrawList& receivers,
                        render::Renderer& renderer) {
     if (!scene.shadow_) {
-        color_ = {};
-        depth_ = {};
+        colors_ = {};
+        depths_ = {};
         resolution_ = 0;
+        cascades_ = 0;
         receivers.shadow_.reset();
         return;
     }
@@ -94,24 +180,39 @@ void ShadowPass::Apply(const scene::Scene& scene, render::SceneDrawList& receive
     if (shadow.resolution_ < 256 || shadow.resolution_ > 2048 ||
         (shadow.resolution_ & (shadow.resolution_ - 1)) != 0)
         throw std::invalid_argument("runtime.shadow_resolution");
-    const auto camera = ShadowCamera(scene);
-    const auto view = scene::View(camera);
-    const auto projection = scene::Projection(camera, 1);
+    if (shadow.cascades_ < 1 || shadow.cascades_ > 2)
+        throw std::invalid_argument("runtime.shadow_cascades");
+    std::array<scene::Camera, 2> cameras;
+    double cascade_split = 0;
+    if (shadow.cascades_ == 2) {
+        const auto fitted = CascadeCameras(scene, receiver_camera, aspect);
+        cameras = fitted.cameras_;
+        cascade_split = fitted.split_depth_;
+    } else {
+        cameras[0] = ShadowCamera(scene);
+    }
     if (!renderer.SupportsSampleableDepth())
         throw std::runtime_error("render.sampleable_depth_unsupported");
-    if (resolution_ != shadow.resolution_ || !renderer.IsValid(depth_.Handle()) ||
-        !renderer.IsValid(color_.Handle())) {
-        // Allocate both before replacing the current pair; partial failure is RAII.
+    bool valid = resolution_ == shadow.resolution_ && cascades_ == shadow.cascades_;
+    for (std::size_t index = 0; valid && index < shadow.cascades_; ++index)
+        valid = renderer.IsValid(depths_[index].Handle()) &&
+                renderer.IsValid(colors_[index].Handle());
+    if (!valid) {
+        // Allocate every required attachment before replacing the current set;
+        // partial allocation failure remains RAII and cannot publish half a cascade.
         const render::Extent extent{shadow.resolution_, shadow.resolution_};
-        auto color = renderer.CreateTexture(extent);
-        auto depth = renderer.CreateDepthTexture(extent);
-        color_ = std::move(color);
-        depth_ = std::move(depth);
+        std::array<render::Texture, 2> colors;
+        std::array<render::Texture, 2> depths;
+        for (std::size_t index = 0; index < shadow.cascades_; ++index) {
+            colors[index] = renderer.CreateTexture(extent);
+            depths[index] = renderer.CreateDepthTexture(extent);
+        }
+        colors_ = std::move(colors);
+        depths_ = std::move(depths);
         resolution_ = shadow.resolution_;
+        cascades_ = shadow.cascades_;
     }
     render::SceneDrawList casters;
-    casters.view_ = Matrix(view);
-    casters.projection_ = Matrix(projection);
     for (const auto& receiver : receivers.draws_) {
         if (receiver.color_[3] < 1) continue;
         auto caster = receiver;
@@ -120,11 +221,28 @@ void ShadowPass::Apply(const scene::Scene& scene, render::SceneDrawList& receive
         caster.textures_ = {};
         casters.draws_.push_back(caster);
     }
-    renderer.SubmitSceneDepth(color_.Handle(), depth_.Handle(), casters);
-    receivers.shadow_ =
-            render::SceneShadow{depth_.Handle(),       Matrix(scene::Multiply(projection, view)),
-                                shadow.light_,         shadow.resolution_,
-                                shadow.depth_bias_,    shadow.normal_bias_,
-                                Filter(shadow.filter_)};
+    std::array<render::Matrix4, 2> matrices;
+    for (std::size_t index = 0; index < shadow.cascades_; ++index) {
+        const auto view = scene::View(cameras[index]);
+        const auto projection = scene::Projection(cameras[index], 1);
+        casters.view_ = Matrix(view);
+        casters.projection_ = Matrix(projection);
+        renderer.SubmitSceneDepth(colors_[index].Handle(), depths_[index].Handle(), casters);
+        matrices[index] = Matrix(scene::Multiply(projection, view));
+    }
+    render::SceneShadow rendered;
+    rendered.depth_ = depths_[0].Handle();
+    rendered.world_to_clip_ = matrices[0];
+    rendered.light_ = shadow.light_;
+    rendered.resolution_ = shadow.resolution_;
+    rendered.depth_bias_ = shadow.depth_bias_;
+    rendered.normal_bias_ = shadow.normal_bias_;
+    rendered.filter_ = Filter(shadow.filter_);
+    if (shadow.cascades_ == 2) {
+        rendered.cascade_depth_ = depths_[1].Handle();
+        rendered.cascade_world_to_clip_ = matrices[1];
+        rendered.cascade_split_ = static_cast<float>(cascade_split);
+    }
+    receivers.shadow_ = rendered;
 }
 }  // namespace rhythm::runtime::detail

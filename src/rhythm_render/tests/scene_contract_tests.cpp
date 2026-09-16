@@ -92,6 +92,7 @@ void Shadows() {
     auto target = renderer.CreateTexture({16, 16});
     auto color = renderer.CreateTexture({256, 256});
     auto depth = renderer.CreateDepthTexture({256, 256});
+    auto cascade_depth = renderer.CreateDepthTexture({256, 256});
     SceneDrawList scene;
     scene.lights_.push_back({});
     scene.shadow_ = SceneShadow{};
@@ -99,6 +100,18 @@ void Shadows() {
     scene.shadow_->resolution_ = 256;
     renderer.BeginFrame();
     renderer.SubmitScene(target.Handle(), scene);
+    scene.shadow_->cascade_depth_ = cascade_depth.Handle();
+    scene.shadow_->cascade_split_ = 4;
+    renderer.SubmitScene(target.Handle(), scene);
+    scene.shadow_->cascade_depth_ = depth.Handle();
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.shadow_->cascade_depth_ = color.Handle();
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.shadow_->cascade_depth_ = cascade_depth.Handle();
+    scene.shadow_->cascade_split_ = 0;
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.shadow_->cascade_depth_ = {};
+    scene.shadow_->cascade_split_ = 0;
     Reject([&] { renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), scene); });
     scene.shadow_->depth_ = color.Handle();
     Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
@@ -114,6 +127,11 @@ void Shadows() {
     Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
     scene.positional_lights_[0].spot_ = true;
     renderer.SubmitScene(target.Handle(), scene);
+    scene.shadow_->cascade_depth_ = cascade_depth.Handle();
+    scene.shadow_->cascade_split_ = 4;
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.shadow_->cascade_depth_ = {};
+    scene.shadow_->cascade_split_ = 0;
     scene.shadow_->filter_ = static_cast<ShadowFilter>(255);
     Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
     scene.shadow_->filter_ = ShadowFilter::kPcf13;

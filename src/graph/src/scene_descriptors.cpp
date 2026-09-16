@@ -53,7 +53,10 @@ void AppendSceneDescriptors(std::vector<OperatorDescriptor>& operators) {
                1.0,
                0,
                2,
-               {"shadow.filter.nearest", "shadow.filter.pcf5", "shadow.filter.pcf13"}}}});
+               {"shadow.filter.nearest", "shadow.filter.pcf5", "shadow.filter.pcf13"}},
+              {"shadow_cascades", 0.0, 0, 1, {"shadow.cascades.single", "shadow.cascades.two"}},
+              {"shadow_cascade_split", 0.25, 0.05, 0.95},
+              {"shadow_max_distance", 40.0, 0.1, 10000}}});
     operators.push_back({"material.textures",
                          Operation::kMaterialTextures,
                          Type::kMaterial,

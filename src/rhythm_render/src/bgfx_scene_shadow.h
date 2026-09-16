@@ -12,9 +12,12 @@ class BgfxSceneShadow final {
 
    private:
     GpuHandle<bgfx::UniformHandle> sampler_{};
+    GpuHandle<bgfx::UniformHandle> cascade_sampler_{};
     GpuHandle<bgfx::UniformHandle> matrix_{};
+    GpuHandle<bgfx::UniformHandle> cascade_matrix_{};
     GpuHandle<bgfx::UniformHandle> settings_{};
     GpuHandle<bgfx::UniformHandle> filtering_{};
+    GpuHandle<bgfx::UniformHandle> cascade_{};
     GpuHandle<bgfx::TextureHandle> white_{};
 };
 }  // namespace rhythm::render::detail

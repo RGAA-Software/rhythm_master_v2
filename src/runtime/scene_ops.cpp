@@ -172,6 +172,13 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
                     throw std::invalid_argument("runtime.shadow_filter");
                 shadow.filter_ =
                         static_cast<scene::ShadowFilter>(static_cast<std::uint8_t>(shadow_filter));
+                const auto shadow_cascades = scalar("shadow_cascades", 0);
+                if (shadow_cascades < 0 || shadow_cascades > 1 ||
+                    shadow_cascades != std::floor(shadow_cascades))
+                    throw std::invalid_argument("runtime.shadow_cascades");
+                shadow.cascades_ = static_cast<std::uint8_t>(shadow_cascades + 1);
+                shadow.cascade_split_ = scalar("shadow_cascade_split", 0.25);
+                shadow.max_distance_ = scalar("shadow_max_distance", 40);
                 result.shadow_ = shadow;
             }
             output.scene_ = std::make_shared<const scene::Scene>(std::move(result));

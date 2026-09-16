@@ -51,6 +51,11 @@ struct ShadowSettings {
     float depth_bias_ = 0.001f;
     float normal_bias_ = 0.01f;
     ShadowFilter filter_ = ShadowFilter::kPcf5;
+    // Optional Godot-style parallel two-split mode for directional lights.
+    // The split is a normalized receiver-camera depth within max_distance_.
+    std::uint8_t cascades_ = 1;
+    double cascade_split_ = 0.25;
+    double max_distance_ = 40;
 };
 // World environment stays fixed when scene geometry is transformed.
 struct EnvironmentSettings {

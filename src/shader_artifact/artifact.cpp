@@ -34,22 +34,26 @@ void Require(bool value) {
 void SurfaceBinding(std::string_view name, std::uint32_t type, std::uint32_t number,
                     std::uint32_t register_index, std::uint32_t register_count,
                     std::uint32_t dimension, Target target, std::set<std::uint32_t>& occupied) {
-    constexpr std::array<std::string_view, 6> kSamplers{"s_scene_base",   "s_scene_normal",
-                                                        "s_scene_orm",    "s_scene_emission",
-                                                        "s_scene_shadow", "s_scene_environment"};
+    constexpr std::array<std::string_view, 7> kSamplers{
+            "s_scene_base",   "s_scene_normal",      "s_scene_orm",           "s_scene_emission",
+            "s_scene_shadow", "s_scene_environment", "s_scene_shadow_cascade"};
+    constexpr std::array<std::uint32_t, 7> kSamplerRegisters{0, 1, 2, 3, 4, 5, 7};
     const auto sampler = std::find(kSamplers.begin(), kSamplers.end(), name);
     const bool windows = target == Target::kWindowsSm5;
     if (sampler != kSamplers.end()) {
         Require(type == (windows ? 48u : 0u) && number == 1 && register_count == 1 &&
-                register_index == (windows ? std::uint32_t(sampler - kSamplers.begin()) : 0u) &&
+                register_index ==
+                        (windows ? kSamplerRegisters[std::size_t(sampler - kSamplers.begin())]
+                                 : 0u) &&
                 dimension == 2);
         return;
     }
     constexpr std::array<std::string_view, 5> kArrays{
             "u_scene_light_directions", "u_scene_light_colors", "u_scene_light_positions",
             "u_scene_spot_directions", "u_scene_light_ranges"};
-    constexpr std::array<std::string_view, 12> kVectors{"u_scene_shadow_settings",
+    constexpr std::array<std::string_view, 14> kVectors{"u_scene_shadow_settings",
                                                         "u_scene_shadow_filter",
+                                                        "u_scene_shadow_cascade",
                                                         "u_scene_environment",
                                                         "u_scene_material",
                                                         "u_scene_emissive",
@@ -58,9 +62,10 @@ void SurfaceBinding(std::string_view name, std::uint32_t type, std::uint32_t num
                                                         "u_scene_textures",
                                                         "u_scene_texture_options",
                                                         "u_scene_uv",
+                                                        "u_scene_alpha",
                                                         "u_surface_params",
                                                         "u_surface_info"};
-    const bool matrix = name == "u_scene_shadow_matrix";
+    const bool matrix = name == "u_scene_shadow_matrix" || name == "u_scene_shadow_cascade_matrix";
     const bool array = std::find(kArrays.begin(), kArrays.end(), name) != kArrays.end();
     Require(matrix || array || std::find(kVectors.begin(), kVectors.end(), name) != kVectors.end());
     Require(dimension == 0 && register_count == (matrix || array ? 4u : 1u) &&
@@ -90,7 +95,7 @@ void Validate(std::span<const std::uint8_t> bytes, Target target, Profile profil
             reader.Word(4) == 0);
     Require(reader.Word(4) == 0 && reader.Word(4) == 0);
     const auto count = reader.Word(2);
-    Require(count <= (profile == Profile::kImageRgba ? 3u : 24u));
+    Require(count <= (profile == Profile::kImageRgba ? 3u : 28u));
     std::set<std::uint32_t> occupied;
     std::set<std::string> names;
     for (std::uint32_t index = 0; index < count; ++index) {

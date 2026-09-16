@@ -79,6 +79,8 @@ void VerifyMaterialProfile(std::span<std::uint8_t, 32 * 16 * 4> pixels,
     };
     GpuHandle normal(bgfx::createUniform("u_scene_normal", bgfx::UniformType::Mat4));
     GpuHandle shadow_matrix(bgfx::createUniform("u_scene_shadow_matrix", bgfx::UniformType::Mat4));
+    GpuHandle shadow_cascade_matrix(
+            bgfx::createUniform("u_scene_shadow_cascade_matrix", bgfx::UniformType::Mat4));
     GpuHandle deform(bgfx::createUniform("u_scene_deform", bgfx::UniformType::Vec4, 4));
     GpuHandle pivot(bgfx::createUniform("u_scene_deform_pivot", bgfx::UniformType::Vec4, 4));
     constexpr std::array<float, 16> kZero{};
@@ -88,7 +90,7 @@ void VerifyMaterialProfile(std::span<std::uint8_t, 32 * 16 * 4> pixels,
                                           bgfx::copy(&kWhite, sizeof(kWhite))));
     std::vector<GpuHandle<bgfx::UniformHandle>> samplers;
     for (const auto name : {"s_scene_base", "s_scene_normal", "s_scene_orm", "s_scene_emission",
-                            "s_scene_shadow", "s_scene_environment"})
+                            "s_scene_shadow", "s_scene_environment", "s_scene_shadow_cascade"})
         samplers.emplace_back(bgfx::createUniform(name, bgfx::UniformType::Sampler));
     const auto texture = [](std::array<std::uint8_t, 4> pixel) {
         return GpuHandle(bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::RGBA8, 0,
@@ -118,6 +120,7 @@ void VerifyMaterialProfile(std::span<std::uint8_t, 32 * 16 * 4> pixels,
         bgfx::setIndexBuffer(indices.Get());
         bgfx::setUniform(normal.Get(), kIdentity.data());
         bgfx::setUniform(shadow_matrix.Get(), kIdentity.data());
+        bgfx::setUniform(shadow_cascade_matrix.Get(), kIdentity.data());
         bgfx::setUniform(deform.Get(), kZero.data(), 4);
         bgfx::setUniform(pivot.Get(), kZero.data(), 4);
         set("u_scene_color", {1, 1, 1, 1});
@@ -131,6 +134,7 @@ void VerifyMaterialProfile(std::span<std::uint8_t, 32 * 16 * 4> pixels,
         set("u_scene_view", {0, 0, 1, 1});
         set("u_scene_shadow_settings", {scenario == 5 ? 0.0f : -1.0f, 0, 0, 1});
         set("u_scene_shadow_filter", {});
+        set("u_scene_shadow_cascade", {});
         set("u_scene_environment", {scenario == 6 ? .3f : 0.0f, 1, 0, 0});
         for (std::size_t index = 0; index < lights.size(); ++index) {
             auto values = kZero;
@@ -144,8 +148,9 @@ void VerifyMaterialProfile(std::span<std::uint8_t, 32 * 16 * 4> pixels,
         set("u_scene_uv", {1, 1, 0, 0});
         set("u_surface_params",
             phase ? std::array<float, 4>{0, 1, 0, 1} : std::array<float, 4>{1, 0, 0, 1});
-        for (std::uint8_t index = 0; index < samplers.size(); ++index)
-            bgfx::setTexture(index, samplers[index].Get(), white.Get());
+        constexpr std::array<std::uint8_t, 7> kSamplerSlots{0, 1, 2, 3, 4, 5, 7};
+        for (std::size_t index = 0; index < samplers.size(); ++index)
+            bgfx::setTexture(kSamplerSlots[index], samplers[index].Get(), white.Get());
         bgfx::setTexture(0, samplers[0].Get(), colored.Get());
         bgfx::setTexture(1, samplers[1].Get(), tilted.Get());
         bgfx::setTexture(2, samplers[2].Get(), colored.Get());

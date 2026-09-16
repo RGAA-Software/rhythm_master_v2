@@ -30,13 +30,15 @@ void Require(bool condition, const char* message) {
 
 rhythm::graph::ExecutionPlan Compile(rhythm::graph::Document document, bool shadows,
                                      std::size_t& shadow_nodes, double filter = 2,
-                                     std::optional<double> extent = std::nullopt) {
+                                     std::optional<double> extent = std::nullopt,
+                                     std::uint8_t cascades = 1) {
     shadow_nodes = 0;
     for (auto& node : document.nodes_) {
         if (node.type_ != "scene.shadow") continue;
         ++shadow_nodes;
         node.properties_["shadow_enabled"] = shadows ? 1.0 : 0.0;
         node.properties_["shadow_filter"] = filter;
+        node.properties_["shadow_cascades"] = double(cascades - 1);
         if (extent) node.properties_["shadow_extent"] = *extent;
     }
     const auto compiled = rhythm::graph::Compile(document, rhythm::graph::Registry{});
@@ -282,8 +284,12 @@ int main(int argc, char* argv[]) {
         std::size_t large_shadow_nodes = 0;
         const auto large_plan =
                 Compile(fine_loaded.snapshot_.document_, true, large_shadow_nodes, 2, 36.0);
+        std::size_t cascade_shadow_nodes = 0;
+        const auto cascade_plan = Compile(fine_loaded.snapshot_.document_, true,
+                                          cascade_shadow_nodes, 2, std::nullopt, 2);
         Require(fine_shadow_nodes == 1 && fine_low_shadow_nodes == 1 &&
-                        fine_disabled_shadow_nodes == 1 && large_shadow_nodes == 1,
+                        fine_disabled_shadow_nodes == 1 && large_shadow_nodes == 1 &&
+                        cascade_shadow_nodes == 1,
                 "shadow_work.fine_expected_one_shadow_node");
         const auto fine_assets = VisualAssets(fine_source, fine_loaded.snapshot_.assets_);
         const auto fine_resources = prepared_assets::Prepare(fine_high_plan, fine_assets);
@@ -291,14 +297,22 @@ int main(int argc, char* argv[]) {
         const auto fine_low = CaptureMotion(fine_low_plan, *fine_resources, renderer);
         const auto fine_no_shadow = CaptureMotion(fine_unshadowed_plan, *fine_resources, renderer);
         const auto large = CaptureMotion(large_plan, *fine_resources, renderer);
+        const auto cascade = CaptureMotion(cascade_plan, *fine_resources, renderer);
         const auto fine_shadow_difference =
                 MaximumCheckpointDifference(fine_high, fine_no_shadow, 120);
         const auto filter_difference = MaximumCheckpointDifference(fine_high, fine_low, 120);
         const auto large_shadow_difference =
                 MaximumCheckpointDifference(large, fine_no_shadow, 120);
+        const auto cascade_shadow_difference =
+                MaximumCheckpointDifference(cascade, fine_no_shadow, 120);
+        const auto cascade_to_single_difference =
+                MaximumCheckpointDifference(cascade, fine_high, 120);
         Require(fine_shadow_difference > 0.1, "shadow_work.fine_shadow_not_visible");
         Require(filter_difference > 0.01, "shadow_work.fine_filter_not_visible");
         Require(large_shadow_difference > 0.01, "shadow_work.large_shadow_not_visible");
+        Require(cascade_shadow_difference > 0.1, "shadow_work.cascade_shadow_not_visible");
+        Require(cascade_to_single_difference > 0.001,
+                "shadow_work.cascade_does_not_change_authored_output");
         auto fine_differences = fine_high.differences_;
         std::sort(fine_differences.begin(), fine_differences.end());
         const auto fine_motion_p50 = fine_differences[fine_differences.size() / 2];
@@ -315,10 +329,12 @@ int main(int argc, char* argv[]) {
         WritePpm(fine_output / "pcf13-frame120.ppm", Checkpoint(fine_high, 120));
         WritePpm(fine_output / "pcf5-frame120.ppm", Checkpoint(fine_low, 120));
         WritePpm(fine_output / "large-pcf13-frame120.ppm", Checkpoint(large, 120));
+        WritePpm(fine_output / "cascade-pcf13-frame120.ppm", Checkpoint(cascade, 120));
         WritePpm(fine_output / "no-shadow-frame120.ppm", Checkpoint(fine_no_shadow, 120));
         const auto fine_timing = Measure(fine_high_plan, *fine_resources, renderer);
         const auto fine_low_timing = Measure(fine_low_plan, *fine_resources, renderer);
         const auto large_timing = Measure(large_plan, *fine_resources, renderer);
+        const auto cascade_timing = Measure(cascade_plan, *fine_resources, renderer);
         const auto fine_no_shadow_timing = Measure(fine_unshadowed_plan, *fine_resources, renderer);
         std::ifstream fine_graph(fine_source / "graph.pb", std::ios::binary);
         fine_graph.exceptions(std::ios::badbit | std::ios::failbit);
@@ -338,6 +354,10 @@ int main(int argc, char* argv[]) {
                       << ",\n"
                       << "    \"large_shadow_mean_rgb_difference_max\": " << large_shadow_difference
                       << ",\n"
+                      << "    \"cascade_shadow_mean_rgb_difference_max\": "
+                      << cascade_shadow_difference << ",\n"
+                      << "    \"cascade_to_single_mean_rgb_difference_max\": "
+                      << cascade_to_single_difference << ",\n"
                       << "    \"motion_difference_p50\": " << fine_motion_p50 << ",\n"
                       << "    \"motion_difference_p95\": " << fine_motion_p95 << ",\n"
                       << "    \"motion_difference_max\": " << fine_motion_max << ",\n"
@@ -348,17 +368,22 @@ int main(int argc, char* argv[]) {
                       << "    \"pcf5_frame_p95_ms\": " << fine_low_timing.p95_ << ",\n"
                       << "    \"large_pcf13_frame_p50_ms\": " << large_timing.p50_ << ",\n"
                       << "    \"large_pcf13_frame_p95_ms\": " << large_timing.p95_ << ",\n"
+                      << "    \"cascade_pcf13_frame_p50_ms\": " << cascade_timing.p50_ << ",\n"
+                      << "    \"cascade_pcf13_frame_p95_ms\": " << cascade_timing.p95_ << ",\n"
                       << "    \"no_shadow_frame_p50_ms\": " << fine_no_shadow_timing.p50_ << ",\n"
                       << "    \"no_shadow_frame_p95_ms\": " << fine_no_shadow_timing.p95_ << ",\n"
-                      << "    \"stable_texture_bytes\": " << fine_high.texture_bytes_ << "\n"
+                      << "    \"stable_texture_bytes\": " << fine_high.texture_bytes_ << ",\n"
+                      << "    \"cascade_stable_texture_bytes\": " << cascade.texture_bytes_ << "\n"
                       << "}\n";
         std::cout << "Fine shadow work: shadow=" << fine_shadow_difference
                   << " filters=" << filter_difference << " large=" << large_shadow_difference
+                  << " cascade=" << cascade_shadow_difference << '/' << cascade_to_single_difference
                   << " motion=" << fine_motion_p50 << '/' << fine_motion_p95 << '/'
                   << fine_motion_max << " boundary=" << cycle_boundary
                   << " pcf13_ms=" << fine_timing.p50_ << '/' << fine_timing.p95_
                   << " pcf5_ms=" << fine_low_timing.p50_ << '/' << fine_low_timing.p95_
                   << " large_ms=" << large_timing.p50_ << '/' << large_timing.p95_
+                  << " cascade_ms=" << cascade_timing.p50_ << '/' << cascade_timing.p95_
                   << " no_shadow_ms=" << fine_no_shadow_timing.p50_ << '/'
                   << fine_no_shadow_timing.p95_ << "\n";
     } catch (const std::exception& error) {

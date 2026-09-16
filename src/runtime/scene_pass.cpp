@@ -283,7 +283,7 @@ render::SceneDrawList ScenePass::Build(const scene::Scene& scene, const scene::C
     for (const auto index : order) sorted.push_back(std::move(result.draws_[index]));
     result.draws_ = std::move(sorted);
     environment_.Apply(scene.environment_, outputs, result, renderer);
-    shadow_.Apply(scene, result, renderer);
+    shadow_.Apply(scene, camera, double(extent.width_) / extent.height_, result, renderer);
     return result;
 }
 }  // namespace rhythm::runtime::detail

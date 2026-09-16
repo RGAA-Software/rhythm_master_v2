@@ -13,6 +13,7 @@
             "sha256": "30b9fc975a861f10f4c3425d02c2513ce82937c2d6917a26e4e82454080b0493",
             "reference_location": "out/reference/godot-4.5.1/servers/rendering/renderer_scene_cull.cpp",
             "symbols": [
+                "directional cascade frustum fitting at lines 2134-2350",
                 "directional shadow stabilization at lines 2301-2307"
             ]
         },
@@ -39,6 +40,7 @@
         "Adapt projected coordinates to project canonical [-1,+1] depth and top-left UV; pixels outside the shadow volume are lit.",
         "Apply world-unit geometric-normal bias and normalized-depth bias; one selected directional or spot light per scene pass.",
         "Translate Godot's radius * 4 / texture-size stabilized orthographic boundaries to a two-shadow-texel center grid because the project contract stores the full projection height. Snap only directional-light right/up motion; keep light-depth motion and spot projections continuous.",
-        "Omit Godot atlas allocation, cascade selection, cube/omni shadows and engine resource types."
+        "Adapt Godot's parallel split distances, receiver-frustum endpoints, bounding-sphere expansion and per-split stabilization as an optional two-cascade directional mode. Keep separate bounded 2D depth images instead of importing Godot's global atlas and select by receiver-camera view depth.",
+        "Omit four-split mode, split blending, global atlas allocation, caster octree culling, cube/omni shadows and engine resource types."
     ]
 }

@@ -47,9 +47,75 @@ void StableDirectionalProjection() {
     const auto spot_camera = runtime::detail::ShadowCamera(shadow_scene);
     Require(spot_camera.eye_ == spot.position_, "spot shadow position is not quantized");
 }
+void DirectionalCascadeProjection() {
+    using namespace rhythm;
+    scene::Scene shadow_scene;
+    shadow_scene.lights_.push_back({});
+    shadow_scene.shadow_ = scene::ShadowSettings{};
+    shadow_scene.shadow_->resolution_ = 256;
+    shadow_scene.shadow_->cascades_ = 2;
+    shadow_scene.shadow_->cascade_split_ = 0.25;
+    shadow_scene.shadow_->max_distance_ = 41;
+    scene::Camera receiver;
+    receiver.near_ = 1;
+    receiver.far_ = 101;
+    const auto cascades = runtime::detail::CascadeCameras(shadow_scene, receiver, 1);
+    Require(std::abs(cascades.split_depth_ - 11) < 1e-12,
+            "directional cascade split uses bounded receiver view depth");
+    Require(cascades.cameras_[0].kind_ == scene::ProjectionKind::kOrthographic &&
+                    cascades.cameras_[1].kind_ == scene::ProjectionKind::kOrthographic &&
+                    cascades.cameras_[0].orthographic_height_ <
+                            cascades.cameras_[1].orthographic_height_,
+            "directional cascades fit increasing frustum segments");
+    const auto unit = cascades.cameras_[0].orthographic_height_ * 2 / 256;
+    receiver.eye_.x_ += unit * 0.49;
+    receiver.target_.x_ += unit * 0.49;
+    const auto stable = runtime::detail::CascadeCameras(shadow_scene, receiver, 1);
+    Require(cascades.cameras_[0].eye_ == stable.cameras_[0].eye_ &&
+                    cascades.cameras_[0].target_ == stable.cameras_[0].target_,
+            "first directional cascade remains stable under sub-grid camera motion");
+    receiver.near_ = 50;
+    const auto clamped = runtime::detail::CascadeCameras(shadow_scene, receiver, 1);
+    Require(clamped.split_depth_ > receiver.near_ && clamped.split_depth_ < receiver.near_ + 0.001,
+            "cascade max distance below the camera near plane keeps a finite depth interval");
+}
+void DirectionalCascadeResources() {
+    using namespace rhythm;
+    graph::Registry registry;
+    graph::Document document;
+    document.id_ = "shadow.cascade.runtime";
+    document.nodes_ = {registry.MakeNode(1, "scene.directional_light"),
+                       registry.MakeNode(2, "scene.shadow"), registry.MakeNode(3, "scene.render"),
+                       registry.MakeNode(4, "output.texture")};
+    document.nodes_[1].properties_["shadow_resolution"] = 0.0;
+    document.edges_ = {{1, 1, 2, "scene"}, {2, 2, 3, "scene"}, {3, 3, 4, "source"}};
+    document.output_ = 4;
+    runtime::Runtime runtime;
+    auto renderer = render::Renderer::CreateNull();
+    const auto evaluate = [&] {
+        const auto plan = std::get<graph::ExecutionPlan>(graph::Compile(document, registry));
+        renderer.BeginFrame();
+        const auto result = runtime.Evaluate(plan, {0, 0, {64, 32}}, renderer);
+        renderer.EndFrame();
+        return result;
+    };
+    (void)evaluate();
+    const auto single_bytes = renderer.Stats().texture_bytes_;
+    const auto single_textures = renderer.Stats().live_textures_;
+    document.nodes_[1].properties_["shadow_cascades"] = 1.0;
+    (void)evaluate();
+    Require(renderer.Stats().texture_bytes_ == single_bytes + 256 * 256 * 8 &&
+                    renderer.Stats().live_textures_ == single_textures + 2,
+            "two cascades own exactly one additional bounded depth/color pair");
+    runtime.Reset();
+    Require(renderer.Stats().live_textures_ == 0,
+            "directional cascade attachments release on reset");
+}
 void Run() {
     using namespace rhythm;
     StableDirectionalProjection();
+    DirectionalCascadeProjection();
+    DirectionalCascadeResources();
     graph::Registry registry;
     graph::Document document;
     document.id_ = "shadow.runtime";
@@ -88,6 +154,8 @@ void Run() {
             "merging a directional light preserves the selected positional-light identity");
     Require(output(first, 4).scene_->shadow_->filter_ == scene::ShadowFilter::kPcf5,
             "legacy default value keeps PCF5 filtering");
+    Require(output(first, 4).scene_->shadow_->cascades_ == 1,
+            "legacy shadow nodes keep a single projection");
     std::cout << "shadow draws=" << renderer.Stats().draws_
               << " textures=" << renderer.Stats().live_textures_ << '\n';
     Require(renderer.Stats().draws_ == 2 && renderer.Stats().live_textures_ == 4,

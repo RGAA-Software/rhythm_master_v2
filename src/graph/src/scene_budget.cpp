@@ -13,6 +13,7 @@ std::optional<Diagnostic> ValidateSceneBudget(
         std::uint64_t lights_ = 0;
         std::uint64_t draws_ = 0;
         std::uint64_t shadows_ = 0;
+        std::uint64_t shadow_passes_ = 0;
         std::uint64_t environments_ = 0;
         std::uint64_t path_points_ = 0;
         bool path_closed_ = false;
@@ -169,14 +170,19 @@ std::optional<Diagnostic> ValidateSceneBudget(
                     count.lights_ += b->lights_;
                     count.draws_ += b->draws_;
                     count.shadows_ += b->shadows_;
+                    count.shadow_passes_ += b->shadow_passes_;
                     count.environments_ += b->environments_;
                 }
                 if (instruction.operation_ == Operation::kSceneShadow) {
                     count.shadows_ = Scalar(instruction.node_, "shadow_enabled", 1) != 0 ? 1 : 0;
+                    const auto cascades = Scalar(instruction.node_, "shadow_cascades", 0);
                     const auto light = Scalar(instruction.node_, "shadow_light", 0);
-                    if (count.shadows_ && (!std::isfinite(light) || light < 0 ||
-                                           light >= count.lights_ || std::floor(light) != light))
+                    if (count.shadows_ &&
+                        (!std::isfinite(light) || light < 0 || light >= count.lights_ ||
+                         std::floor(light) != light || !std::isfinite(cascades) || cascades < 0 ||
+                         cascades > 1 || std::floor(cascades) != cascades))
                         return fail();
+                    count.shadow_passes_ = count.shadows_ ? std::uint64_t(cascades) + 1 : 0;
                 }
                 if (instruction.operation_ == Operation::kSceneEnvironment)
                     count.environments_ =
@@ -184,7 +190,7 @@ std::optional<Diagnostic> ValidateSceneBudget(
                 if (count.shadows_ > 1 || count.environments_ > 1) return fail();
                 if (instruction.operation_ == Operation::kSceneRender ||
                     instruction.operation_ == Operation::kSceneCapture) {
-                    draws += count.indices_ * (1 + count.shadows_) + 6 * count.environments_;
+                    draws += count.indices_ * (1 + count.shadow_passes_) + 6 * count.environments_;
                     count = {};
                 } else {
                     snapshots += count.instances_;

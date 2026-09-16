@@ -15,6 +15,8 @@ void VerifySceneShadows(render::Renderer& renderer) {
     auto mesh = renderer.CreateMesh(vertices, indices);
     auto shadow_color = renderer.CreateTexture({256, 256});
     auto shadow_depth = renderer.CreateDepthTexture({256, 256});
+    auto cascade_color = renderer.CreateTexture({256, 256});
+    auto cascade_depth = renderer.CreateDepthTexture({256, 256});
     auto output = renderer.CreateTexture({128, 128});
     SceneDrawList occluders;
     occluders.projection_[10] = -1;
@@ -26,6 +28,8 @@ void VerifySceneShadows(render::Renderer& renderer) {
     caster.model_[13] = 0.4f;
     caster.model_[14] = 0.5f;
     occluders.draws_ = {caster};
+    SceneDrawList cascade_occluders;
+    cascade_occluders.projection_[10] = -1;
     SceneDrawList receivers;
     MeshDraw receiver;
     receiver.mesh_ = mesh.Handle();
@@ -42,6 +46,9 @@ void VerifySceneShadows(render::Renderer& renderer) {
     const auto capture = [&] {
         renderer.BeginFrame();
         renderer.SubmitSceneDepth(shadow_color.Handle(), shadow_depth.Handle(), occluders);
+        if (receivers.shadow_ && receivers.shadow_->cascade_depth_.device_)
+            renderer.SubmitSceneDepth(cascade_color.Handle(), cascade_depth.Handle(),
+                                      cascade_occluders);
         renderer.SubmitScene(output.Handle(), receivers);
         auto ticket = renderer.RequestReadback(output.Handle());
         renderer.EndFrame();
@@ -90,6 +97,14 @@ void VerifySceneShadows(render::Renderer& renderer) {
     if (pcf5_fractional <= nearest_fractional) throw std::runtime_error("shadow.pcf5_softens_edge");
     if (pcf13_fractional <= pcf5_fractional) throw std::runtime_error("shadow.pcf13_softens_edge");
     receivers.shadow_->filter_ = ShadowFilter::kNearest;
+    receivers.shadow_->cascade_depth_ = cascade_depth.Handle();
+    receivers.shadow_->cascade_world_to_clip_ = receivers.shadow_->world_to_clip_;
+    receivers.shadow_->cascade_split_ = 2;
+    if (capture()[kOccluded] < 60) throw std::runtime_error("shadow.far_cascade_not_selected");
+    receivers.shadow_->cascade_split_ = 4;
+    if (capture()[kOccluded] > 5) throw std::runtime_error("shadow.near_cascade_not_selected");
+    receivers.shadow_->cascade_depth_ = {};
+    receivers.shadow_->cascade_split_ = 0;
     occluders.draws_[0].model_[14] = -0.5f;
     if (capture()[kOccluded] < 60) throw std::runtime_error("shadow.behind_receiver");
     occluders.draws_[0].model_[14] = 0.5f;

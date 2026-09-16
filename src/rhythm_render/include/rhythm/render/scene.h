@@ -108,6 +108,11 @@ struct SceneShadow {
     float depth_bias_ = 0.001f;
     float normal_bias_ = 0.01f;  // World units; applied to the geometric normal.
     ShadowFilter filter_ = ShadowFilter::kPcf5;
+    // A second directional split uses the same resolution/filter. Selection is
+    // by positive receiver-camera view depth; zero split disables the cascade.
+    TextureHandle cascade_depth_{};
+    Matrix4 cascade_world_to_clip_ = kIdentityMatrix;
+    float cascade_split_ = 0;
 };
 // Linear atlas prepared by EnvironmentFilter; rotation about world +Y in degrees.
 struct SceneEnvironment {

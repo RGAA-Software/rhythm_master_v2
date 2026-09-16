@@ -21,7 +21,7 @@
 | P0 | tone mapping/HDR | `texture.display` 已提供 Godot Reinhard、Filmic、ACES、AgX，曝光在映射前、sRGB 转换在映射后；中性与彩色 8× HDR 阶梯已通过实际 D3D11 回读，首批四件作品已接入 AgX | 完成 glow→tone-map 作品动态评审，再决定高级作品的默认映射 |
 | P0 | 透明 3D | 已按 Godot 语义采用不透明优先、稳定后到前排序、材质 priority、实例 sorting offset，并完成可选 alpha depth prepass；接近不透明的贴图覆盖写深度，透明孔洞保留后层 | 普通混合仍是顺序相关 source-over；复杂 OIT 单独验证后决定，不把 depth prepass 当作通用逐像素透明排序 |
 | P1 | 景深 | Circular gather 已采用 Godot 有符号近/远 CoC 与遮挡限制；仍是单 pass、全分辨率、固定圆形，缺少独立权重缓冲和最终合成 | 继续实现 Godot Box/Hex 形状、quality/half-size 与权重合成；用前景细线、远景高光、运动相机验证 |
-| P1 | 阴影 | 已采用 Godot Nearest/PCF5/PCF13 三档和方向光稳定投影；固定边缘、子网格、Porcelain Bloom 移动相机及 Chromatic Loom 细几何/四倍范围/16 秒边界均有 D3D11 回读；仍只有单张阴影图和单选择光源 | 核心吸附已交付；继续扩展代表作品和多周期评审，并验证级联和点光语义；保留 PCF5 作为兼容默认低档 |
+| P1 | 阴影 | 已采用 Godot Nearest/PCF5/PCF13、稳定方向光投影和可选双级联；固定边缘、子网格、Porcelain Bloom 移动相机及 Chromatic Loom 细几何/四倍范围/16 秒边界/级联均有 D3D11 回读；仍只有单选择光源 | 继续扩展代表作品和多周期评审，并实现点光全向阴影；四级联/分割混合按实际作品缺口再决定，保留 PCF5 和单图作为兼容默认档 |
 | P1 | 环境预滤波 | 当前 GGX/Hammersley 预滤来自 TiXL，图集和样本预算受限；粗糙材质可能出现噪声或层级跳变 | 对照 Godot reflection/environment filter 的分布、LOD 与能量守恒；固定输入环境做粗糙度阶梯比较 |
 | P1 | 粒子呈现 | 解析圆点的连续柔边已验证，仍缺纹理图集、材质变化、软深度交界和体积感；大量同形粒子容易显得单薄 | 参考 Godot 粒子 quad/material、soft particle 和发光材质路径；保留 GPU simulation 与项目节点契约 |
 | P1 | trail/feedback | 单历史纹理缩放旋转并线性混合；快速运动、长尾和循环边界可能出现重影断层 | 对照 Godot motion/temporal 处理及成熟反馈实现，增加速度/衰减一致性和回收边界动态测试 |
@@ -60,4 +60,6 @@ PCF5。实际 D3D11 回读确认 Nearest→PCF5 与 PCF5→PCF13 均改变边缘
 对照与纹理稳定性通过；短 host-frame 记录未观察到可分辨的 PCF13 新增成本，但不是隔离
 GPU 计时。Chromatic Loom 的 481 帧又确认 PCF5→PCF13 改变细线作品像素、投影范围
 9→36 后阴影仍可见，且第 479→480 帧变化低于普通帧中位数。单个 16 秒边界不替代多个
-完整作品周期；级联、点光全向阴影和隔离 GPU 计时仍未完成，因此 P1 阴影条目保持进行中。
+完整作品周期。可选双级联随后按 Godot 视锥包围球与每级吸附贯通，Chromatic Loom
+D3D11 对无阴影和单图均产生可测差异，资源精确增加一个 8 MiB 附件对；四级联/分割
+混合、点光全向阴影和隔离 GPU 计时仍未完成，因此 P1 阴影条目保持进行中。

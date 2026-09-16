@@ -136,6 +136,11 @@ void ResourceTable::ValidateSceneMaterials(TextureHandle target, const SceneDraw
         if (!IsDepth(shadow.depth_) || shadow.depth_ == depth_target ||
             Size(shadow.depth_) != Extent{shadow.resolution_, shadow.resolution_})
             throw std::invalid_argument("render.shadow_texture");
+        if (shadow.cascade_depth_ != TextureHandle{} &&
+            (!IsDepth(shadow.cascade_depth_) || shadow.cascade_depth_ == depth_target ||
+             shadow.cascade_depth_ == shadow.depth_ ||
+             Size(shadow.cascade_depth_) != Extent{shadow.resolution_, shadow.resolution_}))
+            throw std::invalid_argument("render.shadow_cascade_texture");
     }
     for (const auto& draw : list.draws_)
         for (const auto texture : draw.textures_.slots_)
@@ -145,7 +150,11 @@ void ResourceTable::ValidateSceneMaterials(TextureHandle target, const SceneDraw
 }
 void ResourceTable::RecordSceneSamples(const SceneDrawList& list) {
     if (list.environment_) slots_[list.environment_->atlas_.slot_].sampled_ = true;
-    if (list.shadow_) slots_[list.shadow_->depth_.slot_].sampled_ = true;
+    if (list.shadow_) {
+        slots_[list.shadow_->depth_.slot_].sampled_ = true;
+        if (IsValid(list.shadow_->cascade_depth_))
+            slots_[list.shadow_->cascade_depth_.slot_].sampled_ = true;
+    }
     for (const auto& draw : list.draws_)
         for (const auto texture : draw.textures_.slots_)
             if (IsValid(texture)) slots_[texture.slot_].sampled_ = true;

@@ -131,6 +131,7 @@ void MeshStore::Validate(const SceneDrawList& list) const {
     std::uint64_t indices = 0, bone_matrices = 0;
     if (list.shadow_) {
         const auto& shadow = *list.shadow_;
+        const bool cascade = shadow.cascade_depth_.device_ != 0;
         if (!ValidMatrix(shadow.world_to_clip_) ||
             shadow.light_ >= list.lights_.size() + list.positional_lights_.size() ||
             shadow.resolution_ < 256 || shadow.resolution_ > 2048 ||
@@ -138,7 +139,10 @@ void MeshStore::Validate(const SceneDrawList& list) const {
             !std::isfinite(shadow.depth_bias_) || shadow.depth_bias_ < 0 ||
             shadow.depth_bias_ > 0.05f || !std::isfinite(shadow.normal_bias_) ||
             shadow.normal_bias_ < 0 || shadow.normal_bias_ > 1 ||
-            shadow.filter_ > ShadowFilter::kPcf13)
+            shadow.filter_ > ShadowFilter::kPcf13 || cascade != (shadow.cascade_split_ > 0) ||
+            (cascade &&
+             (!ValidMatrix(shadow.cascade_world_to_clip_) ||
+              !std::isfinite(shadow.cascade_split_) || shadow.light_ >= list.lights_.size())))
             throw std::invalid_argument("render.shadow_settings");
         if (shadow.light_ >= list.lights_.size() &&
             !list.positional_lights_[shadow.light_ - list.lights_.size()].spot_)
