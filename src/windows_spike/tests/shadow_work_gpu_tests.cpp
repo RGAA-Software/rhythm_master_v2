@@ -29,13 +29,15 @@ void Require(bool condition, const char* message) {
 }
 
 rhythm::graph::ExecutionPlan Compile(rhythm::graph::Document document, bool shadows,
-                                     std::size_t& shadow_nodes) {
+                                     std::size_t& shadow_nodes, double filter = 2,
+                                     std::optional<double> extent = std::nullopt) {
     shadow_nodes = 0;
     for (auto& node : document.nodes_) {
         if (node.type_ != "scene.shadow") continue;
         ++shadow_nodes;
         node.properties_["shadow_enabled"] = shadows ? 1.0 : 0.0;
-        node.properties_["shadow_filter"] = 2.0;
+        node.properties_["shadow_filter"] = filter;
+        if (extent) node.properties_["shadow_extent"] = *extent;
     }
     const auto compiled = rhythm::graph::Compile(document, rhythm::graph::Registry{});
     if (std::holds_alternative<std::vector<rhythm::graph::Diagnostic>>(compiled))
@@ -106,8 +108,13 @@ void WritePpm(const std::filesystem::path& path, std::span<const std::uint8_t> r
 }
 
 struct MotionResult {
+    struct Checkpoint {
+        int frame_ = 0;
+        std::vector<std::uint8_t> image_{};
+    };
     std::vector<std::uint8_t> final_{};
     std::vector<double> differences_{};
+    std::vector<Checkpoint> checkpoints_{};
     std::optional<rhythm::scene::Camera> first_camera_{};
     std::optional<rhythm::scene::Camera> final_camera_{};
     std::uint64_t texture_bytes_ = 0;
@@ -115,26 +122,27 @@ struct MotionResult {
 
 MotionResult CaptureMotion(const rhythm::graph::ExecutionPlan& plan,
                            const rhythm::prepared_assets::Resources& resources,
-                           rhythm::render::Renderer& renderer) {
+                           rhythm::render::Renderer& renderer, int final_frame = 120) {
     rhythm::runtime::Runtime runtime;
     MotionResult summary;
     std::vector<std::uint8_t> previous;
-    for (int frame = 0; frame <= 120; ++frame) {
+    for (int frame = 0; frame <= final_frame; ++frame) {
         renderer.BeginFrame();
         const auto result = runtime.Evaluate(plan, Context(frame / 30.0, resources), renderer);
         Require(!result.budget_ && renderer.IsValid(result.final_),
                 "shadow_work.current_output_invalid");
         auto ticket = renderer.RequestReadback(result.final_);
-        if (frame == 0 || frame == 120) {
+        if (frame == 0 || frame == final_frame) {
             for (const auto& output : result.outputs_) {
                 if (!output.camera_) continue;
                 if (frame == 0) summary.first_camera_ = output.camera_;
-                if (frame == 120) summary.final_camera_ = output.camera_;
+                if (frame == final_frame) summary.final_camera_ = output.camera_;
             }
         }
         renderer.EndFrame();
         auto image = Readback(renderer, std::move(ticket));
         if (!previous.empty()) summary.differences_.push_back(MeanRgbDifference(previous, image));
+        if (frame % 60 == 0 || frame == final_frame) summary.checkpoints_.push_back({frame, image});
         previous = std::move(image);
         if (frame == 30) summary.texture_bytes_ = renderer.Stats().texture_bytes_;
         if (frame > 30 && renderer.Stats().texture_bytes_ != summary.texture_bytes_)
@@ -142,6 +150,22 @@ MotionResult CaptureMotion(const rhythm::graph::ExecutionPlan& plan,
     }
     summary.final_ = std::move(previous);
     return summary;
+}
+
+const std::vector<std::uint8_t>& Checkpoint(const MotionResult& result, int frame) {
+    const auto found = std::find_if(result.checkpoints_.begin(), result.checkpoints_.end(),
+                                    [frame](const auto& value) { return value.frame_ == frame; });
+    if (found == result.checkpoints_.end()) throw std::runtime_error("shadow_work.checkpoint");
+    return found->image_;
+}
+
+double MaximumCheckpointDifference(const MotionResult& first, const MotionResult& second,
+                                   int final_frame) {
+    double difference = 0;
+    for (int frame = 0; frame <= final_frame; frame += 60)
+        difference = std::max(
+                difference, MeanRgbDifference(Checkpoint(first, frame), Checkpoint(second, frame)));
+    return difference;
 }
 
 struct TimingResult {
@@ -180,8 +204,8 @@ double CameraDistance(const rhythm::scene::Camera& first, const rhythm::scene::C
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        if (argc != 3) throw std::invalid_argument("template output");
-        const std::filesystem::path source(argv[1]), output(argv[2]);
+        if (argc != 4) throw std::invalid_argument("moving_template fine_template output");
+        const std::filesystem::path source(argv[1]), fine_source(argv[2]), output(argv[3]);
         std::filesystem::create_directories(output);
         const auto loaded = project::LoadRevision(source);
         std::size_t shadow_nodes = 0;
@@ -244,6 +268,99 @@ int main(int argc, char* argv[]) {
                   << motion_p95 << '/' << motion_max << " pcf13_ms=" << high_timing.p50_ << '/'
                   << high_timing.p95_ << " no_shadow_ms=" << no_shadow_timing.p50_ << '/'
                   << no_shadow_timing.p95_ << "\n";
+
+        const auto fine_loaded = project::LoadRevision(fine_source);
+        std::size_t fine_shadow_nodes = 0;
+        const auto fine_high_plan =
+                Compile(fine_loaded.snapshot_.document_, true, fine_shadow_nodes, 2);
+        std::size_t fine_low_shadow_nodes = 0;
+        const auto fine_low_plan =
+                Compile(fine_loaded.snapshot_.document_, true, fine_low_shadow_nodes, 1);
+        std::size_t fine_disabled_shadow_nodes = 0;
+        const auto fine_unshadowed_plan =
+                Compile(fine_loaded.snapshot_.document_, false, fine_disabled_shadow_nodes, 2);
+        std::size_t large_shadow_nodes = 0;
+        const auto large_plan =
+                Compile(fine_loaded.snapshot_.document_, true, large_shadow_nodes, 2, 36.0);
+        Require(fine_shadow_nodes == 1 && fine_low_shadow_nodes == 1 &&
+                        fine_disabled_shadow_nodes == 1 && large_shadow_nodes == 1,
+                "shadow_work.fine_expected_one_shadow_node");
+        const auto fine_assets = VisualAssets(fine_source, fine_loaded.snapshot_.assets_);
+        const auto fine_resources = prepared_assets::Prepare(fine_high_plan, fine_assets);
+        const auto fine_high = CaptureMotion(fine_high_plan, *fine_resources, renderer, 480);
+        const auto fine_low = CaptureMotion(fine_low_plan, *fine_resources, renderer);
+        const auto fine_no_shadow = CaptureMotion(fine_unshadowed_plan, *fine_resources, renderer);
+        const auto large = CaptureMotion(large_plan, *fine_resources, renderer);
+        const auto fine_shadow_difference =
+                MaximumCheckpointDifference(fine_high, fine_no_shadow, 120);
+        const auto filter_difference = MaximumCheckpointDifference(fine_high, fine_low, 120);
+        const auto large_shadow_difference =
+                MaximumCheckpointDifference(large, fine_no_shadow, 120);
+        Require(fine_shadow_difference > 0.1, "shadow_work.fine_shadow_not_visible");
+        Require(filter_difference > 0.01, "shadow_work.fine_filter_not_visible");
+        Require(large_shadow_difference > 0.01, "shadow_work.large_shadow_not_visible");
+        auto fine_differences = fine_high.differences_;
+        std::sort(fine_differences.begin(), fine_differences.end());
+        const auto fine_motion_p50 = fine_differences[fine_differences.size() / 2];
+        const auto fine_motion_p95 = fine_differences[fine_differences.size() * 95 / 100];
+        const auto fine_motion_max = fine_differences.back();
+        const auto cycle_boundary = fine_high.differences_.back();
+        Require(fine_motion_p50 > 0.1, "shadow_work.fine_motion_missing");
+        Require(fine_motion_max < std::max(3.0, fine_motion_p95 * 2.0),
+                "shadow_work.fine_motion_pop");
+        Require(cycle_boundary < std::max(3.0, fine_motion_p95 * 2.0),
+                "shadow_work.fine_cycle_boundary_pop");
+        const auto fine_output = output / "chromatic-loom";
+        std::filesystem::create_directories(fine_output);
+        WritePpm(fine_output / "pcf13-frame120.ppm", Checkpoint(fine_high, 120));
+        WritePpm(fine_output / "pcf5-frame120.ppm", Checkpoint(fine_low, 120));
+        WritePpm(fine_output / "large-pcf13-frame120.ppm", Checkpoint(large, 120));
+        WritePpm(fine_output / "no-shadow-frame120.ppm", Checkpoint(fine_no_shadow, 120));
+        const auto fine_timing = Measure(fine_high_plan, *fine_resources, renderer);
+        const auto fine_low_timing = Measure(fine_low_plan, *fine_resources, renderer);
+        const auto large_timing = Measure(large_plan, *fine_resources, renderer);
+        const auto fine_no_shadow_timing = Measure(fine_unshadowed_plan, *fine_resources, renderer);
+        std::ifstream fine_graph(fine_source / "graph.pb", std::ios::binary);
+        fine_graph.exceptions(std::ios::badbit | std::ios::failbit);
+        const std::string fine_graph_bytes{std::istreambuf_iterator<char>(fine_graph), {}};
+        std::ofstream fine_evidence(fine_output / "results.json");
+        fine_evidence.exceptions(std::ios::badbit | std::ios::failbit);
+        fine_evidence << "{\n"
+                      << "    \"compiled_graph_sha256\": \"" << project::Digest(fine_graph_bytes)
+                      << "\",\n"
+                      << "    \"frames\": 481,\n"
+                      << "    \"extent\": [640, 360],\n"
+                      << "    \"authored_shadow_extent\": 9,\n"
+                      << "    \"large_shadow_extent\": 36,\n"
+                      << "    \"shadow_mean_rgb_difference_max\": " << fine_shadow_difference
+                      << ",\n"
+                      << "    \"pcf5_to_pcf13_mean_rgb_difference_max\": " << filter_difference
+                      << ",\n"
+                      << "    \"large_shadow_mean_rgb_difference_max\": " << large_shadow_difference
+                      << ",\n"
+                      << "    \"motion_difference_p50\": " << fine_motion_p50 << ",\n"
+                      << "    \"motion_difference_p95\": " << fine_motion_p95 << ",\n"
+                      << "    \"motion_difference_max\": " << fine_motion_max << ",\n"
+                      << "    \"frame_479_to_480_difference\": " << cycle_boundary << ",\n"
+                      << "    \"pcf13_frame_p50_ms\": " << fine_timing.p50_ << ",\n"
+                      << "    \"pcf13_frame_p95_ms\": " << fine_timing.p95_ << ",\n"
+                      << "    \"pcf5_frame_p50_ms\": " << fine_low_timing.p50_ << ",\n"
+                      << "    \"pcf5_frame_p95_ms\": " << fine_low_timing.p95_ << ",\n"
+                      << "    \"large_pcf13_frame_p50_ms\": " << large_timing.p50_ << ",\n"
+                      << "    \"large_pcf13_frame_p95_ms\": " << large_timing.p95_ << ",\n"
+                      << "    \"no_shadow_frame_p50_ms\": " << fine_no_shadow_timing.p50_ << ",\n"
+                      << "    \"no_shadow_frame_p95_ms\": " << fine_no_shadow_timing.p95_ << ",\n"
+                      << "    \"stable_texture_bytes\": " << fine_high.texture_bytes_ << "\n"
+                      << "}\n";
+        std::cout << "Fine shadow work: shadow=" << fine_shadow_difference
+                  << " filters=" << filter_difference << " large=" << large_shadow_difference
+                  << " motion=" << fine_motion_p50 << '/' << fine_motion_p95 << '/'
+                  << fine_motion_max << " boundary=" << cycle_boundary
+                  << " pcf13_ms=" << fine_timing.p50_ << '/' << fine_timing.p95_
+                  << " pcf5_ms=" << fine_low_timing.p50_ << '/' << fine_low_timing.p95_
+                  << " large_ms=" << large_timing.p50_ << '/' << large_timing.p95_
+                  << " no_shadow_ms=" << fine_no_shadow_timing.p50_ << '/'
+                  << fine_no_shadow_timing.p95_ << "\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

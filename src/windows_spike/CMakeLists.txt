@@ -183,8 +183,9 @@ if(BUILD_TESTING)
     add_dependencies(shadow_work_gpu_tests phase_a_content)
     add_test(NAME shadow_work_gpu COMMAND shadow_work_gpu_tests
         "${PROJECT_BINARY_DIR}/content/templates/porcelain_bloom"
+        "${PROJECT_BINARY_DIR}/content/templates/chromatic_loom"
         "${PROJECT_BINARY_DIR}/shadow-work-gpu")
-    set_tests_properties(shadow_work_gpu PROPERTIES TIMEOUT 90 RUN_SERIAL TRUE
+    set_tests_properties(shadow_work_gpu PROPERTIES TIMEOUT 150 RUN_SERIAL TRUE
         ENVIRONMENT_MODIFICATION
             "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_IO_SDK}/debug/bin")
 endif()
