@@ -21,8 +21,8 @@ cube 路径使用 `samplerCubeShadow`，硬件按三维方向选择相邻 face�
 
 ## 固定像素验证
 
-Windows D3D11 探针使用真实 90 度 `+X` 与 `+Z` 面矩阵，在两面精确边界放置接收片；
-`+X` 深度面全遮挡、`+Z` 面保持全亮。回读红通道为：
+Windows D3D11 探针使用六个真实 90 度面矩阵，在全部 12 条 cube edge 和 8 个 corner
+放置接收片；中心选择面全遮挡、相邻面保持全亮。代表性的 `+X/+Z` 回读红通道为：
 
 - Nearest：`0`，中心仍选择被遮挡的 `+X` 面；
 - PCF5：`17`，部分 tap 已进入全亮 `+Z` 面；
@@ -30,8 +30,8 @@ Windows D3D11 探针使用真实 90 度 `+X` 与 `+Z` 面矩阵，在两面精�
 - 两面全亮对照：`84`。
 
 同时通过六个 face 独立选择、既有方向/聚光阴影、三档过滤、材质、环境、实例、skin、
-morph 和形变检查。串行日志为
-`out/point-shadow-seam-final-verified-gpu.log.runs/1789570361609326100.log`。
+morph 和形变检查。全部 edge/corner 的串行日志为
+`out/point-shadow-all-seams-diagnostic-2.log.runs/1789571424974501000.log`。
 
 同一 shader 使用已跟踪 `tools/shaderc.exe` 编译 Windows SM5 和 Android GLES 300 的
 六种 vertex、四种重复 fragment 与非法表达式拒绝；输出目录为
@@ -50,6 +50,6 @@ Sonic Enamel 当前编译图再次以点光 PCF13 和关闭阴影各运行 121 �
 
 ## 未覆盖范围
 
-本批建立了代表性 cube edge 的永久像素回归和实际作品回归。仍未完成 Android 实机
-像素、与 Godot 硬件 cube sampler 的固定场景对照、所有 face edge/corner 的穷举、隔离
-GPU pass 成本或多个完整作品周期；W1.1 保持进行中。
+本批建立了全部 cube edge/corner 的永久像素回归和实际作品回归。仍未完成 Android
+实机像素、与 Godot 硬件 cube sampler 的固定场景对照、隔离 GPU pass 成本或多个完整
+作品周期；W1.1 保持进行中。

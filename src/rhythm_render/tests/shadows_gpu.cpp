@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 #include "gpu_execution_probe.h"
 #include "rhythm/render/renderer.h"
@@ -256,29 +257,72 @@ void VerifySceneShadows(render::Renderer& renderer) {
     for (std::size_t face = 0; face < point_depths.size(); ++face)
         receivers.shadow_->point_world_to_clip_[face] = PointShadowMatrix(face);
     receivers.positional_lights_[0].radiance_ = {1, 0, 0};
-    auto seam_receiver = receiver;
-    seam_receiver.model_[0] = 0.12f;
-    seam_receiver.model_[5] = 0.12f;
-    seam_receiver.model_[12] = 0.7f;
-    seam_receiver.model_[14] = 0.708f;
-    seam_receiver.double_sided_ = false;
-    seam_receiver.normal_[8] = -0.7f;
-    seam_receiver.normal_[10] = -0.708f;
-    receivers.draws_ = {seam_receiver};
-    constexpr auto kPointSeam = (64 * 128 + 109) * 4;
-    receivers.shadow_->filter_ = ShadowFilter::kNearest;
-    const auto seam_nearest = capture_point(0)[kPointSeam];
-    receivers.shadow_->filter_ = ShadowFilter::kPcf5;
-    const auto seam_pcf5 = capture_point(0)[kPointSeam];
-    receivers.shadow_->filter_ = ShadowFilter::kPcf13;
-    const auto seam_pcf13 = capture_point(0)[kPointSeam];
-    const auto seam_open = capture_point(1)[kPointSeam];
-    std::cout << "Point shadow seam: nearest=" << unsigned(seam_nearest)
-              << " pcf5=" << unsigned(seam_pcf5) << " pcf13=" << unsigned(seam_pcf13)
-              << " open=" << unsigned(seam_open) << '\n';
-    if (seam_nearest > 5 || seam_pcf5 <= 5 || seam_pcf13 <= 5 || seam_pcf5 >= seam_open - 5 ||
-        seam_pcf13 >= seam_open - 5 || seam_open < 50)
-        throw std::runtime_error("shadow.point_cube_cross_face_filter");
+    struct SeamCase {
+        std::array<float, 3> position_{};
+        std::size_t row_ = 0;
+        std::size_t column_ = 0;
+        std::size_t blocked_face_ = 0;
+    };
+    constexpr float kPrimary = 0.7109375f;
+    constexpr float kAdjacent = 0.708f;
+    constexpr std::size_t kPositive = 109;
+    constexpr std::size_t kNegative = 18;
+    constexpr std::size_t kCenter = 64;
+    // First twelve cases cover every cube edge; the final eight cover every corner.
+    constexpr std::array<SeamCase, 20> kSeams{{
+            {{kPrimary, 0, kAdjacent}, kCenter, kPositive, 0},
+            {{kPrimary, 0, -kAdjacent}, kCenter, kPositive, 0},
+            {{-kPrimary, 0, kAdjacent}, kCenter, kNegative, 1},
+            {{-kPrimary, 0, -kAdjacent}, kCenter, kNegative, 1},
+            {{kPrimary, kPrimary, 0.2f}, kNegative, kPositive, 0},
+            {{kPrimary, -kPrimary, 0.2f}, kPositive, kPositive, 0},
+            {{-kPrimary, kPrimary, 0.2f}, kNegative, kNegative, 1},
+            {{-kPrimary, -kPrimary, 0.2f}, kPositive, kNegative, 1},
+            {{0, kPrimary, kAdjacent}, kNegative, kCenter, 3},
+            {{0, kPrimary, -kAdjacent}, kNegative, kCenter, 3},
+            {{0, -kPrimary, kAdjacent}, kPositive, kCenter, 2},
+            {{0, -kPrimary, -kAdjacent}, kPositive, kCenter, 2},
+            {{kPrimary, kPrimary, kAdjacent}, kNegative, kPositive, 0},
+            {{kPrimary, kPrimary, -kAdjacent}, kNegative, kPositive, 0},
+            {{kPrimary, -kPrimary, kAdjacent}, kPositive, kPositive, 0},
+            {{kPrimary, -kPrimary, -kAdjacent}, kPositive, kPositive, 0},
+            {{-kPrimary, kPrimary, kAdjacent}, kNegative, kNegative, 1},
+            {{-kPrimary, kPrimary, -kAdjacent}, kNegative, kNegative, 1},
+            {{-kPrimary, -kPrimary, kAdjacent}, kPositive, kNegative, 1},
+            {{-kPrimary, -kPrimary, -kAdjacent}, kPositive, kNegative, 1},
+    }};
+    std::array<std::uint8_t, 4> representative{};
+    for (std::size_t seam_index = 0; seam_index < kSeams.size(); ++seam_index) {
+        const auto& seam = kSeams[seam_index];
+        auto seam_receiver = receiver;
+        seam_receiver.model_[0] = 0.12f;
+        seam_receiver.model_[5] = 0.12f;
+        seam_receiver.model_[12] = seam.position_[0];
+        seam_receiver.model_[13] = seam.position_[1];
+        seam_receiver.model_[14] = seam.position_[2];
+        seam_receiver.double_sided_ = false;
+        seam_receiver.normal_[8] = -seam.position_[0];
+        seam_receiver.normal_[9] = -seam.position_[1];
+        seam_receiver.normal_[10] = -seam.position_[2];
+        receivers.draws_ = {seam_receiver};
+        const auto sample = (seam.row_ * 128 + seam.column_) * 4;
+        receivers.shadow_->filter_ = ShadowFilter::kNearest;
+        const auto seam_nearest = capture_point(seam.blocked_face_)[sample];
+        receivers.shadow_->filter_ = ShadowFilter::kPcf5;
+        const auto filtered_5 = capture_point(seam.blocked_face_)[sample];
+        receivers.shadow_->filter_ = ShadowFilter::kPcf13;
+        const auto filtered_13 = capture_point(seam.blocked_face_)[sample];
+        const auto open = capture_point(seam.blocked_face_ ^ 1)[sample];
+        if (seam_index == 0) representative = {seam_nearest, filtered_5, filtered_13, open};
+        if (seam_nearest > 5 || filtered_5 <= 5 || filtered_13 <= 5 || filtered_5 >= open - 5 ||
+            filtered_13 >= open - 5 || open < 50)
+            throw std::runtime_error("shadow.point_cube_cross_face_filter_" +
+                                     std::to_string(seam_index));
+    }
+    std::cout << "Point shadow seams: 12 edges and 8 corners passed; representative nearest="
+              << unsigned(representative[0]) << " pcf5=" << unsigned(representative[1])
+              << " pcf13=" << unsigned(representative[2]) << " open=" << unsigned(representative[3])
+              << '\n';
     receivers.shadow_.reset();
     receivers.draws_ = {receiver};
     receivers.positional_lights_ = {spot};
@@ -289,7 +333,7 @@ void VerifySceneShadows(render::Renderer& renderer) {
                "filtering passed ("
             << nearest_to_pcf5 << ", " << pcf5_to_pcf13 << "; fractional " << nearest_fractional
             << ", " << pcf5_fractional << ", " << pcf13_fractional << "; seam "
-            << unsigned(seam_nearest) << ", " << unsigned(seam_pcf5) << ", " << unsigned(seam_pcf13)
-            << ", " << unsigned(seam_open) << ")\n";
+            << unsigned(representative[0]) << ", " << unsigned(representative[1]) << ", "
+            << unsigned(representative[2]) << ", " << unsigned(representative[3]) << ")\n";
 }
 }  // namespace rhythm::validation

@@ -82,8 +82,9 @@ Chromatic Loom 又完成 481 帧细几何检查：PCF5→PCF13 有实际像素�
 5.984/11.349 ms；这里只记录整帧短测，不宣称隔离 GPU pass 成本。
 
 六张 2D 图现已对越界 PCF tap 还原源面射线、按主轴切换相邻面并重投影比较深度，
-不再 clamp 在错误面边缘。D3D11 的 `+X/+Z` 固定边界回读为 Nearest/PCF5/PCF13/
-全亮 `0/17/26/84`，确认软核实际跨面。Sonic Enamel 再次完成 121 帧，阴影差异仍为
+不再 clamp 在错误面边缘。D3D11 已覆盖全部 12 条 edge 和 8 个 corner；代表性的
+`+X/+Z` 固定边界回读为 Nearest/PCF5/PCF13/全亮 `0/17/26/84`，确认软核实际跨面。
+Sonic Enamel 再次完成 121 帧，阴影差异仍为
 `0.308209`，资源差仍为 48 MiB；点光短 host-frame p50/p95 为 `10.081/14.580 ms`。
 
 项目仍使用显式 Nearest/PCF5/PCF13 和透视深度，不等同 Godot 硬件
