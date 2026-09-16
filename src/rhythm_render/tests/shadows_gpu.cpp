@@ -1,4 +1,5 @@
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <iostream>
 #include <stdexcept>
@@ -131,11 +132,91 @@ void VerifySceneShadows(render::Renderer& renderer) {
     const auto perspective = capture();
     if (perspective[kOccluded] > 5 || perspective[kLit] < 50)
         throw std::runtime_error("shadow.perspective_spot");
+
+    std::array<Texture, 6> point_colors;
+    std::array<Texture, 6> point_depths;
+    for (std::size_t face = 0; face < point_depths.size(); ++face) {
+        point_colors[face] = renderer.CreateTexture({256, 256});
+        point_depths[face] = renderer.CreateDepthTexture({256, 256});
+    }
+    constexpr std::array<std::array<float, 3>, 6> kPointPositions{{{0.7f, -0.55f, 0},
+                                                                   {-0.7f, -0.55f, 0},
+                                                                   {-0.2f, -0.7f, 0},
+                                                                   {0.2f, 0.7f, 0},
+                                                                   {-0.25f, 0, 0.8f},
+                                                                   {0.25f, 0, -0.8f}}};
+    constexpr std::array<std::size_t, 6> kPointSamples{(99 * 128 + 109) * 4, (99 * 128 + 19) * 4,
+                                                       (109 * 128 + 51) * 4, (19 * 128 + 77) * 4,
+                                                       (64 * 128 + 48) * 4,  (64 * 128 + 80) * 4};
+    receivers.draws_.clear();
+    for (const auto& position : kPointPositions) {
+        auto point_receiver = receiver;
+        point_receiver.model_[0] = 0.12f;
+        point_receiver.model_[5] = 0.12f;
+        point_receiver.model_[12] = position[0];
+        point_receiver.model_[13] = position[1];
+        point_receiver.model_[14] = position[2];
+        point_receiver.double_sided_ = false;
+        point_receiver.normal_[8] = -position[0];
+        point_receiver.normal_[9] = -position[1];
+        point_receiver.normal_[10] = -position[2];
+        receivers.draws_.push_back(point_receiver);
+    }
+    PositionalLight point;
+    point.radiance_ = {20, 0, 0};
+    point.position_ = {0, 0, 0};
+    point.range_ = 10;
+    point.decay_ = 0;
+    receivers.positional_lights_ = {point};
+    receivers.shadow_ = SceneShadow{};
+    receivers.shadow_->resolution_ = 256;
+    receivers.shadow_->filter_ = ShadowFilter::kNearest;
+    for (std::size_t face = 0; face < point_depths.size(); ++face) {
+        receivers.shadow_->point_depths_[face] = point_depths[face].Handle();
+        auto& matrix = receivers.shadow_->point_world_to_clip_[face];
+        matrix = {};
+        matrix[15] = 1;
+        if (face < 2) matrix[2] = face == 0 ? 1.0f : -1.0f;
+        if (face >= 2 && face < 4) matrix[6] = face == 2 ? -1.0f : 1.0f;
+        if (face >= 4) matrix[10] = face == 4 ? 1.0f : -1.0f;
+    }
+    SceneDrawList blocked_face;
+    auto blocker = caster;
+    blocker.model_ = kIdentityMatrix;
+    blocker.model_[0] = 2;
+    blocker.model_[5] = 2;
+    blocked_face.draws_ = {blocker};
+    SceneDrawList open_face;
+    const auto capture_point = [&](std::size_t blocked) {
+        renderer.BeginFrame();
+        for (std::size_t face = 0; face < point_depths.size(); ++face)
+            renderer.SubmitSceneDepth(point_colors[face].Handle(), point_depths[face].Handle(),
+                                      face == blocked ? blocked_face : open_face);
+        renderer.SubmitScene(output.Handle(), receivers);
+        auto ticket = renderer.RequestReadback(output.Handle());
+        renderer.EndFrame();
+        for (int i = 0; i < 32; ++i) {
+            if (auto image = ticket.Poll()) return image->rgba_;
+            renderer.BeginFrame();
+            renderer.EndFrame();
+        }
+        throw std::runtime_error("point_shadow.readback_timeout");
+    };
+    for (std::size_t blocked = 0; blocked < point_depths.size(); ++blocked) {
+        const auto point_pixels = capture_point(blocked);
+        for (std::size_t face = 0; face < point_depths.size(); ++face) {
+            const auto red = point_pixels[kPointSamples[face]];
+            if ((face == blocked && red > 5) || (face != blocked && red < 50))
+                throw std::runtime_error("shadow.point_cube_face_selection");
+        }
+    }
     receivers.shadow_.reset();
+    receivers.draws_ = {receiver};
+    receivers.positional_lights_ = {spot};
     if (capture()[kOccluded] < 60) throw std::runtime_error("shadow.disable_releases_binding");
     std::cout
             << "Shadows: sampled depth occlusion, Y orientation, selected light, bounds, bias and "
-               "Nearest/PCF5/PCF13 edge differences passed ("
+               "Nearest/PCF5/PCF13 edge differences plus six point cube faces passed ("
             << nearest_to_pcf5 << ", " << pcf5_to_pcf13 << "; fractional " << nearest_fractional
             << ", " << pcf5_fractional << ", " << pcf13_fractional << ")\n";
 }

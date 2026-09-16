@@ -133,14 +133,26 @@ void ResourceTable::ValidateSceneMaterials(TextureHandle target, const SceneDraw
     }
     if (list.shadow_) {
         const auto& shadow = *list.shadow_;
-        if (!IsDepth(shadow.depth_) || shadow.depth_ == depth_target ||
-            Size(shadow.depth_) != Extent{shadow.resolution_, shadow.resolution_})
+        const bool point = shadow.point_depths_[0] != TextureHandle{};
+        if (!point && (!IsDepth(shadow.depth_) || shadow.depth_ == depth_target ||
+                       Size(shadow.depth_) != Extent{shadow.resolution_, shadow.resolution_}))
             throw std::invalid_argument("render.shadow_texture");
         if (shadow.cascade_depth_ != TextureHandle{} &&
             (!IsDepth(shadow.cascade_depth_) || shadow.cascade_depth_ == depth_target ||
              shadow.cascade_depth_ == shadow.depth_ ||
              Size(shadow.cascade_depth_) != Extent{shadow.resolution_, shadow.resolution_}))
             throw std::invalid_argument("render.shadow_cascade_texture");
+        if (point) {
+            std::array<TextureHandle, 6> seen{};
+            for (std::size_t face = 0; face < shadow.point_depths_.size(); ++face) {
+                const auto handle = shadow.point_depths_[face];
+                if (!IsDepth(handle) || handle == depth_target ||
+                    Size(handle) != Extent{shadow.resolution_, shadow.resolution_} ||
+                    std::find(seen.begin(), seen.begin() + face, handle) != seen.begin() + face)
+                    throw std::invalid_argument("render.point_shadow_texture");
+                seen[face] = handle;
+            }
+        }
     }
     for (const auto& draw : list.draws_)
         for (const auto texture : draw.textures_.slots_)
@@ -151,7 +163,11 @@ void ResourceTable::ValidateSceneMaterials(TextureHandle target, const SceneDraw
 void ResourceTable::RecordSceneSamples(const SceneDrawList& list) {
     if (list.environment_) slots_[list.environment_->atlas_.slot_].sampled_ = true;
     if (list.shadow_) {
-        slots_[list.shadow_->depth_.slot_].sampled_ = true;
+        if (IsValid(list.shadow_->point_depths_[0])) {
+            for (const auto face : list.shadow_->point_depths_) slots_[face.slot_].sampled_ = true;
+        } else {
+            slots_[list.shadow_->depth_.slot_].sampled_ = true;
+        }
         if (IsValid(list.shadow_->cascade_depth_))
             slots_[list.shadow_->cascade_depth_.slot_].sampled_ = true;
     }

@@ -31,7 +31,8 @@ void Require(bool condition, const char* message) {
 rhythm::graph::ExecutionPlan Compile(rhythm::graph::Document document, bool shadows,
                                      std::size_t& shadow_nodes, double filter = 2,
                                      std::optional<double> extent = std::nullopt,
-                                     std::uint8_t cascades = 1) {
+                                     std::uint8_t cascades = 1,
+                                     std::optional<double> light = std::nullopt) {
     shadow_nodes = 0;
     for (auto& node : document.nodes_) {
         if (node.type_ != "scene.shadow") continue;
@@ -40,10 +41,13 @@ rhythm::graph::ExecutionPlan Compile(rhythm::graph::Document document, bool shad
         node.properties_["shadow_filter"] = filter;
         node.properties_["shadow_cascades"] = double(cascades - 1);
         if (extent) node.properties_["shadow_extent"] = *extent;
+        if (light) node.properties_["shadow_light"] = *light;
     }
     const auto compiled = rhythm::graph::Compile(document, rhythm::graph::Registry{});
-    if (std::holds_alternative<std::vector<rhythm::graph::Diagnostic>>(compiled))
-        throw std::runtime_error("shadow_work.compile");
+    if (std::holds_alternative<std::vector<rhythm::graph::Diagnostic>>(compiled)) {
+        const auto& diagnostics = std::get<std::vector<rhythm::graph::Diagnostic>>(compiled);
+        throw std::runtime_error("shadow_work.compile." + diagnostics.at(0).code_);
+    }
     return std::get<rhythm::graph::ExecutionPlan>(compiled);
 }
 
@@ -206,8 +210,10 @@ double CameraDistance(const rhythm::scene::Camera& first, const rhythm::scene::C
 int main(int argc, char* argv[]) {
     using namespace rhythm;
     try {
-        if (argc != 4) throw std::invalid_argument("moving_template fine_template output");
-        const std::filesystem::path source(argv[1]), fine_source(argv[2]), output(argv[3]);
+        if (argc != 5)
+            throw std::invalid_argument("moving_template fine_template point_template output");
+        const std::filesystem::path source(argv[1]), fine_source(argv[2]), point_source(argv[3]),
+                output(argv[4]);
         std::filesystem::create_directories(output);
         const auto loaded = project::LoadRevision(source);
         std::size_t shadow_nodes = 0;
@@ -386,6 +392,52 @@ int main(int argc, char* argv[]) {
                   << " cascade_ms=" << cascade_timing.p50_ << '/' << cascade_timing.p95_
                   << " no_shadow_ms=" << fine_no_shadow_timing.p50_ << '/'
                   << fine_no_shadow_timing.p95_ << "\n";
+
+        const auto point_loaded = project::LoadRevision(point_source);
+        std::size_t point_shadow_nodes = 0;
+        const auto point_plan = Compile(point_loaded.snapshot_.document_, true, point_shadow_nodes,
+                                        2, std::nullopt, 1, 1);
+        std::size_t point_disabled_nodes = 0;
+        const auto point_disabled_plan =
+                Compile(point_loaded.snapshot_.document_, false, point_disabled_nodes, 2);
+        Require(point_shadow_nodes == 1 && point_disabled_nodes == 1,
+                "shadow_work.point_expected_one_shadow_node");
+        const auto point_assets = VisualAssets(point_source, point_loaded.snapshot_.assets_);
+        const auto point_resources = prepared_assets::Prepare(point_plan, point_assets);
+        const auto point = CaptureMotion(point_plan, *point_resources, renderer);
+        const auto point_disabled = CaptureMotion(point_disabled_plan, *point_resources, renderer);
+        const auto point_shadow_difference =
+                MaximumCheckpointDifference(point, point_disabled, 120);
+        Require(point_shadow_difference > 0.1, "shadow_work.point_shadow_not_visible");
+        Require(point.texture_bytes_ == point_disabled.texture_bytes_ + 6ULL * 1024 * 1024 * 8,
+                "shadow_work.point_shadow_texture_accounting");
+        const auto point_output = output / "sonic-enamel";
+        std::filesystem::create_directories(point_output);
+        WritePpm(point_output / "point-pcf13-frame120.ppm", Checkpoint(point, 120));
+        WritePpm(point_output / "no-shadow-frame120.ppm", Checkpoint(point_disabled, 120));
+        const auto point_timing = Measure(point_plan, *point_resources, renderer);
+        const auto point_disabled_timing = Measure(point_disabled_plan, *point_resources, renderer);
+        std::ofstream point_evidence(point_output / "results.json");
+        point_evidence.exceptions(std::ios::badbit | std::ios::failbit);
+        point_evidence << "{\n"
+                       << "    \"frames\": 121,\n"
+                       << "    \"extent\": [640, 360],\n"
+                       << "    \"shadow_light\": 1,\n"
+                       << "    \"point_shadow_mean_rgb_difference_max\": "
+                       << point_shadow_difference << ",\n"
+                       << "    \"point_pcf13_frame_p50_ms\": " << point_timing.p50_ << ",\n"
+                       << "    \"point_pcf13_frame_p95_ms\": " << point_timing.p95_ << ",\n"
+                       << "    \"no_shadow_frame_p50_ms\": " << point_disabled_timing.p50_ << ",\n"
+                       << "    \"no_shadow_frame_p95_ms\": " << point_disabled_timing.p95_ << ",\n"
+                       << "    \"point_stable_texture_bytes\": " << point.texture_bytes_ << ",\n"
+                       << "    \"no_shadow_stable_texture_bytes\": "
+                       << point_disabled.texture_bytes_ << "\n"
+                       << "}\n";
+        std::cout << "Point shadow work: difference=" << point_shadow_difference
+                  << " point_ms=" << point_timing.p50_ << '/' << point_timing.p95_
+                  << " no_shadow_ms=" << point_disabled_timing.p50_ << '/'
+                  << point_disabled_timing.p95_ << " texture_bytes=" << point.texture_bytes_ << '/'
+                  << point_disabled.texture_bytes_ << "\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

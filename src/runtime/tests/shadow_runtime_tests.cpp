@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -111,11 +112,65 @@ void DirectionalCascadeResources() {
     Require(renderer.Stats().live_textures_ == 0,
             "directional cascade attachments release on reset");
 }
+void PointShadowProjectionAndResources() {
+    using namespace rhythm;
+    scene::Scene shadow_scene;
+    scene::Scene::PositionalLight light;
+    light.position_ = {1, 2, 3};
+    light.range_ = 8;
+    shadow_scene.positional_lights_.push_back(light);
+    shadow_scene.shadow_ = scene::ShadowSettings{};
+    shadow_scene.shadow_->resolution_ = 256;
+    shadow_scene.shadow_->near_ = 0.1;
+    const auto cameras = runtime::detail::PointShadowCameras(shadow_scene);
+    constexpr std::array<scene::Vector3, 6> kDirections{
+            {{1, 0, 0}, {-1, 0, 0}, {0, -1, 0}, {0, 1, 0}, {0, 0, 1}, {0, 0, -1}}};
+    constexpr std::array<scene::Vector3, 6> kUp{
+            {{0, -1, 0}, {0, -1, 0}, {0, 0, -1}, {0, 0, 1}, {0, -1, 0}, {0, -1, 0}}};
+    for (std::size_t face = 0; face < cameras.size(); ++face) {
+        const auto direction = scene::Vector3{cameras[face].target_.x_ - light.position_.x_,
+                                              cameras[face].target_.y_ - light.position_.y_,
+                                              cameras[face].target_.z_ - light.position_.z_};
+        Require(cameras[face].eye_ == light.position_ && direction == kDirections[face] &&
+                        cameras[face].up_ == kUp[face] && cameras[face].vertical_fov_ == 90 &&
+                        cameras[face].near_ == 0.1 && cameras[face].far_ == light.range_,
+                "point shadow face matches Godot cube orientation and range");
+    }
+    auto renderer = render::Renderer::CreateNull();
+    runtime::detail::ShadowPass pass;
+    render::SceneDrawList receivers;
+    receivers.positional_lights_.push_back({});
+    const auto baseline_bytes = renderer.Stats().texture_bytes_;
+    renderer.BeginFrame();
+    pass.Apply(shadow_scene, scene::Camera{}, 1, receivers, renderer);
+    renderer.EndFrame();
+    Require(renderer.Stats().live_textures_ == 12 &&
+                    renderer.Stats().texture_bytes_ == baseline_bytes + 6 * 256 * 256 * 8,
+            "point shadow owns six bounded depth/color pairs");
+    Require(receivers.shadow_ && receivers.shadow_->depth_ == render::TextureHandle{} &&
+                    std::all_of(receivers.shadow_->point_depths_.begin(),
+                                receivers.shadow_->point_depths_.end(),
+                                [](auto handle) { return handle.device_ != 0; }),
+            "point shadow publishes six depth faces and no projected depth");
+    const auto bytes = renderer.Stats().texture_bytes_;
+    renderer.BeginFrame();
+    pass.Apply(shadow_scene, scene::Camera{}, 1, receivers, renderer);
+    renderer.EndFrame();
+    Require(renderer.Stats().texture_bytes_ == bytes,
+            "unchanged point shadow reuses all six face pairs");
+    shadow_scene.shadow_.reset();
+    renderer.BeginFrame();
+    pass.Apply(shadow_scene, scene::Camera{}, 1, receivers, renderer);
+    renderer.EndFrame();
+    Require(renderer.Stats().live_textures_ == 0,
+            "disabling point shadows releases all six face pairs");
+}
 void Run() {
     using namespace rhythm;
     StableDirectionalProjection();
     DirectionalCascadeProjection();
     DirectionalCascadeResources();
+    PointShadowProjectionAndResources();
     graph::Registry registry;
     graph::Document document;
     document.id_ = "shadow.runtime";

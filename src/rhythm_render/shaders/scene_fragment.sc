@@ -89,7 +89,8 @@ void main()
                 }
                 if (abs(float(i) - u_scene_shadow_settings.x) < 0.5)
                     attenuation *= GodotShadow(v_world_position, geometric_normal, direction,
-                        dot(u_scene_view.xyz, u_scene_camera.xyz - v_world_position));
+                        dot(u_scene_view.xyz, u_scene_camera.xyz - v_world_position),
+                        u_scene_light_positions[i].xyz);
                 color += GodotDirectional(normal, direction, view,
                     u_scene_light_colors[i].rgb * attenuation, base,
                     metallic, max(roughness, 0.05));

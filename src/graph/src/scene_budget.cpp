@@ -1,5 +1,7 @@
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstdint>
 
 #include "rhythm/graph/compiler.h"
 
@@ -18,6 +20,9 @@ std::optional<Diagnostic> ValidateSceneBudget(
         std::uint64_t path_points_ = 0;
         bool path_closed_ = false;
         std::uint32_t deformations_ = 0;
+        // Runtime stores directional lights first, then positional lights.
+        // Values: 1 directional, 2 point, 3 spot.
+        std::array<std::uint8_t, 4> light_kinds_{};
     };
     std::vector<Counts> counts(plan.instructions_.size());
     std::uint64_t vertices = 0, indices = 0, snapshots = 0, draws = 0, path_snapshots = 0;
@@ -105,9 +110,16 @@ std::optional<Diagnostic> ValidateSceneBudget(
                 break;
             }
             case Operation::kDirectionalLight:
+                count.lights_ = 1;
+                count.light_kinds_[0] = 1;
+                break;
             case Operation::kPointLight:
+                count.lights_ = 1;
+                count.light_kinds_[0] = 2;
+                break;
             case Operation::kSpotLight:
                 count.lights_ = 1;
+                count.light_kinds_[0] = 3;
                 break;
             case Operation::kGeometryCube:
                 vertices += 24;
@@ -164,10 +176,24 @@ std::optional<Diagnostic> ValidateSceneBudget(
                 }
                 if (instruction.operation_ == Operation::kSceneMerge) {
                     const auto b = source(1);
-                    if (!b) return fail();
+                    if (!b || count.lights_ + b->lights_ > 4) return fail();
+                    std::array<std::uint8_t, 4> light_kinds{};
+                    std::size_t light_index = 0;
+                    const auto append = [&](const Counts& source_count, bool directional) {
+                        for (std::size_t source_index = 0; source_index < source_count.lights_;
+                             ++source_index) {
+                            const auto kind = source_count.light_kinds_[source_index];
+                            if ((kind == 1) == directional) light_kinds[light_index++] = kind;
+                        }
+                    };
+                    append(count, true);
+                    append(*b, true);
+                    append(count, false);
+                    append(*b, false);
                     count.instances_ += b->instances_;
                     count.indices_ += b->indices_;
                     count.lights_ += b->lights_;
+                    count.light_kinds_ = light_kinds;
                     count.draws_ += b->draws_;
                     count.shadows_ += b->shadows_;
                     count.shadow_passes_ += b->shadow_passes_;
@@ -182,7 +208,13 @@ std::optional<Diagnostic> ValidateSceneBudget(
                          std::floor(light) != light || !std::isfinite(cascades) || cascades < 0 ||
                          cascades > 1 || std::floor(cascades) != cascades))
                         return fail();
-                    count.shadow_passes_ = count.shadows_ ? std::uint64_t(cascades) + 1 : 0;
+                    if (count.shadows_) {
+                        const auto light_kind = count.light_kinds_[std::size_t(light)];
+                        if (light_kind == 0 || (cascades != 0 && light_kind != 1)) return fail();
+                        count.shadow_passes_ = light_kind == 2 ? 6 : std::uint64_t(cascades) + 1;
+                    } else {
+                        count.shadow_passes_ = 0;
+                    }
                 }
                 if (instruction.operation_ == Operation::kSceneEnvironment)
                     count.environments_ =

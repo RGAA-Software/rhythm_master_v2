@@ -132,7 +132,18 @@ void MeshStore::Validate(const SceneDrawList& list) const {
     if (list.shadow_) {
         const auto& shadow = *list.shadow_;
         const bool cascade = shadow.cascade_depth_.device_ != 0;
-        if (!ValidMatrix(shadow.world_to_clip_) ||
+        const bool any_point_face =
+                std::any_of(shadow.point_depths_.begin(), shadow.point_depths_.end(),
+                            [](TextureHandle handle) { return handle.device_ != 0; });
+        const bool all_point_faces =
+                std::all_of(shadow.point_depths_.begin(), shadow.point_depths_.end(),
+                            [](TextureHandle handle) { return handle.device_ != 0; });
+        const bool point = all_point_faces;
+        const bool valid_point_matrices =
+                std::all_of(shadow.point_world_to_clip_.begin(), shadow.point_world_to_clip_.end(),
+                            [](const Matrix4& matrix) { return ValidMatrix(matrix); });
+        if ((!point && !ValidMatrix(shadow.world_to_clip_)) || any_point_face != all_point_faces ||
+            (point && !valid_point_matrices) ||
             shadow.light_ >= list.lights_.size() + list.positional_lights_.size() ||
             shadow.resolution_ < 256 || shadow.resolution_ > 2048 ||
             (shadow.resolution_ & (shadow.resolution_ - 1)) != 0 ||
@@ -140,13 +151,14 @@ void MeshStore::Validate(const SceneDrawList& list) const {
             shadow.depth_bias_ > 0.05f || !std::isfinite(shadow.normal_bias_) ||
             shadow.normal_bias_ < 0 || shadow.normal_bias_ > 1 ||
             shadow.filter_ > ShadowFilter::kPcf13 || cascade != (shadow.cascade_split_ > 0) ||
+            (point && (shadow.depth_ != TextureHandle{} || cascade)) ||
             (cascade &&
              (!ValidMatrix(shadow.cascade_world_to_clip_) ||
               !std::isfinite(shadow.cascade_split_) || shadow.light_ >= list.lights_.size())))
             throw std::invalid_argument("render.shadow_settings");
-        if (shadow.light_ >= list.lights_.size() &&
-            !list.positional_lights_[shadow.light_ - list.lights_.size()].spot_)
-            throw std::invalid_argument("render.point_shadow_unsupported");
+        if (point != (shadow.light_ >= list.lights_.size() &&
+                      !list.positional_lights_[shadow.light_ - list.lights_.size()].spot_))
+            throw std::invalid_argument("render.shadow_projection");
     }
     for (const auto& draw : list.draws_) {
         if (draw.deformations_.size() > 4) throw std::invalid_argument("render.deformation_limit");

@@ -106,6 +106,14 @@ void Run() {
         Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(shadow, registry)),
                 "fractional shadow cascade profile rejects before rendering");
         shadow.nodes_[1].properties_["shadow_cascades"] = 0.0;
+        shadow.nodes_[0] = registry.MakeNode(1, "scene.point_light");
+        Require(std::holds_alternative<ExecutionPlan>(Compile(shadow, registry)),
+                "point light cube shadow compiles with six bounded passes");
+        shadow.nodes_[1].properties_["shadow_cascades"] = 1.0;
+        Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(shadow, registry)),
+                "point lights reject directional cascade settings before rendering");
+        shadow.nodes_[1].properties_["shadow_cascades"] = 0.0;
+        shadow.nodes_[0] = registry.MakeNode(1, "scene.directional_light");
         shadow.nodes_.push_back(registry.MakeNode(5, "scene.merge"));
         shadow.edges_[1].from_ = 5;
         shadow.edges_.push_back({4, 2, 5, "a"});
@@ -167,6 +175,30 @@ void Run() {
     instances.nodes_[0] = registry.MakeNode(1, "geometry.sphere");
     Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(instances, registry)),
             "instancing retains rasterized triangle admission limits");
+    Document shadow_budget;
+    shadow_budget.id_ = "point.shadow.budget";
+    shadow_budget.nodes_ = {registry.MakeNode(1, "geometry.sphere"),
+                            registry.MakeNode(2, "point.grid"),
+                            registry.MakeNode(3, "scene.point_instances"),
+                            registry.MakeNode(4, "scene.point_light"),
+                            registry.MakeNode(5, "scene.merge"),
+                            registry.MakeNode(6, "scene.shadow"),
+                            registry.MakeNode(7, "scene.render"),
+                            registry.MakeNode(8, "output.texture")};
+    shadow_budget.nodes_[0].properties_["radial_segments"] = 256.0;
+    shadow_budget.nodes_[0].properties_["rings"] = 128.0;
+    shadow_budget.nodes_[1].properties_["columns"] = 3.0;
+    shadow_budget.nodes_[1].properties_["rows"] = 1.0;
+    shadow_budget.nodes_[2].properties_["instance_limit"] = 3.0;
+    shadow_budget.edges_ = {{1, 1, 3, "geometry"}, {2, 2, 3, "points"}, {3, 3, 5, "a"},
+                            {4, 4, 5, "b"},        {5, 5, 6, "scene"},  {6, 6, 7, "scene"},
+                            {7, 7, 8, "source"}};
+    shadow_budget.output_ = 8;
+    Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(shadow_budget, registry)),
+            "six point shadow passes cannot bypass the raster work budget");
+    shadow_budget.nodes_[3] = registry.MakeNode(4, "scene.spot_light");
+    Require(std::holds_alternative<ExecutionPlan>(Compile(shadow_budget, registry)),
+            "the same geometry fits one projected spot shadow pass");
     std::cout << "Scene graph: typed ports, compilation and bounded merge passed\n";
 }
 }  // namespace

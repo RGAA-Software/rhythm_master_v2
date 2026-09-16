@@ -125,7 +125,26 @@ void Shadows() {
     scene.lights_.clear();
     scene.positional_lights_.push_back({});
     Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    std::array<Texture, 6> point_depths;
+    scene.shadow_->depth_ = {};
+    for (std::size_t face = 0; face < point_depths.size(); ++face) {
+        point_depths[face] = renderer.CreateDepthTexture({256, 256});
+        scene.shadow_->point_depths_[face] = point_depths[face].Handle();
+    }
+    renderer.SubmitScene(target.Handle(), scene);
+    scene.shadow_->point_depths_[5] = {};
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.shadow_->point_depths_[5] = point_depths[5].Handle();
+    scene.shadow_->point_depths_[0] = {};
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.shadow_->point_depths_[0] = point_depths[0].Handle();
+    scene.shadow_->point_depths_[1] = point_depths[0].Handle();
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.shadow_->point_depths_[1] = point_depths[1].Handle();
     scene.positional_lights_[0].spot_ = true;
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.shadow_->point_depths_ = {};
+    scene.shadow_->depth_ = depth.Handle();
     renderer.SubmitScene(target.Handle(), scene);
     scene.shadow_->cascade_depth_ = cascade_depth.Handle();
     scene.shadow_->cascade_split_ = 4;

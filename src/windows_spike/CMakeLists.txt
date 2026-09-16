@@ -184,6 +184,7 @@ if(BUILD_TESTING)
     add_test(NAME shadow_work_gpu COMMAND shadow_work_gpu_tests
         "${PROJECT_BINARY_DIR}/content/templates/porcelain_bloom"
         "${PROJECT_BINARY_DIR}/content/templates/chromatic_loom"
+        "${PROJECT_BINARY_DIR}/content/templates/sonic_enamel"
         "${PROJECT_BINARY_DIR}/shadow-work-gpu")
     set_tests_properties(shadow_work_gpu PROPERTIES TIMEOUT 150 RUN_SERIAL TRUE
         ENVIRONMENT_MODIFICATION

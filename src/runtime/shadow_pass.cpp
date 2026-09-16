@@ -165,6 +165,32 @@ DirectionalCascadeCameras CascadeCameras(const scene::Scene& scene,
                                     result.split_depth_, maximum);
     return result;
 }
+std::array<scene::Camera, 6> PointShadowCameras(const scene::Scene& scene) {
+    const auto& shadow = scene.shadow_.value();
+    if (shadow.light_ < scene.lights_.size() ||
+        shadow.light_ >= scene.lights_.size() + scene.positional_lights_.size())
+        throw std::invalid_argument("runtime.point_shadow_light");
+    const auto& light = scene.positional_lights_[shadow.light_ - scene.lights_.size()];
+    if (light.spot_) throw std::invalid_argument("runtime.point_shadow_light");
+    if (!std::isfinite(shadow.near_) || shadow.near_ < 0.001 || shadow.near_ >= light.range_)
+        throw std::invalid_argument("runtime.point_shadow_range");
+    // Matches Godot 4.5.1 RendererSceneCull's cube face order and up vectors.
+    constexpr std::array<scene::Vector3, 6> kDirections{
+            {{1, 0, 0}, {-1, 0, 0}, {0, -1, 0}, {0, 1, 0}, {0, 0, 1}, {0, 0, -1}}};
+    constexpr std::array<scene::Vector3, 6> kUp{
+            {{0, -1, 0}, {0, -1, 0}, {0, 0, -1}, {0, 0, 1}, {0, -1, 0}, {0, -1, 0}}};
+    std::array<scene::Camera, 6> result;
+    for (std::size_t face = 0; face < result.size(); ++face) {
+        auto& camera = result[face];
+        camera.eye_ = light.position_;
+        camera.target_ = Move(light.position_, kDirections[face], 1);
+        camera.up_ = kUp[face];
+        camera.vertical_fov_ = 90;
+        camera.near_ = shadow.near_;
+        camera.far_ = light.range_;
+    }
+    return result;
+}
 void ShadowPass::Apply(const scene::Scene& scene, const scene::Camera& receiver_camera,
                        double aspect, render::SceneDrawList& receivers,
                        render::Renderer& renderer) {
@@ -172,7 +198,7 @@ void ShadowPass::Apply(const scene::Scene& scene, const scene::Camera& receiver_
         colors_ = {};
         depths_ = {};
         resolution_ = 0;
-        cascades_ = 0;
+        passes_ = 0;
         receivers.shadow_.reset();
         return;
     }
@@ -182,35 +208,44 @@ void ShadowPass::Apply(const scene::Scene& scene, const scene::Camera& receiver_
         throw std::invalid_argument("runtime.shadow_resolution");
     if (shadow.cascades_ < 1 || shadow.cascades_ > 2)
         throw std::invalid_argument("runtime.shadow_cascades");
-    std::array<scene::Camera, 2> cameras;
+    const bool positional = shadow.light_ >= scene.lights_.size() &&
+                            shadow.light_ < scene.lights_.size() + scene.positional_lights_.size();
+    const bool point =
+            positional && !scene.positional_lights_[shadow.light_ - scene.lights_.size()].spot_;
+    if (point && shadow.cascades_ != 1)
+        throw std::invalid_argument("runtime.point_shadow_cascades");
+    const std::uint8_t passes = point ? 6 : shadow.cascades_;
+    std::array<scene::Camera, 6> cameras;
     double cascade_split = 0;
-    if (shadow.cascades_ == 2) {
+    if (point) {
+        cameras = PointShadowCameras(scene);
+    } else if (shadow.cascades_ == 2) {
         const auto fitted = CascadeCameras(scene, receiver_camera, aspect);
-        cameras = fitted.cameras_;
+        std::copy(fitted.cameras_.begin(), fitted.cameras_.end(), cameras.begin());
         cascade_split = fitted.split_depth_;
     } else {
         cameras[0] = ShadowCamera(scene);
     }
     if (!renderer.SupportsSampleableDepth())
         throw std::runtime_error("render.sampleable_depth_unsupported");
-    bool valid = resolution_ == shadow.resolution_ && cascades_ == shadow.cascades_;
-    for (std::size_t index = 0; valid && index < shadow.cascades_; ++index)
+    bool valid = resolution_ == shadow.resolution_ && passes_ == passes;
+    for (std::size_t index = 0; valid && index < passes; ++index)
         valid = renderer.IsValid(depths_[index].Handle()) &&
                 renderer.IsValid(colors_[index].Handle());
     if (!valid) {
         // Allocate every required attachment before replacing the current set;
-        // partial allocation failure remains RAII and cannot publish half a cascade.
+        // partial allocation failure remains RAII and cannot publish half a shadow set.
         const render::Extent extent{shadow.resolution_, shadow.resolution_};
-        std::array<render::Texture, 2> colors;
-        std::array<render::Texture, 2> depths;
-        for (std::size_t index = 0; index < shadow.cascades_; ++index) {
+        std::array<render::Texture, 6> colors;
+        std::array<render::Texture, 6> depths;
+        for (std::size_t index = 0; index < passes; ++index) {
             colors[index] = renderer.CreateTexture(extent);
             depths[index] = renderer.CreateDepthTexture(extent);
         }
         colors_ = std::move(colors);
         depths_ = std::move(depths);
         resolution_ = shadow.resolution_;
-        cascades_ = shadow.cascades_;
+        passes_ = passes;
     }
     render::SceneDrawList casters;
     for (const auto& receiver : receivers.draws_) {
@@ -221,8 +256,8 @@ void ShadowPass::Apply(const scene::Scene& scene, const scene::Camera& receiver_
         caster.textures_ = {};
         casters.draws_.push_back(caster);
     }
-    std::array<render::Matrix4, 2> matrices;
-    for (std::size_t index = 0; index < shadow.cascades_; ++index) {
+    std::array<render::Matrix4, 6> matrices;
+    for (std::size_t index = 0; index < passes; ++index) {
         const auto view = scene::View(cameras[index]);
         const auto projection = scene::Projection(cameras[index], 1);
         casters.view_ = Matrix(view);
@@ -231,14 +266,21 @@ void ShadowPass::Apply(const scene::Scene& scene, const scene::Camera& receiver_
         matrices[index] = Matrix(scene::Multiply(projection, view));
     }
     render::SceneShadow rendered;
-    rendered.depth_ = depths_[0].Handle();
-    rendered.world_to_clip_ = matrices[0];
     rendered.light_ = shadow.light_;
     rendered.resolution_ = shadow.resolution_;
     rendered.depth_bias_ = shadow.depth_bias_;
     rendered.normal_bias_ = shadow.normal_bias_;
     rendered.filter_ = Filter(shadow.filter_);
-    if (shadow.cascades_ == 2) {
+    if (point) {
+        for (std::size_t face = 0; face < rendered.point_depths_.size(); ++face) {
+            rendered.point_depths_[face] = depths_[face].Handle();
+            rendered.point_world_to_clip_[face] = matrices[face];
+        }
+    } else {
+        rendered.depth_ = depths_[0].Handle();
+        rendered.world_to_clip_ = matrices[0];
+    }
+    if (!point && shadow.cascades_ == 2) {
         rendered.cascade_depth_ = depths_[1].Handle();
         rendered.cascade_world_to_clip_ = matrices[1];
         rendered.cascade_split_ = static_cast<float>(cascade_split);

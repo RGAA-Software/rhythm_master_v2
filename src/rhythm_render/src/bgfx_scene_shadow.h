@@ -13,8 +13,10 @@ class BgfxSceneShadow final {
    private:
     GpuHandle<bgfx::UniformHandle> sampler_{};
     GpuHandle<bgfx::UniformHandle> cascade_sampler_{};
+    std::array<GpuHandle<bgfx::UniformHandle>, 4> point_samplers_{};
     GpuHandle<bgfx::UniformHandle> matrix_{};
     GpuHandle<bgfx::UniformHandle> cascade_matrix_{};
+    std::array<GpuHandle<bgfx::UniformHandle>, 4> point_matrices_{};
     GpuHandle<bgfx::UniformHandle> settings_{};
     GpuHandle<bgfx::UniformHandle> filtering_{};
     GpuHandle<bgfx::UniformHandle> cascade_{};

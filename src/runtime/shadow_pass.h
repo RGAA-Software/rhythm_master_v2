@@ -18,8 +18,11 @@ struct DirectionalCascadeCameras {
 // frustum segments. The selected light must be directional.
 DirectionalCascadeCameras CascadeCameras(const scene::Scene& scene,
                                          const scene::Camera& receiver_camera, double aspect);
+// Godot cube-mode face order and orientation for an omnidirectional point light.
+// The selected light must be positional and must not be a spot light.
+std::array<scene::Camera, 6> PointShadowCameras(const scene::Scene& scene);
 
-// Host-thread owner of one bounded shadow depth/color pair. Reuses the ordinary
+// Host-thread owner of up to six bounded shadow depth/color pairs. Reuses the ordinary
 // scene depth pass; only opaque geometry casts. ScenePass calls Apply after
 // resolving mesh/material instances and before submitting the receiver scene.
 class ShadowPass final {
@@ -28,9 +31,9 @@ class ShadowPass final {
                render::SceneDrawList& receivers, render::Renderer& renderer);
 
    private:
-    std::array<render::Texture, 2> colors_{};
-    std::array<render::Texture, 2> depths_{};
+    std::array<render::Texture, 6> colors_{};
+    std::array<render::Texture, 6> depths_{};
     std::uint16_t resolution_ = 0;
-    std::uint8_t cascades_ = 0;
+    std::uint8_t passes_ = 0;
 };
 }  // namespace rhythm::runtime::detail

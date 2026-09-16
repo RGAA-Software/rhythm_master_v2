@@ -113,6 +113,10 @@ struct SceneShadow {
     TextureHandle cascade_depth_{};
     Matrix4 cascade_world_to_clip_ = kIdentityMatrix;
     float cascade_split_ = 0;
+    // Godot cube-mode omnidirectional shadow faces: +X, -X, -Y, +Y, +Z, -Z.
+    // An empty first face selects the ordinary projected/cascade representation.
+    std::array<TextureHandle, 6> point_depths_{};
+    std::array<Matrix4, 6> point_world_to_clip_{};
 };
 // Linear atlas prepared by EnvironmentFilter; rotation about world +Y in degrees.
 struct SceneEnvironment {
