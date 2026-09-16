@@ -12,6 +12,17 @@ render::Matrix4 Matrix(const scene::Matrix& value) {
                    [](double element) { return float(element); });
     return result;
 }
+render::ShadowFilter Filter(scene::ShadowFilter value) {
+    switch (value) {
+        case scene::ShadowFilter::kNearest:
+            return render::ShadowFilter::kNearest;
+        case scene::ShadowFilter::kPcf5:
+            return render::ShadowFilter::kPcf5;
+        case scene::ShadowFilter::kPcf13:
+            return render::ShadowFilter::kPcf13;
+    }
+    throw std::invalid_argument("runtime.shadow_filter");
+}
 scene::Camera Camera(const scene::Scene& scene) {
     const auto& shadow = scene.shadow_.value();
     if (shadow.light_ >= scene.lights_.size() + scene.positional_lights_.size())
@@ -85,9 +96,9 @@ void ShadowPass::Apply(const scene::Scene& scene, render::SceneDrawList& receive
     }
     renderer.SubmitSceneDepth(color_.Handle(), depth_.Handle(), casters);
     receivers.shadow_ =
-            render::SceneShadow{depth_.Handle(),    Matrix(scene::Multiply(projection, view)),
-                                shadow.light_,      shadow.resolution_,
-                                shadow.depth_bias_, shadow.normal_bias_,
-                                shadow.filter_};
+            render::SceneShadow{depth_.Handle(),       Matrix(scene::Multiply(projection, view)),
+                                shadow.light_,         shadow.resolution_,
+                                shadow.depth_bias_,    shadow.normal_bias_,
+                                Filter(shadow.filter_)};
 }
 }  // namespace rhythm::runtime::detail

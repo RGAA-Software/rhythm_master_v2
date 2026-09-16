@@ -166,7 +166,12 @@ void EvaluateScene(const graph::Instruction& instruction, std::span<const NodeOu
                 shadow.near_ = scalar("shadow_near", 0.05);
                 shadow.depth_bias_ = float(scalar("shadow_bias", 0.001));
                 shadow.normal_bias_ = float(scalar("shadow_normal_bias", 0.01));
-                shadow.filter_ = scalar("shadow_filter", 1) != 0;
+                const auto shadow_filter = scalar("shadow_filter", 1);
+                if (shadow_filter < 0 || shadow_filter > 2 ||
+                    shadow_filter != std::floor(shadow_filter))
+                    throw std::invalid_argument("runtime.shadow_filter");
+                shadow.filter_ =
+                        static_cast<scene::ShadowFilter>(static_cast<std::uint8_t>(shadow_filter));
                 result.shadow_ = shadow;
             }
             output.scene_ = std::make_shared<const scene::Scene>(std::move(result));

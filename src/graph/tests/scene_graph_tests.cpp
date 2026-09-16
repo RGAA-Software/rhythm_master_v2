@@ -92,6 +92,13 @@ void Run() {
         Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(shadow, registry)),
                 "absent shadow light rejected before rendering");
         shadow.nodes_[1].properties_["shadow_light"] = 0.0;
+        shadow.nodes_[1].properties_["shadow_filter"] = 2.0;
+        Require(std::holds_alternative<ExecutionPlan>(Compile(shadow, registry)),
+                "PCF13 shadow quality compiles");
+        shadow.nodes_[1].properties_["shadow_filter"] = 3.0;
+        Require(std::holds_alternative<std::vector<Diagnostic>>(Compile(shadow, registry)),
+                "unknown shadow quality rejects before rendering");
+        shadow.nodes_[1].properties_["shadow_filter"] = 1.0;
         shadow.nodes_.push_back(registry.MakeNode(5, "scene.merge"));
         shadow.edges_[1].from_ = 5;
         shadow.edges_.push_back({4, 2, 5, "a"});

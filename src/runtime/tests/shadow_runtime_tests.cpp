@@ -46,6 +46,8 @@ void Run() {
     Require(output(first, 4).scene_->shadow_->light_ == 0 &&
                     output(first, 7).scene_->shadow_->light_ == 1,
             "merging a directional light preserves the selected positional-light identity");
+    Require(output(first, 4).scene_->shadow_->filter_ == scene::ShadowFilter::kPcf5,
+            "legacy default value keeps PCF5 filtering");
     std::cout << "shadow draws=" << renderer.Stats().draws_
               << " textures=" << renderer.Stats().live_textures_ << '\n';
     Require(renderer.Stats().draws_ == 2 && renderer.Stats().live_textures_ == 4,
@@ -54,6 +56,13 @@ void Run() {
     const auto bytes = renderer.Stats().texture_bytes_;
     Require(evaluate().evaluated_ == 0 && renderer.Stats().texture_bytes_ == bytes,
             "unchanged shadow scene does not redraw or reallocate");
+    document.nodes_[3].properties_["shadow_filter"] = 2.0;
+    Require(output(evaluate(), 4).scene_->shadow_->filter_ == scene::ShadowFilter::kPcf13,
+            "high shadow quality reaches the runtime scene");
+    document.nodes_[3].properties_["shadow_filter"] = 0.0;
+    Require(output(evaluate(), 4).scene_->shadow_->filter_ == scene::ShadowFilter::kNearest,
+            "legacy disabled filter value maps to nearest sampling");
+    document.nodes_[3].properties_["shadow_filter"] = 1.0;
     renderer.BeginFrame();
     viewers.BeginFrame(0, true, 0);
     const std::array<graph::NodeId, 1> demand{7};

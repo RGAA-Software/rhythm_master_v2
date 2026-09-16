@@ -114,6 +114,9 @@ void Shadows() {
     Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
     scene.positional_lights_[0].spot_ = true;
     renderer.SubmitScene(target.Handle(), scene);
+    scene.shadow_->filter_ = static_cast<ShadowFilter>(255);
+    Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
+    scene.shadow_->filter_ = ShadowFilter::kPcf13;
     scene.shadow_->normal_bias_ = std::numeric_limits<float>::quiet_NaN();
     Reject([&] { renderer.SubmitScene(target.Handle(), scene); });
     renderer.EndFrame();

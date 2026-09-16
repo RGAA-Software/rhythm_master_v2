@@ -1,4 +1,5 @@
 #include <array>
+#include <cstdint>
 #include <iostream>
 #include <stdexcept>
 
@@ -14,7 +15,7 @@ void VerifySceneShadows(render::Renderer& renderer) {
     auto mesh = renderer.CreateMesh(vertices, indices);
     auto shadow_color = renderer.CreateTexture({256, 256});
     auto shadow_depth = renderer.CreateDepthTexture({256, 256});
-    auto output = renderer.CreateTexture({32, 32});
+    auto output = renderer.CreateTexture({128, 128});
     SceneDrawList occluders;
     occluders.projection_[10] = -1;
     MeshDraw caster;
@@ -51,13 +52,44 @@ void VerifySceneShadows(render::Renderer& renderer) {
         }
         throw std::runtime_error("shadow.readback_timeout");
     };
-    constexpr auto kOccluded = (10 * 32 + 16) * 4;
-    constexpr auto kLit = (22 * 32 + 16) * 4;
-    const auto first = capture();
-    if (first[kOccluded] > 5 || first[kOccluded + 2] < 60 || first[kLit] < 60)
+    constexpr auto kOccluded = (40 * 128 + 64) * 4;
+    constexpr auto kLit = (88 * 128 + 64) * 4;
+    receivers.shadow_->filter_ = ShadowFilter::kNearest;
+    const auto nearest = capture();
+    if (nearest[kOccluded] > 5 || nearest[kOccluded + 2] < 60 || nearest[kLit] < 60)
         throw std::runtime_error("shadow.position_direction_and_selected_light");
-    receivers.shadow_->filter_ = false;
-    if (capture()[kOccluded] > 5) throw std::runtime_error("shadow.hard_filter");
+    if (nearest[kOccluded] > 5) throw std::runtime_error("shadow.hard_filter");
+    receivers.shadow_->filter_ = ShadowFilter::kPcf5;
+    const auto pcf5 = capture();
+    receivers.shadow_->filter_ = ShadowFilter::kPcf13;
+    const auto pcf13 = capture();
+    const auto red_difference = [](const auto& first, const auto& second) {
+        std::uint64_t difference = 0;
+        for (std::size_t i = 0; i < first.size(); i += 4) {
+            difference += first[i] > second[i] ? first[i] - second[i] : second[i] - first[i];
+        }
+        return difference;
+    };
+    const auto fractional_red = [](const auto& image) {
+        std::size_t pixels = 0;
+        for (std::size_t i = 0; i < image.size(); i += 4) {
+            if (image[i] > 5 && image[i] < 60) ++pixels;
+        }
+        return pixels;
+    };
+    const auto nearest_to_pcf5 = red_difference(nearest, pcf5);
+    const auto pcf5_to_pcf13 = red_difference(pcf5, pcf13);
+    constexpr std::uint64_t kMinFilterEdgeDifference = 256;
+    if (nearest_to_pcf5 < kMinFilterEdgeDifference)
+        throw std::runtime_error("shadow.pcf5_changes_edge");
+    if (pcf5_to_pcf13 < kMinFilterEdgeDifference)
+        throw std::runtime_error("shadow.pcf13_changes_edge");
+    const auto nearest_fractional = fractional_red(nearest);
+    const auto pcf5_fractional = fractional_red(pcf5);
+    const auto pcf13_fractional = fractional_red(pcf13);
+    if (pcf5_fractional <= nearest_fractional) throw std::runtime_error("shadow.pcf5_softens_edge");
+    if (pcf13_fractional <= pcf5_fractional) throw std::runtime_error("shadow.pcf13_softens_edge");
+    receivers.shadow_->filter_ = ShadowFilter::kNearest;
     occluders.draws_[0].model_[14] = -0.5f;
     if (capture()[kOccluded] < 60) throw std::runtime_error("shadow.behind_receiver");
     occluders.draws_[0].model_[14] = 0.5f;
@@ -86,7 +118,10 @@ void VerifySceneShadows(render::Renderer& renderer) {
         throw std::runtime_error("shadow.perspective_spot");
     receivers.shadow_.reset();
     if (capture()[kOccluded] < 60) throw std::runtime_error("shadow.disable_releases_binding");
-    std::cout << "Shadows: sampled depth occlusion, Y orientation, selected light, bounds and bias "
-                 "passed\n";
+    std::cout
+            << "Shadows: sampled depth occlusion, Y orientation, selected light, bounds, bias and "
+               "Nearest/PCF5/PCF13 edge differences passed ("
+            << nearest_to_pcf5 << ", " << pcf5_to_pcf13 << "; fractional " << nearest_fractional
+            << ", " << pcf5_fractional << ", " << pcf13_fractional << ")\n";
 }
 }  // namespace rhythm::validation

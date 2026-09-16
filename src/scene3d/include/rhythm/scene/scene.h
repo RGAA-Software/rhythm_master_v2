@@ -5,6 +5,7 @@
 #include "rhythm/scene/model.h"
 
 namespace rhythm::scene {
+enum class ShadowFilter : std::uint8_t { kNearest, kPcf5, kPcf13 };
 struct Deformation {
     double twist_ = 0;  // Degrees per local unit; right-handed rotation.
     double taper_ = 0;
@@ -49,7 +50,7 @@ struct ShadowSettings {
     double near_ = 0.05;
     float depth_bias_ = 0.001f;
     float normal_bias_ = 0.01f;
-    bool filter_ = true;
+    ShadowFilter filter_ = ShadowFilter::kPcf5;
 };
 // World environment stays fixed when scene geometry is transformed.
 struct EnvironmentSettings {

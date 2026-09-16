@@ -137,7 +137,8 @@ void MeshStore::Validate(const SceneDrawList& list) const {
             (shadow.resolution_ & (shadow.resolution_ - 1)) != 0 ||
             !std::isfinite(shadow.depth_bias_) || shadow.depth_bias_ < 0 ||
             shadow.depth_bias_ > 0.05f || !std::isfinite(shadow.normal_bias_) ||
-            shadow.normal_bias_ < 0 || shadow.normal_bias_ > 1)
+            shadow.normal_bias_ < 0 || shadow.normal_bias_ > 1 ||
+            shadow.filter_ > ShadowFilter::kPcf13)
             throw std::invalid_argument("render.shadow_settings");
         if (shadow.light_ >= list.lights_.size() &&
             !list.positional_lights_[shadow.light_ - list.lights_.size()].spot_)

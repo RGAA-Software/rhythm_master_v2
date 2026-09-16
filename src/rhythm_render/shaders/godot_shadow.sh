@@ -1,4 +1,4 @@
-// Adapted from Godot 4.5.1 scene.glsl sample_shadow PCF_5 and normal bias (MIT).
+// Adapted from Godot 4.5.1 scene.glsl sample_shadow PCF_5/PCF_13 and normal bias (MIT).
 // Copyright (c) 2014-present Godot Engine contributors.
 // See provenance/godot_shadows.json and third_party/notices/godot/LICENSE.txt.
 SAMPLER2D(s_scene_shadow, 4);
@@ -20,9 +20,27 @@ float GodotShadow(vec3 position, vec3 normal, vec3 toward_light) {
     float result = ShadowCompare(uv, depth);
     if (u_scene_shadow_filter.x < 0.5) return result;
     float step = u_scene_shadow_settings.w;
+    if (u_scene_shadow_filter.x < 1.5) {
+        result += ShadowCompare(uv + vec2(step, 0.0), depth);
+        result += ShadowCompare(uv + vec2(-step, 0.0), depth);
+        result += ShadowCompare(uv + vec2(0.0, step), depth);
+        result += ShadowCompare(uv + vec2(0.0, -step), depth);
+        return result * 0.2;
+    }
+    result += ShadowCompare(uv + vec2(step * 2.0, 0.0), depth);
+    result += ShadowCompare(uv + vec2(-step * 2.0, 0.0), depth);
+    result += ShadowCompare(uv + vec2(0.0, step * 2.0), depth);
+    result += ShadowCompare(uv + vec2(0.0, -step * 2.0), depth);
+    // Godot avoids the remaining eight comparisons when the distant cross is uniform.
+    if (result <= 0.000001) return 0.0;
+    if (result >= 4.999999) return 1.0;
     result += ShadowCompare(uv + vec2(step, 0.0), depth);
     result += ShadowCompare(uv + vec2(-step, 0.0), depth);
     result += ShadowCompare(uv + vec2(0.0, step), depth);
     result += ShadowCompare(uv + vec2(0.0, -step), depth);
-    return result * 0.2;
+    result += ShadowCompare(uv + vec2(step, step), depth);
+    result += ShadowCompare(uv + vec2(-step, step), depth);
+    result += ShadowCompare(uv + vec2(step, -step), depth);
+    result += ShadowCompare(uv + vec2(-step, -step), depth);
+    return result * (1.0 / 13.0);
 }

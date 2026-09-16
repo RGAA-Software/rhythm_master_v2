@@ -9,13 +9,14 @@
     "reference_location": "out/reference/godot-4.5.1/drivers/gles3/shaders/scene.glsl",
     "symbols": [
         "sample_shadow SHADOW_MODE_PCF_5",
+        "sample_shadow SHADOW_MODE_PCF_13",
         "directional normal bias"
     ],
     "targets": [
         "src/rhythm_render/shaders/godot_shadow.sh"
     ],
     "modifications": [
-        "Keep the center and four-axis PCF_5 kernel; use explicit point-sampled depth comparisons through the validated sampleable D24S8 path.",
+        "Keep the PCF_5 and PCF_13 sample positions and PCF_13 distant-cross early exit; use explicit point-sampled depth comparisons through the validated sampleable D24S8 path.",
         "Adapt projected coordinates to project canonical [-1,+1] depth and top-left UV; pixels outside the shadow volume are lit.",
         "Apply world-unit geometric-normal bias and normalized-depth bias; one selected directional or spot light per scene pass.",
         "Omit Godot atlas allocation, cascade selection, cube/omni shadows and engine resource types."

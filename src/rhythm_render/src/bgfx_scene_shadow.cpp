@@ -18,7 +18,7 @@ void BgfxSceneShadow::Bind(const std::optional<SceneShadow>& shadow,
     const auto data = shadow.value_or(SceneShadow{});
     const std::array settings{shadow ? float(data.light_) : -1.0f, data.depth_bias_,
                               data.normal_bias_, 1.0f / data.resolution_};
-    const std::array filtering{data.filter_ ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f};
+    const std::array filtering{float(static_cast<std::uint8_t>(data.filter_)), 0.0f, 0.0f, 0.0f};
     bgfx::setUniform(matrix_.Get(), data.world_to_clip_.data());
     bgfx::setUniform(settings_.Get(), settings.data());
     bgfx::setUniform(filtering_.Get(), filtering.data());

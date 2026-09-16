@@ -97,6 +97,7 @@ struct PositionalLight {
     float cone_angle_ = 45;  // Half angle, degrees.
     float cone_decay_ = 1;
 };
+enum class ShadowFilter : std::uint8_t { kNearest, kPcf5, kPcf13 };
 // Canonical right-handed matrices with clip Z in [-1,+1]. Adapters map to their
 // depth range and target orientation. Draw records hold stable resource handles.
 struct SceneShadow {
@@ -106,7 +107,7 @@ struct SceneShadow {
     std::uint16_t resolution_ = 1024;
     float depth_bias_ = 0.001f;
     float normal_bias_ = 0.01f;  // World units; applied to the geometric normal.
-    bool filter_ = true;
+    ShadowFilter filter_ = ShadowFilter::kPcf5;
 };
 // Linear atlas prepared by EnvironmentFilter; rotation about world +Y in degrees.
 struct SceneEnvironment {
