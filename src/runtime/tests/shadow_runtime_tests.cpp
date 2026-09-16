@@ -1,15 +1,55 @@
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 
 #include "rhythm/runtime/viewers.h"
+#include "shadow_pass.h"
 
 namespace {
 void Require(bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
 }
+void StableDirectionalProjection() {
+    using namespace rhythm;
+    scene::Scene shadow_scene;
+    shadow_scene.lights_.push_back({});
+    shadow_scene.shadow_ = scene::ShadowSettings{};
+    shadow_scene.shadow_->resolution_ = 256;
+    shadow_scene.shadow_->extent_ = 10;
+    const auto unit = shadow_scene.shadow_->extent_ * 2 / shadow_scene.shadow_->resolution_;
+    const auto origin = runtime::detail::ShadowCamera(shadow_scene);
+    shadow_scene.shadow_->center_ = {unit * 0.49, unit * 0.49, 0};
+    const auto sub_texel = runtime::detail::ShadowCamera(shadow_scene);
+    Require(origin.eye_ == sub_texel.eye_ && origin.target_ == sub_texel.target_,
+            "sub-grid directional shadow motion keeps the projection stable");
+    shadow_scene.shadow_->center_ = {unit * 0.51, unit * 0.51, 0};
+    const auto next_texel = runtime::detail::ShadowCamera(shadow_scene);
+    Require(std::abs(next_texel.target_.x_ - unit) < 1e-12 &&
+                    std::abs(next_texel.target_.y_ - unit) < 1e-12,
+            "directional shadow center advances on the Godot stabilization grid");
+    shadow_scene.shadow_->center_ = {-unit * 0.51, -unit * 0.51, 0};
+    const auto previous_texel = runtime::detail::ShadowCamera(shadow_scene);
+    Require(std::abs(previous_texel.target_.x_ + unit) < 1e-12 &&
+                    std::abs(previous_texel.target_.y_ + unit) < 1e-12,
+            "negative directional motion uses the same stabilization grid");
+    shadow_scene.shadow_->center_ = {0, 0, 0.0123};
+    const auto depth_motion = runtime::detail::ShadowCamera(shadow_scene);
+    Require(std::abs(depth_motion.target_.z_ - 0.0123) < 1e-12,
+            "directional shadow depth motion is not quantized");
+
+    shadow_scene.lights_.clear();
+    scene::Scene::PositionalLight spot;
+    spot.position_ = {0.0123, -0.0456, 3.0789};
+    spot.spot_ = true;
+    shadow_scene.positional_lights_.push_back(spot);
+    shadow_scene.shadow_->light_ = 0;
+    const auto spot_camera = runtime::detail::ShadowCamera(shadow_scene);
+    Require(spot_camera.eye_ == spot.position_, "spot shadow position is not quantized");
+}
 void Run() {
     using namespace rhythm;
+    StableDirectionalProjection();
     graph::Registry registry;
     graph::Document document;
     document.id_ = "shadow.runtime";

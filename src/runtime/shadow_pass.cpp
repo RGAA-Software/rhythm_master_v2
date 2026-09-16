@@ -23,13 +23,24 @@ render::ShadowFilter Filter(scene::ShadowFilter value) {
     }
     throw std::invalid_argument("runtime.shadow_filter");
 }
-scene::Camera Camera(const scene::Scene& scene) {
+scene::Vector3 Translate(scene::Vector3 value, scene::Vector3 first_axis, double first_distance,
+                         scene::Vector3 second_axis, double second_distance) {
+    return {value.x_ + first_axis.x_ * first_distance + second_axis.x_ * second_distance,
+            value.y_ + first_axis.y_ * first_distance + second_axis.y_ * second_distance,
+            value.z_ + first_axis.z_ * first_distance + second_axis.z_ * second_distance};
+}
+double Snapped(double value, double unit) { return std::floor(value / unit + 0.5) * unit; }
+}  // namespace
+
+scene::Camera ShadowCamera(const scene::Scene& scene) {
     const auto& shadow = scene.shadow_.value();
     if (shadow.light_ >= scene.lights_.size() + scene.positional_lights_.size())
         throw std::invalid_argument("runtime.shadow_light");
     scene::Camera camera;
     scene::Vector3 direction;
+    bool directional = false;
     if (shadow.light_ < scene.lights_.size()) {
+        directional = true;
         direction = scene::Normalize(scene.lights_[shadow.light_].direction_);
         camera.eye_ = {shadow.center_.x_ + direction.x_ * shadow.distance_,
                        shadow.center_.y_ + direction.y_ * shadow.distance_,
@@ -52,9 +63,24 @@ scene::Camera Camera(const scene::Scene& scene) {
     }
     // Stable alternative up axis when a light looks almost vertically downward.
     camera.up_ = std::abs(direction.y_) > 0.95 ? scene::Vector3{0, 0, 1} : scene::Vector3{0, 1, 0};
+    if (directional) {
+        // Godot snaps both orthographic boundaries to radius * 4 / texture size.
+        // For this explicit full-height extent, the equivalent center grid is
+        // two shadow texels. Depth stays light-relative and is not quantized.
+        const auto unit = shadow.extent_ * 2.0 / shadow.resolution_;
+        if (!std::isfinite(unit) || unit < 1e-12)
+            throw std::invalid_argument("runtime.shadow_extent");
+        const auto right = scene::Normalize(scene::Cross(camera.up_, direction));
+        const auto up = scene::Cross(direction, right);
+        const auto right_position = scene::Dot(right, camera.target_);
+        const auto up_position = scene::Dot(up, camera.target_);
+        const auto right_shift = Snapped(right_position, unit) - right_position;
+        const auto up_shift = Snapped(up_position, unit) - up_position;
+        camera.eye_ = Translate(camera.eye_, right, right_shift, up, up_shift);
+        camera.target_ = Translate(camera.target_, right, right_shift, up, up_shift);
+    }
     return camera;
 }
-}  // namespace
 void ShadowPass::Apply(const scene::Scene& scene, render::SceneDrawList& receivers,
                        render::Renderer& renderer) {
     if (!scene.shadow_) {
@@ -68,7 +94,7 @@ void ShadowPass::Apply(const scene::Scene& scene, render::SceneDrawList& receive
     if (shadow.resolution_ < 256 || shadow.resolution_ > 2048 ||
         (shadow.resolution_ & (shadow.resolution_ - 1)) != 0)
         throw std::invalid_argument("runtime.shadow_resolution");
-    const auto camera = Camera(scene);
+    const auto camera = ShadowCamera(scene);
     const auto view = scene::View(camera);
     const auto projection = scene::Projection(camera, 1);
     if (!renderer.SupportsSampleableDepth())

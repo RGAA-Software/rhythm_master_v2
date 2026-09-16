@@ -5,6 +5,10 @@
 #include "rhythm/scene/scene.h"
 
 namespace rhythm::runtime::detail {
+// Builds the selected light camera. Directional projections snap their X/Y
+// center to the shadow-map texel grid; spot projections remain light-relative.
+scene::Camera ShadowCamera(const scene::Scene& scene);
+
 // Host-thread owner of one bounded shadow depth/color pair. Reuses the ordinary
 // scene depth pass; only opaque geometry casts. ScenePass calls Apply after
 // resolving mesh/material instances and before submitting the receiver scene.
