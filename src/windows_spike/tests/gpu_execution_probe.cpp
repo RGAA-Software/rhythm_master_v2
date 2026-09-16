@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "rhythm/platform/host.h"
+#include "stable_shadow_gpu.h"
 int main(int argc, char* argv[]) {
     try {
         std::array<std::uint8_t, 32 * 16 * 4> pixels{};
@@ -66,6 +67,7 @@ int main(int argc, char* argv[]) {
         rhythm::validation::VerifyPositionalLights(renderer);
         rhythm::validation::VerifyMaterialTextures(renderer);
         rhythm::validation::VerifySceneShadows(renderer);
+        rhythm::validation::VerifyStableDirectionalShadows(renderer);
         rhythm::validation::VerifyEnvironmentLighting(renderer);
         rhythm::validation::VerifyMeshDeformation(renderer);
         rhythm::validation::VerifyMeshSkinning(renderer);

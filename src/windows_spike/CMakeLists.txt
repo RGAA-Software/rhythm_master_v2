@@ -154,9 +154,11 @@ if(BUILD_TESTING)
         set_tests_properties(semantic_browser_gpu_${locale} PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE
             ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${RHYTHM_IO_SDK}/bin;PATH=path_list_prepend:${RHYTHM_MEDIA_SDK}/bin")
     endforeach()
-    add_executable(windows_gpu_execution_probe tests/gpu_execution_probe.cpp)
+    add_executable(windows_gpu_execution_probe tests/gpu_execution_probe.cpp
+        tests/stable_shadow_gpu.cpp)
     add_dependencies(windows_gpu_execution_probe image_shader_source_tests image_shader_program_tests)
-    target_link_libraries(windows_gpu_execution_probe PRIVATE platform_sdl gpu_execution_probe)
+    target_include_directories(windows_gpu_execution_probe PRIVATE "${PROJECT_SOURCE_DIR}/src/runtime")
+    target_link_libraries(windows_gpu_execution_probe PRIVATE platform_sdl gpu_execution_probe graph_runtime)
     rhythm_project_target(windows_gpu_execution_probe)
     add_test(NAME windows_gpu_execution_probe COMMAND windows_gpu_execution_probe)
     add_test(NAME image_shader_profile COMMAND "${Python3_EXECUTABLE}"
