@@ -55,8 +55,11 @@ void GpuPointStore::Validate(GpuPointHandle handle, const GpuParticleStep& step)
         !within(step.flow_, 0, 8) || !within(step.frequency_, 0, 100) ||
         !within(step.phase_, -10000, 10000))
         throw std::invalid_argument("render.gpu_particle_step");
-    for (const auto value : step.center_)
+    for (const auto value : {step.center_[0], step.center_[1]})
         if (!within(value, -4, 4)) throw std::invalid_argument("render.gpu_particle_center");
+    // Z is a view-space depth for soft intersection/layering, not a canvas unit.
+    if (!within(step.center_[2], -10000, 10000))
+        throw std::invalid_argument("render.gpu_particle_center");
     for (const auto value : step.gravity_)
         if (!within(value, -8, 8)) throw std::invalid_argument("render.gpu_particle_gravity");
     for (const auto& color : {step.color_a_, step.color_b_})
@@ -97,6 +100,12 @@ void GpuPointStore::ValidateDraw(GpuPointHandle handle, const GpuPointStyle& sty
     if (style.atlas_ && (style.atlas_->columns_ < 1 || style.atlas_->columns_ > 64 ||
                          style.atlas_->rows_ < 1 || style.atlas_->rows_ > 64))
         throw std::invalid_argument("render.gpu_point_atlas");
+    if (style.soft_depth_ &&
+        (!std::isfinite(style.soft_depth_->near_) || !std::isfinite(style.soft_depth_->far_) ||
+         style.soft_depth_->near_ <= 0 || style.soft_depth_->far_ <= style.soft_depth_->near_ ||
+         !std::isfinite(style.soft_depth_->distance_) || style.soft_depth_->distance_ <= 0 ||
+         style.soft_depth_->distance_ > 10000))
+        throw std::invalid_argument("render.gpu_point_soft_depth");
 }
 void GpuPointStore::AddStats(FrameStats& stats) const {
     stats.gpu_point_capacity_ = total_;

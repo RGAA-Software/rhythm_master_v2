@@ -33,6 +33,10 @@ BgfxGpuPoints::BgfxGpuPoints(std::uint64_t device) : store_(device) {
     sampler_ = GpuHandle(bgfx::createUniform("s_gpu_sample", bgfx::UniformType::Sampler));
     atlas_ = GpuHandle(bgfx::createUniform("u_gpu_atlas", bgfx::UniformType::Vec4));
     atlas_sampler_ = GpuHandle(bgfx::createUniform("s_gpu_atlas", bgfx::UniformType::Sampler));
+    soft_ = GpuHandle(bgfx::createUniform("u_gpu_soft", bgfx::UniformType::Vec4));
+    soft_projection_ = GpuHandle(bgfx::createUniform("u_gpu_soft_projection", bgfx::UniformType::Vec4));
+    soft_depth_sampler_ =
+            GpuHandle(bgfx::createUniform("s_gpu_depth", bgfx::UniformType::Sampler));
     constexpr std::array<std::uint8_t, 4> kWhite{255, 255, 255, 255};
     white_ = GpuHandle(bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::RGBA8,
                                              BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP,
@@ -117,7 +121,8 @@ void BgfxGpuPoints::Map(bgfx::ViewId view, GpuPointHandle source, GpuPointHandle
 void BgfxGpuPoints::Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Extent extent,
                          bool invert, GpuPointHandle handle, const GpuPointStyle& style,
                          bool float_target, bgfx::TextureHandle sampling_texture,
-                         bgfx::TextureHandle atlas_texture) {
+                         bgfx::TextureHandle atlas_texture,
+                         bgfx::TextureHandle soft_depth_texture) {
     store_.ValidateDraw(handle, style);
     bgfx::setViewName(view, "GPU point rendering");
     bgfx::setViewMode(view, bgfx::ViewMode::Sequential);
@@ -140,6 +145,17 @@ void BgfxGpuPoints::Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Exte
     bgfx::setUniform(atlas_.Get(), atlas.data());
     bgfx::setTexture(1, atlas_sampler_.Get(),
                      bgfx::isValid(atlas_texture) ? atlas_texture : white_.Get(),
+                     BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
+    const std::array<float, 4> soft{style.soft_depth_ ? 1.0f : 0.0f,
+                                    style.soft_depth_ ? style.soft_depth_->distance_ : 1.0f, 0, 0};
+    bgfx::setUniform(soft_.Get(), soft.data());
+    const std::array<float, 4> soft_projection{
+            style.soft_depth_ ? style.soft_depth_->near_ : 0.0f,
+            style.soft_depth_ ? style.soft_depth_->far_ : 1.0f,
+            style.soft_depth_ && style.soft_depth_->orthographic_ ? 1.0f : 0.0f, 0};
+    bgfx::setUniform(soft_projection_.Get(), soft_projection.data());
+    bgfx::setTexture(2, soft_depth_sampler_.Get(),
+                     bgfx::isValid(soft_depth_texture) ? soft_depth_texture : white_.Get(),
                      BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
     bgfx::setVertexBuffer(0, quad_.Get());
     bgfx::setIndexBuffer(indices_.Get());

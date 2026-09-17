@@ -511,6 +511,16 @@ FrameResult Runtime::Impl::EvaluateRange(
                                             std::clamp(columns, 1.0, 64.0)),
                                     static_cast<std::uint32_t>(std::clamp(rows, 1.0, 64.0))};
                         }
+                        if (instruction.inputs_.size() > 3 && instruction.inputs_[3]) {
+                            const auto& depth = input(3).depth_.value();
+                            const auto distance = graph::Scalar(node, "soft_distance", 0.1);
+                            style.soft_depth_ = render::GpuPointSoftDepth{
+                                    depth.texture_, depth.projection_.near_,
+                                    depth.projection_.far_, depth.projection_.orthographic_,
+                                    float(std::isfinite(distance)
+                                                  ? std::clamp(distance, 0.0001, 10000.0)
+                                                  : 0.1)};
+                        }
                         renderer.SubmitGpuPoints(state.target_.Handle(), input(0).gpu_points_,
                                                  style);
                         state.output_.texture_ = state.target_.Handle();

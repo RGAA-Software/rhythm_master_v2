@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "gpu_execution_probe.h"
@@ -237,6 +238,80 @@ void AtlasShapeVariation(render::Renderer& renderer) {
     if (full < 100 || halved > full * 3 / 4 || halved < full / 4)
         throw std::runtime_error("gpu_point_atlas.cell_selection");
 }
+void SoftDepthIntersection(render::Renderer& renderer) {
+    if (!renderer.SupportsSampleableDepth()) {
+        std::cout << "gpu_point soft depth unsupported on this device/profile\n";
+        return;
+    }
+    const render::Extent extent{64, 64};
+    const std::array<render::MeshVertex, 4> vertices{
+            {{-20, -20, 0}, {20, -20, 0}, {20, 20, 0}, {-20, 20, 0}}};
+    const std::array<std::uint32_t, 6> indices{0, 1, 2, 0, 2, 3};
+    auto mesh = renderer.CreateMesh(vertices, indices);
+    auto color = renderer.CreateTexture(extent);
+    auto depth = renderer.CreateDepthTexture(extent);
+    auto target = renderer.CreateTexture(extent);
+    // Orthographic near=1 far=11; a plane at distance 6 covers the whole canvas.
+    render::SceneDrawList scene;
+    scene.projection_[0] = scene.projection_[5] = 0.1f;
+    scene.projection_[10] = -0.2f;
+    scene.projection_[14] = -1.2f;
+    render::MeshDraw plane;
+    plane.mesh_ = mesh.Handle();
+    plane.model_[14] = -6;
+    plane.double_sided_ = true;
+    scene.draws_ = {plane};
+    auto points = renderer.CreateGpuPoints(1);
+    render::GpuParticleStep step;
+    step.reset_ = true;
+    step.spawn_count_ = 1;
+    step.center_ = {.5f, .5f, 0};
+    step.radius_ = step.speed_ = step.flow_ = 0;
+    step.lifetime_ = 100;
+    step.size_ = .5f;
+    step.color_a_ = step.color_b_ = {1, 1, 1, 1};
+    const auto capture_soft = [&](const render::GpuPointStyle& style) {
+        renderer.BeginFrame();
+        renderer.SubmitSceneDepth(color.Handle(), depth.Handle(), scene);
+        renderer.SubmitGpuPoints(target.Handle(), points.Handle(), style);
+        auto ticket = renderer.RequestReadback(target.Handle());
+        renderer.EndFrame();
+        for (int i = 0; i < 32; ++i) {
+            if (auto image = ticket.Poll()) return std::move(*image);
+            renderer.BeginFrame();
+            renderer.EndFrame();
+        }
+        throw std::runtime_error("gpu_point_soft.readback_timeout");
+    };
+    render::GpuPointSoftDepth soft{depth.Handle(), 1, 11, true, 1.0f};
+    Update(renderer, points.Handle(), step);
+    const auto baseline = capture_soft({});
+    constexpr std::size_t kCenter = (32 * 64 + 32) * 4;
+    if (baseline.rgba_[kCenter] < 200) throw std::runtime_error("gpu_point_soft.baseline");
+    render::GpuPointStyle style;
+    style.soft_depth_ = soft;
+    // Well in front of the plane: identical to the analytic-only baseline.
+    step.center_[2] = 3;
+    Update(renderer, points.Handle(), step);
+    if (capture_soft(style).rgba_ != baseline.rgba_)
+        throw std::runtime_error("gpu_point_soft.in_front");
+    // Behind the scene surface: fully faded.
+    step.center_[2] = 8;
+    Update(renderer, points.Handle(), step);
+    const auto hidden = capture_soft(style);
+    if (std::ranges::any_of(hidden.rgba_, [](auto v) { return v != 0; }))
+        throw std::runtime_error("gpu_point_soft.behind");
+    // Half a fade distance in front: alpha halves across the band.
+    step.center_[2] = 5.5f;
+    Update(renderer, points.Handle(), step);
+    const auto faded = capture_soft(style);
+    const auto expected = baseline.rgba_[kCenter] / 2;
+    if (std::abs(int(faded.rgba_[kCenter]) - expected) > 6)
+        throw std::runtime_error("gpu_point_soft.band." +
+                                 std::to_string(faded.rgba_[kCenter]));
+    std::cout << "gpu_point_soft front=identical behind=hidden band="
+              << int(faded.rgba_[kCenter]) << "/" << int(baseline.rgba_[kCenter]) << '\n';
+}
 }  // namespace
 void VerifyGpuParticles(render::Renderer& renderer) {
     if (!renderer.SupportsGpuPoints()) {
@@ -247,6 +322,7 @@ void VerifyGpuParticles(render::Renderer& renderer) {
     SoftParticleFalloff(renderer);
     SamplingOrientation(renderer);
     AtlasShapeVariation(renderer);
+    SoftDepthIntersection(renderer);
     auto target = renderer.CreateTexture({64, 64});
     // Non-workgroup-aligned capacity and wrapping ring exercise bounds guards.
     auto points = renderer.CreateGpuPoints(65);

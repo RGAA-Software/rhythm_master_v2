@@ -33,6 +33,8 @@ struct GpuParticleStep {
     std::uint32_t spawn_count_ = 0;
     std::uint32_t sequence_ = 0;
     std::uint32_t seed_ = 1;
+    // Center xy are canvas-normalized; z is the view-space spawn depth used by
+    // soft depth intersection, accumulated per particle by velocity z.
     std::array<float, 3> center_{0.5f, 0.5f, 0};
     float radius_ = 0.3f;
     float speed_ = 0.08f;
@@ -75,6 +77,19 @@ struct GpuPointAtlas {
     std::uint32_t rows_ = 1;
     bool operator==(const GpuPointAtlas&) const = default;
 };
+// Optional soft depth intersection (Godot proximity fade semantics). The depth
+// texture must be a scene depth attachment of the same extent as the target;
+// near/far are positive view-space distances matching the projection that wrote
+// the depth. Each fragment reconstructs the scene distance and fades the sprite
+// alpha across distance_ view units as it approaches the scene surface.
+struct GpuPointSoftDepth {
+    TextureHandle texture_{};
+    float near_ = 0;
+    float far_ = 1;
+    bool orthographic_ = false;
+    float distance_ = 0.1f;
+    bool operator==(const GpuPointSoftDepth&) const = default;
+};
 struct GpuPointStyle {
     float opacity_ = 1;
     bool additive_ = true;
@@ -82,6 +97,7 @@ struct GpuPointStyle {
     // Expands the same analytic sprite for a local halo; no fullscreen blur pass.
     float glow_radius_ = 1;
     std::optional<GpuPointAtlas> atlas_{};
+    std::optional<GpuPointSoftDepth> soft_depth_{};
 };
 // Move-only owner retains the backend through final release, like Texture/Mesh.
 // Handles are generation-checked observers; all destruction is device-thread only.

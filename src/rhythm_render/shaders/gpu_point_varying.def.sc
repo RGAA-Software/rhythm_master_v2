@@ -5,4 +5,5 @@ vec4 i_data2 : TEXCOORD29;
 vec4 i_data3 : TEXCOORD28;
 vec2 v_texcoord0 : TEXCOORD0;
 vec4 v_texcoord1 : TEXCOORD1;
+vec4 v_texcoord2 : TEXCOORD2;
 vec4 v_color0 : COLOR0;

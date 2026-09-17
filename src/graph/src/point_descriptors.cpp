@@ -60,6 +60,7 @@ void AppendPointDescriptors(std::vector<OperatorDescriptor>& operators) {
                           {"lifetime", 4.0, 0.05, 120},
                           {"center_x", 0.5, -4, 4},
                           {"center_y", 0.5, -4, 4},
+                          {"center_z", 0.0, -10000, 10000},
                           {"emitter_radius", 0.3, 0, 4},
                           {"particle_speed", 0.08, 0, 8},
                           {"drag", 0.1, 0, 1},
@@ -77,12 +78,14 @@ void AppendPointDescriptors(std::vector<OperatorDescriptor>& operators) {
                          Type::kTexture,
                          {{"points", Type::kGpuPoints},
                           {"opacity", Type::kScalar, false},
-                          {"atlas", Type::kTexture, false}},
+                          {"atlas", Type::kTexture, false},
+                          {"depth", Type::kDepth, false}},
                          {{"opacity", 1.0, 0, 1},
                           {"point_blend", 1.0, 0, 1, {"composite.over", "composite.add"}},
                           {"point_glow_radius", 1.0, 1, 4},
                           {"atlas_columns", 1.0, 1, 64},
-                          {"atlas_rows", 1.0, 1, 64}}});
+                          {"atlas_rows", 1.0, 1, 64},
+                          {"soft_distance", 0.1, 0, 10000}}});
 
     operators.push_back({"point.physics2d",
                          Operation::kPointPhysics,

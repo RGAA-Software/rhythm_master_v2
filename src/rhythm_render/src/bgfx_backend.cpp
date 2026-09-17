@@ -318,11 +318,15 @@ class BgfxBackend final : public Backend {
         const auto atlas_texture =
                 style.atlas_ ? textures_.at(style.atlas_->texture_.slot_).texture_.Get()
                              : bgfx::TextureHandle{bgfx::kInvalidHandle};
+        const auto soft_depth_texture =
+                style.soft_depth_
+                        ? textures_.at(style.soft_depth_->texture_.slot_).texture_.Get()
+                        : bgfx::TextureHandle{bgfx::kInvalidHandle};
         gpu_points_->Draw(
                 static_cast<bgfx::ViewId>(passes_), textures_.at(target.slot_).framebuffer_.Get(),
                 resources_.Size(target), invert_targets_, handle, style,
                 resources_.Precision(target) == TexturePrecision::kFloat16, sampling_texture,
-                atlas_texture);
+                atlas_texture, soft_depth_texture);
         ++passes_;
         ++draws_;
     }

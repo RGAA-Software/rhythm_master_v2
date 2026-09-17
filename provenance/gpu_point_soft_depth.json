@@ -1,0 +1,30 @@
+{
+    "sources": [
+        {
+            "source_url": "https://github.com/godotengine/godot",
+            "revision": "f62fdbde15035c5576dad93e586201f4d41ef0cb",
+            "tag": "4.5.1-stable",
+            "license": "MIT",
+            "notice": "third_party/notices/godot/LICENSE.txt",
+            "source_file": "scene/resources/material.cpp",
+            "sha256": "4c51d82afacc18e0d2429a26189adff8145b610ddfaedb3b5fc6bf0db1a554b3",
+            "reference_location": "out/reference/godot-4.5.1/scene/resources/material.cpp",
+            "symbols": [
+                "proximity fade: ALPHA *= 1 - smoothstep across proximity_fade_distance"
+            ],
+            "targets": [
+                "src/rhythm_render/shaders/gpu_point_fragment.sc"
+            ],
+            "modifications": [
+                "Reconstruct the scene view distance from the project depth attachment with the existing depth_of_field_weight linearization instead of INV_PROJECTION_MATRIX, so the project camera contract is shared with DOF.",
+                "Write the reversed-edge smoothstep as smoothstep(0, distance, scene_z - particle_z), the well-defined equivalent of Godot's generated expression.",
+                "Particle depth comes from the fixed instance record (spawn center z plus velocity z); no depth buffer is written by the 2D point pass."
+            ]
+        }
+    ],
+    "targets": [
+        "src/rhythm_render/include/rhythm/render/gpu_points.h",
+        "src/rhythm_render/shaders/gpu_point_vertex.sc",
+        "src/rhythm_render/shaders/gpu_point_fragment.sc"
+    ]
+}

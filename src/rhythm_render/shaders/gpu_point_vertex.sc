@@ -1,5 +1,5 @@
 $input a_position, i_data0, i_data1, i_data2, i_data3
-$output v_texcoord0, v_texcoord1, v_color0
+$output v_texcoord0, v_texcoord1, v_texcoord2, v_color0
 #include <bgfx_shader.sh>
 uniform vec4 u_gpu_view;
 uniform vec4 u_gpu_sample;
@@ -24,6 +24,9 @@ void main()
     float cell = min(floor(i_data3.z * cells), cells - 1.0);
     vec2 uv_scale = vec2_splat(1.0) / grid;
     v_texcoord1 = vec4(vec2(mod(cell, grid.x), floor(cell / grid.x)) * uv_scale, uv_scale);
+    // Canvas-space fragment position and particle depth for soft intersection;
+    // the sampling convention matches GpuPointSampling, so no invert handling.
+    v_texcoord2 = vec4(i_data0.xy + a_position * size, i_data0.z, 0.0);
     float fade = clamp((1.0 - i_data0.w / max(i_data1.w, 0.001)) * 4.0, 0.0, 1.0);
     vec3 straight_color = sampled.a > 0.00001 ? sampled.rgb / sampled.a : vec3_splat(0.0);
     vec3 color = mix(i_data2.rgb, straight_color, u_gpu_sample.x);

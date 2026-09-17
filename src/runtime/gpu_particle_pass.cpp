@@ -20,7 +20,7 @@ render::GpuParticleStep Settings(const graph::Node& node) {
     };
     render::GpuParticleStep s;
     s.seed_ = static_cast<std::uint32_t>(graph::Scalar(node, "seed", 1));
-    s.center_ = {value("center_x", 0.5), value("center_y", 0.5), 0};
+    s.center_ = {value("center_x", 0.5), value("center_y", 0.5), value("center_z", 0)};
     s.radius_ = value("emitter_radius", 0.3);
     s.speed_ = value("particle_speed", 0.08);
     s.drag_ = value("drag", 0.1);

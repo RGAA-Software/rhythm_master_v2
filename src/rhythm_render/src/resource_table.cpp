@@ -182,6 +182,14 @@ void ResourceTable::RecordGpuPointSamples(TextureHandle target, const GpuPointSt
     };
     if (style.sampling_) record(style.sampling_->texture_, "render.gpu_point_sampling");
     if (style.atlas_) record(style.atlas_->texture_, "render.gpu_point_atlas");
+    if (style.soft_depth_) {
+        const auto texture = style.soft_depth_->texture_;
+        const auto expected = Size(target);
+        if (!IsValid(texture) || !IsDepth(texture) || texture == target ||
+            Size(texture).width_ != expected.width_ || Size(texture).height_ != expected.height_)
+            throw std::invalid_argument("render.gpu_point_soft_depth");
+        slots_.at(texture.slot_).sampled_ = true;
+    }
 }
 void ResourceTable::RecordSamples(const DrawList& list) {
     const auto sample = [&](TextureHandle handle) {
