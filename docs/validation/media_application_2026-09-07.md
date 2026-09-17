@@ -31,6 +31,13 @@ or application-store readiness.
 - Manifest: `probes/media/vcpkg.json`; installed Windows SDK:
   `out/vcpkg-media-lgpl/x64-windows`.
 - Exact binary configuration and hashes: `provenance/media_lgpl_windows.json`.
+- 2026-09-17 host migration: the SDK was rebuilt on the current host from this
+  same manifest (FFmpeg n6.1.1#11, port tree 15b90b33, zlib 1.3.1). The video,
+  audio and playback evidence suites above were re-run against the rebuilt
+  binaries (all pass), and `tools/prepare-media-notices.py` re-measured the
+  profile: identical LGPL license string and configuration flags with only
+  install paths changed, new DLL hashes and a regenerated source archive.
+  Details in `validation/gpu_point_layered_volume_2026-09-17.md`.
 - `tools/prepare-media-notices.py` preserves the patched source tree and exact
   vcpkg recipe in `out/release-sources/ffmpeg-vcpkg.zip`.
 - Every Windows app deployment carries 21 required DLLs, matching source/build
