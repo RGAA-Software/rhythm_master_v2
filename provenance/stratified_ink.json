@@ -13,11 +13,11 @@
         "tools/music_work.py"
     ],
     "authoring_sources": {
-        "tools/concept_work_common.py": "779a9e7b023e2b4c59ad8348a413915eb884aa7797316b0b9a64b978ba9810de",
+        "tools/concept_work_common.py": "7dd2a982fcefdf4e65347f7310247a2b2dc56b1334f4a1323602d64dc7277a11",
         "tools/concept_mesh_assets.py": "9dfa5e3e4e75bcbccb000eb7d104ab175620cdba5cb7a831678681d5347eca69",
-        "tools/concept_spatial_works.py": "ca7aeddd92ed1a260e13bad6e5cadfbdaef23118211f99095b1a112b1d5abc9d",
-        "tools/concept_ink_work.py": "75d08970e66ad18bc896a83844f6f0de175135b288f5a206f63553e7247cd656",
-        "tools/concept_corridor_work.py": "ef9cbb3ac187f8978b17d29b9cc81f3dc9c30681f3c09a563f0a9a2b66cab565",
+        "tools/concept_spatial_works.py": "e603ad8586151f6d5319c0bf19d7c093cf10a6df9ef0cf45b9e8c650d2f5925d",
+        "tools/concept_ink_work.py": "b0f08483f1797768dcfb4d71ade5b24aa8da71dfcaf6e11da82150c0250f82c8",
+        "tools/concept_corridor_work.py": "e530bfb86a26e1c3b1afd5f6d6effd665a6ec5dfcd2ef0e8c9be771f5bf87db5",
         "tools/author-concept-works.py": "7827fcceb8752e4f3d714f3942b4c542b8b14f3f99f2cc1494543588ba6be493",
         "tools/music_work.py": "428600ef8e33ad6697b105816434bea2843cafbdc833d2b9b25342edb45b0d65"
     },

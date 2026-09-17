@@ -30,6 +30,7 @@ def studio_environment(graph, name, scene, assets, energy=1):
 
 def render(graph, scene, camera, focus=None):
     node = graph.node
+    depth = None
     if focus is not None:
         captured = node('scene.capture', 9500, 0, dict(scene=scene, camera=camera))
         image = node('scene.render', 9800, 0, dict(scene=scene, camera=camera), scene_antialiasing=1)
@@ -41,7 +42,8 @@ def render(graph, scene, camera, focus=None):
     back = node('texture.gradient', 9800, 800, color_a=(.001, .003, .008, 1),
                 color_b=(.018, .033, .055, 1))
     back = node('texture.linearize', 10100, 800, dict(source=back))
-    return node('texture.composite', 10400, 0, dict(a=back, b=image), texture_precision=0)
+    image = node('texture.composite', 10400, 0, dict(a=back, b=image), texture_precision=0)
+    return image, depth
 
 
 def vortex():
@@ -70,9 +72,26 @@ def vortex():
     eye_z = node('scalar.expression', 8100, 1400, dict(time=clock), expression='9.7 + .3 * cos(time * .3926990817)')
     camera = node('scene.camera', 8700, 800, dict(eye_x=eye_x, eye_y=eye_y, eye_z=eye_z),
                   field_of_view=45, near_plane=.1, far_plane=30)
-    image = render(graph, stage, camera, 9.3)
+    image, depth = render(graph, stage, camera, 9.3)
     field = node('texture.blur', 10400, 800, dict(source=image), blur_radius=6, texture_precision=0)
     field = node('texture.color_adjust', 10700, 800, dict(source=field), contrast=1.04, texture_precision=0)
+    # 2x2 sprite atlas: soft dot, thin ring, crossed streak, hot spark. Every
+    # shape is symmetric and reaches zero at its cell border, so per-particle
+    # quadrant selection never shows seams.
+    q = '(fract(uv * 2.0) * 2.0 - 1.0)'
+    radius = f'length({q})'
+    dot = f'(1.0 - smoothstep(0.55, 0.95, {radius}))'
+    ring = f'(1.0 - smoothstep(0.08, 0.3, abs({radius} - 0.62)))'
+    streak = (f'(max(exp(-pow({q}.x * 5.0, 2.0)), exp(-pow({q}.y * 5.0, 2.0))) '
+              f'* (1.0 - smoothstep(0.5, 1.0, {radius})))')
+    spark = f'(1.0 - smoothstep(0.1, 0.42, {radius}))'
+    atlas_record = compile_expression(
+        name, 'particle_atlas',
+        f'vec4(1.0, 1.0, 1.0, mix(mix({dot}, {ring}, step(0.5, uv.x)), '
+        f'mix({streak}, {spark}, step(0.5, uv.x)), step(0.5, uv.y)))')
+    assets.append(atlas_record)
+    atlas = asset_node(graph, 'texture.shader', 900, 7200, atlas_record['sha256'],
+                       texture_precision=2)
     # The mesh vortex owns slow rotation. Independent low/mid/high events add
     # energy without replacing sustained motion with jitter.
     low_onset = node('event.audio_onset', 700, 4750, threshold=.012, band_first=0, band_last=20)
@@ -104,19 +123,24 @@ def vortex():
                  expression='time * 45.0 + a * 16.0')
     for index, (capacity, size) in enumerate(((24576, .0035), (6144, .012))):
         row = 6000 + index * 900
+        # Dust drifts behind the vortex arms and only shows through the gaps;
+        # sparks fly in front and fade against the nearest arm silhouettes.
         particles = node('gpu.particles', 1500, row,
                          dict(emission=emission, flow_strength=flow),
                          particle_capacity=capacity, seed=617 + index * 43, initial_fill=0,
                          emission_rate=820 if index == 0 else 310, lifetime=6 if index == 0 else 3.4,
                          emitter_radius=.72, particle_speed=.03 if index == 0 else .12, drag=.15,
                          flow_frequency=10 if index == 0 else 17, flow_evolution=.26 if index == 0 else .42,
+                         center_z=10.6 if index == 0 else 8.8,
                          point_size=size, color_a=(.08, .62, .88, .42) if index == 0 else (1, .42, .06, .85),
                          color_b=(1, .72, .18, .9) if index == 0 else (1, .93, .55, 1))
         particles = node('gpu.map', 1700, row + 350,
                          dict(points=particles, rotation=orbit, point_size_scale=particle_pulse))
         sampled = node('gpu.texture_sample', 1850, row, dict(points=particles, source=field),
                        sample_color=1, sample_size=.72 if index == 0 else .3)
-        sparks = node('gpu.render', 2200, row, dict(points=sampled), point_blend=1, texture_precision=2)
+        sparks = node('gpu.render', 2200, row, dict(points=sampled, atlas=atlas, depth=depth),
+                      point_blend=1, atlas_columns=2, atlas_rows=2,
+                      soft_distance=.9 if index == 0 else .7, texture_precision=2)
         sparks = node('texture.color_adjust', 2550, row, dict(source=sparks),
                       exposure=2.0 if index == 0 else 3.6, texture_precision=0)
         image = node('texture.composite', 10700, row, dict(a=image, b=sparks),
@@ -199,7 +223,7 @@ def porcelain():
     eye_z = node('scalar.expression', 8100, 1500, dict(time=clock), expression='9.8 + .7 * sin(time * .3926990817)')
     camera = node('scene.camera', 8700, 800, dict(eye_x=eye_x, eye_y=eye_y, eye_z=eye_z), target_z=.6,
                   field_of_view=43, near_plane=.1, far_plane=30)
-    image = render(graph, stage, camera)
+    image, _ = render(graph, stage, camera)
     # The flower remains a quiet, continuous sculpture in silence. A separate
     # foreground layer gives its three musical ranges distinct material gestures.
     low_onset = node('event.audio_onset', 6800, 4400, threshold=.013, band_first=0, band_last=20)
@@ -354,7 +378,7 @@ def dunhuang_ribbons():
     eye_y = node('scalar.expression', 7200, 320, dict(time=clock), expression='1.8 + .7 * cos(time * .3926990817)')
     camera = node('scene.camera', 7600, 0, dict(eye_x=eye_x, eye_y=eye_y), eye_z=10.5,
                   target_y=.5, target_z=.2, field_of_view=43, near_plane=.1, far_plane=30)
-    image = render(graph, stage, camera, 10)
+    image, _ = render(graph, stage, camera, 10)
     image = node('texture.composite', 10400, 0, dict(a=image, b=dust), composite_mode=1,
                  amount=1, texture_precision=0)
     image = node('texture.composite', 10700, 0, dict(a=image, b=sparks), composite_mode=1,

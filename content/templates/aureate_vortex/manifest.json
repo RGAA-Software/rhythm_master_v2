@@ -52,6 +52,11 @@
             "sha256": "28da49565f74e7f213fe74d79dad84f5eb3fc9f350162468868942a321610ef1",
             "bytes": 1169104,
             "media_type": "model/gltf-binary"
+        },
+        {
+            "sha256": "14538b501227d80b837c52b37e651f6e313b55dbcbebec6beebbe001f7439789",
+            "bytes": 6154,
+            "media_type": "application/x-rhythm-image-shader"
         }
     ],
     "soundtrack": {

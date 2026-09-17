@@ -48,9 +48,20 @@ def compile_expression(name, label, expression):
     source = ROOT / 'out/concept-authoring' / name / (label + '.expression')
     source.parent.mkdir(parents=True, exist_ok=True)
     source.write_text(expression, encoding='utf-8')
+    author_tool = None
+    for candidate in (ROOT / 'out/windows-pcf13/src/shader_authoring/shader_author_tool.exe',
+                      ROOT / 'out/windows-release/src/shader_authoring/shader_author_tool.exe'):
+        if candidate.exists():
+            author_tool = candidate
+            break
+    if author_tool is None:
+        raise RuntimeError(
+            'shader_author_tool.exe not found; build the shader_author_tool target first')
+    shaderc = ROOT / 'tools/shaderc.exe'
+    if not shaderc.exists():
+        shaderc = ROOT / 'out/windows-release/src/windows_spike/deploy/shader_tools/shaderc.exe'
     return json.loads(subprocess.check_output([
-        str(ROOT / 'out/windows-release/src/shader_authoring/shader_author_tool.exe'),
-        str(ROOT / 'out/windows-release/src/windows_spike/deploy/shader_tools/shaderc.exe'),
+        str(author_tool), str(shaderc),
         str(ROOT / 'third_party/sources/bgfx/src'),
         str(ROOT / 'src/rhythm_render/shaders/varying.def.sc'), str(source),
         str(ROOT / 'content/templates' / name / 'assets')], encoding='utf-8'))

@@ -98,7 +98,7 @@ def corridor():
     camera = node('scene.camera', 8700, 800,
                   dict(eye_x=eye_x, eye_y=eye_y, eye_z=eye_z, target_z=target_z),
                   target_x=-4.5, target_y=1.5, field_of_view=62, near_plane=.1, far_plane=70)
-    image = render(graph, stage, camera)
+    image, _ = render(graph, stage, camera)
     # Camera travel is continuous and owns the scene. Passing particulate light
     # layers make the long corridor legible at every energy level.
     low_onset = node('event.audio_onset', 8850, 1700, threshold=.013, band_first=0, band_last=20)

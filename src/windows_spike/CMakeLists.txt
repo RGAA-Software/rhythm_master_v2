@@ -461,7 +461,7 @@ if(BUILD_TESTING)
         set_tests_properties(music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME luminous_event_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
             --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/aureate_vortex.rhythmpack"
-            --expected-nodes 161 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --expected-nodes 177 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/luminous-event-music-captures")
         set_tests_properties(luminous_event_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME resonance_live_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
