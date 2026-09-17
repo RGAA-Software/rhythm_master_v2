@@ -46,6 +46,7 @@ struct BgfxDepthOfField::Buffers {
           half_framebuffer_b_(CreateFramebuffer({half_color_b_.Get(), half_weight_b_.Get()})) {}
 
     Extent extent_{};
+    bool used_ = false;
     GpuHandle<bgfx::TextureHandle> original_weight_{};
     GpuHandle<bgfx::TextureHandle> full_color_{};
     GpuHandle<bgfx::TextureHandle> full_weight_{};
@@ -104,9 +105,18 @@ std::uint64_t BgfxDepthOfField::AdditionalTextureBytes(Extent extent) const {
 
 BgfxDepthOfField::Buffers& BgfxDepthOfField::GetBuffers(Extent extent) {
     for (const auto& buffers : buffers_)
-        if (buffers->extent_ == extent) return *buffers;
+        if (buffers->extent_ == extent) {
+            buffers->used_ = true;
+            return *buffers;
+        }
     buffers_.push_back(std::make_unique<Buffers>(extent));
+    buffers_.back()->used_ = true;
     return *buffers_.back();
+}
+
+void BgfxDepthOfField::ReleaseUnused() {
+    std::erase_if(buffers_, [](const auto& buffers) { return !buffers->used_; });
+    for (const auto& buffers : buffers_) buffers->used_ = false;
 }
 
 void BgfxDepthOfField::SetFilterUniforms(const DepthOfField& dof, Extent sampling_extent,

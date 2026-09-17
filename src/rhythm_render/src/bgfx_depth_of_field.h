@@ -24,6 +24,10 @@ class BgfxDepthOfField final {
                  bgfx::TextureHandle depth);
     void SubmitFinal(bgfx::ViewId view, const DrawCommand& command, Extent extent,
                      bgfx::TextureHandle source);
+    // Retires cached scratch targets that no depth of field command used during
+    // the frame. Called at frame end so a released scene cannot hold an idle
+    // high-water pool; a later depth of field draw recreates its extent's set.
+    void ReleaseUnused();
     void AddStats(FrameStats& stats) const;
 
    private:

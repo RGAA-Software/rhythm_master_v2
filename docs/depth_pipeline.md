@@ -26,7 +26,8 @@ Very Low、Low、Medium、High；四档采用 Godot 4.5.1 固定的圆形步长�
 
 每个已见尺寸缓存 7 张后端私有临时纹理，共 `17 × width × height` bytes：一张全分辨率
 R16F 原始权重、一组全分辨率 RGBA16F+R16F，以及两组半分辨率 RGBA16F+R16F。
-Circle 每次 3 pass；Box/Hex 的 Very Low/Low 为 4 pass，Medium/High 为 3 pass。
+持续使用期间缓存保留；某一尺寸组在整个帧内未被任何 dof 命令使用时，帧末回收，
+再次需要时按需重建。Circle 每次 3 pass；Box/Hex 的 Very Low/Low 为 4 pass，Medium/High 为 3 pass。
 这些 pass 与纹理字节均计入公开帧统计，并与图纹理共同接受 256 MiB 纹理预算。
 
 采集节点和深度提取节点都可在节点内预览；深度预览按自身相机归一化。改变尺寸

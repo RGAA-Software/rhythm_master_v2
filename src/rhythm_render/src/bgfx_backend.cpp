@@ -546,6 +546,7 @@ class BgfxBackend final : public Backend {
         if (!in_frame_) throw std::logic_error("render.frame_not_open");
         const auto completed = bgfx::frame();
         readbacks_.Advance(completed, resources_);
+        if (depth_of_field_) depth_of_field_->ReleaseUnused();
         in_frame_ = false;
         ++frame_;
     }
