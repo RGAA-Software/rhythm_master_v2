@@ -31,6 +31,8 @@ BgfxGpuPoints::BgfxGpuPoints(std::uint64_t device) : store_(device) {
     view_ = GpuHandle(bgfx::createUniform("u_gpu_view", bgfx::UniformType::Vec4));
     sampling_ = GpuHandle(bgfx::createUniform("u_gpu_sample", bgfx::UniformType::Vec4));
     sampler_ = GpuHandle(bgfx::createUniform("s_gpu_sample", bgfx::UniformType::Sampler));
+    atlas_ = GpuHandle(bgfx::createUniform("u_gpu_atlas", bgfx::UniformType::Vec4));
+    atlas_sampler_ = GpuHandle(bgfx::createUniform("s_gpu_atlas", bgfx::UniformType::Sampler));
     constexpr std::array<std::uint8_t, 4> kWhite{255, 255, 255, 255};
     white_ = GpuHandle(bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::RGBA8,
                                              BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP,
@@ -114,7 +116,8 @@ void BgfxGpuPoints::Map(bgfx::ViewId view, GpuPointHandle source, GpuPointHandle
 }
 void BgfxGpuPoints::Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Extent extent,
                          bool invert, GpuPointHandle handle, const GpuPointStyle& style,
-                         bool float_target, bgfx::TextureHandle sampling_texture) {
+                         bool float_target, bgfx::TextureHandle sampling_texture,
+                         bgfx::TextureHandle atlas_texture) {
     store_.ValidateDraw(handle, style);
     bgfx::setViewName(view, "GPU point rendering");
     bgfx::setViewMode(view, bgfx::ViewMode::Sequential);
@@ -130,6 +133,13 @@ void BgfxGpuPoints::Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Exte
     bgfx::setUniform(sampling_.Get(), sampling.data());
     bgfx::setTexture(0, sampler_.Get(),
                      bgfx::isValid(sampling_texture) ? sampling_texture : white_.Get(),
+                     BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
+    const std::array<float, 4> atlas{style.atlas_ ? float(style.atlas_->columns_) : 1.0f,
+                                     style.atlas_ ? float(style.atlas_->rows_) : 1.0f,
+                                     style.atlas_ ? 1.0f : 0.0f, 0};
+    bgfx::setUniform(atlas_.Get(), atlas.data());
+    bgfx::setTexture(1, atlas_sampler_.Get(),
+                     bgfx::isValid(atlas_texture) ? atlas_texture : white_.Get(),
                      BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
     bgfx::setVertexBuffer(0, quad_.Get());
     bgfx::setIndexBuffer(indices_.Get());

@@ -1,8 +1,9 @@
 $input a_position, i_data0, i_data1, i_data2, i_data3
-$output v_texcoord0, v_color0
+$output v_texcoord0, v_texcoord1, v_color0
 #include <bgfx_shader.sh>
 uniform vec4 u_gpu_view;
 uniform vec4 u_gpu_sample;
+uniform vec4 u_gpu_atlas;
 SAMPLER2D(s_gpu_sample, 0);
 void main()
 {
@@ -17,6 +18,12 @@ void main()
     gl_Position = vec4(p, 0.0, 1.0);
     if (i_data0.w < 0.0) gl_Position = vec4(2.0, 2.0, 0.0, 1.0);
     v_texcoord0 = a_position;
+    // Stable spawn random selects one atlas cell; a 1x1 grid is the identity.
+    vec2 grid = max(u_gpu_atlas.xy, vec2_splat(1.0));
+    float cells = grid.x * grid.y;
+    float cell = min(floor(i_data3.z * cells), cells - 1.0);
+    vec2 uv_scale = vec2_splat(1.0) / grid;
+    v_texcoord1 = vec4(vec2(mod(cell, grid.x), floor(cell / grid.x)) * uv_scale, uv_scale);
     float fade = clamp((1.0 - i_data0.w / max(i_data1.w, 0.001)) * 4.0, 0.0, 1.0);
     vec3 straight_color = sampled.a > 0.00001 ? sampled.rgb / sampled.a : vec3_splat(0.0);
     vec3 color = mix(i_data2.rgb, straight_color, u_gpu_sample.x);

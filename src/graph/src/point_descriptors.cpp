@@ -75,10 +75,14 @@ void AppendPointDescriptors(std::vector<OperatorDescriptor>& operators) {
     operators.push_back({"gpu.render",
                          Operation::kGpuPointRender,
                          Type::kTexture,
-                         {{"points", Type::kGpuPoints}, {"opacity", Type::kScalar, false}},
+                         {{"points", Type::kGpuPoints},
+                          {"opacity", Type::kScalar, false},
+                          {"atlas", Type::kTexture, false}},
                          {{"opacity", 1.0, 0, 1},
                           {"point_blend", 1.0, 0, 1, {"composite.over", "composite.add"}},
-                          {"point_glow_radius", 1.0, 1, 4}}});
+                          {"point_glow_radius", 1.0, 1, 4},
+                          {"atlas_columns", 1.0, 1, 64},
+                          {"atlas_rows", 1.0, 1, 64}}});
 
     operators.push_back({"point.physics2d",
                          Operation::kPointPhysics,

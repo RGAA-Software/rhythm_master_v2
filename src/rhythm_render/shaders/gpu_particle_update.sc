@@ -42,7 +42,9 @@ void main()
         position = vec4(u_gpu_emit.xy + direction * radius, u_gpu_gravity.w, 0.0);
         velocity = vec4(direction * u_gpu_emit.w, 0.0, u_gpu_dynamics.y);
         color = mix(u_gpu_color_a, u_gpu_color_b, Random(state));
-        shape = vec4(u_gpu_dynamics.z * mix(0.5, 1.0, Random(state)), angle, 0.0, 0.0);
+        // Stable per-particle random for render-time shape/atlas variation.
+        shape = vec4(u_gpu_dynamics.z * mix(0.5, 1.0, Random(state)), angle,
+                     Random(state), 0.0);
     }
     float dt = u_gpu_step0.x;
     if (position.w >= 0.0 && dt > 0.0)

@@ -1,6 +1,8 @@
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 #include "gpu_execution_probe.h"
 #include "rhythm/render/renderer.h"
@@ -143,6 +145,98 @@ void SamplingOrientation(render::Renderer& renderer) {
     if (image.rgba_[kBottom + 2] < 200 || image.rgba_[kBottom] > 10)
         throw std::runtime_error("gpu_particles.sample_bottom_origin");
 }
+void AtlasShapeVariation(render::Renderer& renderer) {
+    auto target = renderer.CreateTexture({64, 64});
+    auto points = renderer.CreateGpuPoints(1);
+    render::GpuParticleStep step;
+    step.reset_ = true;
+    step.spawn_count_ = 1;
+    step.center_ = {.5f, .5f, 0};
+    step.radius_ = step.speed_ = step.flow_ = 0;
+    step.size_ = .5f;
+    step.color_a_ = step.color_b_ = {1, 1, 1, 1};
+    Update(renderer, points.Handle(), step);
+    const auto red = [](const render::ReadbackImage& image, std::size_t x, std::size_t y) {
+        return image.rgba_[(y * 64 + x) * 4];
+    };
+    const auto analytic = Capture(renderer, target.Handle(), points.Handle());
+    if (red(analytic, 32, 32) < 200) throw std::runtime_error("gpu_point_atlas.baseline");
+    // A hollow ring cell modulates the analytic envelope: center dark, ring bright.
+    std::vector<std::uint8_t> ring_pixels(16 * 16 * 4, 0);
+    for (int y = 0; y < 16; ++y)
+        for (int x = 0; x < 16; ++x) {
+            const float dx = x - 7.5f, dy = y - 7.5f;
+            const float r = std::sqrt(dx * dx + dy * dy);
+            if (r > 2.5f && r < 7.9f) {
+                const auto offset = (y * 16 + x) * 4;
+                ring_pixels[offset] = ring_pixels[offset + 1] = ring_pixels[offset + 2] =
+                        ring_pixels[offset + 3] = 255;
+            }
+        }
+    auto ring = renderer.CreateTexture({16, 16}, ring_pixels);
+    render::GpuPointStyle style;
+    style.atlas_ = render::GpuPointAtlas{ring.Handle(), 1, 1};
+    const auto ringed = Capture(renderer, target.Handle(), points.Handle(), style);
+    if (red(ringed, 32, 32) > 30) throw std::runtime_error("gpu_point_atlas.shape_center");
+    // The spawn size random varies the sprite extent; 8px stays inside every
+    // possible quad and maps onto the ring band.
+    if (red(ringed, 40, 32) < 60) throw std::runtime_error("gpu_point_atlas.shape_ring");
+    // Texture v=0 must be the sprite's canvas-top: only the top-left quadrant glows.
+    std::vector<std::uint8_t> quadrant_pixels(16 * 16 * 4, 0);
+    for (int y = 0; y < 8; ++y)
+        for (int x = 0; x < 8; ++x) {
+            const auto offset = (y * 16 + x) * 4;
+            quadrant_pixels[offset] = quadrant_pixels[offset + 1] = quadrant_pixels[offset + 2] =
+                    quadrant_pixels[offset + 3] = 255;
+        }
+    auto quadrant = renderer.CreateTexture({16, 16}, quadrant_pixels);
+    style.atlas_ = render::GpuPointAtlas{quadrant.Handle(), 1, 1};
+    const auto oriented = Capture(renderer, target.Handle(), points.Handle(), style);
+    int bright = 0;
+    for (std::size_t y = 0; y < 64; ++y)
+        for (std::size_t x = 0; x < 64; ++x) {
+            if (red(oriented, x, y) <= 40) continue;
+            ++bright;
+            if (x >= 38 || y >= 38) throw std::runtime_error("gpu_point_atlas.orientation");
+        }
+    if (bright < 20) throw std::runtime_error("gpu_point_atlas.orientation_empty");
+    // Two cells, one solid and one empty: the stable spawn random retires half
+    // of an identical crowd relative to a single solid cell.
+    std::vector<std::uint8_t> solid_pixels(16 * 16 * 4, 255);
+    auto solid = renderer.CreateTexture({16, 16}, solid_pixels);
+    std::vector<std::uint8_t> pair_pixels(32 * 16 * 4, 0);
+    for (int y = 0; y < 16; ++y)
+        for (int x = 0; x < 16; ++x) {
+            const auto offset = (y * 32 + x) * 4;
+            pair_pixels[offset] = pair_pixels[offset + 1] = pair_pixels[offset + 2] =
+                    pair_pixels[offset + 3] = 255;
+        }
+    auto pair = renderer.CreateTexture({32, 16}, pair_pixels);
+    auto crowd = renderer.CreateGpuPoints(128);
+    render::GpuParticleStep spawn;
+    spawn.reset_ = true;
+    spawn.spawn_count_ = 128;
+    spawn.center_ = {.5f, .5f, 0};
+    spawn.radius_ = .3f;
+    spawn.speed_ = spawn.flow_ = 0;
+    spawn.lifetime_ = 100;
+    spawn.size_ = .01f;
+    spawn.color_a_ = spawn.color_b_ = {1, 1, 1, 1};
+    Update(renderer, crowd.Handle(), spawn);
+    const auto lit = [](const render::ReadbackImage& image) {
+        return std::count_if(image.rgba_.begin(), image.rgba_.end(),
+                             [](auto byte) { return byte > 40; });
+    };
+    render::GpuPointStyle one_cell;
+    one_cell.atlas_ = render::GpuPointAtlas{solid.Handle(), 1, 1};
+    const auto full = lit(Capture(renderer, target.Handle(), crowd.Handle(), one_cell));
+    render::GpuPointStyle two_cells;
+    two_cells.atlas_ = render::GpuPointAtlas{pair.Handle(), 2, 1};
+    const auto halved = lit(Capture(renderer, target.Handle(), crowd.Handle(), two_cells));
+    std::cout << "gpu_point_atlas full=" << full << " two_cells=" << halved << '\n';
+    if (full < 100 || halved > full * 3 / 4 || halved < full / 4)
+        throw std::runtime_error("gpu_point_atlas.cell_selection");
+}
 }  // namespace
 void VerifyGpuParticles(render::Renderer& renderer) {
     if (!renderer.SupportsGpuPoints()) {
@@ -152,6 +246,7 @@ void VerifyGpuParticles(render::Renderer& renderer) {
     Mapping(renderer);
     SoftParticleFalloff(renderer);
     SamplingOrientation(renderer);
+    AtlasShapeVariation(renderer);
     auto target = renderer.CreateTexture({64, 64});
     // Non-workgroup-aligned capacity and wrapping ring exercise bounds guards.
     auto points = renderer.CreateGpuPoints(65);

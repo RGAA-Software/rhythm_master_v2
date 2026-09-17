@@ -1,0 +1,50 @@
+{
+    "sources": [
+        {
+            "source_url": "https://github.com/bkaradzic/bgfx",
+            "revision": "aaf1f49dc182e893bd5e6f4df7147531545f396",
+            "license": "BSD-2-Clause",
+            "notice": "third_party/notices/bgfx-oit/LICENSE",
+            "source_file": "examples/common/ps/particle_system.cpp",
+            "sha256": "37afca5f0367d35c1e7662696e853e7f94d1dbb8288d68784b5fb668cdbac301",
+            "reference_location": "out/reference/bgfx-latest/examples/common/ps/particle_system.cpp",
+            "symbols": [
+                "sprite sheet uv rectangle selection per particle"
+            ],
+            "targets": [
+                "src/rhythm_render/shaders/gpu_point_vertex.sc",
+                "src/rhythm_render/shaders/gpu_point_fragment.sc"
+            ],
+            "modifications": [
+                "Select the cell from the stable per-particle spawn random in the instance record instead of a CPU-side sprite index.",
+                "Modulate the existing analytic soft envelope with the sampled shape/tint instead of replacing the particle with a textured quad."
+            ]
+        },
+        {
+            "source_url": "https://github.com/godotengine/godot",
+            "revision": "f62fdbde15035c5576dad93e586201f4d41ef0cb",
+            "tag": "4.5.1-stable",
+            "license": "MIT",
+            "notice": "third_party/notices/godot/LICENSE.txt",
+            "source_file": "scene/resources/particle_process_material.cpp",
+            "sha256": "cc73b608066e14f8dba00b4ddec724655874152c1415e28012bc5d210d5b0949",
+            "reference_location": "out/reference/godot-4.5.1/scene/resources/particle_process_material.cpp",
+            "symbols": [
+                "per-particle texture variation from a stable random"
+            ],
+            "targets": [
+                "src/rhythm_render/shaders/gpu_particle_update.sc"
+            ],
+            "modifications": [
+                "Carry the variation as one reserved shape component in the fixed four-vec4 record; emission writes it once and the simulation copies it unchanged.",
+                "Atlas grid dimensions come from the render style, not the process parameters, so existing emitters need no resimulation."
+            ]
+        }
+    ],
+    "targets": [
+        "src/rhythm_render/include/rhythm/render/gpu_points.h",
+        "src/rhythm_render/shaders/gpu_point_vertex.sc",
+        "src/rhythm_render/shaders/gpu_point_fragment.sc",
+        "src/rhythm_render/shaders/gpu_particle_update.sc"
+    ]
+}

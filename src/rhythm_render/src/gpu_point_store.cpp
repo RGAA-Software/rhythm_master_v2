@@ -94,6 +94,9 @@ void GpuPointStore::ValidateDraw(GpuPointHandle handle, const GpuPointStyle& sty
          style.sampling_->color_amount_ > 1 || !std::isfinite(style.sampling_->size_amount_) ||
          style.sampling_->size_amount_ < 0 || style.sampling_->size_amount_ > 1))
         throw std::invalid_argument("render.gpu_point_sampling");
+    if (style.atlas_ && (style.atlas_->columns_ < 1 || style.atlas_->columns_ > 64 ||
+                         style.atlas_->rows_ < 1 || style.atlas_->rows_ > 64))
+        throw std::invalid_argument("render.gpu_point_atlas");
 }
 void GpuPointStore::AddStats(FrameStats& stats) const {
     stats.gpu_point_capacity_ = total_;

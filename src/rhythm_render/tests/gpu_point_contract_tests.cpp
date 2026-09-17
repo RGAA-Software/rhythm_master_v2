@@ -122,6 +122,17 @@ void Run() {
     sampled.sampling_->texture_ = map.Handle();
     map = {};
     Reject([&] { renderer.SubmitGpuPoints(target.Handle(), stale, sampled); });
+    sampled.sampling_.reset();
+    auto atlas_map = renderer.CreateTexture({16, 16});
+    GpuPointStyle atlased;
+    atlased.atlas_ = GpuPointAtlas{atlas_map.Handle(), 0, 1};
+    Reject([&] { renderer.SubmitGpuPoints(target.Handle(), stale, atlased); });
+    atlased.atlas_ = GpuPointAtlas{atlas_map.Handle(), 1, 65};
+    Reject([&] { renderer.SubmitGpuPoints(target.Handle(), stale, atlased); });
+    atlased.atlas_ = GpuPointAtlas{target.Handle(), 1, 1};
+    Reject([&] { renderer.SubmitGpuPoints(target.Handle(), stale, atlased); });
+    atlased.atlas_ = GpuPointAtlas{atlas_map.Handle(), 2, 2};
+    renderer.SubmitGpuPoints(target.Handle(), stale, atlased);
     step.spawn_count_ = 1025;
     Reject([&] { renderer.UpdateGpuParticles(stale, step); });
     step.spawn_count_ = 0;

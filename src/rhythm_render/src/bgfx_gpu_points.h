@@ -18,7 +18,7 @@ class BgfxGpuPoints final {
     }
     void Draw(bgfx::ViewId view, bgfx::FrameBufferHandle target, Extent extent, bool invert,
               GpuPointHandle handle, const GpuPointStyle& style, bool float_target,
-              bgfx::TextureHandle sampling_texture);
+              bgfx::TextureHandle sampling_texture, bgfx::TextureHandle atlas_texture);
     void AddStats(FrameStats& stats) const { store_.AddStats(stats); }
     void Invalidate() { store_.Invalidate(); }
 
@@ -37,6 +37,8 @@ class BgfxGpuPoints final {
     GpuHandle<bgfx::UniformHandle> view_{};
     GpuHandle<bgfx::UniformHandle> sampling_{};
     GpuHandle<bgfx::UniformHandle> sampler_{};
+    GpuHandle<bgfx::UniformHandle> atlas_{};
+    GpuHandle<bgfx::UniformHandle> atlas_sampler_{};
     GpuHandle<bgfx::TextureHandle> white_{};
 };
 }  // namespace rhythm::render::detail

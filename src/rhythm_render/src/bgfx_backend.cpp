@@ -315,10 +315,14 @@ class BgfxBackend final : public Backend {
         const auto sampling_texture =
                 style.sampling_ ? textures_.at(style.sampling_->texture_.slot_).texture_.Get()
                                 : bgfx::TextureHandle{bgfx::kInvalidHandle};
+        const auto atlas_texture =
+                style.atlas_ ? textures_.at(style.atlas_->texture_.slot_).texture_.Get()
+                             : bgfx::TextureHandle{bgfx::kInvalidHandle};
         gpu_points_->Draw(
                 static_cast<bgfx::ViewId>(passes_), textures_.at(target.slot_).framebuffer_.Get(),
                 resources_.Size(target), invert_targets_, handle, style,
-                resources_.Precision(target) == TexturePrecision::kFloat16, sampling_texture);
+                resources_.Precision(target) == TexturePrecision::kFloat16, sampling_texture,
+                atlas_texture);
         ++passes_;
         ++draws_;
     }

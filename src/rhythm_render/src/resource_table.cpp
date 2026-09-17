@@ -175,11 +175,13 @@ void ResourceTable::RecordSceneSamples(const SceneDrawList& list) {
             if (IsValid(texture)) slots_[texture.slot_].sampled_ = true;
 }
 void ResourceTable::RecordGpuPointSamples(TextureHandle target, const GpuPointStyle& style) {
-    if (!style.sampling_) return;
-    const auto texture = style.sampling_->texture_;
-    if (!IsValid(texture) || IsDepth(texture) || texture == target)
-        throw std::invalid_argument("render.gpu_point_sampling");
-    slots_.at(texture.slot_).sampled_ = true;
+    const auto record = [&](TextureHandle texture, const char* error) {
+        if (!IsValid(texture) || IsDepth(texture) || texture == target)
+            throw std::invalid_argument(error);
+        slots_.at(texture.slot_).sampled_ = true;
+    };
+    if (style.sampling_) record(style.sampling_->texture_, "render.gpu_point_sampling");
+    if (style.atlas_) record(style.atlas_->texture_, "render.gpu_point_atlas");
 }
 void ResourceTable::RecordSamples(const DrawList& list) {
     const auto sample = [&](TextureHandle handle) {

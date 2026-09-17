@@ -19,8 +19,11 @@ struct GpuPointHandle {
 };
 inline constexpr std::uint32_t kMaximumGpuPoints = 262144;
 inline constexpr std::uint32_t kMaximumGpuPointTotal = 1048576;
-// Fixed typed buffer: position/age, velocity/lifetime, straight RGBA, size/rotation.
-// Position is canvas-normalized, size a fraction of canvas height, time in seconds.
+// Fixed typed buffer: position/age, velocity/lifetime, straight RGBA,
+// size/rotation/spawn-random. Position is canvas-normalized, size a fraction of
+// canvas height, time in seconds. The third shape component carries a stable
+// per-particle random in [0,1) assigned at spawn; renderers may use it for
+// atlas cell or shape variation and the simulation copies it unchanged.
 // No CPU memory mapping or native binding is exposed. Mutations run on the device
 // thread in submitted frame order; the first update must initialize every record.
 struct GpuParticleStep {
@@ -63,12 +66,22 @@ struct GpuPointSampling {
     float size_amount_ = 0;
     bool operator==(const GpuPointSampling&) const = default;
 };
+// Optional sprite atlas for the point renderer. Each particle picks one stable
+// cell from its spawn random; the sampled shape and tint modulate the analytic
+// soft envelope, so edges stay smooth. Columns and rows are in [1,64].
+struct GpuPointAtlas {
+    TextureHandle texture_{};
+    std::uint32_t columns_ = 1;
+    std::uint32_t rows_ = 1;
+    bool operator==(const GpuPointAtlas&) const = default;
+};
 struct GpuPointStyle {
     float opacity_ = 1;
     bool additive_ = true;
     std::optional<GpuPointSampling> sampling_{};
     // Expands the same analytic sprite for a local halo; no fullscreen blur pass.
     float glow_radius_ = 1;
+    std::optional<GpuPointAtlas> atlas_{};
 };
 // Move-only owner retains the backend through final release, like Texture/Mesh.
 // Handles are generation-checked observers; all destruction is device-thread only.
