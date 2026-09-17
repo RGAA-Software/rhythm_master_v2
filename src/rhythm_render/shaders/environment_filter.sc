@@ -1,7 +1,8 @@
 $input v_color0, v_texcoord0
 #include <bgfx_shader.sh>
-// TiXL MIT Hammersley/GGX prefilter adapted to a bounded equirectangular atlas.
-// GLM MIT color transfer. See provenance/environment_lighting.json and notices.
+// Godot 4.5.1 MIT GGX sample tiers/filter distribution, retaining the common
+// TiXL MIT Hammersley sequence in a bounded equirectangular atlas. GLM MIT
+// color transfer. See provenance/environment_lighting.json and notices.
 SAMPLER2D(s_tex, 0);
 uniform vec4 u_environment_filter;
 float LinearEnvironment(float c) {
@@ -42,21 +43,30 @@ void main() {
         vec3 up = abs(normal.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
         vec3 tangent = normalize(cross(up, normal));
         vec3 bitangent = cross(normal, tangent);
-        float roughness = tile * 0.25;
-        float a = roughness * roughness;
+        float perceptual_roughness = tile * 0.25;
+        float roughness = perceptual_roughness * perceptual_roughness;
+        float roughness4 = roughness * roughness;
+        roughness4 *= roughness4;
+        int sample_count = tile < 1.5 ? 8 : tile < 2.5 ? 16 : tile < 3.5 ? 32 : 128;
+        if (tile > 4.5)
+            sample_count = 64;
         float weight = 0.0;
-        for (int j = 0; j < 64; ++j) {
-            vec2 xi = vec2(float(j) / 64.0, RadicalInverse(uint(j)));
-            float angle = 6.28318530718 * xi.x;
-            float cosine = tile > 4.5 ? sqrt(1.0 - xi.y) :
-                sqrt((1.0 - xi.y) / (1.0 + (a * a - 1.0) * xi.y));
-            float sine = sqrt(max(0.0, 1.0 - cosine * cosine));
-            vec3 half_vector = tangent * (sine * cos(angle)) + bitangent * (sine * sin(angle)) + normal * cosine;
-            vec3 light = tile > 4.5 ? half_vector : 2.0 * dot(normal, half_vector) * half_vector - normal;
-            float n_dot_l = tile > 4.5 ? 1.0 : max(dot(normal, light), 0.0);
-            // Divide before accumulating to remain finite in half-range inputs.
-            result += ReadEnvironment(light) * (n_dot_l / 64.0);
-            weight += n_dot_l / 64.0;
+        for (int j = 0; j < 128; ++j) {
+            if (j < sample_count) {
+                vec2 xi = vec2(float(j) / float(sample_count), RadicalInverse(uint(j)));
+                float angle = 6.28318530718 * xi.x;
+                float cosine = tile > 4.5 ? sqrt(1.0 - xi.y) :
+                    sqrt((1.0 - xi.y) / (1.0 + (roughness4 - 1.0) * xi.y));
+                float sine = sqrt(max(0.0, 1.0 - cosine * cosine));
+                vec3 half_vector = tangent * (sine * cos(angle)) +
+                    bitangent * (sine * sin(angle)) + normal * cosine;
+                vec3 light = tile > 4.5 ? half_vector :
+                    2.0 * dot(normal, half_vector) * half_vector - normal;
+                float n_dot_l = tile > 4.5 ? 1.0 : max(dot(normal, light), 0.0);
+                // Normalize by accepted energy, matching Godot's weighted filter.
+                result += ReadEnvironment(light) * n_dot_l;
+                weight += n_dot_l;
+            }
         }
         result /= max(weight, 0.000001);
     }

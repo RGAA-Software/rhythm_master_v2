@@ -22,7 +22,7 @@
 | P0 | 透明 3D | 已按 Godot 语义采用不透明优先、稳定后到前排序、材质 priority、实例 sorting offset，并完成可选 alpha depth prepass；接近不透明的贴图覆盖写深度，透明孔洞保留后层 | 普通混合仍是顺序相关 source-over；复杂 OIT 单独验证后决定，不把 depth prepass 当作通用逐像素透明排序 |
 | 已交付 | 景深 | Godot Circle/Box/Hex、四档 quality、半/全分辨率路径、独立 R16F 权重、分离卷积和最终 composite 已接入；旧 samples 文档兼容 | D3D11 已覆盖近景细边界、远景颜色、透明 alpha、横竖画布和动态相机作品；Android 实机复验留在最终平台阶段 |
 | P1 | 阴影 | 已采用 Godot Nearest/PCF5/PCF13、稳定方向光投影、可选双级联和 cube 模式点光全向阴影；越界 PCF tap 会切换相邻面，全部 12 条 edge/8 个 corner、六方向、子网格、Porcelain Bloom、Chromatic Loom 和 Sonic Enamel 均有 D3D11 回读；点光六遍深度已有逐 view GPU 计时，仍只有单选择光源 | 继续评审与 Godot 硬件 cube 比较的差异、Android 实机、代表作品和多周期；四级联/分割混合按实际作品缺口再决定，保留 PCF5 和单图作为兼容默认档 |
-| P1 | 环境预滤波 | 当前 GGX/Hammersley 预滤来自 TiXL，图集和样本预算受限；粗糙材质可能出现噪声或层级跳变 | 对照 Godot reflection/environment filter 的分布、LOD 与能量守恒；固定输入环境做粗糙度阶梯比较 |
+| 已交付 | 环境预滤波 | Godot 8/16/32/128 分层采样、平方 GGX 分布、`sqrt(roughness)` LOD、反射弯折与 horizon 衰减已接入现有线性图集；恒定环境保持能量 | 固定 HDR 阶梯 D3D11 回读为 192/185/110/22/9，Sonic Enamel 动态相机 121 帧通过；单一 2D 来源缺少 Godot cubemap mip/PDF，Android 实机复验留最终平台阶段 |
 | P1 | 粒子呈现 | 解析圆点的连续柔边已验证，仍缺纹理图集、材质变化、软深度交界和体积感；大量同形粒子容易显得单薄 | 参考 Godot 粒子 quad/material、soft particle 和发光材质路径；保留 GPU simulation 与项目节点契约 |
 | P1 | trail/feedback | 单历史纹理缩放旋转并线性混合；快速运动、长尾和循环边界可能出现重影断层 | 对照 Godot motion/temporal 处理及成熟反馈实现，增加速度/衰减一致性和回收边界动态测试 |
 | P2 | 噪声与纹理生成 | TiXL 固定四 octave Perlin 可重复且范围有限，放大时可能暴露网格和频带单一 | 审查 Godot FastNoiseLite/纹理噪声；增加 domain warp、不同频谱层和抗走样后再决定迁移范围 |

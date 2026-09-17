@@ -13,10 +13,13 @@ vec3 EnvironmentAtlas(vec3 direction, float tile) {
 vec3 GodotEnvironment(vec3 normal, vec3 view, vec3 base, float metallic, float roughness) {
     if (u_scene_environment.x <= 0.0) return vec3(0.0, 0.0, 0.0);
     vec3 reflection = reflect(-view, normal);
-    float level = clamp(roughness, 0.0, 1.0) * 4.0;
+    reflection = normalize(mix(reflection, normal, roughness * roughness));
+    float horizon = min(1.0 + dot(reflection, normal), 1.0);
+    float level = sqrt(clamp(roughness, 0.0, 1.0)) * 4.0;
     float lower = floor(level);
     vec3 specular = mix(EnvironmentAtlas(reflection, lower),
                         EnvironmentAtlas(reflection, min(lower + 1.0, 4.0)), level - lower);
+    specular *= horizon * horizon;
     vec3 diffuse = EnvironmentAtlas(normal, 5.0) * base * (1.0 - metallic);
     vec3 f0 = mix(vec3(0.04, 0.04, 0.04), base, metallic);
     vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);

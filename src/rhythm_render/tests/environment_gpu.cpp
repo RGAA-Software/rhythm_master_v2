@@ -17,6 +17,22 @@ render::DrawList EnvironmentQuad(render::TextureHandle source) {
     list.commands_ = {{source, 0, 6, {0, 0, 780, 66}}};
     return list;
 }
+render::DrawList TextureQuad(render::TextureHandle source, render::Extent extent) {
+    render::DrawList list;
+    list.width_ = extent.width_;
+    list.height_ = extent.height_;
+    list.vertices_ = {{0, 0, 0, 0},
+                      {static_cast<float>(extent.width_), 0, 1, 0},
+                      {static_cast<float>(extent.width_), static_cast<float>(extent.height_), 1, 1},
+                      {0, static_cast<float>(extent.height_), 0, 1}};
+    list.indices_ = {0, 1, 2, 0, 2, 3};
+    list.commands_ = {
+            {source,
+             0,
+             6,
+             {0, 0, static_cast<float>(extent.width_), static_cast<float>(extent.height_)}}};
+    return list;
+}
 render::ReadbackImage EnvironmentComplete(render::Renderer& renderer, render::Readback ticket) {
     for (int i = 0; i < 32; ++i) {
         if (auto result = ticket.Poll()) return std::move(*result);
@@ -107,6 +123,43 @@ void VerifyEnvironmentLighting(render::Renderer& renderer) {
     if (capture()[0] < 60) throw std::runtime_error("environment.ao_preserves_direct_light");
     scene.lights_.clear();
     scene.draws_[0] = draw;
+
+    // A fixed linear HDR highlight must broaden and lose peak energy smoothly
+    // across the five Godot perceptual-roughness filter levels.
+    constexpr Extent kHdrExtent{128, 64};
+    std::vector<std::uint8_t> hdr_pixels(kHdrExtent.width_ * kHdrExtent.height_ * 4, 0);
+    for (std::uint32_t y = 0; y < kHdrExtent.height_; ++y)
+        for (std::uint32_t x = 0; x < kHdrExtent.width_; ++x) {
+            const auto offset = (y * kHdrExtent.width_ + x) * 4;
+            const auto radiance = static_cast<std::uint8_t>(x >= 94 && x <= 98 ? 48 : 2);
+            hdr_pixels[offset] = hdr_pixels[offset + 1] = hdr_pixels[offset + 2] = radiance;
+            hdr_pixels[offset + 3] = 255;
+        }
+    auto hdr_source = renderer.CreateTexture(kHdrExtent, hdr_pixels);
+    auto hdr_linear = renderer.CreateTexture(kHdrExtent, {}, TexturePrecision::kFloat16);
+    auto make_hdr = TextureQuad(hdr_source.Handle(), kHdrExtent);
+    make_hdr.commands_[0].color_pipeline_ =
+            ColorPipeline{ColorTransfer::kLinear, ColorTransfer::kLinear, ToneMapping::kNone, 2};
+    renderer.BeginFrame();
+    renderer.Submit(hdr_linear.Handle(), make_hdr);
+    renderer.EndFrame();
+    prepare.commands_[0].texture_ = hdr_linear.Handle();
+    std::array<std::uint8_t, 5> roughness_ladder{};
+    const std::array<float, 5> roughness{0, 0.0625f, 0.25f, 0.5625f, 1};
+    for (std::size_t i = 0; i < roughness.size(); ++i) {
+        scene.draws_[0].roughness_ = roughness[i];
+        roughness_ladder[i] = capture()[0];
+    }
+    constexpr std::array<int, 5> kExpectedLadder{192, 185, 110, 22, 9};
+    for (std::size_t i = 0; i < roughness_ladder.size(); ++i) {
+        if (std::abs(int(roughness_ladder[i]) - kExpectedLadder[i]) > 8 ||
+            (i > 0 && roughness_ladder[i] >= roughness_ladder[i - 1]))
+            throw std::runtime_error("environment.hdr_roughness_ladder");
+    }
+    std::cout << "Environment HDR roughness ladder:";
+    for (const auto value : roughness_ladder) std::cout << ' ' << int(value);
+    std::cout << '\n';
+
     std::vector<std::uint8_t> hemispheres(64 * 32 * 4, 0);
     for (int y = 0; y < 32; ++y)
         for (int x = 0; x < 64; ++x) {
@@ -116,6 +169,7 @@ void VerifyEnvironmentLighting(render::Renderer& renderer) {
         }
     auto directional = renderer.CreateTexture({64, 32}, hemispheres);
     prepare.commands_[0].texture_ = directional.Handle();
+    scene.draws_[0].roughness_ = 0;
     const auto blue = capture();
     scene.environment_->rotation_ = 180;
     const auto red = capture();

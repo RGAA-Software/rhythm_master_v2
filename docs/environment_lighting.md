@@ -23,11 +23,22 @@ The scene preview uses the authored environment without adding a fallback light.
 The renderer prepares a linear RGBA16F atlas, 780×66 pixels (411,840 bytes).
 Six horizontal tiles have 128×64 interiors and a one-pixel gutter on each edge.
 Five GGX specular tiles use roughness 0, .25, .5, .75, 1; the sixth stores
-cosine-weighted diffuse convolution. Each filtered pixel uses 64 Hammersley
-samples. Longitude wraps; latitude clamps. Gutters prevent filtering across
-unrelated roughness tiles. This is a bounded first IBL quality tier: tiny bright
-sources and highly detailed mirror reflections need future higher-resolution
-or mip-aware filtering. It is not a full Godot environment/probe system.
+cosine-weighted diffuse convolution. The four filtered specular levels now use
+Godot's 8/16/32/128 sample tiers. Perceptual roughness is squared before the
+Godot GGX distribution, accepted samples are normalized by `N·L`, and the
+diffuse tile keeps 64 samples. This reduces aggregate filtered lookups from 320
+to 248 per atlas direction while spending most of them where broad reflections
+need stability. Longitude wraps; latitude clamps. Gutters prevent filtering
+across unrelated roughness tiles.
+
+The material path follows Godot's `sqrt(roughness)` radiance LOD, bends the
+reflection toward the normal by roughness squared and applies its horizon
+attenuation before the existing Lazarov environment BRDF. The source contract
+is still a single equirectangular 2D texture, so Godot's source-cubemap mip/PDF
+selection cannot be copied without changing resource preparation. The atlas
+therefore remains a bounded IBL tier: tiny bright sources and mirror detail are
+limited by its 128×64 tile resolution. It is not a full Godot environment/probe
+system.
 
 Source color is unpremultiplied and optionally decoded once before convolution.
 Texture alpha does not represent a hole in the environment. A transparent black
@@ -49,14 +60,16 @@ precision/extent, sampling the receiver target and non-finite settings reject.
 
 ## Reuse
 
-Godot is the primary 3D reference. Its fixed 4.5.1 GLES scene shader supplies the
-Lazarov environment BRDF approximation. TiXL's fixed local
-`RenderToCubemap-vs.hlsl` supplies the GGX importance sampling, Hammersley sequence
-and weighted prefilter loop. The latter targets D3D cubemaps/geometry shaders;
-our existing cross-platform public texture contract exposes 2D textures. The
-focused adaptation keeps those algorithms and replaces the projection/storage
-with an atlas. The GLM piecewise sRGB conversion is shared with the existing
-color pipeline. No new library or vcpkg package is introduced.
+Godot is the primary 3D reference. Its fixed 4.5.1 GLES cubemap filter supplies
+the roughness transform, 8/16/32/128 sample tiers and weighted GGX loop; its scene
+shader supplies `sqrt(roughness)` LOD, reflection bending, horizon attenuation
+and the Lazarov environment BRDF. TiXL's fixed local `RenderToCubemap-vs.hlsl`
+retains provenance for the equivalent Hammersley sequence used by the original
+implementation. Both engines target cubemaps, while our cross-platform public
+texture contract exposes 2D textures. The focused adaptation replaces cube
+projection/storage with the existing atlas and retains a separate cosine diffuse
+tile. The GLM piecewise sRGB conversion is shared with the existing color
+pipeline. No new library or vcpkg package is introduced.
 
 Exact revisions, file hashes, imported files, modifications and MIT notices are
 recorded in [provenance](../provenance/environment_lighting.json). Existing
@@ -65,12 +78,20 @@ repository's pending outbound license.
 
 ## Verification
 
-Windows D3D11 and Android GLES 3.1 on e2b3b128 / Adreno 650 pass native GPU
+The original Windows D3D11 and Android GLES 3.1 checks on e2b3b128 / Adreno 650 pass native GPU
 readbacks for constant energy over every atlas pixel/gutter, sRGB decoding and
 premultiplied input, metal/roughness response, diffuse, AO preserving direct
 lighting, environment rotation and disabling. The same execution probe retains
 the preceding instance/compute, float color, depth, local-light, material and
 shadow checks. Logs: `out/ibl-render-tests.log`, `out/ibl-android-probe.log`.
+
+The 2026-09-17 Godot filter update adds a fixed linear-HDR highlight ladder at
+material roughness 0/.0625/.25/.5625/1. D3D11 reads back 192/185/110/22/9,
+locking the new distribution and LOD progression while the constant environment
+still remains invariant. Windows and Android shader compilation pass; Android
+device revalidation stays in the final platform phase. The current Sonic Enamel
+author graph passes 121 dynamic-camera frames with the new filter. Evidence is
+recorded in [validation](validation/godot_environment_filter_2026-09-17.md).
 
 Runtime tests pass on Windows and Android for animated rotation without refiltering,
 changing source versions with a stable handle, source pinning, preview release,
@@ -78,7 +99,7 @@ disabling/reset and merge ambiguity. Windows scene/material/shadow/lifetime and
 program-publication regressions also pass. The final native probes additionally
 verify Float16 source radiance above one survives every atlas tile.
 
-Sonic Enamel now contains 63 nodes and 82 edges, including a static procedural
+Sonic Enamel now contains 64 nodes, including a static procedural
 studio environment whose rotation follows the existing time signal. Its bass,
 treble and RMS controls remain editable. Real PCM comparisons at equal timeline
 times have mean absolute RGB differences (0–255) of 2.80545 for demo/silence,

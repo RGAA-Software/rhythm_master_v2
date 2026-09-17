@@ -10,14 +10,58 @@
             "sha256": "741d48c937836dd443b4526544648194588d0349e88472a0f54c1b140a9cdf31",
             "reference_location": "out/reference/godot-4.5.1/drivers/gles3/shaders/scene.glsl",
             "symbols": [
-                "Environment brdf approximation (Lazarov 2013)"
+                "Environment brdf approximation (Lazarov 2013)",
+                "sqrt(roughness) radiance LOD",
+                "roughness reflection bend and horizon attenuation"
             ],
             "targets": [
                 "src/rhythm_render/shaders/godot_environment.sh"
             ],
             "modifications": [
-                "Retain the mobile split-sum BRDF approximation; sample a bounded linear 2D atlas instead of engine cubemaps.",
+                "Retain the mobile split-sum BRDF approximation, radiance LOD transform, reflection bending and horizon attenuation; sample a bounded linear 2D atlas instead of engine cubemaps.",
                 "Lambert diffuse uses a separate cosine-weighted convolution; metallic suppresses diffuse. AO applies only to environment lighting."
+            ]
+        },
+        {
+            "source_url": "https://github.com/godotengine/godot",
+            "revision": "f62fdbde15035c5576dad93e586201f4d41ef0cb",
+            "tag": "4.5.1-stable",
+            "license": "MIT",
+            "notice": "third_party/notices/godot/LICENSE.txt",
+            "source_file": "drivers/gles3/effects/cubemap_filter.cpp",
+            "sha256": "d408119507e725c49c79f943280c201135b8a9f84fdec052f953e9253259983c",
+            "reference_location": "out/reference/godot-4.5.1/drivers/gles3/effects/cubemap_filter.cpp",
+            "symbols": [
+                "importance_sample_GGX",
+                "8/16/32/128 sample tier selection",
+                "perceptual to non-perceptual roughness transform"
+            ],
+            "targets": [
+                "src/rhythm_render/shaders/environment_filter.sc"
+            ],
+            "modifications": [
+                "Move the CPU-generated sample directions into the fragment shader so one bounded atlas pass can prepare all levels.",
+                "Use the existing equirectangular source instead of a source cubemap; source-cubemap mip/PDF selection is not available in this texture contract."
+            ]
+        },
+        {
+            "source_url": "https://github.com/godotengine/godot",
+            "revision": "f62fdbde15035c5576dad93e586201f4d41ef0cb",
+            "tag": "4.5.1-stable",
+            "license": "MIT",
+            "notice": "third_party/notices/godot/LICENSE.txt",
+            "source_file": "drivers/gles3/shaders/effects/cubemap_filter.glsl",
+            "sha256": "f7bfa0dffc1e8a40600a54829bbcd19d6196b4ed91c35e742df1051ddebe1486",
+            "reference_location": "out/reference/godot-4.5.1/drivers/gles3/shaders/effects/cubemap_filter.glsl",
+            "symbols": [
+                "tangent-space sample transform",
+                "N dot L weighted accumulation and normalization"
+            ],
+            "targets": [
+                "src/rhythm_render/shaders/environment_filter.sc"
+            ],
+            "modifications": [
+                "Translate the cubemap fragment loop to bgfx shader syntax and the existing equirectangular atlas projection."
             ]
         },
         {
@@ -38,8 +82,8 @@
                 "src/rhythm_render/shaders/environment_filter.sc"
             ],
             "modifications": [
-                "Translate HLSL into bgfx shader syntax. Fix 64 samples and five roughness levels; use equirectangular source and atlas gutters instead of D3D cubemaps.",
-                "Add cosine-weighted diffuse tile; normalize accumulation before summing. Source mip/pdf/geometry shaders are not imported into runtime."
+                "Retain the common Hammersley sequence in bgfx shader syntax and use equirectangular source/atlas gutters instead of D3D cubemaps.",
+                "Godot 4.5.1 is now primary for GGX roughness and sample tiers. Retain the separate cosine-weighted diffuse tile."
             ]
         },
         {
