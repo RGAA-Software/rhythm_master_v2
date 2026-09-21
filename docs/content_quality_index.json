@@ -8,14 +8,14 @@
     },
     "counts": {
         "authored:component": 40,
-        "authored:preset": 232,
+        "authored:preset": 235,
         "authored:template": 22,
         "component:component": 0,
         "preset:preset": 0,
         "template:advanced": 0,
         "template:basic": 0
     },
-    "default_presets_excluded": 130,
+    "default_presets_excluded": 132,
     "identical_preset_settings": [],
     "entries": [
         {
@@ -1407,6 +1407,56 @@
             "tier": "preset",
             "is_default": false,
             "exact_setting_group": "01a288b53fbf2be71b9937493564028d17a70dd62b0c3e00312f7912d6bfb687",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.glow_display.default",
+            "kind": "preset",
+            "source": "content/presets/catalog.json",
+            "source_sha256": "ab18d467655093423e35449650b8410e857980ec7bef5f0b54cdc7beeaf81b49",
+            "version": "1.0.0",
+            "titles": {
+                "zh-CN": "默认 · 联合辉光显示",
+                "en-US": "Default · Combined glow display"
+            },
+            "operator": "texture.glow_display",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "594af4546260ef6e53d74d898e50b00c4ee61071d090249cee5979c327908363",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
+            "id": "official.glow_display.soft_light",
+            "kind": "preset",
+            "source": "content/presets/catalog.json",
+            "source_sha256": "48e5f19c6a033401260773063b10fc54e97ae94edd8c60af0d4e0d4ec7f40bf8",
+            "version": "1.0.0",
+            "titles": {
+                "zh-CN": "柔光 · AgX",
+                "en-US": "Soft Light · AgX"
+            },
+            "operator": "texture.glow_display",
+            "tier": "preset",
+            "is_default": false,
+            "exact_setting_group": "3ca2e8fc1bce1f93909d04126390a95a5def5009698bdaae399ddd1f6491f04a",
             "review_history_count": 0,
             "stale_review_count": 0,
             "quality_accepted": false,
@@ -2819,6 +2869,31 @@
             }
         },
         {
+            "id": "official.scene_instance.default",
+            "kind": "preset",
+            "source": "content/presets/catalog.json",
+            "source_sha256": "6cdef9fa9cb2cdb26b0c79a82f912afe544a16ea719bb81a6dcf35baa5f82172",
+            "version": "1.0.0",
+            "titles": {
+                "zh-CN": "默认场景实例",
+                "en-US": "Default scene instance"
+            },
+            "operator": "scene.instance",
+            "tier": "preset",
+            "is_default": true,
+            "exact_setting_group": "45a6387e95c155b54e76322bb34ecc9c7be5490a3b03567d67f9a80eb7edc993",
+            "review_history_count": 0,
+            "stale_review_count": 0,
+            "quality_accepted": false,
+            "user_acceptance": "not_recorded",
+            "review": {
+                "functional": "pending",
+                "music": "pending",
+                "visual": "pending",
+                "device": "pending"
+            }
+        },
+        {
             "id": "official.scene_transform.default",
             "kind": "preset",
             "source": "content/presets/catalog.json",
@@ -3402,7 +3477,7 @@
             "id": "official.semantic.enamel_orb",
             "kind": "component",
             "source": "content/semantic/enamel_orb",
-            "source_sha256": "c99c30311bb3605bb2f1833b8e6b40dec6d26c448efb3ae403ff023b31f7964a",
+            "source_sha256": "aa3b652da6d01a8d0fc4183d445284102924973e49b151dcc8fb5788f1d3aed9",
             "version": "0.1.0",
             "titles": {
                 "en-US": "Enamel light body",
@@ -3432,7 +3507,7 @@
             "id": "official.semantic.enamel_orb.default",
             "kind": "preset",
             "source": "content/semantic/enamel_orb/presets.json",
-            "source_sha256": "1a6cff077159db294bead661158af099325449f3d3f15d683379facb654c1307",
+            "source_sha256": "7e3581654741f4e97bf2e16739b4b7231f09e5cc63861105cbd02140eb40df37",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Default",
@@ -3457,7 +3532,7 @@
             "id": "official.semantic.enamel_orb.variant",
             "kind": "preset",
             "source": "content/semantic/enamel_orb/presets.json",
-            "source_sha256": "3d0271f2687a09b7cab34be643c4ccfdb047215855829525fae086da555865e5",
+            "source_sha256": "43bb98263fe0c2269e33d64dd4340646a7543480d8c44471ecf120b669190049",
             "version": "1.0.0",
             "titles": {
                 "en-US": "Fine veins",
@@ -6445,7 +6520,7 @@
             "id": "official.templates.aureate_vortex",
             "kind": "template",
             "source": "content/templates/aureate_vortex",
-            "source_sha256": "45c91db0fb8d58d5cbce003c76f5d66dd09edf0604255227f55e0f198a8d677b",
+            "source_sha256": "eeb773ae60937124a296de3a4c6902dd405710f48da6d8841ec2074e5b7814b6",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "鎏光流涡",
@@ -6808,7 +6883,7 @@
             "id": "official.templates.glazed_celestial_gate",
             "kind": "template",
             "source": "content/templates/glazed_celestial_gate",
-            "source_sha256": "71654d0433f6d05f532d662fa5da83506694fa271484f71ae43b3c15fb41bdd7",
+            "source_sha256": "9f6ec092922b5744a8357d1e38afb3c6c0f55f9f230408fbaf716ca311f8f9b4",
             "version": "0.4.0",
             "titles": {
                 "zh-CN": "琉璃天门",
@@ -6894,13 +6969,13 @@
                 ]
             },
             "is_default": false,
-            "review_history_count": 0,
+            "review_history_count": 1,
             "stale_review_count": 0,
             "quality_accepted": false,
             "user_acceptance": "not_recorded",
             "review": {
-                "functional": "pending",
-                "music": "pending",
+                "functional": "passed",
+                "music": "passed",
                 "visual": "pending",
                 "device": "pending"
             }
@@ -7387,7 +7462,7 @@
             "id": "official.templates.sonic_enamel",
             "kind": "template",
             "source": "content/templates/sonic_enamel",
-            "source_sha256": "25faab19e612c4051dceedf25840cd4eda3d06e8c9af22bbe2a5cfdd5781d59c",
+            "source_sha256": "b8a87ba8c1a0e4bfb99a0c1326acd11abe37fd9d50cedec11089472c2e2ed6e9",
             "version": "0.1.0",
             "titles": {
                 "zh-CN": "音律珐琅",

@@ -1003,6 +1003,37 @@
                 "status": "pending",
                 "notes": "Windows-only increment; Android and endurance acceptance remain deferred."
             }
+        },
+        {
+            "id": "official.templates.glazed_celestial_gate",
+            "source_sha256": "9f6ec092922b5744a8357d1e38afb3c6c0f55f9f230408fbaf716ca311f8f9b4",
+            "reviewer": "Codex engineering review (not user acceptance)",
+            "date": "2026-09-21",
+            "functional": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/glazed_celestial_gate_2026-09-21.md"
+                ],
+                "notes": "Source-bound Windows delivery with real Studio template application in both locales, 480-frame arranged and silent H.264 exports, and replacement-music save/publish/reopen all passed; every public control visibly responds at extremes."
+            },
+            "music": {
+                "status": "passed",
+                "evidence": [
+                    "docs/validation/glazed_celestial_gate_2026-09-21.md"
+                ],
+                "notes": "Seven decoded-PCM comparisons and six control extremes passed; low/mid/high roles stay distinguishable and the treble control gates an event-envelope gold detail path. Silence keeps the full gate with both particle layers."
+            },
+            "visual": {
+                "status": "pending",
+                "evidence": [
+                    "docs/validation/glazed_celestial_gate_2026-09-21.md"
+                ],
+                "notes": "Engineering motion review passed: 32-second music and silence runs show sustained rotation, orbiting camera and particle flow with cycle seams at adjacent-frame magnitude; contact sheets inspected. User aesthetic acceptance remains pending."
+            },
+            "device": {
+                "status": "pending",
+                "notes": "Windows-only increment; Android and endurance acceptance remain deferred to the final platform phase."
+            }
         }
     ]
 }

@@ -109,6 +109,9 @@ def main():
         # every Studio delivery; an old executable can otherwise reject a newly
         # published graph before rendering begins.
         targets.extend(['windows_effects_gpu_tests', 'music_gpu_tests'])
+        # The arranged-export review host loads compiled templates through the
+        # same project_io/Compile path; a stale binary rejects current graphs.
+        targets.append('export_ui_gpu_tests')
     subprocess.run(["cmake", "--build", str(build), "--parallel", str(args.jobs), "--target", *targets],
                    check=True, env=environment)
     if verify_studio:

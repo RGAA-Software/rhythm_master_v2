@@ -1,0 +1,14 @@
+{
+    "template": "glazed_celestial_gate",
+    "package_sha256": "966a2f6b6f560b6e2c423b02f4984a3721366008cc40b74d9f6ca8eef6bbc4a7",
+    "thumbnail_sha256": "d61f16d364403692b5de5ebe331bcdcd575b9deb828acbcb9a23b1447c55539e",
+    "extent": [
+        256,
+        144
+    ],
+    "seconds": 4,
+    "renderer": "Windows D3D11 Player",
+    "input": "synthetic canonical audio features",
+    "aspect": "preserved; black letterbox",
+    "visual_acceptance": "pending"
+}

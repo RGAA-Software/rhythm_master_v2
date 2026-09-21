@@ -15,7 +15,7 @@ WRITER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(WRITER)
 
 
-def start():
+def start(clock_duration=16):
     graph = WRITER.Graph()
     node = graph.node
     response = node('control.scalar', -1000, 0, value=1, control_minimum=0, control_maximum=2)
@@ -24,11 +24,13 @@ def start():
     low_response = node('control.scalar', -1000, 900, value=1, control_minimum=0, control_maximum=3)
     mid_response = node('control.scalar', -1000, 1200, value=1, control_minimum=0, control_maximum=3)
     high_response = node('control.scalar', -1000, 1500, value=1, control_minimum=0, control_maximum=3)
-    # Bounded 16-second motion cycle. Every authored trajectory closes spatially;
-    # corridor camera/geometry rebase together, so no visible world-space jump.
+    # Bounded motion cycle (16 seconds by default). Every authored trajectory
+    # closes spatially; corridor camera/geometry rebase together, so no visible
+    # world-space jump. Works passing a longer duration must quantize every
+    # angular speed so all trajectories still close at the cycle boundary.
     # The runtime integrates observed pace changes without remapping the past.
     # Cue pacing remains constant; music phrases modulate energy and shape.
-    clock = node('time.phase', 340, 0, dict(speed=pace), duration=16)
+    clock = node('time.phase', 340, 0, dict(speed=pace), duration=clock_duration)
     group_controls = (low_response, mid_response, high_response)
     bands = [
         node('scalar.expression', 340, 400 + i * 300,
