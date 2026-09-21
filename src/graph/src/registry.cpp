@@ -315,6 +315,10 @@ Registry::Registry() {
                            {"offset_y", 0.0, -4096, 4096},
                            {"contrast", 1.0, 0, 4},
                            {"seed", 0.0, 0, 1024},
+                           {"octaves", 4.0, 1, 8},
+                           {"roughness", 0.5, 0, 1},
+                           {"warp", 0.0, 0, 4},
+                           {"noise_filter", 0.0, 0, 1},
                            {"color_a", Color{0.015, 0.03, 0.12, 1}},
                            {"color_b", Color{0.12, 0.65, 0.8, 1}}}});
     operators_.push_back({"texture.blur",

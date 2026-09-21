@@ -55,5 +55,6 @@ class BgfxTexturePrograms final {
     GpuHandle<bgfx::UniformHandle> noise_color_a_{};
     GpuHandle<bgfx::UniformHandle> noise_color_b_{};
     GpuHandle<bgfx::UniformHandle> noise_domain_{};
+    GpuHandle<bgfx::UniformHandle> noise_spectral_{};
 };
 }  // namespace rhythm::render::detail

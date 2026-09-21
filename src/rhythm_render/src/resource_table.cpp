@@ -338,7 +338,12 @@ void ResourceTable::Validate(TextureHandle target, const DrawList& list) const {
                 !std::isfinite(noise.offset_x_) || std::abs(noise.offset_x_) > 4096 ||
                 !std::isfinite(noise.offset_y_) || std::abs(noise.offset_y_) > 4096 ||
                 !std::isfinite(noise.contrast_) || noise.contrast_ < 0 || noise.contrast_ > 4 ||
-                !std::isfinite(noise.seed_) || noise.seed_ < 0 || noise.seed_ > 1024)
+                !std::isfinite(noise.seed_) || noise.seed_ < 0 || noise.seed_ > 1024 ||
+                !std::isfinite(noise.octaves_) || noise.octaves_ < 1 || noise.octaves_ > 8 ||
+                !std::isfinite(noise.roughness_) || noise.roughness_ < 0 ||
+                noise.roughness_ > 1 || !std::isfinite(noise.warp_) || noise.warp_ < 0 ||
+                noise.warp_ > 4 || !std::isfinite(noise.filter_) || noise.filter_ < 0 ||
+                noise.filter_ > 1)
                 throw std::invalid_argument("render.texture_noise");
             for (const auto& color : {noise.color_a_, noise.color_b_})
                 for (const auto channel : color)

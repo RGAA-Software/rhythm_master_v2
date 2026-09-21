@@ -25,7 +25,7 @@
 | 已交付 | 环境预滤波 | Godot 8/16/32/128 分层采样、平方 GGX 分布、`sqrt(roughness)` LOD、反射弯折与 horizon 衰减已接入现有线性图集；恒定环境保持能量 | 固定 HDR 阶梯 D3D11 回读为 192/185/110/22/9，Sonic Enamel 动态相机 121 帧通过；单一 2D 来源缺少 Godot cubemap mip/PDF，Android 实机复验留最终平台阶段 |
 | 已交付 | 粒子呈现 | 解析圆点连续柔边之上已接入纹理图集与每粒子形态变化（发射稳定随机选格、采样形状/色调调制解析包络、未接图集逐像素不变）、软深度交界（Godot proximity fade 良定义等价式，场景距离减粒子深度按带宽 smoothstep 衰减）和分层体积感；鎏光流涡细尘层置于旋涡臂后方、火花层置于前方，2×2 图集提供圆点/圆环/交叉条纹/火花四种形态 | bgfx 精灵表与 Godot 粒子材质变化、proximity fade 已聚焦采用并记录 provenance；Windows D3D11 探针数值、音乐/静音/低/高频像素分工与作品切换资源回归通过，Android 实机复验留最终平台阶段 |
 | 已交付 | trail/feedback | 停顿按封顶 250 ms 衰减步收敛（不再重种子跳变），反向/暂停保持像素；旋转/缩放历史在画面边缘两 texel 淡出，单位变换零调光；30/60 fps 衰减一致性、停顿连续性和边缘淡出均有 D3D11 回读断言 | 对照 Godot 4.5.1 TAA 去遮挡收敛原则（`provenance/trail_temporal.json`）；运动矢量重投影/方差裁剪/Catmull-Rom 对刻意残影效果无作品收益，结论已记录 |
-| P2 | 噪声与纹理生成 | TiXL 固定四 octave Perlin 可重复且范围有限，放大时可能暴露网格和频带单一 | 审查 Godot FastNoiseLite/纹理噪声；增加 domain warp、不同频谱层和抗走样后再决定迁移范围 |
+| 已交付 | 噪声与纹理生成 | `texture.noise` 已接入 domain warp（去相关双采样域位移）、可配置频谱层（octaves 1-8 / roughness 0-1，TiXL Iterations/Gain 语义）和可选带限抗走样（晶格 footprint 越 2 像素的 octave 经 smoothstep 淡出）；默认参数与旧实现逐字节一致 | 对照 Godot FastNoiseLite 与 TiXL 上游（`provenance/noise_spectral.json`）；带限与显式 octaves=3 渲染逐像素一致、量程内零副作用均有 D3D11 回读断言；cellular/worley 与更换基础原语无作品需求，结论已记录 |
 | P2 | 抗锯齿 | `glsl-fxaa` 是成熟实现且两端有像素证据，但单一 FXAA 会软化细线，也不解决时域闪烁 | 记录 Godot MSAA/TAA/FSR 路径的能力和成本；Windows 先做细线运动与粒子闪烁对照 |
 
 ## 当前验收状态

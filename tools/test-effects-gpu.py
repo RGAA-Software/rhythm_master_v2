@@ -73,7 +73,7 @@ def main():
     if (glow[32][32][0] <= glow[32][38][0] or glow[32][38][0] <= glow[32][48][0] or
             glow[32][48][0] == 0 or glow[0][0][0] != 0):
         raise AssertionError(f"Godot dual-filter glow failed: {output}")
-    noise = [read_tga(output / f"noise-{index}.tga") for index in range(5)]
+    noise = [read_tga(output / f"noise-{index}.tga") for index in range(12)]
     values = [pixel[0] for row in noise[0] for pixel in row]
     if max(values) - min(values) < 50:
         raise AssertionError(f"Missing spatial noise detail: {output}")
@@ -81,6 +81,30 @@ def main():
         raise AssertionError(f"Noise repeatability, phase or seed failed: {output}")
     if any(pixel != (0, 0, 0) for row in noise[4] for pixel in row):
         raise AssertionError(f"Transparent noise leaked color: {output}")
+
+    def noise_curvature(image):
+        return sum(abs(row[x+1][0] - 2*row[x][0] + row[x-1][0])
+                   for row in image for x in range(1, len(row)-1))
+    # Spectral layering: one octave is smoother, eight octaves at 0.8 gain rougher.
+    if noise[5] == noise[0] or noise_curvature(noise[5]) >= noise_curvature(noise[0]) * 0.5:
+        raise AssertionError(f"Noise octave reduction did not smooth: {output}")
+    if noise_curvature(noise[6]) <= noise_curvature(noise[0]) * 2:
+        raise AssertionError(f"Noise octave/gain extension did not roughen: {output}")
+    # Domain warp displaces the lattice visibly while staying full-range.
+    warped = [pixel[0] for row in noise[7] for pixel in row]
+    if sum(abs(a-b) for a, b in zip(warped, values)) / len(values) < 8:
+        raise AssertionError(f"Noise domain warp did not move the lattice: {output}")
+    if max(warped) - min(warped) < 50:
+        raise AssertionError(f"Noise domain warp collapsed the range: {output}")
+    # Band limiting: at 8 cells per 64 px the fourth octave reaches one cell per
+    # pixel and aliases; filtering must remove exactly that octave, matching an
+    # explicit three-octave render bit-exactly, and stay inert at normal scale.
+    if noise[9] == noise[8] or noise_curvature(noise[9]) >= noise_curvature(noise[8]):
+        raise AssertionError(f"Noise band limiting did not cut aliased octaves: {output}")
+    if noise[9] != noise[11]:
+        raise AssertionError(f"Noise band limiting differs from explicit octaves: {output}")
+    if noise[10] != noise[0]:
+        raise AssertionError(f"Noise band limiting changed in-range output: {output}")
     mapping = [read_tga(output / f"mapping-{index}.tga") for index in range(5)]
     if any(abs(channel - 120) > 2 for row in mapping[0] for pixel in row for channel in pixel):
         raise AssertionError(f"Mapping changed constant image: {output}")

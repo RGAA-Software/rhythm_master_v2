@@ -54,6 +54,10 @@ int main() {
         instruction.inputs_[2].reset();
         require(draw().commands_[0].texture_noise_->offset_x_ == 0 &&
                 draw().commands_[0].texture_noise_->offset_y_ == 0);
+        require(draw().commands_[0].texture_noise_->octaves_ == 4 &&
+                draw().commands_[0].texture_noise_->roughness_ == 0.5f &&
+                draw().commands_[0].texture_noise_->warp_ == 0 &&
+                draw().commands_[0].texture_noise_->filter_ == 0);
         instruction.node_ = registry.MakeNode(1, "texture.mapping");
         instruction.operation_ = graph::Operation::kTextureMapping;
         instruction.inputs_ = {0, {}, {}, {}, 1};

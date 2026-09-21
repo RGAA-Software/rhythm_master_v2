@@ -247,7 +247,7 @@ int main(int argc, char* argv[]) {
         }
         const std::array<std::uint8_t, 4> white_pixel{255, 255, 255, 255};
         auto white = renderer.CreateTexture({1, 1}, white_pixel);
-        for (int scenario = 0; scenario < 5; ++scenario) {
+        for (int scenario = 0; scenario < 12; ++scenario) {
             render::TextureNoise noise;
             noise.color_a_ = {0, 0, 0, 1};
             noise.color_b_ = {1, 1, 1, 1};
@@ -257,6 +257,23 @@ int main(int argc, char* argv[]) {
             if (scenario == 4) {
                 noise.color_a_ = {1, 0, 0, 0};
                 noise.color_b_ = {0, 1, 0, 0};
+            }
+            // Spectral layering, domain warp and band limiting scenarios.
+            if (scenario == 5) noise.octaves_ = 1;
+            if (scenario == 6) {
+                noise.octaves_ = 8;
+                noise.roughness_ = 0.8f;
+            }
+            if (scenario == 7) noise.warp_ = 2;
+            if (scenario == 8) noise.scale_ = 8;
+            if (scenario == 9) {
+                noise.scale_ = 8;
+                noise.filter_ = 1;
+            }
+            if (scenario == 10) noise.filter_ = 1;
+            if (scenario == 11) {
+                noise.scale_ = 8;
+                noise.octaves_ = 3;
             }
             const auto path = (output / ("noise-" + std::to_string(scenario))).string();
             for (int frame = 0; frame < 8; ++frame) {

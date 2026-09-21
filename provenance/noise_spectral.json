@@ -1,0 +1,48 @@
+{
+    "sources": [
+        {
+            "source_url": "https://github.com/godotengine/godot",
+            "revision": "cb41ea115914c61a8329087b4cffbad7477b8427",
+            "license": "MIT",
+            "notice": "third_party/notices/godot/LICENSE.txt",
+            "reference_files": [
+                {
+                    "file": "thirdparty/misc/FastNoiseLite.h",
+                    "sha256": "38b24b9b04aa5e9f1e63336d4acbbbb73b11f15b697bb08a25f5ec0c6c274901"
+                },
+                {
+                    "file": "modules/noise/fastnoise_lite.cpp",
+                    "sha256": "42f680922ae797f2a6dd2f4b13d236b4d5840c8c3743ccf5ad4f41763e11da8e"
+                }
+            ]
+        },
+        {
+            "source_url": "https://github.com/tooll3/t3",
+            "revision": "2f87ef3cb637edd31320c8711956847719fc9624",
+            "license": "MIT",
+            "notice": "third_party/notices/tixl-effects/LICENSE.txt",
+            "reference_files": [
+                {
+                    "file": "third_party/sources/tixl-effects/PerlinNoise2d.hlsl",
+                    "sha256": "bb97579c111381266283b2ec3f9d0c2d1dee7395c2742c9612c7753d43f1bb77"
+                }
+            ]
+        }
+    ],
+    "targets": [
+        "src/rhythm_render/include/rhythm/render/renderer.h",
+        "src/graph/src/registry.cpp",
+        "src/runtime/texture_ops.cpp",
+        "src/rhythm_render/src/resource_table.cpp",
+        "src/rhythm_render/shaders/texture_noise.sc",
+        "src/rhythm_render/src/bgfx_texture_programs.cpp"
+    ],
+    "modifications": [
+        "Design consultation only; no Godot or TiXL code is copied or translated.",
+        "From Godot FastNoiseLite: adopted the domain-warp composition (two decorrelated low-frequency lattice samples displace the base domain before octave accumulation) to break the grid alignment that magnification exposes. Rejected switching the base primitive to FastNoiseLite's Perlin or its gradient-warp variants: the existing tileable Perlin lattice is content-locked by published works, and bit-exact default output is a hard requirement.",
+        "From TiXL upstream PerlinNoise2d: adopted the Iterations/Gain spectral controls as octaves (1-8) and roughness (0-1), matching the upstream parameter semantics so authored TiXL references transfer directly.",
+        "Band limiting is project-owned: octaves whose lattice cells fall below two pixels fade out through a smoothstep on the base-frequency footprint (cells per pixel), opt-in via noise_filter so default output stays bit-exact.",
+        "Rejected Godot's cellular/worley noise types and fractal ping-pong gain: no authored work needs them and they would widen the shader contract without a consumer."
+    ],
+    "outbound_license": "not selected; no upstream code incorporated"
+}

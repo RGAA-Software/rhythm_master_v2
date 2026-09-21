@@ -189,6 +189,10 @@ std::uint32_t DrawTexture(const graph::Instruction& instruction,
         };
         noise.offset_x_ = offset(1, "offset_x");
         noise.offset_y_ = offset(2, "offset_y");
+        noise.octaves_ = static_cast<float>(graph::Scalar(node, "octaves", 4));
+        noise.roughness_ = static_cast<float>(graph::Scalar(node, "roughness", 0.5));
+        noise.warp_ = static_cast<float>(graph::Scalar(node, "warp", 0));
+        noise.filter_ = static_cast<float>(graph::Scalar(node, "noise_filter", 0));
         noise.color_a_ = color("color_a", {0.015, 0.03, 0.12, 1});
         noise.color_b_ = color("color_b", {0.12, 0.65, 0.8, 1});
         list.commands_.back().texture_noise_ = noise;

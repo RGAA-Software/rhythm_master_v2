@@ -96,6 +96,13 @@ struct TextureNoise {
     // Translation in the existing periodic noise lattice, before octave scaling.
     float offset_x_ = 0;
     float offset_y_ = 0;
+    // Spectral layering, matching the upstream TiXL Iterations/Gain parameters.
+    float octaves_ = 4;
+    float roughness_ = 0.5f;
+    // Domain warp strength in lattice cells; zero keeps the unwarped domain.
+    float warp_ = 0;
+    // Opt-in band limiting: octaves past the pixel footprint fade out.
+    float filter_ = 0;
     std::array<float, 4> color_a_{0.015f, 0.03f, 0.12f, 1};
     std::array<float, 4> color_b_{0.12f, 0.65f, 0.8f, 1};
 };

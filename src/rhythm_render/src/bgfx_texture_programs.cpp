@@ -128,6 +128,7 @@ BgfxTexturePrograms::BgfxTexturePrograms() {
     noise_color_a_ = GpuHandle(bgfx::createUniform("u_noise_color_a", bgfx::UniformType::Vec4));
     noise_color_b_ = GpuHandle(bgfx::createUniform("u_noise_color_b", bgfx::UniformType::Vec4));
     noise_domain_ = GpuHandle(bgfx::createUniform("u_noise_domain", bgfx::UniformType::Vec4));
+    noise_spectral_ = GpuHandle(bgfx::createUniform("u_noise_spectral", bgfx::UniformType::Vec4));
     GpuHandle mapping_fragment(
             bgfx::createShader(bgfx::copy(kTextureMappingShader, sizeof(kTextureMappingShader))));
     mapping_program_ = GpuHandle(bgfx::createProgram(vertex.Get(), mapping_fragment.Get(), false));
@@ -246,11 +247,15 @@ void BgfxTexturePrograms::Submit(std::uint16_t view, const DrawCommand& command,
     } else if (command.texture_noise_) {
         const auto& noise = *command.texture_noise_;
         const std::array settings{noise.scale_, noise.phase_, noise.contrast_, noise.seed_};
-        const std::array domain{aspect, noise.offset_x_, noise.offset_y_, 0.0f};
+        // Base-frequency lattice cells per target pixel, for band limiting.
+        const std::array domain{aspect, noise.offset_x_, noise.offset_y_,
+                                noise.scale_ / target_size.height_};
+        const std::array spectral{noise.octaves_, noise.roughness_, noise.warp_, noise.filter_};
         bgfx::setUniform(noise_settings_.Get(), settings.data());
         bgfx::setUniform(noise_color_a_.Get(), noise.color_a_.data());
         bgfx::setUniform(noise_color_b_.Get(), noise.color_b_.data());
         bgfx::setUniform(noise_domain_.Get(), domain.data());
+        bgfx::setUniform(noise_spectral_.Get(), spectral.data());
         bgfx::submit(view, noise_program_.Get());
     } else if (command.texture_glow_) {
         const auto& glow = *command.texture_glow_;
