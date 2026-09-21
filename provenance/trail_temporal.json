@@ -1,0 +1,28 @@
+{
+    "source_url": "https://github.com/godotengine/godot",
+    "revision": "cb41ea115914c61a8329087b4cffbad7477b8427",
+    "license": "MIT",
+    "notice": "third_party/notices/godot/LICENSE.txt",
+    "reference_files": [
+        {
+            "file": "servers/rendering/renderer_rd/shaders/effects/taa_resolve.glsl",
+            "sha256": "6e0b25e8dfb36ab05cee2bf6f42e9ec28197cab92af64f297195a0d8ca619dea"
+        },
+        {
+            "file": "servers/rendering/renderer_rd/effects/taa.cpp",
+            "sha256": "a28d9f7a48c88ffd354a25acc527038c5146c28a158199016bac069159f33fe2"
+        }
+    ],
+    "targets": [
+        "src/runtime/trail_pass.cpp",
+        "src/rhythm_render/shaders/texture_trail.sc",
+        "src/rhythm_render/src/bgfx_texture_programs.cpp"
+    ],
+    "modifications": [
+        "Design consultation only; no Godot code is copied or translated.",
+        "Adopted the TAA discontinuity response principle: on a presentation stall the trail history converges by a bounded 250 ms decay step instead of hard-cutting to a reseed, mirroring how taa_resolve raises the blend factor on disocclusion rather than keeping stale history or flickering.",
+        "Adopted a softened history-coverage boundary (two-texel smoothstep fade, only while the history transform is non-identity) as the trail analog of TAA off-screen history rejection; untransformed history keeps full coverage so plain trails are not dimmed at the frame border.",
+        "Rejected full motion-vector reprojection, 3x3 variance clipping and Catmull-Rom history sampling: the trail is a deliberate echo effect without per-pixel velocity in the 2D texture chain, and bilinear resampling blur is part of the authored aesthetic. The extra passes and a velocity buffer are not justified by any authored work."
+    ],
+    "outbound_license": "not selected; no Godot code incorporated"
+}

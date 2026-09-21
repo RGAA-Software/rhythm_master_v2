@@ -26,7 +26,13 @@ int main() {
             Check(renderer.Stats().passes_ == 1);
             const auto next = trail.Draw(source.Handle(), {16, 16}, 5.01, true, {}, renderer);
             Check(next != first && renderer.Stats().passes_ == 2);
-            trail.Draw(source.Handle(), {16, 16}, 1, true, {}, renderer);
+            // Reversed time preserves pixels instead of reseeding.
+            Check(trail.Draw(source.Handle(), {16, 16}, 1, true, {}, renderer) == next);
+            Check(renderer.Stats().passes_ == 2);
+            // A stall beyond 250 ms still converges the trail: one capped step,
+            // no reseed, resources unchanged.
+            const auto stalled = trail.Draw(source.Handle(), {16, 16}, 4, true, {}, renderer);
+            Check(stalled != next && renderer.Stats().passes_ == 3);
             Check(renderer.Stats().live_textures_ == 3);
             trail.Draw(source.Handle(), {8, 8}, 1.01, true, {}, renderer);
             Check(!renderer.IsValid(first) && !renderer.IsValid(next));

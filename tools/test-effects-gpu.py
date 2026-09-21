@@ -111,6 +111,21 @@ def main():
     for index, expected in enumerate((128, 128, 0)):
         if any(abs(channel-expected) > 3 for row in trails[index] for pixel in row for channel in pixel):
             raise AssertionError(f"Temporal decay/rate/precision failed ({index}): {output}")
+    # A two-second stall must decay by the same capped 250 ms step as the steady
+    # reference (trail-4): the ghost converges and is never reseeded to black.
+    gap, reference = read_tga(output / "trail-3.tga"), read_tga(output / "trail-4.tga")
+    for gap_row, reference_row in zip(gap, reference):
+        for gap_pixel, reference_pixel in zip(gap_row, reference_row):
+            if any(not 130 <= channel <= 180 for channel in gap_pixel):
+                raise AssertionError(f"Trail stall reseeded or diverged: {output}")
+            if any(abs(a-b) > 4 for a, b in zip(gap_pixel, reference_pixel)):
+                raise AssertionError(f"Trail stall step differs from steady reference: {output}")
+    # Fast rotation must fade the history at the frame border over a small margin;
+    # a hard coverage cut steps from black to full brightness in one texel.
+    edge = read_tga(output / "trail-5.tga")
+    diagonal = [edge[index][index][0] for index in range(4)]
+    if diagonal[0] >= 5 or diagonal[1] >= 60 or not 100 <= diagonal[2] <= 220 or diagonal[3] <= 240:
+        raise AssertionError(f"Trail coverage edge does not fade {diagonal}: {output}")
     resized = read_tga(output / "cached-resize.tga")
     if any(abs(a-b) > 2 for row in resized for pixel in row
            for a,b in zip(pixel, (0,255,0))):

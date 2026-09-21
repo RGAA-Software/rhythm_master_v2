@@ -26,6 +26,7 @@ class BgfxTexturePrograms final {
     GpuHandle<bgfx::UniformHandle> color_limits_{};
     GpuHandle<bgfx::ProgramHandle> trail_program_{};
     GpuHandle<bgfx::UniformHandle> trail_settings_{};
+    GpuHandle<bgfx::UniformHandle> trail_fade_{};
     GpuHandle<bgfx::ProgramHandle> displace_program_{};
     GpuHandle<bgfx::UniformHandle> displace_settings_{};
     GpuHandle<bgfx::UniformHandle> displace_domain_{};

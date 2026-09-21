@@ -148,6 +148,7 @@ BgfxTexturePrograms::BgfxTexturePrograms() {
             bgfx::createShader(bgfx::copy(kTextureTrailShader, sizeof(kTextureTrailShader))));
     trail_program_ = GpuHandle(bgfx::createProgram(vertex.Get(), trail_fragment.Get(), false));
     trail_settings_ = GpuHandle(bgfx::createUniform("u_trail_settings", bgfx::UniformType::Vec4));
+    trail_fade_ = GpuHandle(bgfx::createUniform("u_trail_fade", bgfx::UniformType::Vec4));
     GpuHandle displace_fragment(
             bgfx::createShader(bgfx::copy(kTextureDisplaceShader, sizeof(kTextureDisplaceShader))));
     displace_program_ =
@@ -205,8 +206,15 @@ void BgfxTexturePrograms::Submit(std::uint16_t view, const DrawCommand& command,
     } else if (command.texture_trail_) {
         const auto& trail = *command.texture_trail_;
         const std::array settings{trail.retention_, trail.scale_, trail.rotation_, aspect};
+        // Soften the history coverage cut over two texels so rotated or zoomed
+        // trails fade at the frame border instead of tearing. An untransformed
+        // history keeps full coverage: no border band may be dimmed.
+        const bool transformed = trail.scale_ != 1.0f || trail.rotation_ != 0.0f;
+        const std::array fade{transformed ? 2.0f / map_size.width_ : 0.0f,
+                              transformed ? 2.0f / map_size.height_ : 0.0f, 0.0f, 0.0f};
         bgfx::setTexture(1, map_sampler_.Get(), map);
         bgfx::setUniform(trail_settings_.Get(), settings.data());
+        bgfx::setUniform(trail_fade_.Get(), fade.data());
         bgfx::submit(view, trail_program_.Get());
     } else if (command.texture_displace_) {
         const auto& displace = *command.texture_displace_;

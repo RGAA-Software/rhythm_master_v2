@@ -1,5 +1,6 @@
 #include "trail_pass.h"
 
+#include <algorithm>
 #include <cmath>
 #include <stdexcept>
 #include <utility>
@@ -29,7 +30,9 @@ render::TextureHandle TrailPass::Draw(render::TextureHandle source, render::Exte
         extent_ = extent;
     }
     const auto elapsed = last_seconds_ ? seconds - *last_seconds_ : 0;
-    if (last_seconds_ && (!advance || elapsed == 0)) {
+    if (last_seconds_ && (!advance || elapsed <= 0)) {
+        // Paused, repeated or reversed time preserves pixels. A seek or load
+        // bumps the generation and clears this state before it can reach here.
         last_seconds_ = seconds;
         return history_.Handle();
     }
@@ -37,11 +40,14 @@ render::TextureHandle TrailPass::Draw(render::TextureHandle source, render::Exte
     draw.width_ = extent.width_;
     draw.height_ = extent.height_;
     AppendTextureQuad(draw, source, 0xffffffff, 0xffffffff);
-    if (last_seconds_ && elapsed > 0 && elapsed <= 0.25) {
+    if (last_seconds_) {
+        // Cap the step so a presentation stall decays the trail by a bounded
+        // amount instead of reseeding: history converges, it never hard-cuts.
+        const auto step = std::min(elapsed, 0.25);
         draw.commands_.back().texture_trail_ = render::TextureTrail{
-                history_.Handle(), static_cast<float>(std::exp2(-elapsed / settings.half_life_)),
-                static_cast<float>(std::exp(settings.zoom_rate_ * elapsed)),
-                static_cast<float>(settings.rotation_rate_ * elapsed)};
+                history_.Handle(), static_cast<float>(std::exp2(-step / settings.half_life_)),
+                static_cast<float>(std::exp(settings.zoom_rate_ * step)),
+                static_cast<float>(settings.rotation_rate_ * step)};
     }
     renderer.Submit(target_.Handle(), draw);
     std::swap(history_, target_);

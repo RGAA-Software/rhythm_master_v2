@@ -15,6 +15,7 @@
 #include "rhythm/player/session.h"
 #include "rhythm/render/layout.h"
 #include "texture_ops.h"
+#include "trail_pass.h"
 
 namespace {
 void Present(rhythm::render::Renderer& renderer, rhythm::render::TextureHandle image,
@@ -369,6 +370,105 @@ int main(int argc, char* argv[]) {
                 Present(renderer, history.Handle(), {16, 16});
                 if (frame == count + 1) {
                     const auto path = (output / ("trail-" + std::to_string(scenario))).string();
+                    bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
+                }
+                renderer.EndFrame();
+            }
+        }
+        // Stall continuity through the runtime trail pass: a two-second gap must
+        // decay by the same capped 250 ms step as an exact 250 ms advance, never
+        // reseed. Scenario 3 stalls; scenario 4 is the matching steady reference.
+        std::vector<std::uint8_t> stalled_pixels;
+        for (int scenario = 3; scenario < 5; ++scenario) {
+            const std::array<std::uint8_t, 4> black_pixel{0, 0, 0, 0};
+            auto black = renderer.CreateTexture({1, 1}, black_pixel);
+            runtime::detail::TrailPass trail;
+            double seconds = 0;
+            renderer.BeginFrame();
+            trail.Draw(white.Handle(), {16, 16}, seconds, true, {0.5, 0, 0}, renderer);
+            renderer.EndFrame();
+            for (int frame = 1; frame <= 3; ++frame) {
+                renderer.BeginFrame();
+                seconds = frame / 30.0;
+                trail.Draw(black.Handle(), {16, 16}, seconds, true, {0.5, 0, 0}, renderer);
+                renderer.EndFrame();
+            }
+            auto inspection = renderer.CreateTexture({16, 16});
+            renderer.BeginFrame();
+            const auto image = trail.Draw(black.Handle(), {16, 16},
+                                          seconds + (scenario == 3 ? 2.0 : 0.25), true,
+                                          {0.5, 0, 0}, renderer);
+            render::DrawList copy;
+            copy.width_ = copy.height_ = 16;
+            runtime::detail::AppendTextureQuad(copy, image, 0xffffffff, 0xffffffff);
+            renderer.Submit(inspection.Handle(), copy);
+            auto ticket = renderer.RequestReadback(inspection.Handle());
+            renderer.EndFrame();
+            const auto capture = Complete(renderer, std::move(ticket));
+            if (capture.extent_ != render::Extent{16, 16})
+                throw std::runtime_error("effects.trail_stall_extent");
+            for (std::size_t offset = 0; offset < capture.rgba_.size(); ++offset) {
+                const auto channel = static_cast<int>(capture.rgba_[offset]);
+                // exp2(-(3/30 + 0.25) / 0.5) * 255 = 157: converged, not reseeded.
+                if (channel < 130 || channel > 180)
+                    throw std::runtime_error("effects.trail_stall_reseeded");
+                if (scenario == 4 &&
+                    std::abs(channel - static_cast<int>(stalled_pixels[offset])) > 4)
+                    throw std::runtime_error("effects.trail_stall_step_mismatch");
+            }
+            if (scenario == 3) stalled_pixels = capture.rgba_;
+            // Repeat the identical present so the asynchronous capture is stable.
+            for (int frame = 0; frame < 4; ++frame) {
+                renderer.BeginFrame();
+                Present(renderer, image, {16, 16});
+                if (frame == 3) {
+                    const auto path = (output / ("trail-" + std::to_string(scenario))).string();
+                    bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
+                }
+                renderer.EndFrame();
+            }
+        }
+        // Coverage edge fade: a fast rotating trail must fade at the frame border
+        // over a small margin instead of hard-clipping the decayed history. All
+        // four corners rotate out of frame at six degrees per step.
+        {
+            const std::array<std::uint8_t, 4> black_pixel{0, 0, 0, 0};
+            auto black = renderer.CreateTexture({1, 1}, black_pixel);
+            runtime::detail::TrailPass trail;
+            renderer.BeginFrame();
+            trail.Draw(white.Handle(), {32, 32}, 0, true, {5, 0, 180}, renderer);
+            renderer.EndFrame();
+            auto inspection = renderer.CreateTexture({32, 32});
+            renderer.BeginFrame();
+            const auto image =
+                    trail.Draw(black.Handle(), {32, 32}, 1 / 30.0, true, {5, 0, 180}, renderer);
+            render::DrawList copy;
+            copy.width_ = copy.height_ = 32;
+            runtime::detail::AppendTextureQuad(copy, image, 0xffffffff, 0xffffffff);
+            renderer.Submit(inspection.Handle(), copy);
+            auto ticket = renderer.RequestReadback(inspection.Handle());
+            renderer.EndFrame();
+            const auto capture = Complete(renderer, std::move(ticket));
+            if (capture.extent_ != render::Extent{32, 32})
+                throw std::runtime_error("effects.trail_edge_extent");
+            for (const auto base : {0, 31}) {
+                const auto direction = base == 0 ? 1 : -1;
+                const auto edge = [&](int index) {
+                    return Pixel(capture, base + direction * index, base + direction * index)[0];
+                };
+                // Hard coverage cuts step from 0 to full in one texel; the fade
+                // spreads the transition over a two-texel margin.
+                if (edge(0) >= 5 || edge(1) >= 60 || edge(2) < 100 || edge(2) > 220 ||
+                    edge(3) <= 240)
+                    throw std::runtime_error("effects.trail_edge_not_fading");
+            }
+            if (Pixel(capture, 16, 16)[0] <= 240)
+                throw std::runtime_error("effects.trail_edge_interior_dimmed");
+            for (int frame = 0; frame < 4; ++frame) {
+                renderer.BeginFrame();
+                Present(renderer, image, {32, 32});
+                if (frame == 3) {
+                    const auto path = (output / "trail-5").string();
                     bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
                 }
                 renderer.EndFrame();

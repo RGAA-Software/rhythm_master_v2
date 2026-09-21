@@ -51,7 +51,7 @@
 | W1.2 | 完整景深（2026-09-17 已交付） | Godot Circle/Box/Hex、quality/half-size、独立权重和最终 composite | D3D11 数值用例与动态相机“音律珐琅”121 帧通过；17 bytes/像素、3–4 pass 预算已记录，Android 实机留最终平台阶段 |
 | W1.3 | 环境与材质（2026-09-17 已交付） | Godot 分层样本、平方 GGX 分布、`sqrt(roughness)` LOD、反射弯折与 horizon 衰减 | 固定 HDR 金属粗糙度阶梯 192/185/110/22/9；Sonic Enamel 动态相机 121 帧通过，Android 实机留最终平台阶段 |
 | W1.4 | 粒子呈现（2026-09-17 已交付） | 纹理图集、形态/材质变化、软深度交界（Godot proximity fade）和分层体积感；保留现有 GPU 模拟合同 | 大小粒子边缘自然无硬块/重影；鎏光流涡细尘后置、火花前置的真实分层；音乐/静音/低/高频像素分工与作品切换资源回归通过，Android 实机留最终平台阶段 |
-| W1.5 | 时域与程序纹理 | 修复 trail/feedback 快速运动及回收边界；增加 domain warp/多频谱噪声；评估移动细线的 TAA/MSAA/FSR 路径 | 连续多周期无跳变；采用项有固定来源、短成本和实际作品收益，未采用项有明确结论 |
+| W1.5 | 时域与程序纹理（trail/feedback 2026-09-21 已交付） | 修复 trail/feedback 快速运动及回收边界；增加 domain warp/多频谱噪声；评估移动细线的 TAA/MSAA/FSR 路径 | 连续多周期无跳变；采用项有固定来源、短成本和实际作品收益，未采用项有明确结论 |
 
 W1 不要求一次嵌入整个 Godot。每项采用聚焦算法，保持项目公共句柄、所有权、bgfx 后端
 和 Windows D3D11 契约；来源、revision、哈希、许可及修改写入 `provenance/`。
@@ -90,6 +90,18 @@ center z 8.8 位于前方，贴近前景臂缘时按 soft_distance 衰减；2×2
 aureate_vortex_export_ui_gpu、scene_creation_gpu 通过。复验还暴露 W1.2 遗留问题：
 DoF 后端私有缓冲按尺寸缓存后只在渲染器销毁时释放，含 texture.dof 的作品切换后
 纹理字节无法回到基线；未使用尺寸组现已按帧末 epoch 语义回收。W1.4 整体关闭。
+
+W1.5 当前进度：trail/feedback 已对照 Godot 4.5.1 TAA（`taa_resolve.glsl`，溯源
+`provenance/trail_temporal.json`）完成修复。呈现停顿不再让拖尾重种子跳变，而是按
+封顶 250 ms 的衰减步连续收敛；反向/重复/暂停时间保持像素，seek/load 仍经
+generation 清空历史。旋转/缩放后的历史采样在画面边缘改为两 texel smoothstep
+淡出，消除覆盖硬切；单位变换边距为零，普通拖尾边缘零调光。空渲染器契约（停顿
+单步收敛、反向保持）与 D3D11 回读断言（2 秒停顿=157 与稳态参考逐像素一致、
+6°/帧旋转四角淡出 [0,1,158,254]、内部零调光）已固化为永久回归；既有 30/60 fps
+衰减一致性截图断言保持不变。运动矢量重投影、方差裁剪与 Catmull-Rom 历史采样
+对刻意残影效果无作品收益，未采用结论已记录。敦煌飘带（trail half_life 0.13 +
+zoom 0.006）静音/音乐 961 帧循环边界回归通过。domain warp/多频谱噪声与抗锯齿
+路径评估仍是本项后续，W1.5 尚未整体关闭。
 
 ### W2：现有作品统一升级与品质标尺
 

@@ -8,8 +8,9 @@ struct TrailSettings {
     double zoom_rate_ = 0;
     double rotation_rate_ = 0;
 };
-// Render-thread temporal state. Holds exactly two float targets. Repeated/paused
-// times preserve pixels; reverse time or gaps over 250 ms seed from the source.
+// Render-thread temporal state. Holds exactly two float targets. Repeated, paused
+// or reversed times preserve pixels; stalls longer than 250 ms decay by a bounded
+// step so hitches converge the trail instead of cutting it.
 class TrailPass final {
    public:
     render::TextureHandle Draw(render::TextureHandle source, render::Extent extent, double seconds,

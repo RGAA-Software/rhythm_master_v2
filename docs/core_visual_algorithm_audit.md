@@ -24,7 +24,7 @@
 | P1 | 阴影 | 已采用 Godot Nearest/PCF5/PCF13、稳定方向光投影、可选双级联和 cube 模式点光全向阴影；越界 PCF tap 会切换相邻面，全部 12 条 edge/8 个 corner、六方向、子网格、Porcelain Bloom、Chromatic Loom 和 Sonic Enamel 均有 D3D11 回读；点光六遍深度已有逐 view GPU 计时，仍只有单选择光源 | 继续评审与 Godot 硬件 cube 比较的差异、Android 实机、代表作品和多周期；四级联/分割混合按实际作品缺口再决定，保留 PCF5 和单图作为兼容默认档 |
 | 已交付 | 环境预滤波 | Godot 8/16/32/128 分层采样、平方 GGX 分布、`sqrt(roughness)` LOD、反射弯折与 horizon 衰减已接入现有线性图集；恒定环境保持能量 | 固定 HDR 阶梯 D3D11 回读为 192/185/110/22/9，Sonic Enamel 动态相机 121 帧通过；单一 2D 来源缺少 Godot cubemap mip/PDF，Android 实机复验留最终平台阶段 |
 | 已交付 | 粒子呈现 | 解析圆点连续柔边之上已接入纹理图集与每粒子形态变化（发射稳定随机选格、采样形状/色调调制解析包络、未接图集逐像素不变）、软深度交界（Godot proximity fade 良定义等价式，场景距离减粒子深度按带宽 smoothstep 衰减）和分层体积感；鎏光流涡细尘层置于旋涡臂后方、火花层置于前方，2×2 图集提供圆点/圆环/交叉条纹/火花四种形态 | bgfx 精灵表与 Godot 粒子材质变化、proximity fade 已聚焦采用并记录 provenance；Windows D3D11 探针数值、音乐/静音/低/高频像素分工与作品切换资源回归通过，Android 实机复验留最终平台阶段 |
-| P1 | trail/feedback | 单历史纹理缩放旋转并线性混合；快速运动、长尾和循环边界可能出现重影断层 | 对照 Godot motion/temporal 处理及成熟反馈实现，增加速度/衰减一致性和回收边界动态测试 |
+| 已交付 | trail/feedback | 停顿按封顶 250 ms 衰减步收敛（不再重种子跳变），反向/暂停保持像素；旋转/缩放历史在画面边缘两 texel 淡出，单位变换零调光；30/60 fps 衰减一致性、停顿连续性和边缘淡出均有 D3D11 回读断言 | 对照 Godot 4.5.1 TAA 去遮挡收敛原则（`provenance/trail_temporal.json`）；运动矢量重投影/方差裁剪/Catmull-Rom 对刻意残影效果无作品收益，结论已记录 |
 | P2 | 噪声与纹理生成 | TiXL 固定四 octave Perlin 可重复且范围有限，放大时可能暴露网格和频带单一 | 审查 Godot FastNoiseLite/纹理噪声；增加 domain warp、不同频谱层和抗走样后再决定迁移范围 |
 | P2 | 抗锯齿 | `glsl-fxaa` 是成熟实现且两端有像素证据，但单一 FXAA 会软化细线，也不解决时域闪烁 | 记录 Godot MSAA/TAA/FSR 路径的能力和成本；Windows 先做细线运动与粒子闪烁对照 |
 
