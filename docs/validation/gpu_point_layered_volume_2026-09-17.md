@@ -66,18 +66,21 @@ pass. One noted flake: the first post-fix run failed
 spike; four consecutive runs pass with warm caches. `docs/depth_pipeline.md`
 now records the frame-end retirement.
 
-Host migration note: the deploy gate flagged the media DLLs because
-`out/vcpkg-media-lgpl` was rebuilt on this host on 2026-09-16 from the
-validated manifest (FFmpeg n6.1.1#11, port tree 15b90b33, zlib 1.3.1) while
-`provenance/media_lgpl_windows.json` pinned hashes from the previous host.
-The documented evidence suites were re-run against the rebuilt binaries —
-video (`out/media-lgpl-video-tests.log.runs/1789611853628441900.log`), audio
+Host migration note (corrected 2026-09-21): the deploy gate flagged the media
+DLLs in a sibling checkout (`D:/source/rhythm_master_v2`), where
+`out/vcpkg-media-lgpl` had been rebuilt on 2026-09-16 from the validated
+manifest (FFmpeg n6.1.1#11, port tree 15b90b33, zlib 1.3.1). The documented
+evidence suites were re-run against those rebuilt binaries — video
+(`out/media-lgpl-video-tests.log.runs/1789611853628441900.log`), audio
 (`.../1789611854312298000.log`), playback
 (`.../1789611855093690500.log`), all green — and
-`tools/prepare-media-notices.py` re-measured the profile: identical LGPL
+`tools/prepare-media-notices.py` re-measured the profile there: identical LGPL
 license string and configuration flags (only install paths changed), new
 Release/Debug DLL hashes and a regenerated source archive. The Studio deploy
-validation then passed and `rhythm_master.exe` deploys again.
+validation then passed in that checkout. Those v2-measured hashes were
+committed to this repository by mistake; they never matched this checkout's
+binaries, and the profile was restored to the original validated values on
+2026-09-21 (`validation/media_profile_revert_2026-09-21.md`).
 
 Android device revalidation stays in the final platform phase. W1.4 is
 closed; remaining particle work moves to W1.5 temporal/recycling review.
