@@ -159,6 +159,7 @@ if(BUILD_TESTING)
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/gpu_attribute_profile.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/quality_baseline_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/fxaa_gpu.cpp"
+        "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/antialiasing_motion_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/color_pipeline_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/depth_gpu.cpp"
         "${PROJECT_SOURCE_DIR}/src/rhythm_render/tests/lights_gpu.cpp"

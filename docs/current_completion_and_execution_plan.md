@@ -51,7 +51,7 @@
 | W1.2 | 完整景深（2026-09-17 已交付） | Godot Circle/Box/Hex、quality/half-size、独立权重和最终 composite | D3D11 数值用例与动态相机“音律珐琅”121 帧通过；17 bytes/像素、3–4 pass 预算已记录，Android 实机留最终平台阶段 |
 | W1.3 | 环境与材质（2026-09-17 已交付） | Godot 分层样本、平方 GGX 分布、`sqrt(roughness)` LOD、反射弯折与 horizon 衰减 | 固定 HDR 金属粗糙度阶梯 192/185/110/22/9；Sonic Enamel 动态相机 121 帧通过，Android 实机留最终平台阶段 |
 | W1.4 | 粒子呈现（2026-09-17 已交付） | 纹理图集、形态/材质变化、软深度交界（Godot proximity fade）和分层体积感；保留现有 GPU 模拟合同 | 大小粒子边缘自然无硬块/重影；鎏光流涡细尘后置、火花前置的真实分层；音乐/静音/低/高频像素分工与作品切换资源回归通过，Android 实机留最终平台阶段 |
-| W1.5 | 时域与程序纹理（trail/feedback、噪声频谱 2026-09-21 已交付） | 修复 trail/feedback 快速运动及回收边界；增加 domain warp/多频谱噪声；评估移动细线的 TAA/MSAA/FSR 路径 | 连续多周期无跳变；采用项有固定来源、短成本和实际作品收益，未采用项有明确结论 |
+| W1.5 | 时域与程序纹理（2026-09-21 已交付） | 修复 trail/feedback 快速运动及回收边界；增加 domain warp/多频谱噪声；评估移动细线的 TAA/MSAA/FSR 路径 | 连续多周期无跳变；采用项有固定来源、短成本和实际作品收益，未采用项有明确结论 |
 
 W1 不要求一次嵌入整个 Godot。每项采用聚焦算法，保持项目公共句柄、所有权、bgfx 后端
 和 Windows D3D11 契约；来源、revision、哈希、许可及修改写入 `provenance/`。
@@ -106,7 +106,11 @@ FastNoiseLite 与 TiXL 上游 PerlinNoise2d（溯源 `provenance/noise_spectral.
 roughness(0-1) 提供频谱层控制，可选带限按晶格 footprint 淡出越 2 像素的
 octave；默认参数与旧实现逐字节一致（git stash 基线对照），带限输出与显式
 octaves=3 渲染逐像素一致、量程内零副作用均有 D3D11 回读断言。抗锯齿路径
-评估仍是本项后续，W1.5 尚未整体关闭。
+评估已对照 Godot MSAA/SMAA/TAA/FSR1/FSR2 完成（溯源
+`provenance/aa_paths.json`）：保留按节点可选 FXAA，TAA/FSR2 运动矢量依赖
+与刻意时域效果冲突拒绝，MSAA 触及不到纹理链锯齿主源，SMAA 记为候选升级，
+FSR1 留 Android 性能阶段；细线/粒子亚像素运动对照量化了 FXAA 软化与
+时域闪烁保留（`windows_aa_motion_gpu` 永久回归）。W1.5 整体关闭。
 
 ### W2：现有作品统一升级与品质标尺
 

@@ -36,6 +36,7 @@ void VerifyImageProgram(render::Renderer& renderer, const std::filesystem::path&
 void VerifySceneShadows(render::Renderer& renderer);
 void VerifyColorPipeline(render::Renderer& renderer);
 void VerifyFxaa(render::Renderer& renderer);
+void VerifyAntialiasingMotion(render::Renderer& renderer);
 void VerifyGpuParticles(render::Renderer& renderer);
 void VerifySceneInstances(render::Renderer& renderer,
                           std::optional<render::SurfaceProgramInput> surface = {});

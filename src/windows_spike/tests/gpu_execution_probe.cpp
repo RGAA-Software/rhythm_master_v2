@@ -35,6 +35,10 @@ int main(int argc, char* argv[]) {
             rhythm::validation::VerifyFxaa(renderer);
             return 0;
         }
+        if (argc == 2 && std::string_view(argv[1]) == "--aa-motion") {
+            rhythm::validation::VerifyAntialiasingMotion(renderer);
+            return 0;
+        }
         if (argc == 2 && std::string_view(argv[1]) == "--morph") {
             rhythm::validation::VerifyMeshMorph(renderer);
 #if defined(RHYTHM_MODEL_IMAGE_PROBE)

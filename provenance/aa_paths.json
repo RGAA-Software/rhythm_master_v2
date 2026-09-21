@@ -1,0 +1,38 @@
+{
+    "source_url": "https://github.com/godotengine/godot",
+    "revision": "cb41ea115914c61a8329087b4cffbad7477b8427",
+    "license": "MIT",
+    "notice": "third_party/notices/godot/LICENSE.txt",
+    "reference_files": [
+        {
+            "file": "servers/rendering/renderer_rd/effects/taa.h",
+            "sha256": "b488611d85234ab628d0bbf428700d2d2d285121ec542d904242d1d4db6b0ee8"
+        },
+        {
+            "file": "servers/rendering/renderer_rd/effects/fsr.cpp",
+            "sha256": "aa0e0f73f133fe1e2a0b036ad8edc0c1540b87bedfb7f3975f8f2a85c98bca3d"
+        },
+        {
+            "file": "servers/rendering/renderer_rd/effects/fsr2.h",
+            "sha256": "1f5df9818f291bd1075ac1d9bd632d589ea794112ee1ccba9c51dc6be8375a2b"
+        },
+        {
+            "file": "servers/rendering/renderer_rd/effects/smaa.h",
+            "sha256": "5001efa75d78ab4230f48fb126848db9309be87f953dc15bee3b9e181ce2cb0c"
+        }
+    ],
+    "targets": [
+        "docs/antialiasing.md",
+        "src/rhythm_render/tests/antialiasing_motion_gpu.cpp"
+    ],
+    "modifications": [
+        "Capability and cost evaluation only; no Godot code is copied or translated.",
+        "TAA (taa.h): resolve() requires depth, velocity, previous velocity and history textures plus camera jitter. Rejected: the graph has no motion-vector buffer, authored trail/feedback nodes are deliberate temporal effects that jitter would fight, and W1.5a already rejected velocity reprojection for the 2D texture chain.",
+        "FSR 1.0 (fsr.cpp): spatial two-pass upscaler (EASU + RCAS), an upscaling/performance feature rather than native-resolution antialiasing. Deferred to the final platform stage as an Android performance candidate, not an AA path.",
+        "FSR 2 (fsr2.h): temporal upscaler requiring depth, velocity and reactive mask inputs through multiple passes. Rejected for the same motion-vector dependency as TAA.",
+        "SMAA (smaa.h): three passes (edge detection with stencil, weight calculation with precomputed area/search lookup textures, blending). Better thin-line geometry preservation than FXAA, recorded as the candidate upgrade if an authored work demonstrates FXAA line softening as a defect.",
+        "MSAA: render-target sample counts only help rasterized geometry edges and require resolve before sampling; the dominant aliasing source in authored works is texture-chain content (noise, trails, glow), which MSAA cannot touch. No authored work currently shows 3D mesh edge aliasing, so no MSAA target is introduced.",
+        "Decision: keep the per-node opt-in FXAA as the shipped AA path; the moving thin-line/particle comparison (windows_aa_motion_gpu) quantifies its softening and confirms temporal flicker persists, matching the audit expectation."
+    ],
+    "outbound_license": "not selected; no Godot code incorporated"
+}
