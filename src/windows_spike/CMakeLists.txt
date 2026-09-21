@@ -176,6 +176,8 @@ if(BUILD_TESTING)
         --image-program "${PROJECT_BINARY_DIR}/image-shader-profile/windows.bin")
     set_tests_properties(windows_image_program_gpu PROPERTIES FIXTURES_REQUIRED image_shader_profile TIMEOUT 30 RUN_SERIAL TRUE)
     set_tests_properties(windows_gpu_execution_probe PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE)
+    add_test(NAME windows_aa_motion_gpu COMMAND windows_gpu_execution_probe --aa-motion)
+    set_tests_properties(windows_aa_motion_gpu PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE)
     add_executable(shadow_work_gpu_tests tests/shadow_work_gpu_tests.cpp)
     target_link_libraries(shadow_work_gpu_tests PRIVATE platform_sdl project_io prepared_assets
         graph_runtime spike_bgfx)
@@ -481,7 +483,7 @@ if(BUILD_TESTING)
         set_tests_properties(spectral_nebula_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME sonic_enamel_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"
             --executable "$<TARGET_FILE:music_gpu_tests>" --package "${PROJECT_BINARY_DIR}/content/packages/sonic_enamel.rhythmpack"
-            --expected-nodes 63 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
+            --expected-nodes 64 --fixtures "${PROJECT_BINARY_DIR}/music-fixtures"
             --output "${PROJECT_BINARY_DIR}/sonic-enamel-music-captures")
         set_tests_properties(sonic_enamel_music_gpu PROPERTIES FIXTURES_REQUIRED music_pcm TIMEOUT 120 RUN_SERIAL TRUE)
         add_test(NAME aurora_braid_music_gpu COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/tools/test-music-gpu.py"

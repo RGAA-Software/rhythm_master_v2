@@ -25,6 +25,7 @@ RENDER_ADAPTERS = {
         "bgfx_scene_skin.h", "bgfx_scene_skin.cpp",
         "bgfx_scene_morph.h", "bgfx_scene_morph.cpp",
         "bgfx_scene_environment.h", "bgfx_scene_environment.cpp",
+        "bgfx_depth_of_field.h", "bgfx_depth_of_field.cpp",
         "bgfx_gpu_points.h", "bgfx_gpu_points.cpp",
         "bgfx_surface_programs.h", "bgfx_surface_programs.cpp",
         "bgfx_texture_programs.h", "bgfx_texture_programs.cpp")
